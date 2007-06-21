@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/jeff/workspace/spectromicroscopy/spectromicroscopy//GearHead.ui'
 #
-# Created: Thu Jun 21 16:04:57 2007
+# Created: Thu Jun 21 16:56:41 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -39,10 +39,6 @@ class Ui_MotorHead(object):
         self.pushButton = QtGui.QPushButton(self.MotorTab)
         self.pushButton.setGeometry(QtCore.QRect(20,480,75,23))
         self.pushButton.setObjectName("pushButton")
-
-        self.Motors = QtGui.QTreeWidget(self.MotorTab)
-        self.Motors.setGeometry(QtCore.QRect(480,60,201,251))
-        self.Motors.setObjectName("Motors")
 
         self.label_motors = QtGui.QLabel(self.MotorTab)
         self.label_motors.setGeometry(QtCore.QRect(490,40,181,16))
@@ -100,6 +96,10 @@ class Ui_MotorHead(object):
         self.Positioner = QtGui.QSpinBox(self.MotorTab)
         self.Positioner.setGeometry(QtCore.QRect(470,320,46,23))
         self.Positioner.setObjectName("Positioner")
+
+        self.MotorsTree = QtGui.QTreeWidget(self.MotorTab)
+        self.MotorsTree.setGeometry(QtCore.QRect(480,60,201,251))
+        self.MotorsTree.setObjectName("MotorsTree")
         self.Tabby.addTab(self.MotorTab,"")
 
         self.Graphing = QtGui.QWidget()
@@ -309,7 +309,7 @@ class Ui_MotorHead(object):
         self.Bar.setObjectName("Bar")
         MotorHead.setMenuBar(self.Bar)
         self.label_responses.setBuddy(self.Responses)
-        self.label_motors.setBuddy(self.Motors)
+        self.label_motors.setBuddy(self.MotorsTree)
         self.label.setBuddy(self.MaxVal)
         self.label_2.setBuddy(self.MinVal)
         self.label_3.setBuddy(self.Zoomer)
@@ -334,8 +334,8 @@ class Ui_MotorHead(object):
         MotorHead.setTabOrder(self.saveras,self.ChangeFile)
         MotorHead.setTabOrder(self.ChangeFile,self.CommandLine)
         MotorHead.setTabOrder(self.CommandLine,self.saver)
-        MotorHead.setTabOrder(self.saver,self.Motors)
-        MotorHead.setTabOrder(self.Motors,self.Tabby)
+        MotorHead.setTabOrder(self.saver,self.MotorsTree)
+        MotorHead.setTabOrder(self.MotorsTree,self.Tabby)
         MotorHead.setTabOrder(self.Tabby,self.pushButton)
         MotorHead.setTabOrder(self.pushButton,self.ClearLog)
         MotorHead.setTabOrder(self.ClearLog,self.MaxVal)

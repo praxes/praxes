@@ -6,7 +6,7 @@ This program is a Graphical User interface for X-ray Spectroscopy
 ###############################################################################################
 ######################Use this to set the mode of the program##################################
 DEBUG=0       #if set to 1 it deactivates spec commands
-Rollcall=1    #if set to 1 it auto starts spec -s on roll.chess.cornell.edu and connects
+Rollcall=2    #if set to 1 it auto starts spec -s on roll.chess.cornell.edu and connects
               #if set to 2 it wont autostart but will autoconnect 
 OS="linux"    #set to linux or windows
 
@@ -50,8 +50,8 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
-        self.Motors.setColumnCount(1)
-        self.Motors.setHeaderLabel("motors")
+        self.MotorsTree.setColumnCount(1)
+        self.MotorsTree.setHeaderLabel("motors")
     #Connects to the diffrent buttons
         QtCore.QObject.connect(self.ChangeFile, QtCore.SIGNAL("clicked()"), self.file_dialog)
         QtCore.QObject.connect(self.saver,QtCore.SIGNAL("clicked()"), self.file_save)
@@ -63,7 +63,8 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         QtCore.QObject.connect(self.EStop,QtCore.SIGNAL("clicked()"),self.EmergencyStop)
         QtCore.QObject.connect(self.ReStart,QtCore.SIGNAL("clicked()"),self.reStart)
         QtCore.QObject.connect(self.CommandLine, QtCore.SIGNAL("returnPressed()"),self.input)
-        QtCore.QObject.connect(self.Motors,QtCore.SIGNAL("itemSelectionChanged ()"),self.motorselect)
+        QtCore.QObject.connect(self.MotorsTree,QtCore.SIGNAL("itemSelectionChanged ()"),self.motorselect)
+        QtCore.QObject.connect(self.Mover,QtCore.SIGNAL("clicked()"),self.cmdMove)
     #Sets up Response/log Window
         if OS=="windows":
             self.path=os.path.join(os.path.expanduser("~"),"My Documents/labwork/testing/src")
@@ -81,6 +82,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         self.command=''
         sys.stdout=self
         self.specrun=SpecRunner(DEBUG,Rollcall,self)
+        self.runspec()
         time=strftime("%a, %d %b %Y %H:%M:%S", localtime())
         print "\n New Session started (%s)\n Enter spec server hostname: "%time
         
@@ -94,16 +96,18 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         elif not self.specrun.getspecport():
             self.specrun.setspecport(self.command)
             print " Port set as %s"%self.command
-        elif not self.specrun.serverconnect():
-            print " Invalid Host or Server"
-        elif not self.specrun.getmotors():
-            print " Connected to %s on %s"%(self.specrun.getspechost(),\
-                                              self.specrun.getspecport())
-            self.specrun.readmotors()
-            readmotors=self.specrun.getmotors()
-            for i in range(len(readmotors)):
-                self.specrun.readvariables(readmotors[i])
-            #self.motorselect()
+            try:
+                connection=self.specrun.serverconnect()
+                print " Connected to %s on %s"%(self.specrun.getspecport(),\
+                                                  self.specrun.getspechost())
+            except:
+                print " Invalid Host or Server"
+            if connection:
+                self.specrun.readmotors()
+                readmotors=self.specrun.getmotors()
+                for i in range(len(readmotors)):
+                    self.specrun.readvariables(readmotors[i])
+                self.motorget()
         elif not self.specrun.getmotor():
             print " Select a motor"
             self.specrun.setmotor(self.command)
@@ -115,7 +119,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             self.specrun.setcmd(self.command)
             self.specrun.runcmd() 
         else:
-            pass
+            print ":P"
         
 
     def input(self):
@@ -221,26 +225,47 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         except: 
             os.system("dir")
 
-    def motorselect(self):
+    def motorget(self):
         # TODO: rework work with new design
-        dict={}
+        self.motordict={}
+        self.motorwidget=[]
+        self.motornames=[]
         for i in range(len(self.specrun.getmotors())):
-            dict[self.motordisplay[i]]=self.motorwidget[i]
-        if self.Motors.selectedItems()[0] in dict.keys():
-            self.selected=dict[self.UI.ui.Motors.selectedItems()[0]]
-            self.UI.write("\n **%s selected**"%self.UI.ui.Motors.selectedItems()[0].text(0))
+            if DEBUG==1:
+                self.motornames.append(self.spec[i])
+                NameString=motors[i]
+            else:
+                NameString=self.specrun.getmotors()[i]
+            self.motorwidget.append(QtGui.QTreeWidgetItem(self.MotorsTree))
+            self.motorwidget[i].setText(0,NameString)
+            self.motornames.append(NameString)
+            self.motordict[self.motorwidget[i]]=self.motornames[i]
+    def motorselect(self):
+        if self.MotorsTree.selectedItems()[0] in self.motordict.keys():
+            selection=self.motordict[self.MotorsTree.selectedItems()[0]]
+            self.specrun.setmotor(selection)
+            print "\n **%s selected**"%selection
             if DEBUG==1:            
                 min = 30
                 max = 100
             else:
-                (min,max)=self.selected.getLimits()
-            self.UI.ui.MoveBar.setRange(min,max)
-            self.UI.ui.Positioner.setRange(min,max)
-            self.UI.write("\n Select a Variable")
+                (min,max)=self.specrun.getmotorlimits(selection)
+            self.MoveBar.setRange(min,max)
+            self.Positioner.setRange(min,max)
+            self.write("\n Select a Variable")
         else:
-            self.UI.write("\n select a motor first")
-
+            print self.MotorsTree.selectedItems()[0]
+            self.write("\n select a motor first")
+            
+            
+            """for j in range(len(self.varnames)):
+                self.variables.append(self.varnames[j])
+                self.vardisplay.append(QtGui.QTreeWidgetItem(self.motordisplay[i]))
+                VarString=self.variables[j]
+                self.vardisplay[k].setText(0,VarString)
+                k+=1"""
     def varselect(self):
+        #todo make this work
         if not self.var:
             dict={}
             for i in range(len(self.variables)):
@@ -248,7 +273,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             if self.UI.ui.Motors.selectedItems()[0] in dict.keys():
                 self.var=dict[self.UI.ui.Motors.selectedItems()[0]]
                 self.UI.write("\n **%s to be monitored** \n Select  a command to run asynchronously: "%self.var)
-                QtCore.QObject.connect(self.UI.ui.Mover,QtCore.SIGNAL("clicked()"),self.cmdMove)
+                
     def cmdMove(self):
         cmd="move(%s)"%self.Positioner.value()
         self.specrun.setcmd(cmd)
@@ -256,7 +281,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             
     def reStart(self):
         self.specrun=SpecRunner()
-        self.Motors.clear()
+        self.MotorsTree.clear()
         self.write("\n Enter spec server hostname: ")
         self.clearlog()
         
@@ -377,6 +402,8 @@ if __name__ == "__main__":
             if DEBUG!=2:
                 print "SSH session login successful"
                 s.sendline ('spec -S')
+                s.prompt()
+                print s.before
             else:
                 print "DEBUG=2 +Connect"
     myapp = MyUI()

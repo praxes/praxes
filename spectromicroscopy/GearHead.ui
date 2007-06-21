@@ -78,16 +78,6 @@
        <string>Close</string>
       </property>
      </widget>
-     <widget class="QTreeWidget" name="Motors" >
-      <property name="geometry" >
-       <rect>
-        <x>480</x>
-        <y>60</y>
-        <width>201</width>
-        <height>251</height>
-       </rect>
-      </property>
-     </widget>
      <widget class="QLabel" name="label_motors" >
       <property name="geometry" >
        <rect>
@@ -112,7 +102,7 @@
        <set>Qt::AlignCenter</set>
       </property>
       <property name="buddy" >
-       <cstring>Motors</cstring>
+       <cstring>MotorsTree</cstring>
       </property>
      </widget>
      <widget class="QPushButton" name="saveras" >
@@ -243,6 +233,16 @@
         <y>320</y>
         <width>46</width>
         <height>23</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QTreeWidget" name="MotorsTree" >
+      <property name="geometry" >
+       <rect>
+        <x>480</x>
+        <y>60</y>
+        <width>201</width>
+        <height>251</height>
        </rect>
       </property>
      </widget>
@@ -840,7 +840,7 @@
   <tabstop>ChangeFile</tabstop>
   <tabstop>CommandLine</tabstop>
   <tabstop>saver</tabstop>
-  <tabstop>Motors</tabstop>
+  <tabstop>MotorsTree</tabstop>
   <tabstop>Tabby</tabstop>
   <tabstop>pushButton</tabstop>
   <tabstop>ClearLog</tabstop>

@@ -106,6 +106,7 @@ class SpecRunner:
     def getspecport(self):
         return self._specPort
     def serverconnect(self):
+        print "connecting..."
         try:
             if self.DEBUG==1:
                 self._spec=("motor0","motor1","motor2")
@@ -115,6 +116,7 @@ class SpecRunner:
                     self._specHost="roll.chess.cornell.edu"
                     self._specPort="spec"
                 self._spec = Spec.Spec(self._specHost + ":" + self._specPort, 500)
+            print "Connected!"
             return True
         except:
             return False
@@ -125,6 +127,7 @@ class SpecRunner:
                 self._motors[motornames[i]]=motornames[i]
         else:
             motornames=self._spec.getMotorsMne()
+            motors=[]
             for i in range(len(motornames)):
                 motors.append(SpecMotor.SpecMotor(self._spec.motor_name(i),\
                                                   self._specHost + ":" + self._specPort, 500))
@@ -149,7 +152,9 @@ class SpecRunner:
         if motor in self._motors.keys():
             self._motor=self._motors[motor]
     def getmotor(self):
-        return self._motor
+        return self._motor.motor_name()
+    def getmotorlimits(self,nameOfMotor):
+        return self._motors[nameOfMotor].getLimits()
     def setvar(self,motor,var):
         if var in self._variables[motor]:
             self._var=var
@@ -162,16 +167,17 @@ class SpecRunner:
     def getcmd(self,cmd):
         return self.cmd           
     def runcmd(self):
-        self.cmd=self.cmd.split(' ')
+        self._cmd=self._cmd.split(' ')
         if self.DEBUG==1 or self.DEBUG==2:
-            for i in range(len(self.cmd)):
-                print "\n**It will %s**"%self.cmd[i]
+            for i in range(len(self._cmd)):
+                print "\n**It will %s**"%self._cmd[i]
         else:
             print "working"
-            motorMon = TestSpecMotor(self.motor, self.specHost+":"+self.specPort)
-            variableMon = TestSpecVariable(self.var, self.specHost+":"+self.specPort)
-            commandMon = TestSpecCommand(self.cmd[0], self.specHost+":"+self.specPort)
-            commandMon(self.cmd[1])
+            #TODO understand and moridy this code
+            motorMon = TestSpecMotor(self._motor, self._specHost+":"+self._specPort)
+            variableMon = TestSpecVariable(self._var, self._specHost+":"+self._specPort)
+            commandMon = TestSpecCommand(self._cmd[0], self._specHost+":"+self._specPort)
+            commandMon(self._cmd[1])
             while motorMon.isConnected() and variableMon.isConnected():
                 SpecEventsDispatcher.dispatch()
     
