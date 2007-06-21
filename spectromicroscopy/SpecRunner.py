@@ -96,7 +96,7 @@ class SpecRunner:
         self._motor=None
         if parent:
             sys.stdout=parent
-
+        print "spec is on"
     def setspechost(self,spechost):
         self._specHost=spechost
     def getspechost(self):
@@ -119,14 +119,17 @@ class SpecRunner:
         except:
             return False
     def readmotors(self):
-        if self.DEBUG!=1:
-            motornames=self._spec.getMotorsMne()
-        else:
+        if self.DEBUG==1:
             motornames=("motor0","motor1","motor2")
-        for i in range(len(motornames)):
-            motors.append(SpecMotor.SpecMotor(self._spec.motor_name(i),\
-                                              self._specHost + ":" + self._specPort, 500))
-            self._motors[motornames[i]]=motors[i]
+            for i in range(len(motornames)):
+                self._motors[motornames[i]]=motornames[i]
+        else:
+            motornames=self._spec.getMotorsMne()
+            for i in range(len(motornames)):
+                motors.append(SpecMotor.SpecMotor(self._spec.motor_name(i),\
+                                                  self._specHost + ":" + self._specPort, 500))
+                self._motors[motornames[i]]=motors[i]
+                
     def readvariables(self,motor):
         if self.DEBUG!=1:
             pass
@@ -143,7 +146,8 @@ class SpecRunner:
     def getvars(self,motor):
         return self._variables[motor]
     def setmotor(self,motor):
-        self._motor=self._motors[motor]
+        if motor in self._motors.keys():
+            self._motor=self._motors[motor]
     def getmotor(self):
         return self._motor
     def setvar(self,motor,var):
@@ -160,7 +164,6 @@ class SpecRunner:
     def runcmd(self):
         self.cmd=self.cmd.split(' ')
         if self.DEBUG==1 or self.DEBUG==2:
-            print self.selected
             for i in range(len(self.cmd)):
                 print "\n**It will %s**"%self.cmd[i]
         else:

@@ -1,1 +1,17 @@
+find source of "\n" into write
+devige GUI into severl sub programs one for each tab
+document all my programing so far
+
+
+have Phil isntall spec on my computer
+ - need to conecto to and manipulat motor variables
+ - numeric and array MCA data
  
+ data interface = seperate gui
+ emebed matplotlib into qt4
+ ipython into qt4
+ 
+ PyMca advance fit module
+ 
+ SMP = mainwindow - embed MotorGui, data interp into it.
+  

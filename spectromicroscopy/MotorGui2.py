@@ -5,13 +5,13 @@ This program is a Graphical User interface for X-ray Spectroscopy
 
 ###############################################################################################
 ######################Use this to set the mode of the program##################################
-DEBUG=1       #if set to 1 it deactivates spec commands
-Rollcall=0    #if set to 1 it auto starts spec -s on roll.chess.cornell.edu and connects
+DEBUG=0       #if set to 1 it deactivates spec commands
+Rollcall=1    #if set to 1 it auto starts spec -s on roll.chess.cornell.edu and connects
               #if set to 2 it wont autostart but will autoconnect 
 OS="linux"    #set to linux or windows
 
 ##############################################################################################
-
+  
 #file Manipulation
 import sys, os, codecs
 from os.path import isfile
@@ -46,7 +46,7 @@ from SpecRunner import SpecRunner
 
 class MyUI(Ui_MotorHead,QtGui.QMainWindow):
     """Any and all things GUI"""
-    command=''
+    
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
@@ -57,13 +57,13 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         QtCore.QObject.connect(self.saver,QtCore.SIGNAL("clicked()"), self.file_save)
         QtCore.QObject.connect(self.saveras,QtCore.SIGNAL("clicked()"), self.file_saveas)
         QtCore.QObject.connect(self.ClearLog, QtCore.SIGNAL("clicked()"), self.clearlog)
-        QtCore.QObject.connect(self.Runner,QtCore.SIGNAL("clicked()"),self.runner)
-        QtCore.QObject.connect(self.MacroSave, QtCore.SIGNAL("clicked()"),self.macro)
+        QtCore.QObject.connect(self.Runner,QtCore.SIGNAL("clicked()"),self.konsole)
+        QtCore.QObject.connect(self.MacroSave, QtCore.SIGNAL("clicked()"),self.macrosave)
         QtCore.QObject.connect(self.changer,QtCore.SIGNAL("clicked()"),self.change)       
         QtCore.QObject.connect(self.EStop,QtCore.SIGNAL("clicked()"),self.EmergencyStop)
         QtCore.QObject.connect(self.ReStart,QtCore.SIGNAL("clicked()"),self.reStart)
         QtCore.QObject.connect(self.CommandLine, QtCore.SIGNAL("returnPressed()"),self.input)
-        QtCore.QObject.connect(self.Motors,QtCore.SIGNAL("itemSelectionChanged ()"),self.MotorSelect)
+        QtCore.QObject.connect(self.Motors,QtCore.SIGNAL("itemSelectionChanged ()"),self.motorselect)
     #Sets up Response/log Window
         if OS=="windows":
             self.path=os.path.join(os.path.expanduser("~"),"My Documents/labwork/testing/src")
@@ -75,32 +75,72 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         self.Responses.setPlainText(s)
     #Sets up the Menus:
         #TODO: setup menus more
-        self.Bar.addAction("New Macro",self.Macro)
-        self.Bar.addAction("Old Macro",self.tester)
-        time=strftime("%a, %d %b %Y %H:%M:%S", localtime())
-        self.write("\n New Session started ("+time+")\n Enter spec server hostname: ") 
+        self.Bar.addAction("New Macro",self.macro)
+        self.Bar.addAction("Old Macro",self.tester) 
     #SETS UP THE RUN
-        self.SpecRun=SpecRunner(DEBUG,Rollcall,self)
-        #while 1:
-            #pass
-                    
+        self.command=''
+        sys.stdout=self
+        self.specrun=SpecRunner(DEBUG,Rollcall,self)
+        time=strftime("%a, %d %b %Y %H:%M:%S", localtime())
+        print "\n New Session started (%s)\n Enter spec server hostname: "%time
         
+
+            
+    def runspec(self):
+
+        if not self.specrun.getspechost():
+            self.specrun.setspechost(self.command)
+            print " Host set as %s \n Select a Port"%self.command
+        elif not self.specrun.getspecport():
+            self.specrun.setspecport(self.command)
+            print " Port set as %s"%self.command
+        elif not self.specrun.serverconnect():
+            print " Invalid Host or Server"
+        elif not self.specrun.getmotors():
+            print " Connected to %s on %s"%(self.specrun.getspechost(),\
+                                              self.specrun.getspecport())
+            self.specrun.readmotors()
+            readmotors=self.specrun.getmotors()
+            for i in range(len(readmotors)):
+                self.specrun.readvariables(readmotors[i])
+            #self.motorselect()
+        elif not self.specrun.getmotor():
+            print " Select a motor"
+            self.specrun.setmotor(self.command)
+        elif not self.specrun.getvar():
+            print " **%s selected**\n Select a variable"%self.specrun.getmotor()
+            self.setvar(self.command)
+        elif not self.specrun.getcmd():
+            print " %s to be monitored \n Select  a command to run asynchronously: "%self.var
+            self.specrun.setcmd(self.command)
+            self.specrun.runcmd() 
+        else:
+            pass
+        
+
     def input(self):
         """converts a string from the textbox into motors and variables"""
         self.command=self.CommandLine.text()
         self.CommandLine.clear()
-        self.write("\n>>>>%s"%self.command)
+        print "\n>>>>%s"%self.command
+        self.runspec()
         
     def write(self,string):
+        """stdout for program, displays on the Responses screen"""
         if isfile (self.filename):
-            s = codecs.open(self.filename,'a','utf-8')
-            s.write(unicode(string))
-            self.last_written=string
-            s.close()
-            s=codecs.open(self.filename,'r','utf-8').read()
-            self.Responses.setPlainText(s)  
+            if string!="\n":
+                s = codecs.open(self.filename,'a','utf-8')
+                s.write(unicode(string))
+                self.last_written=string
+                sys.stdout=sys.__stdout__
+                print self.last_written
+                sys.stdout=self
+                s.close()
+                s=codecs.open(self.filename,'r','utf-8').read()
+                self.Responses.append(string)
+
     def EmergencyStop(self):
-        self.SpecRun.EmergencyStop() 
+        self.specrun.EmergencyStop() 
     
 #Most of the Methods are self explanitory
     def clearlog(self):
@@ -108,8 +148,8 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             self.Responses.clear()
             s = codecs.open(self.filename,'w','utf-8')
             s.write(unicode(self.Responses.toPlainText()))
+            s.close()
             self.write(self.last_written)
-            self.Responses.scrollToAnchor(self.last_written)
     def file_dialog(self):
         fd = QtGui.QFileDialog(self)
         self.filename = fd.getOpenFileName()
@@ -131,7 +171,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             s.close()
             self.filename=self.currentfile   
 
-    def runner(self):
+    def konsole(self):
         self.Display.append(">>>"+self.KonsoleEm.toPlainText())
         Kommands=self.KonsoleEm.toPlainText().split(";")
         if OS=="windows":#long way around pexpect not working with Windows
@@ -160,13 +200,13 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
                 doingit=run(Kommand)
                 self.Display.append(doingit)
                       
-    def Macro(self):
+    def macro(self):
         if OS=="windows":
             print "signal sent"
         else:
             os.system("gedit")
         
-    def macro(self):
+    def macrosave(self):
         fd = QtGui.QFileDialog(self)
         self.filename = fd.getSaveFileName()
         s = codecs.open(self.filename,'w','utf-8')
@@ -181,27 +221,27 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         except: 
             os.system("dir")
 
-    def MotorSelect(self):
+    def motorselect(self):
         # TODO: rework work with new design
-        if not self.selected:        
-            dict={}
-            for i in range(len(self.motordisplay)):
-                dict[self.motordisplay[i]]=self.motornames[i]
-            if self.UI.ui.Motors.selectedItems()[0] in dict.keys():
-                self.selected=dict[self.UI.ui.Motors.selectedItems()[0]]
-                self.UI.write("\n **%s selected**"%self.UI.ui.Motors.selectedItems()[0].text(0))
-                if DEBUG==1:            
-                    min = 30
-                    max = 100
-                else:
-                    (min,max)=self.selected.getLimits()
-                self.UI.ui.MoveBar.setRange(min,max)
-                self.UI.ui.Positioner.setRange(min,max)
-                self.UI.write("\n Select a Variable")
+        dict={}
+        for i in range(len(self.specrun.getmotors())):
+            dict[self.motordisplay[i]]=self.motorwidget[i]
+        if self.Motors.selectedItems()[0] in dict.keys():
+            self.selected=dict[self.UI.ui.Motors.selectedItems()[0]]
+            self.UI.write("\n **%s selected**"%self.UI.ui.Motors.selectedItems()[0].text(0))
+            if DEBUG==1:            
+                min = 30
+                max = 100
             else:
-                self.UI.write("\n select a motor first")
-  
-        elif not self.var:
+                (min,max)=self.selected.getLimits()
+            self.UI.ui.MoveBar.setRange(min,max)
+            self.UI.ui.Positioner.setRange(min,max)
+            self.UI.write("\n Select a Variable")
+        else:
+            self.UI.write("\n select a motor first")
+
+    def varselect(self):
+        if not self.var:
             dict={}
             for i in range(len(self.variables)):
                 dict[self.vardisplay[i]]=self.variables[i]
@@ -211,11 +251,11 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
                 QtCore.QObject.connect(self.UI.ui.Mover,QtCore.SIGNAL("clicked()"),self.cmdMove)
     def cmdMove(self):
         cmd="move(%s)"%self.Positioner.value()
-        self.SpecRun.setcmd(cmd)
-        self.SpecRun.runcmd()
+        self.specrun.setcmd(cmd)
+        self.specrun.runcmd()
             
     def reStart(self):
-        self.SpecRun=SpecRunner()
+        self.specrun=SpecRunner()
         self.Motors.clear()
         self.write("\n Enter spec server hostname: ")
         self.clearlog()
@@ -324,21 +364,21 @@ class XPthis:
             
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
-    myapp = MyUI()
-    myapp.show()
     if Rollcall==1: 
         import pxssh
         s = pxssh.pxssh()
         if not s.login ('roll.chess.cornell.edu', 'specuser', 'CThrooMe'):
             if DEBUG!=2:
-                myapp.ui.write("SSH session failed on login.")
-                myapp.ui.write(str(s))
+                print"SSH session failed on login."
+                print str(s)
             else:
                 print "SSH login failed"
         else:
             if DEBUG!=2:
-                myapp.ui.write("SSH session login successful")
+                print "SSH session login successful"
                 s.sendline ('spec -S')
             else:
                 print "DEBUG=2 +Connect"
+    myapp = MyUI()
+    myapp.show()
     sys.exit(app.exec_())

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/jeff/workspace/SpectroMicroscoPy/scripts/GearHead.ui'
+# Form implementation generated from reading ui file '/home/jeff/workspace/spectromicroscopy/spectromicroscopy//GearHead.ui'
 #
-# Created: Wed Jun 20 17:09:30 2007
+# Created: Thu Jun 21 16:04:57 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
