@@ -1,0 +1,93 @@
+#$Id: clientutils.mac,v 1.5 2006/09/25 15:24:55 guijarro Exp $
+def init_specclient_plot '{
+  global _SC_NEWSCAN _SC_OLDX _SC_SCANENV _SC_SCANDATALINE
+
+  _SC_NEWSCAN = 0
+  _SC_OLDX=0
+  
+  _SC_SCANENV["type"] = 0
+  _SC_SCANENV["title"] = ""
+  _SC_SCANENV["xlabel"] = ""
+  _SC_SCANENV["ylabel"] = ""
+  _SC_SCANENV["nb_motors"] = 0
+  _SC_SCANENV["motor"] = ""
+  _SC_SCANENV["counter"] = ""
+  
+  _SC_SCANDATALINE = ""
+}'
+
+def clientploton '{
+  init_specclient_plot  
+  
+  if (length(plotlist()) == 0)  {
+      tty_cntl("md");
+      printf("\n- NO COUNTER SELECTED. Run plotselect\n");
+      tty_cntl("me")
+  }
+
+  cdef("user_prescan_head", "_SC_NEWSCAN = 1; _SC_OLDX=0; _client_scansetenv;", "client_newscan")
+  cdef("user_scan_plot", "_client_updatescandata;", "client_updatescandata")
+  cdef("user_scan_tail", "_SC_NEWSCAN = 0;", "client_endscan")
+}'
+
+def _client_scansetenv '{
+  local scan_env
+
+  scan_env["type"] = _stype
+  scan_env["title"] = sprintf("Scan %d", SCAN_N+1)
+  scan_env["xlabel"] = X_L
+  scan_env["ylabel"] = cnt_mne(PL_Y - PLOT_MOTS)
+  scan_env["nb_motors"] = PLOT_MOTS
+  scan_env["motor"] = motor_mne(_m[0])
+  scan_env["counter"] = cnt_mne(PL_Y - PLOT_MOTS)
+
+  _SC_SCANENV = scan_env
+}'
+
+
+def _client_updatescandata '{
+  local x d i scan_data_string
+  global _SC_OLDX
+
+  x = SCAN_D[NPTS][0]
+
+  if (_stype >= 257) {
+    d=1
+  } else {
+    d=x-_SC_OLDX
+  }
+
+  if (d > 0) {
+    _SC_OLDX=x
+    scan_data_string = sprintf("i=%d x=%g", NPTS, x) 
+   
+    for (i=PLOT_MOTS;i<PLOT_MOTS+PLOT_CNTRS;i++) {
+      scan_data_string = sprintf("%s %s=%g", scan_data_string, cnt_mne(i - PLOT_MOTS), SCAN_D[NPTS][i])
+    }
+
+    _SC_SCANDATALINE = scan_data_string
+  }
+}'
+
+
+def clientplotoff '{
+  cdef("user_prescan_head", "", "client_newscan", "delete")
+  cdef("user_scan_plot", "", "client_updatescandata", "delete")
+  cdef("user_scan_tail", "", "client_endscan", "delete")
+  unglobal _SC_NEWSCAN
+  unglobal _SC_SCANENV 
+  unglobal _SC_SCANDATALINE
+}' 
+
+
+
+
+
+
+
+
+
+
+
+
+

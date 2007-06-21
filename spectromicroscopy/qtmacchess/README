@@ -1,0 +1,7 @@
+This folder contains the final working version of 
+the Qt-based crystal centering system (both server, 
+client and zoom server). This was the version used
+during the 11/5/04 running period. test.conf files
+are included for each station.
+
+           REG

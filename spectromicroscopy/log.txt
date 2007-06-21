@@ -1,0 +1,10 @@
+
+ New Session started (Thu, 21 Jun 2007 13:24:46)
+ Enter spec server hostname: 
+>>>>f
+>>>>f
+>>>>f
+>>>>d
+>>>>s
+>>>>adf
+>>>>asdf

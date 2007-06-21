@@ -1,0 +1,440 @@
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
+<class>VideoWidget</class>
+<widget class="QWidget">
+    <property name="name">
+        <cstring>VideoWidget</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>1024</width>
+            <height>908</height>
+        </rect>
+    </property>
+    <property name="minimumSize">
+        <size>
+            <width>1024</width>
+            <height>908</height>
+        </size>
+    </property>
+    <property name="paletteBackgroundColor">
+        <color>
+            <red>0</red>
+            <green>0</green>
+            <blue>0</blue>
+        </color>
+    </property>
+    <property name="caption">
+        <string>Macchess Digital Streaming Server</string>
+    </property>
+    <widget class="QFrame">
+        <property name="name">
+            <cstring>controlFrame</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>768</y>
+                <width>1024</width>
+                <height>140</height>
+            </rect>
+        </property>
+        <property name="paletteBackgroundColor">
+            <color>
+                <red>230</red>
+                <green>230</green>
+                <blue>230</blue>
+            </color>
+        </property>
+        <property name="frameShape">
+            <enum>StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Raised</enum>
+        </property>
+        <widget class="QButtonGroup">
+            <property name="name">
+                <cstring>clientGroup</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>5</x>
+                    <y>3</y>
+                    <width>396</width>
+                    <height>130</height>
+                </rect>
+            </property>
+            <property name="title">
+                <string></string>
+            </property>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>numClients</cstring>
+                </property>
+                <property name="enabled">
+                    <bool>true</bool>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>350</x>
+                        <y>8</y>
+                        <width>30</width>
+                        <height>23</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>0</string>
+                </property>
+                <property name="alignment">
+                    <set>AlignHCenter</set>
+                </property>
+                <property name="readOnly">
+                    <bool>true</bool>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>clientLabel</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>3</y>
+                        <width>340</width>
+                        <height>27</height>
+                    </rect>
+                </property>
+                <property name="font">
+                    <font>
+                        <pointsize>14</pointsize>
+                    </font>
+                </property>
+                <property name="text">
+                    <string>Number of clients currently connected:</string>
+                </property>
+            </widget>
+            <widget class="QTable">
+                <column>
+                    <property name="text">
+                        <string>Hostname</string>
+                    </property>
+                </column>
+                <column>
+                    <property name="text">
+                        <string>IP Address</string>
+                    </property>
+                </column>
+                <column>
+                    <property name="text">
+                        <string>Connection Date</string>
+                    </property>
+                </column>
+                <property name="name">
+                    <cstring>clientTable</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>38</y>
+                        <width>373</width>
+                        <height>87</height>
+                    </rect>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>7</hsizetype>
+                        <vsizetype>7</vsizetype>
+                        <horstretch>1</horstretch>
+                        <verstretch>1</verstretch>
+                    </sizepolicy>
+                </property>
+                <property name="acceptDrops">
+                    <bool>false</bool>
+                </property>
+                <property name="resizePolicy">
+                    <enum>Manual</enum>
+                </property>
+                <property name="vScrollBarMode">
+                    <enum>Auto</enum>
+                </property>
+                <property name="hScrollBarMode">
+                    <enum>AlwaysOff</enum>
+                </property>
+                <property name="numRows">
+                    <number>0</number>
+                </property>
+                <property name="numCols">
+                    <number>3</number>
+                </property>
+                <property name="readOnly">
+                    <bool>true</bool>
+                </property>
+                <property name="selectionMode">
+                    <enum>NoSelection</enum>
+                </property>
+                <property name="focusStyle">
+                    <enum>SpreadSheet</enum>
+                </property>
+            </widget>
+        </widget>
+        <widget class="QButtonGroup">
+            <property name="name">
+                <cstring>xvidGroup</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>411</x>
+                    <y>3</y>
+                    <width>290</width>
+                    <height>130</height>
+                </rect>
+            </property>
+            <property name="title">
+                <string></string>
+            </property>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>xvidLabel</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>30</x>
+                        <y>3</y>
+                        <width>230</width>
+                        <height>27</height>
+                    </rect>
+                </property>
+                <property name="font">
+                    <font>
+                        <pointsize>14</pointsize>
+                    </font>
+                </property>
+                <property name="text">
+                    <string>&lt;p align="center"&gt;XVID Encoder Statistics&lt;/p&gt;</string>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>currentFrameLabel</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>40</x>
+                        <y>45</y>
+                        <width>130</width>
+                        <height>20</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Current Frame:</string>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>compressTimeLabel</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>40</x>
+                        <y>65</y>
+                        <width>145</width>
+                        <height>20</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Time to Compress (ms):</string>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>frameSizeLabel</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>40</x>
+                        <y>85</y>
+                        <width>130</width>
+                        <height>20</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Size of Frame (bytes):</string>
+                </property>
+            </widget>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>currentFrame</cstring>
+                </property>
+                <property name="enabled">
+                    <bool>true</bool>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>200</x>
+                        <y>45</y>
+                        <width>80</width>
+                        <height>23</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>0</string>
+                </property>
+                <property name="alignment">
+                    <set>AlignRight</set>
+                </property>
+                <property name="readOnly">
+                    <bool>true</bool>
+                </property>
+            </widget>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>compressTime</cstring>
+                </property>
+                <property name="enabled">
+                    <bool>true</bool>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>200</x>
+                        <y>65</y>
+                        <width>80</width>
+                        <height>23</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>0</string>
+                </property>
+                <property name="alignment">
+                    <set>AlignRight</set>
+                </property>
+                <property name="readOnly">
+                    <bool>true</bool>
+                </property>
+            </widget>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>frameSize</cstring>
+                </property>
+                <property name="enabled">
+                    <bool>true</bool>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>200</x>
+                        <y>85</y>
+                        <width>80</width>
+                        <height>23</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>0</string>
+                </property>
+                <property name="alignment">
+                    <set>AlignRight</set>
+                </property>
+                <property name="readOnly">
+                    <bool>true</bool>
+                </property>
+            </widget>
+        </widget>
+        <widget class="QButtonGroup">
+            <property name="name">
+                <cstring>uptimeGroup</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>710</x>
+                    <y>3</y>
+                    <width>310</width>
+                    <height>130</height>
+                </rect>
+            </property>
+            <property name="title">
+                <string></string>
+            </property>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>uptimeLabel</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>114</x>
+                        <y>45</y>
+                        <width>82</width>
+                        <height>20</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Total Uptime:</string>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>serverLabel</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>20</x>
+                        <y>3</y>
+                        <width>270</width>
+                        <height>27</height>
+                    </rect>
+                </property>
+                <property name="font">
+                    <font>
+                        <pointsize>14</pointsize>
+                    </font>
+                </property>
+                <property name="text">
+                    <string>&lt;p align="center"&gt;Server Statistics&lt;/p&gt;</string>
+                </property>
+            </widget>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>uptime</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>15</x>
+                        <y>65</y>
+                        <width>280</width>
+                        <height>23</height>
+                    </rect>
+                </property>
+                <property name="alignment">
+                    <set>AlignHCenter</set>
+                </property>
+            </widget>
+        </widget>
+    </widget>
+</widget>
+<includes>
+    <include location="local" impldecl="in declaration">videorenderer.h</include>
+    <include location="global" impldecl="in declaration">qsocketdevice.h</include>
+    <include location="global" impldecl="in declaration">qtable.h</include>
+    <include location="global" impldecl="in declaration">qdatetime.h</include>
+    <include location="local" impldecl="in declaration">videoserver.h</include>
+    <include location="local" impldecl="in implementation">videowidget.ui.h</include>
+</includes>
+<variables>
+    <variable>VideoRenderer *vw;</variable>
+    <variable access="private">QDateTime serverStart;</variable>
+    <variable>QSocketDevice *socket;</variable>
+    <variable>VideoServer *vs;</variable>
+    <variable>QMutex *mutex;</variable>
+</variables>
+<slots>
+    <slot>toggleSocket()</slot>
+    <slot>setCrossHair( int x, int y )</slot>
+    <slot>mouseDoubleClickEvent( QMouseEvent * e )</slot>
+    <slot>addClientToTable( QString hostname, QString ipAddress )</slot>
+    <slot>remClientFromTable( QString ipAddress )</slot>
+    <slot>updateEnc()</slot>
+    <slot>updateUptime()</slot>
+</slots>
+<functions>
+    <function access="private" specifier="non virtual">init()</function>
+</functions>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
