@@ -3,14 +3,14 @@
 This program is a Graphical User interface for X-ray Spectroscopy
 """
 
-###############################################################################################
-######################Use this to set the mode of the program##################################
+################################################################################
+######################Use this to set the mode of the program###################
 DEBUG=0       #if set to 1 it deactivates spec commands
-Rollcall=2    #if set to 1 it auto starts spec -s on roll.chess.cornell.edu and connects
-              #if set to 2 it wont autostart but will autoconnect 
+Rollcall=2    #if set to 1 it auto starts spec -s on roll.chess.cornell.edu
+              #and connects if set to 2 it wont autostart but will autoconnect
 OS="linux"    #set to linux or windows
 
-##############################################################################################
+################################################################################
   
 #file Manipulation
 import sys, os, codecs
@@ -26,9 +26,11 @@ else:
 
 if DEBUG==1:
     if OS!="windows":
-        path=os.path.join(os.path.expanduser("~"),"workspace/spectromicroscopy/spectromicroscopy/")
+        path=os.path.join(os.path.expanduser("~"),
+            "workspace/spectromicroscopy/spectromicroscopy/")
     else:
-        path=os.path.join(os.path.expanduser("~"),"My Documents/labwork/spectromicroscopy/spectromicroscopy/")
+        path=os.path.join(os.path.expanduser("~"),
+            "My Documents/labwork/spectromicroscopy/spectromicroscopy/")
     os.system("pyuic4 %s/GearHead.ui>%s/GearHead.py"%(path,path))
     
 
@@ -41,7 +43,7 @@ from SpecRunner import SpecRunner
 
 
 
-################################################################################################
+################################################################################
        
 
 class MyUI(Ui_MotorHead,QtGui.QMainWindow):
@@ -53,24 +55,38 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         self.MotorsTree.setColumnCount(1)
         self.MotorsTree.setHeaderLabel("motors")
     #Connects to the diffrent buttons
-        QtCore.QObject.connect(self.ChangeFile, QtCore.SIGNAL("clicked()"), self.file_dialog)
-        QtCore.QObject.connect(self.saver,QtCore.SIGNAL("clicked()"), self.file_save)
-        QtCore.QObject.connect(self.saveras,QtCore.SIGNAL("clicked()"), self.file_saveas)
-        QtCore.QObject.connect(self.ClearLog, QtCore.SIGNAL("clicked()"), self.clearlog)
-        QtCore.QObject.connect(self.Runner,QtCore.SIGNAL("clicked()"),self.konsole)
-        QtCore.QObject.connect(self.MacroSave, QtCore.SIGNAL("clicked()"),self.macrosave)
-        QtCore.QObject.connect(self.changer,QtCore.SIGNAL("clicked()"),self.change)       
-        QtCore.QObject.connect(self.EStop,QtCore.SIGNAL("clicked()"),self.EmergencyStop)
-        QtCore.QObject.connect(self.ReStart,QtCore.SIGNAL("clicked()"),self.reStart)
-        QtCore.QObject.connect(self.CommandLine, QtCore.SIGNAL("returnPressed()"),self.input)
-        QtCore.QObject.connect(self.MotorsTree,QtCore.SIGNAL("itemSelectionChanged ()"),self.motorselect)
-        QtCore.QObject.connect(self.Mover,QtCore.SIGNAL("clicked()"),self.cmdMove)
+        QtCore.QObject.connect(self.ChangeFile, QtCore.SIGNAL("clicked()"),
+                               self.file_dialog)
+        QtCore.QObject.connect(self.saver,QtCore.SIGNAL("clicked()"),
+                               self.file_save)
+        QtCore.QObject.connect(self.saveras,QtCore.SIGNAL("clicked()"),
+                               self.file_saveas)
+        QtCore.QObject.connect(self.ClearLog, QtCore.SIGNAL("clicked()"),
+                               self.clearlog)
+        QtCore.QObject.connect(self.Runner, QtCore.SIGNAL("clicked()"),
+                               self.konsole)
+        QtCore.QObject.connect(self.MacroSave, QtCore.SIGNAL("clicked()"),
+                               self.macrosave)
+        QtCore.QObject.connect(self.changer, QtCore.SIGNAL("clicked()"),
+                               self.change)
+        QtCore.QObject.connect(self.EStop, QtCore.SIGNAL("clicked()"),
+                               self.EmergencyStop)
+        QtCore.QObject.connect(self.ReStart, QtCore.SIGNAL("clicked()"),
+                               self.reStart)
+        QtCore.QObject.connect(self.CommandLine, 
+                               QtCore.SIGNAL("returnPressed()"), self.input)
+        QtCore.QObject.connect(self.MotorsTree,
+                               QtCore.SIGNAL("itemSelectionChanged ()"),
+                               self.motorselect)
+        QtCore.QObject.connect(self.Mover, QtCore.SIGNAL("clicked()"),
+                               self.cmdMove)
     #Sets up Response/log Window
         if OS=="windows":
-            self.path=os.path.join(os.path.expanduser("~"),"My Documents/labwork/testing/src")
+            self.path=os.path.join(os.path.expanduser("~"),
+                "My Documents/labwork/testing/src")
         else:
-            self.path=os.path.join(os.path.expanduser("~"),\
-                                   "workspace/spectromicroscopy/spectromicroscopy")
+            self.path=os.path.join(os.path.expanduser("~"),
+                "workspace/spectromicroscopy/spectromicroscopy")
         self.filename=os.path.join(self.path,"log.txt")
         s=codecs.open(self.filename,'r','utf-8').read()
         self.Responses.setPlainText(s)
@@ -98,8 +114,8 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             print " Port set as %s"%self.command
             try:
                 connection=self.specrun.serverconnect()
-                print " Connected to %s on %s"%(self.specrun.getspecport(),\
-                                                  self.specrun.getspechost())
+                print " Connected to %s on %s"%(self.specrun.getspecport(),
+                                                self.specrun.getspechost())
             except:
                 print " Invalid Host or Server"
             if connection:
@@ -115,7 +131,8 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             print " **%s selected**\n Select a variable"%self.specrun.getmotor()
             self.setvar(self.command)
         elif not self.specrun.getcmd():
-            print " %s to be monitored \n Select  a command to run asynchronously: "%self.var
+            print " %s to be monitored \n Select  a command to run \
+asynchronously: "%self.var
             self.specrun.setcmd(self.command)
             self.specrun.runcmd() 
         else:
@@ -187,12 +204,14 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
                     self.Display.append(result)
                 except:
                     oldpath=self.path
-                    newpath=os.path.join(os.path.expanduser("~"),"My Documents\labwork\\testing\\src")
+                    newpath=os.path.join(os.path.expanduser("~"),
+                        "My Documents/labwork/testing/src")
                     self.path=os.path.join(self.path,newpath)
                     os.chdir(self.path)
                     program="python SubKonsole.py"
                     input=cmd+","+oldpath
-                    p=sp.Popen(program,stdin=sp.PIPE,stdout=sp.PIPE,stderr=sp.PIPE)
+                    p=sp.Popen(program, stdin=sp.PIPE, stdout=sp.PIPE,
+                               stderr=sp.PIPE)
                     (result,error)=p.communicate(input)
                     self.Display.append(result)
                     self.Display.append(error)
@@ -260,7 +279,8 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             
             """for j in range(len(self.varnames)):
                 self.variables.append(self.varnames[j])
-                self.vardisplay.append(QtGui.QTreeWidgetItem(self.motordisplay[i]))
+                self.vardisplay.append(\
+                    QtGui.QTreeWidgetItem(self.motordisplay[i]))
                 VarString=self.variables[j]
                 self.vardisplay[k].setText(0,VarString)
                 k+=1"""
@@ -272,7 +292,8 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
                 dict[self.vardisplay[i]]=self.variables[i]
             if self.UI.ui.Motors.selectedItems()[0] in dict.keys():
                 self.var=dict[self.UI.ui.Motors.selectedItems()[0]]
-                self.UI.write("\n **%s to be monitored** \n Select  a command to run asynchronously: "%self.var)
+                self.UI.write("\n **%s to be monitored** \n\
+Select  a command to run asynchronously: "%self.var)
                 
     def cmdMove(self):
         cmd="move(%s)"%self.Positioner.value()
@@ -294,14 +315,22 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
 class XPthis:
     def __init__(self,UI,MotorX,MotorY,MotorZ):
         self.UI=UI
-        QtCore.QObject.connect(self.UI.ui.X,QtCore.SIGNAL("sliderReleased()"),self.X)
-        QtCore.QObject.connect(self.UI.ui.Y,QtCore.SIGNAL("sliderReleased()"),self.Y)
-        QtCore.QObject.connect(self.UI.ui.Z,QtCore.SIGNAL("sliderReleased()"),self.Z)
-        QtCore.QObject.connect(self.UI.ui.SpinX, QtCore.SIGNAL("editingFinished()"),self.SpinX)
-        QtCore.QObject.connect(self.UI.ui.SpinY, QtCore.SIGNAL("editingFinished()"),self.SpinY)
-        QtCore.QObject.connect(self.UI.ui.SpinZ, QtCore.SIGNAL("editingFinished()"),self.SpinZ)
-        QtCore.QObject.connect(self.UI.ui.Stepper,QtCore.SIGNAL("editingFinished()"),self.Step)
-        QtCore.QObject.connect(self.UI.ui.Stepper,QtCore.SIGNAL("clicked()"),self.Move)
+        QtCore.QObject.connect(self.UI.ui.X,QtCore.SIGNAL("sliderReleased()"),
+                               self.X)
+        QtCore.QObject.connect(self.UI.ui.Y,QtCore.SIGNAL("sliderReleased()"),
+                               self.Y)
+        QtCore.QObject.connect(self.UI.ui.Z,QtCore.SIGNAL("sliderReleased()"),
+                               self.Z)
+        QtCore.QObject.connect(self.UI.ui.SpinX,
+                               QtCore.SIGNAL("editingFinished()"),self.SpinX)
+        QtCore.QObject.connect(self.UI.ui.SpinY,
+                               QtCore.SIGNAL("editingFinished()"),self.SpinY)
+        QtCore.QObject.connect(self.UI.ui.SpinZ,
+                               QtCore.SIGNAL("editingFinished()"),self.SpinZ)
+        QtCore.QObject.connect(self.UI.ui.Stepper,
+                               QtCore.SIGNAL("editingFinished()"),self.Step)
+        QtCore.QObject.connect(self.UI.ui.Stepper,
+                               QtCore.SIGNAL("clicked()"),self.Move)
         self.UI.ui.Namer.setMaxLength(1)
         self.dict={}
         self.dict["X"]=(self.UI.ui.X,self.UI.ui.SpinX,MotorX)
@@ -388,6 +417,7 @@ class XPthis:
         
             
 if __name__ == "__main__":
+    print __file__
     app = QtGui.QApplication(sys.argv)
     if Rollcall==1: 
         import pxssh
