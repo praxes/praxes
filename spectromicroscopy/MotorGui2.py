@@ -1,4 +1,4 @@
-#!/usr/bin/pythonw
+#!/usr/bin/env python
 """
 This program is a Graphical User interface for X-ray Spectroscopy
 """
