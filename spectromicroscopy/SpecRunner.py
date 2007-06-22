@@ -147,8 +147,10 @@ class SpecRunner:
             return self._varnames
         value=[]
         for i in range(len(self._varnames)):
-            value.append(motor.getState())
-            #value.append(motor.getParameter(self._varnames[i]))
+            try: 
+                value.append(motor.getParameter(self._varnames[i]))
+            except:
+                value.append("unable to get value")
             self._variables[motor]=value
         
     def getmotors(self): 
