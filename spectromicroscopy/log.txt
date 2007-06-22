@@ -1,8 +1,3 @@
 
- New Session started (Thu, 21 Jun 2007 17:50:52)
+ New Session started (Fri, 22 Jun 2007 13:35:25)
  Enter spec server hostname: 
->>>>r Host set as r 
- Select a Port
->>>>r Port set as rconnecting...Connected! Connected to spec on roll.chess.cornell.edu
- **t4 selected**
- Select a VariableworkingMotor <SpecClient.SpecMotor.SpecMotor instance at 0x84d2eac> connectedVariable  connected

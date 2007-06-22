@@ -5,7 +5,7 @@ This program is a Graphical User interface for X-ray Spectroscopy
 
 ################################################################################
 ######################Use this to set the mode of the program###################
-DEBUG=0       #if set to 1 it deactivates spec commands
+DEBUG=2       #if set to 1 it deactivates spec commands
 Rollcall=2    #if set to 1 it auto starts spec -s on roll.chess.cornell.edu
               #and connects if set to 2 it wont autostart but will autoconnect
 OS="linux"    #set to linux or windows
@@ -24,7 +24,7 @@ else:
     from pexpect import run
 
 
-if DEBUG==1:
+if DEBUG!=2:
     if OS!="windows":
         path=os.path.join(os.path.expanduser("~"),
             "workspace/spectromicroscopy/spectromicroscopy/")
@@ -50,15 +50,30 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
     """Any and all things GUI"""
     
     def __init__(self, parent=None):
+        if Rollcall==1:
+            import pxssh
+            self.sesh = pxssh.pxssh()
+            if not self.sesh.login ('roll.chess.cornell.edu', 'specuser', 'CThrooMe'):
+                if DEBUG!=2:
+                    print"SSH session failed on login."
+                    print str(self.sesh)
+                else:
+                    print "SSH login failed"
+            else:
+                if DEBUG!=2:
+                    print "SSH session login successful"
+                    self.sesh.sendline ('spec -S')
+                    self.sesh.prompt()
+                    print self.sesh.before
+                else:
+                    print "DEBUG=2?"
+        else:
+            self.sesh=None
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
-        self.MotorsTree.setColumnCount(1)
-        self.MotorsTree.setHeaderLabel("motors")
     #Connects to the diffrent buttons
         QtCore.QObject.connect(self.ChangeFile, QtCore.SIGNAL("clicked()"),
                                self.file_dialog)
-        QtCore.QObject.connect(self.saver,QtCore.SIGNAL("clicked()"),
-                               self.file_save)
         QtCore.QObject.connect(self.saveras,QtCore.SIGNAL("clicked()"),
                                self.file_saveas)
         QtCore.QObject.connect(self.ClearLog, QtCore.SIGNAL("clicked()"),
@@ -80,25 +95,17 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
                                self.motorselect)
         QtCore.QObject.connect(self.Mover, QtCore.SIGNAL("clicked()"),
                                self.cmdMove)
-    #Sets up Response/log Window
-        if OS=="windows":
-            self.path=os.path.join(os.path.expanduser("~"),
-                "My Documents/labwork/testing/src")
-        else:
-            self.path=os.path.join(os.path.expanduser("~"),
-                "workspace/spectromicroscopy/spectromicroscopy")
-        self.filename=os.path.join(self.path,"log.txt")
-        s=codecs.open(self.filename,'r','utf-8').read()
-        self.Responses.setPlainText(s)
+        QtCore.QObject.connect(self.Closer,QtCore.SIGNAL("clicked()"),\
+                                 self.endsesh)
     #Sets up the Menus:
         #TODO: setup menus more
         self.Bar.addAction("New Macro",self.macro)
         self.Bar.addAction("Old Macro",self.tester) 
     #SETS UP THE RUN
+        self.filename=''
         self.command=''
         sys.stdout=self
         self.specrun=SpecRunner(DEBUG,Rollcall,self)
-        self.runspec()
         time=strftime("%a, %d %b %Y %H:%M:%S", localtime())
         print "\n New Session started (%s)\n Enter spec server hostname: "%time
         
@@ -124,12 +131,13 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
                 for i in range(len(readmotors)):
                     self.specrun.readvariables(readmotors[i])
                 self.motorget()
+        #TODO: update here till end of 
         elif not self.specrun.getmotor():
             print " Select a motor"
             self.specrun.setmotor(self.command)
         elif not self.specrun.getvar():
             print " **%s selected**\n Select a variable"%self.specrun.getmotor()
-            self.setvar(self.command)
+            self.specrun.setvar(self.specrun.getmotor(),self.command)
         elif not self.specrun.getcmd():
             print " %s to be monitored \n Select  a command to run \
 asynchronously: "%self.var
@@ -148,40 +156,34 @@ asynchronously: "%self.var
         
     def write(self,string):
         """stdout for program, displays on the Responses screen"""
-        if isfile (self.filename):
-            if string!="\n":
+        if string!="\n":
+            self.last_written=string
+            sys.stdout=sys.__stdout__
+            print self.last_written
+            sys.stdout=self
+            if isfile (self.filename):
                 s = codecs.open(self.filename,'a','utf-8')
                 s.write(unicode(string))
-                self.last_written=string
-                sys.stdout=sys.__stdout__
-                print self.last_written
-                sys.stdout=self
                 s.close()
-                s=codecs.open(self.filename,'r','utf-8').read()
-                self.Responses.append(string)
+            self.Responses.append(string)
 
     def EmergencyStop(self):
         self.specrun.EmergencyStop() 
     
-#Most of the Methods are self explanitory
     def clearlog(self):
+        self.Responses.clear()
         if isfile(self.filename):
-            self.Responses.clear()
             s = codecs.open(self.filename,'w','utf-8')
             s.write(unicode(self.Responses.toPlainText()))
             s.close()
-            self.write(self.last_written)
+        self.write(self.last_written)
     def file_dialog(self):
         fd = QtGui.QFileDialog(self)
         self.filename = fd.getOpenFileName()
         if isfile(self.filename):
             s = codecs.open(self.filename,'r','utf-8').read()
             self.Responses.setPlainText(s)
-    def file_save(self):
-        if isfile(self.filename):
-            s = codecs.open(self.filename,'w','utf-8')
-            s.write(unicode(self.Responses.toPlainText()))
-            s.close()
+
     def file_saveas(self):
         self.currentfile=self.filename
         fd = QtGui.QFileDialog(self)
@@ -245,55 +247,65 @@ asynchronously: "%self.var
             os.system("dir")
 
     def motorget(self):
-        # TODO: rework work with new design
         self.motordict={}
         self.motorwidget=[]
         self.motornames=[]
         for i in range(len(self.specrun.getmotors())):
-            if DEBUG==1:
-                self.motornames.append(self.spec[i])
-                NameString=motors[i]
-            else:
-                NameString=self.specrun.getmotors()[i]
+            NameString=self.specrun.getmotors()[i]
             self.motorwidget.append(QtGui.QTreeWidgetItem(self.MotorsTree))
             self.motorwidget[i].setText(0,NameString)
+            Status=self.specrun.status(self.specrun.getmotors()[i])
+            self.motorwidget[i].setText(1,Status)
             self.motornames.append(NameString)
             self.motordict[self.motorwidget[i]]=self.motornames[i]
     def motorselect(self):
         if self.MotorsTree.selectedItems()[0] in self.motordict.keys():
             selection=self.motordict[self.MotorsTree.selectedItems()[0]]
             self.specrun.setmotor(selection)
-            print "\n **%s selected**"%selection
-            if DEBUG==1:            
-                min = 30
-                max = 100
-            else:
-                (min,max)=self.specrun.getmotorlimits(selection)
-            self.MoveBar.setRange(min,max)
-            self.Positioner.setRange(min,max)
-            self.write("\n Select a Variable")
+            print " **%s selected**\n Select a variable"%self.specrun.getmotor()
+            try:
+                if DEBUG==1:            
+                    min = 30
+                    max = 100
+                else:
+                    (min,max)=self.specrun.getmotorlimits(selection)
+                    place=self.specrun.getmotorposition(selection)
+                self.MoveBar.setRange(min,max)
+                self.Positioner.setRange(min,max)
+            except:
+                print "unable to get limits of motor"
+            try:
+                if DEBUG==1:
+                    place=0
+                else:
+                    place=self.specrun.getmotorposition(selection)
+                self.MoveBar.setValue(place)
+                self.Positioner.setRange(place)
+                print "\n Select a Variable"
+            except:
+                print "Unable to Get Position"
+            
         else:
             print self.MotorsTree.selectedItems()[0]
-            self.write("\n select a motor first")
-            
-            
-            """for j in range(len(self.varnames)):
-                self.variables.append(self.varnames[j])
-                self.vardisplay.append(\
-                    QtGui.QTreeWidgetItem(self.motordisplay[i]))
-                VarString=self.variables[j]
-                self.vardisplay[k].setText(0,VarString)
-                k+=1"""
+            print "\n select a motor first"
+
+    def varget(self):
+        self.vardict={}
+        self.varwidget=[]
+        self.varnames=[]
+        for i in range(len(self.motornames)):
+            self.specrun.readvariables(self.motornames[i])
+            MotorsVar= self.specrun.getvars(self.motornames[i])
+            MotorValues=self.specrun.getvarsvalue(self.motornames[i])
+            for j in range(len(MotorVar)):
+                self.varwidget.append(QtGui.QTreeWidgetItem(self.motorwidget[i]))
+                self.varwidget.setText(0,MotorVar[j])
+                self.vardict[MotorVar[j]]=MotorValues[j]
+        
     def varselect(self):
         #todo make this work
-        if not self.var:
-            dict={}
-            for i in range(len(self.variables)):
-                dict[self.vardisplay[i]]=self.variables[i]
-            if self.UI.ui.Motors.selectedItems()[0] in dict.keys():
-                self.var=dict[self.UI.ui.Motors.selectedItems()[0]]
-                self.UI.write("\n **%s to be monitored** \n\
-Select  a command to run asynchronously: "%self.var)
+        print ("\n **%s to be monitored** \n"+\
+                       "Select  a command to run asynchronously: "%self.var)
                 
     def cmdMove(self):
         cmd="move(%s)"%self.Positioner.value()
@@ -305,137 +317,26 @@ Select  a command to run asynchronously: "%self.var)
         self.MotorsTree.clear()
         self.write("\n Enter spec server hostname: ")
         self.clearlog()
+    def endsesh(self):
+        if self.sesh:
+            self.sesh.sendline('exit')
+            self.sesh.prompt
+            print self.sesh.before
+            self.sesh.logout()
+            self.sesh.close()
+        else:
+            time=strftime("%a, %d %b %Y %H:%M:%S", localtime())
+            print "BYE!!!!!!!@%s"%time
         
     def tester(self):
         #used to see if a signal is received
-        self.write("\n :P")
-
         print "signaled"
-        
-class XPthis:
-    def __init__(self,UI,MotorX,MotorY,MotorZ):
-        self.UI=UI
-        QtCore.QObject.connect(self.UI.ui.X,QtCore.SIGNAL("sliderReleased()"),
-                               self.X)
-        QtCore.QObject.connect(self.UI.ui.Y,QtCore.SIGNAL("sliderReleased()"),
-                               self.Y)
-        QtCore.QObject.connect(self.UI.ui.Z,QtCore.SIGNAL("sliderReleased()"),
-                               self.Z)
-        QtCore.QObject.connect(self.UI.ui.SpinX,
-                               QtCore.SIGNAL("editingFinished()"),self.SpinX)
-        QtCore.QObject.connect(self.UI.ui.SpinY,
-                               QtCore.SIGNAL("editingFinished()"),self.SpinY)
-        QtCore.QObject.connect(self.UI.ui.SpinZ,
-                               QtCore.SIGNAL("editingFinished()"),self.SpinZ)
-        QtCore.QObject.connect(self.UI.ui.Stepper,
-                               QtCore.SIGNAL("editingFinished()"),self.Step)
-        QtCore.QObject.connect(self.UI.ui.Stepper,
-                               QtCore.SIGNAL("clicked()"),self.Move)
-        self.UI.ui.Namer.setMaxLength(1)
-        self.dict={}
-        self.dict["X"]=(self.UI.ui.X,self.UI.ui.SpinX,MotorX)
-        self.dict["Y"]=(self.UI.ui.Y,self.UI.ui.SpinY,MotorY)
-        self.dict["Z"]=(self.UI.ui.Z,self.UI.ui.SpinZ,MotorZ)
-        # TODO: rework all this XYZ code to work with motors
-        if DEBUG==1:
-            self.UI.ui.X.setRange(0,10000)
-            self.UI.ui.SpinX.setRange(0,100)
-            self.UI.ui.Y.setRange(0,10000)
-            self.UI.ui.SpinY.setRange(0,100) 
-            self.UI.ui.Z.setRange(0,10000)
-            self.UI.ui.SpinZ.setRange(0,100)
-            self.Xsize=100.00
-            self.Ysize=100.00
-            self.Zsize=100.00
-            self.UI.ui.X.setTickInterval(1000.00)
-            self.UI.ui.Y.setTickInterval(1000.00)
-            self.UI.ui.Z.setTickInterval(1000.00)
-        else:
-            pass
-            #TODO: set up ticks = (Max-Min)stepsize
-            """self.UI.ui.X.setTickInterval()
-            self.UI.ui.Y.setTickInterval()
-            self.UI.ui.Z.setTickInterval()"""
-        self.X()
-        self.Y()
-        self.Z()
-        
 
-    def X(self):
-        if DEBUG!=1:
-            Xsize=MotorX.getOFFset()
-            (Xmin,Xmax)=MotorX.getlimits()
-            self.UI.ui.SpinX.setRange(Xmin,Xmax)
-            self.UI.ui.X.setRange(Xmin,Xmax)
-        self.UI.ui.SpinX.setValue(self.UI.ui.X.value()/self.Xsize)
-    def Y(self):
-        if DEBUG!=1:
-            self.Ysize=MotorY.getOFFset()
-            (Ymin,Ymax)=MotorY.getlimits()
-            self.UI.ui.SpinY.setRange(Ymin,Ymax)
-            self.UI.ui.Y.setRange(Ymin,Ymax)
-        self.UI.ui.SpinY.setValue(self.UI.ui.Y.value()/self.Ysize)
-    def Z(self):
-        if DEBUG!=1:
-            Zsize=MotorZ.getOFFset()
-            (Zmin,Zmax)=MotorZ.getlimits()
-            self.UI.ui.SpinZ.setRange(Zmin,Zmax)
-            self.UI.ui.Z.setRange(Zmin,Zmax)
-        self.UI.ui.SpinZ.setValue(self.UI.ui.Z.value()/self.Zsize)
-    def SpinX(self):
-        self.UI.ui.X.setValue(self.UI.ui.SpinX.value()*self.Xsize)
-    def SpinY(self):
-        self.UI.ui.Y.setValue(self.UI.ui.SpinY.value()*self.Ysize)
-    def SpinZ(self):
-        self.UI.ui.Z.setValue(self.UI.ui.SpinZ.value()*self.Zsize)
-    
-    def Step(self):
-        Axis="%s"%self.UI.ui.Namer.text()
-        Axis=Axis.capitalize()
-        if Axis in self.dict.keys():
-            (selectAxis,Spin,motor)=self.dict[Axis]
-            if DEBUG==1:
-                viable=True
-                stepsize=100
-            else:
-                viable=self.UI.ui.Stepper.value()<motor.getOffset()
-                stepsize=motor.setOffset(self.UI.ui.Stepper.value())
-            if viable:
-                selectAxis.setTickInterval(self.UI.ui.Stepper.value()*stepsize)
-                selectAxis.setSingleStep(self.UI.ui.Stepper.value()*stepsize)
-                Spin.setSingleStep(self.UI.ui.Stepper.value())
-                
-                
-    def Move(self):
-        if DEBUG==1:
-            print "moved"
-        else:
-            MotorX.move(self.UI.ui.X.getValue())
-            MotorY.move(self.UI.ui.Y.getValue())
-            MotorZ.move(self.UI.ui.Z.getValue())
 
-        
-            
+                   
 if __name__ == "__main__":
     print __file__
     app = QtGui.QApplication(sys.argv)
-    if Rollcall==1: 
-        import pxssh
-        s = pxssh.pxssh()
-        if not s.login ('roll.chess.cornell.edu', 'specuser', 'CThrooMe'):
-            if DEBUG!=2:
-                print"SSH session failed on login."
-                print str(s)
-            else:
-                print "SSH login failed"
-        else:
-            if DEBUG!=2:
-                print "SSH session login successful"
-                s.sendline ('spec -S')
-                s.prompt()
-                print s.before
-            else:
-                print "DEBUG=2 +Connect"
     myapp = MyUI()
     myapp.show()
     sys.exit(app.exec_())

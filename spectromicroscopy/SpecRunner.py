@@ -7,7 +7,6 @@ import SpecClient
 
 SpecClient.setLoggingOff()
 from SpecClient import SpecMotor, Spec, SpecEventsDispatcher, SpecVariable, SpecCommand
-stateStrings = ['NOTINITIALIZED', 'UNUSABLE', 'READY', 'MOVESTARTED', 'MOVING', 'ONLIMIT']
 
 """
     Section for actual Motor Control Mockup
@@ -18,6 +17,7 @@ stateStrings = ['NOTINITIALIZED', 'UNUSABLE', 'READY', 'MOVESTARTED', 'MOVING', 
 
 
 class TestSpecMotor(SpecMotor.SpecMotorA):
+    stateStrings = ['NOTINITIALIZED', 'UNUSABLE', 'READY', 'MOVESTARTED', 'MOVING', 'ONLIMIT']
     def connected(self):
         self.__connected__ = True
         print'Motor %s connected'%self.specName
@@ -33,9 +33,14 @@ class TestSpecMotor(SpecMotor.SpecMotorA):
     def syncQuestionAnswer(self, specSteps, controllerSteps):
         print "Motor %s syncing"%self.specName
     def motorStateChanged(self, state):
-        print "Motor %s state changed to"%(self.specName,stateString[state])
+        print "Motor %s state changed to"%self.specName
+        print self.stateStrings[state]
     def isConnected(self):
         return (self.__connected__ != None) and (self.__connected__)
+    def status(self):
+        return self.stateStrings[self.getState()]
+    def motor_name(self):
+        return self.specName
 
 class TestSpecVariable(SpecVariable.SpecVariableA):
     def connected(self):
@@ -129,24 +134,28 @@ class SpecRunner:
             motornames=self._spec.getMotorsMne()
             motors=[]
             for i in range(len(motornames)):
-                motors.append(SpecMotor.SpecMotor(self._spec.motor_name(i),\
-                                                  self._specHost + ":" + self._specPort, 500))
+                motors.append(TestSpecMotor(self._spec.motor_name(i),\
+                                                   self._specHost + ":" + self._specPort))
                 self._motors[motornames[i]]=motors[i]
                 
     def readvariables(self,motor):
-        if self.DEBUG!=1:
-            pass
-            self._varnames=()
-            #TODO:run some sort of command to get motor variables
+        motor=self._motors[motor]
+        if self.DEBUG!=1:    
+            self._varnames=('position','sync_check','unusable','offset','sign')
         else:
             self._varnames=("one","two","three")
-        self._variables[motor]=self._varnames
-            
+            return self._varnames
+        value=[]
+        for i in range(len(self._varnames)):
+            value.append(motor.getState())
+            #value.append(motor.getParameter(self._varnames[i]))
+            self._variables[motor]=value
         
-        
-    def getmotors(self):
+    def getmotors(self): 
         return self._motors.keys()
     def getvars(self,motor):
+        return self._varnames
+    def getvarsvalues(self,motor):
         return self._variables[motor]
     def setmotor(self,motor):
         if motor in self._motors.keys():
@@ -155,13 +164,18 @@ class SpecRunner:
         return self._motor.motor_name()
     def getmotorlimits(self,nameOfMotor):
         return self._motors[nameOfMotor].getLimits()
+    def getmotorposition(self, nameOfMotor):
+        return self._motors[nameOfMotor].getPosition()
+    def status(self,nameOfMotor):
+        return self._motors[nameOfMotor].status()
     def setvar(self,motor,var):
+        motor=self._motors[motor]
         if var in self._variables[motor]:
             self._var=var
         else:
             return False
     def getvar(self):
-        return self.var
+        return self._var
     def setcmd(self,cmd):
         self.cmd=cmd
     def getcmd(self,cmd):
@@ -196,10 +210,3 @@ class SpecRunner:
         
 if __name__ =="__main__":
     NewSpecRun=SpecRunner(1)
-    
-
-
-
-
-
-
