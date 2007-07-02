@@ -141,7 +141,7 @@ class SpecRunner:
     def readvariables(self,motor):
         motor=self._motors[motor]
         if self.DEBUG!=1:    
-            self._varnames=('position','sync_check','unusable','offset','sign')
+            self._varnames=('position','offset','sign')
         else:
             self._varnames=("one","two","three")
             return self._varnames
@@ -193,7 +193,7 @@ class SpecRunner:
             motorMon = TestSpecMotor(self._motor, self._specHost+":"+self._specPort)
             variableMon = TestSpecVariable(self._var, self._specHost+":"+self._specPort)
             commandMon = TestSpecCommand(self._cmd[0], self._specHost+":"+self._specPort)
-            commandMon(self._cmd[1])
+            #commandMon(self._cmd[1])
             while motorMon.isConnected() and variableMon.isConnected():
                 SpecEventsDispatcher.dispatch()
     

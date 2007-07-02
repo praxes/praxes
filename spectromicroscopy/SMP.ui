@@ -1,0 +1,49 @@
+<ui version="4.0" >
+ <class>Main</class>
+ <widget class="QMainWindow" name="Main" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>706</width>
+    <height>658</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <widget class="QTabWidget" name="Tabby" >
+    <property name="geometry" >
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>701</width>
+      <height>631</height>
+     </rect>
+    </property>
+    <property name="currentIndex" >
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="Motors" >
+     <attribute name="title" >
+      <string>Motors</string>
+     </attribute>
+    </widget>
+    <widget class="QWidget" name="Konsoler" >
+     <attribute name="title" >
+      <string>Konsole</string>
+     </attribute>
+    </widget>
+    <widget class="QWidget" name="XP" >
+     <attribute name="title" >
+      <string>Experiment</string>
+     </attribute>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

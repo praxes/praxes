@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/home/jeff/workspace/spectromicroscopy/spectromicroscopy//GearHead.ui'
 #
-# Created: Fri Jun 22 16:34:43 2007
+# Created: Mon Jul  2 16:17:30 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -100,6 +100,27 @@ class Ui_MotorHead(object):
         self.pushButton = QtGui.QPushButton(self.MotorTab)
         self.pushButton.setGeometry(QtCore.QRect(450,60,20,251))
         self.pushButton.setObjectName("pushButton")
+
+        self.go = QtGui.QPushButton(self.MotorTab)
+        self.go.setGeometry(QtCore.QRect(630,350,16,21))
+        self.go.setObjectName("go")
+
+        self.count = QtGui.QSpinBox(self.MotorTab)
+        self.count.setGeometry(QtCore.QRect(580,350,46,23))
+        self.count.setObjectName("count")
+
+        self.dis = QtGui.QDoubleSpinBox(self.MotorTab)
+        self.dis.setGeometry(QtCore.QRect(480,350,62,23))
+        self.dis.setDecimals(3)
+        self.dis.setObjectName("dis")
+
+        self.plus = QtGui.QPushButton(self.MotorTab)
+        self.plus.setGeometry(QtCore.QRect(550,350,21,21))
+        self.plus.setObjectName("plus")
+
+        self.minus = QtGui.QPushButton(self.MotorTab)
+        self.minus.setGeometry(QtCore.QRect(450,350,21,21))
+        self.minus.setObjectName("minus")
         self.Tabby.addTab(self.MotorTab,"")
 
         self.Graphing = QtGui.QWidget()
@@ -316,7 +337,7 @@ class Ui_MotorHead(object):
         self.label_4.setBuddy(self.Element)
 
         self.retranslateUi(MotorHead)
-        self.Tabby.setCurrentIndex(0)
+        self.Tabby.setCurrentIndex(2)
         QtCore.QObject.connect(self.Closer,QtCore.SIGNAL("clicked()"),MotorHead.close)
         QtCore.QObject.connect(self.MaxVal,QtCore.SIGNAL("sliderMoved(int)"),self.MaxValeDisplay.display)
         QtCore.QObject.connect(self.MinVal,QtCore.SIGNAL("sliderMoved(int)"),self.MinValeDisplay.display)
@@ -362,6 +383,9 @@ class Ui_MotorHead(object):
         self.ChangeFile.setText(QtGui.QApplication.translate("MotorHead", "Set Log", None, QtGui.QApplication.UnicodeUTF8))
         self.Closer.setText(QtGui.QApplication.translate("MotorHead", "Close", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton.setText(QtGui.QApplication.translate("MotorHead", "X", None, QtGui.QApplication.UnicodeUTF8))
+        self.go.setText(QtGui.QApplication.translate("MotorHead", "go", None, QtGui.QApplication.UnicodeUTF8))
+        self.plus.setText(QtGui.QApplication.translate("MotorHead", "+", None, QtGui.QApplication.UnicodeUTF8))
+        self.minus.setText(QtGui.QApplication.translate("MotorHead", "--", None, QtGui.QApplication.UnicodeUTF8))
         self.Tabby.setTabText(self.Tabby.indexOf(self.MotorTab), QtGui.QApplication.translate("MotorHead", "Motor Testing", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MotorHead", "Max Value", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("MotorHead", "Min Value", None, QtGui.QApplication.UnicodeUTF8))
