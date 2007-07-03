@@ -5,10 +5,9 @@ This program is a Graphical User interface for X-ray Spectroscopy
 
 ################################################################################
 ######################Use this to set the mode of the program###################
-DEBUG=0      #if set to 1 it deactivates spec commands
-Rollcall=1    #if set to 1 it auto starts spec -s on roll.chess.cornell.edu
+DEBUG=0     #if set to 1 it deactivates spec commands
+Rollcall=0    #if set to 1 it auto starts spec -s on roll.chess.cornell.edu
               #and connects if set to 2 it wont autostart but will autoconnect
-OS="linux"    #set to linux or windows
 
 ################################################################################
   
@@ -17,26 +16,13 @@ import sys, os, codecs
 from os.path import isfile
 import subprocess as sp
 if sys.platform=="win32":
-    OS="windows"
     DEBUG=1
     Rollcall=0
-else:
-    from pexpect import run
-
-
-if DEBUG!=2:
-    if OS!="windows":
-        path=os.path.join(os.path.expanduser("~"),
-            "workspace/spectromicroscopy/spectromicroscopy/")
-    else:
-        path=os.path.join(os.path.expanduser("~"),
-            "My Documents/labwork/spectromicroscopy/spectromicroscopy/")
-    os.system("pyuic4 %s/GearTester.ui>%s/GearTester.py"%(path,path))
-    
 
 #GUI
 from PyQt4 import QtCore, QtGui    
 from GearTester import Ui_MotorHead
+###import GearWidget
 from time import localtime, strftime
 from SpecRunner import SpecRunner
 
@@ -48,7 +34,6 @@ from SpecRunner import SpecRunner
 
 class MyUI(Ui_MotorHead,QtGui.QMainWindow):
     """Any and all things GUI"""
-    
     def __init__(self, parent=None):
         if Rollcall==1:
             import pxssh
@@ -93,8 +78,12 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
                                  self.endsesh)
     #Sets up the Menus:
         #TODO: setup menus more
-        self.Bar.addAction("New Macro",self.macro)
-        self.Bar.addAction("Old Macro",self.tester) 
+        if parent:
+            Bar=parent.Bar
+        else:
+            Bar=self.Bar
+        Bar.addAction("New Macro",self.macro)
+        Bar.addAction("Old Macro",self.tester) 
     #SETS UP THE RUN
         self.filename=''
         self.command=''
@@ -283,6 +272,7 @@ asynchronously: "%self.var
         else:
             time=strftime("%a, %d %b %Y %H:%M:%S", localtime())
             print "BYE!!!!!!!@%s"%time
+        
         
     def tester(self):
         #used to see if a signal is received

@@ -1,0 +1,431 @@
+<ui version="4.0" >
+ <class>XPrun</class>
+ <widget class="QMainWindow" name="XPrun" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>699</width>
+    <height>540</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="main" >
+   <widget class="QGraphicsView" name="Video" >
+    <property name="geometry" >
+     <rect>
+      <x>170</x>
+      <y>310</y>
+      <width>241</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <property name="cursor" >
+     <cursor>2</cursor>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Namer" >
+    <property name="geometry" >
+     <rect>
+      <x>590</x>
+      <y>390</y>
+      <width>23</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QSlider" name="Zoomer" >
+    <property name="geometry" >
+     <rect>
+      <x>550</x>
+      <y>190</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="orientation" >
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBox" >
+    <property name="geometry" >
+     <rect>
+      <x>230</x>
+      <y>510</y>
+      <width>46</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8" >
+    <property name="geometry" >
+     <rect>
+      <x>180</x>
+      <y>510</y>
+      <width>41</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Zoom</string>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="MinValeDisplay" >
+    <property name="geometry" >
+     <rect>
+      <x>560</x>
+      <y>150</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="segmentStyle" >
+     <enum>QLCDNumber::Filled</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="MaxVal" >
+    <property name="geometry" >
+     <rect>
+      <x>640</x>
+      <y>30</y>
+      <width>21</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <property name="orientation" >
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="Stepper" >
+    <property name="geometry" >
+     <rect>
+      <x>620</x>
+      <y>390</y>
+      <width>62</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9" >
+    <property name="geometry" >
+     <rect>
+      <x>590</x>
+      <y>370</y>
+      <width>53</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Step Size</string>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="MaxValeDisplay" >
+    <property name="geometry" >
+     <rect>
+      <x>630</x>
+      <y>150</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="segmentStyle" >
+     <enum>QLCDNumber::Filled</enum>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="lcdNumber" >
+    <property name="geometry" >
+     <rect>
+      <x>650</x>
+      <y>190</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="segmentStyle" >
+     <enum>QLCDNumber::Filled</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="TableMove" >
+    <property name="geometry" >
+     <rect>
+      <x>590</x>
+      <y>430</y>
+      <width>75</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Move</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2" >
+    <property name="geometry" >
+     <rect>
+      <x>550</x>
+      <y>10</y>
+      <width>59</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Min Value</string>
+    </property>
+    <property name="buddy" >
+     <cstring>MinVal</cstring>
+    </property>
+   </widget>
+   <widget class="QSlider" name="MinVal" >
+    <property name="geometry" >
+     <rect>
+      <x>570</x>
+      <y>30</y>
+      <width>21</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <property name="orientation" >
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label" >
+    <property name="geometry" >
+     <rect>
+      <x>620</x>
+      <y>10</y>
+      <width>62</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Max Value</string>
+    </property>
+    <property name="buddy" >
+     <cstring>MaxVal</cstring>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3" >
+    <property name="geometry" >
+     <rect>
+      <x>560</x>
+      <y>170</y>
+      <width>41</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Zoom</string>
+    </property>
+    <property name="buddy" >
+     <cstring>Zoomer</cstring>
+    </property>
+   </widget>
+   <widget class="QSlider" name="VidZoom" >
+    <property name="geometry" >
+     <rect>
+      <x>280</x>
+      <y>510</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="orientation" >
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="SaveImage" >
+    <property name="geometry" >
+     <rect>
+      <x>590</x>
+      <y>320</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Save Image</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="Element" >
+    <property name="geometry" >
+     <rect>
+      <x>0</x>
+      <y>50</y>
+      <width>131</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>121</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Element Selection </string>
+    </property>
+    <property name="buddy" >
+     <cstring>Element</cstring>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5" >
+    <property name="geometry" >
+     <rect>
+      <x>430</x>
+      <y>310</y>
+      <width>16</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>X</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6" >
+    <property name="geometry" >
+     <rect>
+      <x>490</x>
+      <y>310</y>
+      <width>16</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Y</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7" >
+    <property name="geometry" >
+     <rect>
+      <x>550</x>
+      <y>310</y>
+      <width>16</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Z</string>
+    </property>
+   </widget>
+   <widget class="QGraphicsView" name="PictureTube" >
+    <property name="geometry" >
+     <rect>
+      <x>140</x>
+      <y>10</y>
+      <width>391</width>
+      <height>261</height>
+     </rect>
+    </property>
+    <property name="cursor" >
+     <cursor>2</cursor>
+    </property>
+   </widget>
+   <widget class="QSlider" name="Xslide" >
+    <property name="geometry" >
+     <rect>
+      <x>430</x>
+      <y>330</y>
+      <width>25</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <property name="singleStep" >
+     <number>1</number>
+    </property>
+    <property name="orientation" >
+     <enum>Qt::Vertical</enum>
+    </property>
+    <property name="tickPosition" >
+     <enum>QSlider::TicksBelow</enum>
+    </property>
+    <property name="tickInterval" >
+     <number>10</number>
+    </property>
+   </widget>
+   <widget class="QSlider" name="Yslide" >
+    <property name="geometry" >
+     <rect>
+      <x>490</x>
+      <y>330</y>
+      <width>25</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <property name="orientation" >
+     <enum>Qt::Vertical</enum>
+    </property>
+    <property name="tickPosition" >
+     <enum>QSlider::TicksBelow</enum>
+    </property>
+    <property name="tickInterval" >
+     <number>10</number>
+    </property>
+   </widget>
+   <widget class="QSlider" name="Zslide" >
+    <property name="geometry" >
+     <rect>
+      <x>550</x>
+      <y>330</y>
+      <width>25</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <property name="orientation" >
+     <enum>Qt::Vertical</enum>
+    </property>
+    <property name="tickPosition" >
+     <enum>QSlider::TicksBelow</enum>
+    </property>
+    <property name="tickInterval" >
+     <number>10</number>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="SpinY" >
+    <property name="geometry" >
+     <rect>
+      <x>480</x>
+      <y>500</y>
+      <width>62</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="singleStep" >
+     <double>0.010000000000000</double>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="SpinZ" >
+    <property name="geometry" >
+     <rect>
+      <x>540</x>
+      <y>500</y>
+      <width>62</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="singleStep" >
+     <double>0.010000000000000</double>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="SpinX" >
+    <property name="geometry" >
+     <rect>
+      <x>420</x>
+      <y>500</y>
+      <width>62</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="singleStep" >
+     <double>0.010000000000000</double>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

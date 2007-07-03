@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>706</width>
-    <height>658</height>
+    <width>701</width>
+    <height>656</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -25,24 +25,23 @@
     <property name="currentIndex" >
      <number>0</number>
     </property>
-    <widget class="QWidget" name="Motors" >
+    <widget class="QWidget" name="tab" >
      <attribute name="title" >
-      <string>Motors</string>
-     </attribute>
-    </widget>
-    <widget class="QWidget" name="Konsoler" >
-     <attribute name="title" >
-      <string>Konsole</string>
-     </attribute>
-    </widget>
-    <widget class="QWidget" name="XP" >
-     <attribute name="title" >
-      <string>Experiment</string>
+      <string>Tab 1</string>
      </attribute>
     </widget>
    </widget>
   </widget>
-  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QMenuBar" name="Bar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>701</width>
+     <height>28</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

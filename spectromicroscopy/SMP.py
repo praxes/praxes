@@ -1,21 +1,42 @@
-import os
-path=os.path.join(os.path.expanduser("~"),
-                  "My Documents/labwork/spectromicroscopy/spectromicroscopy/")
+# -*- coding: utf-8 -*-
 
-os.system("pyuic4 %s/GearTester.ui>%s/GearTester.py"%(path,path))
-from PyQt4 import QtCore, QtGui    
-from SMP import Ui_Main
+# Form implementation generated from reading ui file '/home/jeff/workspace/spectromicroscopy/spectromicroscopy//SMP.ui'
+#
+# Created: Tue Jul  3 15:53:29 2007
+#      by: PyQt4 UI code generator 4.1
+#
+# WARNING! All changes made in this file will be lost!
 
-class MySMP(Ui_Main,QtGui.QMainWindow):
-    """Establishes a Experimenbt controls"""
-    def __init__(self,parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        self.setupUi(self)
+import sys
+from PyQt4 import QtCore, QtGui
 
-        
-if __name__ == "__main__":
-    print __file__
-    app = QtGui.QApplication(sys.argv)
-    myapp = MySMP()
-    myapp.show()
-    sys.exit(app.exec_())
+class Ui_Main(object):
+    def setupUi(self, Main):
+        Main.setObjectName("Main")
+        Main.resize(QtCore.QSize(QtCore.QRect(0,0,701,656).size()).expandedTo(Main.minimumSizeHint()))
+
+        self.centralwidget = QtGui.QWidget(Main)
+        self.centralwidget.setObjectName("centralwidget")
+
+        self.Tabby = QtGui.QTabWidget(self.centralwidget)
+        self.Tabby.setGeometry(QtCore.QRect(0,0,701,631))
+        self.Tabby.setObjectName("Tabby")
+
+        self.tab = QtGui.QWidget()
+        self.tab.setObjectName("tab")
+        self.Tabby.addTab(self.tab,"")
+        Main.setCentralWidget(self.centralwidget)
+
+        self.Bar = QtGui.QMenuBar(Main)
+        self.Bar.setGeometry(QtCore.QRect(0,0,701,28))
+        self.Bar.setObjectName("Bar")
+        Main.setMenuBar(self.Bar)
+
+        self.retranslateUi(Main)
+        self.Tabby.setCurrentIndex(0)
+        QtCore.QMetaObject.connectSlotsByName(Main)
+
+    def retranslateUi(self, Main):
+        Main.setWindowTitle(QtGui.QApplication.translate("Main", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
+        self.Tabby.setTabText(self.Tabby.indexOf(self.tab), QtGui.QApplication.translate("Main", "Tab 1", None, QtGui.QApplication.UnicodeUTF8))
+
