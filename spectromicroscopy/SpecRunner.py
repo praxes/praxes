@@ -141,7 +141,7 @@ class SpecRunner:
     def readvariables(self,motor):
         motor=self._motors[motor]
         if self.DEBUG!=1:    
-            self._varnames=('position','offset','sign')
+            self._varnames=('position','offset','sign',"low_limit","high_limit")
         else:
             self._varnames=("one","two","three")
             return self._varnames
@@ -158,42 +158,51 @@ class SpecRunner:
     def getvars(self,motor):
         return self._varnames
     def getvarsvalues(self,motor):
+        motor=self._motors[motor]
         return self._variables[motor]
     def setmotor(self,motor):
         if motor in self._motors.keys():
             self._motor=self._motors[motor]
     def getmotor(self):
-        return self._motor.motor_name()
+        if self._motor:
+            return self._motor.motor_name()
+        else:
+            return False
     def getmotorlimits(self,nameOfMotor):
         return self._motors[nameOfMotor].getLimits()
     def getmotorposition(self, nameOfMotor):
         return self._motors[nameOfMotor].getPosition()
     def status(self,nameOfMotor):
         return self._motors[nameOfMotor].status()
-    def setvar(self,motor,var):
-        motor=self._motors[motor]
-        if var in self._variables[motor]:
+    def setvar(self,var):
+        if var in self._varnames:
             self._var=var
+            return True
         else:
+            print var
+            print self._variables[motor]
             return False
     def getvar(self):
         return self._var
+    def getvarval(self):
+        n=self._varnames.index(self._var)
+        return self._variables[self._motor][n]
     def setcmd(self,cmd):
-        self.cmd=cmd
-    def getcmd(self,cmd):
-        return self.cmd           
+        self._cmd=cmd
+    def getcmd(self):
+        return self._cmd           
     def runcmd(self):
-        self._cmd=self._cmd.split(' ')
+        self._cmd="%s"%self._cmd
+        self._cmd.split(' ',1)
         if self.DEBUG==1 or self.DEBUG==2:
             for i in range(len(self._cmd)):
                 print "\n**It will %s**"%self._cmd[i]
         else:
             print "working"
-            #TODO understand and moridy this code
             motorMon = TestSpecMotor(self._motor, self._specHost+":"+self._specPort)
             variableMon = TestSpecVariable(self._var, self._specHost+":"+self._specPort)
             commandMon = TestSpecCommand(self._cmd[0], self._specHost+":"+self._specPort)
-            #commandMon(self._cmd[1])
+            commandMon(self._cmd[1])
             while motorMon.isConnected() and variableMon.isConnected():
                 SpecEventsDispatcher.dispatch()
     

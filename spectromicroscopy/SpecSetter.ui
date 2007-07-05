@@ -1,0 +1,383 @@
+<ui version="4.0" >
+ <class>SpecSetter</class>
+ <widget class="QWidget" name="SpecSetter" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>426</width>
+    <height>135</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <widget class="QLabel" name="label_2" >
+   <property name="geometry" >
+    <rect>
+     <x>90</x>
+     <y>40</y>
+     <width>65</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Stepsize</string>
+   </property>
+   <property name="buddy" >
+    <cstring>StepSize</cstring>
+   </property>
+  </widget>
+  <widget class="QLabel" name="Speed" >
+   <property name="geometry" >
+    <rect>
+     <x>370</x>
+     <y>40</y>
+     <width>54</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Speed</string>
+   </property>
+   <property name="buddy" >
+    <cstring>Speed</cstring>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton" >
+   <property name="geometry" >
+    <rect>
+     <x>340</x>
+     <y>110</y>
+     <width>80</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Load</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_2" >
+   <property name="geometry" >
+    <rect>
+     <x>120</x>
+     <y>10</y>
+     <width>156</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Changer" >
+   <property name="geometry" >
+    <rect>
+     <x>290</x>
+     <y>10</y>
+     <width>133</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Change File</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>40</y>
+     <width>85</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>MotorName</string>
+   </property>
+   <property name="buddy" >
+    <cstring>Name</cstring>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3" >
+   <property name="geometry" >
+    <rect>
+     <x>90</x>
+     <y>90</y>
+     <width>65</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Lower Limit</string>
+   </property>
+   <property name="buddy" >
+    <cstring>LL</cstring>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4" >
+   <property name="geometry" >
+    <rect>
+     <x>160</x>
+     <y>90</y>
+     <width>68</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Upper Limit</string>
+   </property>
+   <property name="buddy" >
+    <cstring>UL</cstring>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="Setter" >
+   <property name="geometry" >
+    <rect>
+     <x>240</x>
+     <y>110</y>
+     <width>100</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Set Parameters</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_9" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>10</y>
+     <width>121</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Config File</string>
+   </property>
+   <property name="buddy" >
+    <cstring>lineEdit_2</cstring>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="LL" >
+   <property name="geometry" >
+    <rect>
+     <x>90</x>
+     <y>110</y>
+     <width>65</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="maximum" >
+    <double>360.000000000000000</double>
+   </property>
+   <property name="minimum" >
+    <double>-360.000000000000000</double>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="UL" >
+   <property name="geometry" >
+    <rect>
+     <x>160</x>
+     <y>110</y>
+     <width>68</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="maximum" >
+    <double>360.000000000000000</double>
+   </property>
+   <property name="minimum" >
+    <double>-360.000000000000000</double>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="Blash" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>110</y>
+     <width>85</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="decimals" >
+    <number>0</number>
+   </property>
+   <property name="maximum" >
+    <double>1000000.000000000000000</double>
+   </property>
+   <property name="minimum" >
+    <double>-1000000.000000000000000</double>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="Name" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>60</y>
+     <width>61</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string/>
+   </property>
+   <property name="maxLength" >
+    <number>2</number>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="StepSize" >
+   <property name="geometry" >
+    <rect>
+     <x>70</x>
+     <y>60</y>
+     <width>71</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>90</y>
+     <width>85</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Backlash</string>
+   </property>
+   <property name="buddy" >
+    <cstring>Blash</cstring>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="Sign" >
+   <property name="geometry" >
+    <rect>
+     <x>150</x>
+     <y>60</y>
+     <width>46</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="maximum" >
+    <number>1</number>
+   </property>
+   <property name="minimum" >
+    <number>-1</number>
+   </property>
+   <property name="singleStep" >
+    <number>2</number>
+   </property>
+   <property name="value" >
+    <number>1</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_6" >
+   <property name="geometry" >
+    <rect>
+     <x>160</x>
+     <y>40</y>
+     <width>46</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Sign</string>
+   </property>
+   <property name="buddy" >
+    <cstring>Sign</cstring>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="Accel" >
+   <property name="geometry" >
+    <rect>
+     <x>200</x>
+     <y>60</y>
+     <width>69</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_7" >
+   <property name="geometry" >
+    <rect>
+     <x>200</x>
+     <y>40</y>
+     <width>69</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Acceleration</string>
+   </property>
+   <property name="buddy" >
+    <cstring>Accel</cstring>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="BR" >
+   <property name="geometry" >
+    <rect>
+     <x>280</x>
+     <y>60</y>
+     <width>61</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="decimals" >
+    <number>0</number>
+   </property>
+   <property name="maximum" >
+    <double>1000000.000000000000000</double>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_8" >
+   <property name="geometry" >
+    <rect>
+     <x>280</x>
+     <y>40</y>
+     <width>73</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>Base Rate</string>
+   </property>
+   <property name="buddy" >
+    <cstring>BR</cstring>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="Speed" >
+   <property name="geometry" >
+    <rect>
+     <x>353</x>
+     <y>60</y>
+     <width>71</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="decimals" >
+    <number>0</number>
+   </property>
+   <property name="maximum" >
+    <double>1000000.000000000000000</double>
+   </property>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>lineEdit_2</tabstop>
+  <tabstop>Changer</tabstop>
+  <tabstop>Name</tabstop>
+  <tabstop>StepSize</tabstop>
+  <tabstop>Sign</tabstop>
+  <tabstop>Accel</tabstop>
+  <tabstop>BR</tabstop>
+  <tabstop>Speed</tabstop>
+  <tabstop>Blash</tabstop>
+  <tabstop>LL</tabstop>
+  <tabstop>UL</tabstop>
+  <tabstop>Setter</tabstop>
+  <tabstop>pushButton</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
