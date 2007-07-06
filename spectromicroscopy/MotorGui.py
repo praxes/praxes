@@ -66,9 +66,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
                                self.reStart)
         QtCore.QObject.connect(self.CommandLine, 
                                QtCore.SIGNAL("returnPressed()"), self.input)
-        QtCore.QObject.connect(self.MotorsTree,
-                               QtCore.SIGNAL("itemSelectionChanged ()"),
-                               self.motorselect)
+        QtCore.QObject.connect(self.MotorsTree, QtCore.SIGNAL("itemSelectionChanged ()"), self.motorselect)
         QtCore.QObject.connect(self.Mover, QtCore.SIGNAL("clicked()"),
                                self.cmdMove)
         QtCore.QObject.connect(self.Closer,QtCore.SIGNAL("clicked()"),\
@@ -79,36 +77,36 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             
     def runspec(self):
 
-        if not self.specrun.getspechost():
-            self.specrun.setspechost(self.command)
+        if not self.specrun.get_spec_host():
+            self.specrun.set_spec_host(self.command)
             print " Host set as %s \n Select a Port"%self.command
-        elif not self.specrun.getspecport():
-            self.specrun.setspecport(self.command)
+        elif not self.specrun.get_spec_port():
+            self.specrun.set_spec_port(self.command)
             print " Port set as %s"%self.command
             try:
                 connection=self.specrun.serverconnect()
-                print " Connected to %s on %s"%(self.specrun.getspecport(),
-                                                self.specrun.getspechost())
+                print " Connected to %s on %s"%(self.specrun.get_spec_port(),
+                                                self.specrun.get_spec_host())
             except:
                 print " Invalid Host or Server"
             if connection:
                 self.specrun.readmotors()
-                readmotors=self.specrun.getmotors()
+                readmotors=self.specrun.get_motor_names()
                 for i in range(len(readmotors)):
-                    self.specrun.readvariables(readmotors[i])
-                self.motorget()
+                    self.specrun.readParam(readmotors[i])
+                self.get_motors()
                 print " Select a motor"
         #TODO: update here till end of 
-        elif not self.specrun.getmotor():
-            self.specrun.setmotor("%s"%self.command)
-            print " **%s selected**\n Select a Variable"%self.specrun.getmotor()
-        elif not self.specrun.getvar():
-            print self.specrun.setvar("%s"%self.command)
+        elif not self.specrun.get_motor_name():
+            self.specrun.set_motor("%s"%self.command)
+            print " **%s selected**\n Select a Variable"%self.specrun.get_motor_name()
+        elif not self.specrun.get_var():
+            print self.specrun.set_var("%s"%self.command)
             print " %s to be monitored \n Select  a command to run \
-            asynchronously: "%self.specrun.getvar()
-        elif not self.specrun.getcmd():
-            self.specrun.setcmd("%s"%self.command)
-            self.specrun.runcmd() 
+            asynchronously: "%self.specrun.get_var()
+        elif not self.specrun.get_cmd():
+            self.specrun.set_cmd("%s"%self.command)
+            self.specrun.run_cmd() 
         else:
             print ":P"
         
@@ -171,72 +169,64 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         else:
             os.system("gedit")
 
-    def motorget(self):
-        """Generates Motors as widgets and names
+    def get_motors(self):
+        """Generates Motors as widgets and names for MotorTree
         
         self.motordict--widget=key name=tag
         """
-        self.motordict={}
-        self.motorwidget=[]
-        self.motornames=[]
-        for i in range(len(self.specrun.getmotors())):
-            NameString=self.specrun.getmotors()[i]
-            self.motorwidget.append(QtGui.QTreeWidgetItem(self.MotorsTree))
-            self.motorwidget[i].setText(0,NameString)
-            Status=self.specrun.status(self.specrun.getmotors()[i])
-            self.motorwidget[i].setText(1,Status)
-            self.motornames.append(NameString)
-            self.motordict[self.motorwidget[i]]=self.motornames[i]
+        self.motor_widget_list=[]
+        motor_names=self.specrun.get_motor_names()
+        for name in motor_names:
+            item = QtGui.QTreeWidgetItem(self.MotorsTree)
+            item.setText(0, name)
+            item.setText(1, self.specrun.status(name))
+            self.motor_widget_list.append(item)
+        
     def motorselect(self):
         """Selects the motors based on widgets selected in MotorTree"""
-        if self.MotorsTree.selectedItems()[0] in self.motordict.keys():
-            selection=self.motordict[self.MotorsTree.selectedItems()[0]]
-            self.specrun.setmotor(selection)
-            print " **%s selected**\n Select a variable"%self.specrun.getmotor()
-            try:
-                if DEBUG==1:            
-                    min = 30
-                    max = 100
-                else:
-                    (min,max)=self.specrun.getmotorlimits(selection)
-                    place=self.specrun.getmotorposition(selection)
-                self.MoveBar.setRange(min,max)
-                self.Positioner.setRange(min,max)
-            except:
-                print "unable to get limits of motor"
-            try:
-                if DEBUG==1:
-                    place=0
-                else:
-                    place=self.specrun.getmotorposition(selection)
-                self.MoveBar.setValue(place)
-                self.Positioner.setRange(place)
-                print "\n Select a Variable"
-            except:
-                print "Unable to Get Position"
-            
+        name="%s"%self.MotorsTree.selectedItems()[0].text(0)
+        self.specrun.set_motor(name)
+        print " **%s selected**\n Select a variable"%name
+        if True:#replace with try
+            if DEBUG==1:            
+                min = 30
+                max = 100
+            else:
+                (min,max)=self.specrun.get_motor_limits(name)
+            self.MoveBar.setRange(min,max)
+            self.Positioner.setRange(min,max)
         else:
-            print self.MotorsTree.selectedItems()[0]
-            print "\n select a motor first"
+            print "unable to get limits of motor"
+        if True:#replace with try
+            if DEBUG==1:
+                place=0
+            else:
+                place=self.specrun.get_motor_position(name)
+            self.MoveBar.setValue(place)
+            # TODO fix self.Positioner.setValue(place)
+            print "\n Select a Variable"
+        else:
+            print "Unable to Get Position"
+            
 
-    def varget(self):
+    def paramget(self):
         """gets variables from specrun
         
         self.vardict--widget=key name=tag
         """
-        self.vardict={}
-        self.varwidget=[]
-        self.varnames=[]
+        self.paramdict={}
+        self.paramwidget=[]
+        self.paramnames=[]
         for i in range(len(self.motornames)):
-            self.specrun.readvariables(self.motornames[i])
-            MotorsVar= self.specrun.getvars(self.motornames[i])
-            MotorValues=self.specrun.getvarsvalue(self.motornames[i])
-            for j in range(len(MotorVar)):
-                self.varwidget.append(QtGui.QTreeWidgetItem(self.motorwidget[i]))
-                self.varwidget.setText(0,MotorVar[j])
-                self.vardict[MotorVar[j]]=MotorValues[j]
+            self.specrun.readParam(self.motornames[i])
+            MotorsParam= self.specrun.get_params(self.motornames[i])
+            MotorValues=self.specrun.get_paramsvalue(self.motornames[i])
+            for j in range(len(MotorParam)):
+                self.paramwidget.append(QtGui.QTreeWidgetItem(self.motor_widget_list[i]))
+                self.paramwidget.setText(0,MotorParam[j])
+                self.paramdict[MotorParam[j]]=MotorValues[j]
         
-    def varselect(self):
+    def Varselect(self):
         """selects variables"""
         #todo make this work
         print ("\n **%s to be monitored** \n"+\
@@ -245,8 +235,8 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
     def cmdMove(self):
         """Moves selected motor"""
         cmd="move(%s)"%self.Positioner.value()
-        self.specrun.setcmd(cmd)
-        self.specrun.runcmd()
+        self.specrun.set_cmd(cmd)
+        self.specrun.run_cmd()
             
     def reStart(self):
         """restarts the run"""

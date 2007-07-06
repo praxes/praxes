@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os,sys
 path=path=os.path.join(os.path.expanduser("~"),
             "workspace/spectromicroscopy/spectromicroscopy/")
@@ -13,7 +15,7 @@ from XpGui import MyXP
 
 
 class MySMP(Ui_Main,QtGui.QMainWindow):
-    """Establishes a Experimenbt controls"""
+    """Establishes a Experiment controls"""
     def __init__(self,parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)

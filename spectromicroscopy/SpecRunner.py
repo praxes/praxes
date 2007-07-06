@@ -13,6 +13,9 @@ from SpecClient import SpecMotor, Spec, SpecEventsDispatcher, SpecVariable, Spec
     These are the things set up by Danny
 ***********ACTUAL MOTOR CONTROLS FOLLOW**********
 
+
+Motor Names refer to motor nemonics
+specclient expects to wrok with nemonics and never used full motor names
 """
 
 
@@ -60,10 +63,24 @@ class TestSpecCommand(SpecCommand.SpecCommandA):
     def beingWait(self):
         print 'Command %s was sent'%self.command
     def replyArrived(self, reply):
+        self.set_Reply(reply)
         if (reply.error):
             print "command %s received an error message: "%(self.command,reply.data)
         else:
             print "Command %s received a reply: %s"%(self.command,reply.data)
+    
+    def connected(self):
+       print "Command connected"
+       self.set_Reply(None) 
+    def disconnected(self):
+        print "disconnected"
+                
+    def statusChanged(self, ready):
+        print ready
+    def set_Reply(self,Reply):
+        self.Reply=Reply
+    def get_Reply(self):
+        return self.Reply
 
 
 """
@@ -90,41 +107,43 @@ class SpecRunner:
         """
         self.DEBUG=Debug
         self.Roll=roll
-        self._varnames = () # TODO: finish these commands
+        self._paramnames = () # TODO: finish these commands
         self._spec = None
         self._specPort=''
         self._specHost=''
         self._var=''
         self._cmd=''
         self._motors={}
-        self._variables={}
+        self.parameters={}
         self._motor=None
         if parent:
             sys.stdout=parent
         print "spec is on"
-    def setspechost(self,spechost):
+    def set_spec_host(self,spechost):
         self._specHost=spechost
-    def getspechost(self):
+    def get_spec_host(self):
         return self._specHost
-    def setspecport(self,port):
+    def set_spec_port(self,port):
         self._specPort=port
-    def getspecport(self):
+    def get_spec_port(self):
         return self._specPort
     def serverconnect(self):
         print "connecting..."
         try:
             if self.DEBUG==1:
                 self._spec=("motor0","motor1","motor2")
-                self._varnames=("variable1","number 2","Shalosh")  
+                self._paramnames=("variable1","number 2","Shalosh")  
             else:
                 if self.Roll==1 or self.Roll==2:
-                    self._specHost="roll.chess.cornell.edu"
-                    self._specPort="spec"
+                    self._specHost="f3.chess.cornell.edu"
+                    self._specPort="xrf"
                 self._spec = Spec.Spec(self._specHost + ":" + self._specPort, 500)
             print "Connected!"
+            print self._spec.getName()
             return True
         except:
             return False
+    
     def readmotors(self):
         if self.DEBUG==1:
             motornames=("motor0","motor1","motor2")
@@ -132,66 +151,75 @@ class SpecRunner:
                 self._motors[motornames[i]]=motornames[i]
         else:
             motornames=self._spec.getMotorsMne()
-            motors=[]
-            for i in range(len(motornames)):
-                motors.append(TestSpecMotor(self._spec.motor_name(i),\
-                                                   self._specHost + ":" + self._specPort))
-                self._motors[motornames[i]]=motors[i]
+            
+            i=0
+            for name in motornames:
+                self._motors[name] = TestSpecMotor(name,
+                                                   self._specHost + ":" + self._specPort)
+                i += 1
                 
-    def readvariables(self,motor):
+    def readParam(self,motor):
         motor=self._motors[motor]
         if self.DEBUG!=1:    
-            self._varnames=('position','offset','sign',"low_limit","high_limit")
+            self._paramnames=('position','offset','sign',"low_limit","high_limit")
         else:
-            self._varnames=("one","two","three")
-            return self._varnames
+            self._paramnames=("one","two","three")
+            return self._paramnames
         value=[]
-        for i in range(len(self._varnames)):
+        for i in range(len(self._paramnames)):
             try: 
-                value.append(motor.getParameter(self._varnames[i]))
+                value.append(motor.get_parameter(self._paramnames[i]))
             except:
                 value.append("unable to get value")
-            self._variables[motor]=value
+            self.parameters[motor]=value
         
-    def getmotors(self): 
+    def get_motor_names(self): 
         return self._motors.keys()
-    def getvars(self,motor):
-        return self._varnames
-    def getvarsvalues(self,motor):
+    
+    def get_param(self,motor):
+        return self._paramnames
+    
+    def get_params_values(self,motor):
         motor=self._motors[motor]
-        return self._variables[motor]
-    def setmotor(self,motor):
-        if motor in self._motors.keys():
-            self._motor=self._motors[motor]
-    def getmotor(self):
+        return self.parameters[motor]
+    
+    def get_param_val(self):
+        n=self._paramnames.index(self._var)
+        return self.parameters[self._motor][n]
+    
+    def set_motor(self,motor_name):
+        if motor_name in self._motors:
+            self._motor=self._motors[motor_name]
+    
+    def get_motor_name(self):
         if self._motor:
             return self._motor.motor_name()
         else:
-            return False
-    def getmotorlimits(self,nameOfMotor):
-        return self._motors[nameOfMotor].getLimits()
-    def getmotorposition(self, nameOfMotor):
-        return self._motors[nameOfMotor].getPosition()
-    def status(self,nameOfMotor):
-        return self._motors[nameOfMotor].status()
-    def setvar(self,var):
-        if var in self._varnames:
-            self._var=var
-            return True
-        else:
-            print var
-            print self._variables[motor]
-            return False
-    def getvar(self):
+            return None
+    
+    def get_motor_limits(self,motor_name):
+        return self._motors[motor_name].getLimits()
+    
+    def get_motor_position(self, motor_name):
+        return self._motors[motor_name].getPosition()
+    
+    def status(self,motor_name):
+        print motor_name
+        return self._motors[motor_name].status()
+    
+    def set_var(self,var):
+        self._var=var
+    
+    def get_var(self):
         return self._var
-    def getvarval(self):
-        n=self._varnames.index(self._var)
-        return self._variables[self._motor][n]
-    def setcmd(self,cmd):
+    
+    def set_cmd(self,cmd):
         self._cmd=cmd
-    def getcmd(self):
+    
+    def get_cmd(self):
         return self._cmd           
-    def runcmd(self):
+    
+    def run_cmd(self):
         self._cmd="%s"%self._cmd
         self._cmd.split(' ',1)
         if self.DEBUG==1 or self.DEBUG==2:
@@ -199,22 +227,25 @@ class SpecRunner:
                 print "\n**It will %s**"%self._cmd[i]
         else:
             print "working"
-            motorMon = TestSpecMotor(self._motor, self._specHost+":"+self._specPort)
+            motorMon = self._motor
             variableMon = TestSpecVariable(self._var, self._specHost+":"+self._specPort)
             commandMon = TestSpecCommand(self._cmd[0], self._specHost+":"+self._specPort)
             commandMon(self._cmd[1])
-            while motorMon.isConnected() and variableMon.isConnected():
-                SpecEventsDispatcher.dispatch()
+            while not commandMon.get_Reply:
+                self.update()
+    def update(self):
+        SpecEventsDispatcher.dispatch()
     
     def EmergencyStop(self):
-        if self.getCmd():
-            self.setCmd("stop()")
-            self.runCMD()
+        if self.get_cmd():
+            self.set_cmd("stop()")
+            self.run_cmd()
             self.cmd=''
             print "\n %%%%%%%%%%%%ALL STOP%%%%%%%%%%%%"
 
     def tester(self):
         print "testing"
+        
         
         
         
