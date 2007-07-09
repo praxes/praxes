@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 
 import os,sys
-path=path=os.path.join(os.path.expanduser("~"),
-            "workspace/spectromicroscopy/spectromicroscopy/")
-
-os.system("pyuic4 %s/SMP.ui>%s/SMP.py"%(path,path))
-os.system("pyuic4 %s/Xp.ui>%s/Xp.py"%(path,path))
-os.system("pyuic4 %s/GearTester.ui>%s/GearTester.py"%(path,path))
+os.system("pyuic4 SMP.ui>SMP.py")
+os.system("pyuic4 Xp.ui>Xp.py")
+os.system("pyuic4 GearTester.ui>GearTester.py")
 from PyQt4 import QtCore, QtGui    
 from SMP import Ui_Main
 from MotorGui import MyUI
