@@ -6,8 +6,9 @@ This program is a Graphical User interface for X-ray Spectroscopy
 ################################################################################
 ######################Use this to set the mode of the program###################
 DEBUG=0     #if set to 1 it deactivates spec commands
-Rollcall=2    #if set to 1 it auto starts spec -s on roll.chess.cornell.edu
+Rollcall=2    #if set to 1 it auto starts spec -s on f3.chess.cornell.edu
               #and connects if set to 2 it wont autostart but will autoconnect
+              #if set to 3 it will autoconnect and start spec on roll
 
 ################################################################################
 
@@ -51,8 +52,9 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         self.filename=''
         self.command=''
         sys.stdout=self
-        self.specrun=SpecRunner(DEBUG,Rollcall,self)
+        self.specrun=SpecRunner(DEBUG,self)
         time=strftime("%a, %d %b %Y %H:%M:%S", localtime())
+        print "Rollcall=%s, DEBUG=%s"%(Rollcall,DEBUG)# TODO: remove when done
         print "\n New Session started (%s)\n Enter spec server hostname: "%time 
         QtCore.QObject.connect(self.ChangeFile, QtCore.SIGNAL("clicked()"),
                                self.file_dialog)
@@ -66,17 +68,21 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
                                self.reStart)
         QtCore.QObject.connect(self.CommandLine, 
                                QtCore.SIGNAL("returnPressed()"), self.input)
-        QtCore.QObject.connect(self.MotorsTree, QtCore.SIGNAL("itemSelectionChanged ()"), self.motorselect)
+        QtCore.QObject.connect(self.MotorsTree, QtCore.SIGNAL("itemSelectionChanged ()"), self.select_motor)
         QtCore.QObject.connect(self.Mover, QtCore.SIGNAL("clicked()"),
                                self.cmdMove)
         QtCore.QObject.connect(self.Closer,QtCore.SIGNAL("clicked()"),\
                                  self.endsesh)
         
-        
+        if Rollcall==1 or Rollcall==2:
+            self.specrun.set_spec_host("f3.chess.cornell.edu")
+            self.CommandLine.setText("xrf")
+        elif Rollcall==3:
+            self.specrun.set_spec_host("roll.chess.cornell.edu")
+            self.CommandLine.setText("spec")
 
             
     def runspec(self):
-
         if not self.specrun.get_spec_host():
             self.specrun.set_spec_host(self.command)
             print " Host set as %s \n Select a Port"%self.command
@@ -91,21 +97,17 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
                 print " Invalid Host or Server"
             if connection:
                 self.specrun.readmotors()
-                readmotors=self.specrun.get_motor_names()
-                for i in range(len(readmotors)):
-                    self.specrun.readParam(readmotors[i])
                 self.get_motors()
+                #self.get_params()
                 print " Select a motor"
-        #TODO: update here till end of 
         elif not self.specrun.get_motor_name():
-            self.specrun.set_motor("%s"%self.command)
-            print " **%s selected**\n Select a Variable"%self.specrun.get_motor_name()
+            self.MotorsTree.setItemSelected(self.motor_widget_dict[self.command],True)
         elif not self.specrun.get_var():
-            print self.specrun.set_var("%s"%self.command)
+            print self.specrun.set_var(self.command)
             print " %s to be monitored \n Select  a command to run \
             asynchronously: "%self.specrun.get_var()
         elif not self.specrun.get_cmd():
-            self.specrun.set_cmd("%s"%self.command)
+            self.specrun.set_cmd(self.command)
             self.specrun.run_cmd() 
         else:
             print ":P"
@@ -113,7 +115,8 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
 
     def input(self):
         """converts a string from the textbox into motors and variables"""
-        self.command=self.CommandLine.text()
+        self.command="%s"%self.CommandLine.text().toAscii()
+        
         self.CommandLine.clear()
         print "\n>>>>%s"%self.command
         self.runspec()
@@ -174,6 +177,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         
         self.motordict--widget=key name=tag
         """
+        self.motor_widget_dict={}
         self.motor_widget_list=[]
         motor_names=self.specrun.get_motor_names()
         for name in motor_names:
@@ -181,12 +185,13 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             item.setText(0, name)
             item.setText(1, self.specrun.status(name))
             self.motor_widget_list.append(item)
+            self.motor_widget_dict[name]=item
         
-    def motorselect(self):
+    def select_motor(self):
         """Selects the motors based on widgets selected in MotorTree"""
         name="%s"%self.MotorsTree.selectedItems()[0].text(0)
         self.specrun.set_motor(name)
-        print " **%s selected**\n Select a variable"%name
+        print " **%s selected**\n Select a Variable"%name
         if True:#replace with try
             if DEBUG==1:            
                 min = 30
@@ -203,34 +208,40 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             else:
                 place=self.specrun.get_motor_position(name)
             self.MoveBar.setValue(place)
-            # TODO fix self.Positioner.setValue(place)
-            print "\n Select a Variable"
+            # TODO fix 
+            
+            
+            self.Positioner.setValue(place)
         else:
             print "Unable to Get Position"
             
 
-    def paramget(self):
+    def get_params(self):
         """gets variables from specrun
         
         self.vardict--widget=key name=tag
         """
-        self.paramdict={}
         self.paramwidget=[]
-        self.paramnames=[]
-        for i in range(len(self.motornames)):
-            self.specrun.readParam(self.motornames[i])
-            MotorsParam= self.specrun.get_params(self.motornames[i])
-            MotorValues=self.specrun.get_paramsvalue(self.motornames[i])
-            for j in range(len(MotorParam)):
-                self.paramwidget.append(QtGui.QTreeWidgetItem(self.motor_widget_list[i]))
-                self.paramwidget.setText(0,MotorParam[j])
-                self.paramdict[MotorParam[j]]=MotorValues[j]
-        
+        i=0
+        for motorname in self.specrun.get_motor_names():
+            self.specrun.readParam()
+            MotorsParam= self.specrun.get_params()
+            MotorValues=self.specrun.get_params_value(motorname)
+            j=0
+            for Param in MotorParam:
+                widget=QtGui.QTreeWidgetItem(self.motor_widget_list[i])
+                widget.setText(0,Param+"is"+MotorValues[j])
+                self.paramwidget.append(widget)
+                j+=1
+            i+=1
+
+    def update(self):
+        self.specrun.update()
+
     def Varselect(self):
         """selects variables"""
         #todo make this work
-        print ("\n **%s to be monitored** \n"+\
-                       "Select  a command to run asynchronously: "%self.var)
+        print "not done yet"
                 
     def cmdMove(self):
         """Moves selected motor"""
@@ -249,21 +260,27 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         if Rollcall==1:
             import pxssh
             self.sesh = pxssh.pxssh()
-            if not self.sesh.login ('roll.chess.cornell.edu', 'specuser', 'CThrooMe'):
-                if DEBUG!=2:
-                    print"SSH session failed on login."
-                    print str(self.sesh)
-                else:
-                    print "SSH login failed"
+            if not self.sesh.login ('f3.chess.cornell.edu', 'specuser', 'CThrooMe'):
+                print"SSH session failed on login."
+                print str(self.sesh)
             else:
-                if DEBUG!=2:
-                    print "SSH session login successful"
-                    self.sesh.sendline('killall spec')
-                    self.sesh.sendline ('spec -S')
-                    self.sesh.prompt()
-                    print self.sesh.before
-                else:
-                    print "DEBUG=2?"
+                print "SSH session login successful"
+                self.sesh.sendline ('xrf -S')
+                self.sesh.prompt()
+                print self.sesh.before
+        elif Rollcall==3:
+            import pxssh
+            self.sesh = pxssh.pxssh()
+            if not self.sesh.login ('roll.chess.cornell.edu', 'specuser', 'CThrooMe'):
+                print"SSH session failed on login."
+                print str(self.sesh)
+            else:
+                print "SSH session login successful"
+                self.sesh.sendline("killall spec")
+                self.sesh.sendline ('spec -S')
+                self.sesh.prompt()
+                print self.sesh.before
+              
         else:
             self.sesh=None
     def endsesh(self):

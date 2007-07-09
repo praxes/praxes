@@ -2,9 +2,8 @@ DEBUG=None
 Roll=None
 
 import sys
-#SpecClient
-import SpecClient
 
+import SpecClient
 SpecClient.setLoggingOff()
 from SpecClient import SpecMotor, Spec, SpecEventsDispatcher, SpecVariable, SpecCommand
 
@@ -20,65 +19,91 @@ specclient expects to wrok with nemonics and never used full motor names
 
 
 class TestSpecMotor(SpecMotor.SpecMotorA):
-    stateStrings = ['NOTINITIALIZED', 'UNUSABLE', 'READY', 'MOVESTARTED', 'MOVING', 'ONLIMIT']
+    
+    __state_strings__ = ['NOTINITIALIZED', 'UNUSABLE', 'READY', 'MOVESTARTED', 'MOVING', 'ONLIMIT']
+    
+    def __init__(self, specName = None, specVersion = None):
+        SpecMotor.SpecMotorA.__init__(self, specName, specVersion)
+        self.getPosition()
+
     def connected(self):
         self.__connected__ = True
         print'Motor %s connected'%self.specName
+    
     def disconnected(self):
         self.__connected__ = False
         print 'Motor %s disconnected'%self.specName
+
+    def isConnected(self):
+        return (self.__connected__ != None) and (self.__connected__)
+
     def motorLimitsChanged(self):
         limits = self.getLimits()
         limitString = "(" + str(limits[0])+", "+ str(limits[1]) + ")"
         print "Motor %s limits changed to %s"%(self.specName,limitString)
+    
     def motorPositionChanged(self, absolutePosition):
         print "Motor %s position changed to %s"%(self.specName,absolutePosition)
+    
     def syncQuestionAnswer(self, specSteps, controllerSteps):
         print "Motor %s syncing"%self.specName
+    
     def motorStateChanged(self, state):
         print "Motor %s state changed to"%self.specName
-        print self.stateStrings[state]
-    def isConnected(self):
-        return (self.__connected__ != None) and (self.__connected__)
+        print self.__state_strings__[state]
+    
     def status(self):
-        return self.stateStrings[self.getState()]
+        return self.__state_strings__[self.getState()]
+    
     def motor_name(self):
         return self.specName
 
+
 class TestSpecVariable(SpecVariable.SpecVariableA):
+    
     def connected(self):
         self.__connected__ = True
         print 'Variable %s connected'%self.getVarName()
+    
     def disconnected(self):
         self.__connected__ = False
         print "Variable %s disconnected"%self.getVarName()
+    
     def update(self, value):
-        print "Variable %s updated to %s"%(self.getVarName(),value)
+        print "Variable %s updated to %s"%(self.getVarName(), value)
+    
     def isConnected(self):
         return (self.__connected__ != None) and (self.__connected__)
+    
     def getVarName(self):
         return self.channelName[4:len(self.channelName)]
 
+
 class TestSpecCommand(SpecCommand.SpecCommandA):
+
     def beingWait(self):
         print 'Command %s was sent'%self.command
+    
     def replyArrived(self, reply):
         self.set_Reply(reply)
         if (reply.error):
-            print "command %s received an error message: "%(self.command,reply.data)
+            print "command %s received an error message: %s"%(self.command, reply.data)
         else:
-            print "Command %s received a reply: %s"%(self.command,reply.data)
+            print "Command %s received a reply: %s"%(self.command, reply.data)
     
     def connected(self):
        print "Command connected"
        self.set_Reply(None) 
+    
     def disconnected(self):
         print "disconnected"
                 
     def statusChanged(self, ready):
         print ready
+    
     def set_Reply(self,Reply):
         self.Reply=Reply
+    
     def get_Reply(self):
         return self.Reply
 
@@ -97,7 +122,7 @@ class SpecRunner:
     """
 
 
-    def __init__(self,Debug=0,roll=0,parent=None):
+    def __init__(self,Debug=0,parent=None):
         """input a debug roll and parrent if needed by default all are 0 or None
         Debug--set to 1 it deactivates spec commands
         roll --set to 1 it auto starts spec -s on roll.chess.cornell.edu and connects,
@@ -106,40 +131,40 @@ class SpecRunner:
          
         """
         self.DEBUG=Debug
-        self.Roll=roll
-        self._paramnames = () # TODO: finish these commands
+        self._paramnames = () 
         self._spec = None
         self._specPort=''
         self._specHost=''
-        self._var=''
-        self._cmd=''
+        self._var_string=''
+        self._cmd_string=''
         self._motors={}
         self.parameters={}
         self._motor=None
         if parent:
             sys.stdout=parent
         print "spec is on"
+    
     def set_spec_host(self,spechost):
         self._specHost=spechost
+    
     def get_spec_host(self):
         return self._specHost
+    
     def set_spec_port(self,port):
         self._specPort=port
+    
     def get_spec_port(self):
         return self._specPort
+    
     def serverconnect(self):
-        print "connecting..."
+        print "Connecting..."
         try:
             if self.DEBUG==1:
                 self._spec=("motor0","motor1","motor2")
                 self._paramnames=("variable1","number 2","Shalosh")  
             else:
-                if self.Roll==1 or self.Roll==2:
-                    self._specHost="f3.chess.cornell.edu"
-                    self._specPort="xrf"
                 self._spec = Spec.Spec(self._specHost + ":" + self._specPort, 500)
             print "Connected!"
-            print self._spec.getName()
             return True
         except:
             return False
@@ -151,12 +176,9 @@ class SpecRunner:
                 self._motors[motornames[i]]=motornames[i]
         else:
             motornames=self._spec.getMotorsMne()
-            
-            i=0
             for name in motornames:
                 self._motors[name] = TestSpecMotor(name,
                                                    self._specHost + ":" + self._specPort)
-                i += 1
                 
     def readParam(self,motor):
         motor=self._motors[motor]
@@ -176,7 +198,7 @@ class SpecRunner:
     def get_motor_names(self): 
         return self._motors.keys()
     
-    def get_param(self,motor):
+    def get_param(self):
         return self._paramnames
     
     def get_params_values(self,motor):
@@ -204,51 +226,45 @@ class SpecRunner:
         return self._motors[motor_name].getPosition()
     
     def status(self,motor_name):
-        print motor_name
         return self._motors[motor_name].status()
     
     def set_var(self,var):
-        self._var=var
-    
+        self._var=TestSpecVariable(var, self._specHost+":"+self._specPort,SpecEventsDispatcher.FIREEVENT)
+        self._var_string=var
     def get_var(self):
-        return self._var
+        return self._var_string
     
     def set_cmd(self,cmd):
-        self._cmd=cmd
+        self._cmd_string=cmd
+        print type(self._cmd_string)
+        self._cmd_list = [str(i) for i in self._cmd_string.split(' ')]
+        self._cmd=TestSpecCommand(self._cmd_list[0], self._specHost+":"+self._specPort)
+        print self._cmd_string
     
     def get_cmd(self):
-        return self._cmd           
+        return self._cmd_string
     
     def run_cmd(self):
-        self._cmd="%s"%self._cmd
-        self._cmd.split(' ',1)
-        if self.DEBUG==1 or self.DEBUG==2:
-            for i in range(len(self._cmd)):
-                print "\n**It will %s**"%self._cmd[i]
-        else:
-            print "working"
-            motorMon = self._motor
-            variableMon = TestSpecVariable(self._var, self._specHost+":"+self._specPort)
-            commandMon = TestSpecCommand(self._cmd[0], self._specHost+":"+self._specPort)
-            commandMon(self._cmd[1])
-            while not commandMon.get_Reply:
-                self.update()
+        self._cmd(*self._cmd_list[1:])
+        while True:
+            self.update()
+        
+    
     def update(self):
-        SpecEventsDispatcher.dispatch()
+        if self._motor.isConnected() and self._var.isConnected():
+            SpecEventsDispatcher.dispatch()
+        
     
     def EmergencyStop(self):
         if self.get_cmd():
-            self.set_cmd("stop()")
+            self.set_cmd("stop() ")
             self.run_cmd()
             self.cmd=''
             print "\n %%%%%%%%%%%%ALL STOP%%%%%%%%%%%%"
 
     def tester(self):
         print "testing"
-        
-        
-        
-        
-        
+
+
 if __name__ =="__main__":
     NewSpecRun=SpecRunner(1)

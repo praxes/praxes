@@ -139,6 +139,19 @@
      <cursor>4</cursor>
     </property>
    </widget>
+   <widget class="QPushButton" name="pushButton" >
+    <property name="geometry" >
+     <rect>
+      <x>480</x>
+      <y>410</y>
+      <width>75</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>PushButton</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>
