@@ -49,8 +49,7 @@ class TestSpecMotor(SpecMotor.SpecMotorA):
         print "Motor %s syncing"%self.specName
     
     def motorStateChanged(self, state):
-        print "Motor %s state changed to"%self.specName
-        print self.__state_strings__[state]
+        print "Motor %s state changed to %s"%(self.specName, self.__state_strings__[state])
     
     def status(self):
         return self.__state_strings__[self.getState()]
@@ -85,7 +84,7 @@ class TestSpecCommand(SpecCommand.SpecCommandA):
         print 'Command %s was sent'%self.command
     
     def replyArrived(self, reply):
-        self.set_Reply(reply)
+        self.Reply=reply
         if (reply.error):
             print "command %s received an error message: %s"%(self.command, reply.data)
         else:
@@ -93,16 +92,14 @@ class TestSpecCommand(SpecCommand.SpecCommandA):
     
     def connected(self):
        print "Command connected"
-       self.set_Reply(None) 
+       self.Reply=None 
     
     def disconnected(self):
         print "disconnected"
                 
     def statusChanged(self, ready):
-        print ready
-    
-    def set_Reply(self,Reply):
-        self.Reply=Reply
+        state=["In progress","Complete","Unknown"]
+        print "Status is %s"%state[ready]
     
     def get_Reply(self):
         return self.Reply
@@ -135,7 +132,8 @@ class SpecRunner:
         self._spec = None
         self._specPort=''
         self._specHost=''
-        self._var_string=''
+        self._var_strings=[]
+        self._var=[]
         self._cmd_string=''
         self._motors={}
         self.parameters={}
@@ -229,37 +227,37 @@ class SpecRunner:
         return self._motors[motor_name].status()
     
     def set_var(self,var):
-        self._var=TestSpecVariable(var, self._specHost+":"+self._specPort,SpecEventsDispatcher.FIREEVENT)
-        self._var_string=var
+        self._var.append(TestSpecVariable(var, self._specHost+":"+self._specPort))
+        self._var_strings.append(var)
     def get_var(self):
-        return self._var_string
+        return self._var_strings
     
     def set_cmd(self,cmd):
         self._cmd_string=cmd
-        print type(self._cmd_string)
         self._cmd_list = [str(i) for i in self._cmd_string.split(' ')]
         self._cmd=TestSpecCommand(self._cmd_list[0], self._specHost+":"+self._specPort)
-        print self._cmd_string
     
     def get_cmd(self):
         return self._cmd_string
     
+    def get_cmd_reply(self):
+        return self._cmd.get_Reply()
+    
     def run_cmd(self):
         self._cmd(*self._cmd_list[1:])
-        while True:
-            self.update()
-        
     
     def update(self):
-        if self._motor.isConnected() and self._var.isConnected():
+        if self._motor.isConnected() and self._var[0].isConnected():
             SpecEventsDispatcher.dispatch()
+        #for var in self._var:
+           # print  "%s is %s"%(var.getVarName(),var.getValue())
         
     
     def EmergencyStop(self):
         if self.get_cmd():
-            self.set_cmd("stop() ")
-            self.run_cmd()
-            self.cmd=''
+            #self.set_cmd("stop() ")
+            #self.run_cmd()
+            self.set_cmd('')
             print "\n %%%%%%%%%%%%ALL STOP%%%%%%%%%%%%"
 
     def tester(self):

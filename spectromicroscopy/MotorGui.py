@@ -24,6 +24,7 @@ if sys.platform=="win32":
 from PyQt4 import QtCore, QtGui    
 from GearTester import Ui_MotorHead
 ###import GearWidget
+import time
 from time import localtime, strftime
 from SpecRunner import SpecRunner
 from SpecConfig import SpecConfig
@@ -94,7 +95,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
                 print " Connected to %s on %s"%(self.specrun.get_spec_port(),
                                                 self.specrun.get_spec_host())
             except:
-                print " Invalid Host or Server"
+                print "Invalid Host or Server"
             if connection:
                 self.specrun.readmotors()
                 self.get_motors()
@@ -103,12 +104,17 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         elif not self.specrun.get_motor_name():
             self.MotorsTree.setItemSelected(self.motor_widget_dict[self.command],True)
         elif not self.specrun.get_var():
-            print self.specrun.set_var(self.command)
-            print " %s to be monitored \n Select  a command to run \
-            asynchronously: "%self.specrun.get_var()
+            vars=self.command.split(";")
+            for var in vars:
+                self.specrun.set_var(var)
+                print " %s to be monitored" %var 
+            print"Select a command to run asynchronously: "
         elif not self.specrun.get_cmd():
             self.specrun.set_cmd(self.command)
-            self.specrun.run_cmd() 
+            self.specrun.run_cmd()
+            while self.update():
+                time.sleep(.02)
+                self.update()
         else:
             print ":P"
         
@@ -116,7 +122,6 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
     def input(self):
         """converts a string from the textbox into motors and variables"""
         self.command="%s"%self.CommandLine.text().toAscii()
-        
         self.CommandLine.clear()
         print "\n>>>>%s"%self.command
         self.runspec()
@@ -236,9 +241,14 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             i+=1
 
     def update(self):
-        self.specrun.update()
+        if self.specrun.get_cmd_reply()==None:
+            self.specrun.update()
+            return 1
+        if self.specrun.get_cmd_reply():
+            self.specrun.set_cmd('')
+            return 0
 
-    def Varselect(self):
+    def select_param(self):
         """selects variables"""
         #todo make this work
         print "not done yet"
@@ -251,9 +261,9 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             
     def reStart(self):
         """restarts the run"""
-        self.specrun=SpecRunner()
+        self.specrun=SpecRunner(DEBUG, self)
         self.MotorsTree.clear()
-        self.write("\n Enter spec server hostname: ")
+        print "\n Enter spec server hostname: "
         self.clearlog()
     def startSesh(self):
         """to be removed when done"""
@@ -306,7 +316,6 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
 
                    
 if __name__ == "__main__":
-    print __file__
     app = QtGui.QApplication(sys.argv)
     myapp = MyUI()
     myapp.show()
