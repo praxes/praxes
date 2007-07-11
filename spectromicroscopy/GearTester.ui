@@ -125,19 +125,6 @@
      <string>Restart</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="minus" >
-    <property name="geometry" >
-     <rect>
-      <x>470</x>
-      <y>330</y>
-      <width>21</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text" >
-     <string>--</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="ChangeFile" >
     <property name="geometry" >
      <rect>
@@ -275,16 +262,6 @@
      <cstring>Responses</cstring>
     </property>
    </widget>
-   <widget class="QLineEdit" name="CommandLine" >
-    <property name="geometry" >
-     <rect>
-      <x>10</x>
-      <y>450</y>
-      <width>631</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QTextEdit" name="Responses" >
     <property name="geometry" >
      <rect>
@@ -295,6 +272,29 @@
      </rect>
     </property>
    </widget>
+   <widget class="QLineEdit" name="CommandLine" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>450</y>
+      <width>561</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="minus" >
+    <property name="geometry" >
+     <rect>
+      <x>470</x>
+      <y>330</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>--</string>
+    </property>
+   </widget>
    <widget class="QWidget" native="1" name="widget" >
     <property name="geometry" >
      <rect>
@@ -303,6 +303,19 @@
       <width>441</width>
       <height>141</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="SpecCMD" >
+    <property name="geometry" >
+     <rect>
+      <x>570</x>
+      <y>450</y>
+      <width>75</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Spec CMD</string>
     </property>
    </widget>
   </widget>

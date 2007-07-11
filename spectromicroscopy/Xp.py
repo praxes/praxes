@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'Xp.ui'
 #
-# Created: Thu Jul 05 20:08:58 2007
-#      by: PyQt4 UI code generator 4.2
+# Created: Wed Jul 11 17:11:32 2007
+#      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
 
+import sys
 from PyQt4 import QtCore, QtGui
 
 class Ui_XPrun(object):

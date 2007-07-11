@@ -162,10 +162,13 @@ class SpecRunner:
                 self._paramnames=("variable1","number 2","Shalosh")  
             else:
                 self._spec = Spec.Spec(self._specHost + ":" + self._specPort, 500)
+                self._exc=SpecCommand.SpecCommandA('', self._specHost+":"+self._specPort)
             print "Connected!"
             return True
         except:
             return False
+    def exc(self,command_string):
+        self._exc.executeCommand(command_string)
     
     def readmotors(self):
         if self.DEBUG==1:
@@ -255,8 +258,7 @@ class SpecRunner:
     
     def EmergencyStop(self):
         if self.get_cmd():
-            #self.set_cmd("stop() ")
-            #self.run_cmd()
+            #self._cmd.abort()
             self.set_cmd('')
             print "\n %%%%%%%%%%%%ALL STOP%%%%%%%%%%%%"
 

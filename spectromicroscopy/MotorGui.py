@@ -72,6 +72,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         QtCore.QObject.connect(self.MotorsTree, QtCore.SIGNAL("itemSelectionChanged ()"), self.select_motor)
         QtCore.QObject.connect(self.Mover, QtCore.SIGNAL("clicked()"),
                                self.cmdMove)
+        QtCore.QObject.connect(self.SpecCMD, QtCore.SIGNAL("clicked()"), self.spec_cmd)
         QtCore.QObject.connect(self.Closer,QtCore.SIGNAL("clicked()"),\
                                  self.endsesh)
         
@@ -91,12 +92,12 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             self.specrun.set_spec_port(self.command)
             print " Port set as %s"%self.command
             try:
-                connection=self.specrun.serverconnect()
+                self.connection=self.specrun.serverconnect()
                 print " Connected to %s on %s"%(self.specrun.get_spec_port(),
                                                 self.specrun.get_spec_host())
             except:
                 print "Invalid Host or Server"
-            if connection:
+            if self.connection:
                 self.specrun.readmotors()
                 self.get_motors()
                 #self.get_params()
@@ -258,7 +259,11 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         cmd="move(%s)"%self.Positioner.value()
         self.specrun.set_cmd(cmd)
         self.specrun.run_cmd()
-            
+    def spec_cmd(self):
+        if self.connection:
+            self.specrun.exc("%s"%self.CommandLine.text().toAscii())
+            self.CommandLine.clear()
+        
     def reStart(self):
         """restarts the run"""
         self.specrun=SpecRunner(DEBUG, self)

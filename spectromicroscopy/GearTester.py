@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'GearTester.ui'
 #
-# Created: Thu Jul 05 20:09:39 2007
-#      by: PyQt4 UI code generator 4.2
+# Created: Wed Jul 11 17:11:32 2007
+#      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
 
+import sys
 from PyQt4 import QtCore, QtGui
 
 class Ui_MotorHead(object):
@@ -32,7 +33,7 @@ class Ui_MotorHead(object):
         self.label_motors = QtGui.QLabel(self.Main)
         self.label_motors.setGeometry(QtCore.QRect(480,20,181,16))
 
-        font = QtGui.QFont()
+        font = QtGui.QFont(self.label_motors.font())
         font.setFamily("Verdana")
         self.label_motors.setFont(font)
         self.label_motors.setTextFormat(QtCore.Qt.AutoText)
@@ -55,10 +56,6 @@ class Ui_MotorHead(object):
         self.ReStart.setGeometry(QtCore.QRect(100,480,61,23))
         self.ReStart.setObjectName("ReStart")
 
-        self.minus = QtGui.QPushButton(self.Main)
-        self.minus.setGeometry(QtCore.QRect(470,330,21,21))
-        self.minus.setObjectName("minus")
-
         self.ChangeFile = QtGui.QPushButton(self.Main)
         self.ChangeFile.setGeometry(QtCore.QRect(480,480,75,23))
         self.ChangeFile.setObjectName("ChangeFile")
@@ -80,7 +77,7 @@ class Ui_MotorHead(object):
         self.EStop = QtGui.QPushButton(self.Main)
         self.EStop.setGeometry(QtCore.QRect(10,520,191,41))
 
-        font = QtGui.QFont()
+        font = QtGui.QFont(self.EStop.font())
         font.setPointSize(14)
         font.setWeight(75)
         font.setBold(True)
@@ -104,17 +101,25 @@ class Ui_MotorHead(object):
         self.label_responses.setAlignment(QtCore.Qt.AlignCenter)
         self.label_responses.setObjectName("label_responses")
 
-        self.CommandLine = QtGui.QLineEdit(self.Main)
-        self.CommandLine.setGeometry(QtCore.QRect(10,450,631,20))
-        self.CommandLine.setObjectName("CommandLine")
-
         self.Responses = QtGui.QTextEdit(self.Main)
         self.Responses.setGeometry(QtCore.QRect(10,40,431,251))
         self.Responses.setObjectName("Responses")
 
+        self.CommandLine = QtGui.QLineEdit(self.Main)
+        self.CommandLine.setGeometry(QtCore.QRect(10,450,561,24))
+        self.CommandLine.setObjectName("CommandLine")
+
+        self.minus = QtGui.QPushButton(self.Main)
+        self.minus.setGeometry(QtCore.QRect(470,330,21,21))
+        self.minus.setObjectName("minus")
+
         self.widget = QtGui.QWidget(self.Main)
         self.widget.setGeometry(QtCore.QRect(10,300,441,141))
         self.widget.setObjectName("widget")
+
+        self.SpecCMD = QtGui.QPushButton(self.Main)
+        self.SpecCMD.setGeometry(QtCore.QRect(570,450,75,26))
+        self.SpecCMD.setObjectName("SpecCMD")
         MotorHead.setCentralWidget(self.Main)
 
         self.Bar = QtGui.QMenuBar(MotorHead)
@@ -140,7 +145,6 @@ class Ui_MotorHead(object):
         self.label_motors.setText(QtGui.QApplication.translate("MotorHead", "Motors avalible", None, QtGui.QApplication.UnicodeUTF8))
         self.Mover.setText(QtGui.QApplication.translate("MotorHead", "Move", None, QtGui.QApplication.UnicodeUTF8))
         self.ReStart.setText(QtGui.QApplication.translate("MotorHead", "Restart", None, QtGui.QApplication.UnicodeUTF8))
-        self.minus.setText(QtGui.QApplication.translate("MotorHead", "--", None, QtGui.QApplication.UnicodeUTF8))
         self.ChangeFile.setText(QtGui.QApplication.translate("MotorHead", "Set Log", None, QtGui.QApplication.UnicodeUTF8))
         self.plus.setText(QtGui.QApplication.translate("MotorHead", "+", None, QtGui.QApplication.UnicodeUTF8))
         self.EStop.setText(QtGui.QApplication.translate("MotorHead", "Emergency STOP", None, QtGui.QApplication.UnicodeUTF8))
@@ -149,4 +153,6 @@ class Ui_MotorHead(object):
         self.pushButton.setText(QtGui.QApplication.translate("MotorHead", "X", None, QtGui.QApplication.UnicodeUTF8))
         self.Closer.setText(QtGui.QApplication.translate("MotorHead", "Close", None, QtGui.QApplication.UnicodeUTF8))
         self.label_responses.setText(QtGui.QApplication.translate("MotorHead", "Program Responses", None, QtGui.QApplication.UnicodeUTF8))
+        self.minus.setText(QtGui.QApplication.translate("MotorHead", "--", None, QtGui.QApplication.UnicodeUTF8))
+        self.SpecCMD.setText(QtGui.QApplication.translate("MotorHead", "Spec CMD", None, QtGui.QApplication.UnicodeUTF8))
 

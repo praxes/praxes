@@ -2,17 +2,18 @@
 
 # Form implementation generated from reading ui file 'SMP.ui'
 #
-# Created: Thu Jul 05 20:08:00 2007
-#      by: PyQt4 UI code generator 4.2
+# Created: Wed Jul 11 17:11:32 2007
+#      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
 
+import sys
 from PyQt4 import QtCore, QtGui
 
 class Ui_Main(object):
     def setupUi(self, Main):
         Main.setObjectName("Main")
-        Main.resize(QtCore.QSize(QtCore.QRect(0,0,701,656).size()).expandedTo(Main.minimumSizeHint()))
+        Main.resize(QtCore.QSize(QtCore.QRect(0,0,700,659).size()).expandedTo(Main.minimumSizeHint()))
 
         self.centralwidget = QtGui.QWidget(Main)
         self.centralwidget.setObjectName("centralwidget")
@@ -27,7 +28,7 @@ class Ui_Main(object):
         Main.setCentralWidget(self.centralwidget)
 
         self.Bar = QtGui.QMenuBar(Main)
-        self.Bar.setGeometry(QtCore.QRect(0,0,701,28))
+        self.Bar.setGeometry(QtCore.QRect(0,0,700,28))
         self.Bar.setObjectName("Bar")
         Main.setMenuBar(self.Bar)
 
