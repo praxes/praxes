@@ -28,9 +28,7 @@ import time
 from time import localtime, strftime
 from SpecRunner import SpecRunner
 from SpecConfig import SpecConfig
-path=path=os.path.join(os.path.expanduser("~"),
-            "workspace/spectromicroscopy/spectromicroscopy/")
-os.system("pyuic4 %s/GearTester.ui>%s/GearTester.py"%(path,path))  
+os.system("pyuic4 GearTester.ui>GearTester.py")  
 
 
 
@@ -52,6 +50,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         Bar.addAction("Old Macro",self.tester)
         self.filename=''
         self.command=''
+        self.estop=''
         sys.stdout=self
         self.specrun=SpecRunner(DEBUG,self)
         time=strftime("%a, %d %b %Y %H:%M:%S", localtime())
@@ -100,7 +99,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             if self.connection:
                 self.specrun.readmotors()
                 self.get_motors()
-                #self.get_params()
+                self.get_params()
                 print " Select a motor"
         elif not self.specrun.get_motor_name():
             self.MotorsTree.setItemSelected(self.motor_widget_dict[self.command],True)
@@ -113,7 +112,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         elif not self.specrun.get_cmd():
             self.specrun.set_cmd(self.command)
             self.specrun.run_cmd()
-            while self.update():
+            while self.update() and not self.estop:
                 time.sleep(.02)
                 self.update()
         else:
@@ -124,6 +123,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         """converts a string from the textbox into motors and variables"""
         self.command="%s"%self.CommandLine.text().toAscii()
         self.CommandLine.clear()
+        self.specrun.exc('IndexVar=-1')
         print "\n>>>>%s"%self.command
         self.runspec()
         
@@ -142,6 +142,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
 
     def EmergencyStop(self):
         """Stops all spec commands"""
+        self.estop=True
         self.specrun.EmergencyStop() 
     
     def clearlog(self):
@@ -195,31 +196,32 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         
     def select_motor(self):
         """Selects the motors based on widgets selected in MotorTree"""
-        name="%s"%self.MotorsTree.selectedItems()[0].text(0)
-        self.specrun.set_motor(name)
-        print " **%s selected**\n Select a Variable"%name
-        if True:#replace with try
-            if DEBUG==1:            
-                min = 30
-                max = 100
+        if self.MotorsTree.selectedItems()[0].parent()==None:
+            name="%s"%self.MotorsTree.selectedItems()[0].text(0)
+            self.specrun.set_motor(name)
+            print " **%s selected**\n Select a Variable"%name
+            if True:#replace with try
+                if DEBUG==1:            
+                    min = 30
+                    max = 100
+                else:
+                    (min,max)=self.specrun.get_motor_limits(name)
+                self.MoveBar.setRange(min,max)
+                self.Positioner.setRange(min,max)
             else:
-                (min,max)=self.specrun.get_motor_limits(name)
-            self.MoveBar.setRange(min,max)
-            self.Positioner.setRange(min,max)
-        else:
-            print "unable to get limits of motor"
-        if True:#replace with try
-            if DEBUG==1:
-                place=0
+                print "unable to get limits of motor"
+            if True:#replace with try
+                if DEBUG==1:
+                    place=0
+                else:
+                    place=self.specrun.get_motor_position(name)
+                self.MoveBar.setValue(place)
+                # TODO fix 
+                
+                
+                self.Positioner.setValue(place)
             else:
-                place=self.specrun.get_motor_position(name)
-            self.MoveBar.setValue(place)
-            # TODO fix 
-            
-            
-            self.Positioner.setValue(place)
-        else:
-            print "Unable to Get Position"
+                print "Unable to Get Position"
             
 
     def get_params(self):
@@ -228,32 +230,33 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         self.vardict--widget=key name=tag
         """
         self.paramwidget=[]
-        i=0
         for motorname in self.specrun.get_motor_names():
-            self.specrun.readParam()
-            MotorsParam= self.specrun.get_params()
-            MotorValues=self.specrun.get_params_value(motorname)
+            MotorsParam= self.specrun.get_params_names()
+            MotorValues=self.specrun.readParam(motorname)
             j=0
-            for Param in MotorParam:
-                widget=QtGui.QTreeWidgetItem(self.motor_widget_list[i])
-                widget.setText(0,Param+"is"+MotorValues[j])
+            for Param in MotorsParam:
+                widget=QtGui.QTreeWidgetItem(self.motor_widget_dict[motorname])
+                widget.setText(0,"%s is %s"%(Param,MotorValues[j]))
                 self.paramwidget.append(widget)
                 j+=1
-            i+=1
 
     def update(self):
-        if self.specrun.get_cmd_reply()==None:
+        for widget in self.motor_widget_list:
+            widget.setText(1, self.specrun.status("%s"%widget.text(0)))
+        for widget in self.paramwidget:
+            Param="%s"%widget.text(0)
+            Param=Param.split(" ",1)[0]
+            j=self.specrun.get_params_names().index(Param)
+            MotorValues=self.specrun.readParam("%s"%widget.parent().text(0))
+            widget.setText(0,"%s is %s"%(Param,MotorValues[j]))
+            
+        if not self.specrun.get_cmd_reply():
             self.specrun.update()
             return 1
-        if self.specrun.get_cmd_reply():
+        else:
             self.specrun.set_cmd('')
             return 0
-
-    def select_param(self):
-        """selects variables"""
-        #todo make this work
-        print "not done yet"
-                
+    
     def cmdMove(self):
         """Moves selected motor"""
         cmd="move(%s)"%self.Positioner.value()

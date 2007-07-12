@@ -26,9 +26,8 @@ class MyXP(Ui_XPrun,QtGui.QMainWindow):
                                QtCore.SIGNAL("editingFinished()"),self.SpinnerZ)
         QtCore.QObject.connect(self.Stepper,
                                QtCore.SIGNAL("editingFinished()"),self.Step)
-        QtCore.QObject.connect(self.Stepper,
+        QtCore.QObject.connect(self.Mv,
                                QtCore.SIGNAL("clicked()"),self.Move)
-        self.Namer.setMaxLength(1)
         self.dict={}
         self.dict["X"]=(self.X,self.SpinX,MotorX)
         self.dict["Y"]=(self.Y,self.SpinY,MotorY)
@@ -95,9 +94,6 @@ class MyXP(Ui_XPrun,QtGui.QMainWindow):
                 viable=True
                 stepsize=100
             else:
-                viable=self.Stepper.value()<motor.getOffset()
-                stepsize=motor.setOffset(self.Stepper.value())
-            if viable:
                 selectAxis.setTickInterval(self.Stepper.value()*stepsize)
                 selectAxis.setSingleStep(self.Stepper.value()*stepsize)
                 Spin.setSingleStep(self.Stepper.value())

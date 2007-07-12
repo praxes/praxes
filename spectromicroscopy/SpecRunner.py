@@ -128,7 +128,7 @@ class SpecRunner:
          
         """
         self.DEBUG=Debug
-        self._paramnames = () 
+        self._param_names = () 
         self._spec = None
         self._specPort=''
         self._specHost=''
@@ -136,7 +136,12 @@ class SpecRunner:
         self._var=[]
         self._cmd_string=''
         self._motors={}
-        self.parameters={}
+        self._exc=''
+        self._parameters={}
+        if self.DEBUG!=1:    
+            self._param_names=['position','offset','sign',"low_limit","high_limit"]
+        else:
+            self._param_names=("one","two","three")
         self._motor=None
         if parent:
             sys.stdout=parent
@@ -159,16 +164,29 @@ class SpecRunner:
         try:
             if self.DEBUG==1:
                 self._spec=("motor0","motor1","motor2")
-                self._paramnames=("variable1","number 2","Shalosh")  
+                self._param_names=("variable1","number 2","Shalosh")  
             else:
                 self._spec = Spec.Spec(self._specHost + ":" + self._specPort, 500)
                 self._exc=SpecCommand.SpecCommandA('', self._specHost+":"+self._specPort)
             print "Connected!"
+            MonDef="def MonitorLoop 'IndexVar+=1'"
+            SetDef="def SetMon 'global IndexVar \n IndexVar = -1'"
+            A='cdef("user_scan_loop", "MonitorLoop;","zru",0x01)'
+            B='cdef("user_scan_tail","MonitorLoop;","zru","delete")'
+            C='cdef("_cleanup2","SetMon;","zru",0x01)'
+            self.exc(MonDef)
+            self.exc(SetDef)
+            self.exc(A)
+            self.exc(B)
+            self.exc(C)
+            
+            
             return True
         except:
             return False
     def exc(self,command_string):
-        self._exc.executeCommand(command_string)
+        if self._exc:
+            self._exc.executeCommand(command_string)
     
     def readmotors(self):
         if self.DEBUG==1:
@@ -183,33 +201,25 @@ class SpecRunner:
                 
     def readParam(self,motor):
         motor=self._motors[motor]
-        if self.DEBUG!=1:    
-            self._paramnames=('position','offset','sign',"low_limit","high_limit")
-        else:
-            self._paramnames=("one","two","three")
-            return self._paramnames
         value=[]
-        for i in range(len(self._paramnames)):
+        for param in self._param_names:
             try: 
-                value.append(motor.get_parameter(self._paramnames[i]))
+                value.append(motor.getParameter(param))
             except:
                 value.append("unable to get value")
-            self.parameters[motor]=value
+            self._parameters[motor]=value
+        return self._parameters[motor]
         
     def get_motor_names(self): 
         return self._motors.keys()
     
-    def get_param(self):
-        return self._paramnames
+    def get_params_names(self):
+        return self._param_names
     
     def get_params_values(self,motor):
         motor=self._motors[motor]
-        return self.parameters[motor]
-    
-    def get_param_val(self):
-        n=self._paramnames.index(self._var)
-        return self.parameters[self._motor][n]
-    
+        return self._parameters[motor]
+
     def set_motor(self,motor_name):
         if motor_name in self._motors:
             self._motor=self._motors[motor_name]
@@ -244,7 +254,10 @@ class SpecRunner:
         return self._cmd_string
     
     def get_cmd_reply(self):
-        return self._cmd.get_Reply()
+        if self._cmd:
+            return self._cmd.get_Reply()
+        else:
+            return ''
     
     def run_cmd(self):
         self._cmd(*self._cmd_list[1:])
@@ -252,8 +265,6 @@ class SpecRunner:
     def update(self):
         if self._motor.isConnected() and self._var[0].isConnected():
             SpecEventsDispatcher.dispatch()
-        #for var in self._var:
-           # print  "%s is %s"%(var.getVarName(),var.getValue())
         
     
     def EmergencyStop(self):

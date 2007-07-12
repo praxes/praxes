@@ -3,12 +3,12 @@ SpecClient.setLoggingOff()
 from SpecClient import SpecMotor, Spec, SpecEventsDispatcher, SpecVariable, SpecCommand
 MonDef="def MonitorLoop 'IndexVar+=1'"
     ## add to user_scan_loop
-SetDef="def SetMon 'global IndexVar IndexVar= -1'"
+SetDef="def SetMon 'global IndexVar \n IndexVar = -1'"
     ## add to user_scan_tail
     ## add to _cleanup2 in order to ensure reset at abort
 A='cdef("user_scan_loop", "MonitorLoop;","zru",0x01)'
-B='cdef("user_scan_tail","SetMon","zru",0x01)'
-C='cdef("_cleanup2","SetMon","zru",0x01])'
+B='cdef("user_scan_tail","MonitorLoop;","zru","delete")'
+C='cdef("_cleanup2","SetMon;","zru",0x01)'
 spec = Spec.Spec("f3.chess.cornell.edu:xrf", 500)
 anycmd=SpecCommand.SpecCommandA('p','f3.chess.cornell.edu:xrf')
 anycmd("connected")
@@ -17,6 +17,7 @@ anycmd.executeCommand(MonDef)
 anycmd.executeCommand(A)
 anycmd.executeCommand(B)
 anycmd.executeCommand(C)
+anycmd.executeCommand('IndexVar=-1')
 
 
 
