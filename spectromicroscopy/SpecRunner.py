@@ -12,11 +12,11 @@ from SpecClient import SpecMotor, Spec, SpecEventsDispatcher, SpecVariable, Spec
     These are the things set up by Danny
 ***********ACTUAL MOTOR CONTROLS FOLLOW**********
 
-
 Motor Names refer to motor nemonics
 specclient expects to wrok with nemonics and never used full motor names
-"""
 
+"""
+from PyQt4 import QtCore
 
 class TestSpecMotor(SpecMotor.SpecMotorA):
     
@@ -58,6 +58,7 @@ class TestSpecMotor(SpecMotor.SpecMotorA):
         return self.specName
 
 
+
 class TestSpecVariable(SpecVariable.SpecVariableA):
     
     def connected(self):
@@ -76,6 +77,8 @@ class TestSpecVariable(SpecVariable.SpecVariableA):
     
     def getVarName(self):
         return self.channelName[4:len(self.channelName)]
+
+
 
 
 class TestSpecCommand(SpecCommand.SpecCommandA):
@@ -105,9 +108,26 @@ class TestSpecCommand(SpecCommand.SpecCommandA):
         return self.Reply
 
 
+
+
+class Indexer(TestSpecVariable):
+    
+    def connected(self):
+        self.__connected__ = True
+    
+    def disconnected(self):
+        self.__connected__ = False
+    
+    def update(self, value):
+        pass
+
+
+    
 """
 This section is what actualy interacts with the motors
 """
+
+
 
 
 
@@ -117,8 +137,7 @@ class SpecRunner:
     TODO: fill this with info
     
     """
-
-
+    
     def __init__(self,Debug=0,parent=None):
         """input a debug roll and parrent if needed by default all are 0 or None
         Debug--set to 1 it deactivates spec commands
@@ -172,33 +191,39 @@ class SpecRunner:
             MonDef="def MonitorLoop 'IndexVar+=1'"
             SetDef="def SetMon 'global IndexVar \n IndexVar = -1'"
             A='cdef("user_scan_loop", "MonitorLoop;","zru",0x01)'
-            B='cdef("user_scan_tail","MonitorLoop;","zru","delete")'
+##            B='cdef("user_scan_tail","MonitorLoop;","zru","delete")'
             C='cdef("_cleanup2","SetMon;","zru",0x01)'
             self.exc(MonDef)
             self.exc(SetDef)
             self.exc(A)
-            self.exc(B)
+##            self.exc(B)
             self.exc(C)
-            
-            
+            try:
+                self._index=Indexer("IndexVar",self._specHost+":"+self._specPort)
+                self._last_index=self._index.getValue()
+            except:
+                print "IndexVar Failed to Connect"
             return True
         except:
             return False
+    
+    
     def exc(self,command_string):
         if self._exc:
             self._exc.executeCommand(command_string)
     
+    
     def readmotors(self):
         if self.DEBUG==1:
             motornames=("motor0","motor1","motor2")
-            for i in range(len(motornames)):
-                self._motors[motornames[i]]=motornames[i]
+            for name in motornames:
+                self._motors[name]=name
         else:
             motornames=self._spec.getMotorsMne()
             for name in motornames:
                 self._motors[name] = TestSpecMotor(name,
                                                    self._specHost + ":" + self._specPort)
-                
+    
     def readParam(self,motor):
         motor=self._motors[motor]
         value=[]
@@ -209,7 +234,7 @@ class SpecRunner:
                 value.append("unable to get value")
             self._parameters[motor]=value
         return self._parameters[motor]
-        
+    
     def get_motor_names(self): 
         return self._motors.keys()
     
@@ -223,6 +248,9 @@ class SpecRunner:
     def set_motor(self,motor_name):
         if motor_name in self._motors:
             self._motor=self._motors[motor_name]
+    def get_motor(self,motor_name):
+        if motor_name in self._motors:
+            return self._motors[motor_name]
     
     def get_motor_name(self):
         if self._motor:
@@ -244,6 +272,10 @@ class SpecRunner:
         self._var_strings.append(var)
     def get_var(self):
         return self._var_strings
+    def reset_var(self):
+        self._var=[]
+        self._var_strings=[]
+        print "Select a New Variable"
     
     def set_cmd(self,cmd):
         self._cmd_string=cmd
@@ -265,16 +297,36 @@ class SpecRunner:
     def update(self):
         if self._motor.isConnected() and self._var[0].isConnected():
             SpecEventsDispatcher.dispatch()
-        
     
+    def get_values(self):
+        values=[]
+        prev = self._last_index
+        curr = self._index.getValue()
+        if curr != prev:
+            if curr > prev+1:
+                print "missed data point!"
+                return "missed data point!"
+            for var in self._var:
+                values.append(var.getValue())
+                self._last_index=curr
+                print "*****************Got Point************"
+                return values
+        else:
+            return 0
+
+
     def EmergencyStop(self):
         if self.get_cmd():
-            #self._cmd.abort()
+            self._cmd.abort()
+            self._cmd.disconnected()
             self.set_cmd('')
             print "\n %%%%%%%%%%%%ALL STOP%%%%%%%%%%%%"
 
+
+
     def tester(self):
         print "testing"
+    
 
 
 if __name__ =="__main__":

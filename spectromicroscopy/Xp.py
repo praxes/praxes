@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'Xp.ui'
 #
-# Created: Thu Jul 12 15:47:14 2007
+# Created: Fri Jul 13 17:01:45 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!

@@ -23,7 +23,6 @@ if sys.platform=="win32":
 #GUI
 from PyQt4 import QtCore, QtGui    
 from GearTester import Ui_MotorHead
-###import GearWidget
 import time
 from time import localtime, strftime
 from SpecRunner import SpecRunner
@@ -75,6 +74,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         QtCore.QObject.connect(self.Closer,QtCore.SIGNAL("clicked()"),\
                                  self.endsesh)
         
+        
         if Rollcall==1 or Rollcall==2:
             self.specrun.set_spec_host("f3.chess.cornell.edu")
             self.CommandLine.setText("xrf")
@@ -92,18 +92,23 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             print " Port set as %s"%self.command
             try:
                 self.connection=self.specrun.serverconnect()
-                print " Connected to %s on %s"%(self.specrun.get_spec_port(),
-                                                self.specrun.get_spec_host())
             except:
                 print "Invalid Host or Server"
             if self.connection:
+                print " Connected to %s on %s"%(self.specrun.get_spec_port(),
+                                                self.specrun.get_spec_host())
                 self.specrun.readmotors()
                 self.get_motors()
                 self.get_params()
                 print " Select a motor"
+            else:
+                print "Connection Failed"
+                self.specrun.set_spec_host('')
+                self.specrun.set_spec_port('')
         elif not self.specrun.get_motor_name():
             self.MotorsTree.setItemSelected(self.motor_widget_dict[self.command],True)
         elif not self.specrun.get_var():
+            QtCore.QObject.connect(self.ResetVar, QtCore.SIGNAL("clicked()"), self.specrun.reset_var)
             vars=self.command.split(";")
             for var in vars:
                 self.specrun.set_var(var)
@@ -114,7 +119,9 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             self.specrun.run_cmd()
             while self.update() and not self.estop:
                 time.sleep(.02)
-                self.update()
+                values=self.specrun.get_values()
+                if values:
+                    print values
         else:
             print ":P"
         
@@ -200,7 +207,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             name="%s"%self.MotorsTree.selectedItems()[0].text(0)
             self.specrun.set_motor(name)
             print " **%s selected**\n Select a Variable"%name
-            if True:#replace with try
+            try:
                 if DEBUG==1:            
                     min = 30
                     max = 100
@@ -208,19 +215,16 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
                     (min,max)=self.specrun.get_motor_limits(name)
                 self.MoveBar.setRange(min,max)
                 self.Positioner.setRange(min,max)
-            else:
+            except:
                 print "unable to get limits of motor"
-            if True:#replace with try
+            try:
                 if DEBUG==1:
                     place=0
                 else:
                     place=self.specrun.get_motor_position(name)
                 self.MoveBar.setValue(place)
-                # TODO fix 
-                
-                
                 self.Positioner.setValue(place)
-            else:
+            except:
                 print "Unable to Get Position"
             
 
@@ -252,6 +256,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             
         if not self.specrun.get_cmd_reply():
             self.specrun.update()
+            values=self.specrun.get_values()
             return 1
         else:
             self.specrun.set_cmd('')
@@ -266,7 +271,10 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         if self.connection:
             self.specrun.exc("%s"%self.CommandLine.text().toAscii())
             self.CommandLine.clear()
-        
+    
+    def get_specrun(self):
+        return self.specrun
+    
     def reStart(self):
         """restarts the run"""
         self.specrun=SpecRunner(DEBUG, self)
@@ -316,9 +324,11 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         self.widget=SpecConfig(self)
         self.widget.setGeometry(10,330,441,141)
         
-        
+
+    
     def tester(self):
         """used to see if a signal is received, only for testing stage"""
+        #TODO: remove
         print "signaled"
 
 

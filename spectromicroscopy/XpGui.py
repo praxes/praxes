@@ -6,33 +6,29 @@ DEBUG=1
 #GUI
 from PyQt4 import QtCore, QtGui
 from Xp import Ui_XPrun
+from XpRunner import XpRunner
 
 class MyXP(Ui_XPrun,QtGui.QMainWindow):
     """Establishes a Experimenbt controls"""
-    def __init__(self,parent=None,MotorX=None,MotorY=None,MotorZ=None):
+    def __init__(self,parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
-        QtCore.QObject.connect(self.Xslide,QtCore.SIGNAL("sliderReleased()"),
-                               self.X)
-        QtCore.QObject.connect(self.Yslide,QtCore.SIGNAL("sliderReleased()"),
-                               self.Y)
-        QtCore.QObject.connect(self.Zslide,QtCore.SIGNAL("sliderReleased()"),
-                               self.Z)
-        QtCore.QObject.connect(self.SpinX,
-                               QtCore.SIGNAL("editingFinished()"),self.SpinnerX)
-        QtCore.QObject.connect(self.SpinY,
-                               QtCore.SIGNAL("editingFinished()"),self.SpinnerY)
-        QtCore.QObject.connect(self.SpinZ,
-                               QtCore.SIGNAL("editingFinished()"),self.SpinnerZ)
-        QtCore.QObject.connect(self.Stepper,
-                               QtCore.SIGNAL("editingFinished()"),self.Step)
         QtCore.QObject.connect(self.Mv,
                                QtCore.SIGNAL("clicked()"),self.Move)
+        if parent:
+            self.xprun=XpRunner(parent.get_specrun())
+            MotorX=self.xprun.get_motor('samx')
+            MotorY=self.xprun.get_motor('samy')
+            MotorZ=self.xprun.get_motor('samz')
+        
+        self.X=Spinner_Slide_Motor(self.Xslide,self.SpinX,MotorX)
+        self.Y=Spinner_Slide_Motor(self.Yslide,self.SpinY,MotorY)
+        self.Z=Spinner_Slide_Motor(self.Zslide,self.SpinZ,MotorZ)
         self.dict={}
-        self.dict["X"]=(self.X,self.SpinX,MotorX)
-        self.dict["Y"]=(self.Y,self.SpinY,MotorY)
-        self.dict["Z"]=(self.Z,self.SpinZ,MotorZ)
-        # TODO: rework all this XYZ code to work with motors
+        self.dict["X"]=(self.Xslide,self.SpinX,MotorX,self.X)
+        self.dict["Y"]=(self.Yslide,self.SpinY,MotorY,self.Y)
+        self.dict["Z"]=(self.Zslide,self.SpinZ,MotorZ,self.Z)
+
         if DEBUG==1:
             self.Xslide.setRange(0,10000)
             self.SpinX.setRange(0,100)
@@ -47,44 +43,15 @@ class MyXP(Ui_XPrun,QtGui.QMainWindow):
             self.Yslide.setTickInterval(1000.00)
             self.Zslide.setTickInterval(1000.00)
         else:
-            pass
+            self.X.run()
+            self.Y.run()
+            self.Z.run()
             #TODO: set up ticks = (Max-Min)stepsize
             """self.Xslide.setTickInterval()
             self.Yslide.setTickInterval()
             self.Zslide.setTickInterval()"""
-        self.X()
-        self.Y()
-        self.Z()
         
 
-    def X(self):
-        if DEBUG!=1:
-            Xsize=MotorX.getOFFset()
-            (Xmin,Xmax)=MotorX.getlimits()
-            self.SpinX.setRange(Xmin,Xmax)
-            self.Xslide.setRange(Xmin,Xmax)
-        self.SpinX.setValue(self.Xslide.value()/self.Xsize)
-    def Y(self):
-        if DEBUG!=1:
-            self.Ysize=MotorY.getOFFset()
-            (Ymin,Ymax)=MotorY.getlimits()
-            self.SpinY.setRange(Ymin,Ymax)
-            self.Yslide.setRange(Ymin,Ymax)
-        self.SpinY.setValue(self.Yslide.value()/self.Ysize)
-    def Z(self):
-        if DEBUG!=1:
-            Zsize=MotorZ.getOFFset()
-            (Zmin,Zmax)=MotorZ.getlimits()
-            self.SpinZ.setRange(Zmin,Zmax)
-            self.Zslide.setRange(Zmin,Zmax)
-        self.SpinZ.setValue(self.Zslide.value()/self.Zsize)
-    def SpinnerX(self):
-        self.Xslide.setValue(self.SpinX.value()*self.Xsize)
-    def SpinnerY(self):
-        self.Yslide.setValue(self.SpinY.value()*self.Ysize)
-    def SpinnerZ(self):
-        self.Zslide.setValue(self.SpinZ.value()*self.Zsize)
-    
     def Step(self):
         Axis="%s"%self.Namer.text()
         Axis=Axis.capitalize()
@@ -103,11 +70,33 @@ class MyXP(Ui_XPrun,QtGui.QMainWindow):
         if DEBUG==1:
             print "moved"
         else:
-            MotorX.move(self.Xslide.getValue())
-            MotorY.move(self.Yslide.getValue())
-            MotorZ.move(self.Zslide.getValue())
+            self.X.move()
+            self.Y.move()
+            self.Z.move()
         
+
+class Spinner_Slide_Motor:
+    def __init__(self,Spin,Slide,Motor):
+        self.Spin=Spin
+        self.Slide=Slide
+        self.Motor=Motor
+        QtCore.QObject.connect(self.Slide,QtCore.SIGNAL("sliderReleased()"),
+                               self.run)
+        QtCore.QObject.connect(self.Spin,
+                               QtCore.SIGNAL("editingFinished()"),self.spin)
+    def run(self):
+        if DEBUG!=1:
+            Size=Motor.getOFFset()
+            (min,max)=Motor.getlimits()
+            self.Spin.setRange(min,max)
+            self.Slide.setRange(min,max)
+        self.Spin.setValue(self.Slide.value()/self.Size)
+    def spin(self):
+        self.Slide.setValue(self.Spin.value()*self.Size)
+    def Move(self):
+        self.Motor.move(self.Spin.getValue())
         
+
 
 if __name__ == "__main__":
     print __file__

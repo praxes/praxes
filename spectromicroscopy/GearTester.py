@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GearTester.ui'
 #
-# Created: Thu Jul 12 15:47:14 2007
+# Created: Fri Jul 13 17:01:45 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -21,10 +21,6 @@ class Ui_MotorHead(object):
         self.go = QtGui.QPushButton(self.Main)
         self.go.setGeometry(QtCore.QRect(650,330,21,21))
         self.go.setObjectName("go")
-
-        self.ClearLog = QtGui.QPushButton(self.Main)
-        self.ClearLog.setGeometry(QtCore.QRect(180,480,75,23))
-        self.ClearLog.setObjectName("ClearLog")
 
         self.saveras = QtGui.QPushButton(self.Main)
         self.saveras.setGeometry(QtCore.QRect(570,480,75,23))
@@ -51,10 +47,6 @@ class Ui_MotorHead(object):
         self.Mover = QtGui.QPushButton(self.Main)
         self.Mover.setGeometry(QtCore.QRect(610,300,61,23))
         self.Mover.setObjectName("Mover")
-
-        self.ReStart = QtGui.QPushButton(self.Main)
-        self.ReStart.setGeometry(QtCore.QRect(100,480,61,23))
-        self.ReStart.setObjectName("ReStart")
 
         self.ChangeFile = QtGui.QPushButton(self.Main)
         self.ChangeFile.setGeometry(QtCore.QRect(480,480,75,23))
@@ -92,10 +84,6 @@ class Ui_MotorHead(object):
         self.pushButton.setGeometry(QtCore.QRect(440,40,20,251))
         self.pushButton.setObjectName("pushButton")
 
-        self.Closer = QtGui.QPushButton(self.Main)
-        self.Closer.setGeometry(QtCore.QRect(10,480,75,23))
-        self.Closer.setObjectName("Closer")
-
         self.label_responses = QtGui.QLabel(self.Main)
         self.label_responses.setGeometry(QtCore.QRect(10,20,431,16))
         self.label_responses.setAlignment(QtCore.Qt.AlignCenter)
@@ -120,6 +108,22 @@ class Ui_MotorHead(object):
         self.SpecCMD = QtGui.QPushButton(self.Main)
         self.SpecCMD.setGeometry(QtCore.QRect(570,450,75,26))
         self.SpecCMD.setObjectName("SpecCMD")
+
+        self.ClearLog = QtGui.QPushButton(self.Main)
+        self.ClearLog.setGeometry(QtCore.QRect(390,480,75,23))
+        self.ClearLog.setObjectName("ClearLog")
+
+        self.Closer = QtGui.QPushButton(self.Main)
+        self.Closer.setGeometry(QtCore.QRect(10,480,75,23))
+        self.Closer.setObjectName("Closer")
+
+        self.ReStart = QtGui.QPushButton(self.Main)
+        self.ReStart.setGeometry(QtCore.QRect(100,480,61,23))
+        self.ReStart.setObjectName("ReStart")
+
+        self.ResetVar = QtGui.QPushButton(self.Main)
+        self.ResetVar.setGeometry(QtCore.QRect(170,480,61,23))
+        self.ResetVar.setObjectName("ResetVar")
         MotorHead.setCentralWidget(self.Main)
 
         self.Bar = QtGui.QMenuBar(MotorHead)
@@ -140,19 +144,20 @@ class Ui_MotorHead(object):
     def retranslateUi(self, MotorHead):
         MotorHead.setWindowTitle(QtGui.QApplication.translate("MotorHead", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
         self.go.setText(QtGui.QApplication.translate("MotorHead", "go", None, QtGui.QApplication.UnicodeUTF8))
-        self.ClearLog.setText(QtGui.QApplication.translate("MotorHead", "Clear Log", None, QtGui.QApplication.UnicodeUTF8))
         self.saveras.setText(QtGui.QApplication.translate("MotorHead", "Save Log As", None, QtGui.QApplication.UnicodeUTF8))
         self.label_motors.setText(QtGui.QApplication.translate("MotorHead", "Motors avalible", None, QtGui.QApplication.UnicodeUTF8))
         self.Mover.setText(QtGui.QApplication.translate("MotorHead", "Move", None, QtGui.QApplication.UnicodeUTF8))
-        self.ReStart.setText(QtGui.QApplication.translate("MotorHead", "Restart", None, QtGui.QApplication.UnicodeUTF8))
         self.ChangeFile.setText(QtGui.QApplication.translate("MotorHead", "Set Log", None, QtGui.QApplication.UnicodeUTF8))
         self.plus.setText(QtGui.QApplication.translate("MotorHead", "+", None, QtGui.QApplication.UnicodeUTF8))
         self.EStop.setText(QtGui.QApplication.translate("MotorHead", "Emergency STOP", None, QtGui.QApplication.UnicodeUTF8))
         self.MotorsTree.headerItem().setText(0,QtGui.QApplication.translate("MotorHead", "motors", None, QtGui.QApplication.UnicodeUTF8))
         self.MotorsTree.headerItem().setText(1,QtGui.QApplication.translate("MotorHead", "State", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton.setText(QtGui.QApplication.translate("MotorHead", "X", None, QtGui.QApplication.UnicodeUTF8))
-        self.Closer.setText(QtGui.QApplication.translate("MotorHead", "Close", None, QtGui.QApplication.UnicodeUTF8))
         self.label_responses.setText(QtGui.QApplication.translate("MotorHead", "Program Responses", None, QtGui.QApplication.UnicodeUTF8))
         self.minus.setText(QtGui.QApplication.translate("MotorHead", "--", None, QtGui.QApplication.UnicodeUTF8))
         self.SpecCMD.setText(QtGui.QApplication.translate("MotorHead", "Spec CMD", None, QtGui.QApplication.UnicodeUTF8))
+        self.ClearLog.setText(QtGui.QApplication.translate("MotorHead", "Clear Log", None, QtGui.QApplication.UnicodeUTF8))
+        self.Closer.setText(QtGui.QApplication.translate("MotorHead", "Close", None, QtGui.QApplication.UnicodeUTF8))
+        self.ReStart.setText(QtGui.QApplication.translate("MotorHead", "Restart", None, QtGui.QApplication.UnicodeUTF8))
+        self.ResetVar.setText(QtGui.QApplication.translate("MotorHead", "Reset Var", None, QtGui.QApplication.UnicodeUTF8))
 

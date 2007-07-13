@@ -26,19 +26,6 @@
      <string>go</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="ClearLog" >
-    <property name="geometry" >
-     <rect>
-      <x>180</x>
-      <y>480</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text" >
-     <string>Clear Log</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="saveras" >
     <property name="geometry" >
      <rect>
@@ -110,19 +97,6 @@
     </property>
     <property name="text" >
      <string>Move</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="ReStart" >
-    <property name="geometry" >
-     <rect>
-      <x>100</x>
-      <y>480</y>
-      <width>61</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text" >
-     <string>Restart</string>
     </property>
    </widget>
    <widget class="QPushButton" name="ChangeFile" >
@@ -230,19 +204,6 @@
      <string>X</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="Closer" >
-    <property name="geometry" >
-     <rect>
-      <x>10</x>
-      <y>480</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text" >
-     <string>Close</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_responses" >
     <property name="geometry" >
      <rect>
@@ -316,6 +277,58 @@
     </property>
     <property name="text" >
      <string>Spec CMD</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ClearLog" >
+    <property name="geometry" >
+     <rect>
+      <x>390</x>
+      <y>480</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Clear Log</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Closer" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>480</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Close</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ReStart" >
+    <property name="geometry" >
+     <rect>
+      <x>100</x>
+      <y>480</y>
+      <width>61</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Restart</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ResetVar" >
+    <property name="geometry" >
+     <rect>
+      <x>170</x>
+      <y>480</y>
+      <width>61</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Reset Var</string>
     </property>
    </widget>
   </widget>
