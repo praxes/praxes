@@ -13,7 +13,6 @@ import os,sys
 os.system("pyuic4 SMP.ui>SMP.py")
 os.system("pyuic4 Xp.ui>Xp.py")
 os.system("pyuic4 GearTester.ui>GearTester.py")
-from SpecRunner import SpecRunner
 from PyQt4 import QtCore, QtGui    
 from SMP import Ui_Main
 from MotorGui import MyUI
@@ -58,8 +57,7 @@ class MySMP(Ui_Main,QtGui.QMainWindow):
         elif self.Tabby.tabText(Index)=="Console":
             self.Kon=None
         self.Tabby.removeTab(Index)
-    def get_specrun(self):
-        return self.Motor.get_specrun()
+
         
 if __name__ == "__main__":
     print __file__

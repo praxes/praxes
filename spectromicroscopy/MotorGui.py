@@ -51,7 +51,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         self.command=''
         self.estop=''
         sys.stdout=self
-        self.specrun=SpecRunner(DEBUG,self)
+        self.specrun=SpecRunner(self,DEBUG)
         time=strftime("%a, %d %b %Y %H:%M:%S", localtime())
         print "Rollcall=%s, DEBUG=%s"%(Rollcall,DEBUG)# TODO: remove when done
         print "\n New Session started (%s)\n Enter spec server hostname: "%time 

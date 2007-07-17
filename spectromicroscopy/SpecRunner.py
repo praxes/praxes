@@ -1,8 +1,7 @@
 DEBUG=None
-Roll=None
+
 
 import sys
-
 import SpecClient
 SpecClient.setLoggingOff()
 from SpecClient import SpecMotor, Spec, SpecEventsDispatcher, SpecVariable, SpecCommand
@@ -124,7 +123,7 @@ class Indexer(TestSpecVariable):
 
     
 """
-This section is what actualy interacts with the motors
+This section is what actualy interacts with the motorsand GUI
 """
 
 
@@ -138,7 +137,7 @@ class SpecRunner:
     
     """
     
-    def __init__(self,Debug=0,parent=None):
+    def __init__(self,parent=None,Debug=0,spechost='',specport='',motor_names=[]):
         """input a debug roll and parrent if needed by default all are 0 or None
         Debug--set to 1 it deactivates spec commands
         roll --set to 1 it auto starts spec -s on roll.chess.cornell.edu and connects,
@@ -146,25 +145,23 @@ class SpecRunner:
         Parent -- used to establish stdout.
          
         """
-        self.DEBUG=Debug
+        DEBUG=Debug
         self._param_names = () 
         self._spec = None
-        self._specPort=''
-        self._specHost=''
+        self._specPort=specport
+        self._specHost=spechost
         self._var_strings=[]
         self._var=[]
         self._cmd_string=''
         self._motors={}
         self._exc=''
         self._parameters={}
-        if self.DEBUG!=1:    
-            self._param_names=['position','offset','sign',"low_limit","high_limit"]
-        else:
-            self._param_names=("one","two","three")
+        self._param_names=['position','offset','sign',"low_limit","high_limit"]
         self._motor=None
-        if parent:
-            sys.stdout=parent
-        print "spec is on"
+        if self._specHost and self._specPort:
+            self.serverconnect()
+    
+        
     
     def set_spec_host(self,spechost):
         self._specHost=spechost
@@ -181,22 +178,20 @@ class SpecRunner:
     def serverconnect(self):
         print "Connecting..."
         try:
-            if self.DEBUG==1:
-                self._spec=("motor0","motor1","motor2")
-                self._param_names=("variable1","number 2","Shalosh")  
-            else:
-                self._spec = Spec.Spec(self._specHost + ":" + self._specPort, 500)
-                self._exc=SpecCommand.SpecCommandA('', self._specHost+":"+self._specPort)
+            self._spec = Spec.Spec(self._specHost + ":" + self._specPort, 500)
+            self._exc=SpecCommand.SpecCommandA('', self._specHost+":"+self._specPort)
             print "Connected!"
             MonDef="def MonitorLoop 'IndexVar+=1'"
             SetDef="def SetMon 'global IndexVar \n IndexVar = -1'"
+            testdef ="def testscript '\nSetMon\nlocal i\ni=0 \nfor (;i<20;) {\n\
+            i+=1\n        p S[3]+=1 \n        p MonitorLoop}'"
             A='cdef("user_scan_loop", "MonitorLoop;","zru",0x01)'
-##            B='cdef("user_scan_tail","MonitorLoop;","zru","delete")'
             C='cdef("_cleanup2","SetMon;","zru",0x01)'
             self.exc(MonDef)
             self.exc(SetDef)
+            self.exc(testdef)
+            self.exc('SetMon')
             self.exc(A)
-##            self.exc(B)
             self.exc(C)
             try:
                 self._index=Indexer("IndexVar",self._specHost+":"+self._specPort)
@@ -213,16 +208,14 @@ class SpecRunner:
             self._exc.executeCommand(command_string)
     
     
-    def readmotors(self):
-        if self.DEBUG==1:
-            motornames=("motor0","motor1","motor2")
-            for name in motornames:
-                self._motors[name]=name
+    def readmotors(self,names=[]):
+        if names:
+            motornames=names
         else:
             motornames=self._spec.getMotorsMne()
-            for name in motornames:
-                self._motors[name] = TestSpecMotor(name,
-                                                   self._specHost + ":" + self._specPort)
+        for name in motornames:
+            self._motors[name] = TestSpecMotor(name,
+                                               self._specHost + ":" + self._specPort)
     
     def readParam(self,motor):
         motor=self._motors[motor]
@@ -238,20 +231,14 @@ class SpecRunner:
     def get_motor_names(self): 
         return self._motors.keys()
     
-    def get_params_names(self):
-        return self._param_names
-    
-    def get_params_values(self,motor):
-        motor=self._motors[motor]
-        return self._parameters[motor]
-
     def set_motor(self,motor_name):
         if motor_name in self._motors:
             self._motor=self._motors[motor_name]
+    
     def get_motor(self,motor_name):
         if motor_name in self._motors:
             return self._motors[motor_name]
-    
+
     def get_motor_name(self):
         if self._motor:
             return self._motor.motor_name()
@@ -267,11 +254,20 @@ class SpecRunner:
     def status(self,motor_name):
         return self._motors[motor_name].status()
     
+    def get_params_names(self):
+        return self._param_names
+    
+    def get_params_values(self,motor):
+        motor=self._motors[motor]
+        return self._parameters[motor]
+    
     def set_var(self,var):
         self._var.append(TestSpecVariable(var, self._specHost+":"+self._specPort))
         self._var_strings.append(var)
+    
     def get_var(self):
         return self._var_strings
+    
     def reset_var(self):
         self._var=[]
         self._var_strings=[]
@@ -295,7 +291,7 @@ class SpecRunner:
         self._cmd(*self._cmd_list[1:])
     
     def update(self):
-        if self._motor.isConnected() and self._var[0].isConnected():
+        if self._var[0].isConnected():
             SpecEventsDispatcher.dispatch()
     
     def get_values(self):
@@ -310,15 +306,14 @@ class SpecRunner:
                 values.append(var.getValue())
                 self._last_index=curr
                 print "*****************Got Point************"
-                return values
+                return (values,curr)
         else:
-            return 0
+            return ([''],curr)
 
 
     def EmergencyStop(self):
         if self.get_cmd():
             self._cmd.abort()
-            self._cmd.disconnected()
             self.set_cmd('')
             print "\n %%%%%%%%%%%%ALL STOP%%%%%%%%%%%%"
 
