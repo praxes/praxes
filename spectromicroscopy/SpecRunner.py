@@ -181,15 +181,18 @@ class SpecRunner:
             self._spec = Spec.Spec(self._specHost + ":" + self._specPort, 500)
             self._exc=SpecCommand.SpecCommandA('', self._specHost+":"+self._specPort)
             print "Connected!"
-            MonDef="def MonitorLoop 'IndexVar+=1'"
-            SetDef="def SetMon 'global IndexVar \n IndexVar = -1'"
-            testdef ="def testscript '\nSetMon\nlocal i\ni=0 \nfor (;i<20;) {\n\
-            i+=1\n        p S[3]+=1 \n        p MonitorLoop}'"
-            A='cdef("user_scan_loop", "MonitorLoop;","zru",0x01)'
+            MonDef="def MonitorLoop '{\n\
+            IndexVar+=1\n\
+            local i\n\
+            for (i=0; i<2048;i++) {\n\
+                    MCA_DATA_BUFFER[0][i]=MCA_DATA[i][1]}\n}'"# change data i,o to  i,1
+            SetDef="def SetMon 'global IndexVar \n\
+            IndexVar = -1\n\
+            short array MCA_DATA_BUFFER[1][2048]'"
+            A='cdef("user_scan_loop", "MonitorLoop;","zru",0x10)'
             C='cdef("_cleanup2","SetMon;","zru",0x01)'
             self.exc(MonDef)
             self.exc(SetDef)
-            self.exc(testdef)
             self.exc('SetMon')
             self.exc(A)
             self.exc(C)
@@ -289,6 +292,7 @@ class SpecRunner:
     
     def run_cmd(self):
         self._cmd(*self._cmd_list[1:])
+        self._last_index=-1
     
     def update(self):
         if self._var[0].isConnected():
@@ -301,14 +305,18 @@ class SpecRunner:
         if curr != prev:
             if curr > prev+1:
                 print "missed data point!"
-                return "missed data point!"
+                return (["missed data point!"],curr,'')
+            if curr<prev:
+                print "error in index"
+                print prev,curr
+                return (["error"],curr,'')
             for var in self._var:
                 values.append(var.getValue())
                 self._last_index=curr
-                print "*****************Got Point************"
-                return (values,curr)
+                print "*****************Got Point***************"
+                return (values,curr,True)
         else:
-            return ([''],curr)
+            return ([''],curr,'')
 
 
     def EmergencyStop(self):

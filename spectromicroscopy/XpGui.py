@@ -47,24 +47,25 @@ class MyXP(Ui_XPrun,QtGui.QMainWindow):
         self.Z.move()
     
     def run_scan(self):
-        self.data=numpy.memmap(self.buffer.name,dtype=float,mode='w+',shape=(5,2048,2))
-        self.xprun.set_var('MCA_DATA')
+        self.data=numpy.memmap(self.buffer.name,dtype=float,mode='w+',shape=(5,2048))
+        self.xprun.exc("SetMon")
+        self.xprun.set_var('MCA_DATA_BUFFER')
         self.xprun.set_cmd("tseries 5 1")
         self.xprun.run_cmd()
         while not self.xprun.get_cmd_reply():
             self.xprun.update()
-            (value,index)=self.xprun.get_values()
-            if value[0]:
+            (value,index,actual)=self.xprun.get_values()
+            if actual:
                 i=0
-                for i in range(2047):
-                    j=0
-                    for j in range(4):
-                        print index,i,j
-                        self.data[index+1][i][j]=value[0][i][j]
-                        j+=1
+                print index
+                for i in range(2048):
+                    self.data[index,i]=value[0][i]
                     i+=1
         print "data collected"
         print self.data
+        for i in range(5):
+            n=input("col number")
+            print i, self.data[4][n]
 
 
 class Spinner_Slide_Motor:
