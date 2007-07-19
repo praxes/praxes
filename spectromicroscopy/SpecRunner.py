@@ -1,7 +1,7 @@
 DEBUG=None
+TIMEOUT=.02
 
-
-import sys
+import sys, time
 import SpecClient
 SpecClient.setLoggingOff()
 from SpecClient import SpecMotor, Spec, SpecEventsDispatcher, SpecVariable, SpecCommand
@@ -185,11 +185,17 @@ class SpecRunner:
             IndexVar+=1\n\
             local i\n\
             for (i=0; i<2048;i++) {\n\
-                    MCA_DATA_BUFFER[0][i]=MCA_DATA[i][1]}\n}'"# change data i,o to  i,1
+                    MCA_DATA_BUFFER[0][i]=MCA_DATA[i][0]}\n}'"# change data i,o to  i,1
+##                MDBA[0][i]=MCA_DATA[i][0]}\n}\n\
+##                MDBB[0][i]=MCA_DATA[i+800][0]\n\
+##                MDBC[0][i]=MCA_DATA[i+1600][0]}'"# change data i,o to  i,1
             SetDef="def SetMon 'global IndexVar \n\
             IndexVar = -1\n\
             short array MCA_DATA_BUFFER[1][2048]'"
-            A='cdef("user_scan_loop", "MonitorLoop;","zru",0x10)'
+##            ulong array MDBA[1][800]\n\
+##            ulong array MDBB[1][800]\n\
+##            ulong array MDBC[1][800]\n\'"
+            A='cdef("user_scan_plot", "MonitorLoop;","zru",0x10)'
             C='cdef("_cleanup2","SetMon;","zru",0x01)'
             self.exc(MonDef)
             self.exc(SetDef)
@@ -304,17 +310,21 @@ class SpecRunner:
         curr = self._index.getValue()
         if curr != prev:
             if curr > prev+1:
-                print "missed data point!"
                 return (["missed data point!"],curr,'')
-            if curr<prev:
+            elif curr<prev:
                 print "error in index"
                 print prev,curr
                 return (["error"],curr,'')
-            for var in self._var:
-                values.append(var.getValue())
-                self._last_index=curr
-                print "*****************Got Point***************"
-                return (values,curr,True)
+            else:
+                for var in self._var:
+                    time.sleep(TIMEOUT)
+                    values.append(var.getValue())
+                    self._last_index=curr
+                    print "*****************Got Point***************"
+##                    print "values recevied are:",values
+                    #print var.getValue()
+                    print values[0]
+                    return (values,curr,True)
         else:
             return ([''],curr,'')
 

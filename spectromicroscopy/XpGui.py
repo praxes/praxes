@@ -56,16 +56,28 @@ class MyXP(Ui_XPrun,QtGui.QMainWindow):
             self.xprun.update()
             (value,index,actual)=self.xprun.get_values()
             if actual:
-                i=0
-                print index
-                for i in range(2048):
-                    self.data[index,i]=value[0][i]
-                    i+=1
+                print "<<",index,">>", type(value[0])
+                if type(value[0])=="array":
+                    for i in range(len(value[0])):
+                        self.data[index,i]=value[0][i]
+                        self.data[index,i+800]=value[1][i]
+                        self.data[index,i+1600]=value[2][i]
+                elif type(value[0])==type(1) or type(value[0])==type(1.0):
+                    print "int or float:", value[0]
+                elif type(value[0])==type({}):
+                   for key in value[0].keys():
+                        pass
+                        #self.data[index,int(key)]=float(value[0][key])
+                elif type(value[0])==type(""):
+                    print "string: ",value[0]
+                #print "Value recorded is:",value[0]
         print "data collected"
-        print self.data
-        for i in range(5):
-            n=input("col number")
-            print i, self.data[4][n]
+        self.xprun.exc("SetMon")
+##        print self.data
+####        for i in range(5):
+####            n=input("col number")
+####            for j in range(5):
+####                print self.data[j][n]
 
 
 class Spinner_Slide_Motor:
