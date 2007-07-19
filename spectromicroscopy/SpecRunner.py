@@ -182,29 +182,21 @@ class SpecRunner:
             self._exc=SpecCommand.SpecCommandA('', self._specHost+":"+self._specPort)
             print "Connected!"
             MonDef="def MonitorLoop '{\n\
-            IndexVar+=1\n\
             local i\n\
             for (i=0; i<2048;i++) {\n\
                     MCA_DATA_BUFFER[0][i]=MCA_DATA[i][0]}\n}'"# change data i,o to  i,1
-##                MDBA[0][i]=MCA_DATA[i][0]}\n}\n\
-##                MDBB[0][i]=MCA_DATA[i+800][0]\n\
-##                MDBC[0][i]=MCA_DATA[i+1600][0]}'"# change data i,o to  i,1
-            SetDef="def SetMon 'global IndexVar \n\
-            IndexVar = -1\n\
-            short array MCA_DATA_BUFFER[1][2048]'"
-##            ulong array MDBA[1][800]\n\
-##            ulong array MDBB[1][800]\n\
-##            ulong array MDBC[1][800]\n\'"
+            SetDef="def SetMon 'short array MCA_DATA_BUFFER[1][2048]'"
             A='cdef("user_scan_plot", "MonitorLoop;","zru",0x10)'
-            C='cdef("_cleanup2","SetMon;","zru",0x01)'
+##            C='cdef("_cleanup2","SetMon;","zru",delete)'
             self.exc(MonDef)
             self.exc(SetDef)
             self.exc('SetMon')
             self.exc(A)
-            self.exc(C)
+##            self.exc(C)
             try:
-                self._index=Indexer("IndexVar",self._specHost+":"+self._specPort)
-                self._last_index=self._index.getValue()
+                self._index=SpecVariable.SpecVariableA("NPTS",self._specHost+":"+self._specPort)
+                #Indexer("IndexVar",self._specHost+":"+self._specPort)
+                self._last_index=0 #self._index.getValue()
             except:
                 print "IndexVar Failed to Connect"
             return True
@@ -217,14 +209,21 @@ class SpecRunner:
             self._exc.executeCommand(command_string)
     
     
-    def readmotors(self,names=[]):
+    def readmotors(self,names=[],type="Test"):
         if names:
             motornames=names
         else:
             motornames=self._spec.getMotorsMne()
         for name in motornames:
-            self._motors[name] = TestSpecMotor(name,
-                                               self._specHost + ":" + self._specPort)
+            if type=="Test":
+                self._motors[name] = TestSpecMotor(name,
+                                                self._specHost + ":" + self._specPort)
+            elif type=="Sync":
+                self._motors[name] = SpecMotor.SpecMotor(name,
+                                                self._specHost + ":" + self._specPort,500)
+            elif type=="Async":
+                self._motors[name] = SpecMotor.SpecMotorA(name,
+                                                self._specHost + ":" + self._specPort)
     
     def readParam(self,motor):
         motor=self._motors[motor]
@@ -270,8 +269,18 @@ class SpecRunner:
         motor=self._motors[motor]
         return self._parameters[motor]
     
-    def set_var(self,var):
-        self._var.append(TestSpecVariable(var, self._specHost+":"+self._specPort))
+    def set_var(self,var,type="Test"):
+        if type=="Test":
+            self._var.append(TestSpecVariable(var, 
+                    self._specHost+":"+self._specPort))
+        elif type=="Sync":
+            self._var.append(SpecVariable.SpecVariable(var, 
+                    self._specHost+":"+self._specPort,500))
+        elif type=="Async":
+            self._var.append(SpecVariable.SpecVariableA(var, 
+                    self._specHost+":"+self._specPort))
+        elif type=="Index":
+            self._var.append(Indexer(var, self._specHost+":"+self._specPort))
         self._var_strings.append(var)
     
     def get_var(self):
@@ -282,10 +291,15 @@ class SpecRunner:
         self._var_strings=[]
         print "Select a New Variable"
     
-    def set_cmd(self,cmd):
+    def set_cmd(self,cmd,type="Test"):
         self._cmd_string=cmd
         self._cmd_list = [str(i) for i in self._cmd_string.split(' ')]
-        self._cmd=TestSpecCommand(self._cmd_list[0], self._specHost+":"+self._specPort)
+        if type=="Test":
+            self._cmd=TestSpecCommand(self._cmd_list[0], self._specHost+":"+self._specPort)
+        if type=="Sync":
+            self._cmd=SpecCommand.SpecCommand(self._cmd_list[0], self._specHost+":"+self._specPort,500)
+        if type=="Async":
+            self._cmd=SpecCommand.SpecCommandA(self._cmd_list[0], self._specHost+":"+self._specPort)
     
     def get_cmd(self):
         return self._cmd_string
@@ -321,9 +335,6 @@ class SpecRunner:
                     values.append(var.getValue())
                     self._last_index=curr
                     print "*****************Got Point***************"
-##                    print "values recevied are:",values
-                    #print var.getValue()
-                    print values[0]
                     return (values,curr,True)
         else:
             return ([''],curr,'')

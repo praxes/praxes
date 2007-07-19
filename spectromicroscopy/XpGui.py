@@ -49,28 +49,27 @@ class MyXP(Ui_XPrun,QtGui.QMainWindow):
     def run_scan(self):
         self.data=numpy.memmap(self.buffer.name,dtype=float,mode='w+',shape=(5,2048))
         self.xprun.exc("SetMon")
-        self.xprun.set_var('MCA_DATA_BUFFER')
+        self.xprun.set_var('MCA_DATA_BUFFER',"Sync")
         self.xprun.set_cmd("tseries 5 1")
         self.xprun.run_cmd()
         while not self.xprun.get_cmd_reply():
             self.xprun.update()
             (value,index,actual)=self.xprun.get_values()
             if actual:
-                print "<<",index,">>", type(value[0])
-                if type(value[0])=="array":
-                    for i in range(len(value[0])):
-                        self.data[index,i]=value[0][i]
-                        self.data[index,i+800]=value[1][i]
-                        self.data[index,i+1600]=value[2][i]
-                elif type(value[0])==type(1) or type(value[0])==type(1.0):
+                print "<<%s>>"%index,type(value[0])
+                if type(value[0])==type(1) or type(value[0])==type(1.0):
                     print "int or float:", value[0]
                 elif type(value[0])==type({}):
-                   for key in value[0].keys():
+                    for key in value[0].keys():
+                        self.data[index,int(key)]=float(value[0][key])
                         pass
-                        #self.data[index,int(key)]=float(value[0][key])
+                    print "DICT"
                 elif type(value[0])==type(""):
                     print "string: ",value[0]
-                #print "Value recorded is:",value[0]
+                else:
+                    for i in range(len(value[0])):
+                        self.data[index-1,i]=value[0][i]
+        print self.data
         print "data collected"
         self.xprun.exc("SetMon")
 ##        print self.data
