@@ -73,6 +73,10 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         QtCore.QObject.connect(self.SpecCMD, QtCore.SIGNAL("clicked()"), self.spec_cmd)
         QtCore.QObject.connect(self.Closer,QtCore.SIGNAL("clicked()"),\
                                  self.endsesh)
+        QtCore.QObject.connect(self.plus, QtCore.SIGNAL("clicked()"),
+                               self.Plus)
+        QtCore.QObject.connect(self.ReStart, QtCore.SIGNAL("clicked()"),
+                               self.reStart)
         
         
         if Rollcall==1 or Rollcall==2:
@@ -120,8 +124,29 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             while self.update() and not self.estop:
                 time.sleep(.02)
                 values=self.specrun.get_values()
-                if values:
-                    print values
+                (value,index,actual)=self.xprun.get_values()
+                if actual:
+                    typed=type(value[0])
+                    print "<<%s>> %s"%(index,typed)
+                    if typed==type(1) or typed==type(1.0):
+                        print "int or float:", value[0]
+                    elif typed==type({}):
+                        for key in value[0].keys():
+                            self.data[index,int(key)]=float(value[0][key])
+                            pass
+                        print "DICT"
+                    elif typed==type(""):
+                        print "string: ",value[0]
+                    else:
+                        for i in range(len(value[0])):
+                            if len(value[0])>1:
+                                self.data[index-1,i]=value[0][i][1]
+                            else:
+                                self.data[index-1,i]=value[0][i]
+            for i in range(5):
+                print self.data[i][500:600]
+            print "data collected"
+            self.specrun.set_cmd('')
         else:
             print ":P"
         
@@ -253,18 +278,15 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             j=self.specrun.get_params_names().index(Param)
             MotorValues=self.specrun.readParam("%s"%widget.parent().text(0))
             widget.setText(0,"%s is %s"%(Param,MotorValues[j]))
-            
         if not self.specrun.get_cmd_reply():
             self.specrun.update()
-            values=self.specrun.get_values()
             return 1
         else:
-            self.specrun.set_cmd('')
             return 0
     
     def cmdMove(self):
         """Moves selected motor"""
-        cmd="move(%s)"%self.Positioner.value()
+        cmd="mv %s %s"%(self.specrun.get_motor_name(),self.Positioner.value())
         self.specrun.set_cmd(cmd)
         self.specrun.run_cmd()
     def spec_cmd(self):
@@ -330,7 +352,17 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         """used to see if a signal is received, only for testing stage"""
         #TODO: remove
         print "signaled"
-
+        
+    def Plus(self):
+        self.specrun.set_cmd("mvr %s %s"%(self.specrun.get_motor_name(),self.dis.value()))
+        self.specrun.run_cmd()
+        while self.update() and not self.estop:
+            self.update()
+    def Minus(self):
+        self.specrun.set_cmd("mvr %s %s"%(self.specrun.get_motor_name(),-self.dis.value()))
+        self.specrun.run_cmd()
+        while self.update() and not self.estop:
+            self.update()
 
                    
 if __name__ == "__main__":

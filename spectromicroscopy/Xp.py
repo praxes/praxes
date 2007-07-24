@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'Xp.ui'
 #
-# Created: Thu Jul 19 17:14:04 2007
+# Created: Tue Jul 24 14:49:10 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,7 +13,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_XPrun(object):
     def setupUi(self, XPrun):
         XPrun.setObjectName("XPrun")
-        XPrun.resize(QtCore.QSize(QtCore.QRect(0,0,699,540).size()).expandedTo(XPrun.minimumSizeHint()))
+        XPrun.resize(QtCore.QSize(QtCore.QRect(0,0,699,552).size()).expandedTo(XPrun.minimumSizeHint()))
 
         self.main = QtGui.QWidget(XPrun)
         self.main.setObjectName("main")
@@ -97,10 +97,6 @@ class Ui_XPrun(object):
         self.Zmin.setGeometry(QtCore.QRect(630,210,62,23))
         self.Zmin.setObjectName("Zmin")
 
-        self.spinBox_8 = QtGui.QSpinBox(self.main)
-        self.spinBox_8.setGeometry(QtCore.QRect(640,270,51,23))
-        self.spinBox_8.setObjectName("spinBox_8")
-
         self.label_15 = QtGui.QLabel(self.main)
         self.label_15.setGeometry(QtCore.QRect(650,160,16,16))
         self.label_15.setObjectName("label_15")
@@ -133,10 +129,6 @@ class Ui_XPrun(object):
         self.tab_2.setObjectName("tab_2")
         self.tabWidget.addTab(self.tab_2,"")
 
-        self.label_6 = QtGui.QLabel(self.main)
-        self.label_6.setGeometry(QtCore.QRect(440,440,52,16))
-        self.label_6.setObjectName("label_6")
-
         self.label_16 = QtGui.QLabel(self.main)
         self.label_16.setGeometry(QtCore.QRect(10,500,41,17))
         self.label_16.setObjectName("label_16")
@@ -161,15 +153,6 @@ class Ui_XPrun(object):
         self.Xmax.setGeometry(QtCore.QRect(490,240,62,23))
         self.Xmax.setObjectName("Xmax")
 
-        self.Xstep = QtGui.QSpinBox(self.main)
-        self.Xstep.setGeometry(QtCore.QRect(500,270,51,23))
-        self.Xstep.setObjectName("Xstep")
-
-        self.SpinZ = QtGui.QDoubleSpinBox(self.main)
-        self.SpinZ.setGeometry(QtCore.QRect(630,440,62,23))
-        self.SpinZ.setSingleStep(0.01)
-        self.SpinZ.setObjectName("SpinZ")
-
         self.frame_5 = QtGui.QFrame(self.main)
         self.frame_5.setGeometry(QtCore.QRect(210,310,181,181))
         self.frame_5.setFrameShape(QtGui.QFrame.StyledPanel)
@@ -187,19 +170,6 @@ class Ui_XPrun(object):
         self.VidZoom_4.setOrientation(QtCore.Qt.Horizontal)
         self.VidZoom_4.setObjectName("VidZoom_4")
 
-        self.VidZoom_3 = QtGui.QSlider(self.main)
-        self.VidZoom_3.setGeometry(QtCore.QRect(300,500,91,16))
-        self.VidZoom_3.setOrientation(QtCore.Qt.Horizontal)
-        self.VidZoom_3.setObjectName("VidZoom_3")
-
-        self.Xslide = QtGui.QSlider(self.main)
-        self.Xslide.setGeometry(QtCore.QRect(510,310,25,121))
-        self.Xslide.setSingleStep(1)
-        self.Xslide.setOrientation(QtCore.Qt.Vertical)
-        self.Xslide.setTickPosition(QtGui.QSlider.TicksBelow)
-        self.Xslide.setTickInterval(10)
-        self.Xslide.setObjectName("Xslide")
-
         self.Yslide = QtGui.QSlider(self.main)
         self.Yslide.setGeometry(QtCore.QRect(580,310,25,121))
         self.Yslide.setOrientation(QtCore.Qt.Vertical)
@@ -214,16 +184,6 @@ class Ui_XPrun(object):
         self.Zslide.setTickInterval(10)
         self.Zslide.setObjectName("Zslide")
 
-        self.SpinY = QtGui.QDoubleSpinBox(self.main)
-        self.SpinY.setGeometry(QtCore.QRect(560,440,62,23))
-        self.SpinY.setSingleStep(0.01)
-        self.SpinY.setObjectName("SpinY")
-
-        self.SpinX = QtGui.QDoubleSpinBox(self.main)
-        self.SpinX.setGeometry(QtCore.QRect(490,440,62,23))
-        self.SpinX.setSingleStep(0.01)
-        self.SpinX.setObjectName("SpinX")
-
         self.Mv = QtGui.QPushButton(self.main)
         self.Mv.setGeometry(QtCore.QRect(490,470,91,31))
         self.Mv.setObjectName("Mv")
@@ -231,7 +191,75 @@ class Ui_XPrun(object):
         self.Run = QtGui.QPushButton(self.main)
         self.Run.setGeometry(QtCore.QRect(600,470,91,31))
         self.Run.setObjectName("Run")
+
+        self.Xstep = QtGui.QSpinBox(self.main)
+        self.Xstep.setGeometry(QtCore.QRect(500,270,51,23))
+        self.Xstep.setObjectName("Xstep")
+
+        self.Zstep = QtGui.QSpinBox(self.main)
+        self.Zstep.setGeometry(QtCore.QRect(640,270,51,23))
+        self.Zstep.setObjectName("Zstep")
+
+        self.Xslide = QtGui.QSlider(self.main)
+        self.Xslide.setGeometry(QtCore.QRect(510,310,25,121))
+        self.Xslide.setSingleStep(1)
+        self.Xslide.setOrientation(QtCore.Qt.Vertical)
+        self.Xslide.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.Xslide.setTickInterval(10)
+        self.Xslide.setObjectName("Xslide")
+
+        self.label_5 = QtGui.QLabel(self.main)
+        self.label_5.setGeometry(QtCore.QRect(500,30,57,21))
+        self.label_5.setObjectName("label_5")
+
+        self.label_7 = QtGui.QLabel(self.main)
+        self.label_7.setGeometry(QtCore.QRect(520,60,33,21))
+        self.label_7.setObjectName("label_7")
+
+        self.label_6 = QtGui.QLabel(self.main)
+        self.label_6.setGeometry(QtCore.QRect(440,440,45,16))
+        self.label_6.setObjectName("label_6")
+
+        self.VidZoom_3 = QtGui.QSlider(self.main)
+        self.VidZoom_3.setGeometry(QtCore.QRect(300,500,91,16))
+        self.VidZoom_3.setOrientation(QtCore.Qt.Horizontal)
+        self.VidZoom_3.setObjectName("VidZoom_3")
+
+        self.ScanBox = QtGui.QComboBox(self.main)
+        self.ScanBox.setGeometry(QtCore.QRect(570,30,91,22))
+        self.ScanBox.setObjectName("ScanBox")
+
+        self.Counter = QtGui.QSpinBox(self.main)
+        self.Counter.setGeometry(QtCore.QRect(570,60,91,23))
+        self.Counter.setMaximum(1000000)
+        self.Counter.setMinimum(1)
+        self.Counter.setProperty("value",QtCore.QVariant(1))
+        self.Counter.setObjectName("Counter")
+
+        self.SpinX = QtGui.QDoubleSpinBox(self.main)
+        self.SpinX.setGeometry(QtCore.QRect(490,440,62,23))
+        self.SpinX.setDecimals(4)
+        self.SpinX.setSingleStep(0.01)
+        self.SpinX.setObjectName("SpinX")
+
+        self.SpinY = QtGui.QDoubleSpinBox(self.main)
+        self.SpinY.setGeometry(QtCore.QRect(560,440,62,23))
+        self.SpinY.setDecimals(4)
+        self.SpinY.setSingleStep(0.01)
+        self.SpinY.setObjectName("SpinY")
+
+        self.SpinZ = QtGui.QDoubleSpinBox(self.main)
+        self.SpinZ.setGeometry(QtCore.QRect(630,440,62,23))
+        self.SpinZ.setDecimals(4)
+        self.SpinZ.setSingleStep(0.01)
+        self.SpinZ.setObjectName("SpinZ")
         XPrun.setCentralWidget(self.main)
+
+        self.Bar = QtGui.QMenuBar(XPrun)
+        self.Bar.setGeometry(QtCore.QRect(0,0,699,28))
+        self.Bar.setDefaultUp(False)
+        self.Bar.setObjectName("Bar")
+        XPrun.setMenuBar(self.Bar)
         self.label_2.setBuddy(self.MinVal)
         self.label_3.setBuddy(self.Zoomer)
         self.label.setBuddy(self.MaxVal)
@@ -254,19 +282,21 @@ class Ui_XPrun(object):
         self.label_9.setText(QtGui.QApplication.translate("XPrun", "Max", None, QtGui.QApplication.UnicodeUTF8))
         self.label_10.setText(QtGui.QApplication.translate("XPrun", "X", None, QtGui.QApplication.UnicodeUTF8))
         self.label_11.setText(QtGui.QApplication.translate("XPrun", "Y", None, QtGui.QApplication.UnicodeUTF8))
-        self.spinBox_8.setToolTip(QtGui.QApplication.translate("XPrun", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-        "p, li { white-space: pre-wrap; }\n"
-        "</style></head><body style=\" font-family:\'Sans Serif\'; font-size:9pt; font-weight:400; font-style:normal; text-decoration:none;\">\n"
-        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Zstep</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.label_15.setText(QtGui.QApplication.translate("XPrun", "Z", None, QtGui.QApplication.UnicodeUTF8))
         self.Xname.setText(QtGui.QApplication.translate("XPrun", "samx", None, QtGui.QApplication.UnicodeUTF8))
         self.Yname.setText(QtGui.QApplication.translate("XPrun", "samy", None, QtGui.QApplication.UnicodeUTF8))
         self.Zname.setText(QtGui.QApplication.translate("XPrun", "samz", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("XPrun", "Tab 1", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QtGui.QApplication.translate("XPrun", "Tab 2", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_6.setText(QtGui.QApplication.translate("XPrun", "Position", None, QtGui.QApplication.UnicodeUTF8))
         self.label_16.setText(QtGui.QApplication.translate("XPrun", "Zoom", None, QtGui.QApplication.UnicodeUTF8))
         self.label_17.setText(QtGui.QApplication.translate("XPrun", "Zoom", None, QtGui.QApplication.UnicodeUTF8))
         self.Mv.setText(QtGui.QApplication.translate("XPrun", "Move", None, QtGui.QApplication.UnicodeUTF8))
         self.Run.setText(QtGui.QApplication.translate("XPrun", "Run", None, QtGui.QApplication.UnicodeUTF8))
+        self.Zstep.setToolTip(QtGui.QApplication.translate("XPrun", "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        "p, li { white-space: pre-wrap; }\n"
+        "</style></head><body style=\" font-family:\'Sans Serif\'; font-size:9pt; font-weight:400; font-style:normal; text-decoration:none;\">\n"
+        "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Zstep</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(QtGui.QApplication.translate("XPrun", "Scan Type", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_7.setText(QtGui.QApplication.translate("XPrun", "Count", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_6.setText(QtGui.QApplication.translate("XPrun", "Position", None, QtGui.QApplication.UnicodeUTF8))
 

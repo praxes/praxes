@@ -156,6 +156,7 @@ class SpecRunner:
         self._motors={}
         self._exc=''
         self._parameters={}
+        self._type_dict={}
         self._param_names=['position','offset','sign',"low_limit","high_limit"]
         self._motor=None
         if self._specHost and self._specPort:
@@ -181,22 +182,10 @@ class SpecRunner:
             self._spec = Spec.Spec(self._specHost + ":" + self._specPort, 500)
             self._exc=SpecCommand.SpecCommandA('', self._specHost+":"+self._specPort)
             print "Connected!"
-            MonDef="def MonitorLoop '{\n\
-            local i\n\
-            for (i=0; i<2048;i++) {\n\
-                    MCA_DATA_BUFFER[0][i]=MCA_DATA[i][0]}\n}'"# change data i,o to  i,1
-            SetDef="def SetMon 'short array MCA_DATA_BUFFER[1][2048]'"
-            A='cdef("user_scan_plot", "MonitorLoop;","zru",0x10)'
-##            C='cdef("_cleanup2","SetMon;","zru",delete)'
-            self.exc(MonDef)
-            self.exc(SetDef)
-            self.exc('SetMon')
-            self.exc(A)
-##            self.exc(C)
             try:
                 self._index=SpecVariable.SpecVariableA("NPTS",self._specHost+":"+self._specPort)
-                #Indexer("IndexVar",self._specHost+":"+self._specPort)
-                self._last_index=0 #self._index.getValue()
+                self._last_index=0
+                self._type_dict["NPTS"]="Async"
             except:
                 print "IndexVar Failed to Connect"
             return True
@@ -224,7 +213,8 @@ class SpecRunner:
             elif type=="Async":
                 self._motors[name] = SpecMotor.SpecMotorA(name,
                                                 self._specHost + ":" + self._specPort)
-    
+        self._type_dict[name]=type
+        
     def readParam(self,motor):
         motor=self._motors[motor]
         value=[]
@@ -282,6 +272,7 @@ class SpecRunner:
         elif type=="Index":
             self._var.append(Indexer(var, self._specHost+":"+self._specPort))
         self._var_strings.append(var)
+        self._type_dict[var]=type
     
     def get_var(self):
         return self._var_strings
@@ -300,6 +291,7 @@ class SpecRunner:
             self._cmd=SpecCommand.SpecCommand(self._cmd_list[0], self._specHost+":"+self._specPort,500)
         if type=="Async":
             self._cmd=SpecCommand.SpecCommandA(self._cmd_list[0], self._specHost+":"+self._specPort)
+        self._type_dict[cmd]=type
     
     def get_cmd(self):
         return self._cmd_string
@@ -315,7 +307,6 @@ class SpecRunner:
         self._last_index=-1
     
     def update(self):
-        if self._var[0].isConnected():
             SpecEventsDispatcher.dispatch()
     
     def get_values(self):
