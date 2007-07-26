@@ -1,0 +1,277 @@
+<ui version="4.0" >
+ <class>XPrun</class>
+ <widget class="QMainWindow" name="XPrun" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>741</width>
+    <height>689</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="main" >
+   <widget class="QSlider" name="MaxVal" >
+    <property name="geometry" >
+     <rect>
+      <x>130</x>
+      <y>180</y>
+      <width>25</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <property name="orientation" >
+     <enum>Qt::Vertical</enum>
+    </property>
+    <property name="tickPosition" >
+     <enum>QSlider::TicksAbove</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label" >
+    <property name="geometry" >
+     <rect>
+      <x>120</x>
+      <y>160</y>
+      <width>62</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Max Value</string>
+    </property>
+    <property name="buddy" >
+     <cstring>MaxVal</cstring>
+    </property>
+   </widget>
+   <widget class="QSlider" name="MinVal" >
+    <property name="geometry" >
+     <rect>
+      <x>50</x>
+      <y>180</y>
+      <width>25</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <property name="orientation" >
+     <enum>Qt::Vertical</enum>
+    </property>
+    <property name="tickPosition" >
+     <enum>QSlider::TicksBelow</enum>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="MinValSpin" >
+    <property name="geometry" >
+     <rect>
+      <x>40</x>
+      <y>350</y>
+      <width>51</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="MinValSpin" >
+    <property name="geometry" >
+     <rect>
+      <x>120</x>
+      <y>350</y>
+      <width>46</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Run" >
+    <property name="geometry" >
+     <rect>
+      <x>50</x>
+      <y>420</y>
+      <width>111</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Watch Scan</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Pause" >
+    <property name="geometry" >
+     <rect>
+      <x>50</x>
+      <y>480</y>
+      <width>111</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Pause</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="SaveImage" >
+    <property name="geometry" >
+     <rect>
+      <x>50</x>
+      <y>540</y>
+      <width>111</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Save Image</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_12" >
+    <property name="geometry" >
+     <rect>
+      <x>50</x>
+      <y>20</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Element to Watch</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2" >
+    <property name="geometry" >
+     <rect>
+      <x>30</x>
+      <y>160</y>
+      <width>59</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Min Value</string>
+    </property>
+    <property name="buddy" >
+     <cstring>MinVal</cstring>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3" >
+    <property name="geometry" >
+     <rect>
+      <x>60</x>
+      <y>90</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Element Shell</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="ElementSelect" >
+    <property name="geometry" >
+     <rect>
+      <x>30</x>
+      <y>40</y>
+      <width>141</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="ElementShell" >
+    <property name="geometry" >
+     <rect>
+      <x>31</x>
+      <y>110</y>
+      <width>141</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="ElementText" >
+    <property name="geometry" >
+     <rect>
+      <x>30</x>
+      <y>60</y>
+      <width>141</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTabWidget" name="ImageFrame" >
+    <property name="geometry" >
+     <rect>
+      <x>190</x>
+      <y>20</y>
+      <width>541</width>
+      <height>571</height>
+     </rect>
+    </property>
+    <property name="currentIndex" >
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="one" >
+     <attribute name="title" >
+      <string>:)</string>
+     </attribute>
+     <widget class="QLabel" name="Message" >
+      <property name="geometry" >
+       <rect>
+        <x>140</x>
+        <y>190</y>
+        <width>281</width>
+        <height>111</height>
+       </rect>
+      </property>
+      <property name="text" >
+       <string>       Thank you for Using SpectroMicroscoPy
+	Please Begin a Scan</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="Bar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>741</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="defaultUp" >
+    <bool>false</bool>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>MinVal</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MinValSpin</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>50</x>
+     <y>259</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>46</x>
+     <y>378</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MaxVal</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MinValSpin</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>133</x>
+     <y>308</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>132</x>
+     <y>387</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

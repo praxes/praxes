@@ -3,12 +3,19 @@ import sys, os, codecs
 from os.path import isfile
 os.system("pyuic4 Xp.ui>Xp.py")
 DEBUG=2
+GRAPH=1
 
 #GUI
 from PyQt4 import QtCore, QtGui
 from Xp import Ui_XPrun
 from SpecRunner import SpecRunner
+#Number Crunching
 import numpy
+import numpy.oldnumeric as Numeric
+from matplotlib.numerix import arange, sin, pi
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+from matplotlib.pylab import *
 from tempfile import TemporaryFile, NamedTemporaryFile
 from PyMca import ClassMcaTheory , ConcentrationsTool #,McaAdvancedFitBatch
 
@@ -72,33 +79,114 @@ class MyXP(Ui_XPrun,QtGui.QMainWindow):
             self.xprun.set_cmd("mesh motor%s %s %s %s %s %s %s"\
                         %(x,xmin,xmax,xstep,y,ymin,ymax,ystep,count_time))
         self.xprun.run_cmd()
+        setup=0
+        self.Qimages={}
         while not self.xprun.get_cmd_reply():
             self.xprun.update()
             (value,index,actual)=self.xprun.get_values()
             if actual:
                 typed=type(value[0])
                 print "<<%s>> %s"%(index,typed)
-                if typed==type(1) or typed==type(1.0):
-                    print "int or float:", value[0]
-                elif typed==type({}):
-                    for key in value[0].keys():
-                        self.data[index,int(key)]=float(value[0][key])
-                        pass
-                    print "DICT"
-                elif typed==type(""):
-                    print "string: ",value[0]
-                else:
-                    for i in range(len(value[0])):
-                        if len(value[0])>1:
-                            self.data[index-1,i]=value[0][i][1]
-                        else:
-                            self.data[index-1,i]=value[0][i]
-                    self.theory.setdata(range(2048),self.data[index-1],None)
-                    self.theory.estimate()
-                    fitresult, result = self.theory.startfit(digest=1)
-                    self.processed.append((fitresult,result))
+                for i in range(len(value[0])):
+                    if len(value[0])>1:
+                        self.data[index-1,i]=value[0][i][1]
+                    else:
+                        self.data[index-1,i]=value[0][i]
+                self.theory.setdata(range(2048),self.data[index-1],None)
+                self.theory.estimate()
+                fitresult, result = self.theory.startfit(digest=1)
+                self.processed.append((fitresult,result))
+                ##IMAGE PROCESSING##
+                self.__peaks  = []
+                self.__images = {}
+                self.__sigmas = {}
+                self.__nrows   = len(range(0,max_index))
+                for group in result['groups']:
+                    self.__peaks.append(group)
+                    self.__images[group]=Numeric.zeros((self.__nrows,1),Numeric.Float)
+                    self.__sigmas[group]=Numeric.zeros((self.__nrows,1),Numeric.Float)
+                self.__images['chisq']  = Numeric.zeros((self.__nrows,1),Numeric.Float) - 1.
+                self.__images['chisq'][index-1, 0] = result['chisq']
+                for peak in self.__peaks:
+                    self.__images[peak][index-1, 0] = result[peak]['fitarea']
+                    self.__sigmas[peak][index-1,0] = result[peak]['sigmaarea']
+                    if setup<len(self.__peaks):
+                        self.Qimages[peak]=QImageTab(self.ElementTaber,peak,
+                                                                    self.__images[peak],max_index_x,max_index_y)
+                        setup+=1
+                ## QImaging##
+                for peak in self.__peaks:
+                    self.Qimages[peak].update(self.__images[peak])
+        self.ElementTaber.removeTab(0)
         print "data collected and processed"
-
+        matshow(self.__images["Mn K"])
+        show()
+##        print type(self.Qimages['Mn K'].graphics)
+class QImageTab:
+    def __init__(self,master,title,matrix,x,y):
+        self.matrix=matrix
+        self.x=x
+        self.y=y
+        self.graphics=MyMplCanvas(matrix,x,y)
+        master.addTab(self.graphics,title)
+    def update(self,matrix):
+        self.matrix=matrix
+        self.graphics=MyMplCanvas(matrix,self.x,self.y)
+if GRAPH==0:
+    class MyMplCanvas(FigureCanvas):
+        def __init__(self,matrix, x,y,parent=None, width=5, height=4, dpi=100):
+            self.matrix=matrix.reshape(x,y)
+            self.fig = Figure(figsize=(width, height), dpi=dpi)
+            self.image=self.fig.figimage(self.matrix)#.draw(?????)
+            FigureCanvas.__init__(self, self.fig)
+            self.setParent(parent)
+            FigureCanvas.setSizePolicy(self,
+                                       QtGui.QSizePolicy.Expanding,
+                                       QtGui.QSizePolicy.Expanding)
+            FigureCanvas.updateGeometry(self)
+            self.draw()
+    
+        def sizeHint(self):
+            w, h = self.get_width_height()
+            return QtCore.QSize(w, h)
+    
+        def minimumSizeHint(self):
+            return QtCore.QSize(10, 10)
+else :
+    class MyMplCanvas(FigureCanvas):
+        """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
+        def __init__(self, matrix,x,y,parent=None, width=5, height=4, dpi=100):
+            self.matrix=matrix.reshape(x,y)
+            self.fig = Figure(figsize=(width, height), dpi=dpi)
+            self.axes = self.fig.add_subplot(111)
+            # We want the axes cleared every time plot() is called
+            self.axes.hold(False)
+    
+            self.compute_initial_figure()
+    
+            FigureCanvas.__init__(self, self.fig)
+            self.setParent(parent)
+    
+            FigureCanvas.setSizePolicy(self,
+                                       QtGui.QSizePolicy.Expanding,
+                                       QtGui.QSizePolicy.Expanding)
+            FigureCanvas.updateGeometry(self)
+    
+        def sizeHint(self):
+            w, h = self.get_width_height()
+            return QtCore.QSize(w, h)
+    
+        def minimumSizeHint(self):
+            return QtCore.QSize(10, 10)
+    
+        def compute_initial_figure(self):
+            s = self.matrix.flatten()
+            t = arange(0.0, 3+len(s), 1)
+            print len(t) ,len(s)
+            self.axes.plot(t,s)
+##            self.axes.figimage(self.matrix)
+##            self.draw()
+   
 
 
 class Spinner_Slide_Motor:
@@ -151,6 +239,9 @@ class Spinner_Slide_Motor:
     def get_motor_name(self):
         return self.motor.specName
         
+
+
+
 
 
 if __name__ == "__main__":

@@ -27,6 +27,10 @@ import time
 from time import localtime, strftime
 from SpecRunner import SpecRunner
 from SpecConfig import SpecConfig
+import numpy
+import numpy.oldnumeric as Numeric
+from tempfile import TemporaryFile, NamedTemporaryFile
+from PyMca import ClassMcaTheory , ConcentrationsTool #,McaAdvancedFitBatch
 os.system("pyuic4 GearTester.ui>GearTester.py")  
 
 
@@ -53,7 +57,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         sys.stdout=self
         self.specrun=SpecRunner(self,DEBUG)
         time=strftime("%a, %d %b %Y %H:%M:%S", localtime())
-        print "Rollcall=%s, DEBUG=%s"%(Rollcall,DEBUG)# TODO: remove when done
+        print "Rollcall=%s, DEBUG=%s"%(Rollcall,DEBUG)                                  # REMOVE WHEN DONE
         print "\n New Session started (%s)\n Enter spec server hostname: "%time 
         QtCore.QObject.connect(self.ChangeFile, QtCore.SIGNAL("clicked()"),
                                self.file_dialog)
@@ -88,6 +92,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
 
             
     def runspec(self):
+        self.buffer=TemporaryFile( 'w+b')
         if not self.specrun.get_spec_host():
             self.specrun.set_spec_host(self.command)
             print " Host set as %s \n Select a Port"%self.command
@@ -121,10 +126,13 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         elif not self.specrun.get_cmd():
             self.specrun.set_cmd(self.command)
             self.specrun.run_cmd()
+            self.processed=[]
+            file =os.path.join("/home/jeff/src/smp/spectromicroscopy","17KeV.cfg")
+            self.theory=ClassMcaTheory.McaTheory(file)
+            self.theory.enableOptimizedLinearFit()
+            self.data=numpy.memmap(self.buffer.name,dtype=float,mode='w+',shape=(self.max,2048))
             while self.update() and not self.estop:
-                time.sleep(.02)
-                values=self.specrun.get_values()
-                (value,index,actual)=self.xprun.get_values()
+                (value,index,actual)=self.specrun.get_values()
                 if actual:
                     typed=type(value[0])
                     print "<<%s>> %s"%(index,typed)
@@ -143,8 +151,6 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
                                 self.data[index-1,i]=value[0][i][1]
                             else:
                                 self.data[index-1,i]=value[0][i]
-            for i in range(5):
-                print self.data[i][500:600]
             print "data collected"
             self.specrun.set_cmd('')
         else:
@@ -350,7 +356,6 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
     
     def tester(self):
         """used to see if a signal is received, only for testing stage"""
-        #TODO: remove
         print "signaled"
         
     def Plus(self):

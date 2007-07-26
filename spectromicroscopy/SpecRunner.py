@@ -118,7 +118,7 @@ class Indexer(TestSpecVariable):
         self.__connected__ = False
     
     def update(self, value):
-        pass
+        print value
 
 
     
@@ -183,7 +183,7 @@ class SpecRunner:
             self._exc=SpecCommand.SpecCommandA('', self._specHost+":"+self._specPort)
             print "Connected!"
             try:
-                self._index=SpecVariable.SpecVariableA("NPTS",self._specHost+":"+self._specPort)
+                self._index=Indexer("NPTS",self._specHost+":"+self._specPort)
                 self._last_index=0
                 self._type_dict["NPTS"]="Async"
             except:
@@ -315,11 +315,9 @@ class SpecRunner:
         curr = self._index.getValue()
         if curr != prev:
             if curr > prev+1:
+                print "missed point %s v %s"%(prev,curr)
+                self._last_index=curr
                 return (["missed data point!"],curr,'')
-            elif curr<prev:
-                print "error in index"
-                print prev,curr
-                return (["error"],curr,'')
             else:
                 for var in self._var:
                     time.sleep(TIMEOUT)

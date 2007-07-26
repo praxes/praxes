@@ -17,19 +17,23 @@ from PyQt4 import QtCore, QtGui
 from SMP import Ui_Main
 from MotorGui import MyUI
 from KonsoleGui import MyKon
-from XpGui import MyXP
+from XpSetupGui import MyXP as XPS
+from XpWatcherGui import MyXP as XPW
 
 
 class MySMP(Ui_Main,QtGui.QMainWindow):
     """Establishes a Experiment controls"""
     def __init__(self,parent=None):
         QtGui.QWidget.__init__(self, parent)
+        self.max_index=1
+        self.x_index=1
+        self.y_index=1
         self.setupUi(self)
         self.Opener=QtGui.QMenu("New",self.Bar)
         self.Opener.addAction("Motor Control",self.NewMotor)
         self.Opener.addAction("Console",self.NewKon)
         self.NewMotor()
-        self.XP=self.NewXP()
+        self.NewXP()
         self.NewKon()
         self.Tabby.removeTab(0)
     def NewMotor(self):
@@ -47,8 +51,10 @@ class MySMP(Ui_Main,QtGui.QMainWindow):
                                  self.Del)
     
     def NewXP(self):
-        self.XP=MyXP(self)
-        self.Tabby.addTab(self.XP.centralWidget(),"Experiment Controls")
+        self.XPS=XPS(self)
+        self.XPW=XPW(self)
+        self.Tabby.addTab(self.XPS.centralWidget(),"Experiment Setup")
+        self.Tabby.addTab(self.XPW.centralWidget(),"Experiment Data")
     
     def Del(self):
         Index=self.Tabby.currentIndex()
@@ -60,7 +66,6 @@ class MySMP(Ui_Main,QtGui.QMainWindow):
 
         
 if __name__ == "__main__":
-    print __file__
     app = QtGui.QApplication(sys.argv)
     myapp = MySMP()
     myapp.show()
