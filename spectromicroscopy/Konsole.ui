@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>712</width>
-    <height>452</height>
+    <width>1252</width>
+    <height>684</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -16,8 +16,8 @@
    <widget class="QPushButton" name="pushButton_2" >
     <property name="geometry" >
      <rect>
-      <x>110</x>
-      <y>400</y>
+      <x>120</x>
+      <y>600</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -29,8 +29,8 @@
    <widget class="QPushButton" name="changer" >
     <property name="geometry" >
      <rect>
-      <x>310</x>
-      <y>400</y>
+      <x>320</x>
+      <y>600</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -42,8 +42,8 @@
    <widget class="QPushButton" name="MacroSave" >
     <property name="geometry" >
      <rect>
-      <x>200</x>
-      <y>400</y>
+      <x>210</x>
+      <y>600</y>
       <width>101</width>
       <height>23</height>
      </rect>
@@ -55,8 +55,8 @@
    <widget class="QPushButton" name="Runner" >
     <property name="geometry" >
      <rect>
-      <x>20</x>
-      <y>400</y>
+      <x>30</x>
+      <y>600</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -65,13 +65,62 @@
      <string>Run</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="Closer" >
+    <property name="geometry" >
+     <rect>
+      <x>610</x>
+      <y>600</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Close</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton" >
+    <property name="geometry" >
+     <rect>
+      <x>490</x>
+      <y>600</y>
+      <width>75</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>PushButton</string>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="Display" >
+    <property name="geometry" >
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>791</width>
+      <height>301</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="KonsoleEm" >
+    <property name="geometry" >
+     <rect>
+      <x>20</x>
+      <y>340</y>
+      <width>791</width>
+      <height>251</height>
+     </rect>
+    </property>
+    <property name="cursor" >
+     <cursor>4</cursor>
+    </property>
+   </widget>
    <widget class="QPushButton" name="pushButton_3" >
     <property name="geometry" >
      <rect>
-      <x>680</x>
-      <y>20</y>
+      <x>820</x>
+      <y>10</y>
       <width>21</width>
-      <height>181</height>
+      <height>301</height>
      </rect>
     </property>
     <property name="cursor" >
@@ -90,10 +139,10 @@
    <widget class="QPushButton" name="pushButton_5" >
     <property name="geometry" >
      <rect>
-      <x>680</x>
-      <y>220</y>
-      <width>16</width>
-      <height>171</height>
+      <x>820</x>
+      <y>340</y>
+      <width>21</width>
+      <height>241</height>
      </rect>
     </property>
     <property name="text" >
@@ -103,53 +152,14 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QTextBrowser" name="Display" >
+   <widget class="QTreeWidget" name="treeWidget" >
     <property name="geometry" >
      <rect>
-      <x>20</x>
+      <x>860</x>
       <y>10</y>
-      <width>651</width>
-      <height>192</height>
+      <width>371</width>
+      <height>581</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="Closer" >
-    <property name="geometry" >
-     <rect>
-      <x>600</x>
-      <y>400</y>
-      <width>75</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text" >
-     <string>Close</string>
-    </property>
-   </widget>
-   <widget class="QTextEdit" name="KonsoleEm" >
-    <property name="geometry" >
-     <rect>
-      <x>20</x>
-      <y>220</y>
-      <width>651</width>
-      <height>171</height>
-     </rect>
-    </property>
-    <property name="cursor" >
-     <cursor>4</cursor>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton" >
-    <property name="geometry" >
-     <rect>
-      <x>480</x>
-      <y>410</y>
-      <width>75</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="text" >
-     <string>PushButton</string>
     </property>
    </widget>
   </widget>

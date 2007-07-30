@@ -11,14 +11,15 @@ Rollcall=2      #if set to 1 it auto starts spec -s on f3.chess.cornell.edu
 
 import os,sys
 os.system("pyuic4 SMP.ui>SMP.py")
-os.system("pyuic4 Xp.ui>Xp.py")
+os.system("pyuic4 XpMaster.ui>XpMaster.py")
+os.system("pyuic4 Konsole.ui>Konsole.py")
 os.system("pyuic4 GearTester.ui>GearTester.py")
 from PyQt4 import QtCore, QtGui    
 from SMP import Ui_Main
 from MotorGui import MyUI
 from KonsoleGui import MyKon
-from XpSetupGui import MyXP as XPS
-from XpWatcherGui import MyXP as XPW
+from XpGui import MyXP as XP
+
 
 
 class MySMP(Ui_Main,QtGui.QMainWindow):
@@ -51,10 +52,9 @@ class MySMP(Ui_Main,QtGui.QMainWindow):
                                  self.Del)
     
     def NewXP(self):
-        self.XPS=XPS(self)
-        self.XPW=XPW(self)
-        self.Tabby.addTab(self.XPS.centralWidget(),"Experiment Setup")
-        self.Tabby.addTab(self.XPW.centralWidget(),"Experiment Data")
+        self.XP=XP(self)
+        self.Tabby.addTab(self.XP.centralWidget(),"Experiment Controls")
+
     
     def Del(self):
         Index=self.Tabby.currentIndex()

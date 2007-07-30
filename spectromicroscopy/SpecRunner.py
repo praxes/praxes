@@ -317,7 +317,7 @@ class SpecRunner:
             if curr > prev+1:
                 print "missed point %s v %s"%(prev,curr)
                 self._last_index=curr
-                return (["missed data point!"],curr,'')
+                return ([],curr,'')
             else:
                 for var in self._var:
                     time.sleep(TIMEOUT)
@@ -335,10 +335,6 @@ class SpecRunner:
             self.set_cmd('')
             print "\n %%%%%%%%%%%%ALL STOP%%%%%%%%%%%%"
 
-
-
-    def tester(self):
-        print "testing"
     
 
 
