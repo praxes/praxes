@@ -17,7 +17,8 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.pylab import *
 from tempfile import TemporaryFile, NamedTemporaryFile
-from PyMca import ClassMcaTheory , ConcentrationsTool #,McaAdvancedFitBatch
+from PyMca import ClassMcaTheory , ConcentrationsTool 
+from configobj import ConfigObj
 
 ElementsInfo = [
    ["H",   1,    1,1,   "hydrogen",   1.00800,     1008.00   ],
@@ -136,7 +137,6 @@ Shells = ['K','L1','L2','L3',
                  'O1','O2','O3','O4','O5','O6','O7',
                  'P1','P2','P3','P4','P5']
 VisualTypes=["imshow","line plot"]
-
 Scans=["select","tseries","mesh"]
 
 class MyXP(Ui_XpMaster,QtGui.QMainWindow):
@@ -147,6 +147,7 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
         self.setupUi(self)
         self.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                    QtGui.QSizePolicy.Expanding)
+        self.config()
         self.setup=0
         for item in Scans:
             self.ScanBox.addItem(item)
@@ -154,19 +155,15 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
         self.xprun.exc("NPTS=0")
         self.buffer=TemporaryFile( 'w+b')
         self.ElementSelect.setLineEdit(self.ElementText)
-        self.ElementShell.setLineEdit(self.ShellText)
-        QtCore.QObject.connect(self.CountMax,QtCore.SIGNAL("editingFinished()"),self.setRange)
         QtCore.QObject.connect(self.ScanBox,QtCore.SIGNAL("currentIndexChanged(int)"),self.ScanControls)
         QtCore.QObject.connect(self.Run,QtCore.SIGNAL("clicked()"),self.run_scan)
         QtCore.QObject.connect(self.ElementSelect,QtCore.SIGNAL("currentIndexChanged(int)"),self.setElement)
-        for element in ElementList:
-            self.ElementSelect.addItem(element)
-        for shell in Shells:
-            self.ElementShell.addItem(shell)
-        self.setRange()
+        QtCore.QObject.connect(self.MinValSpin,QtCore.SIGNAL("editingFinished()"),self.change_limits)
+        QtCore.QObject.connect(self.MaxValSpin,QtCore.SIGNAL("editingFinished()"),self.change_limits)
+        for peak in self.__peaks:
+            self.ElementSelect.addItem(peak)
         self.Spin_Slide_Motor=[]
         self.Image_Element=''
-        self.__peaks  = []
 
     def ScanControls(self):
         if self.Spin_Slide_Motor:
@@ -187,11 +184,23 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
     
     def setElement(self):
         Element="%s"%self.ElementSelect.currentText()
-        Shell="%s"%self.ElementShell.currentText()
+        Shell=self.__peaks[Element]
         self.Image_Element="%s %s"%(Element,Shell)
         if self.setup==2:
             self.image.new_data(self.__images[self.Image_Element])
             self.ImageFrame.update()
+    
+    def change_limits(self):
+        if self.setup!=0:
+            parrent=self.ImageFrame.widget(0)
+            self.Range_Max=self.MaxValSpin.value()
+            self.Range_Min=self.MinValSpin.value()
+            self.image=MyCanvas(self.ScanBox.currentText(),self.__images[self.Image_Element],
+                                            self.x_index,self.y_index,self.Range_Min,self.Range_Max,parrent)
+            self.image.setGeometry(QtCore.QRect(169,-1,771,721))
+            self.image.setMinimumSize(100,100)
+            self.image.setObjectName("Graph")
+            self.image.show()
         
     
     def run_scan(self):
@@ -222,8 +231,7 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             self.xprun.set_cmd("mesh"+part_one+part_two+" %s"%(count_time))
         self.xprun.exc("NPTS=0")
         self.processed=[]
-        file =os.path.join("/home/jeff/src/smp/spectromicroscopy","17KeV.cfg")
-        self.theory=ClassMcaTheory.McaTheory(file)
+        self.theory=ClassMcaTheory.McaTheory(self.configfile)
         self.theory.enableOptimizedLinearFit()
         self.data=numpy.memmap(self.buffer.name,dtype=float,mode='w+',shape=(self.max,2048))
         self.xprun.set_var('MCA_DATA',"Sync")
@@ -284,9 +292,6 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
                 self.image.setMinimumSize(100,100)
                 self.image.setObjectName("Graph")
                 self.image.show()
-                
-                
-                
                 self.setup=1
             else:
                 self.image.new_data(self.__images[self.Image_Element])
@@ -300,11 +305,95 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
         self.X.Move()
         self.Y.Move()
         self.Z.Move()
-    
-    def setRange(self):
-        max=self.CountMax.value()
-        self.MinValSpin.setMaximum(max)
-        self.MaxValSpin.setMaximum(max)
+        
+    def config(self):
+        user=os.path.expanduser("~")
+        filepath="%s/.spectromicroscopy/"%(user)
+        filename =os.path.join(filepath,"SMP.cfg")
+        self.configfile=filename
+        if isfile(filename):
+            self.configfile=filename
+            config = ConfigObj(filename)
+        else:
+            os.mkdir(filepath)
+            s = codecs.open(filename,'w','utf-8')
+            s.close()
+            config=ConfigObj()
+            config.filename=filename
+            peaks=[]
+            for element in ElementList:
+                peaks.append("%s %s"%(element,Shells))
+            config['peaks']=peaks
+            config.write()
+            print config["made"]
+        if "setup" in config.keys():
+            if "server:port" in config["setup"].keys():
+                self.connection=config["setup"]["server:port"]
+        else:
+            config["setup"]={}
+            config["setup"]["server:port"]="f3.chess.cornell.edu:xrf"
+            config.write()
+            self.connection="f3.chess.cornell.edu:xrf"
+        self.__peaks=config['peaks']
+        
+
+
+class MyCanvas(FigureCanvas):
+    """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
+    def __init__(self, visual,matrix, x, y, vmin, vmax, parent=None, width=5, height=4, dpi=100):
+        self.visual=visual
+        self.x=x
+        self.y=y
+        self.min=vmin
+        if vmax ==0:
+            self.max=None
+            self.min=None
+        elif vmin>vmax:
+            self.min=vmax
+            self.max=vmin
+        else:
+            self.max=vmax
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = self.fig.add_axes([0.1,0.1,0.7,0.7])##self.fig.add_subplot(111)
+        self.axes.hold(False)
+        FigureCanvas.__init__(self, self.fig)
+        self.setParent(parent)
+        FigureCanvas.setSizePolicy(self,
+                                   QtGui.QSizePolicy.Expanding,
+                                   QtGui.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
+        self.new_data(matrix)
+        
+    def new_data(self,matrix):
+        self.matrix=matrix.reshape(self.x,self.y)
+        self.compute_initial_figure()
+        self.draw()
+
+    def sizeHint(self):
+        w, h = self.get_width_height()
+        return QtCore.QSize(w, h)
+
+    def minimumSizeHint(self):
+        return QtCore.QSize(10, 10)
+
+    def compute_initial_figure(self):
+        if self.visual==Scans[2]:
+            self.image=self.axes.imshow(self.matrix,vmin=self.min, vmax=self.max,interpolation="nearest",origin="lower")
+            l,b,w,h = self.axes.get_position()
+            cax = axes([l+w+0.075, b, 0.05, h])
+            self.colorbar=colorbar(self.image,cax=cax) # draw colorbar
+            
+            
+        elif self.visual==Scans[1]:
+            matrix=self.matrix.flatten()
+            self.axes.plot(matrix,"r-")
+            self.axes.axis([0,len(matrix)-1,self.min,self.max])
+            
+            
+            
+            
+            
+            
 
 class Spinner_Slide_Motor(QtGui.QFrame):
     def __init__(self,parent,xprun,axis,number):
@@ -386,11 +475,11 @@ class Spinner_Slide_Motor(QtGui.QFrame):
             
     def setup(self):
         values=self.values
-        min =values[2]*values[3]+values[1]
-        max=values[2]*values[4]+values[1]
+        min =0 ##values[2]*values[3]+values[1]
+        max=1##values[2]*values[4]+values[1]
         motor_step_size=values[5]
         self.Step.setRange(-100000,100000)
-        self.Step.setValue(1)
+        self.Step.setValue(2)##1)
         self.Max.setRange(min,max)
         self.Min.setRange(min,max)
         self.Max.setValue(max)
@@ -413,55 +502,7 @@ class Spinner_Slide_Motor(QtGui.QFrame):
 
 
 
-class MyCanvas(FigureCanvas):
-    """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
-    def __init__(self, visual,matrix, x, y, vmin, vmax, parent=None, width=5, height=4, dpi=100):
-        self.visual=visual
-        self.x=x
-        self.y=y
-        self.min=vmin
-        if vmax ==0:
-            self.max=None
-            self.min=None
-        elif vmin>vmax:
-            self.min=vmax
-            self.max=vmin
-        else:
-            self.max=vmax
-        self.fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = self.fig.add_subplot(111)
-        self.axes.hold(False)
-        self.matrix=matrix.reshape(self.x,self.y)
-        self.compute_initial_figure()
 
-        FigureCanvas.__init__(self, self.fig)
-        self.setParent(parent)
-
-        FigureCanvas.setSizePolicy(self,
-                                   QtGui.QSizePolicy.Expanding,
-                                   QtGui.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
-        self.new_data(matrix)
-##        self.fig.set_colorbar(self.image,self.axes)
-    def new_data(self,matrix):
-        self.matrix=matrix.reshape(self.x,self.y)
-        self.compute_initial_figure()
-        self.draw()
-
-    def sizeHint(self):
-        w, h = self.get_width_height()
-        return QtCore.QSize(w, h)
-
-    def minimumSizeHint(self):
-        return QtCore.QSize(10, 10)
-
-    def compute_initial_figure(self):
-        if self.visual==Scans[2]:
-            self.image=self.axes.imshow(self.matrix,vmin=self.min, vmax=self.max,interpolation="nearest",origin="lower")
-        elif self.visual==Scans[1]:
-            matrix=self.matrix.flatten()
-            self.axes.plot(matrix,"r-")
-            self.axes.axis([0,len(matrix)-1,self.min,self.max])
    
 
 

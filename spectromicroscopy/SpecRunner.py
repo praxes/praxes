@@ -186,8 +186,10 @@ class SpecRunner:
                 self._index=Indexer("NPTS",self._specHost+":"+self._specPort)
                 self._last_index=0
                 self._type_dict["NPTS"]="Async"
+                self._S=SpecVariable.SpecVariableA("S",self._specHost+":"+self._specPort)
+                self._Detector=Indexer("MCA_NAME",self._specHost+":"+self._specPort)
             except:
-                print "IndexVar Failed to Connect"
+                print "Background Variables Failed to Connect"
             return True
         except:
             return False
@@ -320,13 +322,26 @@ class SpecRunner:
                 return ([],curr,'')
             else:
                 for var in self._var:
+                    if self._Detector.getValue()=="vortex":
+                        a=self.compensate()
+                        print a
+                    else:
+                        a=1.0
                     time.sleep(TIMEOUT)
-                    values.append(var.getValue())
+                    values.append(a*var.getValue())
                     self._last_index=curr
                     print "*****************Got Point***************"
                     return (values,curr,True)
         else:
             return ([''],curr,'')
+
+    def compensate(self):
+        icr=float(self._S.getValue()["5"])
+        ocr=float(self._S.getValue()["7"])
+        real=float(self._S.getValue()["8"])
+        live=float(self._S.getValue()["9"])
+        return icr/ocr*real/live
+    
 
 
     def EmergencyStop(self):

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'SMP.ui'
 #
-# Created: Mon Jul 30 17:16:19 2007
+# Created: Tue Jul 31 16:45:08 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
