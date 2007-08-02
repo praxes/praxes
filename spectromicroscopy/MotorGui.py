@@ -212,7 +212,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
                       
     def macro(self):
         """Opens Macro Editor"""
-        if OS=="windows":
+        if sys.platform=="win32":
             print "signal sent"
         else:
             os.system("gedit")

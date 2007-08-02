@@ -3,7 +3,6 @@ import sys, os, codecs
 from os.path import isfile
 os.system("pyuic4 XpMaster.ui>XpMaster.py")
 DEBUG=2
-GRAPH=1
 
 #GUI
 from PyQt4 import QtCore, QtGui
@@ -12,6 +11,7 @@ from SpecRunner import SpecRunner
 #Number Crunching
 import numpy
 import numpy.oldnumeric as Numeric
+import MA
 from matplotlib.numerix import arange, sin, pi
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -140,8 +140,9 @@ VisualTypes=["imshow","line plot"]
 Scans=["select","tseries","mesh"]
 
 class MyXP(Ui_XpMaster,QtGui.QMainWindow):
-    """Establishes a Experimenbt controls"""
+    """Establishes a Experimenbt controls    """
     def __init__(self,parent=None):
+        self.DEBUG=DEBUG
         QtGui.QWidget.__init__(self, parent)
         self.parent=parent
         self.setupUi(self)
@@ -149,23 +150,34 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
                                    QtGui.QSizePolicy.Expanding)
         self.config()
         self.setup=0
+        if parent:
+            Bar=parent.Bar
+        else:
+            Bar=self.Bar
+        Bar.addAction("PyMca Config file",self.set_config_file)
+        Bar.addAction("Configure SMP",self.config_smp)
         for item in Scans:
             self.ScanBox.addItem(item)
-        self.xprun=SpecRunner(self,DEBUG,"f3.chess.cornell.edu","xrf")
+        self.xprun=SpecRunner(self,DEBUG,self.__server,self.__port)
         self.xprun.exc("NPTS=0")
         self.buffer=TemporaryFile( 'w+b')
         self.ElementSelect.setLineEdit(self.ElementText)
         QtCore.QObject.connect(self.ScanBox,QtCore.SIGNAL("currentIndexChanged(int)"),self.ScanControls)
         QtCore.QObject.connect(self.Run,QtCore.SIGNAL("clicked()"),self.run_scan)
-        QtCore.QObject.connect(self.ElementSelect,QtCore.SIGNAL("currentIndexChanged(int)"),self.setElement)
+        QtCore.QObject.connect(self.ElementSelect,QtCore.SIGNAL("currentIndexChanged(int)"),self.set_element)
+        QtCore.QObject.connect(self.ScaleBox,QtCore.SIGNAL("currentIndexChanged(int)"),self.set_scale)
         QtCore.QObject.connect(self.MinValSpin,QtCore.SIGNAL("editingFinished()"),self.change_limits)
         QtCore.QObject.connect(self.MaxValSpin,QtCore.SIGNAL("editingFinished()"),self.change_limits)
+        QtCore.QObject.connect(self.Estop,QtCore.SIGNAL("clicked()"),self.emergancy_stop)
+        QtCore.QObject.connect(self.Mover,QtCore.SIGNAL("clicked()"),self.Move)
+        QtCore.QObject.connect(self.AutoRanger,QtCore.SIGNAL("clicked()"),self.auto_set)
         for peak in self.__peaks:
             self.ElementSelect.addItem(peak)
         self.Spin_Slide_Motor=[]
         self.Image_Element=''
 
     def ScanControls(self):
+        """establishes the Motor controls for selected scan"""
         if self.Spin_Slide_Motor:
             for object in self.Spin_Slide_Motor:
                 object.hide()
@@ -182,72 +194,172 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             self.Spin_Slide_Motor.append(self.X)
             self.Spin_Slide_Motor.append(self.Y)
     
-    def setElement(self):
-        Element="%s"%self.ElementSelect.currentText()
-        Shell=self.__peaks[Element]
-        self.Image_Element="%s %s"%(Element,Shell)
+    def Move(self):
+        for i in len(self.Spin_Slide_Motor):
+            self.Spin_Slide_Motor[i].Move()
+        
+    def emergancy_stop(self):
+        self.xprun.EmergencyStop() 
+    
+    def config_smp(self):
+        config=ConfigObj(self.configfile)
+        a=QtGui.QInputDialog.getText(self, "Configure","Server")
+        if a[1]:
+            self.__server="%s"%a[0]
+            config["setup"]["Server"]=self.__server
+        b=QtGui.QInputDialog.getText(self, "Configure","Port")
+        if b[1]:
+            self.__port="%s"%b[0]
+            config["setup"]["Port"]=self.__port
+        c=QtGui.QInputDialog.getInteger(self, "Configure","DEBUG mode")
+        if c[1]:
+            self.DEBUG="%s"%c[0]
+            config["setup"]["DEBUG"]=self.DEBUG
+        config.write()
+    
+    def set_config_file(self):
+        try:
+            fd = QtGui.QFileDialog(self)
+            self.filename = "%s"%fd.getOpenFileName()
+            config=ConfigObj(self.filename)
+            self.__peaks=config["peaks"]
+            self.ElementSelect.clear()
+            for peak in self.__peaks:
+                self.ElementSelect.addItem(peak)
+        except:
+            print "come on now"
+
+    
+    def config(self):
+        user=os.path.expanduser("~")
+        filepath="%s/.spectromicroscopy/"%(user)
+        configfilename =os.path.join(filepath,"SMP.cfg")
+        self.configfile=configfilename
+        if isfile(configfilename):
+            config = ConfigObj(configfilename)
+        else:
+            os.mkdir(filepath)
+            s = codecs.open(filename,'w','utf-8')
+            s.close()
+            config=ConfigObj()
+            config.filename=filename
+            config.write()
+        if "setup" not in config.keys():
+            config["setup"]={}
+            config.write()
+        if "server" not in config["setup"].keys():
+            config["setup"]["server"]="f3.chess.cornell.edu"
+            config.write()
+        if "port" not in config["setup"].keys():
+            config["setup"]["port"]="xrf"
+            config.write()
+        if "DEBUG" not in config["setup"].keys():
+            config["setup"]["DEBUG"]=0
+            config.write()
+        self.__server=config["setup"]["server"]
+        self.__port=config["setup"]["port"]
+        self.DEBUG=config["setup"]["DEBUG"]
+        self.filename=os.path.join(filepath,"Default.cfg")
+        reader=ConfigObj(self.filename)
+        self.__peaks=[]
+        elements=reader["peaks"]
+        for key in elements.keys():
+            self.__peaks.append("%s %s"%(key,elements[key]))
+
+
+    
+    def set_element(self):
+        self.Image_Element="%s"%self.ElementSelect.currentText()
         if self.setup==2:
             self.image.new_data(self.__images[self.Image_Element])
             self.ImageFrame.update()
+    
+    def set_scale(self):
+        self.scale="%s"%self.ScaleBox.currentText()
+        if self.setup==2:
+            self.image.new_data(self.__images[self.Image_Element],self.scale)
+            self.ImageFrame.update()
+    
+    def auto_set(self):
+        self.MinValSpin.setValue(0)
+        self.MaxValSpin.setValue(0)
+        self.change_limits()
     
     def change_limits(self):
         if self.setup!=0:
             parrent=self.ImageFrame.widget(0)
             self.Range_Max=self.MaxValSpin.value()
             self.Range_Min=self.MinValSpin.value()
+            scale="%s"%self.ScaleBox.currentText()
             self.image=MyCanvas(self.ScanBox.currentText(),self.__images[self.Image_Element],
-                                            self.x_index,self.y_index,self.Range_Min,self.Range_Max,parrent)
-            self.image.setGeometry(QtCore.QRect(169,-1,771,721))
+                                            self.x_index,self.y_index,self.Range_Min,self.Range_Max,parrent,self.__totaled,scale)
+            self.image.setGeometry(QtCore.QRect(169,-1,771,900))
             self.image.setMinimumSize(100,100)
             self.image.setObjectName("Graph")
             self.image.show()
-        
     
     def run_scan(self):
-        self.setup=0
-        self.processed=[]
-        indexs=[[0,0,0],[0,0,0],[0,0,0]]
-        for i in range(len(self.Spin_Slide_Motor)):
-            for j in range(3):
-                indexs[i][j]=self.Spin_Slide_Motor[i].get_settings()[j]
-        count_time=self.Counter.value()
-        self.Range_Max=self.MaxValSpin.value()
-        self.Range_Min=self.MinValSpin.value()
-        if "%s"%self.ScanBox.currentText()=="tseries":
-            self.max=max_index =indexs[0][2]*indexs[1][2]
-            self.xprun.set_cmd("tseries %s %s"%(self.max,count_time))
-            self.x_index=indexs[0][2]
-            self.y_index=1
-        else:
-            self.x_index=indexs[0][2]+1
-            self.y_index=indexs[1][2]+1
-            self.max=self.x_index*self.y_index
-            x = self.X.get_motor_name()
-            y = self.Y.get_motor_name()
-            (xmin, xmax, xstep)=indexs[0]
-            (ymin, ymax, ystep)=indexs[1]
-            part_one=" %s %s %s %s"%(x,xmin,xmax,xstep)
-            part_two=" %s %s %s %s"%(y,ymin, ymax, ystep)
-            self.xprun.set_cmd("mesh"+part_one+part_two+" %s"%(count_time))
-        self.xprun.exc("NPTS=0")
-        self.processed=[]
-        self.theory=ClassMcaTheory.McaTheory(self.configfile)
-        self.theory.enableOptimizedLinearFit()
-        self.data=numpy.memmap(self.buffer.name,dtype=float,mode='w+',shape=(self.max,2048))
-        self.xprun.set_var('MCA_DATA',"Sync")
-        self.xprun.exc("MCA_DATA=0")
-        self.__images = {}
-        self.__sigmas = {}
-        self.timer = QtCore.QTimer(self)
-        QtCore.QObject.connect(self.timer, QtCore.SIGNAL("timeout()"), self.data_collect)
-        self.timer.start(20)
-        temp=self.Image_Element
-        self.ElementSelect.clear()
-        self.ElementSelect.addItem(temp.split(" ")[0])
-        self.xprun.run_cmd()
-        self.Run.setText("Pause")
+        """
+        sets up scans
+        Pauses scan if running
+        resumes scan if paused
+        
+        Inorder to run a scan it:
+       1) establishes required values
+       2)connects MCA_DATAas spec variable
+       3)begins a timmer to gather data
+        """
+        if "%s"%self.Run.text()=="Scan":
+            self.setup=0
+            self.processed=[]
+            indexs=[[1,1,1],[1,1,1],[1,1,1]]
+            for i in range(len(self.Spin_Slide_Motor)):
+                for j in range(3):
+                    indexs[i][j]=self.Spin_Slide_Motor[i].get_settings()[j]
+            count_time=self.Counter.value()
+            self.Range_Max=self.MaxValSpin.value()
+            self.Range_Min=self.MinValSpin.value()
+            if "%s"%self.ScanBox.currentText()=="tseries":
+                self.max=indexs[0][2]*indexs[1][2]
+                self.xprun.set_cmd("tseries %s %s"%(self.max,count_time))
+                self.x_index=indexs[0][2]
+                self.y_index=1
+            else:
+                self.x_index=indexs[0][2]+1
+                self.y_index=indexs[1][2]+1
+                self.max=self.x_index*self.y_index
+                x = self.X.get_motor_name()
+                y = self.Y.get_motor_name()
+                (xmin, xmax, xstep)=indexs[0]
+                (ymin, ymax, ystep)=indexs[1]
+                part_one=" %s %s %s %s"%(x,xmin,xmax,xstep)
+                part_two=" %s %s %s %s"%(y,ymin, ymax, ystep)
+                self.xprun.set_cmd("mesh"+part_one+part_two+" %s"%(count_time))
+            self.xprun.exc("NPTS=0")
+            self.processed=[]
+            self.theory=ClassMcaTheory.McaTheory(self.filename)
+            self.theory.enableOptimizedLinearFit()
+            self.data=numpy.memmap(self.buffer.name,dtype=float,mode='w+',shape=(self.max,2048))
+            self.xprun.exc("MCA_DATA=0")
+            self.xprun.set_var('MCA_DATA',"Sync")
+            self.__images = {}
+            self.__sigmas = {}
+            self.__totaled=Numeric.zeros((1,2048),Numeric.Float)
+            self.timer = QtCore.QTimer(self)
+            QtCore.QObject.connect(self.timer, QtCore.SIGNAL("timeout()"), self.data_collect)
+            self.timer.start(20)
+            self.xprun.run_cmd()
+            self.Run.setText("Pause")
+        elif "%s"%self.Run.text()=="Pause":
+            print "Pause command"
+            self.xprun.exc("")
+            self.Run.setText("Resume")
+        elif "%s"%self.Run.text()=="Resume":
+            self.xprun.exc("scan_on")
+            self.Run.setText("Pause")
     
     def data_collect(self):
+        """gathers data from spec and processes it """
         max_index=self.max
         self.xprun.update()
         (value,index,actual)=self.xprun.get_values()
@@ -274,9 +386,6 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             self.__images['chisq'][index-1, 0] = result['chisq']
             for peak in self.__peaks:
                 if not self.setup:
-                    (element,line)=peak.split(" ")
-                    if peak!=self.Image_Element:
-                        self.ElementSelect.addItem(element)
                     self.__images[peak][index-1, 0] = result[peak]['fitarea']
                     self.__sigmas[peak][index-1,0] = result[peak]['sigmaarea']
                 else:
@@ -284,63 +393,29 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
                     self.__sigmas[peak][index-1,0] += result[peak]['sigmaarea']
             if self.Image_Element not in self.__peaks:self.Image_Element=self.__peaks[0]
             print self.__images[self.Image_Element]
-            if not self.setup:
-                parrent=self.ImageFrame.widget(0)
-                self.image=MyCanvas(self.ScanBox.currentText(),self.__images[self.Image_Element],
-                                            self.x_index,self.y_index,self.Range_Min,self.Range_Max,parrent)
-                self.image.setGeometry(QtCore.QRect(169,-1,771,721))
-                self.image.setMinimumSize(100,100)
-                self.image.setObjectName("Graph")
-                self.image.show()
-                self.setup=1
-            else:
-                self.image.new_data(self.__images[self.Image_Element])
-                self.ImageFrame.update()
+            scale="%s"%self.ScaleBox.currentText()
+            self.__totaled+=self.data[index-1]
+            parrent=self.ImageFrame.widget(0)
+            self.image=MyCanvas(self.ScanBox.currentText(),self.__images[self.Image_Element],
+                                        self.x_index,self.y_index,self.Range_Min,self.Range_Max,parrent,self.__totaled,scale)
+            self.image.setGeometry(QtCore.QRect(169,-1,771,900))
+            self.image.setMinimumSize(100,100)
+            self.image.setObjectName("Graph")
+            self.image.show()
+            self.setup=1
             print self.Image_Element
         if index==self.max:
             self.timer.stop()
             self.setup=2
+            self.xprun.exc("MCA_DATA=0")
+            self.Run.setText("Scan")
         
-    def Move(self):
-        self.X.Move()
-        self.Y.Move()
-        self.Z.Move()
-        
-    def config(self):
-        user=os.path.expanduser("~")
-        filepath="%s/.spectromicroscopy/"%(user)
-        filename =os.path.join(filepath,"SMP.cfg")
-        self.configfile=filename
-        if isfile(filename):
-            self.configfile=filename
-            config = ConfigObj(filename)
-        else:
-            os.mkdir(filepath)
-            s = codecs.open(filename,'w','utf-8')
-            s.close()
-            config=ConfigObj()
-            config.filename=filename
-            peaks=[]
-            for element in ElementList:
-                peaks.append("%s %s"%(element,Shells))
-            config['peaks']=peaks
-            config.write()
-            print config["made"]
-        if "setup" in config.keys():
-            if "server:port" in config["setup"].keys():
-                self.connection=config["setup"]["server:port"]
-        else:
-            config["setup"]={}
-            config["setup"]["server:port"]="f3.chess.cornell.edu:xrf"
-            config.write()
-            self.connection="f3.chess.cornell.edu:xrf"
-        self.__peaks=config['peaks']
-        
-
 
 class MyCanvas(FigureCanvas):
-    """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
-    def __init__(self, visual,matrix, x, y, vmin, vmax, parent=None, width=5, height=4, dpi=100):
+    """This is a QWidget as well as a FigureCanvasAgg"""
+    def __init__(self, visual,matrix, x, y, vmin, vmax,parent=None,  plot_matrix=None,scale="linear", width=5, height=4, dpi=100):
+        self.plot_matrix=plot_matrix
+        self.scale=scale
         self.visual=visual
         self.x=x
         self.y=y
@@ -354,7 +429,10 @@ class MyCanvas(FigureCanvas):
         else:
             self.max=vmax
         self.fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = self.fig.add_axes([0.1,0.1,0.7,0.7])##self.fig.add_subplot(111)
+        self.axes = self.fig.add_axes([0.1,0.1,.6,.6])
+        self.axes2=self.fig.add_axes([0.1,.75,.8,.2])
+        self.axes3=self.fig.add_axes([0.75,0.1,0.075,0.6])
+        self.axes2.hold(False)
         self.axes.hold(False)
         FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
@@ -362,11 +440,29 @@ class MyCanvas(FigureCanvas):
                                    QtGui.QSizePolicy.Expanding,
                                    QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
-        self.new_data(matrix)
-        
-    def new_data(self,matrix):
         self.matrix=matrix.reshape(self.x,self.y)
         self.compute_initial_figure()
+
+
+    def new_data(self,matrix,scale):
+        self.scale=scale
+        self.matrix=matrix.reshape(self.x,self.y)
+        if self.visual==Scans[2]:
+            self.image.set_data(self.matrix)
+            self.image.changed()
+        elif self.visual==Scans[1]:
+            matrix=self.matrix.flatten()
+            self.axes.plot(matrix,"r-")
+            self.axes.axis([0,len(matrix)-1,self.min,self.max])
+        if self.plot_matrix!=None:
+            if self.scale=="linear":
+                self.axes2.axis([0, len(self.plot_matrix), MA.minimum(self.plot_matrix), MA.maximum(self.plot_matrix)])
+                self.axes2.plot(self.plot_matrix,"b-")
+            else:
+                self.axes2.axis([0, 2048, 1,1000])
+                self.axes2.semilogy(self.plot_matrix,"b-")
+            self.axes2.set_xlabel("Energy")
+            self.axes2.set_ylabel("Count")
         self.draw()
 
     def sizeHint(self):
@@ -377,23 +473,26 @@ class MyCanvas(FigureCanvas):
         return QtCore.QSize(10, 10)
 
     def compute_initial_figure(self):
+        if self.plot_matrix!=None:
+            if self.scale=="linear":
+                self.axes2.axis([0, len(self.plot_matrix), MA.minimum(self.plot_matrix), MA.maximum(self.plot_matrix)])
+                self.axes2.plot(self.plot_matrix,"b-")
+            else:
+                self.axes2.axis([0, 2048, 1,1000])
+                self.axes2.semilogy(self.plot_matrix,"b-")
+            self.axes2.set_xlabel("Energy")
+            self.axes2.set_ylabel("Count")
         if self.visual==Scans[2]:
             self.image=self.axes.imshow(self.matrix,vmin=self.min, vmax=self.max,interpolation="nearest",origin="lower")
-            l,b,w,h = self.axes.get_position()
-            cax = axes([l+w+0.075, b, 0.05, h])
-            self.colorbar=colorbar(self.image,cax=cax) # draw colorbar
-            
-            
+            self.cbar=self.fig.colorbar(self.image,self.axes3)
+            matrix=self.matrix.flatten()
         elif self.visual==Scans[1]:
             matrix=self.matrix.flatten()
             self.axes.plot(matrix,"r-")
             self.axes.axis([0,len(matrix)-1,self.min,self.max])
-            
-            
-            
-            
-            
-            
+        self.draw()
+    
+
 
 class Spinner_Slide_Motor(QtGui.QFrame):
     def __init__(self,parent,xprun,axis,number):
@@ -444,7 +543,6 @@ class Spinner_Slide_Motor(QtGui.QFrame):
         self.MotorSpin.setDecimals(4)
         self.MotorSpin.setSingleStep(0.01)
         self.MotorSpin.setObjectName("MotorSpin")
-    
         
         self.Spin=self.MotorSpin
         self.Slide=self.MotorSlide
@@ -475,8 +573,8 @@ class Spinner_Slide_Motor(QtGui.QFrame):
             
     def setup(self):
         values=self.values
-        min =0 ##values[2]*values[3]+values[1]
-        max=1##values[2]*values[4]+values[1]
+        min =values[0]-1#values[2]*values[3]+values[1]
+        max=values[0]#values[2]*values[4]+values[1]
         motor_step_size=values[5]
         self.Step.setRange(-100000,100000)
         self.Step.setValue(2)##1)

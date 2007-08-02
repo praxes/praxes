@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'SMP.ui'
 #
-# Created: Tue Jul 31 16:45:08 2007
+# Created: Thu Aug  2 18:01:34 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,13 +13,13 @@ from PyQt4 import QtCore, QtGui
 class Ui_Main(object):
     def setupUi(self, Main):
         Main.setObjectName("Main")
-        Main.resize(QtCore.QSize(QtCore.QRect(0,0,1256,798).size()).expandedTo(Main.minimumSizeHint()))
+        Main.resize(QtCore.QSize(QtCore.QRect(0,0,1255,988).size()).expandedTo(Main.minimumSizeHint()))
 
         self.centralwidget = QtGui.QWidget(Main)
         self.centralwidget.setObjectName("centralwidget")
 
         self.Tabby = QtGui.QTabWidget(self.centralwidget)
-        self.Tabby.setGeometry(QtCore.QRect(0,0,1251,761))
+        self.Tabby.setGeometry(QtCore.QRect(0,0,1251,951))
         self.Tabby.setObjectName("Tabby")
 
         self.tab = QtGui.QWidget()
@@ -28,7 +28,7 @@ class Ui_Main(object):
         Main.setCentralWidget(self.centralwidget)
 
         self.Bar = QtGui.QMenuBar(Main)
-        self.Bar.setGeometry(QtCore.QRect(0,0,1256,28))
+        self.Bar.setGeometry(QtCore.QRect(0,0,1255,28))
         self.Bar.setObjectName("Bar")
         Main.setMenuBar(self.Bar)
 

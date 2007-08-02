@@ -141,8 +141,7 @@ class SpecRunner:
         """input a debug roll and parrent if needed by default all are 0 or None
         Debug--set to 1 it deactivates spec commands
         roll --set to 1 it auto starts spec -s on roll.chess.cornell.edu and connects,
-             --set to 2 it wont autostart but will autoconnect
-        Parent -- used to establish stdout.
+             --set to 2 it wont autostart but will autoconnect.
          
         """
         DEBUG=Debug
@@ -331,7 +330,10 @@ class SpecRunner:
                     values.append(a*var.getValue())
                     self._last_index=curr
                     print "*****************Got Point***************"
-                    return (values,curr,True)
+                    if 1<=a:
+                        return (values,curr,True)
+                    else:
+                        return (values,curr,False)
         else:
             return ([''],curr,'')
 
@@ -354,4 +356,4 @@ class SpecRunner:
 
 
 if __name__ =="__main__":
-    NewSpecRun=SpecRunner(1)
+    print "dont start as main"

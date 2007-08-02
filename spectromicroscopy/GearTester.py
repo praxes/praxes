@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GearTester.ui'
 #
-# Created: Tue Jul 31 16:45:09 2007
+# Created: Thu Aug  2 18:01:35 2007
 #      by: PyQt4 UI code generator 4.1
 #
 # WARNING! All changes made in this file will be lost!
