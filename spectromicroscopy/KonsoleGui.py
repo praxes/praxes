@@ -6,7 +6,6 @@ import pexpect
 import os
 import sys
 
-
 #GUI
 from PyQt4 import QtCore, QtGui
 from Konsole import Ui_Kontrol

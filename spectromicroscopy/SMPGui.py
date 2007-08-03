@@ -9,7 +9,8 @@ Rollcall=2      #if set to 1 it auto starts spec -s on f3.chess.cornell.edu
 
 ################################################################################
 
-import os,sys
+import os
+import sys
 os.system("pyuic4 SMP.ui>SMP.py")
 os.system("pyuic4 XpMaster.ui>XpMaster.py")
 os.system("pyuic4 Konsole.ui>Konsole.py")
