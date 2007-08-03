@@ -133,7 +133,9 @@ class BoundMethodWeakRef(object):
             same BoundMethodWeakref instance.
         
     """
+    
     _allInstances = weakref.WeakValueDictionary()
+    
     def __new__( cls, target, onDelete=None, *arguments,**named ):
         """Create new instance or return current instance
 
@@ -156,6 +158,7 @@ class BoundMethodWeakRef(object):
             cls._allInstances[key] = base
             base.__init__( target, onDelete, *arguments,**named)
             return base
+    
     def __init__(self, target, onDelete=None):
         """Return a weak-reference-like instance for a bound method
 
@@ -200,7 +203,9 @@ class BoundMethodWeakRef(object):
         target object and the target function respectively.
         """
         return (id(target.im_self),id(target.im_func))
+    
     calculateKey = classmethod( calculateKey )
+    
     def __str__(self):
         """Give a friendly representation of the object"""
         return """%s( %s.%s )"""%(
@@ -208,10 +213,13 @@ class BoundMethodWeakRef(object):
             self.weakSelf(),
             self.weakFunc().__name__,
         )
+    
     __repr__ = __str__
+    
     def __nonzero__( self ):
         """Whether we are still a valid reference"""
         return self() is not None
+    
     def __cmp__( self, other ):
         """Compare with another reference"""
         if not isinstance (other,self.__class__):
