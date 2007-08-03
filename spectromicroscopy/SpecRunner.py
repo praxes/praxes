@@ -1,7 +1,8 @@
 DEBUG=None
 TIMEOUT=.02
 
-import sys, time
+import sys
+import time
 from external import SpecClient
 SpecClient.setLoggingOff()
 from external.SpecClient import SpecMotor, Spec, SpecEventsDispatcher, \

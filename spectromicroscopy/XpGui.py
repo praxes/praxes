@@ -13,8 +13,9 @@ from SpecRunner import SpecRunner
 import numpy as np
 import MA
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as ToolBar
 from matplotlib.figure import Figure
-
+import time
 from tempfile import TemporaryFile, NamedTemporaryFile
 from PyMca import ClassMcaTheory , ConcentrationsTool 
 from external.configobj import ConfigObj
@@ -164,7 +165,7 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
         QtCore.QObject.connect(self.ScanBox,QtCore.SIGNAL("currentIndexChanged(int)"),self.ScanControls)
         QtCore.QObject.connect(self.Run,QtCore.SIGNAL("clicked()"),self.run_scan)
         QtCore.QObject.connect(self.ElementSelect,QtCore.SIGNAL("currentIndexChanged(int)"),self.set_element)
-        QtCore.QObject.connect(self.ScaleBox,QtCore.SIGNAL("currentIndexChanged(int)"),self.set_scale)
+        QtCore.QObject.connect(self.ScaleBox,QtCore.SIGNAL("currentIndexChanged(int)"),self.change_limits)#self.set_scale)
         QtCore.QObject.connect(self.MinValSpin,QtCore.SIGNAL("editingFinished()"),self.change_limits)
         QtCore.QObject.connect(self.MaxValSpin,QtCore.SIGNAL("editingFinished()"),self.change_limits)
         QtCore.QObject.connect(self.Estop,QtCore.SIGNAL("clicked()"),self.emergancy_stop)
@@ -201,20 +202,13 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
         self.xprun.EmergencyStop() 
     
     def config_smp(self):
+        print self.__server,self.__port
+        editor=Customizer(self,self.configfile)
+        editor.exec_()
         config=ConfigObj(self.configfile)
-        a=QtGui.QInputDialog.getText(self, "Configure","Server")
-        if a[1]:
-            self.__server="%s"%a[0]
-            config["setup"]["Server"]=self.__server
-        b=QtGui.QInputDialog.getText(self, "Configure","Port")
-        if b[1]:
-            self.__port="%s"%b[0]
-            config["setup"]["Port"]=self.__port
-        c=QtGui.QInputDialog.getInteger(self, "Configure","DEBUG mode")
-        if c[1]:
-            self.DEBUG="%s"%c[0]
-            config["setup"]["DEBUG"]=self.DEBUG
-        config.write()
+        self.__server=config["setup"]["server"]
+        self.__port=config["setup"]["port"]
+        print "***",self.__server,self.__port
     
     def set_config_file(self):
         try:
@@ -272,15 +266,7 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
     
     def set_element(self):
         self.Image_Element="%s"%self.ElementSelect.currentText()
-        if self.setup==2:
-            self.image.new_data(self.__images[self.Image_Element])
-            self.ImageFrame.update()
-    
-    def set_scale(self):
-        self.scale="%s"%self.ScaleBox.currentText()
-        if self.setup==2:
-            self.image.new_data(self.__images[self.Image_Element],self.scale)
-            self.ImageFrame.update()
+        self.change_limits()
     
     def auto_set(self):
         self.MinValSpin.setValue(0)
@@ -404,6 +390,9 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             self.image.setMinimumSize(100,100)
             self.image.setObjectName("Graph")
             self.image.show()
+            self.ToolBar=ToolBar(self.image,self)
+            self.ToolBar.draw()
+            self.ToolBar.update()
             self.setup=1
             print self.Image_Element
         if index==self.max:
@@ -432,8 +421,8 @@ class MyCanvas(FigureCanvas):
             self.max=vmax
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = self.fig.add_axes([0.1,0.1,.6,.6])
-        self.axes2=self.fig.add_axes([0.1,.75,.8,.2])
-        self.axes3=self.fig.add_axes([0.75,0.1,0.075,0.6])
+        self.axes2=self.fig.add_axes([0.1,0.75,.8,.2])
+        self.axes3=self.fig.add_axes([0.75,0.15,0.075,0.5])
         self.axes2.hold(False)
         self.axes.hold(False)
         FigureCanvas.__init__(self, self.fig)
@@ -456,15 +445,14 @@ class MyCanvas(FigureCanvas):
             matrix=self.matrix.flatten()
             self.axes.plot(matrix,"r-")
             self.axes.axis([0,len(matrix)-1,self.min,self.max])
-        if self.plot_matrix!=None:
-            if self.scale=="linear":
-                self.axes2.axis([0, len(self.plot_matrix), MA.minimum(self.plot_matrix), MA.maximum(self.plot_matrix)])
-                self.axes2.plot(self.plot_matrix,"b-")
-            else:
-                self.axes2.axis([0, 2048, 1,1000])
-                self.axes2.semilogy(self.plot_matrix,"b-")
-            self.axes2.set_xlabel("Energy")
-            self.axes2.set_ylabel("Count")
+        if self.scale=="linear":
+            self.axes2.axis([0, len(self.plot_matrix), MA.minimum(self.plot_matrix), MA.maximum(self.plot_matrix)])
+            self.axes2.plot(self.plot_matrix,"b-")
+        else:
+            self.axes2.axis([0, 2048, 1,1000])
+            self.axes2.semilogy(self.plot_matrix,"b-")
+        self.axes2.set_xlabel("Energy")
+        self.axes2.set_ylabel("Count")
         self.draw()
 
     def sizeHint(self):
@@ -599,6 +587,87 @@ class Spinner_Slide_Motor(QtGui.QFrame):
         return (self.Min.value(),self.Max.value(),self.Step.value())
     def get_motor_name(self):
         return self.Motor.specName
+        
+        
+
+class Customizer(QtGui.QDialog):
+    def __init__(self,parent,filename):
+        self.parent=parent
+        QtGui.QDialog.__init__(self,parent)
+        self.setObjectName("Customizer")
+        self.resize(QtCore.QSize(QtCore.QRect(0,0,461,421).size()).expandedTo(self.minimumSizeHint()))
+
+        self.buttonBox = QtGui.QDialogButtonBox(self)
+        self.buttonBox.setGeometry(QtCore.QRect(0,390,461,32))
+        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.NoButton|QtGui.QDialogButtonBox.Ok)
+        self.buttonBox.setObjectName("buttonBox")
+
+        self.tabWidget = QtGui.QTabWidget(self)
+        self.tabWidget.setGeometry(QtCore.QRect(0,0,461,391))
+        self.tabWidget.setObjectName("tabWidget")
+
+        self.SetupTab = QtGui.QWidget()
+        self.SetupTab.setObjectName("SetupTab")
+
+        self.frame = QtGui.QFrame(self.SetupTab)
+        self.frame.setGeometry(QtCore.QRect(0,0,201,371))
+        self.frame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.frame.setFrameShadow(QtGui.QFrame.Raised)
+        self.frame.setObjectName("frame")
+
+        self.label = QtGui.QLabel(self.frame)
+        self.label.setGeometry(QtCore.QRect(10,40,41,16))
+        self.label.setObjectName("label")
+
+        self.PortLabel = QtGui.QLabel(self.frame)
+        self.PortLabel.setGeometry(QtCore.QRect(20,80,23,16))
+        self.PortLabel.setObjectName("PortLabel")
+
+        self.PortEdit = QtGui.QLineEdit(self.frame)
+        self.PortEdit.setGeometry(QtCore.QRect(60,80,121,24))
+        self.PortEdit.setObjectName("PortEdit")
+
+        self.ServerEdit = QtGui.QLineEdit(self.frame)
+        self.ServerEdit.setGeometry(QtCore.QRect(60,40,121,24))
+        self.ServerEdit.setObjectName("ServerEdit")
+        self.tabWidget.addTab(self.SetupTab,"")
+
+        self.Other = QtGui.QWidget()
+        self.Other.setObjectName("Other")
+        self.tabWidget.addTab(self.Other,"")
+        self.label.setText("Server")
+        self.PortLabel.setText("Port")
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.SetupTab), "Setup")
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.Other), "Other")
+        self.tabWidget.setCurrentIndex(0)
+        QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),self.accept)
+        QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("rejected()"),self.reject)
+        QtCore.QObject.connect(self.ServerEdit,QtCore.SIGNAL("editingFinished()"),self.set_server)
+        QtCore.QObject.connect(self.PortEdit,QtCore.SIGNAL("editingFinished()"),self.set_port)
+        QtCore.QMetaObject.connectSlotsByName(self)
+        self.set=0
+        self.server=''
+        self.port=''
+        self.result=""
+        self.config=ConfigObj(filename)
+
+
+    def set_server(self):
+        self.server="%s"%self.ServerEdit.text()
+        self.config["setup"]["server"]=self.server
+    
+    def set_port(self):
+        self.port="%s"%self.PortEdit.text()
+        self.config["setup"]["port"]=self.port
+    
+    
+    def accept(self):
+        self.config.write()
+        QtGui.QDialog.accept(self)
+    def rejected (self):
+        self.set=1
+        QtGui.QDialog.accept(self)
 
 
 if __name__ == "__main__":
