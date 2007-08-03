@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import sys, os, codecs
-from os.path import isfile
 os.system("pyuic4 XpMaster.ui>XpMaster.py")
 DEBUG=2
 
@@ -18,7 +17,7 @@ from matplotlib.figure import Figure
 from matplotlib.pylab import *
 from tempfile import TemporaryFile, NamedTemporaryFile
 from PyMca import ClassMcaTheory , ConcentrationsTool 
-from configobj import ConfigObj
+from external.configobj import ConfigObj
 
 ElementsInfo = [
    ["H",   1,    1,1,   "hydrogen",   1.00800,     1008.00   ],
@@ -235,14 +234,15 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
         filepath="%s/.spectromicroscopy/"%(user)
         configfilename =os.path.join(filepath,"SMP.cfg")
         self.configfile=configfilename
-        if isfile(configfilename):
+        if not os.path.isdir(filepath):
+            os.mkdir(filepath)
+        if os.path.isfile(configfilename):
             config = ConfigObj(configfilename)
         else:
-            os.mkdir(filepath)
-            s = codecs.open(filename,'w','utf-8')
+            s = codecs.open(configfilename,'w','utf-8')
             s.close()
             config=ConfigObj()
-            config.filename=filename
+            config.filename=configfilename
             config.write()
         if "setup" not in config.keys():
             config["setup"]={}
@@ -262,10 +262,12 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
         self.filename=os.path.join(filepath,"Default.cfg")
         reader=ConfigObj(self.filename)
         self.__peaks=[]
-        elements=reader["peaks"]
-        for key in elements.keys():
-            self.__peaks.append("%s %s"%(key,elements[key]))
-
+        try:
+            elements=reader["peaks"]
+            for key in elements.keys():
+                self.__peaks.append("%s %s"%(key,elements[key]))
+        except KeyError:
+            pass
 
     
     def set_element(self):

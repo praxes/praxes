@@ -2,12 +2,11 @@
 
 # Form implementation generated from reading ui file 'XpMaster.ui'
 #
-# Created: Thu Aug  2 18:01:35 2007
-#      by: PyQt4 UI code generator 4.1
+# Created: Fri Aug  3 10:16:57 2007
+#      by: PyQt4 UI code generator 4.3
 #
 # WARNING! All changes made in this file will be lost!
 
-import sys
 from PyQt4 import QtCore, QtGui
 
 class Ui_XpMaster(object):
