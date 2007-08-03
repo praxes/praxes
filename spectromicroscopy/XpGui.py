@@ -280,7 +280,7 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             self.Range_Min=self.MinValSpin.value()
             scale="%s"%self.ScaleBox.currentText()
             self.image=MyCanvas(self.ScanBox.currentText(),self.__images[self.Image_Element],
-                                            self.x_index,self.y_index,self.Range_Min,self.Range_Max,parrent,self.__totaled,scale)
+                                            self.x_index,self.y_index,self.Range_Min,self.Range_Max,parrent,self.energy,self.__totaled,scale)
             self.image.setGeometry(QtCore.QRect(169,-1,771,900))
             self.image.setMinimumSize(100,100)
             self.image.setObjectName("Graph")
@@ -332,7 +332,14 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             self.xprun.set_var('MCA_DATA',"Sync")
             self.__images = {}
             self.__sigmas = {}
+            config=ConfigObj(self.filename)
+            B=config["detector"]["gain"]
+            A=config["detector"]["zero"]
             self.__totaled=np.zeros((1,2048), np.float_)
+            converstion=0.01##TODO: read this value from config files
+            self.energy=np.zeros((1,2048),np.float_)
+            for i in range(2048):
+                self.energy[0][i]=A+B*i
             self.timer = QtCore.QTimer(self)
             QtCore.QObject.connect(self.timer, QtCore.SIGNAL("timeout()"), self.data_collect)
             self.timer.start(20)
@@ -382,15 +389,17 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             if self.Image_Element not in self.__peaks:self.Image_Element=self.__peaks[0]
             print self.__images[self.Image_Element]
             scale="%s"%self.ScaleBox.currentText()
-            self.__totaled+=self.data[index-1]
+            self.__totaled[1]+=self.data[index-1]
             parrent=self.ImageFrame.widget(0)
             self.image=MyCanvas(self.ScanBox.currentText(),self.__images[self.Image_Element],
-                                        self.x_index,self.y_index,self.Range_Min,self.Range_Max,parrent,self.__totaled,scale)
-            self.image.setGeometry(QtCore.QRect(169,-1,771,900))
+                                        self.x_index,self.y_index,self.Range_Min,self.Range_Max,parrent,self.energy,self.__totaled,scale)
+            self.image.setGeometry(QtCore.QRect(169,-1,771,800))
             self.image.setMinimumSize(100,100)
             self.image.setObjectName("Graph")
             self.image.show()
-            self.ToolBar=ToolBar(self.image,self)
+            self.ToolBar=ToolBar(self.image,parrent)
+            self.ToolBar.setGeometry(QtCore.QRect(169,800,771,50))
+            self.ToolBar.show()
             self.ToolBar.draw()
             self.ToolBar.update()
             self.setup=1
@@ -404,8 +413,9 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
 
 class MyCanvas(FigureCanvas):
     """This is a QWidget as well as a FigureCanvasAgg"""
-    def __init__(self, visual,matrix, x, y, vmin, vmax,parent=None,  plot_matrix=None,scale="linear", width=5, height=4, dpi=100):
+    def __init__(self, visual,matrix, x, y, vmin, vmax,parent=None,energy_matrix=None,  plot_matrix=None,scale="linear", width=5, height=4, dpi=100):
         self.plot_matrix=plot_matrix
+        self.energy_matrix=energy_matrix
         self.scale=scale
         self.visual=visual
         self.x=x
@@ -447,10 +457,10 @@ class MyCanvas(FigureCanvas):
             self.axes.axis([0,len(matrix)-1,self.min,self.max])
         if self.scale=="linear":
             self.axes2.axis([0, len(self.plot_matrix), MA.minimum(self.plot_matrix), MA.maximum(self.plot_matrix)])
-            self.axes2.plot(self.plot_matrix,"b-")
+            self.axes2.plot(self.energy_matrix,self.plot_matrix,"b-")
         else:
             self.axes2.axis([0, 2048, 1,1000])
-            self.axes2.semilogy(self.plot_matrix,"b-")
+            self.axes2.semilogy(self.energy_matrix,self.plot_matrix,"b-")
         self.axes2.set_xlabel("Energy")
         self.axes2.set_ylabel("Count")
         self.draw()
@@ -466,10 +476,10 @@ class MyCanvas(FigureCanvas):
         if self.plot_matrix!=None:
             if self.scale=="linear":
                 self.axes2.axis([0, len(self.plot_matrix), MA.minimum(self.plot_matrix), MA.maximum(self.plot_matrix)])
-                self.axes2.plot(self.plot_matrix,"b-")
+                self.axes2.plot(self.energy_matrix,self.plot_matrix,"b-")
             else:
                 self.axes2.axis([0, 2048, 1,1000])
-                self.axes2.semilogy(self.plot_matrix,"b-")
+                self.axes2.semilogy(self.energy_matrix,self.plot_matrix,"b-")
             self.axes2.set_xlabel("Energy")
             self.axes2.set_ylabel("Count")
         if self.visual==Scans[2]:

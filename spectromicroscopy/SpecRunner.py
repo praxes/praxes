@@ -193,6 +193,7 @@ class SpecRunner:
                 print "Background Variables Failed to Connect"
             return True
         except:
+            print "Failed to Connect"
             return False
     
     
