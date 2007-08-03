@@ -21,7 +21,7 @@ import time
 import types
 
 import SpecEventsDispatcher
-from SpecClient.SpecClientError import SpecClientError, SpecClientTimeoutError
+from SpecClientError import SpecClientError, SpecClientTimeoutError
 
 
 def waitFunc(timeout):
@@ -127,14 +127,14 @@ class SpecWaitObject:
 
             while self.isdisconnected:
                 SpecEventsDispatcher.dispatch()
-		
+        
                 t0 = time.time()
                 waitFunc(10)
                 t += (time.time() - t0)*1000                    
 
-		if timeout is not None and t >= timeout:
-		    raise SpecClientTimeoutError
-		                    
+        if timeout is not None and t >= timeout:
+            raise SpecClientTimeoutError
+                            
 
     def wait(self, waitValue = None, timeout = None):
         """Block until the object's internal value gets updated
@@ -159,15 +159,15 @@ class SpecWaitObject:
                 else:
                     self.value = None
 
-            if self.value is None:               
-		t0 = time.time() 
+            if self.value is None:
+                t0 = time.time() 
                 waitFunc(10) # 10 ms.
-		t += (time.time() - t0)*1000
+        t += (time.time() - t0)*1000
 
-		if timeout is not None and t >= timeout:
+        if timeout is not None and t >= timeout:
                     raise SpecClientTimeoutError 
-		
-		    
+        
+            
     def replyArrived(self, reply):
         """Callback triggered by a reply from Spec."""
         self.value = reply.getValue()
@@ -199,7 +199,7 @@ def waitConnection(connection, timeout = None):
     timeout -- optional timeout (defaults to None)
     """
     if type(connection) == types.StringType:
-        from SpecClient.SpecConnectionsManager import SpecConnectionsManager
+        from SpecConnectionsManager import SpecConnectionsManager
         connection = SpecConnectionsManager().getConnection(connection)
 
     w = SpecWaitObject(connection)
@@ -217,7 +217,7 @@ def waitChannelUpdate(chanName, connection, waitValue = None, timeout = None):
     timeout -- optional timeout (defaults to None)
     """
     if type(connection) == types.StringType:
-        from SpecClient.SpecConnectionsManager import SpecConnectionsManager
+        from SpecConnectionsManager import SpecConnectionsManager
         connection = SpecConnectionsManager().getConnection(connection)
         waitConnection(connection, timeout = timeout)
 
@@ -237,7 +237,7 @@ def waitReply(connection, command, argsTuple, timeout = None):
     timeout -- optional timeout (defaults to None)
     """
     if type(connection) == types.StringType:
-        from SpecClient.SpecConnectionsManager import SpecConnectionsManager
+        from SpecConnectionsManager import SpecConnectionsManager
         connection = SpecConnectionsManager().getConnection(connection)
         waitConnection(connection, timeout = timeout)
 

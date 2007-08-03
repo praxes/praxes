@@ -1,7 +1,7 @@
 """Helper module for managing scans"""
-from SpecClient import SpecConnectionsManager
-from SpecClient import SpecEventsDispatcher
-from SpecClient import SpecWaitObject
+import SpecConnectionsManager
+import SpecEventsDispatcher
+import SpecWaitObject
 import logging
 import types
 import time
