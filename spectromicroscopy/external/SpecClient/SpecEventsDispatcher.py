@@ -190,7 +190,7 @@ class BoundMethodWeakRef(object):
                 except:
                     pass
 
-                self.deletionMethods = [onDelete]
+        self.deletionMethods = [onDelete]
         
         self.key = self.calculateKey( target )
         self.weakSelf = weakref.ref(target.im_self, remove)
