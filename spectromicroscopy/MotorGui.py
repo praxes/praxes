@@ -21,7 +21,7 @@ if sys.platform=="win32":
     Rollcall=0
 
 #GUI
-from PyQt4 import QtCore, QtGui    
+from PyQt4 import QtCore, QtGui
 from GearTester import Ui_MotorHead
 import time
 from time import localtime, strftime

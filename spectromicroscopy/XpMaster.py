@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'XpMaster.ui'
 #
-# Created: Fri Aug  3 10:16:57 2007
+# Created: Fri Aug  3 11:11:00 2007
 #      by: PyQt4 UI code generator 4.3
 #
 # WARNING! All changes made in this file will be lost!

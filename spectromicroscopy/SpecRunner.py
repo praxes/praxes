@@ -2,9 +2,10 @@ DEBUG=None
 TIMEOUT=.02
 
 import sys, time
-import SpecClient
+from external import SpecClient
 SpecClient.setLoggingOff()
-from SpecClient import SpecMotor, Spec, SpecEventsDispatcher, SpecVariable, SpecCommand
+from external.SpecClient import SpecMotor, Spec, SpecEventsDispatcher, \
+    SpecVariable, SpecCommand
 
 """
     Section for actual Motor Control Mockup

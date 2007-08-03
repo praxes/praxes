@@ -14,7 +14,7 @@ os.system("pyuic4 SMP.ui>SMP.py")
 os.system("pyuic4 XpMaster.ui>XpMaster.py")
 os.system("pyuic4 Konsole.ui>Konsole.py")
 os.system("pyuic4 GearTester.ui>GearTester.py")
-from PyQt4 import QtCore, QtGui    
+from PyQt4 import QtCore, QtGui
 from SMP import Ui_Main
 from MotorGui import MyUI
 from KonsoleGui import MyKon

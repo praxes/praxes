@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-import sys, os, codecs
+import codecs
+import os
+import sys
 os.system("pyuic4 XpMaster.ui>XpMaster.py")
 DEBUG=2
 
@@ -8,13 +10,11 @@ from PyQt4 import QtCore, QtGui
 from XpMaster import Ui_XpMaster
 from SpecRunner import SpecRunner
 #Number Crunching
-import numpy
-import numpy.oldnumeric as Numeric
+import numpy as np
 import MA
-from matplotlib.numerix import arange, sin, pi
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from matplotlib.pylab import *
+
 from tempfile import TemporaryFile, NamedTemporaryFile
 from PyMca import ClassMcaTheory , ConcentrationsTool 
 from external.configobj import ConfigObj
@@ -341,12 +341,12 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             self.processed=[]
             self.theory=ClassMcaTheory.McaTheory(self.filename)
             self.theory.enableOptimizedLinearFit()
-            self.data=numpy.memmap(self.buffer.name,dtype=float,mode='w+',shape=(self.max,2048))
+            self.data = np.memmap(self.buffer.name,dtype=float,mode='w+',shape=(self.max,2048))
             self.xprun.exc("MCA_DATA=0")
             self.xprun.set_var('MCA_DATA',"Sync")
             self.__images = {}
             self.__sigmas = {}
-            self.__totaled=Numeric.zeros((1,2048),Numeric.Float)
+            self.__totaled=np.zeros((1,2048), np.float_)
             self.timer = QtCore.QTimer(self)
             QtCore.QObject.connect(self.timer, QtCore.SIGNAL("timeout()"), self.data_collect)
             self.timer.start(20)
@@ -377,14 +377,14 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             self.theory.estimate()
             fitresult, result = self.theory.startfit(digest=1)
             self.processed.append((fitresult,result))
-            self.__peaks  = []
-            self.__nrows   = len(range(0,max_index))
+            self.__peaks = []
+            self.__nrows = len(range(0,max_index))
             for group in result['groups']:
                 self.__peaks.append(group)
                 if not self.setup:
-                    self.__images[group]=Numeric.zeros((self.__nrows,1),Numeric.Float)
-                    self.__sigmas[group]=Numeric.zeros((self.__nrows,1),Numeric.Float)
-            self.__images['chisq']  = Numeric.zeros((self.__nrows,1),Numeric.Float) - 1.
+                    self.__images[group] = np.zeros((self.__nrows,1), np.float_)
+                    self.__sigmas[group] = np.zeros((self.__nrows,1), np.float_)
+            self.__images['chisq']  = np.zeros((self.__nrows,1), np.float_) - 1.
             self.__images['chisq'][index-1, 0] = result['chisq']
             for peak in self.__peaks:
                 if not self.setup:
@@ -599,12 +599,6 @@ class Spinner_Slide_Motor(QtGui.QFrame):
         return (self.Min.value(),self.Max.value(),self.Step.value())
     def get_motor_name(self):
         return self.Motor.specName
-
-
-
-
-   
-
 
 
 if __name__ == "__main__":
