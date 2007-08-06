@@ -226,7 +226,7 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
     def config(self):
         user=os.path.expanduser("~")
         filepath="%s/.spectromicroscopy/"%(user)
-        configfilename =os.path.join(filepath,"SMP.cfg")
+        configfilename =os.path.join(filepath,"smp.conf")
         self.configfile=configfilename
         if not os.path.isdir(filepath):
             os.mkdir(filepath)
@@ -253,7 +253,7 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
         self.__server=config["setup"]["server"]
         self.__port=config["setup"]["port"]
         self.DEBUG=config["setup"]["DEBUG"]
-        self.filename=os.path.join(filepath,"Default.cfg")
+        self.filename=os.path.join(filepath,"pymca.cfg")
         reader=ConfigObj(self.filename)
         self.__peaks=[]
         try:
@@ -333,13 +333,11 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             self.__images = {}
             self.__sigmas = {}
             config=ConfigObj(self.filename)
-            B=config["detector"]["gain"]
-            A=config["detector"]["zero"]
-            self.__totaled=np.zeros((1,2048), np.float_)
+            gain=float(config["detector"]["gain"])
+            offset=float(config["detector"]["zero"])
+            self.__totaled=np.zeros(2048, np.float_)
             converstion=0.01##TODO: read this value from config files
-            self.energy=np.zeros((1,2048),np.float_)
-            for i in range(2048):
-                self.energy[0][i]=A+B*i
+            self.energy = gain*np.arange(2048, dtype=np.float_)+offset
             self.timer = QtCore.QTimer(self)
             QtCore.QObject.connect(self.timer, QtCore.SIGNAL("timeout()"), self.data_collect)
             self.timer.start(20)
