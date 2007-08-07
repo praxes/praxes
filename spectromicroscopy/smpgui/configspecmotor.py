@@ -67,24 +67,26 @@ set_lim(i, u, v)
 
 """
 
-class SpecConfig(QtGui.QWidget,Ui_SpecSetter):
+class SpecConfig(QtGui.QWidget, Ui_SpecSetter):
     
-    __pyqtSignals__ =("configChanged()")
+    __pyqtSignals__ = ("configChanged()")
     
     def __init__(self,parent=None):
         QtGui.QWidget.__init__(self,parent)
         self.setupUi(self)
-        QtCore.QObject.connect(self.Setter, QtCore.SIGNAL("clicked()"),
+        QtCore.QObject.connect(self.Setter,
+                               QtCore.SIGNAL("clicked()"),
                                self.set)
+
     def set(self):
-        Accel=self.Accel.getValue()
-        BR=self.BR.getValue()
-        BLash=self.Blash.getValue()
-        LL=self.LL.getValue()
-        Name=self.Name.getText()
-        Sign=self.Sign.getValue()
-        Speed=self.Speed.getValue()
-        UL=self.UL.getValue()
+        Accel = self.Accel.getValue()
+        BR = self.BR.getValue()
+        BLash = self.Blash.getValue()
+        LL = self.LL.getValue()
+        Name = self.Name.getText()
+        Sign = self.Sign.getValue()
+        Speed = self.Speed.getValue()
+        UL = self.UL.getValue()
         print "set_lim(%s,%s,%s)"%(Name,LL,UL)
         
     
@@ -92,37 +94,45 @@ class SpecConfig(QtGui.QWidget,Ui_SpecSetter):
 """
 class SpecConfigPlugin(QtDesigner.QPyDesignerCustomWidgetPlugin):
 
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         QtDesigner.QPyDesignerCustomWidgetPlugin.__init__(self)
-        self.initialized = False        
+        self.initialized = False
+
     def initialize(self, core):
         if self.initialized:
             return 
         self.initialized = True
+
     def isInitialized(self):
         return self.initialized
+
     def createWidget(self, parent):
         return SpecConfig(parent)
+
     def name(self):
         return "SpecConfig"
+
     def group(self):
         return "PyQt Examples"
+
     def icon(self):
         return QtGui.QIcon(_logo_pixmap)
+
     def toolTip(self):
         return ""
+
     def whatsThis(self):
         return ""
+
     def isContainer(self):
         return True
+
     def includeFile(self):
         return "SpecSetter"
     """
-if __name__=="__main__":
-    import sys,os
-    path=path=os.path.join(os.path.expanduser("~"),
-            "workspace/spectromicroscopy/spectromicroscopy/")
-    os.system("pyuic4 %s/SpecSetter.ui>%s/SpecSetter.py"%(path,path))
+
+
+if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     myapp = SpecConfig()
     myapp.show()
