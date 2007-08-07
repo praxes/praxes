@@ -1,0 +1,2 @@
+
+from smpmainwindow import SmpMainWindow

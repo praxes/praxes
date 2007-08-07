@@ -23,7 +23,7 @@ from XpGui import MyXP as XP
 
 
 
-class MySMP(Ui_Main,QtGui.QMainWindow):
+class SmpMainWindow(Ui_Main,QtGui.QMainWindow):
     """Establishes a Experiment controls"""
     def __init__(self,parent=None):
         QtGui.QWidget.__init__(self, parent)
@@ -68,6 +68,6 @@ class MySMP(Ui_Main,QtGui.QMainWindow):
         
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
-    myapp = MySMP()
+    myapp = SmpMainWindow()
     myapp.show()
     sys.exit(app.exec_())
