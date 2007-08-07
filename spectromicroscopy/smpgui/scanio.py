@@ -26,6 +26,7 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
+from configuresmp import ConfigureSmp
 from ui_scanio import Ui_XpMaster
 from spectromicroscopy.external.configobj import ConfigObj
 from spectromicroscopy.smpcore import SpecRunner
@@ -237,7 +238,7 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
     
     def config_smp(self):
 #        print self.__server,self.__port
-        editor = Customizer(self,self.configfile)
+        editor = ConfigureSmp(self,self.configfile)
         editor.exec_()
         config = ConfigObj(self.configfile)
         self.__server = config["setup"]["server"]
@@ -297,16 +298,15 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
         except KeyError:
             pass
 
-    
     def set_element(self):
         self.Image_Element = "%s"%self.ElementSelect.currentText()
         self.change_limits()
-    
+
     def auto_set(self):
         self.MinValSpin.setValue(0)
         self.MaxValSpin.setValue(0)
         self.change_limits()
-    
+
     def change_limits(self):
         if self.setup != 0:
             parent = self.ImageFrame.widget(0)
@@ -327,7 +327,7 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             self.image.setMinimumSize(100, 100)
             self.image.setObjectName("Graph")
             self.image.show()
-    
+
     def run_scan(self):
         """
         sets up scans
@@ -675,108 +675,8 @@ class Spinner_Slide_Motor(QtGui.QFrame):
         return self.Motor.specName
 
 
-class Customizer(QtGui.QDialog):
-    
-    user = os.path.expanduser("~")
-    filepath = "%s/.spectromicroscopy/"%(user)
-    configfile = os.path.join(filepath,"smp.conf")
-    config = ConfigObj(configfile)
-    
-    def __init__(self, parent, filename):
-        self.parent = parent
-        QtGui.QDialog.__init__(self,parent)
-        self.setObjectName("Customizer")
-        size = QtCore.QSize( QtCore.QRect(0, 0, 461, 421).size() )
-        self.resize( size.expandedTo( self.minimumSizeHint() ) )
-
-        self.buttonBox = QtGui.QDialogButtonBox(self)
-        self.buttonBox.setGeometry( QtCore.QRect(0, 390, 461, 32) )
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel | 
-                                          QtGui.QDialogButtonBox.NoButton | 
-                                          QtGui.QDialogButtonBox.Ok)
-        self.buttonBox.setObjectName("buttonBox")
-
-        self.tabWidget = QtGui.QTabWidget(self)
-        self.tabWidget.setGeometry( QtCore.QRect(0, 0, 461, 391) )
-        self.tabWidget.setObjectName("tabWidget")
-
-        self.SetupTab = QtGui.QWidget()
-        self.SetupTab.setObjectName("SetupTab")
-
-        self.frame = QtGui.QFrame(self.SetupTab)
-        self.frame.setGeometry( QtCore.QRect(0, 0, 401, 371) )
-        self.frame.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.frame.setFrameShadow(QtGui.QFrame.Raised)
-        self.frame.setObjectName("frame")
-
-        self.label = QtGui.QLabel(self.frame)
-        self.label.setGeometry( QtCore.QRect(10, 40, 41, 16) )
-        self.label.setObjectName("label")
-
-        self.PortLabel = QtGui.QLabel(self.frame)
-        self.PortLabel.setGeometry( QtCore.QRect(20, 80, 23, 16) )
-        self.PortLabel.setObjectName("PortLabel")
-
-        self.PortEdit = QtGui.QLineEdit(self.frame)
-        self.PortEdit.setGeometry( QtCore.QRect(60, 80, 201, 24) )
-        self.PortEdit.setObjectName("PortEdit")
-        self.PortEdit.setText(self.config["setup"]["port"])
-
-        self.ServerEdit = QtGui.QLineEdit(self.frame)
-        self.ServerEdit.setGeometry( QtCore.QRect(60, 40, 201, 24) )
-        self.ServerEdit.setObjectName("ServerEdit")
-        self.ServerEdit.setText(self.config["setup"]["server"])
-        self.tabWidget.addTab(self.SetupTab,"")
-
-        self.Other = QtGui.QWidget()
-        self.Other.setObjectName("Other")
-        self.tabWidget.addTab(self.Other,"")
-        self.label.setText("Server")
-        self.PortLabel.setText("Port")
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.SetupTab),
-                                  "Setup")
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.Other),
-                                  "Other")
-        self.tabWidget.setCurrentIndex(0)
-        QtCore.QObject.connect(self.buttonBox,
-                               QtCore.SIGNAL("accepted()"),
-                               self.accept)
-        QtCore.QObject.connect(self.buttonBox,
-                               QtCore.SIGNAL("rejected()"),
-                               self.reject)
-        QtCore.QObject.connect(self.ServerEdit,
-                               QtCore.SIGNAL("editingFinished()"),
-                               self.set_server)
-        QtCore.QObject.connect(self.PortEdit,
-                               QtCore.SIGNAL("editingFinished()"),
-                               self.set_port)
-        QtCore.QMetaObject.connectSlotsByName(self)
-        self.set = 0
-        self.server = self.config["setup"]["server"]
-        self.port = self.config["setup"]["port"]
-        self.result = ""
-        self.config = ConfigObj(filename)
-
-    def set_server(self):
-        self.server = "%s"%self.ServerEdit.text()
-        self.config["setup"]["server"] = self.server
-    
-    def set_port(self):
-        self.port = "%s"%self.PortEdit.text()
-        self.config["setup"]["port"] = self.port
-
-    def accept(self):
-        self.config.write()
-        QtGui.QDialog.accept(self)
-
-    def rejected (self):
-        self.set = 1
-        QtGui.QDialog.accept(self)
-
-
-#if __name__ == "__main__":
-#    app = QtGui.QApplication(sys.argv)
-#    myapp = Customizer(None, '~/.spectromicroscopy/smp.conf')
-#    myapp.show()
-#    sys.exit(app.exec_())
+if __name__ == "__main__":
+    app = QtGui.QApplication(sys.argv)
+    myapp = MyXP()
+    myapp.show()
+    sys.exit(app.exec_())

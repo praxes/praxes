@@ -13,7 +13,7 @@ def gen_ui():
     for ui in glob.glob(dir+'/smpgui/*.ui'):
         py = os.path.splitext(ui)[0]+'.py'
         if os.path.isfile(py):
-            convert = os.path.getatime(ui) > os.path.getatime(py)
+            convert = os.path.getmtime(ui) > os.path.getmtime(py)
         else:
             convert = True
         if convert:
