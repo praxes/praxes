@@ -27,11 +27,11 @@ from ui_configuresmp import Ui_ConfigureSmp
 
 class ConfigureSmp(Ui_ConfigureSmp, QtGui.QDialog):
 
-    def __init__(self):
+    def __init__(self, parent=None):
         self.smpConfig = getSmpConfig()
         self.validateConfig()
 
-        QtGui.QDialog.__init__(self, None)
+        QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
 
         server = self.smpConfig['session'].setdefault('server', '')

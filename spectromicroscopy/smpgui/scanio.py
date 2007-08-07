@@ -28,8 +28,8 @@ from PyQt4 import QtCore, QtGui
 
 from configuresmp import ConfigureSmp
 from ui_scanio import Ui_XpMaster
-from spectromicroscopy.external.configobj import ConfigObj
-from spectromicroscopy.smpcore import SpecRunner
+from spectromicroscopy.smpcore import SpecRunner, getPymcaConfig,\
+    getPymcaConfigFile, getSmpConfig
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -238,18 +238,18 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
     
     def config_smp(self):
 #        print self.__server,self.__port
-        editor = ConfigureSmp(self,self.configfile)
+        editor = ConfigureSmp(self)
         editor.exec_()
-        config = ConfigObj(self.configfile)
-        self.__server = config["setup"]["server"]
-        self.__port = config["setup"]["port"]
+        smpConfig = getSmpConfig()
+        self.__server = smpConfig['session']['server']
+        self.__port = smpConfig['session']['port']
         print "***",self.__server,self.__port
     
     def set_config_file(self):
         try:
             fd = QtGui.QFileDialog(self)
-            self.filename = "%s"%fd.getOpenFileName()
-            config = ConfigObj(self.filename)
+            self.pymcaConfigFile = "%s"%fd.getOpenFileName()
+            config = getPymcaConfig(self.pymcaConfigFile)
             self.__peaks = config["peaks"]
             self.ElementSelect.clear()
             for peak in self.__peaks:
@@ -257,39 +257,17 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
         except:
             print "come on now"
 
-    
     def config(self):
-        user = os.path.expanduser("~")
-        filepath = "%s/.spectromicroscopy/"%(user)
-        configfilename = os.path.join(filepath, "smp.conf")
-        self.configfile = configfilename
-        if not os.path.isdir(filepath):
-            os.mkdir(filepath)
-        if os.path.isfile(configfilename):
-            config = ConfigObj(configfilename)
-        else:
-            s = codecs.open(configfilename, 'w', 'utf-8')
-            s.close()
-            config = ConfigObj()
-            config.filename = configfilename
-            config.write()
-        if "setup" not in config.keys():
-            config["setup"] = {}
-            config.write()
-        if "server" not in config["setup"].keys():
-            config["setup"]["server"] = "f3.chess.cornell.edu"
-            config.write()
-        if "port" not in config["setup"].keys():
-            config["setup"]["port"] = "xrf"
-            config.write()
-        if "DEBUG" not in config["setup"].keys():
-            config["setup"]["DEBUG"] = 0
-            config.write()
-        self.__server = config["setup"]["server"]
-        self.__port = config["setup"]["port"]
-        self.DEBUG = config["setup"]["DEBUG"]
-        self.filename = os.path.join(filepath, "pymca.cfg")
-        reader = ConfigObj(self.filename)
+        smpConfig = getSmpConfig()
+        try:
+            self.__server = smpConfig['session']['server']
+            self.__port = smpConfig['session']['port']
+        except KeyError:
+            self.config_smp()
+        
+        # TODO: break this into a new method
+        self.pymcaConfigFile = getPymcaConfigFile()
+        reader = getPymcaConfig()
         self.__peaks = []
         try:
             elements = reader["peaks"]
@@ -367,7 +345,7 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
                 self.xprun.set_cmd("mesh"+part_one+part_two+" %s"%(count_time))
             self.xprun.exc("NPTS=0")
             self.processed = []
-            self.theory = ClassMcaTheory.McaTheory(self.filename)
+            self.theory = ClassMcaTheory.McaTheory(self.pymcaConfigFile)
             self.theory.enableOptimizedLinearFit()
             self.data = numpy.memmap(self.buffer.name,
                                      dtype=float,
@@ -377,7 +355,7 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
 #            self.xprun.set_var('MCA_DATA',"Sync")
             self.__images = {}
             self.__sigmas = {}
-            config = ConfigObj(self.filename)
+            config = getPymcaConfig()
             gain = float(config["detector"]["gain"])
             offset = float(config["detector"]["zero"])
             self.__totaled = numpy.zeros(2048, numpy.float_)
