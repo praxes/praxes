@@ -7,10 +7,6 @@ from external import SpecClient
 SpecClient.setLoggingOff()
 from external.SpecClient import SpecMotor, Spec, SpecEventsDispatcher, \
     SpecVariable, SpecCommand
-#import SpecClient
-#SpecClient.setLoggingOff()
-#from SpecClient import SpecMotor, Spec, SpecEventsDispatcher, \
-#    SpecVariable, SpecCommand
 
 """
     Section for actual Motor Control Mockup
