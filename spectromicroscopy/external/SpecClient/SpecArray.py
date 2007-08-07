@@ -26,9 +26,9 @@ if numpy is not None:
         ARRAY_UCHAR  :  numpy.ubyte,
         ARRAY_SHORT  :  numpy.short,
         ARRAY_USHORT :  numpy.ushort,
-        ARRAY_LONG   :  numpy.int,
-        ARRAY_ULONG  :  numpy.uint,
-        ARRAY_FLOAT  :  numpy.float,
+        ARRAY_LONG   :  numpy.int32,
+        ARRAY_ULONG  :  numpy.uint32,
+        ARRAY_FLOAT  :  numpy.float32,
         ARRAY_DOUBLE :  numpy.float64
         }
 
@@ -103,6 +103,7 @@ def isArrayType(datatype):
 
 
 def SpecArray(data, datatype = ARRAY_CHAR, rows = 0, cols = 0):
+
     if isinstance(data, SpecArrayData):
         # create a SpecArrayData from a SpecArrayData ("copy" constructor)
         return SpecArrayData(data.data, data.type, data.shape)
@@ -149,14 +150,18 @@ def SpecArray(data, datatype = ARRAY_CHAR, rows = 0, cols = 0):
             
             newArray = SpecArrayData(data, datatype, (rows, cols))
         else:
-            # return a new Numeric array from data
+            # return a new array from data
             try:
-                numtype = SPEC_TO_NUMERIC[datatype]
+                if numpy: numtype = SPEC_TO_NUMPY[datatype]
+                else: numtype = SPEC_TO_NUMERIC[datatype]
             except:
                 raise SpecArrayError, 'Invalid Spec array type'
             else:
-                data = array.array(SPEC_TO_ARRAY[datatype], data).tolist()
-                newArray = Numeric.array(data, typecode=numtype, savespace=1)
+                if numpy:
+                    newArray = numpy.fromstring(data, dtype=numtype)
+                else:
+                    data = array.array(SPEC_TO_ARRAY[datatype], data).tolist()
+                    newArray = Numeric.array(data, typecode=numtype, savespace=1)
     else:
         if isArrayType(datatype):
             newArray = SpecArrayData(data, datatype)

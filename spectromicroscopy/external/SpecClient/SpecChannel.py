@@ -153,13 +153,11 @@ class SpecChannel:
             return self.value
         else:
             connection = self.connection()
-            
             if connection is not None:
                 w = SpecWaitObject.SpecWaitObject(connection)
                 w.waitReply('send_msg_chan_read', (self.name, ))
-                  
                 self.value = w.value
-                
+
         return self.value
 
         

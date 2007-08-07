@@ -71,6 +71,7 @@ class SpecWaitObject:
         argsTuple -- tuple of arguments to be passed to the command
         timeout -- optional timeout (defaults to None)
         """
+
         connection = self.connection()
 
         if connection is not None:
@@ -81,9 +82,8 @@ class SpecWaitObject:
             else:
                 if callable(func):
                     func(*argsTuple)
-
                 self.wait(timeout = timeout)
-                               
+
 
     def waitChannelUpdate(self, chanName, waitValue = None, timeout = None):
         """Wait for a channel update
@@ -149,7 +149,7 @@ class SpecWaitObject:
         t = 0
         while not self.isdisconnected:
             SpecEventsDispatcher.dispatch()
-                    
+            
             if self.value is not None:
                 if waitValue is None:
                     return

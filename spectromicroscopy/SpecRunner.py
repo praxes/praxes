@@ -1,4 +1,4 @@
-DEBUG=None
+DEBUG=True
 TIMEOUT=.02
 
 import sys
@@ -7,6 +7,10 @@ from external import SpecClient
 SpecClient.setLoggingOff()
 from external.SpecClient import SpecMotor, Spec, SpecEventsDispatcher, \
     SpecVariable, SpecCommand
+#import SpecClient
+#SpecClient.setLoggingOff()
+#from SpecClient import SpecMotor, Spec, SpecEventsDispatcher, \
+#    SpecVariable, SpecCommand
 
 """
     Section for actual Motor Control Mockup
@@ -60,7 +64,13 @@ class TestSpecMotor(SpecMotor.SpecMotorA):
 
 
 
-class TestSpecVariable(SpecVariable.SpecVariableA):
+class XrfSpecVarA(SpecVariable.SpecVariableA):
+    
+#    def __init__(self, var, host_port):
+#        SpecVariable.SpecVariableA.__init__(self, var, host_port)
+#        if DEBUG:
+#            print '%s connected at %s'%(self.getVarName(),
+#                                               host_port)
     
     def connected(self):
         self.__connected__ = True
@@ -79,7 +89,32 @@ class TestSpecVariable(SpecVariable.SpecVariableA):
     def getVarName(self):
         return self.channelName[4:len(self.channelName)]
 
+    def getValue(self):
+        """Return the watched variable current value."""
+        if self.connection is not None:
+            chan = self.connection.getChannel(self.channelName)
 
+            return chan.read()
+
+
+class XrfSpecVar(SpecVariable.SpecVariable):
+
+    def __init__(self, var, host_port, timeout=None):
+        SpecVariable.SpecVariable.__init__(self, var, host_port)
+        if DEBUG:
+            print '%s connected at %s'%(self.getVarName(),
+                                               host_port)
+    
+    def getVarName(self):
+        return self.channelName[4:len(self.channelName)]
+
+    def getValue(self):
+        """Return the watched variable current value."""
+        chan = self.connection.getChannel(self.channelName)
+        
+        val = chan.read()
+        
+        return val
 
 
 class TestSpecCommand(SpecCommand.SpecCommandA):
@@ -95,11 +130,11 @@ class TestSpecCommand(SpecCommand.SpecCommandA):
             print "Command %s received a reply: %s"%(self.command, reply.data)
     
     def connected(self):
-       print "Command connected"
+       print "Command %s connected"% self.command
        self.Reply=None 
     
     def disconnected(self):
-        print "disconnected"
+        print "Command %s disconnected"% self.command
                 
     def statusChanged(self, ready):
         state=["In progress","Complete","Unknown"]
@@ -111,16 +146,17 @@ class TestSpecCommand(SpecCommand.SpecCommandA):
 
 
 
-class Indexer(TestSpecVariable):
+class Indexer(XrfSpecVarA):
     
-    def connected(self):
-        self.__connected__ = True
-    
-    def disconnected(self):
-        self.__connected__ = False
+#    def connected(self):
+#        self.__connected__ = True
+#    
+#    def disconnected(self):
+#        self.__connected__ = False
     
     def update(self, value):
-        print value
+#        print 'scan index: %s'% value
+        pass
 
 
     
@@ -147,7 +183,7 @@ class SpecRunner:
          
         """
         DEBUG=Debug
-        self._param_names = () 
+        self._param_names = ()
         self._spec = None
         self._specPort=specport
         self._specHost=spechost
@@ -158,7 +194,7 @@ class SpecRunner:
         self._exc=''
         self._parameters={}
         self._type_dict={}
-        self._param_names=['position','offset','sign',"low_limit","high_limit"]
+        self._param_names=['position','offset','sign','low_limit','high_limit']
         self._motor=None
         if self._specHost and self._specPort:
             self.serverconnect()
@@ -181,17 +217,21 @@ class SpecRunner:
         print "Connecting..."
         try:
             self._spec = Spec.Spec(self._specHost + ":" + self._specPort, 500)
-            self._exc=SpecCommand.SpecCommandA('', self._specHost+":"+self._specPort)
+            self._exc=SpecCommand.SpecCommandA('',
+                                            self._specHost+":"+self._specPort)
             print "Connected!"
             try:
                 self._index=Indexer("NPTS",self._specHost+":"+self._specPort)
                 self._last_index=0
                 self._type_dict["NPTS"]="Async"
-                self._S=SpecVariable.SpecVariableA("S",self._specHost+":"+self._specPort)
-                self._Detector=Indexer("MCA_NAME",self._specHost+":"+self._specPort)
+                self._S=XrfSpecVar("S", self._specHost+":"+self._specPort)
+                self._Detector=XrfSpecVar("MCA_NAME",
+                                       self._specHost+":"+self._specPort)
+                self.mca_data = XrfSpecVar("MCA_DATA", 
+                                           self._specHost+":"+self._specPort,
+                                           500)
             except:
-                print "Background Variables Failed to Connect"
-            return True
+                print "Variables Failed to Connect"
         except:
             print "Failed to Connect"
             return False
@@ -265,13 +305,13 @@ class SpecRunner:
     
     def set_var(self,var,type="Test"):
         if type=="Test":
-            self._var.append(TestSpecVariable(var, 
+            self._var.append(XrfSpecVarA(var, 
                     self._specHost+":"+self._specPort))
         elif type=="Sync":
-            self._var.append(SpecVariable.SpecVariable(var, 
+            self._var.append(XrfSpecVar(var, 
                     self._specHost+":"+self._specPort,500))
         elif type=="Async":
-            self._var.append(SpecVariable.SpecVariableA(var, 
+            self._var.append(XrfSpecVarA(var, 
                     self._specHost+":"+self._specPort))
         elif type=="Index":
             self._var.append(Indexer(var, self._specHost+":"+self._specPort))
@@ -307,11 +347,12 @@ class SpecRunner:
             return ''
     
     def run_cmd(self):
+#        print 'running command: %s'% ' '.join(self._cmd_list)
         self._cmd(*self._cmd_list[1:])
         self._last_index=-1
     
     def update(self):
-            SpecEventsDispatcher.dispatch()
+        SpecEventsDispatcher.dispatch()
     
     def get_values(self):
         values=[]
@@ -321,30 +362,31 @@ class SpecRunner:
             if curr > prev+1:
                 print "missed point %s v %s"%(prev,curr)
                 self._last_index=curr
-                return ([],curr,'')
+                return ([''],curr,'')
             else:
-                for var in self._var:
-                    if self._Detector.getValue()=="vortex":
-                        a=self.compensate()
-                        print a
-                    else:
-                        a=1.0
-                    time.sleep(TIMEOUT)
-                    values.append(a*var.getValue())
-                    self._last_index=curr
-                    print "*****************Got Point***************"
-                    if 1<=a:
-                        return (values,curr,True)
-                    else:
-                        return (values,curr,False)
+                if self._Detector.getValue()=="vortex":
+                    a=self.compensate()
+                    print 'dead time correction: %.3f'% a
+                else:
+                    a=1.0
+#                time.sleep(TIMEOUT)
+                counts = self.mca_data.getValue()
+                values.append(a*counts)
+                self._last_index=curr
+#                    print "*****************Got Point***************"
+                if 1<=a:
+                    return (values,curr,True)
+                else:
+                    return (values,curr,False)
         else:
             return ([''],curr,'')
 
     def compensate(self):
-        icr=float(self._S.getValue()["5"])
-        ocr=float(self._S.getValue()["7"])
-        real=float(self._S.getValue()["8"])
-        live=float(self._S.getValue()["9"])
+        S = self._S.getValue()
+        icr=float(S["5"])
+        ocr=float(S["7"])
+        real=float(S["8"])
+        live=float(S["9"])
         return icr/ocr*real/live
     
 

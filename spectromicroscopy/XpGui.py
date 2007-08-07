@@ -202,7 +202,7 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
         self.xprun.EmergencyStop() 
     
     def config_smp(self):
-        print self.__server,self.__port
+#        print self.__server,self.__port
         editor=Customizer(self,self.configfile)
         editor.exec_()
         config=ConfigObj(self.configfile)
@@ -328,8 +328,8 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             self.theory=ClassMcaTheory.McaTheory(self.filename)
             self.theory.enableOptimizedLinearFit()
             self.data = np.memmap(self.buffer.name,dtype=float,mode='w+',shape=(self.max,2048))
-            self.xprun.exc("MCA_DATA=0")
-            self.xprun.set_var('MCA_DATA',"Sync")
+#            self.xprun.exc("MCA_DATA=0")
+#            self.xprun.set_var('MCA_DATA',"Sync")
             self.__images = {}
             self.__sigmas = {}
             config=ConfigObj(self.filename)
@@ -358,12 +358,11 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
         (value,index,actual)=self.xprun.get_values()
         if actual:
             typed=type(value[0])
-            print "<<%s>> %s"%(index,typed)
-            for i in range(len(value[0])):
-                if len(value[0])>1:
-                    self.data[index-1,i]=value[0][i][1]
-                else:
-                    self.data[index-1,i]=value[0][i]
+#            print "<<%s>> %s"%(index,typed)
+            if len(value[0])>1:
+                self.data[index-1]=value[0][:,1]
+            else:
+                self.data[index-1]=value[0]
             self.theory.setdata(range(2048),self.data[index-1],None)
             self.theory.estimate()
             fitresult, result = self.theory.startfit(digest=1)
@@ -385,9 +384,9 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
                     self.__images[peak][index-1, 0] += result[peak]['fitarea']
                     self.__sigmas[peak][index-1,0] += result[peak]['sigmaarea']
             if self.Image_Element not in self.__peaks:self.Image_Element=self.__peaks[0]
-            print self.__images[self.Image_Element]
+#            print self.__images[self.Image_Element]
             scale="%s"%self.ScaleBox.currentText()
-            self.__totaled[1]+=self.data[index-1]
+            self.__totaled += self.data[index-1]
             parrent=self.ImageFrame.widget(0)
             self.image=MyCanvas(self.ScanBox.currentText(),self.__images[self.Image_Element],
                                         self.x_index,self.y_index,self.Range_Min,self.Range_Max,parrent,self.energy,self.__totaled,scale)
@@ -401,11 +400,11 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             self.ToolBar.draw()
             self.ToolBar.update()
             self.setup=1
-            print self.Image_Element
+#            print self.Image_Element
         if index==self.max:
             self.timer.stop()
             self.setup=2
-            self.xprun.exc("MCA_DATA=0")
+#            self.xprun.exc("MCA_DATA=0")
             self.Run.setText("Scan")
         
 
@@ -599,6 +598,12 @@ class Spinner_Slide_Motor(QtGui.QFrame):
         
 
 class Customizer(QtGui.QDialog):
+    
+    user=os.path.expanduser("~")
+    filepath="%s/.spectromicroscopy/"%(user)
+    configfile =os.path.join(filepath,"smp.conf")
+    config=ConfigObj(configfile)
+    
     def __init__(self,parent,filename):
         self.parent=parent
         QtGui.QDialog.__init__(self,parent)
@@ -619,7 +624,7 @@ class Customizer(QtGui.QDialog):
         self.SetupTab.setObjectName("SetupTab")
 
         self.frame = QtGui.QFrame(self.SetupTab)
-        self.frame.setGeometry(QtCore.QRect(0,0,201,371))
+        self.frame.setGeometry(QtCore.QRect(0,0,401,371))
         self.frame.setFrameShape(QtGui.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtGui.QFrame.Raised)
         self.frame.setObjectName("frame")
@@ -633,12 +638,14 @@ class Customizer(QtGui.QDialog):
         self.PortLabel.setObjectName("PortLabel")
 
         self.PortEdit = QtGui.QLineEdit(self.frame)
-        self.PortEdit.setGeometry(QtCore.QRect(60,80,121,24))
+        self.PortEdit.setGeometry(QtCore.QRect(60,80,201,24))
         self.PortEdit.setObjectName("PortEdit")
+        self.PortEdit.setText(self.config["setup"]["port"])
 
         self.ServerEdit = QtGui.QLineEdit(self.frame)
-        self.ServerEdit.setGeometry(QtCore.QRect(60,40,121,24))
+        self.ServerEdit.setGeometry(QtCore.QRect(60,40,201,24))
         self.ServerEdit.setObjectName("ServerEdit")
+        self.ServerEdit.setText(self.config["setup"]["server"])
         self.tabWidget.addTab(self.SetupTab,"")
 
         self.Other = QtGui.QWidget()
@@ -655,8 +662,8 @@ class Customizer(QtGui.QDialog):
         QtCore.QObject.connect(self.PortEdit,QtCore.SIGNAL("editingFinished()"),self.set_port)
         QtCore.QMetaObject.connectSlotsByName(self)
         self.set=0
-        self.server=''
-        self.port=''
+        self.server=self.config["setup"]["server"]
+        self.port=self.config["setup"]["port"]
         self.result=""
         self.config=ConfigObj(filename)
 
