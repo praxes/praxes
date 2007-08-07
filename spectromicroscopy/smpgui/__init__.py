@@ -1,2 +1,4 @@
+"""
+"""
 
 from smpmainwindow import SmpMainWindow

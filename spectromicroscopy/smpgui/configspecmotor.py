@@ -1,4 +1,29 @@
 """
+"""
+
+#---------------------------------------------------------------------------
+# Stdlib imports
+#---------------------------------------------------------------------------
+
+
+
+#---------------------------------------------------------------------------
+# Extlib imports
+#---------------------------------------------------------------------------
+
+from PyQt4 import QtGui, QtCore
+
+#---------------------------------------------------------------------------
+# SMP imports
+#---------------------------------------------------------------------------
+
+from ui_configspecmotor import Ui_SpecSetter
+
+#---------------------------------------------------------------------------
+# Normal code begins
+#---------------------------------------------------------------------------
+
+"""
 motor_par(i, s [, v])
     Returns or sets configuration parameters for motor i.
      Recognized values for the string s include:
@@ -41,8 +66,7 @@ set_lim(i, u, v)
 
 
 """
-from PyQt4 import QtGui, QtCore
-from SpecSetter import Ui_SpecSetter 
+
 class SpecConfig(QtGui.QWidget,Ui_SpecSetter):
     
     __pyqtSignals__ =("configChanged()")

@@ -1,50 +1,50 @@
-#!/usr/bin/env python
 """
-This program is a Graphical User interface for X-ray Spectroscopy
 """
 
-################################################################################
-######################Use this to set the mode of the program###################
+#---------------------------------------------------------------------------
+# Stdlib imports
+#---------------------------------------------------------------------------
+
+import codecs
+import os
+import sys
+import tempfile
+import time
+
+#---------------------------------------------------------------------------
+# Extlib imports
+#---------------------------------------------------------------------------
+
+import numpy
+# TODO: This is not the right module for analysis
+from PyMca import ClassMcaTheory , ConcentrationsTool #,McaAdvancedFitBatch
+from PyQt4 import QtCore, QtGui
+
+#---------------------------------------------------------------------------
+# SMP imports
+#---------------------------------------------------------------------------
+
+from ui_testinterface import Ui_MotorHead
+from spectromicroscopy.smpcore.SpecRunner import SpecRunner
+#from SpecConfig import SpecConfig
+
+#---------------------------------------------------------------------------
+# Normal code begins
+#---------------------------------------------------------------------------
+
 DEBUG=0     #if set to 1 it deactivates spec commands
 Rollcall=2    #if set to 1 it auto starts spec -s on f3.chess.cornell.edu
               #and connects if set to 2 it wont autostart but will autoconnect
               #if set to 3 it will autoconnect and start spec on roll
 
-################################################################################
-
-#file Manipulation
-import sys, os, codecs
-from os.path import isfile
-import subprocess as sp
-if sys.platform=="win32":
-    DEBUG=1
-    Rollcall=0
-
-#GUI
-from PyQt4 import QtCore, QtGui
-from GearTester import Ui_MotorHead
-import time
-from time import localtime, strftime
-from SpecRunner import SpecRunner
-from SpecConfig import SpecConfig
-import numpy
-import numpy.oldnumeric as Numeric
-from tempfile import TemporaryFile, NamedTemporaryFile
-from PyMca import ClassMcaTheory , ConcentrationsTool #,McaAdvancedFitBatch
-os.system("pyuic4 GearTester.ui>GearTester.py")  
-
-
-
-################################################################################
-       
-
+              
 class MyUI(Ui_MotorHead,QtGui.QMainWindow):
     """Any and all things GUI"""
     def __init__(self, parent=None):
         self.startSesh() #to be removed when done
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
-        self.custom()
+#        self.custom()
         if parent:
             Bar=parent.Bar
         else:
@@ -56,7 +56,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         self.estop=''
         sys.stdout=self
         self.specrun=SpecRunner(self,DEBUG)
-        time=strftime("%a, %d %b %Y %H:%M:%S", localtime())
+        time=time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
         print "Rollcall=%s, DEBUG=%s"%(Rollcall,DEBUG)                                  # REMOVE WHEN DONE
         print "\n New Session started (%s)\n Enter spec server hostname: "%time 
         QtCore.QObject.connect(self.ChangeFile, QtCore.SIGNAL("clicked()"),
@@ -92,7 +92,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
 
             
     def runspec(self):
-        self.buffer=TemporaryFile( 'w+b')
+        self.buffer=tempfile.TemporaryFile('w+b')
         if not self.specrun.get_spec_host():
             self.specrun.set_spec_host(self.command)
             print " Host set as %s \n Select a Port"%self.command
@@ -172,7 +172,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             sys.stdout=sys.__stdout__
             print self.last_written
             sys.stdout=self
-            if isfile (self.filename):
+            if os.path.isfile (self.filename):
                 s = codecs.open(self.filename,'a','utf-8')
                 s.write(unicode(string))
                 s.close()
@@ -186,7 +186,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
     def clearlog(self):
         """Clears Log File"""
         self.Responses.clear()
-        if isfile(self.filename):
+        if os.path.isfile(self.filename):
             s = codecs.open(self.filename,'w','utf-8')
             s.write(unicode(self.Responses.toPlainText()))
             s.close()
@@ -195,7 +195,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         """Changes Log File"""
         fd = QtGui.QFileDialog(self)
         self.filename = fd.getOpenFileName()
-        if isfile(self.filename):
+        if os.path.isfile(self.filename):
             s = codecs.open(self.filename,'r','utf-8').read()
             self.Responses.setPlainText(s)
 
@@ -204,7 +204,7 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         self.currentfile=self.filename
         fd = QtGui.QFileDialog(self)
         self.filename = fd.getSaveFileName()
-        if isfile(self.filename):
+        if os.path.isfile(self.filename):
             s = codecs.open(self.filename,'w','utf-8')
             s.write(unicode(self.Responses.toPlainText()))
             s.close()
@@ -346,11 +346,11 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             self.sesh.sendline("logout")
             self.sesh.close()
         else:
-            time=strftime("%a, %d %b %Y %H:%M:%S", localtime())
+            time=time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
             print "BYE!!!!!!!@%s"%time
-    def custom(self):
-        self.widget=SpecConfig(self)
-        self.widget.setGeometry(10,330,441,141)
+#    def custom(self):
+#        self.widget=SpecConfig(self)
+#        self.widget.setGeometry(10,330,441,141)
         
 
     

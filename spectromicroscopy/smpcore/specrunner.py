@@ -1,12 +1,34 @@
-DEBUG=True
-TIMEOUT=.02
+"""
+"""
+
+#---------------------------------------------------------------------------
+# Stdlib imports
+#---------------------------------------------------------------------------
 
 import sys
 import time
-from external import SpecClient
+
+#---------------------------------------------------------------------------
+# Extlib imports
+#---------------------------------------------------------------------------
+
+
+
+#---------------------------------------------------------------------------
+# SMP imports
+#---------------------------------------------------------------------------
+
+from spectromicroscopy.external import SpecClient
 SpecClient.setLoggingOff()
-from external.SpecClient import SpecMotor, Spec, SpecEventsDispatcher, \
-    SpecVariable, SpecCommand
+from spectromicroscopy.external.SpecClient import SpecMotor, Spec, \
+    SpecEventsDispatcher, SpecVariable, SpecCommand
+
+#---------------------------------------------------------------------------
+# Normal code begins
+#---------------------------------------------------------------------------
+
+DEBUG=True # ??
+TIMEOUT=.02
 
 """
     Section for actual Motor Control Mockup
@@ -14,10 +36,10 @@ from external.SpecClient import SpecMotor, Spec, SpecEventsDispatcher, \
 ***********ACTUAL MOTOR CONTROLS FOLLOW**********
 
 Motor Names refer to motor nemonics
-specclient expects to wrok with nemonics and never used full motor names
+specclient expects to work with nemonics, not full motor names
 
 """
-from PyQt4 import QtCore
+
 
 class TestSpecMotor(SpecMotor.SpecMotorA):
     

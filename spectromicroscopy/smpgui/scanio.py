@@ -1,24 +1,40 @@
-#!/usr/bin/env python
+"""
+"""
+
+#---------------------------------------------------------------------------
+# Stdlib imports
+#---------------------------------------------------------------------------
+
 import codecs
 import os
 import sys
-os.system("pyuic4 XpMaster.ui>XpMaster.py")
-DEBUG=2
-
-#GUI
-from PyQt4 import QtCore, QtGui
-from XpMaster import Ui_XpMaster
-from SpecRunner import SpecRunner
-#Number Crunching
-import numpy as np
-import MA
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as ToolBar
-from matplotlib.figure import Figure
+import tempfile
 import time
-from tempfile import TemporaryFile, NamedTemporaryFile
+
+#---------------------------------------------------------------------------
+# Extlib imports
+#---------------------------------------------------------------------------
+
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg, \
+    NavigationToolbar2QTAgg
+from matplotlib.figure import Figure
+import numpy
 from PyMca import ClassMcaTheory , ConcentrationsTool 
-from external.configobj import ConfigObj
+from PyQt4 import QtCore, QtGui
+
+#---------------------------------------------------------------------------
+# SMP imports
+#---------------------------------------------------------------------------
+
+from ui_scanio import Ui_XpMaster
+from spectromicroscopy.external.configobj import ConfigObj
+from spectromicroscopy.smpcore import SpecRunner
+
+#---------------------------------------------------------------------------
+# Normal code begins
+#---------------------------------------------------------------------------
+
+DEBUG=2 # ??
 
 ElementsInfo = [
    ["H",   1,    1,1,   "hydrogen",   1.00800,     1008.00   ],
@@ -160,7 +176,7 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             self.ScanBox.addItem(item)
         self.xprun=SpecRunner(self,DEBUG,self.__server,self.__port)
         self.xprun.exc("NPTS=0")
-        self.buffer=TemporaryFile( 'w+b')
+        self.buffer=tempfile.TemporaryFile('w+b')
         self.ElementSelect.setLineEdit(self.ElementText)
         QtCore.QObject.connect(self.ScanBox,QtCore.SIGNAL("currentIndexChanged(int)"),self.ScanControls)
         QtCore.QObject.connect(self.Run,QtCore.SIGNAL("clicked()"),self.run_scan)
@@ -275,12 +291,12 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
     
     def change_limits(self):
         if self.setup!=0:
-            parrent=self.ImageFrame.widget(0)
+            parent=self.ImageFrame.widget(0)
             self.Range_Max=self.MaxValSpin.value()
             self.Range_Min=self.MinValSpin.value()
             scale="%s"%self.ScaleBox.currentText()
             self.image=MyCanvas(self.ScanBox.currentText(),self.__images[self.Image_Element],
-                                            self.x_index,self.y_index,self.Range_Min,self.Range_Max,parrent,self.energy,self.__totaled,scale)
+                                            self.x_index,self.y_index,self.Range_Min,self.Range_Max,parent,self.energy,self.__totaled,scale)
             self.image.setGeometry(QtCore.QRect(169,-1,771,900))
             self.image.setMinimumSize(100,100)
             self.image.setObjectName("Graph")
@@ -327,7 +343,7 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             self.processed=[]
             self.theory=ClassMcaTheory.McaTheory(self.filename)
             self.theory.enableOptimizedLinearFit()
-            self.data = np.memmap(self.buffer.name,dtype=float,mode='w+',shape=(self.max,2048))
+            self.data = numpy.memmap(self.buffer.name,dtype=float,mode='w+',shape=(self.max,2048))
 #            self.xprun.exc("MCA_DATA=0")
 #            self.xprun.set_var('MCA_DATA',"Sync")
             self.__images = {}
@@ -335,9 +351,9 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             config=ConfigObj(self.filename)
             gain=float(config["detector"]["gain"])
             offset=float(config["detector"]["zero"])
-            self.__totaled=np.zeros(2048, np.float_)
+            self.__totaled=numpy.zeros(2048, numpy.float_)
             converstion=0.01##TODO: read this value from config files
-            self.energy = gain*np.arange(2048, dtype=np.float_)+offset
+            self.energy = gain*numpy.arange(2048, dtype=numpy.float_)+offset
             self.timer = QtCore.QTimer(self)
             QtCore.QObject.connect(self.timer, QtCore.SIGNAL("timeout()"), self.data_collect)
             self.timer.start(20)
@@ -372,9 +388,9 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             for group in result['groups']:
                 self.__peaks.append(group)
                 if not self.setup:
-                    self.__images[group] = np.zeros((self.__nrows,1), np.float_)
-                    self.__sigmas[group] = np.zeros((self.__nrows,1), np.float_)
-            self.__images['chisq']  = np.zeros((self.__nrows,1), np.float_) - 1.
+                    self.__images[group] = numpy.zeros((self.__nrows,1), numpy.float_)
+                    self.__sigmas[group] = numpy.zeros((self.__nrows,1), numpy.float_)
+            self.__images['chisq']  = numpy.zeros((self.__nrows,1), numpy.float_) - 1.
             self.__images['chisq'][index-1, 0] = result['chisq']
             for peak in self.__peaks:
                 if not self.setup:
@@ -387,14 +403,14 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
 #            print self.__images[self.Image_Element]
             scale="%s"%self.ScaleBox.currentText()
             self.__totaled += self.data[index-1]
-            parrent=self.ImageFrame.widget(0)
+            parent=self.ImageFrame.widget(0)
             self.image=MyCanvas(self.ScanBox.currentText(),self.__images[self.Image_Element],
-                                        self.x_index,self.y_index,self.Range_Min,self.Range_Max,parrent,self.energy,self.__totaled,scale)
+                                        self.x_index,self.y_index,self.Range_Min,self.Range_Max,parent,self.energy,self.__totaled,scale)
             self.image.setGeometry(QtCore.QRect(169,-1,771,800))
             self.image.setMinimumSize(100,100)
             self.image.setObjectName("Graph")
             self.image.show()
-            self.ToolBar=ToolBar(self.image,parrent)
+            self.ToolBar=NavigationToolbar2QTAgg(self.image,parent)
             self.ToolBar.setGeometry(QtCore.QRect(169,800,771,50))
             self.ToolBar.show()
             self.ToolBar.draw()
@@ -408,7 +424,7 @@ class MyXP(Ui_XpMaster,QtGui.QMainWindow):
             self.Run.setText("Scan")
         
 
-class MyCanvas(FigureCanvas):
+class MyCanvas(FigureCanvasQTAgg):
     """This is a QWidget as well as a FigureCanvasAgg"""
     def __init__(self, visual,matrix, x, y, vmin, vmax,parent=None,energy_matrix=None,  plot_matrix=None,scale="linear", width=5, height=4, dpi=100):
         self.plot_matrix=plot_matrix
@@ -432,12 +448,12 @@ class MyCanvas(FigureCanvas):
         self.axes3=self.fig.add_axes([0.75,0.15,0.075,0.5])
         self.axes2.hold(False)
         self.axes.hold(False)
-        FigureCanvas.__init__(self, self.fig)
+        FigureCanvasQTAgg.__init__(self, self.fig)
         self.setParent(parent)
-        FigureCanvas.setSizePolicy(self,
+        FigureCanvasQTAgg.setSizePolicy(self,
                                    QtGui.QSizePolicy.Expanding,
                                    QtGui.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
+        FigureCanvasQTAgg.updateGeometry(self)
         self.matrix=matrix.reshape(self.x,self.y)
         self.compute_initial_figure()
 
@@ -453,7 +469,7 @@ class MyCanvas(FigureCanvas):
             self.axes.plot(matrix,"r-")
             self.axes.axis([0,len(matrix)-1,self.min,self.max])
         if self.scale=="linear":
-            self.axes2.axis([0, len(self.plot_matrix), MA.minimum(self.plot_matrix), MA.maximum(self.plot_matrix)])
+            self.axes2.axis([0, len(self.plot_matrix), numpy.amin(self.plot_matrix), numpy.amax(self.plot_matrix)])
             self.axes2.plot(self.energy_matrix,self.plot_matrix,"b-")
         else:
             self.axes2.axis([0, 2048, 1,1000])
@@ -472,7 +488,7 @@ class MyCanvas(FigureCanvas):
     def compute_initial_figure(self):
         if self.plot_matrix!=None:
             if self.scale=="linear":
-                self.axes2.axis([0, len(self.plot_matrix), MA.minimum(self.plot_matrix), MA.maximum(self.plot_matrix)])
+                self.axes2.axis([0, len(self.plot_matrix), numpy.amin(self.plot_matrix), numpy.amax(self.plot_matrix)])
                 self.axes2.plot(self.energy_matrix,self.plot_matrix,"b-")
             else:
                 self.axes2.axis([0, 2048, 1,1000])
