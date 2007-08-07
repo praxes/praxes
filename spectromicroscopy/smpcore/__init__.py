@@ -1,4 +1,4 @@
 """
 """
 
-from smpcore.specrunner import SpecRunner
+from specrunner import SpecRunner

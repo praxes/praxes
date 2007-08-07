@@ -20,31 +20,18 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 
 from ui_smpmainwindow import Ui_Main
-from ui_testinterface import MyUI
-from ui_console import MyKon
-from ui_scanio import MyXP as XP
+from testinterface import MyUI
+from console import MyKon
+from scanio import MyXP
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-################################################################################
-######################Use this to set the mode of the program###################
-UI_DEVEL = True
 DEBUG=0     #if set to 1 it deactivates spec commands
 Rollcall=2  #if set to 1 it auto starts spec -s on f3.chess.cornell.edu
             #and connects if set to 2 it wont autostart but will autoconnect
             #if set to 3 it will autoconnect and start spec on roll
-
-#import spectromicroscopy as smp
-dir = os.path.split(__file__)[0]
-if UI_DEVEL:
-    for ui in glob.glob(dir+'/smpgui/ui_*'):
-        py = os.path.splitext(ui)+'.py'
-        print ui, py
-        if os.path.getatime(ui) > os.path.getatime(py):
-            os.system('pyuic4 %s > %s'%(ui, py))
-            print 'converting %s'%ui
 
 
 class SmpMainWindow(Ui_Main,QtGui.QMainWindow):
@@ -77,7 +64,7 @@ class SmpMainWindow(Ui_Main,QtGui.QMainWindow):
                                  self.Del)
     
     def NewXP(self):
-        self.XP=XP(self)
+        self.XP=MyXP(self)
         self.Tabby.addTab(self.XP.centralWidget(),"Experiment Controls")
 
     

@@ -25,7 +25,7 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 
 from ui_testinterface import Ui_MotorHead
-from spectromicroscopy.smpcore.SpecRunner import SpecRunner
+from spectromicroscopy.smpcore import SpecRunner
 #from SpecConfig import SpecConfig
 
 #---------------------------------------------------------------------------
@@ -56,9 +56,9 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
         self.estop=''
         sys.stdout=self
         self.specrun=SpecRunner(self,DEBUG)
-        time=time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
+        time_ = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
         print "Rollcall=%s, DEBUG=%s"%(Rollcall,DEBUG)                                  # REMOVE WHEN DONE
-        print "\n New Session started (%s)\n Enter spec server hostname: "%time 
+        print "\n New Session started (%s)\n Enter spec server hostname: "%time_
         QtCore.QObject.connect(self.ChangeFile, QtCore.SIGNAL("clicked()"),
                                self.file_dialog)
         QtCore.QObject.connect(self.saveras,QtCore.SIGNAL("clicked()"),
@@ -346,8 +346,8 @@ class MyUI(Ui_MotorHead,QtGui.QMainWindow):
             self.sesh.sendline("logout")
             self.sesh.close()
         else:
-            time=time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
-            print "BYE!!!!!!!@%s"%time
+            time_=time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
+            print "BYE!!!!!!!@%s"%time_
 #    def custom(self):
 #        self.widget=SpecConfig(self)
 #        self.widget.setGeometry(10,330,441,141)

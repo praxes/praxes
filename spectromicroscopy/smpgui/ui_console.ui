@@ -110,8 +110,8 @@
       <height>251</height>
      </rect>
     </property>
-    <property name="cursor" >
-     <cursor>4</cursor>
+    <property name="cursor" stdset="0" >
+     <cursorShape>IBeamCursor</cursorShape>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_3" >
@@ -124,7 +124,7 @@
      </rect>
     </property>
     <property name="cursor" >
-     <cursor>13</cursor>
+     <cursorShape>PointingHandCursor</cursorShape>
     </property>
     <property name="layoutDirection" >
      <enum>Qt::LeftToRight</enum>
@@ -161,6 +161,11 @@
       <height>581</height>
      </rect>
     </property>
+    <column>
+     <property name="text" >
+      <string>1</string>
+     </property>
+    </column>
    </widget>
   </widget>
  </widget>
