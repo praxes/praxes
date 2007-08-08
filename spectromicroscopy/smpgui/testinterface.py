@@ -116,6 +116,7 @@ class MyUI(Ui_MotorHead, QtGui.QMainWindow):
                 self.connection = self.specrun.serverconnect()
             except:
                 print "Invalid Host or Server"
+            print self.connection
             if self.connection:
                 print " Connected to %s on %s"%(self.specrun.get_spec_port(),
                                                 self.specrun.get_spec_host())

@@ -27,7 +27,7 @@ from spectromicroscopy.external.SpecClient import SpecMotor, Spec, \
 # Normal code begins
 #---------------------------------------------------------------------------
 
-DEBUG=True # ??
+DEBUG=False # ??
 TIMEOUT=.02
 
 """
@@ -56,34 +56,34 @@ class TestSpecMotor(SpecMotor.SpecMotorA):
 
     def connected(self):
         self.__connected__ = True
-        print'Motor %s connected'%self.specName
+        if DEBUG: print'Motor %s connected'%self.specName
     
     def disconnected(self):
         self.__connected__ = False
-        print 'Motor %s disconnected'%self.specName
+        if DEBUG: print 'Motor %s disconnected'%self.specName
 
     def isConnected(self):
-        return (self.__connected__ != None) and (self.__connected__)
+        if DEBUG: return (self.__connected__ != None) and (self.__connected__)
 
     def motorLimitsChanged(self):
         limits = self.getLimits()
         limitString = "(" + str(limits[0])+", "+ str(limits[1]) + ")"
-        print "Motor %s limits changed to %s"%(self.specName,limitString)
+        if DEBUG: print "Motor %s limits changed to %s"%(self.specName,limitString)
     
     def motorPositionChanged(self, absolutePosition):
-        print "Motor %s position changed to %s"%(self.specName,absolutePosition)
+        if DEBUG: print "Motor %s position changed to %s"%(self.specName,absolutePosition)
     
     def syncQuestionAnswer(self, specSteps, controllerSteps):
-        print "Motor %s syncing"%self.specName
+        if DEBUG: print "Motor %s syncing"%self.specName
     
     def motorStateChanged(self, state):
-        print "Motor %s state changed to %s"%(self.specName, self.__state_strings__[state])
+        if DEBUG: print "Motor %s state changed to %s"%(self.specName, self.__state_strings__[state])
     
     def status(self):
-        return self.__state_strings__[self.getState()]
+        if DEBUG: return self.__state_strings__[self.getState()]
     
     def motor_name(self):
-        return self.specName
+        if DEBUG: return self.specName
 
 
 class XrfSpecVarA(SpecVariable.SpecVariableA):
@@ -96,11 +96,11 @@ class XrfSpecVarA(SpecVariable.SpecVariableA):
     
     def connected(self):
         self.__connected__ = True
-        print 'Variable %s connected'%self.getVarName()
+        if DEBUG: print 'Variable %s connected'%self.getVarName()
     
     def disconnected(self):
         self.__connected__ = False
-        print "Variable %s disconnected"%self.getVarName()
+        if DEBUG: print "Variable %s disconnected"%self.getVarName()
     
     def update(self, value):
         print "Variable %s updated to %s"%(self.getVarName(), value)
@@ -116,9 +116,7 @@ class XrfSpecVar(SpecVariable.SpecVariable):
 
     def __init__(self, var, host_port, timeout=None):
         SpecVariable.SpecVariable.__init__(self, var, host_port)
-        if DEBUG:
-            print '%s connected at %s'%(self.getVarName(),
-                                               host_port)
+        if DEBUG: print '%s connected at %s'%(self.getVarName(), host_port)
 
     def getVarName(self):
         return self.channelName[4:len(self.channelName)]
@@ -127,7 +125,7 @@ class XrfSpecVar(SpecVariable.SpecVariable):
 class TestSpecCommand(SpecCommand.SpecCommandA):
 
     def beingWait(self):
-        print 'Command %s was sent'%self.command
+        if DEBUG: print 'Command %s was sent'%self.command
     
     def replyArrived(self, reply):
         self.Reply=reply
@@ -138,15 +136,15 @@ class TestSpecCommand(SpecCommand.SpecCommandA):
             print "Command %s received a reply: %s"%(self.command, reply.data)
     
     def connected(self):
-       print "Command %s connected"% self.command
+       if DEBUG: print "Command %s connected"% self.command
        self.Reply = None
     
     def disconnected(self):
-        print "Command %s disconnected"% self.command
+        if DEBUG: print "Command %s disconnected"% self.command
                 
     def statusChanged(self, ready):
         state = ["In progress","Complete","Unknown"]
-        print "Status is %s"%state[ready]
+        if DEBUG: print "Status is %s"%state[ready]
     
     def get_Reply(self):
         return self.Reply
@@ -230,6 +228,7 @@ class SpecRunner:
                 self.mca_data = XrfSpecVar("MCA_DATA", 
                                            self._specHost+":"+self._specPort,
                                            500)
+                return True
             except:
                 print "Variables Failed to Connect"
         except:
@@ -239,6 +238,14 @@ class SpecRunner:
     def exc(self, command_string):
         if self._exc:
             self._exc.executeCommand(command_string)
+    
+    def connect_to_motors(self, *args):
+        if len(args) == 0:
+            args = self._spec.getMotorsMne()
+        
+        for arg in args:
+            self._motors[arg] = TestSpecMotor(arg,
+                                              self._specHost+":"+self._specPort)
 
     def readmotors(self, names=[], type="Test"):
         if names:
