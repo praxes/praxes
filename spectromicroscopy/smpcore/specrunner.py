@@ -71,6 +71,7 @@ class TestSpecMotor(SpecMotor.SpecMotorA):
         if DEBUG: print "Motor %s limits changed to %s"%(self.specName,limitString)
     
     def motorPositionChanged(self, absolutePosition):
+        return absolutePosition
         if DEBUG: print "Motor %s position changed to %s"%(self.specName,absolutePosition)
     
     def syncQuestionAnswer(self, specSteps, controllerSteps):

@@ -29,49 +29,34 @@ from spectromicroscopy.smpcore import SCAN_NUM_MOTORS, SpecRunner
 
 class ScanControls(Ui_ScanControls, QtGui.QWidget):
     """Establishes a Experimenbt controls    """
-    def __init__(self,parent=None, specrunner=None):
+    def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.parent=parent
+        self.parent = parent
         self.setupUi(self)
         
-        # For debugging only, should not need to pass specrunner to __init__
-        if specrunner is None:
+        if parent is None:
             specrunner = SpecRunner(spechost='f3.chess.cornell.edu',
                                     specport='xrf')
+        else:
+            specrunner = parent.specrunner
         self.specrunner = specrunner
         specrunner.connect_to_motors()
         motors = specrunner.get_motor_names()
         motors.sort()
         
         self.gridX = QtGui.QGridLayout(self.xAxisTab)
-        self.motorX = ScanMotor(self.xAxisTab)
+        self.motorX = ScanMotor(self, 'samx', motors)
         self.gridX.addWidget(self.motorX)
-        self.motorX.motorComboBox.addItems(motors)
-        try:
-            ind = motors.index('samx')
-            self.motorX.motorComboBox.setCurrentIndex(ind)
-        except ValueError:
-            pass
+
         
         self.gridY = QtGui.QGridLayout(self.yAxisTab)
-        self.motorY = ScanMotor(self.yAxisTab)
+        self.motorY = ScanMotor(self, 'samz', motors)
         self.gridY.addWidget(self.motorY)
-        self.motorY.motorComboBox.addItems(motors)
-        try:
-            ind = motors.index('samz')
-            self.motorY.motorComboBox.setCurrentIndex(ind)
-        except ValueError:
-            pass
+        
         
         self.gridZ = QtGui.QGridLayout(self.zAxisTab)
-        self.motorZ = ScanMotor(self.zAxisTab)
+        self.motorZ = ScanMotor(self, 'samy', motors)
         self.gridZ.addWidget(self.motorZ)
-        self.motorZ.motorComboBox.addItems(motors)
-        try:
-            ind = motors.index('samy')
-            self.motorZ.motorComboBox.setCurrentIndex(ind)
-        except ValueError:
-            pass
         
         scans = SCAN_NUM_MOTORS.keys()
         scans.sort()
