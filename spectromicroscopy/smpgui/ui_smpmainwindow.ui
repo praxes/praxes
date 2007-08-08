@@ -46,10 +46,64 @@
      <x>0</x>
      <y>0</y>
      <width>1255</width>
-     <height>31</height>
+     <height>28</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile" >
+    <property name="title" >
+     <string>File</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuSettings" >
+    <property name="title" >
+     <string>Settings</string>
+    </property>
+    <addaction name="actionConfigure_SMP" />
+    <addaction name="actionConfigure_PyMca" />
+   </widget>
+   <widget class="QMenu" name="menuTools" >
+    <property name="title" >
+     <string>Tools</string>
+    </property>
+    <addaction name="actionCalibrate_Detector" />
+    <addaction name="actionMeasure_Standard" />
+   </widget>
+   <widget class="QMenu" name="menuHelp" >
+    <property name="title" >
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout_SpectroMicroscoPy" />
+   </widget>
+   <addaction name="menuFile" />
+   <addaction name="menuSettings" />
+   <addaction name="menuTools" />
+   <addaction name="menuHelp" />
   </widget>
+  <action name="actionConfigure_SMP" >
+   <property name="text" >
+    <string>Configure SpectroMicroscoPy</string>
+   </property>
+  </action>
+  <action name="actionConfigure_PyMca" >
+   <property name="text" >
+    <string>Configure PyMca</string>
+   </property>
+  </action>
+  <action name="actionCalibrate_Detector" >
+   <property name="text" >
+    <string>Calibrate Detector</string>
+   </property>
+  </action>
+  <action name="actionMeasure_Standard" >
+   <property name="text" >
+    <string>Measure Standard</string>
+   </property>
+  </action>
+  <action name="actionAbout_SpectroMicroscoPy" >
+   <property name="text" >
+    <string>About SpectroMicroscoPy</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
