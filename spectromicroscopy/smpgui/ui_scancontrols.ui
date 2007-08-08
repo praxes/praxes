@@ -1,0 +1,125 @@
+<ui version="4.0" >
+ <class>ScanControls</class>
+ <widget class="QWidget" name="ScanControls" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>166</width>
+    <height>664</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="leftMargin" >
+    <number>2</number>
+   </property>
+   <property name="topMargin" >
+    <number>2</number>
+   </property>
+   <property name="rightMargin" >
+    <number>2</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>2</number>
+   </property>
+   <item row="0" column="0" >
+    <widget class="QGroupBox" name="scanControlsGroupBox" >
+     <property name="title" >
+      <string>Scan Controls</string>
+     </property>
+     <layout class="QVBoxLayout" >
+      <property name="leftMargin" >
+       <number>4</number>
+      </property>
+      <property name="topMargin" >
+       <number>4</number>
+      </property>
+      <property name="rightMargin" >
+       <number>4</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>4</number>
+      </property>
+      <item>
+       <layout class="QGridLayout" >
+        <item row="0" column="1" >
+         <widget class="QComboBox" name="scanTypeComboBox" />
+        </item>
+        <item row="0" column="0" >
+         <widget class="QLabel" name="scanTypeLabel" >
+          <property name="text" >
+           <string>scan type</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QDoubleSpinBox" name="countSpinBox" >
+          <property name="minimum" >
+           <double>-10000000000.000000000000000</double>
+          </property>
+          <property name="maximum" >
+           <double>3600.000000000000000</double>
+          </property>
+          <property name="value" >
+           <double>1.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QLabel" name="countLabel" >
+          <property name="text" >
+           <string>count</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QTabWidget" name="motorTab" >
+        <property name="enabled" >
+         <bool>true</bool>
+        </property>
+        <property name="currentIndex" >
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="xAxisTab" >
+         <property name="enabled" >
+          <bool>true</bool>
+         </property>
+         <attribute name="title" >
+          <string>axis: X</string>
+         </attribute>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="scanButton" >
+        <property name="text" >
+         <string>Scan</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="abortButton" >
+        <property name="text" >
+         <string>Abort</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
