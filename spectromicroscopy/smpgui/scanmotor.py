@@ -19,89 +19,107 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 
 from ui_scanmotor import Ui_ScanMotor
-from spectromicroscopy.external.SpecClient import SpecMotor
+from spectromicroscopy.smpcore import QtSpecMotorA
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-DEBUG = 0
-
-class TestSpecMotor(SpecMotor.SpecMotorA, QtCore.QObject):
-    
-    __state_strings__ = ['NOTINITIALIZED',
-                         'UNUSABLE',
-                         'READY',
-                         'MOVESTARTED',
-                         'MOVING',
-                         'ONLIMIT']
-    
-    def __init__(self, specName=None, specVersion=None):
-	QtCore.QObject.__init__(self)
-        SpecMotor.SpecMotorA.__init__(self, specName, specVersion)
-        self.getPosition()
-
-    def connected(self):
-        self.__connected__ = True
-        if DEBUG: print'Motor %s connected'%self.specName
-    
-    def disconnected(self):
-        self.__connected__ = False
-        if DEBUG: print 'Motor %s disconnected'%self.specName
-
-    def isConnected(self):
-        if DEBUG: return (self.__connected__ != None) and (self.__connected__)
-
-    def motorLimitsChanged(self):
-        limits = self.getLimits()
-        limitString = "(" + str(limits[0])+", "+ str(limits[1]) + ")"
-        if DEBUG: print "Motor %s limits changed to %s"%(self.specName,limitString)
-    
-    def motorPositionChanged(self, absolutePosition):
-        self.emit(QtCore.SIGNAL("motorPositionChanged"), absolutePosition)
-        if DEBUG: print "Motor %s position changed to %s"%(self.specName,absolutePosition)
-    
-    def syncQuestionAnswer(self, specSteps, controllerSteps):
-        if DEBUG: print "Motor %s syncing"%self.specName
-    
-    def motorStateChanged(self, state):
-        if DEBUG: print "Motor %s state changed to %s"%(self.specName, self.__state_strings__[state])
-    
-    def status(self):
-        if DEBUG: return self.__state_strings__[self.getState()]
-    
-    def motor_name(self):
-        if DEBUG: return self.specName
-
 
 class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
+    
     """Establishes a Experimenbt controls    """
-    def __init__(self, parent, motor, motorlist=[]):
+    
+    def __init__(self, parent, motor, hostport):
         QtGui.QWidget.__init__(self, parent)
+        self.setupUi(self)
+    
         self.parent = parent
         self.specrunner = parent.specrunner
-        self.setupUi(self)
         
-        self.motorComboBox.addItems(motorlist)
+        motors = self.specrunner.get_motor_names()
+        motors.sort()
         try:
-            ind = motorlist.index(motor)
-            self.motorComboBox.setCurrentIndex(ind)
+            ind = motors.index(motor)
+            
         except ValueError:
-            motor = motorlist[0]
-        self.setMotor(motor)
+            motor = motors[0]
+            ind = 0
+        self.setMotor(motor, 'f3.chess.cornell.edu:xrf')
+        
+        self.motorComboBox.addItems(motors)
+        self.motorComboBox.setCurrentIndex(ind)
         
         self.connect(self.motorComboBox,
                      QtCore.SIGNAL("currentIndexChanged(const QString&)"),
                      self.setMotor)
-        self.connect(self._motor,
-                     QtCore.SIGNAL("motorPositionChanged"),
-                     self.setPosition)
-        
-        
+        self.connect(self.nextPosSlider,
+                     QtCore.SIGNAL("valueChanged(int)"),
+                     self.setNextPosition)
+        self.connect(self.nextPosSpinBox,
+                     QtCore.SIGNAL("valueChanged(double)"),
+                     self.setNextPosition)
 
-    def setMotor(self, motor):
-        self._motor = motor = TestSpecMotor(motor, 'f3.chess.cornell.edu:xrf')
-        self.setPosition(motor.getPosition())
+    def setMotor(self, motor, hostport=None):
+        if hostport is None: hostport = 'f3.chess.cornell.edu:xrf'
+        self._motor = motor = QtSpecMotorA(motor, hostport)
+        self.setLimits(motor.getLimits())
+        position = motor.getPosition()
+        self.setPosition(position)
+        self.nextPosSlider.setValue(int(position*1000))
+        self.nextPosSpinBox.setValue(position)
+        self.scanFromSpinBox.setValue(position)
+        self.scanToSpinBox.setValue(position+1)
+        
+        self.connect(self._motor,
+                     QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
+                     self.setPosition)
+        self.connect(self._motor,
+                     QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
+                     self.setPosition)
+        self.connect(self._motor,
+                     QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
+                     self.motorStateChanged)
+        self.connect(self.nextPosPushButton,
+                     QtCore.SIGNAL("clicked()"),
+                     self.moveMotor)
     
     def setPosition(self, position):
         self.currentPosReport.setText('%.3f'%position)
+
+    def setLimits(self, limits):
+        low, high = limits
+        self.lowLim.setText('%.2f'%low)
+        self.highLim.setText('%.2f'%high)
+        self.nextPosSpinBox.setRange(low, high)
+        self.nextPosSlider.setRange(int(low*1000), int(high*1000))
+        self.scanFromSpinBox.setRange(low, high)
+        self.scanToSpinBox.setRange(low, high)
+    
+    def setNextPosition(self, position):
+        if isinstance(position, int):
+            self.nextPosSpinBox.setValue(position*0.001)
+        else:
+            self.nextPosSlider.setValue(int(position*1000))
+    
+    def getState(self):
+        return self._motor.getState()
+
+    def motorStateChanged(self, state):
+        if state in ('READY', 'ONLIMIT'):
+            self.nextPosPushButton.setEnabled(True)
+            self.motorComboBox.setEnabled(True)
+        else:
+            self.nextPosPushButton.setEnabled(False)
+            self.motorComboBox.setEnabled(False)
+        self.emit(QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
+                  state)
+
+    def getScanInfo(self):
+        motor = '%s'%self.motorComboBox.currentText()
+        scanFrom = '%s'%self.scanFromSpinBox.value()
+        scanTo = '%s'%self.scanToSpinBox.value()
+        scanSteps = '%s'%self.scanStepsSpinBox.value()
+    
+    def moveMotor(self):
+        self._motor.move(self.nextPosSpinBox.value())

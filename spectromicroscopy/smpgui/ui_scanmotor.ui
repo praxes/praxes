@@ -64,63 +64,12 @@
       <string>Position</string>
      </property>
      <layout class="QVBoxLayout" >
-      <property name="leftMargin" >
-       <number>4</number>
-      </property>
-      <property name="topMargin" >
-       <number>4</number>
-      </property>
-      <property name="rightMargin" >
-       <number>4</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>4</number>
-      </property>
       <item>
        <layout class="QGridLayout" >
         <item row="0" column="0" >
          <widget class="QLabel" name="currentPosLabel" >
           <property name="text" >
            <string>current</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" >
-         <widget class="QLabel" name="nextPosLabel" >
-          <property name="text" >
-           <string>next</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1" >
-         <widget class="QDoubleSpinBox" name="nextPosSpinBox" >
-          <property name="decimals" >
-           <number>3</number>
-          </property>
-          <property name="maximum" >
-           <double>1000.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1" >
-         <widget class="QSlider" name="newPosSlider" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="layoutDirection" >
-           <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="orientation" >
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="tickPosition" >
-           <enum>QSlider::TicksAbove</enum>
-          </property>
-          <property name="tickInterval" >
-           <number>10</number>
           </property>
          </widget>
         </item>
@@ -143,6 +92,116 @@
           </property>
           <property name="readOnly" >
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QFrame" name="frame" >
+        <property name="frameShape" >
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow" >
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QHBoxLayout" >
+         <item>
+          <layout class="QVBoxLayout" >
+           <item>
+            <widget class="QLabel" name="highLim" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text" >
+              <string>1</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="lowLim" >
+             <property name="text" >
+              <string>0</string>
+             </property>
+             <property name="alignment" >
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QSlider" name="nextPosSlider" >
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize" >
+            <size>
+             <width>40</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="layoutDirection" >
+            <enum>Qt::LeftToRight</enum>
+           </property>
+           <property name="singleStep" >
+            <number>100</number>
+           </property>
+           <property name="pageStep" >
+            <number>1000</number>
+           </property>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="tickPosition" >
+            <enum>QSlider::TicksAbove</enum>
+           </property>
+           <property name="tickInterval" >
+            <number>10000</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <layout class="QGridLayout" >
+        <item row="0" column="0" >
+         <widget class="QLabel" name="nextPosLabel" >
+          <property name="text" >
+           <string>next</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" >
+         <widget class="QDoubleSpinBox" name="nextPosSpinBox" >
+          <property name="decimals" >
+           <number>3</number>
+          </property>
+          <property name="maximum" >
+           <double>1000.000000000000000</double>
           </property>
          </widget>
         </item>
@@ -177,7 +236,7 @@
        <number>4</number>
       </property>
       <item row="0" column="0" >
-       <widget class="QLabel" name="maxLabel" >
+       <widget class="QLabel" name="scanFromLabel" >
         <property name="sizePolicy" >
          <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
           <horstretch>0</horstretch>
@@ -185,12 +244,12 @@
          </sizepolicy>
         </property>
         <property name="text" >
-         <string>max</string>
+         <string>from</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1" >
-       <widget class="QDoubleSpinBox" name="maxSpinBox" >
+       <widget class="QDoubleSpinBox" name="scanFromSpinBox" >
         <property name="sizePolicy" >
          <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
           <horstretch>0</horstretch>
@@ -206,7 +265,7 @@
        </widget>
       </item>
       <item row="1" column="0" >
-       <widget class="QLabel" name="minLabel" >
+       <widget class="QLabel" name="scanToLabel" >
         <property name="sizePolicy" >
          <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
           <horstretch>0</horstretch>
@@ -214,12 +273,12 @@
          </sizepolicy>
         </property>
         <property name="text" >
-         <string>min</string>
+         <string>to</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1" >
-       <widget class="QDoubleSpinBox" name="minSpinBox" >
+       <widget class="QDoubleSpinBox" name="scanToSpinBox" >
         <property name="sizePolicy" >
          <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
           <horstretch>0</horstretch>
@@ -245,7 +304,7 @@
        </widget>
       </item>
       <item row="2" column="1" >
-       <widget class="QSpinBox" name="stepsSpinBox" >
+       <widget class="QSpinBox" name="scanStepsSpinBox" >
         <property name="sizePolicy" >
          <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
           <horstretch>0</horstretch>
@@ -254,6 +313,9 @@
         </property>
         <property name="maximum" >
          <number>10000</number>
+        </property>
+        <property name="value" >
+         <number>1</number>
         </property>
        </widget>
       </item>
