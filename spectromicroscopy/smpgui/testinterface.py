@@ -70,7 +70,7 @@ class MyUI(Ui_MotorHead, QtGui.QMainWindow):
                                self.clearlog)
         QtCore.QObject.connect(self.EStop,
                                QtCore.SIGNAL("clicked()"),
-                               self.EmergencyStop)
+                               self.abort)
         QtCore.QObject.connect(self.ReStart,
                                QtCore.SIGNAL("clicked()"),
                                self.reStart)
@@ -120,7 +120,7 @@ class MyUI(Ui_MotorHead, QtGui.QMainWindow):
             if self.connection:
                 print " Connected to %s on %s"%(self.specrun.get_spec_port(),
                                                 self.specrun.get_spec_host())
-                self.specrun.readmotors()
+                self.specrun.readMotors()
                 self.get_motors()
                 self.get_params()
                 print " Select a motor"
@@ -198,10 +198,10 @@ class MyUI(Ui_MotorHead, QtGui.QMainWindow):
                 s.close()
             self.Responses.append(string)
 
-    def EmergencyStop(self):
+    def abort(self):
         """Stops all spec commands"""
         self.estop = True
-        self.specrun.EmergencyStop() 
+        self.specrun.abort() 
     
     def clearlog(self):
         """Clears Log File"""

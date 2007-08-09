@@ -22,7 +22,7 @@ from PyQt4 import QtCore, QtGui
 from ui_smpmainwindow import Ui_Main
 from testinterface import MyUI
 from console import MyKon
-from scanio import MyXP
+from scanio2 import ScanIO
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -47,9 +47,9 @@ class SmpMainWindow(Ui_Main, QtGui.QMainWindow):
         self.Opener = QtGui.QMenu("New", self.Bar)
         self.Opener.addAction("Motor Control", self.NewMotor)
         self.Opener.addAction("Console", self.NewKon)
-        self.NewMotor()
+#        self.NewMotor()
         self.NewXP()
-        self.NewKon()
+#        self.NewKon()
         self.Tabby.removeTab(0)
 
     def NewMotor(self):
@@ -69,8 +69,8 @@ class SmpMainWindow(Ui_Main, QtGui.QMainWindow):
                                self.Del)
 
     def NewXP(self):
-        self.XP=MyXP(self)
-        self.Tabby.addTab(self.XP.centralWidget(),"Experiment Controls")
+        self.XP=ScanIO(self)
+        self.Tabby.addTab(self.XP,"Experiment Controls")
 
     def Del(self):
         Index = self.Tabby.currentIndex()

@@ -18,6 +18,7 @@ import time
 # SMP imports
 #---------------------------------------------------------------------------
 
+from qtspecmotor import QtSpecMotorA
 from spectromicroscopy.external import SpecClient
 SpecClient.setLoggingOff()
 from spectromicroscopy.external.SpecClient import SpecMotor, Spec, \
@@ -39,52 +40,6 @@ Motor Names refer to motor nemonics
 specclient expects to work with nemonics, not full motor names
 
 """
-
-
-class TestSpecMotor(SpecMotor.SpecMotorA):
-    
-    __state_strings__ = ['NOTINITIALIZED',
-                         'UNUSABLE',
-                         'READY',
-                         'MOVESTARTED',
-                         'MOVING',
-                         'ONLIMIT']
-    
-    def __init__(self, specName=None, specVersion=None):
-        SpecMotor.SpecMotorA.__init__(self, specName, specVersion)
-        self.getPosition()
-
-    def connected(self):
-        self.__connected__ = True
-        if DEBUG: print'Motor %s connected'%self.specName
-    
-    def disconnected(self):
-        self.__connected__ = False
-        if DEBUG: print 'Motor %s disconnected'%self.specName
-
-    def isConnected(self):
-        if DEBUG: return (self.__connected__ != None) and (self.__connected__)
-
-    def motorLimitsChanged(self):
-        limits = self.getLimits()
-        limitString = "(" + str(limits[0])+", "+ str(limits[1]) + ")"
-        if DEBUG: print "Motor %s limits changed to %s"%(self.specName,limitString)
-    
-    def motorPositionChanged(self, absolutePosition):
-        return absolutePosition
-        if DEBUG: print "Motor %s position changed to %s"%(self.specName,absolutePosition)
-    
-    def syncQuestionAnswer(self, specSteps, controllerSteps):
-        if DEBUG: print "Motor %s syncing"%self.specName
-    
-    def motorStateChanged(self, state):
-        if DEBUG: print "Motor %s state changed to %s"%(self.specName, self.__state_strings__[state])
-    
-    def status(self):
-        if DEBUG: return self.__state_strings__[self.getState()]
-    
-    def motor_name(self):
-        if DEBUG: return self.specName
 
 
 class XrfSpecVarA(SpecVariable.SpecVariableA):
@@ -171,6 +126,8 @@ class SpecRunner:
     
     """
     
+    _motorNames = []
+    
     def __init__(self, parent=None, Debug=0, spechost='', specport='',
                  motor_names=[]):
         """input a debug roll and parrent if needed by default all are 0 or None
@@ -239,35 +196,16 @@ class SpecRunner:
     def exc(self, command_string):
         if self._exc:
             self._exc.executeCommand(command_string)
-    
-    def connect_to_motors(self, *args):
-        if len(args) == 0:
-            args = self._spec.getMotorsMne()
-        
-        for arg in args:
-            self._motors[arg] = TestSpecMotor(arg,
-                                              self._specHost+":"+self._specPort)
 
-    def readmotors(self, names=[], type="Test"):
-        if names:
-            motornames = names
-        else:
-            motornames = self._spec.getMotorsMne()
-        for name in motornames:
-            if type == "Test":
-                self._motors[name] = TestSpecMotor(name,
-                                                   self._specHost + ":" + \
-                                                   self._specPort)
-            elif type == "Sync":
-                self._motors[name] = SpecMotor.SpecMotor(name,
-                                                         self._specHost + \
-                                                         ":" + self._specPort,
-                                                         500)
-            elif type == "Async":
-                self._motors[name] = SpecMotor.SpecMotorA(name,
-                                                          self._specHost + \
-                                                          ":" + self._specPort)
-        self._type_dict[name] = type
+    def readMotors(self, *args):
+        if len(args) == 0:
+            args = self.getMotorNames()
+        for arg in args:
+            self._motors[arg] = QtSpecMotorA(arg,
+                                             self._specHost + \
+                                             ":" + self._specPort)
+            # TODO: Is this necessary?
+            self._type_dict[arg] = 'Async'
         
     def readParam(self,motor):
         motor = self._motors[motor]
@@ -280,8 +218,11 @@ class SpecRunner:
             self._parameters[motor] = value
         return self._parameters[motor]
     
-    def get_motor_names(self): 
-        return self._motors.keys()
+    def getMotorNames(self):
+        if len(self._motorNames) == 0:
+            self._motorNames = self._spec.getMotorsMne()
+            self._motorNames.sort()
+        return self._motorNames
     
     def set_motor(self, motor_name):
         if motor_name in self._motors:
@@ -289,6 +230,9 @@ class SpecRunner:
     
     def get_motor(self, motor_name):
         if motor_name in self._motors:
+            return self._motors[motor_name]
+        else:
+            self.readMotors(motor_name)
             return self._motors[motor_name]
 
     def get_motor_name(self):
@@ -405,7 +349,8 @@ class SpecRunner:
         live = float(S["9"])
         return icr/ocr*real/live
 
-    def EmergencyStop(self):
+    def abort(self):
+        # TODO: This needs to be robust!
         if self.get_cmd():
             self._cmd.abort()
             self.set_cmd('')

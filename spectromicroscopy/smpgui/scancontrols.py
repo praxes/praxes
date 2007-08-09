@@ -40,36 +40,30 @@ class ScanControls(Ui_ScanControls, QtGui.QWidget):
         else:
             specrunner = parent.specrunner
         self.specrunner = specrunner
-        specrunner.connect_to_motors()
-        motors = specrunner.get_motor_names()
-        motors.sort()
         
         self.gridX = QtGui.QGridLayout(self.xAxisTab)
-        self.motorX = ScanMotor(self, 'samx', motors)
+        self.motorX = ScanMotor(self, 'samx')
         self.gridX.addWidget(self.motorX)
 
-        
         self.gridY = QtGui.QGridLayout(self.yAxisTab)
-        self.motorY = ScanMotor(self, 'samz', motors)
+        self.motorY = ScanMotor(self, 'samz')
         self.gridY.addWidget(self.motorY)
-        
-        
+
         self.gridZ = QtGui.QGridLayout(self.zAxisTab)
-        self.motorZ = ScanMotor(self, 'samy', motors)
+        self.motorZ = ScanMotor(self, 'samy')
         self.gridZ.addWidget(self.motorZ)
         
         scans = SCAN_NUM_MOTORS.keys()
         scans.sort()
         self.scanTypeComboBox.addItems(scans)
-        self.set_motors(scans[0])
+        self.setMotors(scans[0])
 
         QtCore.QObject.connect(self.scanTypeComboBox,
                                QtCore.SIGNAL("currentIndexChanged(const \
                                                 QString&)"),
-                               self.set_motors)
-        
-    
-    def set_motors(self, scanType):
+                               self.setMotors)
+
+    def setMotors(self, scanType):
         scanType = '%s'%scanType
         numMotors = SCAN_NUM_MOTORS[scanType]
         
@@ -78,6 +72,10 @@ class ScanControls(Ui_ScanControls, QtGui.QWidget):
         self.zAxisTab.setEnabled(numMotors > 2)
         
         self.motorTab.setCurrentIndex(0)
+
+    def abort(self):
+        self.specrunner.abort()
+
 
 
 if __name__ == "__main__":

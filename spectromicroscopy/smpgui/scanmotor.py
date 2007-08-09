@@ -30,18 +30,16 @@ class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
     
     """Establishes a Experimenbt controls    """
     
-    def __init__(self, parent, motor, hostport):
+    def __init__(self, parent, motor):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
     
         self.parent = parent
         self.specrunner = parent.specrunner
         
-        motors = self.specrunner.get_motor_names()
-        motors.sort()
+        motors = self.specrunner.getMotorNames()
         try:
             ind = motors.index(motor)
-            
         except ValueError:
             motor = motors[0]
             ind = 0
@@ -61,29 +59,33 @@ class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
                      self.setNextPosition)
 
     def setMotor(self, motor, hostport=None):
+
         if hostport is None: hostport = 'f3.chess.cornell.edu:xrf'
-        self._motor = motor = QtSpecMotorA(motor, hostport)
+#        self._motor = motor = QtSpecMotorA(motor, hostport)
+        self._motor = motor = self.specrunner.get_motor('%s'%motor)
+
         self.setLimits(motor.getLimits())
+
         position = motor.getPosition()
         self.setPosition(position)
         self.nextPosSlider.setValue(int(position*1000))
         self.nextPosSpinBox.setValue(position)
         self.scanFromSpinBox.setValue(position)
         self.scanToSpinBox.setValue(position+1)
-        
+
         self.connect(self._motor,
                      QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
                      self.setPosition)
         self.connect(self._motor,
                      QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
-                     self.setPosition)
+                     self.setLimits)
         self.connect(self._motor,
                      QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
                      self.motorStateChanged)
         self.connect(self.nextPosPushButton,
                      QtCore.SIGNAL("clicked()"),
                      self.moveMotor)
-    
+
     def setPosition(self, position):
         self.currentPosReport.setText('%.3f'%position)
 

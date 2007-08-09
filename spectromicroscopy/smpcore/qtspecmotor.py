@@ -24,7 +24,7 @@ from spectromicroscopy.external.SpecClient import SpecMotor
 # Normal code begins
 #---------------------------------------------------------------------------
 
-DEBUG = 1
+DEBUG = 0
 
 # TODO: This needs to emit signals that we can use to change state of motor 
 # widgets
