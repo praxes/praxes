@@ -37,8 +37,11 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self, parent)
         self.setupUi(self)
         
+        self.smpConfig = configutils.getSmpConfig()
         specVersion = self.getSpecVersion()
         self.specrunner = specrunner.SpecRunner(specVersion, timeout=500)
+
+        self.pymcaConfigFile = configutils.getDefaultPymcaConfigFile()
 
         self.scanIO=scanio2.ScanIO(self)
         self.mainTab.addTab(self.scanIO, "Experiment Controls")
@@ -47,53 +50,52 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.console = None
         self.motorView = None
         
-        self.newConsole()
+        self.connect(self.actionModify_SMP_Config,
+                     QtCore.SIGNAL("triggered()"),
+                     self.configureSmpInteractive)
+        self.connect(self.actionLoad_PyMca_Config,
+                     QtCore.SIGNAL("triggered()"),
+                     self.getPymcaConfigFile)
 
-#        self.Opener = QtGui.QMenu("New", self.Bar)
-#        self.Opener.addAction("Motor Control", self.newMotorView)
-#        self.Opener.addAction("Console", self.newConsole)
-#
+    def configureSmpInteractive(self):
+        configuresmp.ConfigureSmp(self).exec_()
+
+    def getSpecVersion(self):
+        try:
+            return ':'.join([self.smpConfig['session']['server'],
+                             self.smpConfig['session']['port']])
+        except KeyError:
+            self.configureSmpInteractive()
+            self.getSpecVersion()
+    
+    def getPymcaConfigFile(self):
+        dialog = QtGui.QFileDialog(self, 'Load PyMca Config File')
+        dialog.setFilter('PyMca config files (*.cfg)')
+        self.pymcaConfigFile = '%s'%dialog.getOpenFileName()
+        print configutils.getPymcaConfig(self.pymcaConfigFile)["peaks"]
+    
+    # TODO: ability to change pymca config files, using PyMca Advanced Fit
+
+#    # TODO: This interface needs attention
 #    def newMotorView(self):
 #        self.motorView = MyUI(self)
 #        self.mainTab.addTab(self.Motor.centralWidget(), "Motor Controler")
-#        QtCore.QObject.connect(self.Motor.Closer,
-#                               QtCore.SIGNAL("clicked()"),
-#                               self.Del)
-
-    # TODO: update the console UI, use proper naming convention
-    # Dont make it a main window, no central widget.
-    def newConsole(self):
-        if self.console is None:
-            self.console = console.MyKon(self)
-        self.mainTab.addTab(self.console.centralWidget(), "Console")
-        QtCore.QObject.connect(self.console.Closer,
-                               QtCore.SIGNAL("clicked()"),
-                               self.Del)
-
-    def Del(self):
-        self.mainTab.removeTab(self.Tabby.currentIndex())
-
-#    def set_config_file(self):
-#        try:
-#            fd = QtGui.QFileDialog(self)
-#            self.pymcaConfigFile = "%s"%fd.getOpenFileName()
-#            config = getPymcaConfig(self.pymcaConfigFile)
-#            self.__peaks = config["peaks"]
-#            self.ElementSelect.clear()
-#            for peak in self.__peaks:
-#                self.ElementSelect.addItem(peak)
-#        except:
-#            print "come on now"
-
-    def getSpecVersion(self):
-        smpConfig = configutils.getSmpConfig()
-        try:
-            return ':'.join([smpConfig['session']['server'],
-                             smpConfig['session']['port']])
-        except KeyError:
-            editor = configuresmp.ConfigureSmp(self)
-            editor.exec_()
-            self.getSpecVersion()
+#        self.connect(self.Motor.Closer,
+#                     QtCore.SIGNAL("clicked()"),
+#                     self.Del)
+#
+#    # TODO: update the console UI, use proper naming convention
+#    # Dont make it a main window, no central widget.
+#    def newConsole(self):
+#        if self.console is None:
+#            self.console = console.MyKon(self)
+#        self.mainTab.addTab(self.console.centralWidget(), "Console")
+#        self.connect(self.console.Closer,
+#                     QtCore.SIGNAL("clicked()"),
+#                     self.Del)
+#
+#    def Del(self):
+#        self.mainTab.removeTab(self.Tabby.currentIndex())
 
 
 if __name__ == "__main__":

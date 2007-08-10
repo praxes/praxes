@@ -45,7 +45,6 @@ class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
         self.connect(self.portEdit,
                      QtCore.SIGNAL("editingFinished()"),
                      self.set_port)
-        QtCore.QMetaObject.connectSlotsByName(self)
 
     def set_server(self):
         self.smpConfig['session']['server'] = '%s'%self.serverEdit.text()

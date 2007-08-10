@@ -42,7 +42,7 @@ def getSmpConfig():
     '''return a ConfigObj containing the smp config data'''
     return configobj.ConfigObj(getSmpConfigFile())
 
-def getPymcaConfigFile():
+def getDefaultPymcaConfigFile():
     configFile = os.path.join(getUserConfigDir(), 'pymca.cfg')
     if not os.path.isfile(configFile):
         defaultConfigFile = os.path.join(getDefaultConfigDir(), 'pymca.cfg')

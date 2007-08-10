@@ -40,7 +40,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="Bar" >
+  <widget class="QMenuBar" name="mainToolBar" >
    <property name="geometry" >
     <rect>
      <x>0</x>
@@ -58,8 +58,21 @@
     <property name="title" >
      <string>Settings</string>
     </property>
-    <addaction name="actionConfigure_SMP" />
-    <addaction name="actionConfigure_PyMca" />
+    <widget class="QMenu" name="menuConfigure_SMP" >
+     <property name="title" >
+      <string>Configure SMP</string>
+     </property>
+     <addaction name="actionModify_SMP_Config" />
+    </widget>
+    <widget class="QMenu" name="menuConfigure_PyMca" >
+     <property name="title" >
+      <string>Configure PyMca</string>
+     </property>
+     <addaction name="actionLoad_PyMca_Config" />
+     <addaction name="actionModify_PyMca_Config" />
+    </widget>
+    <addaction name="menuConfigure_SMP" />
+    <addaction name="menuConfigure_PyMca" />
    </widget>
    <widget class="QMenu" name="menuTools" >
     <property name="title" >
@@ -79,16 +92,6 @@
    <addaction name="menuTools" />
    <addaction name="menuHelp" />
   </widget>
-  <action name="actionConfigure_SMP" >
-   <property name="text" >
-    <string>Configure SpectroMicroscoPy</string>
-   </property>
-  </action>
-  <action name="actionConfigure_PyMca" >
-   <property name="text" >
-    <string>Configure PyMca</string>
-   </property>
-  </action>
   <action name="actionCalibrate_Detector" >
    <property name="text" >
     <string>Calibrate Detector</string>
@@ -102,6 +105,21 @@
   <action name="actionAbout_SpectroMicroscoPy" >
    <property name="text" >
     <string>About SpectroMicroscoPy</string>
+   </property>
+  </action>
+  <action name="actionLoad_PyMca_Config" >
+   <property name="text" >
+    <string>Load Config</string>
+   </property>
+  </action>
+  <action name="actionModify_PyMca_Config" >
+   <property name="text" >
+    <string>Modify Config</string>
+   </property>
+  </action>
+  <action name="actionModify_SMP_Config" >
+   <property name="text" >
+    <string>Modify Config</string>
    </property>
   </action>
  </widget>
