@@ -23,12 +23,10 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from configuresmp import ConfigureSmp
-from mplwidgets import MplCanvas
-from ui_scanio2 import Ui_ScanIO
-from scancontrols import ScanControls
-from scanfeedback import ScanFeedback
-from spectromicroscopy.smpcore import SpecRunner, getSmpConfig
+from spectromicroscopy.smpgui import configuresmp, ui_scanio2, scancontrols, \
+    scanfeedback
+#from mplwidgets import MplCanvas
+from spectromicroscopy.smpcore import specrunner, configutils
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -37,7 +35,7 @@ from spectromicroscopy.smpcore import SpecRunner, getSmpConfig
 DEBUG = 2 # ??
 
 
-class ScanIO(Ui_ScanIO, QtGui.QWidget):
+class ScanIO(ui_scanio2.Ui_ScanIO, QtGui.QWidget):
     """Establishes a Experimenbt controls    """
     def __init__(self, parent=None):
         self.DEBUG=DEBUG
@@ -51,12 +49,12 @@ class ScanIO(Ui_ScanIO, QtGui.QWidget):
         except AttributeError:
             # for debugging, run seperately from main smp
             specVersion = self.getSpecVersion()
-            self.specrunner = SpecRunner(specVersion, timeout=500)
+            self.specrunner = specrunner.SpecRunner(specVersion, timeout=500)
         
-        self.scanControls = ScanControls(self)
+        self.scanControls = scancontrols.ScanControls(self)
         self.gridlayout.addWidget(self.scanControls,0,0,1,1)
 
-        self.scanFeedback = ScanFeedback(self)
+        self.scanFeedback = scanfeedback.ScanFeedback(self)
         self.gridlayout.addWidget(self.scanFeedback,0,1,1,1)
         
         # TODO: This probably needs to go in the main app window?
@@ -67,12 +65,12 @@ class ScanIO(Ui_ScanIO, QtGui.QWidget):
         self.timer.start(20)
 
     def getSpecVersion(self):
-        smpConfig = getSmpConfig()
+        smpConfig = configutils.getSmpConfig()
         try:
             return ':'.join([smpConfig['session']['server'],
                              smpConfig['session']['port']])
         except KeyError:
-            editor = ConfigureSmp(self)
+            editor = configure.ConfigureSmp(self)
             editor.exec_()
             self.getSpecVersion()
 

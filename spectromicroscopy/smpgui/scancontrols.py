@@ -19,15 +19,14 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from ui_scancontrols import Ui_ScanControls
-from scanmotor import ScanMotor
-from spectromicroscopy.smpcore import SCAN_NUM_MOTORS, SpecRunner
+from spectromicroscopy.smpgui import scanmotor, ui_scancontrols
+from spectromicroscopy.smpcore import specutils, specrunner
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-class ScanControls(Ui_ScanControls, QtGui.QWidget):
+class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
     """Establishes a Experimenbt controls    """
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
@@ -35,24 +34,24 @@ class ScanControls(Ui_ScanControls, QtGui.QWidget):
         self.setupUi(self)
         
         if parent is None:
-            specrunner = SpecRunner('f3.chess.cornell.edu:xrf', 500)
+            specrunner = specrunner.SpecRunner('f3.chess.cornell.edu:xrf', 500)
         else:
             specrunner = parent.specrunner
         self.specrunner = specrunner
         
         self.gridX = QtGui.QGridLayout(self.xAxisTab)
-        self.motorX = ScanMotor(self, 'samx')
+        self.motorX = scanmotor.ScanMotor(self, 'samx')
         self.gridX.addWidget(self.motorX)
 
         self.gridY = QtGui.QGridLayout(self.yAxisTab)
-        self.motorY = ScanMotor(self, 'samz')
+        self.motorY = scanmotor.ScanMotor(self, 'samz')
         self.gridY.addWidget(self.motorY)
 
         self.gridZ = QtGui.QGridLayout(self.zAxisTab)
-        self.motorZ = ScanMotor(self, 'samy')
+        self.motorZ = scanmotor.ScanMotor(self, 'samy')
         self.gridZ.addWidget(self.motorZ)
         
-        scans = SCAN_NUM_MOTORS.keys()
+        scans = specutils.SCAN_NUM_MOTORS.keys()
         scans.sort()
         self.scanTypeComboBox.addItems(scans)
         self.setMotors(scans[0])
@@ -64,7 +63,7 @@ class ScanControls(Ui_ScanControls, QtGui.QWidget):
 
     def setMotors(self, scanType):
         scanType = '%s'%scanType
-        numMotors = SCAN_NUM_MOTORS[scanType]
+        numMotors = specutils.SCAN_NUM_MOTORS[scanType]
         
         self.xAxisTab.setEnabled(numMotors > 0)
         self.yAxisTab.setEnabled(numMotors > 1)

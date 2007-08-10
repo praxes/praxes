@@ -17,7 +17,7 @@ from PyQt4 import QtGui, QtCore
 # SMP imports
 #---------------------------------------------------------------------------
 
-from ui_configspecmotor import Ui_SpecSetter
+from spectromicroscopy.smpgui import ui_configspecmotor
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -67,16 +67,16 @@ set_lim(i, u, v)
 
 """
 
-class SpecConfig(QtGui.QWidget, Ui_SpecSetter):
+class SpecConfig(QtGui.QWidget, ui_configspecmotor.Ui_SpecSetter):
     
     __pyqtSignals__ = ("configChanged()")
     
     def __init__(self,parent=None):
         QtGui.QWidget.__init__(self,parent)
         self.setupUi(self)
-        QtCore.QObject.connect(self.Setter,
-                               QtCore.SIGNAL("clicked()"),
-                               self.set)
+        self.connect(self.Setter,
+                     QtCore.SIGNAL("clicked()"),
+                     self.set)
 
     def set(self):
         Accel = self.Accel.getValue()

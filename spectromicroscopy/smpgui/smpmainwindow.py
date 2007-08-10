@@ -19,66 +19,59 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from ui_smpmainwindow import Ui_Main
-from testinterface import MyUI
-from console import MyKon
-from scanio2 import ScanIO
+from spectromicroscopy.smpgui import configuresmp, console, scanio2, \
+    ui_smpmainwindow
+from spectromicroscopy.smpcore import specrunner, configutils
+#from testinterface import MyUI
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-DEBUG=0     #if set to 1 it deactivates spec commands
-Rollcall=2  #if set to 1 it auto starts spec -s on f3.chess.cornell.edu
-            #and connects if set to 2 it wont autostart but will autoconnect
-            #if set to 3 it will autoconnect and start spec on roll
 
-
-class SmpMainWindow(Ui_Main, QtGui.QMainWindow):
+class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
 
     """Establishes a Experiment controls"""
 
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        self.max_index = 1
-        self.x_index = 1
-        self.y_index = 1
+        QtGui.QMainWindow.__init__(self, parent)
         self.setupUi(self)
-        self.Opener = QtGui.QMenu("New", self.Bar)
-        self.Opener.addAction("Motor Control", self.NewMotor)
-        self.Opener.addAction("Console", self.NewKon)
-#        self.NewMotor()
-        self.NewXP()
-#        self.NewKon()
-        self.Tabby.removeTab(0)
+        
+        specVersion = self.getSpecVersion()
+        self.specrunner = specrunner.SpecRunner(specVersion, timeout=500)
 
-    def NewMotor(self):
-        self.Bar.clear()
-        self.Bar.addMenu(self.Opener)
-        self.Motor = MyUI(self)
-        self.Tabby.addTab(self.Motor.centralWidget(), "Motor Controler")
-        QtCore.QObject.connect(self.Motor.Closer,
+        self.scanIO=scanio2.ScanIO(self)
+        self.mainTab.addTab(self.scanIO, "Experiment Controls")
+        self.mainTab.removeTab(0)
+
+        self.console = None
+        self.motorView = None
+        
+        self.newConsole()
+
+#        self.Opener = QtGui.QMenu("New", self.Bar)
+#        self.Opener.addAction("Motor Control", self.newMotorView)
+#        self.Opener.addAction("Console", self.newConsole)
+#
+#    def newMotorView(self):
+#        self.motorView = MyUI(self)
+#        self.mainTab.addTab(self.Motor.centralWidget(), "Motor Controler")
+#        QtCore.QObject.connect(self.Motor.Closer,
+#                               QtCore.SIGNAL("clicked()"),
+#                               self.Del)
+
+    # TODO: update the console UI, use proper naming convention
+    # Dont make it a main window, no central widget.
+    def newConsole(self):
+        if self.console is None:
+            self.console = console.MyKon(self)
+        self.mainTab.addTab(self.console.centralWidget(), "Console")
+        QtCore.QObject.connect(self.console.Closer,
                                QtCore.SIGNAL("clicked()"),
                                self.Del)
-    
-    def NewKon(self):
-        self.Kon = MyKon(self)
-        self.Tabby.addTab(self.Kon.centralWidget(), "Console")
-        QtCore.QObject.connect(self.Kon.Closer,
-                               QtCore.SIGNAL("clicked()"),
-                               self.Del)
-
-    def NewXP(self):
-        self.XP=ScanIO(self)
-        self.Tabby.addTab(self.XP,"Experiment Controls")
 
     def Del(self):
-        Index = self.Tabby.currentIndex()
-        if self.Tabby.tabText(Index) == "Motor Controler":
-            self.Motor = None
-        elif self.Tabby.tabText(Index) == "Console":
-            self.Kon = None
-        self.Tabby.removeTab(Index)
+        self.mainTab.removeTab(self.Tabby.currentIndex())
 
 #    def set_config_file(self):
 #        try:
@@ -91,6 +84,16 @@ class SmpMainWindow(Ui_Main, QtGui.QMainWindow):
 #                self.ElementSelect.addItem(peak)
 #        except:
 #            print "come on now"
+
+    def getSpecVersion(self):
+        smpConfig = configutils.getSmpConfig()
+        try:
+            return ':'.join([smpConfig['session']['server'],
+                             smpConfig['session']['port']])
+        except KeyError:
+            editor = configuresmp.ConfigureSmp(self)
+            editor.exec_()
+            self.getSpecVersion()
 
 
 if __name__ == "__main__":

@@ -18,15 +18,14 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from ui_scanmotor import Ui_ScanMotor
-from spectromicroscopy.smpcore import QtSpecMotorA
+from spectromicroscopy.smpgui import ui_scanmotor
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 
-class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
+class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
     
     """Establishes a Experimenbt controls    """
     
@@ -59,11 +58,7 @@ class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
                      self.setNextPosition)
 
     def setMotor(self, motor, hostport=None):
-
-        if hostport is None: hostport = 'f3.chess.cornell.edu:xrf'
-#        self._motor = motor = QtSpecMotorA(motor, hostport)
         self._motor = motor = self.specrunner.getMotor('%s'%motor)
-
         self.setLimits(motor.getLimits())
 
         position = motor.getPosition()

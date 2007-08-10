@@ -28,7 +28,7 @@ from PyQt4 import QtCore
 
 from spectromicroscopy.external.SpecClient import SpecScan, \
     SpecConnectionsManager, SpecEventsDispatcher, SpecWaitObject
-from spectromicroscopy.smpcore import getPymcaConfig, getPymcaConfigFile
+from spectromicroscopy.smpcore import configutils
 
 #---------------------------------------------------------------------------
 # Normal code begins

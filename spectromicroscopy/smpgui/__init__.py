@@ -22,4 +22,4 @@ def gen_ui():
 if UI_DEVEL: gen_ui()
 del(UI_DEVEL, gen_ui)
 
-from smpmainwindow import SmpMainWindow
+#from smpmainwindow import SmpMainWindow

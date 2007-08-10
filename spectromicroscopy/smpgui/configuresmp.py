@@ -18,17 +18,17 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.smpcore import getSmpConfig
-from ui_configuresmp import Ui_ConfigureSmp
+from spectromicroscopy.smpcore import configutils
+from spectromicroscopy.smpgui import ui_configuresmp
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-class ConfigureSmp(Ui_ConfigureSmp, QtGui.QDialog):
+class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
 
     def __init__(self, parent=None):
-        self.smpConfig = getSmpConfig()
+        self.smpConfig = configutils.getSmpConfig()
         self.validateConfig()
 
         QtGui.QDialog.__init__(self, parent)
@@ -39,12 +39,12 @@ class ConfigureSmp(Ui_ConfigureSmp, QtGui.QDialog):
         port = self.smpConfig['session'].setdefault('port', '')
         self.portEdit.setText(port)
 
-        QtCore.QObject.connect(self.serverEdit,
-                               QtCore.SIGNAL("editingFinished()"),
-                               self.set_server)
-        QtCore.QObject.connect(self.portEdit,
-                               QtCore.SIGNAL("editingFinished()"),
-                               self.set_port)
+        self.connect(self.serverEdit,
+                     QtCore.SIGNAL("editingFinished()"),
+                     self.set_server)
+        self.connect(self.portEdit,
+                     QtCore.SIGNAL("editingFinished()"),
+                     self.set_port)
         QtCore.QMetaObject.connectSlotsByName(self)
 
     def set_server(self):
