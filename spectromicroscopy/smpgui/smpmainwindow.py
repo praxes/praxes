@@ -22,6 +22,7 @@ from PyQt4 import QtCore, QtGui
 from spectromicroscopy.smpgui import configuresmp, console, scanio2, \
     ui_smpmainwindow
 from spectromicroscopy.smpcore import specrunner, configutils
+from spectromicroscopy.external.SpecClient import SpecClientError
 #from testinterface import MyUI
 
 #---------------------------------------------------------------------------
@@ -35,20 +36,10 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
 
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
-        self.setupUi(self)
         
-        self.smpConfig = configutils.getSmpConfig()
-        specVersion = self.getSpecVersion()
-        self.specrunner = specrunner.SpecRunner(specVersion, timeout=500)
-
+        self.configureSmp()
+        
         self.pymcaConfigFile = configutils.getDefaultPymcaConfigFile()
-
-        self.scanIO=scanio2.ScanIO(self)
-        self.mainTab.addTab(self.scanIO, "Experiment Controls")
-        self.mainTab.removeTab(0)
-
-        self.console = None
-        self.motorView = None
         
         self.connect(self.actionModify_SMP_Config,
                      QtCore.SIGNAL("triggered()"),
@@ -57,8 +48,25 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
                      QtCore.SIGNAL("triggered()"),
                      self.getPymcaConfigFile)
 
+    def configureSmp(self):
+        self.smpConfig = configutils.getSmpConfig()
+        specVersion = self.getSpecVersion()
+        try:
+            self.specrunner = specrunner.SpecRunner(specVersion, timeout=500)
+        except SpecClientError.SpecClientTimeoutError:
+            self.configureSmpInteractive()
+        
+        self.setupUi(self)
+        self.scanIO = scanio2.ScanIO(self)
+        self.mainTab.addTab(self.scanIO, "Experiment Controls")
+        self.mainTab.removeTab(0)
+        
+        self.console = None
+        self.motorView = None
+
     def configureSmpInteractive(self):
         configuresmp.ConfigureSmp(self).exec_()
+        self.configureSmp()
 
     def getSpecVersion(self):
         try:
@@ -72,7 +80,8 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         dialog = QtGui.QFileDialog(self, 'Load PyMca Config File')
         dialog.setFilter('PyMca config files (*.cfg)')
         self.pymcaConfigFile = '%s'%dialog.getOpenFileName()
-        print configutils.getPymcaConfig(self.pymcaConfigFile)["peaks"]
+        self.emit(QtCore.SIGNAL("pymcaConfigFileChanged(PyQt_PyObject)"),
+                  '%s'%dialog.getOpenFileName())
     
     # TODO: ability to change pymca config files, using PyMca Advanced Fit
 
