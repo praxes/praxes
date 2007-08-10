@@ -57,13 +57,14 @@ class ScanIO(ui_scanio.Ui_ScanIO, QtGui.QWidget):
         self.scanFeedback = scanfeedback.ScanFeedback(self)
         self.gridlayout.addWidget(self.scanFeedback,0,1,1,1)
         
-        # TODO: This probably needs to go in the main app window?
+        # TODO: Is this the best place for this?
         self.timer = QtCore.QTimer(self)
         QtCore.QObject.connect(self.timer,
                                QtCore.SIGNAL("timeout()"),
                                self.specrunner.update)
         self.timer.start(20)
 
+    # TODO: This is only needed for debugging, can eventually go away:
     def getSpecVersion(self):
         smpConfig = configutils.getSmpConfig()
         try:

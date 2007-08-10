@@ -20,7 +20,7 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 
 from spectromicroscopy.smpgui import scanmotor, ui_scancontrols
-from spectromicroscopy.smpcore import specutils, specrunner
+from spectromicroscopy.smpcore import specutils, specrunner, qtspecscan
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -39,6 +39,9 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
             specrunner = parent.specrunner
         self.specrunner = specrunner
         
+        # TODO: where to keep the scan?
+        self.specrunner.scan = qtspecscan.QtSpecScanA(specrunner.specVersion)
+        
         self.gridX = QtGui.QGridLayout(self.xAxisTab)
         self.motorX = scanmotor.ScanMotor(self, 'samx')
         self.gridX.addWidget(self.motorX)
@@ -54,26 +57,66 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         scans = specutils.SCAN_NUM_MOTORS.keys()
         scans.sort()
         self.scanTypeComboBox.addItems(scans)
-        self.setMotors(scans[0])
+        self.scanTypeChanged(scans[0])
 
-        QtCore.QObject.connect(self.scanTypeComboBox,
-                               QtCore.SIGNAL("currentIndexChanged(const \
-                                                QString&)"),
-                               self.setMotors)
+        self.connect(self.scanTypeComboBox,
+                     QtCore.SIGNAL("currentIndexChanged(const QString&)"),
+                     self.scanTypeChanged)
+        self.connect(self.abortButton,
+                     QtCore.SIGNAL("clicked()"),
+                     self.specrunner.abort)
+        self.connect(self.scanButton,
+                     QtCore.SIGNAL("clicked()"),
+                     self.startScan)
 
-    def setMotors(self, scanType):
+    def startScan(self):
+        scantype = '%s'%self.scanTypeComboBox.currentText()
+        motors = [m.motorComboBox.currentText().toAscii() \
+                  for m in (self.motorX, self.motorY, self.motorZ)
+                  if m.isEnabled()]
+        scanFrom = [m.scanFromSpinBox.value() \
+                     for m in (self.motorX, self.motorY, self.motorZ)
+                     if m.isEnabled()]
+        scanTo = [m.scanToSpinBox.value() \
+                     for m in (self.motorX, self.motorY, self.motorZ)
+                     if m.isEnabled()]
+        scanSteps = [m.scanStepsSpinBox.value() \
+                     for m in (self.motorX, self.motorY, self.motorZ)
+                     if m.scanStepsSpinBox.isEnabled()]
+        if scanSteps:
+            scanZip = zip(motors, scanFrom, scanTo, scanSteps)
+        else:
+            scanZip = zip(motors, scanFrom, scanTo)
+            scanZip.append(self.scanStepsSpinBox.value())
+        scanArgs = []
+        for i in scanZip:
+            try:
+                scanArgs.extend(i)
+            except TypeError:
+                scanArgs.append(i)
+        scanArgs.append( float(self.scanCountSpinBox.value()) )
+        scan = getattr(self.specrunner.scan, scantype)
+        scan(*scanArgs)
+
+    def scanTypeChanged(self, scanType):
         scanType = '%s'%scanType
         numMotors = specutils.SCAN_NUM_MOTORS[scanType]
+        self.setMotorsEnabled(numMotors)
         
-        self.xAxisTab.setEnabled(numMotors > 0)
-        self.yAxisTab.setEnabled(numMotors > 1)
-        self.zAxisTab.setEnabled(numMotors > 2)
+        flag = scanType in ('mesh')
+        self.setIndependentStepsEnabled(flag)
+
+    def setIndependentStepsEnabled(self, val=False):
+        for m in (self.motorX, self.motorY, self.motorZ):
+            m.scanStepsSpinBox.setEnabled(val)
+        self.scanStepsSpinBox.setEnabled(not val)
+
+    def setMotorsEnabled(self, numMotors):
+        self.motorX.setEnabled(numMotors > 0)
+        self.motorY.setEnabled(numMotors > 1)
+        self.motorZ.setEnabled(numMotors > 2)
         
         self.motorTab.setCurrentIndex(0)
-
-    def abort(self):
-        self.specrunner.abort()
-
 
 
 if __name__ == "__main__":
