@@ -23,7 +23,7 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.smpgui import configuresmp, ui_scanio2, scancontrols, \
+from spectromicroscopy.smpgui import configuresmp, ui_scanio, scancontrols, \
     scanfeedback
 #from mplwidgets import MplCanvas
 from spectromicroscopy.smpcore import specrunner, configutils
@@ -35,7 +35,7 @@ from spectromicroscopy.smpcore import specrunner, configutils
 DEBUG = 2 # ??
 
 
-class ScanIO(ui_scanio2.Ui_ScanIO, QtGui.QWidget):
+class ScanIO(ui_scanio.Ui_ScanIO, QtGui.QWidget):
     """Establishes a Experimenbt controls    """
     def __init__(self, parent=None):
         self.DEBUG=DEBUG

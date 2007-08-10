@@ -19,7 +19,7 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.smpgui import configuresmp, console, scanio2, \
+from spectromicroscopy.smpgui import configuresmp, console, scanio, \
     ui_smpmainwindow
 from spectromicroscopy.smpcore import specrunner, configutils
 from spectromicroscopy.external.SpecClient import SpecClientError
@@ -54,10 +54,16 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         try:
             self.specrunner = specrunner.SpecRunner(specVersion, timeout=500)
         except SpecClientError.SpecClientTimeoutError:
+            error = QtGui.QErrorMessage()
+            server, port = specVersion.split(':')
+            error.showMessage('SMP was unabel to connect to the "%s" spec \
+instance at "%s". Please make sure you have started the spec instance with \
+in server mode (for example "spec -S").'%(port, server))
+            error.exec_()
             self.configureSmpInteractive()
         
         self.setupUi(self)
-        self.scanIO = scanio2.ScanIO(self)
+        self.scanIO = scanio.ScanIO(self)
         self.mainTab.addTab(self.scanIO, "Experiment Controls")
         self.mainTab.removeTab(0)
         
