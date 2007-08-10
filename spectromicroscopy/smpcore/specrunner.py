@@ -18,11 +18,12 @@ import time
 # SMP imports
 #---------------------------------------------------------------------------
 
-from qtspecmotor import QtSpecMotorA
+import configutils
 from spectromicroscopy.external import SpecClient
-SpecClient.setLoggingOff()
-from spectromicroscopy.external.SpecClient import SpecMotor, Spec, \
-    SpecEventsDispatcher, SpecVariable, SpecCommand
+logfile = os.path.join(configutils.getUserConfigDir(), 'specclient.log')
+SpecClient.setLogFile(logfile)
+from spectromicroscopy.external.SpecClient import Spec, SpecEventsDispatcher
+from qtspecmotor import QtSpecMotorA
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -30,93 +31,6 @@ from spectromicroscopy.external.SpecClient import SpecMotor, Spec, \
 
 DEBUG=False # ??
 TIMEOUT=.02
-
-"""
-    Section for actual Motor Control Mockup
-    These are the things set up by Danny
-***********ACTUAL MOTOR CONTROLS FOLLOW**********
-
-Motor Names refer to motor nemonics
-specclient expects to work with nemonics, not full motor names
-
-"""
-
-
-class XrfSpecVarA(SpecVariable.SpecVariableA):
-    
-#    def __init__(self, var, host_port):
-#        SpecVariable.SpecVariableA.__init__(self, var, host_port)
-#        if DEBUG:
-#            print '%s connected at %s'%(self.getVarName(),
-#                                               host_port)
-    
-    def connected(self):
-        self.__connected__ = True
-        if DEBUG: print 'Variable %s connected'%self.getVarName()
-    
-    def disconnected(self):
-        self.__connected__ = False
-        if DEBUG: print "Variable %s disconnected"%self.getVarName()
-    
-    def update(self, value):
-        print "Variable %s updated to %s"%(self.getVarName(), value)
-    
-    def isConnected(self):
-        return (self.__connected__ != None) and (self.__connected__)
-    
-    def getVarName(self):
-        return self.channelName[4:len(self.channelName)]
-
-
-class XrfSpecVar(SpecVariable.SpecVariable):
-
-    def __init__(self, var, host_port, timeout=None):
-        SpecVariable.SpecVariable.__init__(self, var, host_port)
-        if DEBUG: print '%s connected at %s'%(self.getVarName(), host_port)
-
-    def getVarName(self):
-        return self.channelName[4:len(self.channelName)]
-
-
-class TestSpecCommand(SpecCommand.SpecCommandA):
-
-    def beingWait(self):
-        if DEBUG: print 'Command %s was sent'%self.command
-    
-    def replyArrived(self, reply):
-        self.Reply=reply
-        if (reply.error):
-            print "command %s received an error message: %s"% \
-                (self.command, reply.data)
-        else:
-            print "Command %s received a reply: %s"%(self.command, reply.data)
-    
-    def connected(self):
-       if DEBUG: print "Command %s connected"% self.command
-       self.Reply = None
-    
-    def disconnected(self):
-        if DEBUG: print "Command %s disconnected"% self.command
-                
-    def statusChanged(self, ready):
-        state = ["In progress","Complete","Unknown"]
-        if DEBUG: print "Status is %s"%state[ready]
-    
-    def get_Reply(self):
-        return self.Reply
-
-
-class Indexer(XrfSpecVarA):
-    
-#    def connected(self):
-#        self.__connected__ = True
-#    
-#    def disconnected(self):
-#        self.__connected__ = False
-    
-    def update(self, value):
-#        print 'scan index: %s'% value
-        pass
 
 
 class SpecRunner:
@@ -177,9 +91,6 @@ class SpecRunner:
                                 self._specHost+":"+self._specPort)
             
             try:
-                self._index = Indexer("NPTS",self._specHost+":"+self._specPort)
-                self._last_index = 0
-                self._type_dict["NPTS"] = "Async"
                 self._S = XrfSpecVar("S", self._specHost+":"+self._specPort)
                 self._Detector = XrfSpecVar("MCA_NAME",
                                             self._specHost+":"+self._specPort)
@@ -256,21 +167,6 @@ class SpecRunner:
     def get_params_values(self,motor):
         motor = self._motors[motor]
         return self._parameters[motor]
-    
-    def set_var(self,var,type = "Test"):
-        if type == "Test":
-            self._var.append(XrfSpecVarA(var, 
-                                         self._specHost+":"+self._specPort))
-        elif type == "Sync":
-            self._var.append(XrfSpecVar(var, 
-                                        self._specHost+":"+self._specPort,500))
-        elif type == "Async":
-            self._var.append(XrfSpecVarA(var, 
-                                         self._specHost+":"+self._specPort))
-        elif type == "Index":
-            self._var.append(Indexer(var, self._specHost+":"+self._specPort))
-        self._var_strings.append(var)
-        self._type_dict[var] = type
     
     def get_var(self):
         return self._var_strings
