@@ -37,7 +37,7 @@ class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
         self.parent = parent
         self.specrunner = parent.specrunner
         
-        motors = self.specrunner.getMotorNames()
+        motors = self.specrunner.getMotorsMne()
         try:
             ind = motors.index(motor)
         except ValueError:
@@ -62,7 +62,7 @@ class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
 
         if hostport is None: hostport = 'f3.chess.cornell.edu:xrf'
 #        self._motor = motor = QtSpecMotorA(motor, hostport)
-        self._motor = motor = self.specrunner.get_motor('%s'%motor)
+        self._motor = motor = self.specrunner.getMotor('%s'%motor)
 
         self.setLimits(motor.getLimits())
 

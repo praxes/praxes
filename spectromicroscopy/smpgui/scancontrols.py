@@ -35,8 +35,7 @@ class ScanControls(Ui_ScanControls, QtGui.QWidget):
         self.setupUi(self)
         
         if parent is None:
-            specrunner = SpecRunner(spechost='f3.chess.cornell.edu',
-                                    specport='xrf')
+            specrunner = SpecRunner('f3.chess.cornell.edu:xrf', 500)
         else:
             specrunner = parent.specrunner
         self.specrunner = specrunner

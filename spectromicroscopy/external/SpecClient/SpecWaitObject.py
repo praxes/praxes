@@ -132,8 +132,8 @@ class SpecWaitObject:
                 waitFunc(10)
                 t += (time.time() - t0)*1000                    
 
-        if timeout is not None and t >= timeout:
-            raise SpecClientTimeoutError
+                if timeout is not None and t >= timeout:
+                    raise SpecClientTimeoutError
                             
 
     def wait(self, waitValue = None, timeout = None):

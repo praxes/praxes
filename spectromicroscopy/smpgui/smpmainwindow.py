@@ -80,6 +80,18 @@ class SmpMainWindow(Ui_Main, QtGui.QMainWindow):
             self.Kon = None
         self.Tabby.removeTab(Index)
 
+#    def set_config_file(self):
+#        try:
+#            fd = QtGui.QFileDialog(self)
+#            self.pymcaConfigFile = "%s"%fd.getOpenFileName()
+#            config = getPymcaConfig(self.pymcaConfigFile)
+#            self.__peaks = config["peaks"]
+#            self.ElementSelect.clear()
+#            for peak in self.__peaks:
+#                self.ElementSelect.addItem(peak)
+#        except:
+#            print "come on now"
+
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)

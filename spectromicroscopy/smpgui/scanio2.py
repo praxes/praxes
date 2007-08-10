@@ -28,8 +28,7 @@ from mplwidgets import MplCanvas
 from ui_scanio2 import Ui_ScanIO
 from scancontrols import ScanControls
 from scanfeedback import ScanFeedback
-from spectromicroscopy.smpcore import SpecRunner, getPymcaConfig,\
-    getPymcaConfigFile, getSmpConfig
+from spectromicroscopy.smpcore import SpecRunner, getSmpConfig
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -46,14 +45,13 @@ class ScanIO(Ui_ScanIO, QtGui.QWidget):
         self.parent=parent
         self.setupUi(self)
         
-        # TODO: this is for debugging, needs fixing
-        if True:
-            self.specrunner = SpecRunner(self, DEBUG,
-                                         'f3.chess.cornell.edu', 'xrf')
-        else:
-            self.specrunner = SpecRunner(self, DEBUG,
-                                         self.__server, self.__port)
-#        self.specrunner.exc("NPTS=0")
+        # TODO: this is for debugging
+        try:
+            self.specrunner = parent.specrunner
+        except AttributeError:
+            # for debugging, run seperately from main smp
+            specVersion = self.getSpecVersion()
+            self.specrunner = SpecRunner(specVersion, timeout=500)
         
         self.scanControls = ScanControls(self)
         self.gridlayout.addWidget(self.scanControls,0,0,1,1)
@@ -68,45 +66,16 @@ class ScanIO(Ui_ScanIO, QtGui.QWidget):
                                self.specrunner.update)
         self.timer.start(20)
 
-    def config_smp(self):
-#        print self.__server,self.__port
-        editor = ConfigureSmp(self)
-        editor.exec_()
+    def getSpecVersion(self):
         smpConfig = getSmpConfig()
-        self.__server = smpConfig['session']['server']
-        self.__port = smpConfig['session']['port']
-        print "***",self.__server,self.__port
-    
-    def set_config_file(self):
         try:
-            fd = QtGui.QFileDialog(self)
-            self.pymcaConfigFile = "%s"%fd.getOpenFileName()
-            config = getPymcaConfig(self.pymcaConfigFile)
-            self.__peaks = config["peaks"]
-            self.ElementSelect.clear()
-            for peak in self.__peaks:
-                self.ElementSelect.addItem(peak)
-        except:
-            print "come on now"
+            return ':'.join([smpConfig['session']['server'],
+                             smpConfig['session']['port']])
+        except KeyError:
+            editor = ConfigureSmp(self)
+            editor.exec_()
+            self.getSpecVersion()
 
-    def config(self):
-        smpConfig = getSmpConfig()
-        try:
-            self.__server = smpConfig['session']['server']
-            self.__port = smpConfig['session']['port']
-        except KeyError:
-            self.config_smp()
-        
-        # TODO: break this into a new method
-        self.pymcaConfigFile = getPymcaConfigFile()
-        reader = getPymcaConfig()
-        self.__peaks = []
-        try:
-            elements = reader["peaks"]
-            for key in elements.keys():
-                self.__peaks.append("%s %s"%(key,elements[key]))
-        except KeyError:
-            pass
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)

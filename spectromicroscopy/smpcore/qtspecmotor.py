@@ -26,6 +26,17 @@ from spectromicroscopy.external.SpecClient import SpecMotor
 
 DEBUG = 0
 
+#    def readParam(self,motor):
+#        motor = self._motors[motor]
+#        value = []
+#        for param in self._param_names:
+#            try: 
+#                value.append(motor.getParameter(param))
+#            except:
+#                value.append("unable to get value")
+#            self._parameters[motor] = value
+#        return self._parameters[motor]
+
 # TODO: This needs to emit signals that we can use to change state of motor 
 # widgets
 class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):

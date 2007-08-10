@@ -120,7 +120,7 @@ class MyUI(Ui_MotorHead, QtGui.QMainWindow):
             if self.connection:
                 print " Connected to %s on %s"%(self.specrun.get_spec_port(),
                                                 self.specrun.get_spec_host())
-                self.specrun.readMotors()
+                self.specrun.connectToMotors()
                 self.get_motors()
                 self.get_params()
                 print " Select a motor"
