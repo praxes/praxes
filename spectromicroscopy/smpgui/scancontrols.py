@@ -105,6 +105,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
     def activityStarted(self):
         self.setMotorsEnabled(0)
         self.abortButton.setEnabled(True)
+        self.scanButton.setEnabled(False)
 
     def scanPauseResume(self):
         event = str(self.pauseButton.text())
@@ -131,7 +132,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
             self.scanTypeComboBox.setEnabled(True)
             self.abortButton.setEnabled(False)
             self.pauseButton.setEnabled(False)
-            self.scanButton.setText('Scan')
+            self.scanButton.setEnabled(True)
         numMotors = specutils.SCAN_NUM_MOTORS[scanType]
         self.setMotorsEnabled(numMotors)
 
