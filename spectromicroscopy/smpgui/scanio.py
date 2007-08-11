@@ -42,27 +42,19 @@ class ScanIO(ui_scanio.Ui_ScanIO, QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.parent=parent
         self.setupUi(self)
-        
-        # TODO: this is for debugging
+
         try:
             self.specrunner = parent.specrunner
         except AttributeError:
             # for debugging, run seperately from main smp
             specVersion = self.getSpecVersion()
             self.specrunner = specrunner.SpecRunner(specVersion, timeout=500)
-        
+
         self.scanControls = scancontrols.ScanControls(self)
         self.gridlayout.addWidget(self.scanControls,0,0,1,1)
 
         self.scanFeedback = scanfeedback.ScanFeedback(self)
         self.gridlayout.addWidget(self.scanFeedback,0,1,1,1)
-        
-        # TODO: Is this the best place for this?
-        self.timer = QtCore.QTimer(self)
-        QtCore.QObject.connect(self.timer,
-                               QtCore.SIGNAL("timeout()"),
-                               self.specrunner.update)
-        self.timer.start(20)
 
     # TODO: This is only needed for debugging, can eventually go away:
     def getSpecVersion(self):

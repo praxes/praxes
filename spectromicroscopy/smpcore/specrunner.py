@@ -13,7 +13,7 @@ import time
 # Extlib imports
 #---------------------------------------------------------------------------
 
-
+from PyQt4 import QtCore
 
 #---------------------------------------------------------------------------
 # SMP imports
@@ -30,11 +30,10 @@ from spectromicroscopy.smpcore import qtspecmotor
 # Normal code begins
 #---------------------------------------------------------------------------
 
-DEBUG=False # ??
-TIMEOUT=.02
+DEBUG = False
 
 
-class SpecRunner(Spec.Spec):
+class SpecRunner(Spec.Spec, QtCore.QObject):
     """SpecRunner is our primary interface to Spec. Some caching is added,
     to improve performance.
     """
@@ -42,9 +41,17 @@ class SpecRunner(Spec.Spec):
     def __init__(self, specVersion=None, timeout=None):
         """specVersion is a string like 'foo.bar:spec' or '127.0.0.1:fourc'
         """
+        QtCore.QObject.__init__(self)
+        Spec.Spec.__init__(self, specVersion, timeout)
+        
         self._motors = {}
         self._motorNames = []
-        Spec.Spec.__init__(self, specVersion, timeout)
+        
+        self.timer = QtCore.QTimer(self)
+        self.connect(self.timer,
+                     QtCore.SIGNAL("timeout()"),
+                     self.update)
+        self.timer.start(20)
 
     def getMotor(self, motorName):
         if motorName in self._motors:
