@@ -5,9 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import os
-import sys
-import time
+
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -33,14 +31,14 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.parent = parent
         self.setupUi(self)
         
-        if parent is None:
-            specrunner = specrunner.SpecRunner('f3.chess.cornell.edu:xrf', 500)
-        else:
-            specrunner = parent.specrunner
-        self.specrunner = specrunner
+        try:
+            self.specRunner = parent.specRunner
+        except AttributeError:
+            self.specRunner = specrunner.SpecRunner(timeout = 500)
         
-        # TODO: where to keep the scan?
-        self.specrunner.scan = qtspecscan.QtSpecScanA(specrunner.specVersion)
+        # TODO: where to create the scan?
+        self.specRunner.scan = \
+            qtspecscan.QtSpecScanA(self.specRunner.specVersion)
         
         self.gridX = QtGui.QGridLayout(self.xAxisTab)
         self.motorX = scanmotor.ScanMotor(self, 'samx')
@@ -64,7 +62,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                      self.scanTypeChanged)
         self.connect(self.abortButton,
                      QtCore.SIGNAL("clicked()"),
-                     self.specrunner.abort)
+                     self.specRunner.abort)
         self.connect(self.scanButton,
                      QtCore.SIGNAL("clicked()"),
                      self.startScan)
@@ -95,7 +93,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
             except TypeError:
                 scanArgs.append(i)
         scanArgs.append( float(self.scanCountSpinBox.value()) )
-        scan = getattr(self.specrunner.scan, scantype)
+        scan = getattr(self.specRunner.scan, scantype)
         scan(*scanArgs)
 
     def scanTypeChanged(self, scanType):
@@ -120,6 +118,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
 
 
 if __name__ == "__main__":
+    import sys
     app = QtGui.QApplication(sys.argv)
     myapp = ScanControls()
     myapp.show()

@@ -5,9 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import glob
-import os
-import sys
+import weakref
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -52,14 +50,10 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.smpConfig = configutils.getSmpConfig()
         specVersion = self.getSpecVersion()
         try:
-            self.specrunner = specrunner.SpecRunner(specVersion, timeout=500)
+            self._specRunner = specrunner.SpecRunner(specVersion, timeout=500)
+            self.specRunner = weakref.proxy(self._specRunner)
         except SpecClientError.SpecClientTimeoutError:
-            error = QtGui.QErrorMessage()
-            server, port = specVersion.split(':')
-            error.showMessage('SMP was unabel to connect to the "%s" spec \
-instance at "%s". Please make sure you have started the spec instance with \
-in server mode (for example "spec -S").'%(port, server))
-            error.exec_()
+            self.connectionError(specVersion)
             self.configureSmpInteractive()
         
         self.setupUi(self)
@@ -69,6 +63,15 @@ in server mode (for example "spec -S").'%(port, server))
         
         self.console = None
         self.motorView = None
+
+    def connectionError(self, specVersion):
+        error = QtGui.QErrorMessage()
+        server, port = specVersion.split(':')
+        error.showMessage('''\
+        SMP was unabel to connect to the "%s" spec instance at "%s". Please \
+        make sure you have started spec in server mode (for example "spec \
+        -S").'''%(port, server))
+        error.exec_()
 
     def configureSmpInteractive(self):
         configuresmp.ConfigureSmp(self).exec_()
@@ -114,6 +117,7 @@ in server mode (for example "spec -S").'%(port, server))
 
 
 if __name__ == "__main__":
+    import sys
     app = QtGui.QApplication(sys.argv)
     myapp = SmpMainWindow()
     myapp.show()

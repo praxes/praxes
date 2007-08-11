@@ -7,7 +7,6 @@
 
 import os
 import sys
-import time
 
 #---------------------------------------------------------------------------
 # Extlib imports

@@ -5,18 +5,12 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import codecs
-import os
-import sys
-import tempfile
-import time
+
 
 #---------------------------------------------------------------------------
 # Extlib imports
 #---------------------------------------------------------------------------
 
-import numpy
-from PyMca import ClassMcaTheory , ConcentrationsTool 
 from PyQt4 import QtCore, QtGui
 
 #---------------------------------------------------------------------------
@@ -25,30 +19,26 @@ from PyQt4 import QtCore, QtGui
 
 from spectromicroscopy.smpgui import configuresmp, ui_scanio, scancontrols, \
     scanfeedback
-#from mplwidgets import MplCanvas
 from spectromicroscopy.smpcore import specrunner, configutils
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-DEBUG = 2 # ??
-
 
 class ScanIO(ui_scanio.Ui_ScanIO, QtGui.QWidget):
     """Establishes a Experimenbt controls    """
     def __init__(self, parent=None):
-        self.DEBUG=DEBUG
         QtGui.QWidget.__init__(self, parent)
-        self.parent=parent
+        self.parent = parent
         self.setupUi(self)
 
         try:
-            self.specrunner = parent.specrunner
+            self.specRunner = parent.specRunner
         except AttributeError:
             # for debugging, run seperately from main smp
             specVersion = self.getSpecVersion()
-            self.specrunner = specrunner.SpecRunner(specVersion, timeout=500)
+            self.specRunner = specrunner.SpecRunner(specVersion, timeout=500)
 
         self.scanControls = scancontrols.ScanControls(self)
         self.gridlayout.addWidget(self.scanControls,0,0,1,1)
@@ -69,6 +59,7 @@ class ScanIO(ui_scanio.Ui_ScanIO, QtGui.QWidget):
 
 
 if __name__ == "__main__":
+    import sys
     app = QtGui.QApplication(sys.argv)
     myapp = ScanIO()
     myapp.show()

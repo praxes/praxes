@@ -5,8 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import os
-import sys
+
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -63,6 +62,7 @@ class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
         self.smpConfig.setdefault('session', {})
 
 if __name__ == "__main__":
+    import sys
     app = QtGui.QApplication(sys.argv)
     myapp = ConfigureSmp()
     myapp.show()

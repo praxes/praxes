@@ -285,7 +285,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 #            converstion = 0.01##TODO: read this value from config files
 #            self.energy = gain*numpy.arange(2048, dtype=numpy.float_)+offset
 #            self.timer = QtCore.QTimer(self)
-#            QtCore.QObject.connect(self.timer,
+#            self.connect(self.timer,
 #                                   QtCore.SIGNAL("timeout()"),
 #                                   self.data_collect)
 #            self.timer.start(20)

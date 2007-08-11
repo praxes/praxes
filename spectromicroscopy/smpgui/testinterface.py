@@ -59,42 +59,42 @@ class MyUI(Ui_MotorHead, QtGui.QMainWindow):
         time_ = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
         print "Rollcall=%s, DEBUG=%s"%(Rollcall,DEBUG) # REMOVE WHEN DONE
         print "\n New Session started (%s)\n Enter spec server hostname: "%time_
-        QtCore.QObject.connect(self.ChangeFile,
-                               QtCore.SIGNAL("clicked()"),
-                               self.file_dialog)
-        QtCore.QObject.connect(self.saveras,
-                               QtCore.SIGNAL("clicked()"),
-                               self.file_saveas)
-        QtCore.QObject.connect(self.ClearLog,
-                               QtCore.SIGNAL("clicked()"),
-                               self.clearlog)
-        QtCore.QObject.connect(self.EStop,
-                               QtCore.SIGNAL("clicked()"),
-                               self.abort)
-        QtCore.QObject.connect(self.ReStart,
-                               QtCore.SIGNAL("clicked()"),
-                               self.reStart)
-        QtCore.QObject.connect(self.CommandLine, 
-                               QtCore.SIGNAL("returnPressed()"),
-                               self.input)
-        QtCore.QObject.connect(self.MotorsTree,
-                               QtCore.SIGNAL("itemSelectionChanged ()"),
-                               self.select_motor)
-        QtCore.QObject.connect(self.Mover,
-                               QtCore.SIGNAL("clicked()"),
-                               self.cmdMove)
-        QtCore.QObject.connect(self.SpecCMD,
-                               QtCore.SIGNAL("clicked()"),
-                               self.spec_cmd)
-        QtCore.QObject.connect(self.Closer,
-                               QtCore.SIGNAL("clicked()"),
-                               self.endsesh)
-        QtCore.QObject.connect(self.plus,
-                               QtCore.SIGNAL("clicked()"),
-                               self.Plus)
-        QtCore.QObject.connect(self.ReStart,
-                               QtCore.SIGNAL("clicked()"),
-                               self.reStart)
+        self.connect(self.ChangeFile,
+                     QtCore.SIGNAL("clicked()"),
+                     self.file_dialog)
+        self.connect(self.saveras,
+                     QtCore.SIGNAL("clicked()"),
+                     self.file_saveas)
+        self.connect(self.ClearLog,
+                     QtCore.SIGNAL("clicked()"),
+                     self.clearlog)
+        self.connect(self.EStop,
+                     QtCore.SIGNAL("clicked()"),
+                     self.abort)
+        self.connect(self.ReStart,
+                     QtCore.SIGNAL("clicked()"),
+                     self.reStart)
+        self.connect(self.CommandLine, 
+                     QtCore.SIGNAL("returnPressed()"),
+                     self.input)
+        self.connect(self.MotorsTree,
+                     QtCore.SIGNAL("itemSelectionChanged ()"),
+                     self.select_motor)
+        self.connect(self.Mover,
+                     QtCore.SIGNAL("clicked()"),
+                     self.cmdMove)
+        self.connect(self.SpecCMD,
+                     QtCore.SIGNAL("clicked()"),
+                     self.spec_cmd)
+        self.connect(self.Closer,
+                     QtCore.SIGNAL("clicked()"),
+                     self.endsesh)
+        self.connect(self.plus,
+                     QtCore.SIGNAL("clicked()"),
+                     self.Plus)
+        self.connect(self.ReStart,
+                     QtCore.SIGNAL("clicked()"),
+                     self.reStart)
 
         if Rollcall < 3:
             self.specrun.set_spec_host("f3.chess.cornell.edu")
@@ -132,9 +132,9 @@ class MyUI(Ui_MotorHead, QtGui.QMainWindow):
             self.MotorsTree.setItemSelected( \
                         self.motor_widget_dict[self.command],True)
         elif not self.specrun.get_var():
-            QtCore.QObject.connect(self.ResetVar,
-                                   QtCore.SIGNAL("clicked()"),
-                                   self.specrun.reset_var)
+            self.connect(self.ResetVar,
+                         QtCore.SIGNAL("clicked()"),
+                         self.specrun.reset_var)
             vars = self.command.split(";")
             for var in vars:
                 self.specrun.set_var(var)

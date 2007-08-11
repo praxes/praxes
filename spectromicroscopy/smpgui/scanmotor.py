@@ -5,8 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import os
-import sys
+
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -34,9 +33,9 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
         self.setupUi(self)
     
         self.parent = parent
-        self.specrunner = parent.specrunner
+        self.specRunner = parent.specRunner
         
-        motors = self.specrunner.getMotorsMne()
+        motors = self.specRunner.getMotorsMne()
         try:
             ind = motors.index(motor)
         except ValueError:
@@ -58,7 +57,7 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
                      self.setNextPosition)
 
     def setMotor(self, motor, hostport=None):
-        self._motor = motor = self.specrunner.getMotor('%s'%motor)
+        self._motor = motor = self.specRunner.getMotor('%s'%motor)
         self.setLimits(motor.getLimits())
 
         position = motor.getPosition()
