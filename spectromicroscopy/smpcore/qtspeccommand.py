@@ -5,14 +5,13 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import sys
-import time
+
 
 #---------------------------------------------------------------------------
 # Extlib imports
 #---------------------------------------------------------------------------
 
-
+from PyQt4 import QtCore
 
 #---------------------------------------------------------------------------
 # SMP imports
@@ -24,19 +23,17 @@ from spectromicroscopy.external.SpecClient import SpecCommand
 # Normal code begins
 #---------------------------------------------------------------------------
 
+DEBUG = False
 
-class TestSpecCommand(SpecCommand.SpecCommandA):
+
+class QtSpecCommandA(SpecCommand.SpecCommandA, QtCore.QObject):
+
+    def __init__(self, cmd, specVersion):
+        QtCore.QObject.__init__(self)
+        SpecCommand.SpecCommandA.__init__(self, cmd, specVersion)
 
     def beingWait(self):
         if DEBUG: print 'Command %s was sent'%self.command
-    
-    def replyArrived(self, reply):
-        self.Reply=reply
-        if (reply.error):
-            print "command %s received an error message: %s"% \
-                (self.command, reply.data)
-        else:
-            print "Command %s received a reply: %s"%(self.command, reply.data)
     
     def connected(self):
        if DEBUG: print "Command %s connected"% self.command
@@ -48,6 +45,4 @@ class TestSpecCommand(SpecCommand.SpecCommandA):
     def statusChanged(self, ready):
         state = ["In progress","Complete","Unknown"]
         if DEBUG: print "Status is %s"%state[ready]
-    
-    def get_Reply(self):
-        return self.Reply
+

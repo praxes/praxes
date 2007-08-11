@@ -19,11 +19,13 @@ from PyQt4 import QtCore
 
 from spectromicroscopy.external.SpecClient import SpecScan, \
     SpecConnectionsManager, SpecEventsDispatcher, SpecWaitObject
-from spectromicroscopy.smpcore import configutils
+from spectromicroscopy.smpcore import configutils, qtspeccommand
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
+
+DEBUG = True
 
 
 class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
@@ -31,6 +33,8 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
     def __init__(self, specVersion = None):
         QtCore.QObject.__init__(self)
         SpecScan.SpecScanA.__init__(self, specVersion)
+        self.scanning = False
+        self._resumeScan = qtspeccommand.QtSpecCommandA('scan_on', specVersion)
 
     def connected(self):
         pass
@@ -39,6 +43,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         pass
 
     def newScan(self, scanParameters):
+        if DEBUG: print scanParameters
         self.emit(QtCore.SIGNAL("newScan(PyQt_PyObject)"), scanParameters)
 
     def _SpecScanA__newScanPoint(self, scanDataString):
@@ -52,12 +57,20 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
             self.newScanPoint(scanData)
 
     def newScanPoint(self, scanData):
+        if DEBUG: print scanData
         self.emit(QtCore.SIGNAL("scanStarted(PyQt_PyObject)"), scanData)
 
+    def resumeScan(self):
+        self._resumeScan()
+
     def scanFinished(self):
+        self.scanning = False
+        if DEBUG: print 'scan finished'
         self.emit(QtCore.SIGNAL("scanFinished()"))
 
     def scanStarted(self):
+        self.scanning = True
+        if DEBUG: print 'scan started'
         self.emit(QtCore.SIGNAL("scanStarted()"))
 
     def _startScan(self, cmd):

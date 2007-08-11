@@ -68,3 +68,6 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
 
     def update(self):
         SpecEventsDispatcher.dispatch()
+
+    def abort(self):
+        self.connection.abort()

@@ -102,20 +102,24 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
         return self._motor.getState()
 
     def motorStateChanged(self, state):
-        if state in ('READY', 'ONLIMIT'):
-            self.nextPosPushButton.setEnabled(True)
-            self.motorComboBox.setEnabled(True)
-        else:
-            self.nextPosPushButton.setEnabled(False)
-            self.motorComboBox.setEnabled(False)
-        self.emit(QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
-                  state)
+        if not self.specRunner.scan.scanning:
+            if state in ('READY', 'ONLIMIT'):
+                self.setEnabled(True)
+                self.parent.scanEnabled()
+                self.parent.scanButton.setEnabled(True)
+            else:
+                self.setEnabled(False)
+                self.parent.activityStarted()
+                self.parent.scanButton.setEnabled(False)
+            self.emit(QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
+                      state)
 
     def getScanInfo(self):
-        motor = '%s'%self.motorComboBox.currentText()
-        scanFrom = '%s'%self.scanFromSpinBox.value()
-        scanTo = '%s'%self.scanToSpinBox.value()
-        scanSteps = '%s'%self.scanStepsSpinBox.value()
+        m = str(self.motorComboBox.currentText())
+        s = self.scanFromSpinBox.value()
+        f = self.scanToSpinBox.value()
+        i = self.scanStepsSpinBox.value()
+        return (m, s, f, i)
     
     def moveMotor(self):
         self._motor.move(self.nextPosSpinBox.value())

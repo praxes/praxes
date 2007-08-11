@@ -135,16 +135,6 @@
           <string>axis: X</string>
          </attribute>
         </widget>
-        <widget class="QWidget" name="yAxisTab" >
-         <attribute name="title" >
-          <string>Y</string>
-         </attribute>
-        </widget>
-        <widget class="QWidget" name="zAxisTab" >
-         <attribute name="title" >
-          <string>Z</string>
-         </attribute>
-        </widget>
        </widget>
       </item>
       <item>
@@ -155,7 +145,26 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="pauseButton" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="text" >
+         <string>Pause</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="abortButton" >
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text" >
          <string>Abort</string>
         </property>
