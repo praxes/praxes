@@ -17,60 +17,56 @@ class SpecScanA:
     def __init__(self, specVersion = None):
         self.scanParams = {}
         self.scanCounterMne = None
-        self._scanning = False
+        self.__scanning = False
 
         if specVersion is not None:
             self.connectToSpec(specVersion)
         else:
             self.connection = None
+        
 
     def connectToSpec(self, specVersion):
-        connectionsManager = SpecConnectionsManager.SpecConnectionsManager()
-        self.connection = connectionsManager.getConnection(specVersion)
-        SpecEventsDispatcher.connect(self.connection,
-                                     'connected',
-                                     self.connected)
-        SpecEventsDispatcher.connect(self.connection,
-                                     'disconnected',
-                                     self._disconnected)
+        self.connection = SpecConnectionsManager.SpecConnectionsManager().getConnection(specVersion)
+        SpecEventsDispatcher.connect(self.connection, 'connected', self.connected)
+        SpecEventsDispatcher.connect(self.connection, 'disconnected', self.__disconnected)
 
-        self.connection.registerChannel('var/_SC_NEWSCAN', self._newScan)
-        self.connection.registerChannel('var/_SC_SCANDATALINE',
-                                        self._newScanPoint,
-                                        dispatchMode=\
-                                            SpecEventsDispatcher.FIREEVENT)
+        self.connection.registerChannel('var/_SC_NEWSCAN', self.__newScan)
+        self.connection.registerChannel('var/_SC_SCANDATALINE', self.__newScanPoint, dispatchMode=SpecEventsDispatcher.FIREEVENT)
                     
         if self.connection.isSpecConnected():
             self.connected()
 
+
     def isConnected(self):
         return self.connection and self.connection.isSpecConnected()
 
+        
     def connected(self):
         pass
 
-    def _disconnected(self):
+
+    def __disconnected(self):
         self.scanCounterMne = None
-        self._scanning = False
+        self.__scanning = False
         self.scanParams = {}
         
         self.disconnected()
 
+        
     def disconnected(self):
         pass
+                            
 
-    def _newScan(self, newscan):
+    def __newScan(self, newscan):
         if not newscan:
-            if self._scanning:
+            if self.__scanning:
                 self.scanFinished()
-                self._scanning = False
+                self.__scanning = False
             return
 
-        self._scanning = False
+        self.__scanning = False
             
-        self.scanParams = SpecWaitObject.waitReply(self.connection,
-                                                   'send_msg_chan_read',
-                                                   ('var/_SC_SCANENV', ))
+        self.scanParams = SpecWaitObject.waitReply(self.connection, 'send_msg_chan_read', ('var/_SC_SCANENV', ))
 
         if type(self.scanParams) != types.DictType:
             return
@@ -83,20 +79,23 @@ class SpecScanA:
             self.scanCounterMne = None
             return
                 
-        self._scanning = True
+        self.__scanning = True
         self.scanStarted() # A.B
+                
 
     def getScanType(self):
         try:
             return self.scanParams['scantype']
         except:
             return -1
-
+        
+                       
     def newScan(self, scanParameters):
         print scanParameters
 
-    def _newScanPoint(self, scanDataString):
-        if self._scanning:
+
+    def __newScanPoint(self, scanDataString):
+        if self.__scanning:
             scanData = {}
 
             for elt in scanDataString.split():
@@ -108,9 +107,11 @@ class SpecScanA:
             y = scanData[self.scanCounterMne]
             
             self.newScanPoint(i, x, y)
-
+            
+        
     def newScanPoint(self, i, x, y):
         pass #print i, (x, y)            
+
 
     def scanFinished(self):
         pass
@@ -120,9 +121,17 @@ class SpecScanA:
 
     def ascan(self, motorMne, startPos, endPos, nbPoints, countTime):
         if self.connection.isSpecConnected():
-            cmd = "ascan %s %f %f %d %f"%(motorMne, startPos, endPos,
-                                          nbPoints, countTime)
-            self.connection.send_msg_cmd(cmd)
+            self.connection.send_msg_cmd("ascan %s %f %f %d %f" % (motorMne, startPos, endPos, nbPoints, countTime))
             return True
         else:
             return False
+
+
+
+
+
+
+
+
+
+

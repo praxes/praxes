@@ -54,15 +54,10 @@ class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):
         self.getPosition()
 
     def connected(self):
-        self.__connected__ = True
         if DEBUG: print'Motor %s connected'%self.specName
     
     def disconnected(self):
-        self.__connected__ = False
         if DEBUG: print 'Motor %s disconnected'%self.specName
-
-    def isConnected(self):
-        if DEBUG: return (self.__connected__ != None) and (self.__connected__)
 
     def motorLimitsChanged(self):
         limits = self.getLimits()
@@ -90,6 +85,4 @@ class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):
     def getState(self):
         state = SpecMotor.SpecMotorA.getState()
         return self.__state_strings__[state]
-    
-    def motor_name(self):
-        if DEBUG: return self.specName
+

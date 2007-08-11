@@ -5,11 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import os
-import sys
-import logging
-import types
-import time
+
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -43,39 +39,69 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         pass
 
     def newScan(self, scanParameters):
-        print scanParameters
+        self.emit(QtCore.SIGNAL("newScan(PyQt_PyObject)"), scanParameters)
 
-    def _newScanPoint(self, scanDataString):
-        if self._scanning:
+    def _SpecScanA__newScanPoint(self, scanDataString):
+        if self._SpecScanA__scanning:
             scanData = {}
 
             for elt in scanDataString.split():
                 key, value = elt.split('=')
-                scanData[key]=float(value)
+                scanData[key] = float(value)
 
-            i = scanData["i"]
-            x = scanData["x"]
-            y = scanData[self.scanCounterMne]
-            
             self.newScanPoint(scanData)
 
     def newScanPoint(self, scanData):
-        print scanData
+        self.emit(QtCore.SIGNAL("scanStarted(PyQt_PyObject)"), scanData)
 
     def scanFinished(self):
-        pass
+        self.emit(QtCore.SIGNAL("scanFinished()"))
 
     def scanStarted(self):
-        pass
+        self.emit(QtCore.SIGNAL("scanStarted()"))
 
-    def ascan(self, motorMne, startPos, endPos, nbPoints, countTime):
+    def _startScan(self, cmd):
         if self.connection.isSpecConnected():
-            cmd = "ascan %s %f %f %d %f"%(motorMne, startPos, endPos,
-                                          nbPoints, countTime)
             self.connection.send_msg_cmd(cmd)
             return True
         else:
             return False
+
+    def ascan(self, motor, start, finish, intervals, time):
+        cmd = "ascan %s %f %f %d %f"%(motor, start, finish, intervals, time)
+        self._startScan(cmd)
+
+    def a2scan(self, motor1, s1, f1, motor2, s2, f2, intervals, time):
+        cmd = "a2scan %s %f %f \
+                      %s %f %f \
+                      %d %f"%(motor1, s1, f1,
+                              motor2, s2, f2,
+                              intervals, time)
+        self._startScan(cmd)
+
+    def a3scan(self, motor1, s1, f1, motor2, s2, f2, motor3, s3, f3,
+               intervals, time):
+        cmd = "a3scan %s %f %f \
+                      %s %f %f \
+                      %s %f %f \
+                      %d %f"%(motor1, s1, f1,
+                                motor2, s2, f2,
+                                motor3, s3, f3,
+                                intervals, time)
+        self._startScan(cmd)
+
+    def mesh(self, motor1, s1, f1, intervals1, motor2, s2, f2, intervals2, 
+             nbPoints, countTime):
+        cmd = "mesh %s %f %f %d \
+                    %s %f %f %d \
+                    %f"%(motor1, s1, f1, intervals1,
+                         motor2, s2, f2, intervals2,
+                         time)
+        self._startScan(cmd)
+
+    def tseries(self, nbPoints, countTime):
+        cmd = "tseries %d %f"%(nbPoints, countTime)
+        self._startScan(cmd)
 
 
 #                self._S = XrfSpecVar("S", self._specHost+":"+self._specPort)
