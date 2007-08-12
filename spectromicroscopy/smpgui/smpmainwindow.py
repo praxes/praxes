@@ -50,11 +50,11 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.smpConfig = configutils.getSmpConfig()
         specVersion = self.getSpecVersion()
         try:
-            self._specRunner = specrunner.SpecRunner(specVersion, timeout=500)
+            self.__specRunner = specrunner.SpecRunner(specVersion, timeout=500)
             # when we reconfigure, we need to remove all references to
             # the old specRunner. An easy way to do this is to make the
             # public interface to specRunner a weak reference:
-            self.specRunner = weakref.proxy(self._specRunner)
+            self.specRunner = weakref.proxy(self.__specRunner)
         except SpecClientError.SpecClientTimeoutError:
             self.connectionError(specVersion)
             self.configureSmpInteractive()

@@ -54,5 +54,12 @@ def getPymcaConfig(configFile=None):
     if not configFile: configFile = getPymcaConfigFile()
     return configobj.ConfigObj(configFile)
 
+def getClientUtilsFile():
+    return os.path.join(getDefaultConfigDir(), 'clientutils.mac')
+
+def getClientUtilsMacro():
+    return open(getClientUtilsFile()).read()
+
+
 if __name__ == '__main__':
     getPymcaConfig()

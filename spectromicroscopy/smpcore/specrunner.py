@@ -22,7 +22,8 @@ from spectromicroscopy.smpcore import configutils
 from spectromicroscopy.external import SpecClient
 logfile = os.path.join(configutils.getUserConfigDir(), 'specclient.log')
 SpecClient.setLogFile(logfile)
-from spectromicroscopy.external.SpecClient import Spec, SpecEventsDispatcher
+from spectromicroscopy.external.SpecClient import Spec, SpecEventsDispatcher, \
+    SpecCommand
 from spectromicroscopy.smpcore import qtspecmotor
 
 #---------------------------------------------------------------------------
@@ -43,6 +44,11 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         QtCore.QObject.__init__(self)
         Spec.Spec.__init__(self, specVersion, timeout)
         
+        # load the clientutils macros:
+        clientutils = SpecCommand.SpecCommand('', specVersion, timeout)
+        clientutils.executeCommand(configutils.getClientUtilsMacro())
+        self.clientploton()
+        
         self._motors = {}
         self._motorNames = []
         
@@ -51,6 +57,11 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
                      QtCore.SIGNAL("timeout()"),
                      self.update)
         self.timer.start(20)
+
+    def __del__(self):
+        self.clientplotoff()
+        QtCore.QObject.__del__(self)
+        Spec.Spec.__del__(self)
 
     def getMotor(self, motorName):
         if motorName in self._motors:
