@@ -18,7 +18,7 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 
 from spectromicroscopy.smpgui import scanmotor, ui_scancontrols
-from spectromicroscopy.smpcore import specutils, specrunner, qtspecscan
+from spectromicroscopy.smpcore import specutils, specrunner
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -36,10 +36,6 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         except AttributeError:
             self.specRunner = specrunner.SpecRunner(timeout = 500)
 
-        # TODO: where to create the scan?
-        self.specRunner.scan = \
-            qtspecscan.QtSpecScanA(self.specRunner.specVersion)
-        
         self.axes = []
         self.axesTab.removeTab(0)
 

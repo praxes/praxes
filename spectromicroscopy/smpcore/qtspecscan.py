@@ -17,9 +17,10 @@ from PyQt4 import QtCore
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.external.SpecClient import SpecScan, \
+from spectromicroscopy.external.SpecClient import SpecScan, SpecVariable, \
     SpecConnectionsManager, SpecEventsDispatcher, SpecWaitObject
-from spectromicroscopy.smpcore import configutils, qtspeccommand
+from spectromicroscopy.smpcore import configutils, qtspeccommand, \
+    qtspecvariable
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -33,7 +34,6 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
     def __init__(self, specVersion = None):
         QtCore.QObject.__init__(self)
         SpecScan.SpecScanA.__init__(self, specVersion)
-        self.scanning = False
         self._resumeScan = qtspeccommand.QtSpecCommandA('scan_on', specVersion)
 
     def connected(self):
@@ -58,18 +58,16 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
     def newScanPoint(self, scanData):
         if DEBUG: print scanData
-        self.emit(QtCore.SIGNAL("scanStarted(PyQt_PyObject)"), scanData)
+        self.emit(QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"), scanData)
 
     def resumeScan(self):
         self._resumeScan()
 
     def scanFinished(self):
-        self.scanning = False
         if DEBUG: print 'scan finished'
         self.emit(QtCore.SIGNAL("scanFinished()"))
 
     def scanStarted(self):
-        self.scanning = True
         if DEBUG: print 'scan started'
         self.emit(QtCore.SIGNAL("scanStarted()"))
 
@@ -98,13 +96,13 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
                       %s %f %f \
                       %s %f %f \
                       %d %f"%(motor1, s1, f1,
-                                motor2, s2, f2,
-                                motor3, s3, f3,
-                                intervals, time)
+                              motor2, s2, f2,
+                              motor3, s3, f3,
+                              intervals, time)
         self._startScan(cmd)
 
     def mesh(self, motor1, s1, f1, intervals1, motor2, s2, f2, intervals2, 
-             nbPoints, countTime):
+             time):
         cmd = "mesh %s %f %f %d \
                     %s %f %f %d \
                     %f"%(motor1, s1, f1, intervals1,
@@ -115,6 +113,20 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
     def tseries(self, nbPoints, countTime):
         cmd = "tseries %d %f"%(nbPoints, countTime)
         self._startScan(cmd)
+
+
+class QtSpecScanMcaVortexA(QtSpecScanA):
+
+    def __init__(self, specVersion = None):
+        QtSpecScanA.__init__(self, specVersion)
+        self.mcaData = qtspecvariable.QtSpecVariableA("MCA_DATA", specVersion)
+
+    def newScanPoint(self, scanData):
+        scanData['MCA_DATA'] = self.mcaData.getValue().transpose()
+        self.emit(QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"), scanData)
+        
+        
+#        scanData['MCA_DATA'] = self.mcaData.getValue
 
 
 #                self._S = XrfSpecVar("S", self._specHost+":"+self._specPort)

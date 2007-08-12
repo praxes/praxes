@@ -24,6 +24,8 @@ from spectromicroscopy.external.SpecClient import SpecVariable
 # Normal code begins
 #---------------------------------------------------------------------------
 
+DEBUG = False
+
 
 class QtSpecVariableA(SpecVariable.SpecVariableA):
     
