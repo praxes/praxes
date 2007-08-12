@@ -30,7 +30,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.parent = parent
         self.setupUi(self)
-
+        
         try:
             self.specRunner = parent.specRunner
         except AttributeError:
@@ -39,20 +39,44 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         # TODO: where to create the scan?
         self.specRunner.scan = \
             qtspecscan.QtSpecScanA(self.specRunner.specVersion)
+        
+        self.axes = []
+        self.axesTab.removeTab(0)
 
-        self.motors = []
-        for ax, m in zip(('axis: 1', '2', '3'),
-                         ('samx', 'samz', 'samy')):
-            self.motors.append(scanmotor.ScanMotor(self, m))
-            self.motorTab.addTab(self.motors[-1], ax)
-        self.motorTab.removeTab(0)
-
-        scans = specutils.SCAN_NUM_MOTORS.keys()
+        scans = specutils.SCAN_NUM_AXES.keys()
         scans.sort()
         self.scanTypeComboBox.addItems(scans)
         self.setScanType(scans[0])
+        
+        # QStackedLayout is not included in designer, do it manually
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,
+                                       QtGui.QSizePolicy.Fixed)
+        self.scanButton = QtGui.QPushButton(self.scanControlsGroupBox)
+        self.scanButton.setText('Scan')
+        self.scanButton.setSizePolicy(sizePolicy)
+        self.scanButton.setMaximumHeight(26)
+        self.pauseButton = QtGui.QPushButton(self.scanControlsGroupBox)
+        self.pauseButton.setText('Pause')
+        self.pauseButton.setSizePolicy(sizePolicy)
+        self.pauseButton.setMaximumHeight(26)
+        self.resumeButton = QtGui.QPushButton(self.scanControlsGroupBox)
+        self.resumeButton.setText('Resume')
+        self.resumeButton.setSizePolicy(sizePolicy)
+        self.resumeButton.setMaximumHeight(26)
+        
+        self.scanStackedLayout = QtGui.QStackedLayout(self.scanFrame)
+        self.scanStackedLayout.setGeometry(self.scanButton.geometry())
+        self.scanStackedLayout.setContentsMargins(0, 0, 0, 0)
+        self.scanStackedLayout.addWidget(self.scanButton)
+        self.scanStackedLayout.addWidget(self.pauseButton)
+        self.scanStackedLayout.addWidget(self.resumeButton)
+        
+        self.abortButton = QtGui.QPushButton(self.scanControlsGroupBox)
+        self.abortButton.setSizePolicy(sizePolicy)
+        self.abortButton.setEnabled(False)
+        self.abortButton.setText('Abort')
+        self.vboxlayout.addWidget(self.abortButton)
 
-        self.connectMotorSignals()
         self.connect(self.scanTypeComboBox,
                      QtCore.SIGNAL("currentIndexChanged(const QString&)"),
                      self.setScanType)
@@ -64,7 +88,10 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                      self.startScan)
         self.connect(self.pauseButton,
                      QtCore.SIGNAL("clicked()"),
-                     self.scanPauseResume)
+                     self.scanPaused)
+        self.connect(self.resumeButton,
+                     QtCore.SIGNAL("clicked()"),
+                     self.scanResumed)
         self.connect(self.specRunner.scan,
                      QtCore.SIGNAL("scanStarted()"),
                      self.scanStarted)
@@ -78,26 +105,26 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                      QtCore.SIGNAL("scanFinished()"),
                      self.activityFinished)
 
-    def connectMotorSignals(self):
-        for motor in self.motors:
-            self.connect(motor,
+    def connectAxesSignals(self):
+        for axis in self.axes:
+            self.connect(axis,
                          QtCore.SIGNAL("motorActive()"),
                          self.activityStarted)
-            self.connect(motor,
+            self.connect(axis,
                          QtCore.SIGNAL("motorReady()"),
                          self.activityFinished)
 
-    def disconnectMotorSignals(self):
-        for motor in self.motors:
-            self.disconnect(motor,
+    def disconnectAxesSignals(self):
+        for axis in self.axes:
+            self.disconnect(axis,
                             QtCore.SIGNAL("motorActive()"),
                             self.activityStarted)
-            self.disconnect(motor,
+            self.disconnect(axis,
                             QtCore.SIGNAL("motorReady()"),
                             self.activityFinished)
 
     def startScan(self):
-        enabled = [m for m in self.motors if m.isEnabled()]
+        enabled = [m for m in self.axes if m.isEnabled()]
         scantype = str(self.scanTypeComboBox.currentText())
 
         scanArgs = []
@@ -111,55 +138,64 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
 
     def abort(self):
         self.specRunner.abort()
-        self.pauseButton.setText('Pause')
         self.scanFinished()
         self.activityFinished()
 
     def activityStarted(self):
-        self.motorTab.setEnabled(False)
+        self.axesTab.setEnabled(False)
         self.abortButton.setEnabled(True)
         self.scanButton.setEnabled(False)
 
     def activityFinished(self):
-        self.motorTab.setEnabled(True)
+        self.axesTab.setEnabled(True)
         self.abortButton.setEnabled(False)
         self.scanButton.setEnabled(True)
 
     def scanStarted(self):
         self.scanTypeComboBox.setEnabled(False)
-        self.disconnectMotorSignals()
-        self.pauseButton.setEnabled(True)
+        self.disconnectAxesSignals()
+        self.scanStackedLayout.setCurrentWidget(self.pauseButton)
 
     def scanFinished(self):
         self.scanTypeComboBox.setEnabled(True)
-        self.connectMotorSignals()
-        self.pauseButton.setEnabled(False)
+        self.connectAxesSignals()
+        self.scanStackedLayout.setCurrentWidget(self.scanButton)
 
-    def scanPauseResume(self):
-        event = str(self.pauseButton.text())
-        if event == 'Pause':
-            self.specRunner.abort()
-            self.pauseButton.setText('Resume')
-        else:
-            self.pauseButton.setText('Pause')
-            self.specRunner.scan.resumeScan()
+    def scanPaused(self):
+        self.specRunner.abort()
+        self.scanStackedLayout.setCurrentWidget(self.resumeButton)
+
+    def scanResumed(self):
+        self.specRunner.scan.resumeScan()
+        self.scanStackedLayout.setCurrentWidget(self.pauseButton)
 
     def setScanType(self, scanType):
         scanType = str(scanType)
+        self.setAxes(scanType)
         flag = scanType in ('mesh')
         self.setIndependentStepsEnabled(flag)
-        numMotors = specutils.SCAN_NUM_MOTORS[scanType]
-        self.setMotorsEnabled(numMotors)
 
     def setIndependentStepsEnabled(self, val=False):
-        for m in self.motors:
+        for m in self.axes:
             m.scanStepsSpinBox.setEnabled(val)
         self.scanStepsSpinBox.setEnabled(not val)
 
-    def setMotorsEnabled(self, numMotors):
-        for m, i in zip(self.motors, xrange(len(self.motors))):
-            m.setEnabled(numMotors > i)
-
+    def setAxes(self, scanType):
+        self.disconnectAxesSignals()
+    
+        numAxes = specutils.SCAN_NUM_AXES[scanType]
+        while self.axesTab.count() > 0:
+            self.axesTab.removeTab(0)
+        self.axes=[]
+        
+        if scanType in specutils.MOTOR_SCANS:
+            for i, ax, m in zip(xrange(numAxes), 
+                                ('axis: 1', '2', '3'),
+                                ('samx', 'samz', 'samy')):
+                if i < numAxes:
+                    self.axes.append(scanmotor.ScanMotor(self, m))
+                    self.axesTab.addTab(self.axes[-1], ax)
+        self.connectAxesSignals()
 
 if __name__ == "__main__":
     import sys

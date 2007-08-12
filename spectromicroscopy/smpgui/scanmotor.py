@@ -41,7 +41,7 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
         except ValueError:
             motor = motors[0]
             ind = 0
-        self.setMotor(motor, 'f3.chess.cornell.edu:xrf')
+        self.setMotor(motor, self.specRunner.specVersion)
         
         self.motorComboBox.addItems(motors)
         self.motorComboBox.setCurrentIndex(ind)
@@ -57,7 +57,7 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
                      self.setNextPosition)
 
     def setMotor(self, motor, hostport=None):
-        self._motor = motor = self.specRunner.getMotor('%s'%motor)
+        self._motor = motor = self.specRunner.getMotor(str(motor))
         self.setLimits(motor.getLimits())
 
         position = motor.getPosition()
@@ -103,10 +103,8 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
 
     def motorStateChanged(self, state):
         if state in ('READY', 'ONLIMIT'):
-            self.setEnabled(True)
             self.emit(QtCore.SIGNAL("motorReady()"))
         else:
-            self.setEnabled(False)
             self.emit(QtCore.SIGNAL("motorActive()"))
 
     def getScanInfo(self):
