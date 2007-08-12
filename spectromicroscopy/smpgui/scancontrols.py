@@ -82,25 +82,15 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
     def startScan(self):
         enabled = [m for m in self.motors if m.isEnabled()]
         scantype = str(self.scanTypeComboBox.currentText())
-        motors = [str(m.motorComboBox.currentText()) for m in enabled]
-        scanFrom = [m.scanFromSpinBox.value() for m in enabled]
-        scanTo = [m.scanToSpinBox.value() for m in enabled]
-        scanSteps = [m.scanStepsSpinBox.value() for m in self.motors \
-                     if m.scanStepsSpinBox.isEnabled()]
-        if scanSteps:
-            scanZip = zip(motors, scanFrom, scanTo, scanSteps)
-        else:
-            scanZip = zip(motors, scanFrom, scanTo)
-            scanZip.append(self.scanStepsSpinBox.value())
+
         scanArgs = []
-        for i in scanZip:
-            try:
-                scanArgs.extend(i)
-            except TypeError:
-                scanArgs.append(i)
-        scanArgs.append( float(self.scanCountSpinBox.value()) )
-        scan = getattr(self.specRunner.scan, scantype)
-        scan(*scanArgs)
+        for m in enabled:
+            scanArgs.extend(m.getScanInfo())
+        if self.scanStepsSpinBox.isEnabled():
+            scanArgs.append(self.scanStepsSpinBox.value())
+        scanArgs.append( self.scanCountSpinBox.value() )
+
+        getattr(self.specRunner.scan, scantype)(*scanArgs)
 
     def activityStarted(self):
         self.setMotorsEnabled(0)
