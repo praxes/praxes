@@ -102,17 +102,12 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
         return self._motor.getState()
 
     def motorStateChanged(self, state):
-        if not self.specRunner.scan.scanning:
-            if state in ('READY', 'ONLIMIT'):
-                self.setEnabled(True)
-                self.parent.scanEnabled()
-                self.parent.scanButton.setEnabled(True)
-            else:
-                self.setEnabled(False)
-                self.parent.activityStarted()
-                self.parent.scanButton.setEnabled(False)
-            self.emit(QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
-                      state)
+        if state in ('READY', 'ONLIMIT'):
+            self.setEnabled(True)
+            self.emit(QtCore.SIGNAL("motorReady()"))
+        else:
+            self.setEnabled(False)
+            self.emit(QtCore.SIGNAL("motorActive()"))
 
     def getScanInfo(self):
         m = str(self.motorComboBox.currentText())

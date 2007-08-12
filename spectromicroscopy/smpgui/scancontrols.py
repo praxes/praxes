@@ -41,8 +41,8 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
             qtspecscan.QtSpecScanA(self.specRunner.specVersion)
 
         self.motors = []
-        for ax, m in zip(('axis: X', 'Y', 'Z'),
-                         ('samx', 'samy', 'samz')):
+        for ax, m in zip(('axis: 1', '2', '3'),
+                         ('samx', 'samz', 'samy')):
             self.motors.append(scanmotor.ScanMotor(self, m))
             self.motorTab.addTab(self.motors[-1], ax)
         self.motorTab.removeTab(0)
@@ -50,11 +50,12 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         scans = specutils.SCAN_NUM_MOTORS.keys()
         scans.sort()
         self.scanTypeComboBox.addItems(scans)
-        self.scanEnabled(scans[0])
+        self.setScanType(scans[0])
 
+        self.connectMotorSignals()
         self.connect(self.scanTypeComboBox,
                      QtCore.SIGNAL("currentIndexChanged(const QString&)"),
-                     self.scanEnabled)
+                     self.setScanType)
         self.connect(self.abortButton,
                      QtCore.SIGNAL("clicked()"),
                      self.abort)
@@ -72,12 +73,28 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                      self.activityStarted)
         self.connect(self.specRunner.scan,
                      QtCore.SIGNAL("scanFinished()"),
-                     self.scanEnabled)
+                     self.scanFinished)
+        self.connect(self.specRunner.scan,
+                     QtCore.SIGNAL("scanFinished()"),
+                     self.activityFinished)
 
-    def abort(self):
-        self.specRunner.abort()
-        self.scanEnabled()
-        self.pauseButton.setEnabled(False)
+    def connectMotorSignals(self):
+        for motor in self.motors:
+            self.connect(motor,
+                         QtCore.SIGNAL("motorActive()"),
+                         self.activityStarted)
+            self.connect(motor,
+                         QtCore.SIGNAL("motorReady()"),
+                         self.activityFinished)
+
+    def disconnectMotorSignals(self):
+        for motor in self.motors:
+            self.disconnect(motor,
+                            QtCore.SIGNAL("motorActive()"),
+                            self.activityStarted)
+            self.disconnect(motor,
+                            QtCore.SIGNAL("motorReady()"),
+                            self.activityFinished)
 
     def startScan(self):
         enabled = [m for m in self.motors if m.isEnabled()]
@@ -92,10 +109,31 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
 
         getattr(self.specRunner.scan, scantype)(*scanArgs)
 
+    def abort(self):
+        self.specRunner.abort()
+        self.pauseButton.setText('Pause')
+        self.scanFinished()
+        self.activityFinished()
+
     def activityStarted(self):
-        self.setMotorsEnabled(0)
+        self.motorTab.setEnabled(False)
         self.abortButton.setEnabled(True)
         self.scanButton.setEnabled(False)
+
+    def activityFinished(self):
+        self.motorTab.setEnabled(True)
+        self.abortButton.setEnabled(False)
+        self.scanButton.setEnabled(True)
+
+    def scanStarted(self):
+        self.scanTypeComboBox.setEnabled(False)
+        self.disconnectMotorSignals()
+        self.pauseButton.setEnabled(True)
+
+    def scanFinished(self):
+        self.scanTypeComboBox.setEnabled(True)
+        self.connectMotorSignals()
+        self.pauseButton.setEnabled(False)
 
     def scanPauseResume(self):
         event = str(self.pauseButton.text())
@@ -106,23 +144,10 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
             self.pauseButton.setText('Pause')
             self.specRunner.scan.resumeScan()
 
-    def scanStarted(self):
-        self.scanTypeComboBox.setEnabled(False)
-        self.pauseButton.setEnabled(True)
-
-    def scanEnabled(self, scanType=None):
-        if scanType:
-            # scan type changed
-            scanType = str(scanType)
-            flag = scanType in ('mesh')
-            self.setIndependentStepsEnabled(flag)
-        else:
-            # scan ending, enabling widgets
-            scanType = str(self.scanTypeComboBox.currentText())
-            self.scanTypeComboBox.setEnabled(True)
-            self.abortButton.setEnabled(False)
-            self.pauseButton.setEnabled(False)
-            self.scanButton.setEnabled(True)
+    def setScanType(self, scanType):
+        scanType = str(scanType)
+        flag = scanType in ('mesh')
+        self.setIndependentStepsEnabled(flag)
         numMotors = specutils.SCAN_NUM_MOTORS[scanType]
         self.setMotorsEnabled(numMotors)
 
