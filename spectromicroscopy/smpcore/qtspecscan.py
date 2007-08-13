@@ -46,17 +46,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         if DEBUG: print scanParameters
         self.emit(QtCore.SIGNAL("newScan(PyQt_PyObject)"), scanParameters)
 
-    def _SpecScanA__newScanPoint(self, scanDataString):
-        if self._SpecScanA__scanning:
-            scanData = {}
-
-            for elt in scanDataString.split():
-                key, value = elt.split('=')
-                scanData[key] = float(value)
-
-            self.newScanPoint(scanData)
-
-    def newScanPoint(self, scanData):
+    def newScanPoint(self, i, x, y, scanData):
         if DEBUG: print scanData
         self.emit(QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"), scanData)
 
