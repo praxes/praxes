@@ -113,7 +113,8 @@ class QtSpecScanMcaA(QtSpecScanA):
                                                  specVersion, 
                                                  timeout=500)
 
-    def newScanPoint(self, scanData):
+    def newScanPoint(self, i, x, y, scanData):
+        print scanData
         scanData['MCA_DATA'] = self.mcaData.getValue().transpose()
         self.emit(QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"), scanData)
         
