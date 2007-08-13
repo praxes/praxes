@@ -18,6 +18,7 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 
 from spectromicroscopy.smpgui import ui_scanfeedback,  mplwidgets
+from spectromicroscopy.smpcore import advancedfitanalysis
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -29,6 +30,8 @@ class ScanFeedback(ui_scanfeedback.Ui_ScanFeedback, QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.parent = parent
         self.setupUi(self)
+        
+        self.scanAnalysis = None
         
         self.specRunner = parent.specRunner
 
@@ -46,5 +49,29 @@ class ScanFeedback(ui_scanfeedback.Ui_ScanFeedback, QtGui.QWidget):
         self.gridlayout5.addWidget(self.imageToolbar, 1, 0, 1, 1)
         
         self.connect(self.specRunner.scan, 
+                     QtCore.SIGNAL("newMesh(PyQt_PyObject)"),
+                     self.newScanAnalysis2D)
+        
+
+    def newScanAnalysis2D(self, scanParams):
+        #TODO: use scanParams to set axis labels, ranges, etc
+        self.scanAnalysis = \
+            advancedfitanalysis.AdvancedFitAnalysis2D(scanParams)
+        #TODO: load users pymcaconfig, if selected
+        self.scanAnalysis.loadPymcaConfig()
+        self.connect(self.specRunner.scan, 
                      QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"),
-                     self.mcaSpectrumPlot.update_figure)
+                     self.scanAnalysis.newDataPoint)
+        self.connect(self.scanAnalysis, 
+                     QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
+                     self.mcaSpectrumPlot.updateFigure)
+        self.connect(self.scanAnalysis, 
+                     QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
+                     self.xrfbandComboBox.addItem)
+        self.connect(self.scanAnalysis, 
+                     QtCore.SIGNAL("elementImageChanged(PyQt_PyObject)"),
+                     self.elementImagePlot.updateFigure)
+        self.connect(self.xrfbandComboBox,
+                     QtCore.SIGNAL("currentIndexChanged(const QString&)"),
+                     self.scanAnalysis.setCurrentElement)
+        

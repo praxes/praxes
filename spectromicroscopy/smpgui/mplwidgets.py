@@ -38,7 +38,7 @@ class QtMplCanvas(FigureCanvasQTAgg):
         # We want the axes cleared every time plot() is called
         self.axes.hold(False)
 
-        self.compute_initial_figure()
+        self.computeInitialFigure()
 
         FigureCanvasQTAgg.__init__(self, self.fig)
         self.setParent(parent)
@@ -58,21 +58,32 @@ class QtMplCanvas(FigureCanvasQTAgg):
 
 class McaSpectrum(QtMplCanvas):
 
-    def compute_initial_figure(self):
-         self.mcaData, = self.axes.semilogy([0, 1024], [1, 1], '.')
+    def computeInitialFigure(self):
+         self.mcaData, = self.axes.plot([0, 1024], [1, 1], '.')
 
-    def update_figure(self, temp):
-        self.axes.semilogy(*temp['MCA_DATA'])
-
+    def updateFigure(self, fitData):
+        x = fitData['xdata']
+        y = fitData['ydata']
+        yfit = fitData['yfit']
+        residuals = yfit - y
+        offset = numpy.amax(residuals)
+        self.axes.plot(x, y, 'ob')
+        self.axes.hold(True)
+        self.axes.plot(x, yfit, 'k', linewidth=2)
+        # TODO: break resdiuals into a separate linear (not semilog) plot, with
+        # residuals = log(yfit)-log(y)
+        self.axes.plot(x, residuals - 1.5*offset, 'k', linewidth=2)
+        self.axes.hold(False)
         self.draw()
 
 
 class ElementImage(QtMplCanvas):
 
-    def compute_initial_figure(self):
+    def computeInitialFigure(self):
          self.axes.imshow(numpy.random.rand(100, 100))
 
-    def update_figure(self, temp):
-        self.axes.imshow(numpy.random.rand(100, 100))
+    def updateFigure(self, image):
+        vmax = numpy.amax(image)
+        self.axes.imshow(image, vmin=0, vmax=vmax)
 
         self.draw()
