@@ -204,10 +204,10 @@ class SpecMessage:
             # try to convert data to a more appropriate type
             try:
                 data = int(data)
-            except:
+            except ValueError:
                 try:
                     data = float(data)
-                except:
+                except ValueError:
                     pass
                 
             return data

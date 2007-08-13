@@ -86,7 +86,7 @@ class SpecScanA:
     def getScanType(self):
         try:
             return self.scanParams['scantype']
-        except:
+        except KeyError:
             return -1
         
                        

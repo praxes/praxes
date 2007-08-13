@@ -208,11 +208,11 @@ class _SpecConnectionsManager:
 
     def closeConnection(self, specVersion):
         try:
-            self.connectionDispatcher[specVersion].handle_close()
+            self.connectionDispatchers[specVersion].handle_close()
                         
             del self.connectionDispatchers[specVersion]
             del self.connections[specVersion]
-        except:
+        except KeyError:
             pass
 
 

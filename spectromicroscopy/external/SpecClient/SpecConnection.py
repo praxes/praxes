@@ -128,7 +128,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
 
         try:
             self.port = int(self.port)
-        except:
+        except ValueError:
             self.scanname = self.port
             self.port = None
             self.scanport = True        
@@ -326,7 +326,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
                     if replyID > 0:
                         try:
                             reply = self.registeredReplies[replyID]
-                        except:
+                        except KeyError:
                             logging.getLogger("SpecClient").exception("Unexpected error while receiving a message from server")
                         else:
                             del self.registeredReplies[replyID]

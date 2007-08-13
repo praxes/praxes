@@ -77,7 +77,7 @@ class SpecWaitObject:
         if connection is not None:
             try:
                 func = getattr(connection, command)
-            except:
+            except AttributeError:
                 return
             else:
                 if callable(func):
