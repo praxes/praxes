@@ -172,19 +172,19 @@ class SpecMotorA:
         """
         pass
 
-		
+                
     def setOffset(self, offset):
         """Set the motor offset value"""
         c = self.connection.getChannel(self.chanNamePrefix % 'offset')
-								
+                                                                
         c.write(offset)
-				
-				
+                                
+                                
     def getOffset(self):
         c = self.connection.getChannel(self.chanNamePrefix % 'offset')
-				
-        return c.read()			
-			
+                                
+        return c.read()                        
+                        
 
     def getSign(self):
         c = self.connection.getChannel(self.chanNamePrefix % 'sign')
@@ -460,28 +460,28 @@ class SpecMotor:
         """Set the motor offset value"""
         if self.connection is not None:
              c = self.connection.getChannel(self.chanNamePrefix % 'offset')
-								
+                                                                
              c.write(offset)
-				
-				
+                                
+                                
     def getOffset(self):
         if self.connection is not None:
             c = self.connection.getChannel(self.chanNamePrefix % 'offset')
-				
+                                
             return c.read()
 
 
     def getSign(self):
         if self.connection is not None:
             c = self.connection.getChannel(self.chanNamePrefix % 'sign')
-				
+                                
             return c.read()
 
 
     def getDialPosition(self):
         if self.connection is not None:
             c = self.connection.getChannel(self.chanNamePrefix % 'dial_position')
-				
+                                
             return c.read()
 
 

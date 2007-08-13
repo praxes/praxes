@@ -38,7 +38,7 @@ class ScanIO(ui_scanio.Ui_ScanIO, QtGui.QWidget):
 
         # TODO: This should be changeable based on detector configuration
         self.specRunner.scan = \
-            qtspecscan.QtSpecScanMcaVortexA(self.specRunner.specVersion)
+            qtspecscan.QtSpecScanMcaA(self.specRunner.specVersion)
 
         self.scanControls = scancontrols.ScanControls(self)
         self.gridlayout.addWidget(self.scanControls,0,0,1,1)

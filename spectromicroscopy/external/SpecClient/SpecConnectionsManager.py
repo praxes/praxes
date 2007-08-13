@@ -37,7 +37,7 @@ def SpecConnectionsManager(pollingThread = True):
     if _SpecConnectionsManagerInstance is None:
         if pollingThread:
             _SpecConnectionsManagerInstance = _ThreadedSpecConnectionsManager()
-	   
+           
             def _endSpecConnectionsManager():
                 global _SpecConnectionsManagerInstance
 
@@ -47,7 +47,7 @@ def SpecConnectionsManager(pollingThread = True):
                 
             # register _endSpecConnectionsManager() to be called on Python interpreter exit
             atexit.register(_endSpecConnectionsManager)
-	else:
+        else:
             _SpecConnectionsManagerInstance = _SpecConnectionsManager()
       
     return _SpecConnectionsManagerInstance
@@ -176,7 +176,7 @@ class _SpecConnectionsManager:
         for connection in self.connectionDispatchers.itervalues():
             connection.makeConnection()
         
-	asyncore.poll3(timeout) 
+        asyncore.poll3(timeout) 
                         
         SpecEventsDispatcher.dispatch()
         
@@ -213,7 +213,7 @@ class _SpecConnectionsManager:
             del self.connectionDispatchers[specVersion]
             del self.connections[specVersion]
         except:
-	    pass
+            pass
 
 
     def closeConnections(self):

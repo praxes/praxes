@@ -105,11 +105,13 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         self._startScan(cmd)
 
 
-class QtSpecScanMcaVortexA(QtSpecScanA):
+class QtSpecScanMcaA(QtSpecScanA):
 
     def __init__(self, specVersion = None):
         QtSpecScanA.__init__(self, specVersion)
-        self.mcaData = qtspecvariable.QtSpecVariableA("MCA_DATA", specVersion)
+        self.mcaData = SpecVariable.SpecVariable("MCA_DATA",
+                                                 specVersion, 
+                                                 timeout=500)
 
     def newScanPoint(self, scanData):
         scanData['MCA_DATA'] = self.mcaData.getValue().transpose()
