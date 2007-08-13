@@ -1,7 +1,7 @@
 """Helper module for managing scans"""
-import SpecConnectionsManager
-import SpecEventsDispatcher
-import SpecWaitObject
+from SpecClient import SpecConnectionsManager
+from SpecClient import SpecEventsDispatcher
+from SpecClient import SpecWaitObject
 import logging
 import types
 import time
@@ -91,33 +91,46 @@ class SpecScanA:
         
                        
     def newScan(self, scanParameters):
-        print scanParameters
+        #print scanParameters
+        pass
 
 
-    def __newScanPoint(self, scanDataString):
+    def __newScanPoint(self, scanDataString):       
         if self.__scanning:
             scanData = {}
 
             for elt in scanDataString.split():
                 key, value = elt.split('=')
-                scanData[key]=float(value)
+                if key=="i":
+                  i=float(value)
+                elif key=="x":
+                  x=float(value)
+                elif key==self.scanCounterMne:
+                  y=float(value)
+                  scanData[key]=float(value)
+                else:
+                  scanData[key]=float(value)
 
-            i = scanData["i"]
-            x = scanData["x"]
-            y = scanData[self.scanCounterMne]
-            
-            self.newScanPoint(i, x, y)
-            
-        
-    def newScanPoint(self, i, x, y):
-        pass #print i, (x, y)            
+            # hack to know if we should call newScanPoint with
+            # scanData or not (for backward compatiblity)
+            if len(self.newScanPoint.im_func.func_code.co_varnames) > 4:
+              self.newScanPoint(i, x, y, scanData)
+            else:
+              self.newScanPoint(i, x, y)
+    
+    
+    def newScanPoint(self, i, x, y, counters_value):
+        #print i, x, y, counters_value
+        pass
 
 
     def scanFinished(self):
         pass
 
+
     def scanStarted(self): # A.B
         pass # A.B
+
 
     def ascan(self, motorMne, startPos, endPos, nbPoints, countTime):
         if self.connection.isSpecConnected():

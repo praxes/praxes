@@ -21,7 +21,8 @@ import time
 import types
 
 import SpecEventsDispatcher
-from SpecClientError import SpecClientError, SpecClientTimeoutError
+from SpecClient.SpecClientError import SpecClientError, SpecClientTimeoutError
+import SpecConnectionsManager
 
 
 def waitFunc(timeout):
@@ -71,7 +72,6 @@ class SpecWaitObject:
         argsTuple -- tuple of arguments to be passed to the command
         timeout -- optional timeout (defaults to None)
         """
-
         connection = self.connection()
 
         if connection is not None:
@@ -82,8 +82,9 @@ class SpecWaitObject:
             else:
                 if callable(func):
                     func(*argsTuple)
-                self.wait(timeout = timeout)
 
+                self.wait(timeout = timeout)
+                               
 
     def waitChannelUpdate(self, chanName, waitValue = None, timeout = None):
         """Wait for a channel update
@@ -127,14 +128,14 @@ class SpecWaitObject:
 
             while self.isdisconnected:
                 SpecEventsDispatcher.dispatch()
-        
+		
                 t0 = time.time()
                 waitFunc(10)
                 t += (time.time() - t0)*1000                    
 
-                if timeout is not None and t >= timeout:
-                    raise SpecClientTimeoutError
-                            
+		if timeout is not None and t >= timeout:
+		    raise SpecClientTimeoutError
+		                    
 
     def wait(self, waitValue = None, timeout = None):
         """Block until the object's internal value gets updated
@@ -149,7 +150,7 @@ class SpecWaitObject:
         t = 0
         while not self.isdisconnected:
             SpecEventsDispatcher.dispatch()
-            
+                    
             if self.value is not None:
                 if waitValue is None:
                     return
@@ -159,15 +160,22 @@ class SpecWaitObject:
                 else:
                     self.value = None
 
-            if self.value is None:
-                t0 = time.time() 
+            if self.value is None:               
+		t0 = time.time() 
                 waitFunc(10) # 10 ms.
-        t += (time.time() - t0)*1000
+		t += (time.time() - t0)*1000
 
-        if timeout is not None and t >= timeout:
+		if timeout is not None and t >= timeout:
                     raise SpecClientTimeoutError 
-        
-            
+
+            try:
+              P = getattr(SpecConnectionsManager.SpecConnectionsManager(), "poll")
+            except AttributeError:
+              pass
+            else:
+              P()
+		
+		    
     def replyArrived(self, reply):
         """Callback triggered by a reply from Spec."""
         self.value = reply.getValue()
@@ -199,7 +207,7 @@ def waitConnection(connection, timeout = None):
     timeout -- optional timeout (defaults to None)
     """
     if type(connection) == types.StringType:
-        from SpecConnectionsManager import SpecConnectionsManager
+        from SpecClient.SpecConnectionsManager import SpecConnectionsManager
         connection = SpecConnectionsManager().getConnection(connection)
 
     w = SpecWaitObject(connection)
@@ -217,7 +225,7 @@ def waitChannelUpdate(chanName, connection, waitValue = None, timeout = None):
     timeout -- optional timeout (defaults to None)
     """
     if type(connection) == types.StringType:
-        from SpecConnectionsManager import SpecConnectionsManager
+        from SpecClient.SpecConnectionsManager import SpecConnectionsManager
         connection = SpecConnectionsManager().getConnection(connection)
         waitConnection(connection, timeout = timeout)
 
@@ -237,7 +245,7 @@ def waitReply(connection, command, argsTuple, timeout = None):
     timeout -- optional timeout (defaults to None)
     """
     if type(connection) == types.StringType:
-        from SpecConnectionsManager import SpecConnectionsManager
+        from SpecClient.SpecConnectionsManager import SpecConnectionsManager
         connection = SpecConnectionsManager().getConnection(connection)
         waitConnection(connection, timeout = timeout)
 

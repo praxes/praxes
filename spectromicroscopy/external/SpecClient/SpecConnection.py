@@ -20,7 +20,7 @@ import string
 import logging
 import time
 
-from SpecClientError import SpecClientNotConnectedError
+from SpecClient.SpecClientError import SpecClientNotConnectedError
 import SpecEventsDispatcher
 import SpecChannel
 import SpecMessage
@@ -114,9 +114,9 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         
                 
         # some shortcuts
-        self.macro       = self.send_msg_cmd_with_return
+	self.macro       = self.send_msg_cmd_with_return
         self.macro_noret = self.send_msg_cmd
-        self.abort   = self.send_msg_abort
+	self.abort	 = self.send_msg_abort
 
         tmp = str(specVersion).split(':')
         self.host = tmp[0]
@@ -131,7 +131,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         except:
             self.scanname = self.port
             self.port = None
-        self.scanport = True    
+	    self.scanport = True	
 
         #
         # register 'service' channels

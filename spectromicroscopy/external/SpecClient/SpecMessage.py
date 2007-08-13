@@ -258,8 +258,8 @@ class SpecMessage:
 
     
     def sendingString(self):
-        """Create a string representing the message which can be send 
-        over the socket."""
+	"""Create a string representing the message which can be send 
+	over the socket."""
         return ''
             
 
@@ -279,8 +279,8 @@ class message2(SpecMessage):
 
 
     def init(self, ser, cmd, name, data, datatype = None, rows = 0, cols = 0):
-        """ Create a message from the arguments"""
-        self.vers = 2 #header version
+	""" Create a message from the arguments"""
+	self.vers = 2 #header version
         self.size = self.headerLength
         self.magic = MAGIC_NUMBER
         self.rows = rows
@@ -337,7 +337,7 @@ class message3(SpecMessage):
 
     def init(self, ser, cmd, name, data, datatype = None, rows = 0, cols = 0):
         """ Create a message from the arguments """
-        self.vers = 3 #header version
+	self.vers = 3 #header version
         self.size = self.headerLength
         self.magic = MAGIC_NUMBER
         self.rows = rows
@@ -398,7 +398,7 @@ class message4(SpecMessage):
 
     def init(self, ser, cmd, name, data, datatype = None, rows = 0, cols = 0):
         """ Create a message from the arguments """
-        self.vers = 4 #header version
+	self.vers = 4 #header version
         self.size = self.headerLength
         self.magic = MAGIC_NUMBER
         self.rows = rows

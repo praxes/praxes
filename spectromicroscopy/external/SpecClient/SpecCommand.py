@@ -79,7 +79,7 @@ class BaseSpecCommand:
             
         if self.connection.serverVersion < 3:
             func = False
-                    
+	                
             if 'function' in kwargs:
                 func = kwargs['function']
 
