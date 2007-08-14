@@ -57,8 +57,10 @@ class ScanFeedback(ui_scanfeedback.Ui_ScanFeedback, QtGui.QWidget):
         #TODO: use scanParams to set axis labels, ranges, etc
         self.scanAnalysis = \
             advancedfitanalysis.AdvancedFitAnalysis2D(scanParams)
+        
         #TODO: load users pymcaconfig, if selected
         self.scanAnalysis.loadPymcaConfig()
+        
         self.connect(self.specRunner.scan, 
                      QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"),
                      self.scanAnalysis.newDataPoint)

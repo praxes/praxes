@@ -36,7 +36,6 @@ class ScanIO(ui_scanio.Ui_ScanIO, QtGui.QWidget):
 
         self.specRunner = parent.specRunner
 
-        # TODO: This should be changeable based on detector configuration
         self.specRunner.scan = \
             qtspecscan.QtSpecScanMcaA(self.specRunner.specVersion)
 

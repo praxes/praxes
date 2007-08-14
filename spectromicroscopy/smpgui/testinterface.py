@@ -16,8 +16,7 @@ import time
 #---------------------------------------------------------------------------
 
 import numpy
-# TODO: This is not the right module for analysis
-from PyMca import ClassMcaTheory , ConcentrationsTool #,McaAdvancedFitBatch
+from PyMca import ClassMcaTheory , ConcentrationsTool
 from PyQt4 import QtCore, QtGui
 
 #---------------------------------------------------------------------------

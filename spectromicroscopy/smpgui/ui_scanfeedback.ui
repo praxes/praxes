@@ -238,11 +238,6 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="videoTab" >
-         <attribute name="title" >
-          <string>Video</string>
-         </attribute>
-        </widget>
        </widget>
       </item>
      </layout>

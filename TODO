@@ -1,18 +1,58 @@
-package reorganization:
- * external : any external packages that we will ship with SMP
- * smpgui : widgets and user interface
-    - all designer generated .py files prefixed with ui_: ui_mywidget.py
-    - api objects and modules should not have ui_ or gui in the name
- * smpcore : non-gui code, like configuration utilities, spec wrappers
- * scripts : executable programs
-
-write setup.py for distribution
-
-expose api's via __init__ (?)
+=== The following needs to happen before SMP can be used for experiments ===
 
 save images to edf files
 
+move residuals from spectrum fitting into a separate plot, just below the 
+    spectrum plot. Keep ylimits fixed.
+
+Fix bug in starting a second scan (some bug in caching of element images)
+
+add colorbar to image canvas
+
+emit signal when creating advancedfitanalysis, which sets the X-axis and,
+    if appropriate, Y-axis limits.
+
+if scan is not mesh-type, create a different kind of plot canvas in the 
+    lower window. Simple plot instead of an image.
+
+scanfeedback does not load user's pymcaconfig file, uses default.
+
+need unified deadtime correction reported by spec, preferrably in S:
+    vortex: ICR/OCR*Real/Live
+    xflash: pulser_rate/reported_rate
+
+need new variable that reports absolute flux at sample, can this be done in S?
+
+copy skipmode macro into smp-data, run (but dont enable) at smp startup
+    macro needs to be improved:
+        set variable to monitoring
+        set threshold
+        some way to report when a point is skipped
+    ability to switch skipmode on and off in smp
+    if point is skipped, advancedfitanalysis needs to know so it doesnt
+        pass mcaData to PyMca
+
+wire up remaining widgets:
+    spectrum yscale: lin/log
+    save image button
+    min/max/autoscale
+    fix pymcaloadconfig toolbar button
+
+element images can (but dont have to) report concentrations instead of areas
+
+write setup.py for distribution
+
+=== Future capabilities ===
+
+Ability to create or modify pymca config files using PyMca
+    pymca modify config toolbar button enabled
+
+measure standards, compare measured concentrations with accepted values, modify
+    pymca config file to improve agreement
+
+statistical analysis, like cluster analysis, on concentrations data
+
 ability to click on a pixel, have it display the spectrum, along with the fit,
-  and an opportunity to redo the fit
+    and an opportunity to remeasure the point or redo the fit
 
 video monitoring: convert MacCHESS project to Qt4

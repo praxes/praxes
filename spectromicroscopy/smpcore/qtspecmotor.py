@@ -37,8 +37,7 @@ DEBUG = 0
 #            self._parameters[motor] = value
 #        return self._parameters[motor]
 
-# TODO: This needs to emit signals that we can use to change state of motor 
-# widgets
+
 class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):
     
     __state_strings__ = ['NOTINITIALIZED',
