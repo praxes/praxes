@@ -21,7 +21,7 @@ import time
 import types
 
 import SpecEventsDispatcher
-from SpecClientError import SpecClientError, SpecClientTimeoutError
+from SpecClient.SpecClientError import SpecClientError, SpecClientTimeoutError
 import SpecConnectionsManager
 
 
@@ -77,7 +77,7 @@ class SpecWaitObject:
         if connection is not None:
             try:
                 func = getattr(connection, command)
-            except AttributeError:
+            except:
                 return
             else:
                 if callable(func):
@@ -208,7 +208,7 @@ def waitConnection(connection, timeout = None):
     timeout -- optional timeout (defaults to None)
     """
     if type(connection) == types.StringType:
-        from SpecConnectionsManager import SpecConnectionsManager
+        from SpecClient.SpecConnectionsManager import SpecConnectionsManager
         connection = SpecConnectionsManager().getConnection(connection)
 
     w = SpecWaitObject(connection)
@@ -226,7 +226,7 @@ def waitChannelUpdate(chanName, connection, waitValue = None, timeout = None):
     timeout -- optional timeout (defaults to None)
     """
     if type(connection) == types.StringType:
-        from SpecConnectionsManager import SpecConnectionsManager
+        from SpecClient.SpecConnectionsManager import SpecConnectionsManager
         connection = SpecConnectionsManager().getConnection(connection)
         waitConnection(connection, timeout = timeout)
 
@@ -246,7 +246,7 @@ def waitReply(connection, command, argsTuple, timeout = None):
     timeout -- optional timeout (defaults to None)
     """
     if type(connection) == types.StringType:
-        from SpecConnectionsManager import SpecConnectionsManager
+        from SpecClient.SpecConnectionsManager import SpecConnectionsManager
         connection = SpecConnectionsManager().getConnection(connection)
         waitConnection(connection, timeout = timeout)
 

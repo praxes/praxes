@@ -20,7 +20,7 @@ from PyQt4 import QtCore, QtGui
 from spectromicroscopy.smpgui import configuresmp, console, scanio, \
     ui_smpmainwindow
 from spectromicroscopy.smpcore import specrunner, configutils
-from spectromicroscopy.external.SpecClient import SpecClientError
+from SpecClient import SpecClientError
 #from testinterface import MyUI
 
 #---------------------------------------------------------------------------

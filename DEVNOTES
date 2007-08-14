@@ -1,0 +1,16 @@
+In order to work on SMP development, the spectromicroscopy 
+working directory, PyMca, SpecClient and configobj must all be 
+on your PYTHONPATH. This can be done by adding the following 
+to your .bashrc file, (assuming you use bash):
+
+export PYTHONPATH=/path/to/spectromicroscopy:${PYTHONPATH}
+export PYTHONPATH=/path/to/spectromicroscopy/spectromicroscopy/external:${PYTHONPATH}
+
+of course, replace /path/to with whatever is appropriate.
+
+You will also have to have the following packages installed:
+
+python (version 2.4 or later, preferrably 2.5 or later)
+Qt4 (preferrably version 4.3.1 or later)
+PyQt4 (preferrably version 4.3 or later)
+matplotlib (0.90.1 or later)

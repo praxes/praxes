@@ -18,7 +18,7 @@ import time
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.external.SpecClient import SpecVariable
+from SpecClient import SpecVariable
 
 #---------------------------------------------------------------------------
 # Normal code begins

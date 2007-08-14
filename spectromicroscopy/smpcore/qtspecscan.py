@@ -17,8 +17,8 @@ from PyQt4 import QtCore
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.external.SpecClient import SpecScan, SpecVariable, \
-    SpecConnectionsManager, SpecEventsDispatcher, SpecWaitObject
+from SpecClient import SpecScan, SpecVariable, SpecConnectionsManager, \
+    SpecEventsDispatcher, SpecWaitObject
 from spectromicroscopy.smpcore import configutils, qtspeccommand, \
     qtspecvariable
 

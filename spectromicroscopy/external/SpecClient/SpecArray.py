@@ -122,7 +122,7 @@ def SpecArray(data, datatype = ARRAY_CHAR, rows = 0, cols = 0):
             # (when you receive)
             try:
                 numtype = SPEC_TO_NUM[datatype]
-            except KeyError:
+            except:
                 raise SpecArrayError, 'Invalid Spec array type'
             else:
                 if numpy:

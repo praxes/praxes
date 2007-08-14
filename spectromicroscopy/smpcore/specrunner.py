@@ -19,11 +19,10 @@ from PyQt4 import QtCore
 #---------------------------------------------------------------------------
 
 from spectromicroscopy.smpcore import configutils
-from spectromicroscopy.external import SpecClient
+import SpecClient
 logfile = os.path.join(configutils.getUserConfigDir(), 'specclient.log')
 SpecClient.setLogFile(logfile)
-from spectromicroscopy.external.SpecClient import Spec, SpecEventsDispatcher, \
-    SpecCommand
+from SpecClient import Spec, SpecEventsDispatcher, SpecCommand
 from spectromicroscopy.smpcore import qtspecmotor
 
 #---------------------------------------------------------------------------

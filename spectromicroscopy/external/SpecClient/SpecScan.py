@@ -1,7 +1,7 @@
 """Helper module for managing scans"""
-import SpecConnectionsManager
-import SpecEventsDispatcher
-import SpecWaitObject
+from SpecClient import SpecConnectionsManager
+from SpecClient import SpecEventsDispatcher
+from SpecClient import SpecWaitObject
 import logging
 import types
 import time
@@ -86,7 +86,7 @@ class SpecScanA:
     def getScanType(self):
         try:
             return self.scanParams['scantype']
-        except KeyError:
+        except:
             return -1
         
                        

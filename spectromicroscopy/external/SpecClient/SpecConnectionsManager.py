@@ -212,7 +212,7 @@ class _SpecConnectionsManager:
                         
             del self.connectionDispatchers[specVersion]
             del self.connections[specVersion]
-        except KeyError:
+        except:
             pass
 
 

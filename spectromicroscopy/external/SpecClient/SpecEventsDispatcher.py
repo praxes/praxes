@@ -58,7 +58,7 @@ class Event:
                 
         try:
             self.receivers = connections[senderId][signal]
-        except KeyError:
+        except:
             pass
                    
 
@@ -272,7 +272,7 @@ def connect(sender, signal, slot, dispatchMode = UPDATEVALUE):
     try:
         weakSender = weakref.ref(sender, remove)
         senders[senderId] = weakSender
-    except TypeError:
+    except:
         pass
 
     receivers = []

@@ -18,7 +18,7 @@ import shutil
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.external import configobj
+import configobj
 
 #---------------------------------------------------------------------------
 # Normal code begins

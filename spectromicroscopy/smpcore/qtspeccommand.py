@@ -17,7 +17,7 @@ from PyQt4 import QtCore
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.external.SpecClient import SpecCommand
+from SpecClient import SpecCommand
 
 #---------------------------------------------------------------------------
 # Normal code begins
