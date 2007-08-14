@@ -91,9 +91,9 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
     def getPymcaConfigFile(self):
         dialog = QtGui.QFileDialog(self, 'Load PyMca Config File')
         dialog.setFilter('PyMca config files (*.cfg)')
-        self.pymcaConfigFile = '%s'%dialog.getOpenFileName()
+        self.pymcaConfigFile = str(dialog.getOpenFileName())
         self.emit(QtCore.SIGNAL("pymcaConfigFileChanged(PyQt_PyObject)"),
-                  '%s'%dialog.getOpenFileName())
+                  self.pymcaConfigFile)
     
     # TODO: ability to change pymca config files, using PyMca Advanced Fit
 

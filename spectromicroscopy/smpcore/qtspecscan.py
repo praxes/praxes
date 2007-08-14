@@ -5,7 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-
+import os
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -35,6 +35,8 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         QtCore.QObject.__init__(self)
         SpecScan.SpecScanA.__init__(self, specVersion)
         self._resumeScan = qtspeccommand.QtSpecCommandA('scan_on', specVersion)
+        self._datafile = qtspecvariable.QtSpecVariableA("DATAFILE",
+                                                       specVersion)
 
     def connected(self):
         pass
@@ -43,6 +45,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         pass
 
     def newScan(self, scanParameters):
+        scanParameters['datafile'] = os.path.split(self._datafile.getValue())[1]
         if DEBUG: print scanParameters
         self.emit(QtCore.SIGNAL("newScan(PyQt_PyObject)"), scanParameters)
 

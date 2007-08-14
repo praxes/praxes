@@ -55,8 +55,15 @@ class QtMplCanvas(FigureCanvasQTAgg):
     def minimumSizeHint(self):
         return QtCore.QSize(0, 0)
 
+    def clear(self):
+        self.computeInitialFigure()
 
 class McaSpectrum(QtMplCanvas):
+
+    def __init__(self, parent=None):
+        QtMplCanvas.__init__(self, parent)
+        
+        self.useLogScale = False
 
     def computeInitialFigure(self):
          self.mcaData, = self.axes.plot([0, 1024], [1, 1], '.')
@@ -65,7 +72,10 @@ class McaSpectrum(QtMplCanvas):
         x = fitData['xdata']
         y = fitData['ydata']
         yfit = fitData['yfit']
-        residuals = yfit - y
+        if self.useLogScale:
+            residuals = numpy.log10(yfit) - numpy.log10(y)
+        else:
+            residuals = yfit - y
         offset = numpy.amax(residuals)
         self.axes.plot(x, y, 'ob')
         self.axes.hold(True)
@@ -74,13 +84,21 @@ class McaSpectrum(QtMplCanvas):
         # residuals = log(yfit)-log(y)
         self.axes.plot(x, residuals - 1.5*offset, 'k', linewidth=2)
         self.axes.hold(False)
+        if self.useLogScale:
+            self.axes.set_yscale('log')
         self.draw()
-
+    
+    def setLogScale(self, value=False):
+        self.useLogScale = value
+        if value: scale = 'log'
+        else: scale = 'linear'
+        self.axes.set_yscale(scale)
+        self.draw()
 
 class ElementImage(QtMplCanvas):
 
     def computeInitialFigure(self):
-         self.axes.imshow(numpy.random.rand(100, 100))
+         self.axes.imshow(numpy.zeros((100, 100)))
 
     def updateFigure(self, image):
         vmax = numpy.amax(image)

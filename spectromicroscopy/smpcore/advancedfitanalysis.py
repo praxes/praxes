@@ -5,13 +5,13 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-
+import os
 
 #---------------------------------------------------------------------------
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from PyMca import ClassMcaTheory
+from PyMca import ClassMcaTheory, EdfFile
 from PyQt4 import QtCore
 import numpy
 
@@ -38,6 +38,8 @@ class AdvancedFitAnalysis(QtCore.QObject):
         self.mcaDataFit = []
         self.elements = {}
         self._currentElement = None
+        
+        self._suggested_filename = 'smp.dat'
         
         # TODO: this should be configurable
         self.monitor = 'Icol'
@@ -91,6 +93,8 @@ class AdvancedFitAnalysis(QtCore.QObject):
                                                        dtype=numpy.float_)
                     self.emit(QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
                               group)
+                    self.emit(QtCore.SIGNAL("enableSaveImageButton(PyQt_PyObject)"),
+                              True)
                     self.setCurrentElement(result['groups'][0])
                 self.elements[group].flat[index] = fitarea
                 
@@ -102,6 +106,40 @@ class AdvancedFitAnalysis(QtCore.QObject):
     def getMcaSpectrum(self, index=None):
         if index is None:
             return self.mcaDataFit[-1]
+
+    def setSuggestedFilename(self, scanParams):
+        filename = '_'.join([scanParams['datafile'],
+                             scanParams['title'].replace(' ', '')])
+        self._suggested_filename = filename+'.edf'
+    
+    def getSuggestedFilename(self):
+        return self._suggested_filename
+
+    def saveData(self, filename):
+        data = self.elements[self._currentElement]
+        header = self.getFileHeader()
+        
+        format = os.path.splitext(filename)[-1]
+        if format.lower() == '.edf':
+            edf = EdfFile.EdfFile(filename)
+            edf.WriteImage(header, data, Append=0)
+        else:
+            fd = open(filename, 'w')
+            header = ['#%s : %s\n'% (i, v) for (i, v) in header.itervalues()]
+            fd.writelines(header)
+            s = data.shape
+            if len(s) == 1:
+                cols = s[0]
+                fd.write('%s '*cols%tuple(data))
+            else:
+                cols = s[1]
+                formatStr = '%f '*cols+'\n'
+                strRep = [formatStr%tuple(line) for line in data]
+                fd.writelines(strRep)
+            fd.close()
+    
+    def getFileHeader(self):
+        return {}
 
 
 class AdvancedFitAnalysis1D(AdvancedFitAnalysis):

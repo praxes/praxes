@@ -1,29 +1,31 @@
 === The following needs to happen before SMP can be used for experiments ===
 
-save images to edf files
+  RHEL5 installed on F3 station computer
 
-move residuals from spectrum fitting into a separate plot, just below the 
+X save images to edf files and plain text files
+
+  move residuals from spectrum fitting into a separate plot, just below the 
     spectrum plot. Keep ylimits fixed.
 
-Fix bug in starting a second scan (some bug in caching of element images)
+  Fix bug in starting a second scan (some bug in caching of element images)
 
-add colorbar to image canvas
+  add colorbar to image canvas
 
-emit signal when creating advancedfitanalysis, which sets the X-axis and,
+  emit signal when creating advancedfitanalysis, which sets the X-axis and,
     if appropriate, Y-axis limits.
 
-if scan is not mesh-type, create a different kind of plot canvas in the 
+  if scan is not mesh-type, create a different kind of plot canvas in the 
     lower window. Simple plot instead of an image.
 
-scanfeedback does not load user's pymcaconfig file, uses default.
+  scanfeedback does not load user's pymcaconfig file, uses default.
 
-need unified deadtime correction reported by spec, preferrably in S:
+  need unified deadtime correction reported by spec, preferrably in S:
     vortex: ICR/OCR*Real/Live
     xflash: pulser_rate/reported_rate
 
-need new variable that reports absolute flux at sample, can this be done in S?
+  need new variable that reports absolute flux at sample, can this be done in S?
 
-copy skipmode macro into smp-data, run (but dont enable) at smp startup
+  copy skipmode macro into smp-data, run (but dont enable) at smp startup
     macro needs to be improved:
         set variable to monitoring
         set threshold
@@ -32,27 +34,27 @@ copy skipmode macro into smp-data, run (but dont enable) at smp startup
     if point is skipped, advancedfitanalysis needs to know so it doesnt
         pass mcaData to PyMca
 
-wire up remaining widgets:
+  wire up remaining widgets:
     spectrum yscale: lin/log
     save image button
     min/max/autoscale
     fix pymcaloadconfig toolbar button
 
-element images can (but dont have to) report concentrations instead of areas
+  element images can (but dont have to) report concentrations instead of areas
 
-write setup.py for distribution
+  write setup.py for distribution
 
 === Future capabilities ===
 
-Ability to create or modify pymca config files using PyMca
+  Ability to create or modify pymca config files using PyMca
     pymca modify config toolbar button enabled
 
-measure standards, compare measured concentrations with accepted values, modify
+  measure standards, compare measured concentrations with accepted values, modify
     pymca config file to improve agreement
 
-statistical analysis, like cluster analysis, on concentrations data
+  statistical analysis, like cluster analysis, on concentrations data
 
-ability to click on a pixel, have it display the spectrum, along with the fit,
+  ability to click on a pixel, have it display the spectrum, along with the fit,
     and an opportunity to remeasure the point or redo the fit
 
-video monitoring: convert MacCHESS project to Qt4
+  video monitoring: convert MacCHESS project to Qt4

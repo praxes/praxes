@@ -68,44 +68,9 @@
              <item>
               <layout class="QGridLayout" >
                <item row="0" column="0" >
-                <widget class="QLabel" name="yscaleLabel" >
-                 <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize" >
-                  <size>
-                   <width>63</width>
-                   <height>0</height>
-                  </size>
-                 </property>
+                <widget class="QRadioButton" name="logscaleButton" >
                  <property name="text" >
-                  <string>Y Scale</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1" >
-                <spacer>
-                 <property name="orientation" >
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" >
-                  <size>
-                   <width>20</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item row="0" column="1" >
-                <widget class="QComboBox" name="yscaleComboBox" >
-                 <property name="minimumSize" >
-                  <size>
-                   <width>76</width>
-                   <height>0</height>
-                  </size>
+                  <string>Log Scale</string>
                  </property>
                 </widget>
                </item>
@@ -185,7 +150,11 @@
                 <widget class="QDoubleSpinBox" name="minSpinBox" />
                </item>
                <item row="3" column="1" >
-                <widget class="QDoubleSpinBox" name="maxSpinBox" />
+                <widget class="QDoubleSpinBox" name="maxSpinBox" >
+                 <property name="maximum" >
+                  <double>10000000000.000000000000000</double>
+                 </property>
+                </widget>
                </item>
                <item row="2" column="0" colspan="2" >
                 <widget class="Line" name="line_3" >
@@ -196,6 +165,9 @@
                </item>
                <item row="5" column="1" >
                 <widget class="QPushButton" name="autoscalePushButton" >
+                 <property name="enabled" >
+                  <bool>false</bool>
+                 </property>
                  <property name="text" >
                   <string>Auto scale</string>
                  </property>
@@ -203,6 +175,9 @@
                </item>
                <item row="1" column="1" >
                 <widget class="QPushButton" name="saveImagePushButton" >
+                 <property name="enabled" >
+                  <bool>false</bool>
+                 </property>
                  <property name="text" >
                   <string>Save Image</string>
                  </property>
