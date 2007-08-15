@@ -14,6 +14,7 @@ import os
 from PyMca import ClassMcaTheory, EdfFile
 from PyQt4 import QtCore
 import numpy
+numpy.seterr(all='ignore')
 
 #---------------------------------------------------------------------------
 # SMP imports
@@ -60,7 +61,7 @@ class AdvancedFitAnalysis(QtCore.QObject):
     def newDataPoint(self, scanData):
         self.previousIndex = self.index
         self.index = scanData['i']
-        if self.index != self.previousIndex+1:
+        if self.index != self.previousIndex+1 and self.index != 0:
             print 'index problem: ', self.previousIndex, self.index
         
         #TODO: preprocess data here: deadtime correction, etc.
@@ -78,13 +79,16 @@ class AdvancedFitAnalysis(QtCore.QObject):
             self.advancedFit.estimate()
             fitresult, result = self.advancedFit.startfit(digest=1)
             
-            newFit = {'xdata': result['xdata'], 
-                      'ydata': result['ydata'], 
-                      'yfit': result['yfit']}
-            self.mcaDataFit.append(newFit)
-            self.emit(QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"), newFit)
-            
-            
+            fitData = {}
+            fitData['xdata'] = result['xdata']
+            fitData['energy'] = result['energy']
+            fitData['ydata'] = result['ydata']
+            fitData['yfit'] = result['yfit']
+            fitData['residuals'] = result['ydata']-result['yfit']
+            logres = numpy.log10(result['ydata'])-\
+                            numpy.log10(result['yfit'])
+            logres[numpy.isinf(logres)]=numpy.nan
+            fitData['logresiduals'] = logres
             
             for group in result['groups']:
                 fitarea = result[group]['fitarea']
@@ -93,11 +97,14 @@ class AdvancedFitAnalysis(QtCore.QObject):
                                                        dtype=numpy.float_)
                     self.emit(QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
                               group)
-                    self.emit(QtCore.SIGNAL("enableSaveImageButton(PyQt_PyObject)"),
+                    self.emit(QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
                               True)
                     self.setCurrentElement(result['groups'][0])
                 self.elements[group].flat[index] = fitarea
-                
+            
+            self.mcaDataFit.append(fitData)
+            self.emit(QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"), fitData)
+            
             self.emit(QtCore.SIGNAL("elementImageChanged(PyQt_PyObject)"), 
                       self.elements[self._currentElement])
         except IndexError:
@@ -163,7 +170,7 @@ class AdvancedFitAnalysis2D(AdvancedFitAnalysis):
         self.y = y
         self.yRange = (ymin, ymax)
         self.yPoints = ysteps+1
-        self.imageSize = (self.xPoints, self.yPoints)
+        self.imageSize = (self.yPoints, self.xPoints)
 
 
 #        scanData['MCA_DATA'] = self.mcaData.getValue

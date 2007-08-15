@@ -31,6 +31,8 @@ class ScanFeedback(ui_scanfeedback.Ui_ScanFeedback, QtGui.QWidget):
         self.parent = parent
         self.setupUi(self)
         
+        self.xrfTab.setEnabled(False)
+        
         self.scanAnalysis = None
         
         self.specRunner = parent.specRunner
@@ -38,7 +40,7 @@ class ScanFeedback(ui_scanfeedback.Ui_ScanFeedback, QtGui.QWidget):
         self.mcaSpectrumPlot = mplwidgets.McaSpectrum(self)
         self.mcaSpectrumPlot.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                            QtGui.QSizePolicy.Fixed)
-        self.mcaSpectrumPlot.setMaximumHeight(200)
+        self.mcaSpectrumPlot.setMaximumHeight(220)
         self.gridlayout3.addWidget(self.mcaSpectrumPlot, 0, 0, 1, 1)
         self.mcaToolbar = mplwidgets.Toolbar(self.mcaSpectrumPlot, self)
         self.gridlayout3.addWidget(self.mcaToolbar, 1, 0, 1, 1)
@@ -51,10 +53,39 @@ class ScanFeedback(ui_scanfeedback.Ui_ScanFeedback, QtGui.QWidget):
         self.connect(self.specRunner.scan, 
                      QtCore.SIGNAL("newMesh(PyQt_PyObject)"),
                      self.newScanAnalysis2D)
-        self.connect(self.logscaleButton, 
+        self.connect(self.specRunner.scan, 
+                     QtCore.SIGNAL("meshXAxis(PyQt_PyObject)"),
+                     self.elementImagePlot.setXLabel)
+        self.connect(self.specRunner.scan, 
+                     QtCore.SIGNAL("meshXLims(PyQt_PyObject)"),
+                     self.elementImagePlot.setXLims)
+        self.connect(self.specRunner.scan, 
+                     QtCore.SIGNAL("meshYAxis(PyQt_PyObject)"),
+                     self.elementImagePlot.setYLabel)
+        self.connect(self.specRunner.scan, 
+                     QtCore.SIGNAL("meshYLims(PyQt_PyObject)"),
+                     self.elementImagePlot.setYLims)
+        self.connect(self.mcaLogscaleButton, 
                      QtCore.SIGNAL("clicked(bool)"),
-                     self.mcaSpectrumPlot.setLogScale)
-        
+                     self.mcaSpectrumPlot.enableLogscale)
+        self.connect(self.mcaAutoscaleButton, 
+                     QtCore.SIGNAL("clicked(bool)"),
+                     self.mcaSpectrumPlot.enableAutoscale)
+        self.connect(self.elementImagePlot,
+                     QtCore.SIGNAL("imageMax(PyQt_PyObject)"),
+                     self.maxSpinBox.setValue)
+        self.connect(self.elementImagePlot,
+                     QtCore.SIGNAL("imageMin(PyQt_PyObject)"),
+                     self.minSpinBox.setValue)
+        self.connect(self.maxSpinBox,
+                     QtCore.SIGNAL("valueChanged(double)"),
+                     self.elementImagePlot.setImageMax)
+        self.connect(self.minSpinBox,
+                     QtCore.SIGNAL("valueChanged(double)"),
+                     self.elementImagePlot.setImageMin)
+        self.connect(self.imageAutoscaleButton, 
+                     QtCore.SIGNAL("clicked(bool)"),
+                     self.elementImagePlot.enableAutoscale)
 
     def newScanAnalysis2D(self, scanParams):
         #TODO: use scanParams to set axis labels, ranges, etc
@@ -64,10 +95,10 @@ class ScanFeedback(ui_scanfeedback.Ui_ScanFeedback, QtGui.QWidget):
         #TODO: load users pymcaconfig, if selected
         self.scanAnalysis.loadPymcaConfig()
         
-        self.saveImagePushButton.setEnabled(False)
         self.xrfbandComboBox.clear()
         self.mcaSpectrumPlot.clear()
         self.elementImagePlot.clear()
+        self.xrfTab.setEnabled(False)
         
         self.connect(self.specRunner.scan, 
                      QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"),
@@ -85,8 +116,8 @@ class ScanFeedback(ui_scanfeedback.Ui_ScanFeedback, QtGui.QWidget):
                      QtCore.SIGNAL("currentIndexChanged(const QString&)"),
                      self.scanAnalysis.setCurrentElement)
         self.connect(self.scanAnalysis,
-                     QtCore.SIGNAL("enableSaveImageButton(PyQt_PyObject)"),
-                     self.saveImagePushButton.setEnabled)
+                     QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
+                     self.xrfTab.setEnabled)
         self.connect(self.saveImagePushButton,
                      QtCore.SIGNAL("clicked()"),
                      self.saveData)
