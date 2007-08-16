@@ -86,7 +86,6 @@ class McaSpectrum(QtMplCanvas):
         # We want the spectrumAxes cleared every time plot() is called
         self.spectrumAxes.hold(False)
         self.spectrumAxes.xaxis.set_visible(False)
-        self.spectrumAxes.set_ylabel('Counts')
         
         self.residualsAxes = self.figure.add_axes([.1, .15, .85, .225], 
                                                sharex=self.spectrumAxes)
@@ -94,8 +93,6 @@ class McaSpectrum(QtMplCanvas):
         self.residualsAxes.set_yticks([-1, 0, 1])
         self.residualsAxes.set_ylim(-2, 2)
         self.residualsAxes.hold(False)
-        self.residualsAxes.set_ylabel('Res.')
-        self.residualsAxes.set_xlabel('Energy (KeV)')
 
         FigureCanvasQTAgg.__init__(self, self.figure)
         self.setParent(parent)
@@ -107,7 +104,8 @@ class McaSpectrum(QtMplCanvas):
 
     def updateFigure(self, fitData=None):
         
-        if self.fitData =={}: autoscale = True
+        if self.fitData == {}: 
+            autoscale = True
         else: autoscale = self.autoscale
         
         if fitData: self.fitData = fitData
@@ -129,11 +127,14 @@ class McaSpectrum(QtMplCanvas):
         plot(x, y, 'b', linewidth=1.5, scalex=autoscale, scaley=autoscale)
         self.spectrumAxes.hold(True)
         plot(x, yfit, 'k', linewidth=1.5, scalex=autoscale, scaley=autoscale)
+        self.spectrumAxes.set_ylabel('Counts')
         xlims = self.spectrumAxes.get_xlim()
         self.spectrumAxes.hold(False)
 
         self.residualsAxes.plot(x, residuals, 'k', linewidth=1.5, 
                                 scalex=autoscale, scaley=autoscale)
+        self.residualsAxes.set_ylabel('Res.')
+        self.residualsAxes.set_xlabel('Energy (KeV)')
         ytick = self.residualsAxes.get_yticks()[0]
         self.residualsAxes.set_yticks([ytick, 0, -ytick])
         
@@ -144,6 +145,7 @@ class McaSpectrum(QtMplCanvas):
         self.updateFigure()
 
     def clear(self):
+        self.fitData = {}
         self.spectrumAxes.cla()
         self.residualsAxes.cla()
 
@@ -152,10 +154,6 @@ class ElementImage(QtMplCanvas):
 
     def __init__(self, parent=None):
         QtMplCanvas.__init__(self, parent)
-        self._image = None
-        
-        self._imageData = None
-        self._colorbar = None
         
         self.autoscale = True
         
@@ -163,13 +161,21 @@ class ElementImage(QtMplCanvas):
         self._vmax = 1
         self._extent = [0, 1, 0, 1]
 
+        self._imageData = None
+        self._colorbar = None
+        
     def computeInitialFigure(self, imageData):
         self._imageData = imageData
         self._image = self.axes.imshow(imageData, extent=self._extent, 
-                                       aspect='equal')
+                                       aspect=1/1.414)
+        if self._colorbar is None:
+            self._colorbar = self.figure.colorbar(self._image)
+        else:
+            self._colorbar.ax.cla()
+            self._colorbar = self.figure.colorbar(self._image,
+                                                  self._colorbar.ax)
         self.axes.set_xlabel(self._xlabel)
         self.axes.set_ylabel(self._ylabel)
-        self._colorbar = self.figure.colorbar(self._image)
 
     def updateFigure(self, imageData=None):
         if self._image is None:
@@ -186,8 +192,6 @@ class ElementImage(QtMplCanvas):
             self.emit(QtCore.SIGNAL("imageMax(PyQt_PyObject)"), self._vmax)
         else:
             self._image.set_clim(self._vmin, self._vmax)
-
-        self.axes.set_aspect('equal')
         self.draw()
 
     def setImageMin(self, val):
@@ -198,12 +202,18 @@ class ElementImage(QtMplCanvas):
         self._vmax = val
         self.updateFigure()
 
+    def setImageAspect(self, aspect):
+        self.axes.set_aspect(1/aspect)
+        self.updateFigure()
+
     def clear(self):
-#        self.axes.cla()
-#        self._image = None
-#        self._imageData = None
-#        self._colorbar = None
-        pass
+        self.axes.cla()
+        self._image = None
+        self._imageData = None
+        try:
+            self._colorbar.ax.cla()
+        except AttributeError:
+            pass
     
     def setXLabel(self, label):
         self._xlabel = label

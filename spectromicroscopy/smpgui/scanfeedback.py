@@ -86,6 +86,9 @@ class ScanFeedback(ui_scanfeedback.Ui_ScanFeedback, QtGui.QWidget):
         self.connect(self.imageAutoscaleButton, 
                      QtCore.SIGNAL("clicked(bool)"),
                      self.elementImagePlot.enableAutoscale)
+        self.connect(self.aspectSpinBox,
+                     QtCore.SIGNAL("valueChanged(double)"),
+                     self.elementImagePlot.setImageAspect)
 
     def newScanAnalysis2D(self, scanParams):
         #TODO: use scanParams to set axis labels, ranges, etc
