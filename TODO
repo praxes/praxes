@@ -16,6 +16,8 @@ X modify aspect ratio of image axes
 X emit signal when creating advancedfitanalysis, which sets the X-axis and,
     if appropriate, Y-axis limits.
 
+X each new scan opens a new tab in the scan feedback window
+
   if scan is not mesh-type, create a different kind of plot canvas in the 
     lower window. Simple plot instead of an image.
 
