@@ -94,10 +94,10 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
                     %f"%args
         self._startScan(cmd)
         self.emit(QtCore.SIGNAL("newMesh(PyQt_PyObject)"), args[:-1])
-        self.emit(QtCore.SIGNAL("meshXAxis(PyQt_PyObject)"), args[0])
-        self.emit(QtCore.SIGNAL("meshXLims(PyQt_PyObject)"), args[1:3])
-        self.emit(QtCore.SIGNAL("meshYAxis(PyQt_PyObject)"), args[4])
-        self.emit(QtCore.SIGNAL("meshYLims(PyQt_PyObject)"), args[5:7])
+        self.emit(QtCore.SIGNAL("xAxisLabel(PyQt_PyObject)"), args[0])
+        self.emit(QtCore.SIGNAL("xAxisLims(PyQt_PyObject)"), args[1:3])
+        self.emit(QtCore.SIGNAL("yAxisLabel(PyQt_PyObject)"), args[4])
+        self.emit(QtCore.SIGNAL("yAxisLims(PyQt_PyObject)"), args[5:7])
 
     def tseries(self, nbPoints, countTime):
         cmd = "tseries %d %f"%(nbPoints, countTime)

@@ -180,6 +180,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.disconnectAxesSignals()
     
         numAxes = specutils.SCAN_NUM_AXES[scanType]
+        self.setUpdatesEnabled(False)
         while self.axesTab.count() > 0:
             self.axesTab.removeTab(0)
         self.axes=[]
@@ -191,6 +192,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                 if i < numAxes:
                     self.axes.append(scanmotor.ScanMotor(self, m))
                     self.axesTab.addTab(self.axes[-1], ax)
+        self.setUpdatesEnabled(True)
         self.connectAxesSignals()
 
 if __name__ == "__main__":

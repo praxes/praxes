@@ -55,7 +55,7 @@ class AdvancedFitAnalysis(QtCore.QObject):
     
     def setCurrentElement(self, element):
         self._currentElement = str(element)
-        self.emit(QtCore.SIGNAL("elementImageChanged(PyQt_PyObject)"), 
+        self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"), 
                   self.elements[self._currentElement])
     
     def newDataPoint(self, scanData):
@@ -105,7 +105,7 @@ class AdvancedFitAnalysis(QtCore.QObject):
             self.mcaDataFit.append(fitData)
             self.emit(QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"), fitData)
             
-            self.emit(QtCore.SIGNAL("elementImageChanged(PyQt_PyObject)"), 
+            self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"), 
                       self.elements[self._currentElement])
         except IndexError:
             pass # no data to process

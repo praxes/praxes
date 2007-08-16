@@ -36,13 +36,16 @@ class QtMplCanvas(FigureCanvasQTAgg):
     def __init__(self, parent=None):
         self.useLogScale = False
         self.autoscale = False
+        
+        self._xlabel = ''
+        self._ylabel = ''
+        self._xlims = [0, 1]
+        self._ylims = [0, 1]
     
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
         # We want the axes cleared every time plot() is called
         self.axes.hold(False)
-
-#        self.computeInitialFigure()
 
         FigureCanvasQTAgg.__init__(self, self.figure)
         self.setParent(parent)
@@ -70,8 +73,17 @@ class QtMplCanvas(FigureCanvasQTAgg):
     def clear(self):
         raise NotImplementedError
 
-#    def computeInitialFigure(self)
-#        pass
+    def setXLabel(self, label):
+        self._xlabel = label
+    
+    def setXLims(self, lims):
+        self._xlims = lims
+
+    def setYLabel(self, label):
+        self._ylabel = label
+    
+    def setYLims(self, lims):
+        self._ylims = lims
 
 
 class McaSpectrum(QtMplCanvas):
@@ -139,10 +151,6 @@ class McaSpectrum(QtMplCanvas):
         self.residualsAxes.set_yticks([ytick, 0, -ytick])
         
         self.draw()
-    
-    def enableLogscale(self, value):
-        self.useLogScale = value
-        self.updateFigure()
 
     def clear(self):
         self.fitData = {}
@@ -156,17 +164,18 @@ class ElementImage(QtMplCanvas):
         QtMplCanvas.__init__(self, parent)
         
         self.autoscale = True
-        
-        self._vmin = 0
-        self._vmax = 1
-        self._extent = [0, 1, 0, 1]
+        self._clim = [0, 1]
 
+        self._image = None
         self._imageData = None
         self._colorbar = None
         
     def computeInitialFigure(self, imageData):
         self._imageData = imageData
-        self._image = self.axes.imshow(imageData, extent=self._extent, 
+        extent = []
+        extent.extend(self._xlims)
+        extent.extend(self._ylims)
+        self._image = self.axes.imshow(imageData, extent=extent, 
                                        aspect=1/1.414)
         if self._colorbar is None:
             self._colorbar = self.figure.colorbar(self._image)
@@ -187,19 +196,19 @@ class ElementImage(QtMplCanvas):
             
         if self.autoscale:
             self._image.autoscale()
-            self._vmin, self._vmax = self._image.get_clim()
-            self.emit(QtCore.SIGNAL("imageMin(PyQt_PyObject)"), self._vmin)
-            self.emit(QtCore.SIGNAL("imageMax(PyQt_PyObject)"), self._vmax)
+            self._clim = list(self._image.get_clim())
+            self.emit(QtCore.SIGNAL("imageMin(PyQt_PyObject)"), self._clim[0])
+            self.emit(QtCore.SIGNAL("imageMax(PyQt_PyObject)"), self._clim[1])
         else:
-            self._image.set_clim(self._vmin, self._vmax)
+            self._image.set_clim(self._clim)
         self.draw()
 
-    def setImageMin(self, val):
-        self._vmin = val
+    def setDataMin(self, val):
+        self._clim[0] = val
         self.updateFigure()
 
-    def setImageMax(self, val):
-        self._vmax = val
+    def setDataMax(self, val):
+        self._clim[1] = val
         self.updateFigure()
 
     def setImageAspect(self, aspect):
@@ -214,15 +223,4 @@ class ElementImage(QtMplCanvas):
             self._colorbar.ax.cla()
         except AttributeError:
             pass
-    
-    def setXLabel(self, label):
-        self._xlabel = label
-    
-    def setXLims(self, lims):
-        self._extent[:2] = lims
 
-    def setYLabel(self, label):
-        self._ylabel = label
-    
-    def setYLims(self, lims):
-        self._extent[2:] = lims
