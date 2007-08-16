@@ -4,14 +4,16 @@
 
 X save images to edf files and plain text files
 
-  move residuals from spectrum fitting into a separate plot, just below the 
+X move residuals from spectrum fitting into a separate plot, just below the 
     spectrum plot. Keep ylimits fixed.
 
-  Fix bug in starting a second scan (some bug in caching of element images)
+X fix bug in starting a second scan (some bug in caching of element images)
 
-  add colorbar to image canvas
+X add colorbar to image canvas
 
-  emit signal when creating advancedfitanalysis, which sets the X-axis and,
+X modify aspect ratio of image axes
+
+X emit signal when creating advancedfitanalysis, which sets the X-axis and,
     if appropriate, Y-axis limits.
 
   if scan is not mesh-type, create a different kind of plot canvas in the 
@@ -35,9 +37,9 @@ X save images to edf files and plain text files
         pass mcaData to PyMca
 
   wire up remaining widgets:
-    spectrum yscale: lin/log
-    save image button
-    min/max/autoscale
+X   spectrum yscale: lin/log
+X   save image button
+X   min/max/autoscale
     fix pymcaloadconfig toolbar button
 
   element images can (but dont have to) report concentrations instead of areas
