@@ -45,6 +45,9 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.connect(self.actionLoad_PyMca_Config,
                      QtCore.SIGNAL("triggered()"),
                      self.getPymcaConfigFile)
+        self.connect(self.actionDefault_Config,
+                     QtCore.SIGNAL("triggered()"),
+                     self.getDefaultPymcaFile)
 
     def configureSmp(self):
         self.smpConfig = configutils.getSmpConfig()
@@ -92,6 +95,10 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         dialog = QtGui.QFileDialog(self, 'Load PyMca Config File')
         dialog.setFilter('PyMca config files (*.cfg)')
         self.pymcaConfigFile = str(dialog.getOpenFileName())
+        self.emit(QtCore.SIGNAL("pymcaConfigFileChanged(PyQt_PyObject)"),
+                  self.pymcaConfigFile)
+    def getDefaultPymcaFile(self):
+        self.pymcaConfigFile = configutils.getDefaultPymcaConfigFile()
         self.emit(QtCore.SIGNAL("pymcaConfigFileChanged(PyQt_PyObject)"),
                   self.pymcaConfigFile)
     

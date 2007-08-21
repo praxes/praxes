@@ -70,6 +70,8 @@
      </property>
      <addaction name="actionLoad_PyMca_Config" />
      <addaction name="actionModify_PyMca_Config" />
+     <addaction name="separator" />
+     <addaction name="actionDefault_Config" />
     </widget>
     <addaction name="menuConfigure_SMP" />
     <addaction name="menuConfigure_PyMca" />
@@ -120,6 +122,11 @@
   <action name="actionModify_SMP_Config" >
    <property name="text" >
     <string>Modify Config</string>
+   </property>
+  </action>
+  <action name="actionDefault_Config" >
+   <property name="text" >
+    <string>Default Config</string>
    </property>
   </action>
  </widget>
