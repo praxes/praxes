@@ -71,7 +71,7 @@
      <addaction name="actionLoad_PyMca_Config" />
      <addaction name="actionModify_PyMca_Config" />
      <addaction name="separator" />
-     <addaction name="actionDefault_Config" />
+     <addaction name="actionLoad_Default_Pymca_Config" />
     </widget>
     <addaction name="menuConfigure_SMP" />
     <addaction name="menuConfigure_PyMca" />
@@ -124,7 +124,7 @@
     <string>Modify Config</string>
    </property>
   </action>
-  <action name="actionDefault_Config" >
+  <action name="actionLoad_Default_Pymca_Config" >
    <property name="text" >
     <string>Default Config</string>
    </property>

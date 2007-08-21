@@ -36,7 +36,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         SpecScan.SpecScanA.__init__(self, specVersion)
         self._resumeScan = qtspeccommand.QtSpecCommandA('scan_on', specVersion)
         self._datafile = qtspecvariable.QtSpecVariableA("DATAFILE",
-                                                       specVersion)
+                                                        specVersion)
 
     def connected(self):
         pass

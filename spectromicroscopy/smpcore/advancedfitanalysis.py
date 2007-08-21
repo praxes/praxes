@@ -49,7 +49,17 @@ class AdvancedFitAnalysis(QtCore.QObject):
         if not configFile:
             configFile = configutils.getDefaultPymcaConfigFile()
         self.pymcaConfig = configutils.getPymcaConfig(configFile)
-        self.peaks = self.pymcaConfig['peaks'].keys()
+        self.peaks = [' '.join([key, val]) 
+                      for key, val in self.pymcaConfig['peaks'].iteritems()]
+        self.peaks.sort()
+        if self._currentElement is None:
+            self._currentElement = self.peaks[0]
+        for peak in self.peaks:
+            if not peak in self.elements:
+                    self.elements[peak] = numpy.zeros(self.imageSize,
+                                                      dtype=numpy.float_)
+        self.emit(QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
+                  self.peaks)
         self.advancedFit = ClassMcaTheory.McaTheory(configFile)
         self.advancedFit.enableOptimizedLinearFit()
     
@@ -91,22 +101,16 @@ class AdvancedFitAnalysis(QtCore.QObject):
             fitData['logresiduals'] = logres
             
             for group in result['groups']:
-                fitarea = result[group]['fitarea']
-                if not group in self.elements:
-                    self.elements[group] = numpy.zeros(self.imageSize,
-                                                       dtype=numpy.float_)
-                    self.emit(QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
-                              group)
-                    self.emit(QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
-                              True)
-                    self.setCurrentElement(result['groups'][0])
-                self.elements[group].flat[index] = fitarea
+                self.elements[group].flat[index] = result[group]['fitarea']
             
             self.mcaDataFit.append(fitData)
             self.emit(QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"), fitData)
             
             self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"), 
                       self.elements[self._currentElement])
+            if index == 0:
+                self.emit(QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
+                          True)
         except IndexError:
             pass # no data to process
     

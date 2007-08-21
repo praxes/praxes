@@ -33,7 +33,6 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
         self.setEnabled(False)
         
         self.specRunner = parent.specRunner
-        
         self.scanAnalysis = None
         
         self.mcaSpectrumPlot = mplwidgets.McaSpectrum(self)
@@ -62,7 +61,7 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
                      self.mcaSpectrumPlot.updateFigure)
         self.connect(self.scanAnalysis, 
                      QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
-                     self.xrfbandComboBox.addItem)
+                     self.xrfbandComboBox.addItems)
         self.connect(self.scanAnalysis, 
                      QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
                      self.elementDataPlot.updateFigure)
@@ -112,6 +111,10 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
         if filename:
             self.scanAnalysis.saveData(filename)
 
+    def loadPymcaConfigFile(self):
+        configFile = self.window().pymcaConfigFile
+        self.scanAnalysis.loadPymcaConfig(configFile)
+
 
 class ScanAnalysis1D(ScanAnalysis):
     """Establishes a Experimenbt controls    """
@@ -120,10 +123,9 @@ class ScanAnalysis1D(ScanAnalysis):
 
         self.scanAnalysis = \
             advancedfitanalysis.AdvancedFitAnalysis1D(scanParams)
-        #TODO: load users pymcaconfig, if selected
-        self.scanAnalysis.loadPymcaConfig()
         
         self.connectSignals()
+        self.loadPymcaConfigFile()
 
 
 class ScanAnalysis2D(ScanAnalysis):
@@ -133,8 +135,6 @@ class ScanAnalysis2D(ScanAnalysis):
         
         self.scanAnalysis = \
             advancedfitanalysis.AdvancedFitAnalysis2D(scanParams)
-        #TODO: load users pymcaconfig, if selected
-        self.scanAnalysis.loadPymcaConfig()
 
         self.elementDataPlot = mplwidgets.ElementImage(self)
         self.gridlayout4.addWidget(self.elementDataPlot, 0, 0, 1, 1)
@@ -142,6 +142,7 @@ class ScanAnalysis2D(ScanAnalysis):
         self.gridlayout4.addWidget(self.elementToolbar, 1, 0, 1, 1)
 
         self.connectSignals()
+        self.loadPymcaConfigFile()
 
     def connectSignals(self):
         ScanAnalysis.connectSignals(self)
