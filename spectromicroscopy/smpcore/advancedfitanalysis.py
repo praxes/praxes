@@ -108,7 +108,7 @@ class AdvancedFitAnalysis(QtCore.QObject):
             
             self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"), 
                       self.elements[self._currentElement])
-            if index == 0:
+            if index <= 1:
                 self.emit(QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
                           True)
         except IndexError:
