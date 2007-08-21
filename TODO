@@ -1,6 +1,6 @@
 === The following needs to happen before SMP can be used for experiments ===
 
-  RHEL5 installed on F3 station computer
+O RHEL5 installed on F3 station computer
 
 X save images to edf files and plain text files
 
@@ -18,18 +18,18 @@ X emit signal when creating advancedfitanalysis, which sets the X-axis and,
 
 X each new scan opens a new tab in the scan feedback window
 
-  if scan is not mesh-type, create a different kind of plot canvas in the 
+O if scan is not mesh-type, create a different kind of plot canvas in the 
     lower window. Simple plot instead of an image.
 
-  scanfeedback does not load user's pymcaconfig file, uses default.
+O scanfeedback does not load user's pymcaconfig file, uses default.
 
-  need unified deadtime correction reported by spec, preferrably in S:
+O need unified deadtime correction reported by spec, preferrably in S:
     vortex: ICR/OCR*Real/Live
     xflash: pulser_rate/reported_rate
 
-  need new variable that reports absolute flux at sample, can this be done in S?
+O need new variable that reports absolute flux at sample, can this be done in S?
 
-  copy skipmode macro into smp-data, run (but dont enable) at smp startup
+O copy skipmode macro into smp-data, run (but dont enable) at smp startup
     macro needs to be improved:
         set variable to monitoring
         set threshold
@@ -42,9 +42,14 @@ X each new scan opens a new tab in the scan feedback window
 X   spectrum yscale: lin/log
 X   save image button
 X   min/max/autoscale
-    fix pymcaloadconfig toolbar button
+O   fix pymcaloadconfig toolbar button
 
-  element images can (but dont have to) report concentrations instead of areas
+O turn off feedback signals after a scan is complete or aborted, old tabs 
+    continue to process new data right now
+
+O use pytables to store data on disk, rather than in memory
+
+O element images can (but dont have to) report concentrations instead of areas
 
   write setup.py for distribution
 

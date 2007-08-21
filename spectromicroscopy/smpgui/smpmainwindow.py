@@ -97,6 +97,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.pymcaConfigFile = str(dialog.getOpenFileName())
         self.emit(QtCore.SIGNAL("pymcaConfigFileChanged(PyQt_PyObject)"),
                   self.pymcaConfigFile)
+
     def getDefaultPymcaFile(self):
         self.pymcaConfigFile = configutils.getDefaultPymcaConfigFile()
         self.emit(QtCore.SIGNAL("pymcaConfigFileChanged(PyQt_PyObject)"),

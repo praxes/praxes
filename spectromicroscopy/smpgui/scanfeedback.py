@@ -33,6 +33,7 @@ class ScanFeedback(ui_scanfeedback.Ui_ScanFeedback, QtGui.QWidget):
         
         self.specRunner = parent.specRunner
         self.scanAnalyses = []
+        self.PymcaConfigFile=None
         
         self.connect(self.specRunner.scan, 
                      QtCore.SIGNAL("newMesh(PyQt_PyObject)"),
@@ -40,7 +41,6 @@ class ScanFeedback(ui_scanfeedback.Ui_ScanFeedback, QtGui.QWidget):
         self.connect(self.specRunner.scan,
                      QtCore.SIGNAL("newScan(PyQt_PyObject)"),
                      self.setTabLabel)
-        self.PymcaConfigFile=None
         self.connect(self.window(),
                      QtCore.SIGNAL("pymcaConfigFileChanged(PyQt_PyObject)"),
                      self.setPymcaConfigFile)
