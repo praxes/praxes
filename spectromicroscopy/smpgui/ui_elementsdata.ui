@@ -169,6 +169,9 @@ p, li { white-space: pre-wrap; }
       </item>
       <item>
        <widget class="Line" name="line" >
+        <property name="cursor" >
+         <cursorShape>ArrowCursor</cursorShape>
+        </property>
         <property name="orientation" >
          <enum>Qt::Vertical</enum>
         </property>

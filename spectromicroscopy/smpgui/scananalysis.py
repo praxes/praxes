@@ -40,7 +40,7 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
         self.gridlayout.addWidget(self.mcaSpectrumPlot, 0, 0, 1, 1)
         
         self.splitter = QtGui.QSplitter(QtCore.Qt.Vertical, self)
-        self.splitter.setCursor(QtCore.Qt.SplitHCursor)
+        self.splitter.setCursor(QtCore.Qt.SplitVCursor)
         self.gridlayout.addWidget(self.splitter, 1, 0, 1, 1)
         self.splitter.addWidget(self.mcaSpectrumPlot)
 
