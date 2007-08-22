@@ -54,14 +54,12 @@ class ScanFeedback(ui_scanfeedback.Ui_ScanFeedback, QtGui.QWidget):
                      self.setTabLabel)
 
     def newScanAnalysis1D(self, scanParams):
-        print "***********SIGNALed for 1d"
         newAnalysis = scananalysis.ScanAnalysis1D(self, scanParams)
         self.scanAnalyses.append(newAnalysis)
         self.scanFeedbackTab.addTab(newAnalysis, '')
         self.scanFeedbackTab.setCurrentWidget(newAnalysis)
         
     def newScanAnalysis2D(self, scanParams):
-        print "***********SIGNALed for 2d"
         newAnalysis = scananalysis.ScanAnalysis2D(self, scanParams)
         self.scanAnalyses.append(newAnalysis)
         self.scanFeedbackTab.addTab(newAnalysis, '')
