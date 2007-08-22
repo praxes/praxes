@@ -124,8 +124,20 @@ class ScanAnalysis1D(ScanAnalysis):
         self.scanAnalysis = \
             advancedfitanalysis.AdvancedFitAnalysis1D(scanParams)
         
+        self.elementDataPlot=mplwidgets.ElementPlot(self)
+        self.gridlayout4.addWidget(self.elementDataPlot, 0, 0, 1, 1)
+        self.elementToolbar = mplwidgets.Toolbar(self.elementDataPlot, self)
+        self.gridlayout4.addWidget(self.elementToolbar, 1, 0, 1, 1)
+        
         self.connectSignals()
         self.loadPymcaConfigFile()
+        
+        
+    def connectSignals(self):
+        ScanAnalysis.connectSignals(self)
+        self.connect(self.aspectSpinBox,
+                     QtCore.SIGNAL("valueChanged(double)"),
+                     self.elementDataPlot.setImageAspect)
 
 
 class ScanAnalysis2D(ScanAnalysis):

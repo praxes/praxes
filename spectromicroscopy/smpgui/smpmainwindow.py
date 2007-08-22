@@ -29,8 +29,13 @@ from SpecClient import SpecClientError
 
 
 class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
-
-    """Establishes a Experiment controls"""
+    """Establishes a Experiment controls
+    
+    1) establishes week connection to specrunner
+    2) creates ScanIO instance with Experiment Controls
+    3) Connects Actions from Toolbar
+    
+    """
 
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
@@ -66,8 +71,9 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.scanIO = scanio.ScanIO(self)
         self.mainTab.addTab(self.scanIO, "Experiment Controls")
         self.mainTab.removeTab(0)
-        
-        self.console = None
+    #TODO: added Consoles and motorViews 
+        self.console = None #console.MyKon()
+##        self.mainTab.addTab(self.console, "Console")
         self.motorView = None
 
     def connectionError(self, specVersion):

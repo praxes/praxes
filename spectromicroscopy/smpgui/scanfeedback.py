@@ -38,16 +38,21 @@ class ScanFeedback(ui_scanfeedback.Ui_ScanFeedback, QtGui.QWidget):
                      QtCore.SIGNAL("newMesh(PyQt_PyObject)"),
                      self.newScanAnalysis2D)
         self.connect(self.specRunner.scan,
+                     QtCore.SIGNAL("newTseries(PyQt_PyObject)"),
+                     self.newScanAnalysis1D)
+        self.connect(self.specRunner.scan,
                      QtCore.SIGNAL("newScan(PyQt_PyObject)"),
                      self.setTabLabel)
 
     def newScanAnalysis1D(self, scanParams):
+        print "***********SIGNALed for 1d"
         newAnalysis = ScanAnalysis1D(self, scanParams)
         self.scanAnalyses.append(newAnalysis)
         self.scanFeedbackTab.addTab(newAnalysis, '')
         self.scanFeedbackTab.setCurrentWidget(newAnalysis)
         
     def newScanAnalysis2D(self, scanParams):
+        print "***********SIGNALed for 2d"
         newAnalysis = scananalysis.ScanAnalysis2D(self, scanParams)
         self.scanAnalyses.append(newAnalysis)
         self.scanFeedbackTab.addTab(newAnalysis, '')

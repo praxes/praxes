@@ -30,6 +30,9 @@ from spectromicroscopy.smpcore import configutils
 class AdvancedFitAnalysis(QtCore.QObject):
 
     def __init__(self, *args):
+        """Processes the Information from Spec
+        
+        """
         QtCore.QObject.__init__(self)
 
         self.dataQue = []
