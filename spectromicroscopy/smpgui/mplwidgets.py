@@ -164,7 +164,7 @@ class ElementImage(QtMplCanvas):
         QtMplCanvas.__init__(self, parent)
         
         self.autoscale = True
-        self._clim = [0, 1]
+        self._lim = [0, 1]
 
         self._image = None
         self._imageData = None
@@ -228,11 +228,9 @@ class ElementPlot(ElementImage):
     def __init__(self,parent=None):
         QtMplCanvas.__init__(self, parent)
         
+        self._clim = [0, 1]
+        self._plot = None
         self.autoscale = True
-        self._imageData = None
-        self._vmin = 0
-        self._vmax = 1
-        self._extent = [0, 1, 0, 1]
 
     def computeInitialFigure(self, imageData):
         self._imageData = imageData
@@ -241,18 +239,24 @@ class ElementPlot(ElementImage):
         self.axes.set_ylabel(self._ylabel)
         
     def updateFigure(self, imageData=None):
-        if self._image is None:
+        if self._plot is None:
             self.computeInitialFigure(imageData)
         else:
             if imageData is None: imageData = self._imageData
             else: self._imageData = imageData
-            self._plot.set_data(imageData)
+            self._plot=self.axes.plot(imageData,"b-")
             
         if self.autoscale:
-            self._plot.autoscale()
-            self._vmin, self._vmax = self._plot.get_clim()
+            self._vmin, self._vmax = self.axes.get_ylim()
             self.emit(QtCore.SIGNAL("imageMin(PyQt_PyObject)"), self._vmin)
             self.emit(QtCore.SIGNAL("imageMax(PyQt_PyObject)"), self._vmax)
         else:
-            self._plot.set_clim(self._vmin, self._vmax)
+            self._plot.set_ylim(self._vmin, self._vmax)
         self.draw()
+    def setDataMin(self, val):
+        self.axes.set_ylim(min=val)
+        self.updateFigure()
+
+    def setDataMax(self, val):
+        self.axes.set_ylim(max=val)
+        self.updateFigure()

@@ -18,7 +18,7 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 
 from spectromicroscopy.smpgui import ui_scananalysis, elementsdata, \
-    mcaspectrum, mplwidgets
+    mcaspectrum, mplwidgets,elementsplot
 from spectromicroscopy.smpcore import advancedfitanalysis
 
 #---------------------------------------------------------------------------
@@ -104,7 +104,7 @@ class ScanAnalysis1D(ScanAnalysis):
         self.scanAnalysis = \
             advancedfitanalysis.AdvancedFitAnalysis1D(scanParams)
         
-        self.elementDataPlot = elementsdata.ElementsData()
+        self.elementDataPlot = elementsplot.ElementsPlot()
         self.gridlayout.addWidget(self.elementDataPlot, 2, 0, 1, 1)
         self.splitter.addWidget(self.elementDataPlot)
         
@@ -114,9 +114,6 @@ class ScanAnalysis1D(ScanAnalysis):
         
     def connectSignals(self):
         ScanAnalysis.connectSignals(self)
-        self.connect(self.aspectSpinBox,
-                     QtCore.SIGNAL("valueChanged(double)"),
-                     self.elementDataPlot.setImageAspect)
 
 
 class ScanAnalysis2D(ScanAnalysis):

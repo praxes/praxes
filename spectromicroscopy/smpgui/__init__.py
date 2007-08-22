@@ -17,7 +17,7 @@ def gen_ui():
         else:
             convert = True
         if convert:
-            os.system('pyuic4 %s > %s'%(ui, py))
+            os.system('/usr/bin/pyuic4 %s > %s'%(ui, py))
 
 if UI_DEVEL: gen_ui()
 del(UI_DEVEL, gen_ui)

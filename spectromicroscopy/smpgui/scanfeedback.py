@@ -41,12 +41,21 @@ class ScanFeedback(ui_scanfeedback.Ui_ScanFeedback, QtGui.QWidget):
                      QtCore.SIGNAL("newTseries(PyQt_PyObject)"),
                      self.newScanAnalysis1D)
         self.connect(self.specRunner.scan,
+                     QtCore.SIGNAL("newAscan(PyQt_PyObject)"),
+                     self.newScanAnalysis1D)
+        self.connect(self.specRunner.scan,
+                     QtCore.SIGNAL("newA2scan(PyQt_PyObject)"),
+                     self.newScanAnalysis1D)
+        self.connect(self.specRunner.scan,
+                     QtCore.SIGNAL("newA3scan(PyQt_PyObject)"),
+                     self.newScanAnalysis1D)
+        self.connect(self.specRunner.scan,
                      QtCore.SIGNAL("newScan(PyQt_PyObject)"),
                      self.setTabLabel)
 
     def newScanAnalysis1D(self, scanParams):
         print "***********SIGNALed for 1d"
-        newAnalysis = ScanAnalysis1D(self, scanParams)
+        newAnalysis = scananalysis.ScanAnalysis1D(self, scanParams)
         self.scanAnalyses.append(newAnalysis)
         self.scanFeedbackTab.addTab(newAnalysis, '')
         self.scanFeedbackTab.setCurrentWidget(newAnalysis)
