@@ -18,10 +18,10 @@ X emit signal when creating advancedfitanalysis, which sets the X-axis and,
 
 X each new scan opens a new tab in the scan feedback window
 
-O if scan is not mesh-type, create a different kind of plot canvas in the 
+X if scan is not mesh-type, create a different kind of plot canvas in the 
     lower window. Simple plot instead of an image.
 
-O scanfeedback does not load user's pymcaconfig file, uses default.
+X scanfeedback does not load user's pymcaconfig file, uses default.
 
 O need unified deadtime correction reported by spec, preferrably in S:
     vortex: ICR/OCR*Real/Live
@@ -42,7 +42,8 @@ O copy skipmode macro into smp-data, run (but dont enable) at smp startup
 X   spectrum yscale: lin/log
 X   save image button
 X   min/max/autoscale
-O   fix pymcaloadconfig toolbar button
+X   fix pymcaloadconfig toolbar button
+
 
 O turn off feedback signals after a scan is complete or aborted, old tabs 
     continue to process new data right now

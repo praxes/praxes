@@ -159,9 +159,13 @@ class AdvancedFitAnalysis(QtCore.QObject):
 
 class AdvancedFitAnalysis1D(AdvancedFitAnalysis):
     
-    def __init__(self, *args):
+    def __init__(self, scanArgs):
         AdvancedFitAnalysis.__init__(self)
-        
+        xsteps= scanArgs+1
+        self.x = 0
+        self.xRange = (0, xsteps-1)
+        self.xPoints = xsteps
+        self.imageSize = (self.xPoints)
         
 
 

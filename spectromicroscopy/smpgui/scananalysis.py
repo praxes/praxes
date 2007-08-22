@@ -43,7 +43,10 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
         self.splitter.setCursor(QtCore.Qt.SplitVCursor)
         self.gridlayout.addWidget(self.splitter, 1, 0, 1, 1)
         self.splitter.addWidget(self.mcaSpectrumPlot)
-
+        self.connect(self.specRunner.scan,
+                     QtCore.SIGNAL("scanFinished()"),
+                     self.disconnectSignals)
+        
     def connectSignals(self):
         self.connect(self.elementDataPlot.saveDataPushButton,
                      QtCore.SIGNAL("clicked()"),
@@ -79,6 +82,35 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
                      QtCore.SIGNAL("yAxisLabel(PyQt_PyObject)"),
                      self.elementDataPlot.setYLabel)
         self.connect(self.specRunner.scan, 
+                     QtCore.SIGNAL("yAxisLims(PyQt_PyObject)"),
+                     self.elementDataPlot.setYLims)
+
+    def disconnectSignals(self):
+        self.disconnect(self.specRunner.scan, 
+                     QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"),
+                     self.scanAnalysis.newDataPoint)
+        self.disconnect(self.scanAnalysis, 
+                     QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
+                     self.mcaSpectrumPlot.updateFigure)
+        self.disconnect(self.scanAnalysis, 
+                     QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
+                     self.elementDataPlot.xrfbandComboBox.addItems)
+        self.disconnect(self.scanAnalysis,
+                     QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
+                     self.setEnabled)
+        self.disconnect(self.specRunner.scan,
+                     QtCore.SIGNAL("newScan(PyQt_PyObject)"),
+                     self.scanAnalysis.setSuggestedFilename)
+        self.disconnect(self.specRunner.scan, 
+                     QtCore.SIGNAL("xAxisLabel(PyQt_PyObject)"),
+                     self.elementDataPlot.setXLabel)
+        self.disconnect(self.specRunner.scan, 
+                     QtCore.SIGNAL("xAxisLims(PyQt_PyObject)"),
+                     self.elementDataPlot.setXLims)
+        self.disconnect(self.specRunner.scan, 
+                     QtCore.SIGNAL("yAxisLabel(PyQt_PyObject)"),
+                     self.elementDataPlot.setYLabel)
+        self.disconnect(self.specRunner.scan, 
                      QtCore.SIGNAL("yAxisLims(PyQt_PyObject)"),
                      self.elementDataPlot.setYLims)
 
