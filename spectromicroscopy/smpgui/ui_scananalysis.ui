@@ -236,5 +236,38 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>dataAutoscaleButton</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>minSpinBox</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>264</x>
+     <y>501</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>273</x>
+     <y>475</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dataAutoscaleButton</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>maxSpinBox</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>305</x>
+     <y>493</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>317</x>
+     <y>439</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

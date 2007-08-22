@@ -42,7 +42,7 @@ class ScanFeedback(ui_scanfeedback.Ui_ScanFeedback, QtGui.QWidget):
                      self.setTabLabel)
 
     def newScanAnalysis1D(self, scanParams):
-        newAnalysis = ScanAnalysis1D(self)
+        newAnalysis = ScanAnalysis1D(self, scanParams)
         self.scanAnalyses.append(newAnalysis)
         self.scanFeedbackTab.addTab(newAnalysis, '')
         self.scanFeedbackTab.setCurrentWidget(newAnalysis)

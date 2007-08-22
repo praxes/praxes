@@ -64,9 +64,10 @@ class AdvancedFitAnalysis(QtCore.QObject):
         self.advancedFit.enableOptimizedLinearFit()
     
     def setCurrentElement(self, element):
-        self._currentElement = str(element)
-        self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"), 
-                  self.elements[self._currentElement])
+        if not self._currentElement == str(element):
+            self._currentElement = str(element)
+            self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"), 
+                      self.elements[self._currentElement])
     
     def newDataPoint(self, scanData):
         self.previousIndex = self.index

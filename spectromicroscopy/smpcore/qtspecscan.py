@@ -92,12 +92,12 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         cmd = "mesh %s %f %f %d \
                     %s %f %f %d \
                     %f"%args
-        self._startScan(cmd)
         self.emit(QtCore.SIGNAL("newMesh(PyQt_PyObject)"), args[:-1])
         self.emit(QtCore.SIGNAL("xAxisLabel(PyQt_PyObject)"), args[0])
         self.emit(QtCore.SIGNAL("xAxisLims(PyQt_PyObject)"), args[1:3])
         self.emit(QtCore.SIGNAL("yAxisLabel(PyQt_PyObject)"), args[4])
         self.emit(QtCore.SIGNAL("yAxisLims(PyQt_PyObject)"), args[5:7])
+        self._startScan(cmd)
 
     def tseries(self, nbPoints, countTime):
         cmd = "tseries %d %f"%(nbPoints, countTime)
@@ -114,6 +114,7 @@ class QtSpecScanMcaA(QtSpecScanA):
 
     def newScanPoint(self, i, x, y, scanData):
         scanData['i'] = i
+        print i
         scanData['x'] = x
         scanData['y'] = y
         scanData['mcaData'] = self.mcaData.getValue().transpose()

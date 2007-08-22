@@ -100,7 +100,7 @@ class McaSpectrum(QtMplCanvas):
         self.spectrumAxes.xaxis.set_visible(False)
         
         self.residualsAxes = self.figure.add_axes([.1, .15, .85, .225], 
-                                               sharex=self.spectrumAxes)
+                                                  sharex=self.spectrumAxes)
         # We want the residualsAxes cleared every time plot() is called
         self.residualsAxes.set_yticks([-1, 0, 1])
         self.residualsAxes.set_ylim(-2, 2)
@@ -197,8 +197,8 @@ class ElementImage(QtMplCanvas):
         if self.autoscale:
             self._image.autoscale()
             self._clim = list(self._image.get_clim())
-            self.emit(QtCore.SIGNAL("imageMin(PyQt_PyObject)"), self._clim[0])
-            self.emit(QtCore.SIGNAL("imageMax(PyQt_PyObject)"), self._clim[1])
+            self.emit(QtCore.SIGNAL("dataMin(PyQt_PyObject)"), self._clim[0])
+            self.emit(QtCore.SIGNAL("dataMax(PyQt_PyObject)"), self._clim[1])
         else:
             self._image.set_clim(self._clim)
         self.draw()

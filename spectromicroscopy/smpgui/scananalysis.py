@@ -37,8 +37,8 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
         
         self.mcaSpectrumPlot = mplwidgets.McaSpectrum(self)
         self.mcaSpectrumPlot.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                                           QtGui.QSizePolicy.Fixed)
-        self.mcaSpectrumPlot.setMaximumHeight(220)
+                                           QtGui.QSizePolicy.Expanding)
+#        self.mcaSpectrumPlot.setMaximumHeight(220)
         self.gridlayout2.addWidget(self.mcaSpectrumPlot, 0, 0, 1, 1)
         self.mcaToolbar = mplwidgets.Toolbar(self.mcaSpectrumPlot, self)
         self.gridlayout2.addWidget(self.mcaToolbar, 1, 0, 1, 1)
