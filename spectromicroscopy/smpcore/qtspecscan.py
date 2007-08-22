@@ -114,7 +114,6 @@ class QtSpecScanMcaA(QtSpecScanA):
 
     def newScanPoint(self, i, x, y, scanData):
         scanData['i'] = i
-        print i
         scanData['x'] = x
         scanData['y'] = y
         scanData['mcaData'] = self.mcaData.getValue().transpose()

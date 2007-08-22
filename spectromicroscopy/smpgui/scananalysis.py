@@ -17,7 +17,8 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.smpgui import ui_scananalysis, mplwidgets
+from spectromicroscopy.smpgui import ui_scananalysis, elementsdata, \
+    mcaspectrum, mplwidgets
 from spectromicroscopy.smpcore import advancedfitanalysis
 
 #---------------------------------------------------------------------------
@@ -34,23 +35,17 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
         
         self.specRunner = parent.specRunner
         self.scanAnalysis = None
+
+        self.mcaSpectrumPlot = mcaspectrum.McaSpectrum()
+        self.gridlayout.addWidget(self.mcaSpectrumPlot, 0, 0, 1, 1)
         
-        self.mcaSpectrumPlot = mplwidgets.McaSpectrum(self)
-        self.mcaSpectrumPlot.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                                           QtGui.QSizePolicy.Expanding)
-#        self.mcaSpectrumPlot.setMaximumHeight(220)
-        self.gridlayout2.addWidget(self.mcaSpectrumPlot, 0, 0, 1, 1)
-        self.mcaToolbar = mplwidgets.Toolbar(self.mcaSpectrumPlot, self)
-        self.gridlayout2.addWidget(self.mcaToolbar, 1, 0, 1, 1)
+        self.splitter = QtGui.QSplitter(QtCore.Qt.Vertical, self)
+        self.splitter.setCursor(QtCore.Qt.SplitHCursor)
+        self.gridlayout.addWidget(self.splitter, 1, 0, 1, 1)
+        self.splitter.addWidget(self.mcaSpectrumPlot)
 
     def connectSignals(self):
-        self.connect(self.mcaLogscaleButton, 
-                     QtCore.SIGNAL("clicked(bool)"),
-                     self.mcaSpectrumPlot.enableLogscale)
-        self.connect(self.mcaAutoscaleButton, 
-                     QtCore.SIGNAL("clicked(bool)"),
-                     self.mcaSpectrumPlot.enableAutoscale)
-        self.connect(self.saveDataPushButton,
+        self.connect(self.elementDataPlot.saveDataPushButton,
                      QtCore.SIGNAL("clicked()"),
                      self.saveData)
         self.connect(self.specRunner.scan, 
@@ -61,11 +56,11 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
                      self.mcaSpectrumPlot.updateFigure)
         self.connect(self.scanAnalysis, 
                      QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
-                     self.xrfbandComboBox.addItems)
+                     self.elementDataPlot.xrfbandComboBox.addItems)
         self.connect(self.scanAnalysis, 
                      QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
                      self.elementDataPlot.updateFigure)
-        self.connect(self.xrfbandComboBox,
+        self.connect(self.elementDataPlot.xrfbandComboBox,
                      QtCore.SIGNAL("currentIndexChanged(const QString&)"),
                      self.scanAnalysis.setCurrentElement)
         self.connect(self.scanAnalysis,
@@ -86,21 +81,6 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
         self.connect(self.specRunner.scan, 
                      QtCore.SIGNAL("yAxisLims(PyQt_PyObject)"),
                      self.elementDataPlot.setYLims)
-        self.connect(self.elementDataPlot,
-                     QtCore.SIGNAL("dataMax(PyQt_PyObject)"),
-                     self.maxSpinBox.setValue)
-        self.connect(self.elementDataPlot,
-                     QtCore.SIGNAL("dataMin(PyQt_PyObject)"),
-                     self.minSpinBox.setValue)
-        self.connect(self.maxSpinBox,
-                     QtCore.SIGNAL("valueChanged(double)"),
-                     self.elementDataPlot.setDataMax)
-        self.connect(self.minSpinBox,
-                     QtCore.SIGNAL("valueChanged(double)"),
-                     self.elementDataPlot.setDataMin)
-        self.connect(self.dataAutoscaleButton, 
-                     QtCore.SIGNAL("clicked(bool)"),
-                     self.elementDataPlot.enableAutoscale)
 
     def saveData(self):
         filename = self.scanAnalysis.getSuggestedFilename()
@@ -124,10 +104,9 @@ class ScanAnalysis1D(ScanAnalysis):
         self.scanAnalysis = \
             advancedfitanalysis.AdvancedFitAnalysis1D(scanParams)
         
-        self.elementDataPlot=mplwidgets.ElementPlot(self)
-        self.gridlayout4.addWidget(self.elementDataPlot, 0, 0, 1, 1)
-        self.elementToolbar = mplwidgets.Toolbar(self.elementDataPlot, self)
-        self.gridlayout4.addWidget(self.elementToolbar, 1, 0, 1, 1)
+        self.elementDataPlot = elementsdata.ElementsData()
+        self.gridlayout.addWidget(self.elementDataPlot, 2, 0, 1, 1)
+        self.splitter.addWidget(self.elementDataPlot)
         
         self.connectSignals()
         self.loadPymcaConfigFile()
@@ -148,16 +127,15 @@ class ScanAnalysis2D(ScanAnalysis):
         self.scanAnalysis = \
             advancedfitanalysis.AdvancedFitAnalysis2D(scanParams)
 
-        self.elementDataPlot = mplwidgets.ElementImage(self)
-        self.gridlayout4.addWidget(self.elementDataPlot, 0, 0, 1, 1)
-        self.elementToolbar = mplwidgets.Toolbar(self.elementDataPlot, self)
-        self.gridlayout4.addWidget(self.elementToolbar, 1, 0, 1, 1)
+        self.elementDataPlot = elementsdata.ElementsData()
+        self.gridlayout.addWidget(self.elementDataPlot, 2, 0, 1, 1)
+        self.splitter.addWidget(self.elementDataPlot)
 
         self.connectSignals()
         self.loadPymcaConfigFile()
 
     def connectSignals(self):
         ScanAnalysis.connectSignals(self)
-        self.connect(self.aspectSpinBox,
+        self.connect(self.elementDataPlot.aspectSpinBox,
                      QtCore.SIGNAL("valueChanged(double)"),
                      self.elementDataPlot.setImageAspect)
