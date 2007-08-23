@@ -86,6 +86,13 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
                      self.elementDataPlot.setYLims)
 
     def disconnectSignals(self):
+        self.connect(self.scanAnalysis, 
+                     QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
+                     self.disconect)
+    def disconect(self):
+        self.disconnect(self.scanAnalysis, 
+                     QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
+                     self.disconect)
         self.disconnect(self.specRunner.scan, 
                      QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"),
                      self.scanAnalysis.newDataPoint)

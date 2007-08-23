@@ -160,10 +160,11 @@ class AdvancedFitAnalysis(QtCore.QObject):
 class AdvancedFitAnalysis1D(AdvancedFitAnalysis):
     
     def __init__(self, scanArgs):
+        #TODO edit so that it can work with both Tseries and Ascans
         AdvancedFitAnalysis.__init__(self)
-        xsteps= scanArgs+1
+        xsteps= scanArgs
         self.x = 0
-        self.xRange = (0, xsteps-1)
+        self.xRange = (0, xsteps+1)
         self.xPoints = xsteps
         self.imageSize = (self.xPoints)
         
