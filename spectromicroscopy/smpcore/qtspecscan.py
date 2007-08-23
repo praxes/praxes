@@ -73,14 +73,14 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
     def ascan(self, *args):
         cmd = "ascan %s %f %f %d %f"%args
-        self.emit(QtCore.SIGNAL("newAscan(PyQt_PyObject)"), args[3])
+        self.emit(QtCore.SIGNAL("newAscan(PyQt_PyObject)"), args[:-1])
         self._startScan(cmd)
 
     def a2scan(self, *args):
         cmd = "a2scan %s %f %f \
                       %s %f %f \
                       %d %f"%args
-        self.emit(QtCore.SIGNAL("newA2scan(PyQt_PyObject)"), args[6])
+        self.emit(QtCore.SIGNAL("newA2scan(PyQt_PyObject)"), args[:-1])
         self._startScan(cmd)
 
     def a3scan(self, *args):
@@ -88,7 +88,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
                       %s %f %f \
                       %s %f %f \
                       %d %f"%args
-        self.emit(QtCore.SIGNAL("newA3scan(PyQt_PyObject)"), args[9])
+        self.emit(QtCore.SIGNAL("newA3scan(PyQt_PyObject)"), args[:-1])
         self._startScan(cmd)
 
     def mesh(self, *args):
@@ -104,7 +104,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
     def tseries(self, nbPoints, countTime):
         cmd = "tseries %d %f"%(nbPoints, countTime)
-        self.emit(QtCore.SIGNAL("newTseries(PyQt_PyObject)"), nbPoints)
+        self.emit(QtCore.SIGNAL("newTseries(PyQt_PyObject)"), [nbPoints])
         self._startScan(cmd)
 
 

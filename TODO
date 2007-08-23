@@ -44,9 +44,11 @@ X   save image button
 X   min/max/autoscale
 X   fix pymcaloadconfig toolbar button
 
-
-O turn off feedback signals after a scan is complete or aborted, old tabs 
+X turn off feedback signals after a scan is complete or aborted, old tabs 
     continue to process new data right now
+
+O scale counts by deadtime and incident flux before sending to PyMca for 
+    analysis
 
 O use pytables to store data on disk, rather than in memory
 

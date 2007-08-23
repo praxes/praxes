@@ -86,40 +86,43 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
                      self.elementDataPlot.setYLims)
 
     def disconnectSignals(self):
+        # workaround to process last data point, reported after scanFinished 
+        # signal is emitted:
         self.connect(self.scanAnalysis, 
                      QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
-                     self.disconect)
-    def disconect(self):
+                     self._disconnect)
+
+    def _disconnect(self, *args):
         self.disconnect(self.scanAnalysis, 
-                     QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
-                     self.disconect)
+                        QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
+                        self.disconnect)
         self.disconnect(self.specRunner.scan, 
-                     QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"),
-                     self.scanAnalysis.newDataPoint)
+                        QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"),
+                        self.scanAnalysis.newDataPoint)
         self.disconnect(self.scanAnalysis, 
-                     QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
-                     self.mcaSpectrumPlot.updateFigure)
+                        QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
+                        self.mcaSpectrumPlot.updateFigure)
         self.disconnect(self.scanAnalysis, 
-                     QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
-                     self.elementDataPlot.xrfbandComboBox.addItems)
+                        QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
+                        self.elementDataPlot.xrfbandComboBox.addItems)
         self.disconnect(self.scanAnalysis,
-                     QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
-                     self.setEnabled)
+                        QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
+                        self.setEnabled)
         self.disconnect(self.specRunner.scan,
-                     QtCore.SIGNAL("newScan(PyQt_PyObject)"),
-                     self.scanAnalysis.setSuggestedFilename)
+                        QtCore.SIGNAL("newScan(PyQt_PyObject)"),
+                        self.scanAnalysis.setSuggestedFilename)
         self.disconnect(self.specRunner.scan, 
-                     QtCore.SIGNAL("xAxisLabel(PyQt_PyObject)"),
-                     self.elementDataPlot.setXLabel)
+                        QtCore.SIGNAL("xAxisLabel(PyQt_PyObject)"),
+                        self.elementDataPlot.setXLabel)
         self.disconnect(self.specRunner.scan, 
-                     QtCore.SIGNAL("xAxisLims(PyQt_PyObject)"),
-                     self.elementDataPlot.setXLims)
+                        QtCore.SIGNAL("xAxisLims(PyQt_PyObject)"),
+                        self.elementDataPlot.setXLims)
         self.disconnect(self.specRunner.scan, 
-                     QtCore.SIGNAL("yAxisLabel(PyQt_PyObject)"),
-                     self.elementDataPlot.setYLabel)
+                        QtCore.SIGNAL("yAxisLabel(PyQt_PyObject)"),
+                        self.elementDataPlot.setYLabel)
         self.disconnect(self.specRunner.scan, 
-                     QtCore.SIGNAL("yAxisLims(PyQt_PyObject)"),
-                     self.elementDataPlot.setYLims)
+                        QtCore.SIGNAL("yAxisLims(PyQt_PyObject)"),
+                        self.elementDataPlot.setYLims)
 
     def saveData(self):
         filename = self.scanAnalysis.getSuggestedFilename()

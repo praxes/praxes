@@ -234,7 +234,7 @@ class ElementPlot(ElementImage):
 
     def computeInitialFigure(self, imageData):
         self._imageData = imageData
-        print imageData##############################################
+#        print imageData
         self._plot=self.axes.plot(imageData,"b-")
         self.axes.set_xlabel(self._xlabel)
         self.axes.set_ylabel(self._ylabel)
@@ -246,7 +246,7 @@ class ElementPlot(ElementImage):
             if imageData is None: imageData = self._imageData
             else: self._imageData = imageData
             self._plot=self.axes.plot(imageData,"b-")
-            print imageData#############################################
+#            print imageData
             
         if self.autoscale:
             self._ylim = list(self.axes.get_ylim())
