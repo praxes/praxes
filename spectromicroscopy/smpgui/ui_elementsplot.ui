@@ -30,7 +30,7 @@
      <layout class="QHBoxLayout" >
       <item>
        <layout class="QGridLayout" >
-        <item row="0" column="1" >
+        <item row="1" column="1" >
          <widget class="QComboBox" name="xrfbandComboBox" >
           <property name="minimumSize" >
            <size>
@@ -40,7 +40,7 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="0" >
+        <item row="1" column="0" >
          <widget class="QLabel" name="xrfbandLabel" >
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
@@ -59,21 +59,21 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0" >
+        <item row="5" column="0" >
          <widget class="QLabel" name="maxLabel" >
           <property name="text" >
            <string>Max</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="0" >
+        <item row="6" column="0" >
          <widget class="QLabel" name="minLabel" >
           <property name="text" >
            <string>Min</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1" >
+        <item row="6" column="1" >
          <widget class="QDoubleSpinBox" name="minSpinBox" >
           <property name="enabled" >
            <bool>false</bool>
@@ -86,7 +86,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="1" >
+        <item row="5" column="1" >
          <widget class="QDoubleSpinBox" name="maxSpinBox" >
           <property name="enabled" >
            <bool>false</bool>
@@ -102,14 +102,14 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0" colspan="2" >
+        <item row="3" column="0" colspan="2" >
          <widget class="Line" name="line_3" >
           <property name="orientation" >
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
-        <item row="1" column="1" >
+        <item row="2" column="1" >
          <widget class="QPushButton" name="saveDataPushButton" >
           <property name="enabled" >
            <bool>true</bool>
@@ -119,7 +119,7 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="1" >
+        <item row="8" column="1" >
          <spacer>
           <property name="orientation" >
            <enum>Qt::Vertical</enum>
@@ -132,13 +132,39 @@
           </property>
          </spacer>
         </item>
-        <item row="6" column="1" >
+        <item row="7" column="1" >
          <widget class="QCheckBox" name="dataAutoscaleButton" >
           <property name="text" >
            <string>Auto scale</string>
           </property>
           <property name="checked" >
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" >
+         <widget class="QComboBox" name="dataTypeBox" >
+          <item>
+           <property name="text" >
+            <string>Peak Areas</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Concentrations</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Error</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="0" column="0" >
+         <widget class="QLabel" name="label" >
+          <property name="text" >
+           <string>Data</string>
           </property>
          </widget>
         </item>

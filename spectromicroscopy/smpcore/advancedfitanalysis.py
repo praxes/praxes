@@ -12,7 +12,7 @@ import tempfile
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from PyMca import ClassMcaTheory, EdfFile
+from PyMca import ClassMcaTheory, EdfFile,ConcentrationsTool
 from PyQt4 import QtCore
 import numpy
 numpy.seterr(all='ignore')
@@ -51,8 +51,13 @@ class AdvancedFitAnalysis(QtCore.QObject):
 #        self.hdf5.createGroup('/pymca/elements', 'sigmaarea', 'error')
         
         self.mcaDataFit = []
+        self.mcaConData=[]
         self.elements = {}
+        self.sigma={}
+        self.concentrates={}
+        self.alldata={}
         self._currentElement = None
+        self._currentDataType = "Peak Areas"
         
         self._suggested_filename = 'smp.dat'
         
@@ -126,16 +131,28 @@ class AdvancedFitAnalysis(QtCore.QObject):
             if not peak in self.elements:
                     self.elements[peak] = numpy.zeros(self.imageSize,
                                                       dtype=numpy.float_)
+            if not peak in self.sigma:
+                    self.sigma[peak] = numpy.zeros(self.imageSize,
+                                                      dtype=numpy.float_)
+            if not peak in self.concentrates:
+                    self.concentrates[peak] = numpy.zeros(self.imageSize,
+                                                      dtype=numpy.float_)
         self.emit(QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
                   self.peaks)
         self.advancedFit = ClassMcaTheory.McaTheory(configFile)
         self.advancedFit.enableOptimizedLinearFit()
+        self.concentrationTool=ConcentrationsTool.ConcentrationsTool(configFile)
     
     def setCurrentElement(self, element):
         if not self._currentElement == str(element):
             self._currentElement = str(element)
             self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"), 
-                      self.elements[self._currentElement])
+                      self.alldata[self._currentDataType][self._currentElement])
+    def setCurrentDataType(self,datatype):
+        if not self._currentDataType == str(datatype):
+            self._currentDataType = str(datatype)
+            self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"), 
+                      self.alldata[self._currentDataType][self._currentElement])
     
     def newDataPoint(self, scanData):
         self.previousIndex = self.index
@@ -160,6 +177,11 @@ class AdvancedFitAnalysis(QtCore.QObject):
             self.advancedFit.estimate()
             fitresult, result = self.advancedFit.startfit(digest=1)
             
+            dictresult={"result":result}
+            concentrationresult=self.concentrationTool.processFitResult(fitresult=dictresult)
+            self.mcaConData.append(concentrationresult)
+            
+            
             fitData = {}
             fitData['xdata'] = result['xdata']
             fitData['energy'] = result['energy']
@@ -178,11 +200,18 @@ class AdvancedFitAnalysis(QtCore.QObject):
                 self.elements[group].flat[index] = result[group]['fitarea']
 #                for t in ('fitarea', 'sigmaarea'):
 #                    self.archiveElementData(group, t, index, result[group][t])
+                self.sigma[group].flat[index]=concentrationresult['sigmaarea'][group]
+                self.concentrates[group].flat[index]=concentrationresult['mass fraction'][group]
+                
+            self.alldata["Peak Areas"]=self.elements
+            self.alldata["Concentrations"]=self.concentrates
+            self.alldata["Error"]=self.sigma
             
             self.emit(QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"), fitData)
-            
             self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"), 
-                      self.elements[self._currentElement])
+                      self.alldata[self._currentDataType][self._currentElement])
+            
+            
             if index <= 1:
                 self.emit(QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
                           True)

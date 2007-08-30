@@ -46,8 +46,15 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
         self.connect(self.specRunner.scan,
                      QtCore.SIGNAL("scanFinished()"),
                      self.disconnectSignals)
+        self._datatype="Peak Areas"
         
     def connectSignals(self):
+        self.connect(self.elementDataPlot.dataTypeBox,
+                     QtCore.SIGNAL("currentIndexChanged(QString)"),
+                     self.scanAnalysis.setCurrentDataType)
+        self.connect(self.scanAnalysis, 
+                     QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
+                     self.elementDataPlot.updateFigure)
         self.connect(self.elementDataPlot.saveDataPushButton,
                      QtCore.SIGNAL("clicked()"),
                      self.saveData)
@@ -60,9 +67,6 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
         self.connect(self.scanAnalysis, 
                      QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
                      self.elementDataPlot.xrfbandComboBox.addItems)
-        self.connect(self.scanAnalysis, 
-                     QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
-                     self.elementDataPlot.updateFigure)
         self.connect(self.elementDataPlot.xrfbandComboBox,
                      QtCore.SIGNAL("currentIndexChanged(const QString&)"),
                      self.scanAnalysis.setCurrentElement)
@@ -84,7 +88,7 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
         self.connect(self.specRunner.scan, 
                      QtCore.SIGNAL("yAxisLims(PyQt_PyObject)"),
                      self.elementDataPlot.setYLims)
-
+    
     def disconnectSignals(self):
         # workaround to process last data point, reported after scanFinished 
         # signal is emitted:
