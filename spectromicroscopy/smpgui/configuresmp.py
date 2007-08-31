@@ -37,6 +37,12 @@ class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
         self.serverEdit.setText(server)
         port = self.smpConfig['session'].setdefault('port', '')
         self.portEdit.setText(port)
+        threshold = self.smpConfig['session'].setdefault('threshold', 0.00)
+        self.thresholdBox.setValue(float(threshold))
+        counter = self.smpConfig['session'].setdefault('counter', 'Icol')
+        self.counterEdit.setText(counter)
+
+
 
         self.connect(self.serverEdit,
                      QtCore.SIGNAL("editingFinished()"),
@@ -44,12 +50,24 @@ class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
         self.connect(self.portEdit,
                      QtCore.SIGNAL("editingFinished()"),
                      self.set_port)
+        self.connect(self.counterEdit,
+                     QtCore.SIGNAL("editingFinished()"),
+                     self.set_counter)
+        self.connect(self.thresholdBox,
+                     QtCore.SIGNAL("editingFinished()"),
+                     self.set_threshold)
 
     def set_server(self):
         self.smpConfig['session']['server'] = '%s'%self.serverEdit.text()
     
     def set_port(self):
         self.smpConfig['session']['port'] = '%s'%self.portEdit.text()
+
+    def set_threshold(self):
+        self.smpConfig['skipmode']['threshold']=self.thresholdBox.value()
+    
+    def set_counter(self):
+        self.smpConfig['skipmode']['counter']='%s'%self.counterEdit.text()
 
     def accept(self):
         self.smpConfig.write()
@@ -60,6 +78,7 @@ class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
 
     def validateConfig(self):
         self.smpConfig.setdefault('session', {})
+        self.smpConfig.setdefault('skipmode', {})
 
 if __name__ == "__main__":
     import sys

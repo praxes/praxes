@@ -135,6 +135,13 @@
           </property>
          </widget>
         </item>
+        <item row="3" column="1" >
+         <widget class="QCheckBox" name="skipModeCheckBox" >
+          <property name="text" >
+           <string>Skip Mode</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>

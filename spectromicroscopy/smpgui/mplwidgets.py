@@ -234,7 +234,6 @@ class ElementPlot(ElementImage):
 
     def computeInitialFigure(self, imageData):
         self._imageData = imageData
-#        print imageData
         self._plot=self.axes.plot(imageData,"b-")
         self.axes.set_xlabel(self._xlabel)
         self.axes.set_ylabel(self._ylabel)

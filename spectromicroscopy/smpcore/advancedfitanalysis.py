@@ -36,7 +36,11 @@ class AdvancedFitAnalysis(QtCore.QObject):
         
         """
         QtCore.QObject.__init__(self)
-
+        
+        self.threshold=0
+        self.detector="Icol"
+        self.skipmode=0
+        
         self.dataQue = []
         self.previousIndex = -1
         self.index = 0
@@ -118,6 +122,13 @@ class AdvancedFitAnalysis(QtCore.QObject):
 #        # Thats not good!
 #        data.flat[index] = val
 
+    def setThreshold(self,value):
+        self.threshold=double(value)
+    def setDetector(self,name):
+        self.detector=str(name)
+    def setSkipMode(self,bool):
+        self.skipmode=bool
+
     def loadPymcaConfig(self, configFile=None):
         if not configFile:
             configFile = configutils.getDefaultPymcaConfigFile()
@@ -160,9 +171,15 @@ class AdvancedFitAnalysis(QtCore.QObject):
         if self.index != self.previousIndex+1 and self.index != 0:
             print 'index problem: ', self.previousIndex, self.index
         
-        #TODO: preprocess data here: deadtime correction, etc.
-        self.dataQue.append(scanData)
         
+        
+        if self.threshold>=scanData[self.detector] and self.skipmode:
+            print "THRESHOLD TRIPED"
+            scanData["mcaData"]=0
+            self.dataQue.append(scanData)
+        else:
+            #TODO: preprocess data here: deadtime correction, etc.
+            self.dataQue.append(scanData)
         #TODO: probably needs a separate thread at some point
         self.processNextPoint()
     
@@ -170,44 +187,51 @@ class AdvancedFitAnalysis(QtCore.QObject):
         try:
             scanData = self.dataQue.pop(0)
 #            self.archiveSpecData(scanData)
-            
             index = scanData['i']
             mcaData = scanData['mcaData']
-            self.advancedFit.setdata(mcaData[0], mcaData[1], None)
-            self.advancedFit.estimate()
-            fitresult, result = self.advancedFit.startfit(digest=1)
-            
-            dictresult={"result":result}
-            concentrationresult=self.concentrationTool.processFitResult(fitresult=dictresult)
-            self.mcaConData.append(concentrationresult)
-            
-            
-            fitData = {}
-            fitData['xdata'] = result['xdata']
-            fitData['energy'] = result['energy']
-            fitData['ydata'] = result['ydata']
-            fitData['yfit'] = result['yfit']
-            fitData['residuals'] = result['ydata']-result['yfit']
-            logres = numpy.log10(result['ydata'])-\
-                            numpy.log10(result['yfit'])
-            logres[numpy.isinf(logres)]=numpy.nan
-            fitData['logresiduals'] = logres
-            self.mcaDataFit.append(fitData)
-#            self.archivePymcaSpectra(fitData)
-            
-            for group in result['groups']:
-#                print result[group].keys()
-                self.elements[group].flat[index] = result[group]['fitarea']
-#                for t in ('fitarea', 'sigmaarea'):
-#                    self.archiveElementData(group, t, index, result[group][t])
-                self.sigma[group].flat[index]=concentrationresult['sigmaarea'][group]
-                self.concentrates[group].flat[index]=concentrationresult['mass fraction'][group]
+            if type(mcaData)==type(0):
+                print "SKIPPING"
+                for key in self.elements.keys():
+                    self.elements[key].flat[index] = 0
+                    self.concentrates[key].flat[index] = 0
+                    self.sigma[key].flat[index] = 0
+                    self.emit(QtCore.SIGNAL("Skipped(PyQt_PyObject)"), index)
+            else:
+                self.advancedFit.setdata(mcaData[0], mcaData[1], None)
+                self.advancedFit.estimate()
+                fitresult, result = self.advancedFit.startfit(digest=1)
+                
+                dictresult={"result":result}
+                concentrationresult=self.concentrationTool.processFitResult(fitresult=dictresult)
+                self.mcaConData.append(concentrationresult)
+                
+                
+                fitData = {}
+                fitData['xdata'] = result['xdata']
+                fitData['energy'] = result['energy']
+                fitData['ydata'] = result['ydata']
+                fitData['yfit'] = result['yfit']
+                fitData['residuals'] = result['ydata']-result['yfit']
+                logres = numpy.log10(result['ydata'])-\
+                                numpy.log10(result['yfit'])
+                logres[numpy.isinf(logres)]=numpy.nan
+                fitData['logresiduals'] = logres
+                self.mcaDataFit.append(fitData)
+    #            self.archivePymcaSpectra(fitData)
+                
+                for group in result['groups']:
+    #                print result[group].keys()
+                    self.elements[group].flat[index] = result[group]['fitarea']
+    #                for t in ('fitarea', 'sigmaarea'):
+    #                    self.archiveElementData(group, t, index, result[group][t])
+                    self.sigma[group].flat[index]=concentrationresult['sigmaarea'][group]
+                    self.concentrates[group].flat[index]=concentrationresult['mass fraction'][group]
+                self.emit(QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"), fitData)
                 
             self.alldata["Peak Areas"]=self.elements
             self.alldata["Concentrations"]=self.concentrates
             self.alldata["Error"]=self.sigma
             
-            self.emit(QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"), fitData)
             self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"), 
                       self.alldata[self._currentDataType][self._currentElement])
             

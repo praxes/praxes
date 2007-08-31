@@ -57,6 +57,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
     def configureSmp(self):
         self.smpConfig = configutils.getSmpConfig()
         specVersion = self.getSpecVersion()
+        self.getSmpSkipModeSettings()
         try:
             self.__specRunner = specrunner.SpecRunner(specVersion, timeout=500)
             # when we reconfigure, we need to remove all references to
@@ -72,8 +73,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.mainTab.addTab(self.scanIO, "Experiment Controls")
         self.mainTab.removeTab(0)
     #TODO: added Consoles and motorViews 
-        self.console = None #console.MyKon()
-##        self.mainTab.addTab(self.console, "Console")
+        self.console = None 
         self.motorView = None
 
     def connectionError(self, specVersion):
@@ -96,6 +96,12 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         except KeyError:
             self.configureSmpInteractive()
             self.getSpecVersion()
+    def getSmpSkipModeSettings(self):
+        return
+        self.counter=self.smpConfig['skipmode']['counter']
+        self.threshold=self.smpConfig['skipmode']['threshold']
+        self.emit(QtCore.SIGNAL("counterSet(QString)"),self.counter)
+        
     
     def getPymcaConfigFile(self):
         dialog = QtGui.QFileDialog(self, 'Load PyMca Config File')
