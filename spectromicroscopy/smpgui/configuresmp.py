@@ -37,10 +37,12 @@ class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
         self.serverEdit.setText(server)
         port = self.smpConfig['session'].setdefault('port', '')
         self.portEdit.setText(port)
-        threshold = self.smpConfig['session'].setdefault('threshold', 0.00)
+        threshold = self.smpConfig['skipmode'].setdefault('threshold', 0.00)
         self.thresholdBox.setValue(float(threshold))
-        counter = self.smpConfig['session'].setdefault('counter', 'Icol')
+        counter = self.smpConfig['skipmode'].setdefault('counter', 'Icol')
         self.counterEdit.setText(counter)
+        counterType= self.smpConfig['counter'].setdefault('type', 'Vortex')
+        self.counterTypeBox.setCurrentIndex(self.counterTypeBox.findText(counterType))
 
 
 
@@ -68,6 +70,9 @@ class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
     
     def set_counter(self):
         self.smpConfig['skipmode']['counter']='%s'%self.counterEdit.text()
+    
+    def set_counterType(self):
+        self.smpConfig['counter']['type']='%s'%self.counterTypeBox.currentText()
 
     def accept(self):
         self.smpConfig.write()
@@ -79,6 +84,7 @@ class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
     def validateConfig(self):
         self.smpConfig.setdefault('session', {})
         self.smpConfig.setdefault('skipmode', {})
+        self.smpConfig.setdefault('counter', {})
 
 if __name__ == "__main__":
     import sys

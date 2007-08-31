@@ -58,6 +58,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.smpConfig = configutils.getSmpConfig()
         specVersion = self.getSpecVersion()
         self.getSmpSkipModeSettings()
+        self.getCounterSettings()
         try:
             self.__specRunner = specrunner.SpecRunner(specVersion, timeout=500)
             # when we reconfigure, we need to remove all references to
@@ -97,10 +98,12 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
             self.configureSmpInteractive()
             self.getSpecVersion()
     def getSmpSkipModeSettings(self):
-        return
         self.counter=self.smpConfig['skipmode']['counter']
         self.threshold=self.smpConfig['skipmode']['threshold']
         self.emit(QtCore.SIGNAL("counterSet(QString)"),self.counter)
+    def getCounterSettings(self):
+        self.counterType=self.smpConfig['counter']['type']
+        
         
     
     def getPymcaConfigFile(self):

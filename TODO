@@ -23,13 +23,13 @@ X if scan is not mesh-type, create a different kind of plot canvas in the
 
 X scanfeedback does not load user's pymcaconfig file, uses default.
 
-O need unified deadtime correction reported by spec, preferrably in S:
+P need unified deadtime correction reported by spec, preferrably in S:
     vortex: ICR/OCR*Real/Live
     xflash: pulser_rate/reported_rate
 
 O need new variable that reports absolute flux at sample, can this be done in S?
 
-O copy skipmode macro into smp-data, run (but dont enable) at smp startup
+P copy skipmode macro into smp-data, run (but dont enable) at smp startup
     macro needs to be improved:
         set variable to monitoring
         set threshold
@@ -47,12 +47,12 @@ X   fix pymcaloadconfig toolbar button
 X turn off feedback signals after a scan is complete or aborted, old tabs 
     continue to process new data right now
 
-O scale counts by deadtime and incident flux before sending to PyMca for 
+P scale counts by deadtime and incident flux before sending to PyMca for 
     analysis
 
 O use pytables to store data on disk, rather than in memory
 
-O element images can (but dont have to) report concentrations instead of areas
+P element images can (but dont have to) report concentrations instead of areas
 
   write setup.py for distribution
 

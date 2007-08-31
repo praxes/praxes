@@ -39,7 +39,10 @@ class AdvancedFitAnalysis(QtCore.QObject):
         
         self.threshold=0
         self.detector="Icol"
+        self.counterType="Vortex"
         self.skipmode=0
+        self.correction=1
+        
         
         self.dataQue = []
         self.previousIndex = -1
@@ -123,11 +126,13 @@ class AdvancedFitAnalysis(QtCore.QObject):
 #        data.flat[index] = val
 
     def setThreshold(self,value):
-        self.threshold=double(value)
-    def setDetector(self,name):
+        self.threshold=float(value)
+    def setCounter(self,name):
         self.detector=str(name)
     def setSkipMode(self,bool):
         self.skipmode=bool
+    def setCounterType(self,string):
+        self.counterType=str(string)
 
     def loadPymcaConfig(self, configFile=None):
         if not configFile:
@@ -179,6 +184,13 @@ class AdvancedFitAnalysis(QtCore.QObject):
             self.dataQue.append(scanData)
         else:
             #TODO: preprocess data here: deadtime correction, etc.
+            if self.counterType=="vortex":
+                ICR=float(scanData['icr'])
+                OCR=float(scanData['ocr'])
+                Real=float(scanData['real'])
+                Live=float(scanData['live'])
+                self.correction=ICR/OCR*Real/Live
+            scanData['mcaData'][1]=self.correction*scanData['mcaData'][1]
             self.dataQue.append(scanData)
         #TODO: probably needs a separate thread at some point
         self.processNextPoint()
