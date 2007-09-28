@@ -97,15 +97,19 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         except KeyError:
             self.configureSmpInteractive()
             self.getSpecVersion()
+
     def getSmpSkipModeSettings(self):
-        self.counter=self.smpConfig['skipmode']['counter']
-        self.threshold=self.smpConfig['skipmode']['threshold']
-        self.emit(QtCore.SIGNAL("counterSet(QString)"),self.counter)
+        try:
+            self.counter=self.smpConfig['skipmode']['counter']
+            self.threshold=self.smpConfig['skipmode']['threshold']
+            self.emit(QtCore.SIGNAL("counterSet(QString)"),self.counter)
+        except KeyError:
+            self.configureSmpInteractive()
+            self.getSmpSkipModeSettings()
+
     def getCounterSettings(self):
         self.counterType=self.smpConfig['counter']['type']
-        
-        
-    
+
     def getPymcaConfigFile(self):
         dialog = QtGui.QFileDialog(self, 'Load PyMca Config File')
         dialog.setFilter('PyMca config files (*.cfg)')
