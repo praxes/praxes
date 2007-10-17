@@ -17,6 +17,7 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
+from spectromicroscopy import smpConfig
 from spectromicroscopy.smpgui import configuresmp, console, scanio, \
     ui_smpmainwindow
 from spectromicroscopy.smpcore import specrunner, configutils
@@ -55,10 +56,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
                      self.getDefaultPymcaFile)
 
     def configureSmp(self):
-        self.smpConfig = configutils.getSmpConfig()
         specVersion = self.getSpecVersion()
-        self.getSmpSkipModeSettings()
-        self.getCounterSettings()
         try:
             self.__specRunner = specrunner.SpecRunner(specVersion, timeout=500)
             # when we reconfigure, we need to remove all references to
@@ -92,23 +90,11 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
 
     def getSpecVersion(self):
         try:
-            return ':'.join([self.smpConfig['session']['server'],
-                             self.smpConfig['session']['port']])
+            return ':'.join([smpConfig['session']['server'],
+                             smpConfig['session']['port']])
         except KeyError:
             self.configureSmpInteractive()
             self.getSpecVersion()
-
-    def getSmpSkipModeSettings(self):
-        try:
-            self.counter=self.smpConfig['skipmode']['counter']
-            self.threshold=self.smpConfig['skipmode']['threshold']
-            self.emit(QtCore.SIGNAL("counterSet(QString)"),self.counter)
-        except KeyError:
-            self.configureSmpInteractive()
-            self.getSmpSkipModeSettings()
-
-    def getCounterSettings(self):
-        self.counterType=self.smpConfig['counter']['type']
 
     def getPymcaConfigFile(self):
         dialog = QtGui.QFileDialog(self, 'Load PyMca Config File')

@@ -22,6 +22,7 @@ numpy.seterr(all='ignore')
 # SMP imports
 #---------------------------------------------------------------------------
 
+from spectromicroscopy import smpConfig
 from spectromicroscopy.smpcore import configutils
 
 #---------------------------------------------------------------------------
@@ -58,11 +59,10 @@ class AdvancedFitAnalysis(QtCore.QObject):
 #        self.hdf5.createGroup('/pymca/elements', 'sigmaarea', 'error')
         
         self.mcaDataFit = []
-        self.mcaConData=[]
-        self.elements = {}
-        self.sigma={}
-        self.concentrates={}
-        self.alldata={}
+        self.elementMaps = {"Peak Areas": {},
+                            "Concentrations": {},
+                            "Errors": {}}
+        
         self._currentElement = None
         self._currentDataType = "Peak Areas"
         
@@ -125,15 +125,6 @@ class AdvancedFitAnalysis(QtCore.QObject):
 #        # Thats not good!
 #        data.flat[index] = val
 
-    def setThreshold(self,value):
-        self.threshold=float(value)
-    def setCounter(self,name):
-        self.detector=str(name)
-    def setSkipMode(self,bool):
-        self.skipmode=bool
-    def setCounterType(self,string):
-        self.counterType=str(string)
-
     def loadPymcaConfig(self, configFile=None):
         if not configFile:
             configFile = configutils.getDefaultPymcaConfigFile()
@@ -144,31 +135,32 @@ class AdvancedFitAnalysis(QtCore.QObject):
         if self._currentElement is None:
             self._currentElement = self.peaks[0]
         for peak in self.peaks:
-            if not peak in self.elements:
-                    self.elements[peak] = numpy.zeros(self.imageSize,
+            if not peak in self.elementMaps["Peak Areas"]:
+                    self.elementMaps["Peak Areas"][peak] = numpy.zeros(self.imageSize,
                                                       dtype=numpy.float_)
-            if not peak in self.sigma:
-                    self.sigma[peak] = numpy.zeros(self.imageSize,
+            if not peak in self.elementMaps["Errors"]:
+                    self.elementMaps["Errors"][peak] = numpy.zeros(self.imageSize,
                                                       dtype=numpy.float_)
-            if not peak in self.concentrates:
-                    self.concentrates[peak] = numpy.zeros(self.imageSize,
+            if not peak in self.elementMaps["Concentrations"]:
+                    self.elementMaps["Concentrations"][peak] = numpy.zeros(self.imageSize,
                                                       dtype=numpy.float_)
         self.emit(QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
                   self.peaks)
         self.advancedFit = ClassMcaTheory.McaTheory(configFile)
         self.advancedFit.enableOptimizedLinearFit()
-        self.concentrationTool=ConcentrationsTool.ConcentrationsTool(configFile)
+        self.concentrationTool = ConcentrationsTool.ConcentrationsTool(configFile)
     
     def setCurrentElement(self, element):
         if not self._currentElement == str(element):
             self._currentElement = str(element)
             self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"), 
-                      self.alldata[self._currentDataType][self._currentElement])
-    def setCurrentDataType(self,datatype):
+                      self.elementMaps[self._currentDataType][self._currentElement])
+
+    def setCurrentDataType(self, datatype):
         if not self._currentDataType == str(datatype):
             self._currentDataType = str(datatype)
             self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"), 
-                      self.alldata[self._currentDataType][self._currentElement])
+                      self.elementMaps[self._currentDataType][self._currentElement])
     
     def newDataPoint(self, scanData):
         self.previousIndex = self.index
@@ -176,21 +168,19 @@ class AdvancedFitAnalysis(QtCore.QObject):
         if self.index != self.previousIndex+1 and self.index != 0:
             print 'index problem: ', self.previousIndex, self.index
         
-        
-        
-        if self.threshold>=scanData[self.detector] and self.skipmode:
-            print "THRESHOLD TRIPED"
-            scanData["mcaData"]=0
+        if smpConfig['skipmode']['isEnabled'] and \
+                (scanData[ smpConfig['skipmode']['counter'] ] <= \
+                 smpConfig['skipmode']['threshold']):
+            scanData["mcaData"] = 0
             self.dataQue.append(scanData)
         else:
             #TODO: preprocess data here: deadtime correction, etc.
-            if self.counterType=="vortex":
-                ICR=float(scanData['icr'])
-                OCR=float(scanData['ocr'])
-                Real=float(scanData['real'])
-                Live=float(scanData['live'])
-                self.correction=ICR/OCR*Real/Live
-            scanData['mcaData'][1]=self.correction*scanData['mcaData'][1]
+            try:
+                correction = 100./(100-float(scanData['Dead']))
+                scanData['mcaData'][1] = correction*scanData['mcaData'][1]
+            except KeyError:
+                print 'deadtime not corrected. A counter reporting the percent \
+dead time, called "Dead", must be created in Spec for this feature to work.'
             self.dataQue.append(scanData)
         #TODO: probably needs a separate thread at some point
         self.processNextPoint()
@@ -201,22 +191,18 @@ class AdvancedFitAnalysis(QtCore.QObject):
 #            self.archiveSpecData(scanData)
             index = scanData['i']
             mcaData = scanData['mcaData']
-            if type(mcaData)==type(0):
-                print "SKIPPING"
-                for key in self.elements.keys():
-                    self.elements[key].flat[index] = 0
-                    self.concentrates[key].flat[index] = 0
-                    self.sigma[key].flat[index] = 0
-                    self.emit(QtCore.SIGNAL("Skipped(PyQt_PyObject)"), index)
+            if type(mcaData) == type(0):
+                for key in self.elementMaps["Peak Areas"].keys():
+                    self.elementMaps["Peak Areas"][key].flat[index] = 0
+                    self.elementMaps["Concentrations"][key].flat[index] = 0
+                    self.elementMaps["Errors"][key].flat[index] = 0
             else:
                 self.advancedFit.setdata(mcaData[0], mcaData[1], None)
                 self.advancedFit.estimate()
                 fitresult, result = self.advancedFit.startfit(digest=1)
                 
                 dictresult={"result":result}
-                concentrationresult=self.concentrationTool.processFitResult(fitresult=dictresult)
-                self.mcaConData.append(concentrationresult)
-                
+                concentrations = self.concentrationTool.processFitResult(fitresult=dictresult)
                 
                 fitData = {}
                 fitData['xdata'] = result['xdata']
@@ -233,20 +219,18 @@ class AdvancedFitAnalysis(QtCore.QObject):
                 
                 for group in result['groups']:
     #                print result[group].keys()
-                    self.elements[group].flat[index] = result[group]['fitarea']
+                    self.elementMaps["Peak Areas"][group].flat[index] = \
+                        result[group]['fitarea']
     #                for t in ('fitarea', 'sigmaarea'):
     #                    self.archiveElementData(group, t, index, result[group][t])
-                    self.sigma[group].flat[index]=concentrationresult['sigmaarea'][group]
-                    self.concentrates[group].flat[index]=concentrationresult['mass fraction'][group]
+                    self.elementMaps["Errors"][group].flat[index] = \
+                        concentrations['sigmaarea'][group]
+                    self.elementMaps["Concentrations"][group].flat[index] = \
+                        concentrations['mass fraction'][group]
                 self.emit(QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"), fitData)
-                
-            self.alldata["Peak Areas"]=self.elements
-            self.alldata["Concentrations"]=self.concentrates
-            self.alldata["Error"]=self.sigma
             
             self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"), 
-                      self.alldata[self._currentDataType][self._currentElement])
-            
+                      self.elementMaps[self._currentDataType][self._currentElement])
             
             if index <= 1:
                 self.emit(QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
@@ -267,7 +251,7 @@ class AdvancedFitAnalysis(QtCore.QObject):
         return self._suggested_filename
 
     def saveData(self, filename):
-        data = self.elements[self._currentElement]
+        data = self.elementMaps["Peak Areas"][self._currentElement]
         header = self.getFileHeader()
         
         format = os.path.splitext(filename)[-1]

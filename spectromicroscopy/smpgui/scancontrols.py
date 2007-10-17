@@ -17,6 +17,7 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
+from spectromicroscopy import smpConfig
 from spectromicroscopy.smpgui import scanmotor, ui_scancontrols
 from spectromicroscopy.smpcore import specutils, specrunner
 
@@ -120,6 +121,8 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                             self.activityFinished)
 
     def startScan(self):
+        smpConfig['skipmode']['isEnabled'] = self.skipModeCheckBox.isChecked()
+    
         enabled = [m for m in self.axes if m.isEnabled()]
         scantype = str(self.scanTypeComboBox.currentText())
 

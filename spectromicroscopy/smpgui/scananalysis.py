@@ -46,7 +46,6 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
         self.connect(self.specRunner.scan,
                      QtCore.SIGNAL("scanFinished()"),
                      self.disconnectSignals)
-        self._datatype="Peak Areas"
         self.window().scanIO.scanControls.skipModeCheckBox.setDisabled(True)
         
         
@@ -152,15 +151,6 @@ class ScanAnalysis1D(ScanAnalysis):
 
         self.scanAnalysis = \
             advancedfitanalysis.AdvancedFitAnalysis1D(scanParams)
-        skipmode=self.window().scanIO.scanControls.skipModeCheckBox.isChecked()
-        threshold=self.window().threshold
-        counter=self.window().counter
-        counterType=self.window().counterType
-        self.scanAnalysis.setSkipMode(skipmode)
-        self.scanAnalysis.setCounter(counter)
-        self.scanAnalysis.setThreshold(threshold)
-        self.scanAnalysis.setCounterType(counterType)
-        self.scanAnalysis.setSkipMode(skipmode)
         
         self.elementDataPlot = elementsplot.ElementsPlot()
         self.gridlayout.addWidget(self.elementDataPlot, 2, 0, 1, 1)
@@ -181,15 +171,6 @@ class ScanAnalysis2D(ScanAnalysis):
         
         self.scanAnalysis = \
             advancedfitanalysis.AdvancedFitAnalysis2D(scanParams)
-
-        skipmode=self.window().scanIO.scanControls.skipModeCheckBox.isChecked()
-        threshold=self.window().threshold
-        counter=self.window().counter
-        counterType=self.window().counterType
-        self.scanAnalysis.setSkipMode(skipmode)
-        self.scanAnalysis.setCounter(counter)
-        self.scanAnalysis.setThreshold(threshold)
-        self.scanAnalysis.setCounterType(counterType)
         
         self.elementDataPlot = elementsdata.ElementsData()
         self.gridlayout.addWidget(self.elementDataPlot, 2, 0, 1, 1)

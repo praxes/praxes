@@ -61,5 +61,8 @@ def getClientUtilsMacro():
     return open(getClientUtilsFile()).read()
 
 
+smpConfig = getSmpConfig()
+
+
 if __name__ == '__main__':
     getPymcaConfig()

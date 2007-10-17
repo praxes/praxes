@@ -179,7 +179,7 @@ p, li { white-space: pre-wrap; }
           </item>
           <item>
            <property name="text" >
-            <string>Error</string>
+            <string>Errors</string>
            </property>
           </item>
          </widget>

@@ -200,6 +200,7 @@ class ElementImage(QtMplCanvas):
             self.emit(QtCore.SIGNAL("dataMin(PyQt_PyObject)"), self._clim[0])
             self.emit(QtCore.SIGNAL("dataMax(PyQt_PyObject)"), self._clim[1])
         else:
+            print self._clim
             self._image.set_clim(self._clim)
         self.draw()
 
@@ -234,7 +235,7 @@ class ElementPlot(ElementImage):
 
     def computeInitialFigure(self, imageData):
         self._imageData = imageData
-        self._plot=self.axes.plot(imageData,"b-")
+        self._plot = self.axes.plot(imageData,"b-")
         self.axes.set_xlabel(self._xlabel)
         self.axes.set_ylabel(self._ylabel)
         
@@ -254,6 +255,7 @@ class ElementPlot(ElementImage):
         else:
             self.axes.set_ylim(self._ylim[0], self._ylim[1])
         self.draw()
+
     def setDataMin(self, val):
         self._ylim[0]=val
         self.updateFigure()
