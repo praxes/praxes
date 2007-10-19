@@ -116,13 +116,13 @@ class McaSpectrum(QtMplCanvas):
 
     def updateFigure(self, fitData=None):
         
-        if self.fitData == {}: 
-            autoscale = True
+        if self.fitData == {}: autoscale = True
         else: autoscale = self.autoscale
         
         if fitData: self.fitData = fitData
         else: fitData = self.fitData
         
+        # Why is copy()ing necessary?
         x = fitData['energy'].copy()
         y = fitData['ydata'].copy()
         yfit = fitData['yfit'].copy()

@@ -159,7 +159,6 @@ class ScanAnalysis1D(ScanAnalysis):
         self.connectSignals()
         self.loadPymcaConfigFile()
         
-        
     def connectSignals(self):
         ScanAnalysis.connectSignals(self)
 

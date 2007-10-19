@@ -176,8 +176,7 @@ class AdvancedFitAnalysis(QtCore.QObject):
         else:
             #TODO: preprocess data here: deadtime correction, etc.
             try:
-                correction = 100./(100-float(scanData['Dead']))
-                scanData['mcaData'][1] = correction*scanData['mcaData'][1]
+                scanData['mcaData'][1] *= 100./(100-float(scanData['Dead']))
             except KeyError:
                 print 'deadtime not corrected. A counter reporting the percent \
 dead time, called "Dead", must be created in Spec for this feature to work.'
@@ -201,7 +200,7 @@ dead time, called "Dead", must be created in Spec for this feature to work.'
                 self.advancedFit.estimate()
                 fitresult, result = self.advancedFit.startfit(digest=1)
                 
-                dictresult={"result":result}
+                dictresult = {"result":result}
                 concentrations = self.concentrationTool.processFitResult(fitresult=dictresult)
                 
                 fitData = {}
