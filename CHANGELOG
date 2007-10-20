@@ -1,3 +1,6 @@
+2007-10-20 Fixed a bad memory leak due to repeated plotting. Fixed by 
+           updating lines in place, redrawing the plot window - DSD
+
 2007-08-03 XPGui code cleanup:
            - dont use matplotlib.numerix. Use numpy instead
            - dont use numpy.oldnumeric. Use numpy instead

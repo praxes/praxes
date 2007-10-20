@@ -12,7 +12,7 @@ import tempfile
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from PyMca import ClassMcaTheory, EdfFile,ConcentrationsTool
+from PyMca import ClassMcaTheory, EdfFile, ConcentrationsTool
 from PyQt4 import QtCore
 import numpy
 numpy.seterr(all='ignore')
@@ -216,8 +216,10 @@ dead time, called "Dead", must be created in Spec for this feature to work.'
                         result[group]['fitarea']
     #                for t in ('fitarea', 'sigmaarea'):
     #                    self.archiveElementData(group, t, index, result[group][t])
+                    area = numpy.where(result[group]['fitarea']==0, numpy.nan,
+                                       result[group]['fitarea'])
                     self.elementMaps["Errors"][group].flat[index] = \
-                        concentrations['sigmaarea'][group]
+                        concentrations['sigmaarea'][group]/area
                     self.elementMaps["Concentrations"][group].flat[index] = \
                         concentrations['mass fraction'][group]
                 self.emit(QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"), fitData)
@@ -238,10 +240,13 @@ dead time, called "Dead", must be created in Spec for this feature to work.'
     def setSuggestedFilename(self, scanParams):
         filename = '_'.join([scanParams['datafile'],
                              scanParams['title'].replace(' ', '')])
-        self._suggested_filename = filename+'.edf'
+        filename.strip('.dat').strip('.txt').strip('.mca')
+        self._suggested_filename = filename
     
     def getSuggestedFilename(self):
-        return self._suggested_filename
+        return '%s_%s_%s.edf'%(self._suggested_filename,
+                               self._currentElement.replace(' ', '-'),
+                               self._currentDataType.replace(' ', ''))
 
     def saveData(self, filename):
         data = self.elementMaps["Peak Areas"][self._currentElement]

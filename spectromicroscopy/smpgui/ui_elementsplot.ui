@@ -156,7 +156,7 @@
           </item>
           <item>
            <property name="text" >
-            <string>Error</string>
+            <string>Errors</string>
            </property>
           </item>
          </widget>

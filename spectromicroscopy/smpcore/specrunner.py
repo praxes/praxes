@@ -5,7 +5,6 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import gc
 import os
 import sys
 
@@ -78,7 +77,6 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         return self._motorNames
 
     def update(self):
-        gc.collect()
         SpecEventsDispatcher.dispatch()
 
     def abort(self):

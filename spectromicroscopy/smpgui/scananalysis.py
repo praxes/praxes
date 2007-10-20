@@ -129,13 +129,12 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
                         self.elementDataPlot.setYLims)
 
     def saveData(self):
-        filename = self.scanAnalysis.getSuggestedFilename()
+        suggested = self.scanAnalysis.getSuggestedFilename()
         filename = QtGui.QFileDialog.getSaveFileName(self,
-                        'Save Element Data File', filename, 
+                        'Save Element Data File', suggested,
                         'EDF files (*.edf);;Plaintext files (*.dat *.txt *.*)')
-        filename = str(filename)
         if filename:
-            self.scanAnalysis.saveData(filename)
+            self.scanAnalysis.saveData(str(filename))
 
     def loadPymcaConfigFile(self):
         configFile = self.window().pymcaConfigFile
