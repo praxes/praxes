@@ -33,6 +33,8 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
         self.setupUi(self)
         self.setEnabled(False)
         
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+        
         self.specRunner = parent.specRunner
         self.scanAnalysis = None
 
@@ -46,7 +48,7 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
         self.connect(self.specRunner.scan,
                      QtCore.SIGNAL("scanFinished()"),
                      self.disconnectSignals)
-        
+
     def connectSignals(self):
         self.connect(self.elementDataPlot.dataTypeBox,
                      QtCore.SIGNAL("currentIndexChanged(QString)"),

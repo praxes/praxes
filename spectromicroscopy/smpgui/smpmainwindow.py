@@ -12,6 +12,7 @@ import weakref
 #---------------------------------------------------------------------------
 
 from PyQt4 import QtCore, QtGui
+from PyMca import McaAdvancedFit
 
 #---------------------------------------------------------------------------
 # SMP imports
@@ -71,7 +72,9 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.scanIO = scanio.ScanIO(self)
         self.mainTab.addTab(self.scanIO, "Experiment Controls")
         self.mainTab.removeTab(0)
-    #TODO: added Consoles and motorViews 
+        self.mcaAdvancedFit = McaAdvancedFit.McaAdvancedFit()
+        self.mainTab.addTab(self.mcaAdvancedFit, "PyMca Advanced Fit")
+        #TODO: added Consoles and motorViews 
         self.console = None 
         self.motorView = None
 
