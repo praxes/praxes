@@ -46,8 +46,6 @@ class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
         self.connect(self.specRunner.scan,
                      QtCore.SIGNAL("scanFinished()"),
                      self.disconnectSignals)
-        self.window().scanIO.scanControls.skipModeCheckBox.setDisabled(True)
-        
         
     def connectSignals(self):
         self.connect(self.elementDataPlot.dataTypeBox,

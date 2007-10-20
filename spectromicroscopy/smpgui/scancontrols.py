@@ -171,7 +171,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
     def setScanType(self, scanType):
         scanType = str(scanType)
         self.setAxes(scanType)
-        flag = scanType in ('mesh')
+        flag = scanType in ('mesh', )
         self.emit(QtCore.SIGNAL("scanType(string)"), scanType)
         self.setIndependentStepsEnabled(flag)
 

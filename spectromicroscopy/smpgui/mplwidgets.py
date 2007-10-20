@@ -31,6 +31,7 @@ numpy.seterr(all='ignore')
 # Normal code begins
 #--------------------------------------------------------------------------
 
+
 class QtMplCanvas(FigureCanvasQTAgg):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
     def __init__(self, parent=None):
@@ -63,12 +64,10 @@ class QtMplCanvas(FigureCanvasQTAgg):
         return QtCore.QSize(0, 0)
 
     def enableLogscale(self, value):
-        self.useLogScale = value
-        self.updateFigure()
+        raise NotImplementedError
 
     def enableAutoscale(self, value):
-        self.autoscale = value
-        self.updateFigure()
+        raise NotImplementedError
 
     def clear(self):
         raise NotImplementedError
@@ -89,22 +88,20 @@ class QtMplCanvas(FigureCanvasQTAgg):
 class McaSpectrum(QtMplCanvas):
 
     def __init__(self, parent=None):
-        self.useLogScale = False
         self.fitData = {}
-        self.autoscale = False
-        
+
         self.figure = Figure()
         self.spectrumAxes = self.figure.add_axes([.1, .4, .85, .55])
-        # We want the spectrumAxes cleared every time plot() is called
-        self.spectrumAxes.hold(False)
         self.spectrumAxes.xaxis.set_visible(False)
+        self.spectrumAxes.set_ylabel('Counts')
         
         self.residualsAxes = self.figure.add_axes([.1, .15, .85, .225], 
                                                   sharex=self.spectrumAxes)
         # We want the residualsAxes cleared every time plot() is called
         self.residualsAxes.set_yticks([-1, 0, 1])
         self.residualsAxes.set_ylim(-2, 2)
-        self.residualsAxes.hold(False)
+        self.residualsAxes.set_ylabel('Res.')
+        self.residualsAxes.set_xlabel('Energy (KeV)')
 
         FigureCanvasQTAgg.__init__(self, self.figure)
         self.setParent(parent)
@@ -114,48 +111,67 @@ class McaSpectrum(QtMplCanvas):
                                         QtGui.QSizePolicy.Expanding)
         FigureCanvasQTAgg.updateGeometry(self)
 
-    def updateFigure(self, fitData=None):
-        
-        if self.fitData == {}: autoscale = True
-        else: autoscale = self.autoscale
-        
-        if fitData: self.fitData = fitData
-        else: fitData = self.fitData
-        
-        # Why is copy()ing necessary?
-        x = fitData['energy'].copy()
-        y = fitData['ydata'].copy()
-        yfit = fitData['yfit'].copy()
-        
-        if self.useLogScale:
-            self.spectrumAxes.set_yscale('log')
-            plot = self.spectrumAxes.semilogy
-            residuals = fitData['logresiduals'].copy()
-        else:
-            self.spectrumAxes.set_yscale('linear')
-            plot = self.spectrumAxes.plot
-            residuals = fitData['residuals'].copy()
-        
-        plot(x, y, 'b', linewidth=1.5, scalex=autoscale, scaley=autoscale)
-        self.spectrumAxes.hold(True)
-        plot(x, yfit, 'k', linewidth=1.5, scalex=autoscale, scaley=autoscale)
+    def createInitialFigure(self, fitData):
+        self.dataLine, = self.spectrumAxes.plot(fitData['energy'],
+                                               fitData['ydata'],
+                                               'b', linewidth=1.5)
+        self.fitLine, = self.spectrumAxes.plot(fitData['energy'],
+                                              fitData['yfit'],
+                                              'k', linewidth=1.5)
         self.spectrumAxes.set_ylabel('Counts')
-        xlims = self.spectrumAxes.get_xlim()
-        self.spectrumAxes.hold(False)
-
-        self.residualsAxes.plot(x, residuals, 'k', linewidth=1.5, 
-                                scalex=autoscale, scaley=autoscale)
+        
+        self.resLine, = self.residualsAxes.plot(fitData['energy'],
+                                               fitData['residuals'],
+                                               'k', linewidth=1.5)
+        ytick = self.residualsAxes.get_yticks()[0]
+        self.residualsAxes.set_yticks([ytick, 0, -ytick])
         self.residualsAxes.set_ylabel('Res.')
         self.residualsAxes.set_xlabel('Energy (KeV)')
+        
+        self.fitData = fitData
+        self.draw()
+
+    def updateFigure(self, fitData=None):
+        if self.fitData == {}:
+            self.createInitialFigure(fitData)
+            return
+        
+        if not fitData: fitData = self.fitData
+        
+        self.dataLine.set_ydata(fitData['ydata'])
+        self.fitLine.set_ydata(fitData['yfit'])
+        if self.spectrumAxes.get_yscale() == 'log':
+            self.resLine.set_ydata(fitData['logresiduals'])
+        else:
+            self.resLine.set_ydata(fitData['residuals'])
+        
+        self.fitData = fitData
+        
+        self.spectrumAxes.relim()
+        self.spectrumAxes.autoscale_view()
+        
+        self.residualsAxes.relim()
+        self.residualsAxes.autoscale_view()
         ytick = self.residualsAxes.get_yticks()[0]
         self.residualsAxes.set_yticks([ytick, 0, -ytick])
         
         self.draw()
 
-    def clear(self):
-        self.fitData = {}
-        self.spectrumAxes.cla()
-        self.residualsAxes.cla()
+    def enableAutoscale(self, val):
+        self.spectrumAxes.set_autoscale_on(val)
+        self.residualsAxes.set_autoscale_on(val)
+        self.updateFigure()
+
+    def enableLogscale(self, val):
+        if val:
+            isAutoscaled = self.spectrumAxes.get_autoscale_on()
+            self.spectrumAxes.set_autoscale_on(True)
+            self.spectrumAxes.set_yscale('log')
+            self.updateFigure()
+            self.spectrumAxes.set_autoscale_on(isAutoscaled)
+        else:
+            self.spectrumAxes.set_yscale('linear')
+            self.updateFigure()
 
 
 class ElementImage(QtMplCanvas):
@@ -216,14 +232,6 @@ class ElementImage(QtMplCanvas):
         self.axes.set_aspect(1/aspect)
         self.updateFigure()
 
-    def clear(self):
-        self.axes.cla()
-        self._image = None
-        self._imageData = None
-        try:
-            self._colorbar.ax.cla()
-        except AttributeError:
-            pass
 
 class ElementPlot(ElementImage):
     def __init__(self,parent=None):
@@ -246,7 +254,6 @@ class ElementPlot(ElementImage):
             if imageData is None: imageData = self._imageData
             else: self._imageData = imageData
             self._plot=self.axes.plot(imageData,"b-")
-#            print imageData
             
         if self.autoscale:
             self._ylim = list(self.axes.get_ylim())

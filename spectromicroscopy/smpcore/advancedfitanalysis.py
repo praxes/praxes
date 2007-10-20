@@ -38,13 +38,6 @@ class AdvancedFitAnalysis(QtCore.QObject):
         """
         QtCore.QObject.__init__(self)
         
-        self.threshold=0
-        self.detector="Icol"
-        self.counterType="Vortex"
-        self.skipmode=0
-        self.correction=1
-        
-        
         self.dataQue = []
         self.previousIndex = -1
         self.index = 0
@@ -213,7 +206,8 @@ dead time, called "Dead", must be created in Spec for this feature to work.'
                                 numpy.log10(result['yfit'])
                 logres[numpy.isinf(logres)]=numpy.nan
                 fitData['logresiduals'] = logres
-                self.mcaDataFit.append(fitData)
+                
+#                self.mcaDataFit.append(fitData)
     #            self.archivePymcaSpectra(fitData)
                 
                 for group in result['groups']:
@@ -228,7 +222,7 @@ dead time, called "Dead", must be created in Spec for this feature to work.'
                         concentrations['mass fraction'][group]
                 self.emit(QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"), fitData)
             
-            self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"), 
+            self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
                       self.elementMaps[self._currentDataType][self._currentElement])
             
             if index <= 1:
