@@ -55,12 +55,12 @@ class AdvancedFitAnalysis(QtCore.QObject):
 #        self.hdf5.createGroup('/pymca/elements', 'sigmaarea', 'error')
         
         self.mcaDataFit = []
-        self.elementMaps = {"Peak Areas": {},
-                            "Concentrations": {},
-                            "Errors": {}}
+        self.elementMaps = {"Peak Area": {},
+                            "Mass Fraction": {},
+                            "Sigma Area": {}}
         
         self._currentElement = None
-        self._currentDataType = "Peak Areas"
+        self._currentDataType = "Peak Area"
         
         self._suggested_filename = 'smp.dat'
         
@@ -130,16 +130,11 @@ class AdvancedFitAnalysis(QtCore.QObject):
         self.peaks.sort()
         if self._currentElement is None:
             self._currentElement = self.peaks[0]
-        for peak in self.peaks:
-            if not peak in self.elementMaps["Peak Areas"]:
-                    self.elementMaps["Peak Areas"][peak] = numpy.zeros(self.imageSize,
-                                                      dtype=numpy.float_)
-            if not peak in self.elementMaps["Errors"]:
-                    self.elementMaps["Errors"][peak] = numpy.zeros(self.imageSize,
-                                                      dtype=numpy.float_)
-            if not peak in self.elementMaps["Concentrations"]:
-                    self.elementMaps["Concentrations"][peak] = numpy.zeros(self.imageSize,
-                                                      dtype=numpy.float_)
+        for datatype in self.elementMaps:
+            for peak in self.peaks:
+                if not peak in self.elementMaps[datatype]:
+                    self.elementMaps[datatype][peak] = \
+                        numpy.zeros(self.imageSize, dtype=numpy.float_)
         self.emit(QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
                   self.peaks)
         self.advancedFit = ClassMcaTheory.McaTheory(configFile)
@@ -164,20 +159,13 @@ class AdvancedFitAnalysis(QtCore.QObject):
         if self.index != self.previousIndex+1 and self.index != 0:
             if DEBUG: print 'index problem: ', self.previousIndex, self.index
         
-        if smpConfig['skipmode']['isEnabled'] and \
-                (scanData[ smpConfig['skipmode']['counter'] ] <= \
-                 smpConfig['skipmode']['threshold']):
-            scanData["mcaData"] = 0
-            self.dataQue.append(scanData)
-        else:
-            #TODO: preprocess data here: deadtime correction, etc.
-            try:
-                scanData['mcaData'][1] *= 100./(100-float(scanData['Dead']))
-            except KeyError:
-                if DEBUG: print 'deadtime not corrected. A counter reporting \
-the percent dead time, called "Dead", must be created in Spec for this feature \
-to work.'
-            self.dataQue.append(scanData)
+        try:
+            scanData['mcaData'][1] *= 100./(100-float(scanData['Dead']))
+        except KeyError:
+            if DEBUG: print 'deadtime not corrected. A counter reporting the \
+percent dead time, called "Dead", must be created in Spec for this feature to \
+work.'
+        self.dataQue.append(scanData)
         #TODO: probably needs a separate thread at some point
         self.processNextPoint()
     
@@ -186,13 +174,14 @@ to work.'
             scanData = self.dataQue.pop(0)
 #            self.archiveSpecData(scanData)
             index = scanData['i']
-            mcaData = scanData['mcaData']
-            if type(mcaData) == type(0):
-                for key in self.elementMaps["Peak Areas"].keys():
-                    self.elementMaps["Peak Areas"][key].flat[index] = 0
-                    self.elementMaps["Concentrations"][key].flat[index] = 0
-                    self.elementMaps["Errors"][key].flat[index] = 0
+            if smpConfig['skipmode']['isEnabled'] and \
+                    (scanData[ smpConfig['skipmode']['counter'] ] <= \
+                     smpConfig['skipmode']['threshold']):
+                for datatype in self.elementMaps:
+                    for peak in self.peaks:
+                        self.elementMaps[datatype][key].flat[index] = 0
             else:
+                mcaData = scanData['mcaData']
                 self.advancedFit.setdata(mcaData[0], mcaData[1], None)
                 self.advancedFit.estimate()
                 fitresult, result = self.advancedFit.startfit(digest=1)
@@ -216,15 +205,15 @@ to work.'
                 
                 for group in result['groups']:
     #                print result[group].keys()
-                    self.elementMaps["Peak Areas"][group].flat[index] = \
+                    self.elementMaps["Peak Area"][group].flat[index] = \
                         result[group]['fitarea']
     #                for t in ('fitarea', 'sigmaarea'):
     #                    self.archiveElementData(group, t, index, result[group][t])
                     area = numpy.where(result[group]['fitarea']==0, numpy.nan,
                                        result[group]['fitarea'])
-                    self.elementMaps["Errors"][group].flat[index] = \
+                    self.elementMaps["Sigma Area"][group].flat[index] = \
                         concentrations['sigmaarea'][group]/area
-                    self.elementMaps["Concentrations"][group].flat[index] = \
+                    self.elementMaps["Mass Fraction"][group].flat[index] = \
                         concentrations['mass fraction'][group]
                 self.emit(QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"), fitData)
             

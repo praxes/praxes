@@ -146,17 +146,17 @@
          <widget class="QComboBox" name="dataTypeBox" >
           <item>
            <property name="text" >
-            <string>Peak Areas</string>
+            <string>Peak Area</string>
            </property>
           </item>
           <item>
            <property name="text" >
-            <string>Concentrations</string>
+            <string>Sigma Area</string>
            </property>
           </item>
           <item>
            <property name="text" >
-            <string>Errors</string>
+            <string>Mass Fraction</string>
            </property>
           </item>
          </widget>

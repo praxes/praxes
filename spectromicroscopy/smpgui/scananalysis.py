@@ -17,20 +17,22 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.smpgui import ui_scananalysis, elementsdata, \
-    mcaspectrum, mplwidgets,elementsplot
+from spectromicroscopy.smpgui import elementsdata, mcaspectrum, mplwidgets, \
+    elementsplot
 from spectromicroscopy.smpcore import advancedfitanalysis
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-class ScanAnalysis(ui_scananalysis.Ui_ScanAnalysis, QtGui.QWidget):
+class ScanAnalysis(QtGui.QWidget):
     """Establishes a Experimenbt controls    """
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.parent = parent
-        self.setupUi(self)
+        
+        self.gridlayout = QtGui.QGridLayout(self)
+        
         self.setEnabled(False)
         
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
