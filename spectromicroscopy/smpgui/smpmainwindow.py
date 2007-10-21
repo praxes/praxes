@@ -19,8 +19,8 @@ from PyMca import McaAdvancedFit
 #---------------------------------------------------------------------------
 
 from spectromicroscopy import smpConfig
-from spectromicroscopy.smpgui import configuresmp, console, scanio, \
-    ui_smpmainwindow
+from spectromicroscopy.smpgui import configuresmp, console, \
+    smpprojectinterface, smptabwidget, ui_smpmainwindow
 from spectromicroscopy.smpcore import specrunner, configutils
 from SpecClient import SpecClientError
 #from testinterface import MyUI
@@ -69,9 +69,12 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
             self.configureSmpInteractive()
         
         self.setupUi(self)
-        self.scanIO = scanio.ScanIO(self)
-        self.mainTab.addTab(self.scanIO, "Experiment Controls")
-        self.mainTab.removeTab(0)
+#        self.gridlayout = QtGui.QGridLayout(self)
+        self.mainTab = smptabwidget.SmpTabWidget(self)
+        self.gridlayout.addWidget(self.mainTab,1,0,1,1)
+        
+        self.projectInterface = smpprojectinterface.SmpProjectInterface(self)
+        self.mainTab.addTab(self.projectInterface, "Experiment Controls")
         self.mcaAdvancedFit = McaAdvancedFit.McaAdvancedFit()
         self.mainTab.addTab(self.mcaAdvancedFit, "PyMca Advanced Fit")
         #TODO: added Consoles and motorViews 
