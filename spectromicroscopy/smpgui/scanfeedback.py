@@ -26,6 +26,9 @@ from spectromicroscopy.smpgui import scananalysis
 
 class SmpTabWidget(QtGui.QTabWidget):
 
+    """A subclassed TabWidget providing a context menu for saving and closing 
+    scans"""
+
     def __init__(self, parent=None):
         QtGui.QTabWidget.__init__(self, parent)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)

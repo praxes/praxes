@@ -30,6 +30,9 @@ from spectromicroscopy.smpcore import configutils
 #---------------------------------------------------------------------------
 
 
+DEBUG = False
+
+
 class AdvancedFitAnalysis(QtCore.QObject):
 
     def __init__(self, *args):
@@ -159,7 +162,7 @@ class AdvancedFitAnalysis(QtCore.QObject):
         self.previousIndex = self.index
         self.index = scanData['i']
         if self.index != self.previousIndex+1 and self.index != 0:
-            print 'index problem: ', self.previousIndex, self.index
+            if DEBUG: print 'index problem: ', self.previousIndex, self.index
         
         if smpConfig['skipmode']['isEnabled'] and \
                 (scanData[ smpConfig['skipmode']['counter'] ] <= \
@@ -171,8 +174,9 @@ class AdvancedFitAnalysis(QtCore.QObject):
             try:
                 scanData['mcaData'][1] *= 100./(100-float(scanData['Dead']))
             except KeyError:
-                print 'deadtime not corrected. A counter reporting the percent \
-dead time, called "Dead", must be created in Spec for this feature to work.'
+                if DEBUG: print 'deadtime not corrected. A counter reporting \
+the percent dead time, called "Dead", must be created in Spec for this feature \
+to work.'
             self.dataQue.append(scanData)
         #TODO: probably needs a separate thread at some point
         self.processNextPoint()

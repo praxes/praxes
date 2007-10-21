@@ -44,7 +44,7 @@ class QtSpecVariableA(SpecVariable.SpecVariableA):
         if DEBUG: print "Variable %s disconnected"%self.getVarName()
     
     def update(self, value):
-        print "Variable %s updated to %s"%(self.getVarName(), value)
+        if DEBUG: print "Variable %s updated to %s"%(self.getVarName(), value)
     
     def isConnected(self):
         return (self.__connected__ != None) and (self.__connected__)
