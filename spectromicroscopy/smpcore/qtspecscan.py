@@ -26,7 +26,7 @@ from spectromicroscopy.smpcore import configutils, qtspeccommand, \
 # Normal code begins
 #---------------------------------------------------------------------------
 
-DEBUG = True
+DEBUG = False
 
 
 class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):

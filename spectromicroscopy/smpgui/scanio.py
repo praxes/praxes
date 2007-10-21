@@ -27,7 +27,7 @@ from spectromicroscopy.smpcore import specrunner, configutils, qtspecscan, \
 #---------------------------------------------------------------------------
 
 
-class ScanIO(ui_scanio.Ui_ScanIO, QtGui.QWidget):
+class ScanIO(QtGui.QWidget):
     """Establishes a Experimenbt controls 
     Generates Control and Feedback instances
    Addes Scan atributes to specRunner instance 
@@ -35,7 +35,8 @@ class ScanIO(ui_scanio.Ui_ScanIO, QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.parent = parent
-        self.setupUi(self)
+        
+        self.gridlayout = QtGui.QGridLayout(self)
 
         self.specRunner = parent.specRunner
 
