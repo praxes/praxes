@@ -22,9 +22,9 @@
    <item row="0" column="0" >
     <widget class="QTabWidget" name="tabWidget" >
      <property name="currentIndex" >
-      <number>1</number>
+      <number>0</number>
      </property>
-     <widget class="QWidget" name="tab" >
+     <widget class="QWidget" name="sessionTab" >
       <attribute name="title" >
        <string>Session</string>
       </attribute>
@@ -88,7 +88,7 @@ p, li { white-space: pre-wrap; }
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="Settings" >
+     <widget class="QWidget" name="settingsTab" >
       <attribute name="title" >
        <string>Settings</string>
       </attribute>
@@ -169,10 +169,12 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <tabstops>
+  <tabstop>buttonBox</tabstop>
   <tabstop>serverEdit</tabstop>
   <tabstop>portEdit</tabstop>
-  <tabstop>buttonBox</tabstop>
   <tabstop>tabWidget</tabstop>
+  <tabstop>thresholdBox</tabstop>
+  <tabstop>counterEdit</tabstop>
  </tabstops>
  <resources/>
  <connections>

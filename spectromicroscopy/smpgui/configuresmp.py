@@ -74,9 +74,6 @@ class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
         smpConfig.write()
         QtGui.QDialog.accept(self)
 
-    def reject (self):
-        QtGui.QDialog.accept(self)
-
     def validateConfig(self):
         smpConfig.setdefault('session', {})
         smpConfig.setdefault('skipmode', {})

@@ -76,7 +76,15 @@
     </property>
     <addaction name="actionAbout_SpectroMicroscoPy" />
    </widget>
+   <widget class="QMenu" name="menuProject" >
+    <property name="title" >
+     <string>Project</string>
+    </property>
+    <addaction name="actionConnect" />
+    <addaction name="actionDisconnect" />
+   </widget>
    <addaction name="menuFile" />
+   <addaction name="menuProject" />
    <addaction name="menuSettings" />
    <addaction name="menuTools" />
    <addaction name="menuHelp" />
@@ -114,6 +122,27 @@
   <action name="actionLoad_Default_Pymca_Config" >
    <property name="text" >
     <string>Default Config</string>
+   </property>
+  </action>
+  <action name="actionNew" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>New Sample</string>
+   </property>
+  </action>
+  <action name="actionConnect" >
+   <property name="text" >
+    <string>Connect</string>
+   </property>
+  </action>
+  <action name="actionDisconnect" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>Disconnect</string>
    </property>
   </action>
  </widget>

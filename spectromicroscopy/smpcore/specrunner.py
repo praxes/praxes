@@ -60,6 +60,7 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
     def __del__(self):
         self.clientplotoff()
         QtCore.QObject.__del__(self)
+        self.connection.dispatcher.disconnect()
         Spec.Spec.__del__(self)
 
     def getMotor(self, motorName):

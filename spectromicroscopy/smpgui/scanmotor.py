@@ -33,15 +33,15 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
         self.setupUi(self)
     
         self.parent = parent
-        self.specRunner = parent.specRunner
+        self.projectInterface = parent.projectInterface
         
-        motors = self.specRunner.getMotorsMne()
+        motors = self.projectInterface.specRunner.getMotorsMne()
         try:
             ind = motors.index(motor)
         except ValueError:
             motor = motors[0]
             ind = 0
-        self.setMotor(motor, self.specRunner.specVersion)
+        self.setMotor(motor, self.projectInterface.specRunner.specVersion)
         
         self.motorComboBox.addItems(motors)
         self.motorComboBox.setCurrentIndex(ind)
@@ -57,7 +57,7 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
                      self.setNextPosition)
 
     def setMotor(self, motor, hostport=None):
-        self._motor = motor = self.specRunner.getMotor(str(motor))
+        self._motor = motor = self.projectInterface.specRunner.getMotor(str(motor))
         self.setLimits(motor.getLimits())
 
         position = motor.getPosition()

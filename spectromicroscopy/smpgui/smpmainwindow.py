@@ -5,7 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import weakref
+import time
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -21,7 +21,7 @@ from PyMca import McaAdvancedFit
 from spectromicroscopy import smpConfig
 from spectromicroscopy.smpgui import configuresmp, console, \
     smpprojectinterface, smptabwidget, ui_smpmainwindow
-from spectromicroscopy.smpcore import specrunner, configutils
+from spectromicroscopy.smpcore import configutils
 from SpecClient import SpecClientError
 #from testinterface import MyUI
 
@@ -42,10 +42,22 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
         
-        self.configureSmp()
+        self.setupUi(self)
+        self.mainTab = smptabwidget.SmpTabWidget(self)
+        self.gridlayout.addWidget(self.mainTab,1,0,1,1)
+        
+        #TODO: added Consoles and motorViews 
+        self.console = None 
+        self.motorView = None
         
         self.pymcaConfigFile = configutils.getDefaultPymcaConfigFile()
         
+        self.connect(self.actionConnect,
+                     QtCore.SIGNAL("triggered()"),
+                     self.connectToSpec)
+        self.connect(self.actionDisconnect,
+                     QtCore.SIGNAL("triggered()"),
+                     self.disconnectFromSpec)
         self.connect(self.actionModify_SMP_Config,
                      QtCore.SIGNAL("triggered()"),
                      self.configureSmpInteractive)
@@ -56,51 +68,35 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
                      QtCore.SIGNAL("triggered()"),
                      self.getDefaultPymcaFile)
 
-    def configureSmp(self):
-        specVersion = self.getSpecVersion()
+    def connectToSpec(self):
+        if not self.configureSmpInteractive(): return
         try:
-            self.__specRunner = specrunner.SpecRunner(specVersion, timeout=500)
-            # when we reconfigure, we need to remove all references to
-            # the old specRunner. An easy way to do this is to make the
-            # public interface to specRunner a weak reference:
-            self.specRunner = weakref.proxy(self.__specRunner)
+            msg = QtGui.QMessageBox(self)
+#            msg.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+            msg.setModal(0)
+            msg.setText('Connecting to spec, please wait...')
+            msg.setWindowTitle('Please Wait')
+            msg.show()
+            time.sleep(0.01)
+            self.projectInterface = \
+                smpprojectinterface.SmpProjectInterface(self)
+            msg.close()
+            self.mainTab.insertTab(0, self.projectInterface,
+                                   "Experiment Controls")
         except SpecClientError.SpecClientTimeoutError:
-            self.connectionError(specVersion)
-            self.configureSmpInteractive()
-        
-        self.setupUi(self)
-#        self.gridlayout = QtGui.QGridLayout(self)
-        self.mainTab = smptabwidget.SmpTabWidget(self)
-        self.gridlayout.addWidget(self.mainTab,1,0,1,1)
-        
-        self.projectInterface = smpprojectinterface.SmpProjectInterface(self)
-        self.mainTab.addTab(self.projectInterface, "Experiment Controls")
-        self.mcaAdvancedFit = McaAdvancedFit.McaAdvancedFit()
-        self.mainTab.addTab(self.mcaAdvancedFit, "PyMca Advanced Fit")
-        #TODO: added Consoles and motorViews 
-        self.console = None 
-        self.motorView = None
-
-    def connectionError(self, specVersion):
-        error = QtGui.QErrorMessage()
-        server, port = specVersion.split(':')
-        error.showMessage('''\
-        SMP was unabel to connect to the "%s" spec instance at "%s". Please \
-        make sure you have started spec in server mode (for example "spec \
-        -S").'''%(port, server))
-        error.exec_()
+            msg.close()
+            self.connectToSpec()
+        self.actionConnect.setEnabled(False)
+        self.actionDisconnect.setEnabled(True)
 
     def configureSmpInteractive(self):
-        configuresmp.ConfigureSmp(self).exec_()
-        self.configureSmp()
+        return configuresmp.ConfigureSmp(self).exec_()
 
-    def getSpecVersion(self):
-        try:
-            return ':'.join([smpConfig['session']['server'],
-                             smpConfig['session']['port']])
-        except KeyError:
-            self.configureSmpInteractive()
-            self.getSpecVersion()
+    def disconnectFromSpec(self):
+        self.mainTab.removeTab(0)
+        self.projectInterface.close()
+        self.actionConnect.setEnabled(True)
+        self.actionDisconnect.setEnabled(False)
 
     def getPymcaConfigFile(self):
         dialog = QtGui.QFileDialog(self, 'Load PyMca Config File')
