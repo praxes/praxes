@@ -30,7 +30,7 @@ from spectromicroscopy.smpcore import configutils
 #---------------------------------------------------------------------------
 
 
-DEBUG = False
+DEBUG = True
 
 
 class AdvancedFitAnalysis(QtCore.QObject):
