@@ -43,13 +43,14 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         QtCore.QObject.__init__(self)
         Spec.Spec.__init__(self, specVersion, timeout)
         
+        self.cmd = SpecCommand.SpecCommand('', specVersion, timeout)
         # load the clientutils macros:
-        clientutils = SpecCommand.SpecCommand('', specVersion, timeout)
-        clientutils.executeCommand(configutils.getClientUtilsMacro())
+        self.cmd.executeCommand(configutils.getClientUtilsMacro())
         self.clientploton()
         
         self._motors = {}
         self._motorNames = []
+        self.getMotorsMne()
         
         self.timer = QtCore.QTimer(self)
         self.connect(self.timer,
@@ -69,11 +70,24 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
                                                                self.specVersion)
             return self._motors[motorName]
 
+    def getMotorMne(self, motorId):
+        motorMne = self.motor_mne(motorId, function = True)
+        if not motorMne in self._motorNames:
+            self._motorNames.append(motorMne)
+        return motorMne
+
     def getMotorsMne(self):
-        if not self._motorNames:
-            self._motorNames = Spec.Spec.getMotorsMne(self)
-            self._motorNames.sort()
+        if len(self._motorNames) != self.getNumMotors():
+            motorsMne = self.cmd.executeCommand("local md; for (i=0; i<MOTORS; \
+i++) { md[i]=motor_mne(i); }; return md")
+            keys = [int(i) for i in motorsMne.keys()]
+            keys.sort()
+            self._motorNames = [motorsMne[str(i)] for i in keys]
         return self._motorNames
+
+    def getNumMotors(self):
+        if self.connection is not None:
+            return self.connection.getChannel('var/MOTORS').read()
 
     def update(self):
         SpecEventsDispatcher.dispatch()

@@ -74,9 +74,12 @@ class SmpProjectInterface(QtGui.QWidget):
     def connectToSpec(self):
         specVersion = self.getSpecVersion()
         try:
+            self.window().statusBar().showMessage('Connecting')
+            QtGui.qApp.processEvents()
             self.specRunner = specrunner.SpecRunner(specVersion, timeout=500)
             self.specRunner.scan = \
                 qtspecscan.QtSpecScanMcaA(self.specRunner.specVersion)
+            self.window().statusBar().clearMessage()
         except SpecClientError.SpecClientTimeoutError:
             self.connectionError(specVersion)
             raise SpecClientError.SpecClientTimeoutError

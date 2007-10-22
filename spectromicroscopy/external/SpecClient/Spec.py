@@ -66,7 +66,7 @@ class Spec:
                 for motorId in range(n_motors):
                     motors.append(self.motor_mne(motorId, function = True))
                 
-            return motors        
+            return motors
 
 
     def getVersion(self):

@@ -46,6 +46,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.mainTab = smptabwidget.SmpTabWidget(self)
         self.gridlayout.addWidget(self.mainTab,1,0,1,1)
         
+        self.statusBar().showMessage('Ready', 2000)
         #TODO: added Consoles and motorViews 
         self.console = None 
         self.motorView = None
@@ -71,20 +72,11 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
     def connectToSpec(self):
         if not self.configureSmpInteractive(): return
         try:
-            msg = QtGui.QMessageBox(self)
-#            msg.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-            msg.setModal(0)
-            msg.setText('Connecting to spec, please wait...')
-            msg.setWindowTitle('Please Wait')
-            msg.show()
-            time.sleep(0.01)
             self.projectInterface = \
                 smpprojectinterface.SmpProjectInterface(self)
-            msg.close()
             self.mainTab.insertTab(0, self.projectInterface,
                                    "Experiment Controls")
         except SpecClientError.SpecClientTimeoutError:
-            msg.close()
             self.connectToSpec()
         self.actionConnect.setEnabled(False)
         self.actionDisconnect.setEnabled(True)
