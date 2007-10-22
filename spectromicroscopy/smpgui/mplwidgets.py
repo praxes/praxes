@@ -13,13 +13,11 @@
 
 from PyQt4 import QtCore, QtGui
 import matplotlib as mpl
-mpl.rcdefaults()
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg\
     as Toolbar
 from matplotlib.figure import Figure
 import numpy
-numpy.seterr(all='ignore')
 
 #---------------------------------------------------------------------------
 # SMP imports
@@ -30,6 +28,12 @@ numpy.seterr(all='ignore')
 #---------------------------------------------------------------------------
 # Normal code begins
 #--------------------------------------------------------------------------
+
+
+mpl.rcdefaults()
+mpl.rcParams['axes.formatter.limits']=[-4, 4]
+Toolbar.margin = 4
+numpy.seterr(all='ignore')
 
 
 class QtMplCanvas(FigureCanvasQTAgg):
