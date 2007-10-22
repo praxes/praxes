@@ -1,5 +1,5 @@
 In order to work on SMP development, the spectromicroscopy 
-working directory, PyMca, SpecClient and configobj must all be 
+working directory and the "external" directory must both be 
 on your PYTHONPATH. This can be done by adding the following 
 to your .bashrc file, (assuming you use bash):
 
@@ -14,3 +14,5 @@ python (version 2.4 or later, preferrably 2.5 or later)
 Qt4 (preferrably version 4.3.1 or later)
 PyQt4 (preferrably version 4.3 or later)
 matplotlib (0.90.1 or later)
+configobj
+PyMca
