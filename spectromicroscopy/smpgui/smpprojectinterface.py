@@ -67,6 +67,10 @@ class SmpProjectInterface(QtGui.QWidget):
                      QtCore.SIGNAL("newScan(PyQt_PyObject)"),
                      self.setTabLabel)
 
+    def close(self):
+        self.specRunner.close()
+        return QtGui.QWidget.close(self)
+
     def connectToSpec(self):
         specVersion = self.getSpecVersion()
         try:
