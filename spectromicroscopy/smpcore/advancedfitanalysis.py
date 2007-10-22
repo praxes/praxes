@@ -160,7 +160,12 @@ class AdvancedFitAnalysis(QtCore.QObject):
             if DEBUG: print 'index problem: ', self.previousIndex, self.index
         
         try:
-            if DEBUG: print 100./(100-float(scanData['dead']))
+            if DEBUG: 
+                print 'correction:', 100./(100-float(scanData['dead']))
+                print 'icr:', float(scanData['icr'])
+                print 'ocr:', float(scanData['ocr'])
+                print 'real:', float(scanData['real'])
+                print 'live:', float(scanData['live'])
             scanData['mcaData'][1] *= 100./(100-float(scanData['dead']))
         except KeyError:
             if DEBUG: print 'deadtime not corrected. A counter reporting the \
