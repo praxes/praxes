@@ -29,7 +29,7 @@ class BaseSpecCommand:
         self.isConnected = self.isSpecConnected #alias
          
         if connection is not None:
-            if type(connection) == types.StringType:
+            if type(connection) in (types.UnicodeType, types.StringType):
                 #
                 # connection is given in the 'host:port' form
                 #

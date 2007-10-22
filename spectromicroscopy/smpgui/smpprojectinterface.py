@@ -91,12 +91,8 @@ class SmpProjectInterface(QtGui.QWidget):
         error.exec_()
 
     def getSpecVersion(self):
-        try:
-            return ':'.join([smpConfig['session']['server'],
-                             smpConfig['session']['port']])
-        except KeyError:
-            self.window().configureSmpInteractive()
-            self.getSpecVersion()
+        return ':'.join([smpConfig['session']['server'],
+                         smpConfig['session']['port']])
 
     def newScanAnalysis(self, newAnalysis):
         self.parent.mainTab.addTab(newAnalysis, '')

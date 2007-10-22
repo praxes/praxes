@@ -207,7 +207,7 @@ def waitConnection(connection, timeout = None):
     connection -- a 'host:port' string
     timeout -- optional timeout (defaults to None)
     """
-    if type(connection) == types.StringType:
+    if type(connection)  in (types.UnicodeType, types.StringType):
         from SpecClient.SpecConnectionsManager import SpecConnectionsManager
         connection = SpecConnectionsManager().getConnection(connection)
 
@@ -225,7 +225,7 @@ def waitChannelUpdate(chanName, connection, waitValue = None, timeout = None):
     waitValue -- value to wait (defaults to None)
     timeout -- optional timeout (defaults to None)
     """
-    if type(connection) == types.StringType:
+    if type(connection)  in (types.UnicodeType, types.StringType):
         from SpecClient.SpecConnectionsManager import SpecConnectionsManager
         connection = SpecConnectionsManager().getConnection(connection)
         waitConnection(connection, timeout = timeout)
@@ -245,7 +245,7 @@ def waitReply(connection, command, argsTuple, timeout = None):
     argsTuple -- tuple of arguments for the command
     timeout -- optional timeout (defaults to None)
     """
-    if type(connection) == types.StringType:
+    if type(connection)  in (types.UnicodeType, types.StringType):
         from SpecClient.SpecConnectionsManager import SpecConnectionsManager
         connection = SpecConnectionsManager().getConnection(connection)
         waitConnection(connection, timeout = timeout)
