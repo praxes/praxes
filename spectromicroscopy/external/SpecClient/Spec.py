@@ -56,18 +56,13 @@ class Spec:
         
     def getMotorsMne(self):
         """Return motors mnemonics list."""
-        if self.connection is not None:
-            c = self.connection.getChannel('var/MOTORS')
-
-            n_motors = c.read()
-            motors = []
-
-            if n_motors is not None:
-                for motorId in range(n_motors):
-                    motors.append(self.motor_mne(motorId, function = True))
-                
-            return motors
-
+        if self.connection is not None and self.connection.isSpecConnected():
+            get_motor_mnemonics = SpecCommand.SpecCommand('local md[]; for (i=0; i<MOTORS; i++) { md[i][motor_mne(i)]=motor_name(i) }; return md', self.connection)
+            
+            return get_motor_mnemonics()
+        else:
+            return {}
+        
 
     def getVersion(self):
         if self.connection is not None:

@@ -1,4 +1,3 @@
-#$Id: SpecWaitObject.py,v 1.4 2004/11/02 07:40:57 guijarro Exp guijarro $
 """SpecWaitObject module
 
 This module defines the classes for helper objects
@@ -141,8 +140,7 @@ class SpecWaitObject:
         """Block until the object's internal value gets updated
 
         Arguments:
-        waitValue -- particular value to wait (defaults to None, meaning any
-value)
+        waitValue -- particular value to wait (defaults to None, meaning any value)
         timeout -- optional timeout (defaults to None)
 
         Exceptions:
@@ -207,10 +205,10 @@ def waitConnection(connection, timeout = None):
     connection -- a 'host:port' string
     timeout -- optional timeout (defaults to None)
     """
-    if type(connection)  in (types.UnicodeType, types.StringType):
-        from SpecClient.SpecConnectionsManager import SpecConnectionsManager
-        connection = SpecConnectionsManager().getConnection(connection)
-
+    if type(connection) in (types.UnicodeType, types.StringType):
+      from SpecClient.SpecConnectionsManager import SpecConnectionsManager
+      connection = SpecConnectionsManager().getConnection(str(connection))
+      
     w = SpecWaitObject(connection)
 
     w.waitConnection(timeout = timeout)
@@ -225,10 +223,11 @@ def waitChannelUpdate(chanName, connection, waitValue = None, timeout = None):
     waitValue -- value to wait (defaults to None)
     timeout -- optional timeout (defaults to None)
     """
-    if type(connection)  in (types.UnicodeType, types.StringType):
-        from SpecClient.SpecConnectionsManager import SpecConnectionsManager
-        connection = SpecConnectionsManager().getConnection(connection)
-        waitConnection(connection, timeout = timeout)
+    if type(connection) in (types.UnicodeType, types.StringType):
+      connection = str(connection)
+      from SpecClient.SpecConnectionsManager import SpecConnectionsManager
+      connection = SpecConnectionsManager().getConnection(connection)
+      waitConnection(connection, timeout = timeout)
 
     w = SpecWaitObject(connection)
     w.waitChannelUpdate(chanName, waitValue = waitValue, timeout = timeout)
@@ -245,10 +244,11 @@ def waitReply(connection, command, argsTuple, timeout = None):
     argsTuple -- tuple of arguments for the command
     timeout -- optional timeout (defaults to None)
     """
-    if type(connection)  in (types.UnicodeType, types.StringType):
-        from SpecClient.SpecConnectionsManager import SpecConnectionsManager
-        connection = SpecConnectionsManager().getConnection(connection)
-        waitConnection(connection, timeout = timeout)
+    if type(connection) in (types.UnicodeType, types.StringType):
+      connection = str(connection)
+      from SpecClient.SpecConnectionsManager import SpecConnectionsManager
+      connection = SpecConnectionsManager().getConnection(connection)
+      waitConnection(connection, timeout = timeout)
 
     w = SpecWaitObject(connection)
     w.waitReply(command, argsTuple, timeout=timeout)

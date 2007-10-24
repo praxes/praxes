@@ -22,6 +22,8 @@ class SpecChannel:
     Signals:
     valueChanged(channelValue, channelName) -- emitted when the channel gets updated
     """
+    channel_aliases = {}
+    
     def __init__(self, connection, channelName, registrationFlag = DOREG):
         """Constructor
 
@@ -37,6 +39,27 @@ class SpecChannel:
         """
         self.connection = weakref.ref(connection)
         self.name = channelName
+        
+        if channelName.startswith("var/") and '/' in channelName[4:]:
+            l = channelName.split('/')
+            self.spec_chan_name = "/".join((l[0], l[1]))
+            if self.spec_chan_name in SpecChannel.channel_aliases:
+                SpecChannel.channel_aliases[self.spec_chan_name].append(self.name)
+            else:
+                SpecChannel.channel_aliases[self.spec_chan_name] = [self.name]
+            
+            if len(l)==3:
+                self.access1=l[2]
+                self.access2=None
+            else:
+                self.access1=l[2]
+                self.access2=l[3]
+        else:
+            self.spec_chan_name = self.name
+            if not self.spec_chan_name in SpecChannel.channel_aliases:
+                SpecChannel.channel_aliases[self.spec_chan_name]=[self.name]
+            self.access1=None
+            self.access2=None
         self.registrationFlag = registrationFlag
         self.isdisconnected = True
         self.registered = False
@@ -76,7 +99,7 @@ class SpecChannel:
         connection = self.connection()
         
         if connection is not None:
-            connection.send_msg_unregister(self.name)
+            connection.send_msg_unregister(self.spec_chan_name)
             self.registered = False
             self.value = None
 
@@ -90,19 +113,31 @@ class SpecChannel:
         connection = self.connection()
 
         if connection is not None:
-            connection.send_msg_register(self.name)
+            connection.send_msg_register(self.spec_chan_name)
             self.registered = True
                    
     
     def update(self, channelValue, deleted = False):
         """Update channel's value and emit the 'valueChanged' signal."""
+        if type(channelValue) == types.DictType and self.access1 is not None:
+            if self.access1 in channelValue:
+                if deleted:
+                    SpecEventsDispatcher.emit(self, 'valueChanged', (None, self.name, ))
+                else:
+                    if self.access2 is None:
+                        self.value = channelValue[self.access1]
+                        SpecEventsDispatcher.emit(self, 'valueChanged', (self.value, self.name, ))
+                    else:
+                        if self.access2 in channelValue[self.access1]:
+                            if deleted:
+                                SpecEventsDispatcher.emit(self, 'valueChanged', (None, self.name, ))
+                            else:
+                                self.value = channelValue[self.access1][self.access2]
+                                SpecEventsDispatcher.emit(self, 'valueChanged', (self.value, self.name, ))
+            return
+        
         if type(self.value) == types.DictType and type(channelValue) == types.DictType:
             # update dictionary
-            #updateDict=False
-            #for k, v in channelValue.iteritems():
-            #  if type(v) == types.DictType:
-            #    updateDict=True
-            #    break
             if deleted:
                   for key,val in channelValue.iteritems():
                     if type(val) == types.DictType:
@@ -134,9 +169,9 @@ class SpecChannel:
             else:
                 self.value = channelValue
             value2emit=self.value
-           
+
         SpecEventsDispatcher.emit(self, 'valueChanged', (value2emit, self.name, ))
-        
+             
 
     def read(self):
         """Read the channel value
@@ -156,9 +191,9 @@ class SpecChannel:
             
             if connection is not None:
                 w = SpecWaitObject.SpecWaitObject(connection)
-                w.waitReply('send_msg_chan_read', (self.name, ))
-                  
-                self.value = w.value
+                w.waitReply('send_msg_chan_read', (self.spec_chan_name, ))
+
+                self.update(w.value)
                 
         return self.value
 
@@ -168,7 +203,13 @@ class SpecChannel:
         connection = self.connection()
 
         if connection is not None:
-            connection.send_msg_chan_send(self.name, value)
+            if self.access1 is not None:
+                if self.access2 is None:
+                    value = { self.access1: value }
+                else:
+                    value = { self.access1: { self.access2: value } }
+                
+            connection.send_msg_chan_send(self.spec_chan_name, value)
 
 
 

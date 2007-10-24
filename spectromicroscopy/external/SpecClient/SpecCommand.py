@@ -33,7 +33,7 @@ class BaseSpecCommand:
                 #
                 # connection is given in the 'host:port' form
                 #
-                self.connectToSpec(connection)
+                self.connectToSpec(str(connection))
             else:
                 self.connection = connection
             

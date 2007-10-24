@@ -19,7 +19,7 @@ class SpecVariable:
     Thin wrapper around SpecChannel objects, to make
     variables watching, setting and getting values easier.
     """
-    def __init__(self, varName = None, specVersion = None, timeout = None):
+    def __init__(self, varName = None, specVersion = None, timeout = None, prefix=True):
         """Constructor
 
         Keyword arguments:
@@ -31,13 +31,13 @@ class SpecVariable:
         self.isConnected = self.isSpecConnected #alias
         
         if varName is not None and specVersion is not None:
-            self.connectToSpec(varName, specVersion, timeout)
+            self.connectToSpec(varName, specVersion, timeout, prefix)
         else:
             self.channelName = None
             self.specVersion = None
         
 
-    def connectToSpec(self, varName, specVersion, timeout = None):
+    def connectToSpec(self, varName, specVersion, timeout = None, prefix=True):
         """Connect to a remote Spec
 
         Connect to Spec
@@ -47,14 +47,17 @@ class SpecVariable:
         specVersion -- 'host:port' string representing a Spec server to connect to 
         timeout -- optional timeout (defaults to None)
         """
-        self.channelName = 'var/' + str(varName)
+        if prefix:
+          self.channelName = 'var/' + str(varName)
+        else:
+          self.channelName = str(varName)
         self.specVersion = specVersion
         
         self.connection = SpecConnectionsManager.SpecConnectionsManager().getConnection(specVersion)
-
+        
         w = SpecWaitObject.SpecWaitObject(self.connection)
         w.waitConnection(timeout)
-
+        
 
     def isSpecConnected(self):
         """Return whether the remote Spec version is connected or not."""
@@ -101,7 +104,7 @@ class SpecVariableA:
     Thin wrapper around SpecChannel objects, to make
     variables watching, setting and getting values easier.
     """
-    def __init__(self, varName = None, specVersion = None, dispatchMode = UPDATEVALUE):
+    def __init__(self, varName = None, specVersion = None, dispatchMode = UPDATEVALUE, prefix=True):
         """Constructor
         
         Keyword arguments:
@@ -112,13 +115,13 @@ class SpecVariableA:
         self.channelName = ''
         
         if varName is not None and specVersion is not None:
-            self.connectToSpec(varName, specVersion, dispatchMode = dispatchMode)
+            self.connectToSpec(varName, specVersion, dispatchMode = dispatchMode, prefix=prefix)
         else:
             self.varName = None
             self.specVersion = None
 
 
-    def connectToSpec(self, varName, specVersion, dispatchMode = UPDATEVALUE):
+    def connectToSpec(self, varName, specVersion, dispatchMode = UPDATEVALUE, prefix=True):
         """Connect to a remote Spec
 
         Connect to Spec and register channel for monitoring variable
@@ -129,7 +132,10 @@ class SpecVariableA:
         """
         self.varName = varName
         self.specVersion = specVersion
-        self.channelName = 'var/%s' % varName
+        if prefix:
+          self.channelName = 'var/%s' % varName
+        else:
+          self.channelName = varName
         
         self.connection = SpecConnectionsManager.SpecConnectionsManager().getConnection(specVersion)
         SpecEventsDispatcher.connect(self.connection, 'connected', self.connected)

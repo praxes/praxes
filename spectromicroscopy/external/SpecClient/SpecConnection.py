@@ -335,7 +335,8 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
 
                             SpecEventsDispatcher.emit(self, 'replyFromSpec', (replyID, reply, ))
                 elif self.message.cmd == SpecMessage.EVENT:
-                    self.registeredChannels[self.message.name].update(self.message.data, deleted=self.message.flags == SpecMessage.DELETED)
+                    for name in SpecChannel.SpecChannel.channel_aliases[self.message.name]:
+                        self.registeredChannels[name].update(self.message.data, deleted=self.message.flags == SpecMessage.DELETED)
                 elif self.message.cmd == SpecMessage.HELLO_REPLY:
                     if self.checkourversion(self.message.name):
                         self.serverVersion = self.message.vers #header version
