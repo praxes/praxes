@@ -29,7 +29,7 @@ class ScanAnalysis(QtGui.QWidget):
     """Establishes a Experimenbt controls    """
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.projectInterface = parent
+        self.specInterface = parent
         
         self.gridlayout = QtGui.QGridLayout(self)
         
@@ -45,7 +45,7 @@ class ScanAnalysis(QtGui.QWidget):
         self.splitter = QtGui.QSplitter(QtCore.Qt.Vertical, self)
         self.gridlayout.addWidget(self.splitter, 1, 0, 1, 1)
         self.splitter.addWidget(self.mcaSpectrumPlot)
-        self.connect(self.projectInterface.specRunner.scan,
+        self.connect(self.specInterface.specRunner.scan,
                      QtCore.SIGNAL("scanFinished()"),
                      self.disconnectSignals)
 
@@ -59,7 +59,7 @@ class ScanAnalysis(QtGui.QWidget):
         self.connect(self.elementDataPlot.saveDataPushButton,
                      QtCore.SIGNAL("clicked()"),
                      self.saveData)
-        self.connect(self.projectInterface.specRunner.scan, 
+        self.connect(self.specInterface.specRunner.scan, 
                      QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"),
                      self.scanAnalysis.newDataPoint)
         self.connect(self.scanAnalysis, 
@@ -74,19 +74,19 @@ class ScanAnalysis(QtGui.QWidget):
         self.connect(self.scanAnalysis,
                      QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
                      self.setEnabled)
-        self.connect(self.projectInterface.specRunner.scan,
+        self.connect(self.specInterface.specRunner.scan,
                      QtCore.SIGNAL("newScan(PyQt_PyObject)"),
                      self.scanAnalysis.setSuggestedFilename)
-        self.connect(self.projectInterface.specRunner.scan, 
+        self.connect(self.specInterface.specRunner.scan, 
                      QtCore.SIGNAL("xAxisLabel(PyQt_PyObject)"),
                      self.elementDataPlot.setXLabel)
-        self.connect(self.projectInterface.specRunner.scan, 
+        self.connect(self.specInterface.specRunner.scan, 
                      QtCore.SIGNAL("xAxisLims(PyQt_PyObject)"),
                      self.elementDataPlot.setXLims)
-        self.connect(self.projectInterface.specRunner.scan, 
+        self.connect(self.specInterface.specRunner.scan, 
                      QtCore.SIGNAL("yAxisLabel(PyQt_PyObject)"),
                      self.elementDataPlot.setYLabel)
-        self.connect(self.projectInterface.specRunner.scan, 
+        self.connect(self.specInterface.specRunner.scan, 
                      QtCore.SIGNAL("yAxisLims(PyQt_PyObject)"),
                      self.elementDataPlot.setYLims)
     
@@ -98,11 +98,11 @@ class ScanAnalysis(QtGui.QWidget):
                      self._disconnect)
 
     def _disconnect(self, *args):
-        self.window().projectInterface.scanControls.skipModeCheckBox.setEnabled(True)
+        self.window().specInterface.scanControls.skipModeCheckBox.setEnabled(True)
         self.disconnect(self.scanAnalysis, 
                         QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
                         self.disconnect)
-        self.disconnect(self.projectInterface.specRunner.scan, 
+        self.disconnect(self.specInterface.specRunner.scan, 
                         QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"),
                         self.scanAnalysis.newDataPoint)
         self.disconnect(self.scanAnalysis, 
@@ -114,19 +114,19 @@ class ScanAnalysis(QtGui.QWidget):
         self.disconnect(self.scanAnalysis,
                         QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
                         self.setEnabled)
-        self.disconnect(self.projectInterface.specRunner.scan,
+        self.disconnect(self.specInterface.specRunner.scan,
                         QtCore.SIGNAL("newScan(PyQt_PyObject)"),
                         self.scanAnalysis.setSuggestedFilename)
-        self.disconnect(self.projectInterface.specRunner.scan, 
+        self.disconnect(self.specInterface.specRunner.scan, 
                         QtCore.SIGNAL("xAxisLabel(PyQt_PyObject)"),
                         self.elementDataPlot.setXLabel)
-        self.disconnect(self.projectInterface.specRunner.scan, 
+        self.disconnect(self.specInterface.specRunner.scan, 
                         QtCore.SIGNAL("xAxisLims(PyQt_PyObject)"),
                         self.elementDataPlot.setXLims)
-        self.disconnect(self.projectInterface.specRunner.scan, 
+        self.disconnect(self.specInterface.specRunner.scan, 
                         QtCore.SIGNAL("yAxisLabel(PyQt_PyObject)"),
                         self.elementDataPlot.setYLabel)
-        self.disconnect(self.projectInterface.specRunner.scan, 
+        self.disconnect(self.specInterface.specRunner.scan, 
                         QtCore.SIGNAL("yAxisLims(PyQt_PyObject)"),
                         self.elementDataPlot.setYLims)
 
@@ -139,7 +139,7 @@ class ScanAnalysis(QtGui.QWidget):
             self.scanAnalysis.saveData(str(filename))
 
     def loadPymcaConfigFile(self):
-        configFile = self.window().pymcaConfigFile
+        configFile = self.specInterface.pymcaConfigFile
         self.scanAnalysis.loadPymcaConfig(configFile)
 
 

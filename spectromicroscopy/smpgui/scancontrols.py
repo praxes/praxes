@@ -29,7 +29,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
     """Establishes a Experimenbt controls    """
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.projectInterface = parent
+        self.specInterface = parent
         self.setupUi(self)
 
         self.axes = []
@@ -84,16 +84,16 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.connect(self.resumeButton,
                      QtCore.SIGNAL("clicked()"),
                      self.scanResumed)
-        self.connect(self.projectInterface.specRunner.scan,
+        self.connect(self.specInterface.specRunner.scan,
                      QtCore.SIGNAL("scanStarted()"),
                      self.scanStarted)
-        self.connect(self.projectInterface.specRunner.scan,
+        self.connect(self.specInterface.specRunner.scan,
                      QtCore.SIGNAL("scanStarted()"),
                      self.activityStarted)
-        self.connect(self.projectInterface.specRunner.scan,
+        self.connect(self.specInterface.specRunner.scan,
                      QtCore.SIGNAL("scanFinished()"),
                      self.scanFinished)
-        self.connect(self.projectInterface.specRunner.scan,
+        self.connect(self.specInterface.specRunner.scan,
                      QtCore.SIGNAL("scanFinished()"),
                      self.activityFinished)
 
@@ -128,10 +128,10 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
             scanArgs.append(self.scanStepsSpinBox.value())
         scanArgs.append( self.scanCountSpinBox.value() )
 
-        getattr(self.projectInterface.specRunner.scan, scantype)(*scanArgs)
+        getattr(self.specInterface.specRunner.scan, scantype)(*scanArgs)
 
     def abort(self):
-        self.projectInterface.specRunner.abort()
+        self.specInterface.specRunner.abort()
         self.scanFinished()
         self.activityFinished()
 
@@ -156,11 +156,11 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.scanStackedLayout.setCurrentWidget(self.scanButton)
 
     def scanPaused(self):
-        self.projectInterface.specRunner.abort()
+        self.specInterface.specRunner.abort()
         self.scanStackedLayout.setCurrentWidget(self.resumeButton)
 
     def scanResumed(self):
-        self.projectInterface.specRunner.scan.resumeScan()
+        self.specInterface.specRunner.scan.resumeScan()
         self.scanStackedLayout.setCurrentWidget(self.pauseButton)
 
     def setScanType(self, scanType):

@@ -12,7 +12,7 @@ import shutil
 # Extlib imports
 #---------------------------------------------------------------------------
 
-
+from PyMca import ConfigDict
 
 #---------------------------------------------------------------------------
 # SMP imports
@@ -51,8 +51,8 @@ def getDefaultPymcaConfigFile():
 
 def getPymcaConfig(configFile=None):
     '''return a ConfigObj containing the pymca config data'''
-    if not configFile: configFile = getPymcaConfigFile()
-    return configobj.ConfigObj(configFile)
+    if not configFile: configFile = getDefaultPymcaConfigFile()
+    return ConfigDict.ConfigDict(filelist=configFile)
 
 def getClientUtilsFile():
     return os.path.join(getDefaultConfigDir(), 'clientutils.mac')

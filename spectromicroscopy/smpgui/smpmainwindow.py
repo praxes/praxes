@@ -59,12 +59,6 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.connect(self.actionConfigure_SMP,
                      QtCore.SIGNAL("triggered()"),
                      self.configureSmpInteractive)
-        self.connect(self.actionLoad_PyMca_Config,
-                     QtCore.SIGNAL("triggered()"),
-                     self.getPymcaConfigFile)
-        self.connect(self.actionLoad_Default_Pymca_Config,
-                     QtCore.SIGNAL("triggered()"),
-                     self.getDefaultPymcaFile)
         self.connect(self.actionAbout_Qt,
                      QtCore.SIGNAL("triggered()"),
                      QtGui.qApp,
@@ -117,9 +111,9 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
     def connectToSpec(self):
         if not self.configureSmpInteractive(): return
         try:
-            self.projectInterface = \
+            self.specInterface = \
                 smpspecinterface.SmpSpecInterface(self)
-            self.mainTab.insertTab(0, self.projectInterface,
+            self.mainTab.insertTab(0, self.specInterface,
                                    "Experiment Controls")
         except SpecClientError.SpecClientTimeoutError:
             self.connectToSpec()
@@ -131,7 +125,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
 
     def disconnectFromSpec(self):
         self.mainTab.removeTab(0)
-        self.projectInterface.close()
+        self.specInterface.close()
         self.actionConnect.setEnabled(True)
         self.actionDisconnect.setEnabled(False)
 

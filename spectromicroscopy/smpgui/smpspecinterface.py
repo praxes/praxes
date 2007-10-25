@@ -44,11 +44,18 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         
         self.connectToSpec()
-        self.pymcaConfigFile = configutils.getDefaultPymcaConfigFile()
+        
+        pymcaConfigFile = configutils.getDefaultPymcaConfigFile()
+        self.pymcaConfig = configutils.getPymcaConfig(pymcaConfigFile)
+        self.pymcaConfigDialog = FitParam.FitParamDialog(modal=0)
+        self.pymcaConfigDialog.setParameters(self.pymcaConfig)
+        self.toolBox.insertItem(1, self.pymcaConfigDialog, 'PyMca configuration')
 
+        self.gridlayout = QtGui.QGridLayout(self)
+        
         self.scanControls = scancontrols.ScanControls(self)
-
-        self.gridlayout.addWidget(self.scanControls,0,0,1,1)
+        self.gridlayout.addWidget(self.scanControls, 0,0)
+        self.gridlayout.addWidget(self.toolBox, 0,1,1,1)
 
         self.connect(self.specRunner.scan, 
                      QtCore.SIGNAL("newMesh(PyQt_PyObject)"),
@@ -68,6 +75,13 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
         self.connect(self.specRunner.scan,
                      QtCore.SIGNAL("newScan(PyQt_PyObject)"),
                      self.setTabLabel)
+        self.connect(self.pymcaConfigDialog,
+                     QtCore.SIGNAL("accepted()"),
+                     self.changedPyMcaConfig)
+
+    def changedPyMcaConfig(self):
+        self.emit(QtCore.SIGNAL("changedPyMcaConfig(PyQt_PyObject)"),
+                  self.pymcaConfig)
 
     def close(self):
         self.specRunner.close()
@@ -94,11 +108,6 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
         make sure you have started spec in server mode (for example "spec \
         -S").'''%(port, server))
         error.exec_()
-
-    def getPymcaConfigFile(self):
-        dialog = QtGui.QFileDialog(self, 'Load PyMca Config File')
-        dialog.setFilter('PyMca config files (*.cfg)')
-        self.pymcaConfigFile = str(dialog.getOpenFileName())
 
     def getSpecVersion(self):
         return ':'.join([smpConfig['session']['server'],

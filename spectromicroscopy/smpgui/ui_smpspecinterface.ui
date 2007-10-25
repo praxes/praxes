@@ -1,53 +1,49 @@
 <ui version="4.0" >
- <class>Ui_SmpSpecInterface</class>
- <widget class="QMainWindow" name="Ui_SmpSpecInterface" >
+ <class>SmpSpecInterface</class>
+ <widget class="QWidget" name="SmpSpecInterface" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>970</width>
+    <height>733</height>
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>MainWindow</string>
+   <string>Form</string>
   </property>
-  <widget class="QWidget" name="centralwidget" />
-  <widget class="QMenuBar" name="menubar" >
+  <widget class="QToolBox" name="toolBox" >
    <property name="geometry" >
     <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>28</height>
+     <x>9</x>
+     <y>9</y>
+     <width>952</width>
+     <height>715</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuSettings" >
-    <property name="title" >
-     <string>Settings</string>
+   <property name="currentIndex" >
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="pageScanSettings" >
+    <property name="geometry" >
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>952</width>
+      <height>655</height>
+     </rect>
     </property>
-    <addaction name="actionConfigure_Spec" />
-    <addaction name="actionConfigure_PyMca" />
+    <attribute name="label" >
+     <string>Scan Settings</string>
+    </attribute>
+    <layout class="QGridLayout" />
    </widget>
-   <widget class="QMenu" name="menuView" >
-    <property name="title" >
-     <string>View</string>
-    </property>
+   <widget class="QWidget" name="pageSpecConfig" >
+    <attribute name="label" >
+     <string>Spec Config</string>
+    </attribute>
    </widget>
-   <addaction name="menuSettings" />
-   <addaction name="menuView" />
   </widget>
-  <widget class="QStatusBar" name="statusbar" />
-  <action name="actionConfigure_Spec" >
-   <property name="text" >
-    <string>Configure Spec</string>
-   </property>
-  </action>
-  <action name="actionConfigure_PyMca" >
-   <property name="text" >
-    <string>Configure PyMca</string>
-   </property>
-  </action>
  </widget>
  <resources/>
  <connections/>
