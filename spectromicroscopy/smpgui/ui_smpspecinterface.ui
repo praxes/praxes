@@ -41,7 +41,7 @@
          </property>
          <layout class="QGridLayout" >
           <item row="0" column="0" >
-           <widget class="QCheckBox" name="checkBox_2" >
+           <widget class="QCheckBox" name="deadtimeCorrCheckBox" >
             <property name="text" >
              <string>Enable</string>
             </property>
@@ -70,7 +70,7 @@
          </property>
          <layout class="QGridLayout" >
           <item row="0" column="0" colspan="2" >
-           <widget class="QCheckBox" name="checkBox" >
+           <widget class="QCheckBox" name="skipModeCheckBox" >
             <property name="text" >
              <string>Enable</string>
             </property>
@@ -90,7 +90,7 @@
            </widget>
           </item>
           <item row="1" column="1" >
-           <widget class="QComboBox" name="comboBox" />
+           <widget class="QComboBox" name="skipmodeCounterComboBox" />
           </item>
           <item row="2" column="0" >
            <widget class="QLabel" name="label_3" >
@@ -106,7 +106,7 @@
            </widget>
           </item>
           <item row="2" column="1" >
-           <widget class="QDoubleSpinBox" name="doubleSpinBox" />
+           <widget class="QDoubleSpinBox" name="skipmodeThreshSpinBox" />
           </item>
           <item row="3" column="0" >
            <widget class="QLabel" name="label_4" >
@@ -122,7 +122,17 @@
            </widget>
           </item>
           <item row="3" column="1" >
-           <widget class="QDoubleSpinBox" name="doubleSpinBox_2" />
+           <widget class="QDoubleSpinBox" name="skipmodePrecountSpinBox" >
+            <property name="minimum" >
+             <double>0.200000000000000</double>
+            </property>
+            <property name="maximum" >
+             <double>1.000000000000000</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.050000000000000</double>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
