@@ -52,8 +52,6 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
         self.pymcaConfigWidget.setParameters(self.pymcaConfig)
         self.toolBox.insertItem(1, self.pymcaConfigWidget, 'PyMca configuration')
 
-        self.gridlayout = QtGui.QGridLayout(self)
-        
         self.scanControls = scancontrols.ScanControls(self)
         self.gridlayout.addWidget(self.scanControls, 0,0)
         self.gridlayout.addWidget(self.toolBox, 0,1,1,1)

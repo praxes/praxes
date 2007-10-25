@@ -134,6 +134,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.specInterface.specRunner.abort()
         self.scanFinished()
         self.activityFinished()
+        self.specInterface.specRunner.scan.scanFinished()
 
     def activityStarted(self):
         self.axesTab.setEnabled(False)
