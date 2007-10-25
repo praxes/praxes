@@ -20,11 +20,11 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 
 from spectromicroscopy import smpConfig
+from spectromicroscopy import configutils
 from spectromicroscopy.smpgui.ui_smpspecinterface import Ui_SmpSpecInterface
 from spectromicroscopy.smpgui import configuresmp, pymcafitparams, \
     scananalysis, scancontrols
-from spectromicroscopy.smpcore import specrunner, configutils, qtspecscan, \
-    qtspecvariable
+from spectromicroscopy.smpcore import specrunner, qtspecscan, qtspecvariable
 from SpecClient import SpecClientError
 
 #---------------------------------------------------------------------------

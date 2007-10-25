@@ -18,7 +18,7 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 
 from spectromicroscopy import smpConfig
-from spectromicroscopy.smpcore import configutils
+from spectromicroscopy import configutils
 from spectromicroscopy.smpgui import ui_configuresmp
 
 #---------------------------------------------------------------------------

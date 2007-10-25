@@ -23,7 +23,7 @@ numpy.seterr(all='ignore')
 #---------------------------------------------------------------------------
 
 from spectromicroscopy import smpConfig
-from spectromicroscopy.smpcore import configutils
+from spectromicroscopy import configutils
 
 #---------------------------------------------------------------------------
 # Normal code begins
