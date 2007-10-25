@@ -181,7 +181,7 @@ class ElementImage(ElementCanvas):
         extent.extend(self._xlims)
         extent.extend(self._ylims)
         self._image = self.axes.imshow(elementData, extent=extent, 
-                                       aspect=1/1.414)
+                                       aspect=1/1.414, interpolation='nearest')
         self._colorbar = self.figure.colorbar(self._image)
         
         self.axes.set_xlabel(self._xlabel)
@@ -202,6 +202,10 @@ class ElementImage(ElementCanvas):
     def setImageAspect(self, aspect):
         self.axes.set_aspect(1/aspect)
         self.updateFigure()
+
+    def setInterpolation(self, val):
+        self._image.set_interpolation('%s'%val)
+        self.draw()
 
     def updateFigure(self, elementData=None):
         if self._image is None:

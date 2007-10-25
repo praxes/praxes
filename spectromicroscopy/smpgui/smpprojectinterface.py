@@ -20,6 +20,7 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 
 from spectromicroscopy import smpConfig
+from spectromicroscopy.smpgui.ui_smpspecinterface import Ui_SmpSpecInterface
 from spectromicroscopy.smpgui import configuresmp, scananalysis, scancontrols
 from spectromicroscopy.smpcore import specrunner, configutils, qtspecscan, \
     qtspecvariable
@@ -30,19 +31,20 @@ from SpecClient import SpecClientError
 #---------------------------------------------------------------------------
 
 
-class SmpProjectInterface(QtGui.QWidget):
+class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
     """Establishes a Experimenbt controls 
     Generates Control and Feedback instances
    Addes Scan atributes to specRunner instance 
     """
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
+        self.setupUi(self)
+        
         self.parent = parent
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         
-        self.gridlayout = QtGui.QGridLayout(self)
-        
         self.connectToSpec()
+        self.pymcaConfigFile = configutils.getDefaultPymcaConfigFile()
 
         self.scanControls = scancontrols.ScanControls(self)
 
@@ -92,6 +94,11 @@ class SmpProjectInterface(QtGui.QWidget):
         make sure you have started spec in server mode (for example "spec \
         -S").'''%(port, server))
         error.exec_()
+
+    def getPymcaConfigFile(self):
+        dialog = QtGui.QFileDialog(self, 'Load PyMca Config File')
+        dialog.setFilter('PyMca config files (*.cfg)')
+        self.pymcaConfigFile = str(dialog.getOpenFileName())
 
     def getSpecVersion(self):
         return ':'.join([smpConfig['session']['server'],

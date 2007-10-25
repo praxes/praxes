@@ -40,45 +40,30 @@
     <property name="title" >
      <string>File</string>
     </property>
+    <addaction name="actionOpen" />
+    <addaction name="separator" />
+    <addaction name="actionSave" />
+    <addaction name="actionSave_All" />
+    <addaction name="separator" />
+    <addaction name="actionClose" />
+    <addaction name="actionClose_All" />
    </widget>
    <widget class="QMenu" name="menuSettings" >
     <property name="title" >
      <string>Settings</string>
     </property>
-    <widget class="QMenu" name="menuConfigure_SMP" >
-     <property name="title" >
-      <string>Configure SMP</string>
-     </property>
-     <addaction name="actionModify_SMP_Config" />
-    </widget>
-    <widget class="QMenu" name="menuConfigure_PyMca" >
-     <property name="title" >
-      <string>Configure PyMca</string>
-     </property>
-     <addaction name="actionLoad_PyMca_Config" />
-     <addaction name="actionModify_PyMca_Config" />
-     <addaction name="separator" />
-     <addaction name="actionLoad_Default_Pymca_Config" />
-    </widget>
-    <addaction name="menuConfigure_SMP" />
-    <addaction name="menuConfigure_PyMca" />
-   </widget>
-   <widget class="QMenu" name="menuTools" >
-    <property name="title" >
-     <string>Tools</string>
-    </property>
-    <addaction name="actionCalibrate_Detector" />
-    <addaction name="actionMeasure_Standard" />
+    <addaction name="actionConfigure_SMP" />
    </widget>
    <widget class="QMenu" name="menuHelp" >
     <property name="title" >
      <string>Help</string>
     </property>
-    <addaction name="actionAbout_SpectroMicroscoPy" />
+    <addaction name="actionAbout_SMP" />
+    <addaction name="actionAbout_Qt" />
    </widget>
    <widget class="QMenu" name="menuProject" >
     <property name="title" >
-     <string>Project</string>
+     <string>Spec</string>
     </property>
     <addaction name="actionConnect" />
     <addaction name="actionDisconnect" />
@@ -86,7 +71,6 @@
    <addaction name="menuFile" />
    <addaction name="menuProject" />
    <addaction name="menuSettings" />
-   <addaction name="menuTools" />
    <addaction name="menuHelp" />
   </widget>
   <action name="actionCalibrate_Detector" >
@@ -99,9 +83,9 @@
     <string>Measure Standard</string>
    </property>
   </action>
-  <action name="actionAbout_SpectroMicroscoPy" >
+  <action name="actionAbout_SMP" >
    <property name="text" >
-    <string>About SpectroMicroscoPy</string>
+    <string>About SMP</string>
    </property>
   </action>
   <action name="actionLoad_PyMca_Config" >
@@ -143,6 +127,66 @@
    </property>
    <property name="text" >
     <string>Disconnect</string>
+   </property>
+  </action>
+  <action name="actionAbout_Qt" >
+   <property name="text" >
+    <string>About Qt</string>
+   </property>
+  </action>
+  <action name="actionAbout_PyMca" >
+   <property name="text" >
+    <string>About PyMca</string>
+   </property>
+  </action>
+  <action name="actionAbout_SpecClient" >
+   <property name="text" >
+    <string>About SpecClient</string>
+   </property>
+  </action>
+  <action name="actionConfigure_SMP" >
+   <property name="text" >
+    <string>Configure SMP</string>
+   </property>
+  </action>
+  <action name="actionSave" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionSave_All" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>Save All</string>
+   </property>
+  </action>
+  <action name="actionClose" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionClose_All" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>Close All</string>
+   </property>
+  </action>
+  <action name="actionOpen" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>Open</string>
    </property>
   </action>
  </widget>

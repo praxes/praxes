@@ -51,6 +51,9 @@ class ElementsData(ui_elementsdata.Ui_ElementsData, QtGui.QWidget):
         self.connect(self.dataAutoscaleButton, 
                      QtCore.SIGNAL("clicked(bool)"),
                      self.elementDataPlot.enableAutoscale)
+        self.connect(self.interpolationComboBox, 
+                     QtCore.SIGNAL("currentIndexChanged(QString)"),
+                     self.elementDataPlot.setInterpolation)
 
     def __getattr__(self, attr):
         return getattr(self.elementDataPlot, attr)

@@ -18,10 +18,9 @@ from PyMca import McaAdvancedFit
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy import smpConfig
+from spectromicroscopy import smpConfig, __version__
 from spectromicroscopy.smpgui import configuresmp, console, \
-    smpprojectinterface, smptabwidget, ui_smpmainwindow
-from spectromicroscopy.smpcore import configutils
+    smpspecinterface, smptabwidget, ui_smpmainwindow
 from SpecClient import SpecClientError
 #from testinterface import MyUI
 
@@ -51,15 +50,13 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.console = None 
         self.motorView = None
         
-        self.pymcaConfigFile = configutils.getDefaultPymcaConfigFile()
-        
         self.connect(self.actionConnect,
                      QtCore.SIGNAL("triggered()"),
                      self.connectToSpec)
         self.connect(self.actionDisconnect,
                      QtCore.SIGNAL("triggered()"),
                      self.disconnectFromSpec)
-        self.connect(self.actionModify_SMP_Config,
+        self.connect(self.actionConfigure_SMP,
                      QtCore.SIGNAL("triggered()"),
                      self.configureSmpInteractive)
         self.connect(self.actionLoad_PyMca_Config,
@@ -68,12 +65,60 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.connect(self.actionLoad_Default_Pymca_Config,
                      QtCore.SIGNAL("triggered()"),
                      self.getDefaultPymcaFile)
+        self.connect(self.actionAbout_Qt,
+                     QtCore.SIGNAL("triggered()"),
+                     QtGui.qApp,
+                     QtCore.SLOT("aboutQt()"))
+        self.connect(self.actionAbout_SMP,
+                     QtCore.SIGNAL("triggered()"),
+                     self.about)
+        self.connect(self.actionOpen,
+                     QtCore.SIGNAL("triggered()"),
+                     self.open)
+        self.connect(self.actionSave,
+                     QtCore.SIGNAL("triggered()"),
+                     self.save)
+        self.connect(self.actionSave_All,
+                     QtCore.SIGNAL("triggered()"),
+                     self.saveAll)
+        self.connect(self.actionClose,
+                     QtCore.SIGNAL("triggered()"),
+                     self.close)
+        self.connect(self.actionClose_All,
+                     QtCore.SIGNAL("triggered()"),
+                     self.closeAll)
+
+    def about(self):
+        QtGui.QMessageBox.about(self, self.tr("About SMP"),
+            self.tr("SMP Application, version %s\n\n"
+                    "SMP is a user interface for controlling synchrotron "
+                    "experiments and analyzing data. SMP depends on several "
+                    "programs and libraries:\n\n"
+                    "    spec: for controlling hardware and data acquisition\n"
+                    "    SpecClient: a python interface to the spec server\n"
+                    "    PyMca: a set of programs and libraries for analyzing "
+                    "X-ray fluorescence spectra"%__version__))
+
+    def close(self):
+        NotImplementedError
+
+    def closeAll(self):
+        NotImplementedError
+
+    def open(self):
+        NotImplementedError
+
+    def save(self):
+        raise NotImplementedError
+
+    def saveAll(self):
+        NotImplementedError
 
     def connectToSpec(self):
         if not self.configureSmpInteractive(): return
         try:
             self.projectInterface = \
-                smpprojectinterface.SmpProjectInterface(self)
+                smpspecinterface.SmpSpecInterface(self)
             self.mainTab.insertTab(0, self.projectInterface,
                                    "Experiment Controls")
         except SpecClientError.SpecClientTimeoutError:
@@ -89,18 +134,6 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.projectInterface.close()
         self.actionConnect.setEnabled(True)
         self.actionDisconnect.setEnabled(False)
-
-    def getPymcaConfigFile(self):
-        dialog = QtGui.QFileDialog(self, 'Load PyMca Config File')
-        dialog.setFilter('PyMca config files (*.cfg)')
-        self.pymcaConfigFile = str(dialog.getOpenFileName())
-
-    def getDefaultPymcaFile(self):
-        self.pymcaConfigFile = configutils.getDefaultPymcaConfigFile()
-        self.emit(QtCore.SIGNAL("pymcaConfigFileChanged(PyQt_PyObject)"),
-                  self.pymcaConfigFile)
-    
-    # TODO: ability to change pymca config files, using PyMca Advanced Fit
 
 #    # TODO: This interface needs attention
 #    def newMotorView(self):

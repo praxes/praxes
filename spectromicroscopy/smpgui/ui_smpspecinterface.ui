@@ -1,0 +1,54 @@
+<ui version="4.0" >
+ <class>Ui_SmpSpecInterface</class>
+ <widget class="QMainWindow" name="Ui_SmpSpecInterface" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget" />
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuSettings" >
+    <property name="title" >
+     <string>Settings</string>
+    </property>
+    <addaction name="actionConfigure_Spec" />
+    <addaction name="actionConfigure_PyMca" />
+   </widget>
+   <widget class="QMenu" name="menuView" >
+    <property name="title" >
+     <string>View</string>
+    </property>
+   </widget>
+   <addaction name="menuSettings" />
+   <addaction name="menuView" />
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+  <action name="actionConfigure_Spec" >
+   <property name="text" >
+    <string>Configure Spec</string>
+   </property>
+  </action>
+  <action name="actionConfigure_PyMca" >
+   <property name="text" >
+    <string>Configure PyMca</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
