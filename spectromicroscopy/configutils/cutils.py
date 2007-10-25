@@ -38,10 +38,6 @@ def getDefaultConfigDir():
 def getSmpConfigFile():
     return os.path.join(getUserConfigDir(), 'smp.conf')
 
-def getSmpConfig():
-    '''return a ConfigObj containing the smp config data'''
-    return configobj.ConfigObj(getSmpConfigFile())
-
 def getDefaultPymcaConfigFile():
     configFile = os.path.join(getUserConfigDir(), 'pymca.cfg')
     if not os.path.isfile(configFile):
@@ -60,9 +56,5 @@ def getClientUtilsFile():
 def getClientUtilsMacro():
     return open(getClientUtilsFile()).read()
 
-
-smpConfig = getSmpConfig()
-
-
-if __name__ == '__main__':
-    getPymcaConfig()
+def getSpecClientLogFile():
+    return os.path.join(configutils.getUserConfigDir(), 'specclient.log')
