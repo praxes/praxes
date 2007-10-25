@@ -28,22 +28,12 @@ from spectromicroscopy.smpgui import ui_configuresmp
 class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
 
     def __init__(self, parent=None):
-        self.validateConfig()
 
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
 
-        server = smpConfig['session'].setdefault('server', '')
-        self.serverEdit.setText(server)
-        
-        port = smpConfig['session'].setdefault('port', '')
-        self.portEdit.setText(port)
-        
-        threshold = smpConfig['skipmode'].setdefault('threshold', 0.00)
-        self.thresholdBox.setValue(float(threshold))
-        
-        counter = smpConfig['skipmode'].setdefault('counter', 'Icol')
-        self.counterEdit.setText(counter)
+        self.serverEdit.setText(smpConfig.session.server)
+        self.portEdit.setText(smpConfig.session.port)
 
         self.connect(self.serverEdit,
                      QtCore.SIGNAL("editingFinished()"),
@@ -51,33 +41,17 @@ class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
         self.connect(self.portEdit,
                      QtCore.SIGNAL("editingFinished()"),
                      self.set_port)
-        self.connect(self.counterEdit,
-                     QtCore.SIGNAL("editingFinished()"),
-                     self.set_counter)
-        self.connect(self.thresholdBox,
-                     QtCore.SIGNAL("editingFinished()"),
-                     self.set_threshold)
 
     def set_server(self):
-        smpConfig['session']['server'] = '%s'%self.serverEdit.text()
+        smpConfig.session.server = '%s'%self.serverEdit.text()
     
     def set_port(self):
-        smpConfig['session']['port'] = '%s'%self.portEdit.text()
-
-    def set_threshold(self):
-        smpConfig['skipmode']['threshold'] = self.thresholdBox.value()
-    
-    def set_counter(self):
-        smpConfig['skipmode']['counter'] = '%s'%self.counterEdit.text()
+        smpConfig.session.port = '%s'%self.portEdit.text()
 
     def accept(self):
-        smpConfig.write()
+        configutils.saveConfig()
         QtGui.QDialog.accept(self)
 
-    def validateConfig(self):
-        smpConfig.setdefault('session', {})
-        smpConfig.setdefault('skipmode', {})
-        smpConfig.setdefault('counter', {})
 
 if __name__ == "__main__":
     import sys

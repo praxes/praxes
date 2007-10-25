@@ -18,6 +18,7 @@ from PyMca import McaAdvancedFit
 # SMP imports
 #---------------------------------------------------------------------------
 
+from spectromicroscopy import configutils
 from spectromicroscopy import smpConfig, __version__
 from spectromicroscopy.smpgui import configuresmp, console, \
     smpspecinterface, smptabwidget, ui_smpmainwindow
@@ -56,9 +57,6 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.connect(self.actionDisconnect,
                      QtCore.SIGNAL("triggered()"),
                      self.disconnectFromSpec)
-        self.connect(self.actionConfigure_SMP,
-                     QtCore.SIGNAL("triggered()"),
-                     self.configureSmpInteractive)
         self.connect(self.actionAbout_Qt,
                      QtCore.SIGNAL("triggered()"),
                      QtGui.qApp,
@@ -77,10 +75,10 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
                      self.saveAll)
         self.connect(self.actionClose,
                      QtCore.SIGNAL("triggered()"),
-                     self.close)
+                     self.closeScan)
         self.connect(self.actionClose_All,
                      QtCore.SIGNAL("triggered()"),
-                     self.closeAll)
+                     self.closeAllScans)
 
     def about(self):
         QtGui.QMessageBox.about(self, self.tr("About SMP"),
@@ -93,10 +91,14 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
                     "    PyMca: a set of programs and libraries for analyzing "
                     "X-ray fluorescence spectra"%__version__))
 
-    def close(self):
+    def closeEvent(self, event):
+        configutils.saveConfig()
+        return event.accept()
+
+    def closeScan(self):
         NotImplementedError
 
-    def closeAll(self):
+    def closeAllScans(self):
         NotImplementedError
 
     def open(self):
@@ -109,7 +111,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         NotImplementedError
 
     def connectToSpec(self):
-        if not self.configureSmpInteractive(): return
+        if not configuresmp.ConfigureSmp(self).exec_(): return
         try:
             self.specInterface = \
                 smpspecinterface.SmpSpecInterface(self)
@@ -119,9 +121,6 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
             self.connectToSpec()
         self.actionConnect.setEnabled(False)
         self.actionDisconnect.setEnabled(True)
-
-    def configureSmpInteractive(self):
-        return configuresmp.ConfigureSmp(self).exec_()
 
     def disconnectFromSpec(self):
         self.mainTab.removeTab(0)

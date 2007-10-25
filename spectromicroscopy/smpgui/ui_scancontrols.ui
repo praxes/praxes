@@ -57,16 +57,6 @@
       </property>
       <item>
        <layout class="QGridLayout" >
-        <item row="0" column="1" >
-         <widget class="QComboBox" name="scanTypeComboBox" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0" >
          <widget class="QLabel" name="scanTypeLabel" >
           <property name="sizePolicy" >
@@ -77,6 +67,29 @@
           </property>
           <property name="text" >
            <string>scan type</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" >
+         <widget class="QComboBox" name="scanTypeComboBox" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QLabel" name="countLabel" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text" >
+           <string>count</string>
           </property>
          </widget>
         </item>
@@ -96,19 +109,6 @@
           </property>
           <property name="value" >
            <double>1.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" >
-         <widget class="QLabel" name="countLabel" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text" >
-           <string>count</string>
           </property>
          </widget>
         </item>
@@ -135,13 +135,6 @@
           </property>
           <property name="value" >
            <number>1</number>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1" >
-         <widget class="QCheckBox" name="skipModeCheckBox" >
-          <property name="text" >
-           <string>Skip Mode</string>
           </property>
          </widget>
         </item>

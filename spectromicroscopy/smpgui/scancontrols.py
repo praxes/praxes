@@ -116,8 +116,6 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                             self.activityFinished)
 
     def startScan(self):
-        smpConfig['skipmode']['isEnabled'] = self.skipModeCheckBox.isChecked()
-    
         enabled = [m for m in self.axes if m.isEnabled()]
         scantype = str(self.scanTypeComboBox.currentText())
 

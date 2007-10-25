@@ -57,9 +57,18 @@ class SmpConfig(TConfig):
         port = T.Str('')
         server = T.Str('')
 
+    class skipmode(TConfig):
+        threshold = T.Float(0.0)
+        counter = T.Str('')
+        enabled = T.false
+        precount = T.Range(0.0, 1.0, 0.0)
+
+    class deadtimeCorrection(TConfig):
+        enabled = T.false
+
 
 configManager = TConfigManager(SmpConfig,
-                               cutils.getSmpConfigFile(), 
+                               cutils.getSmpConfigFile(),
                                filePriority=True)
 smpConfig = configManager.tconf
 

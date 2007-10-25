@@ -178,9 +178,9 @@ work.'
             scanData = self.dataQue.pop(0)
 #            self.archiveSpecData(scanData)
             index = scanData['i']
-            if smpConfig['skipmode']['isEnabled'] and \
-                    (scanData[ smpConfig['skipmode']['counter'] ] <= \
-                     smpConfig['skipmode']['threshold']):
+            if smpConfig.skipmode.enabled and \
+                    (scanData[ smpConfig.skipmode.counter ] <= \
+                     smpConfig.skipmode.threshold):
                 for datatype in self.elementMaps:
                     for peak in self.peaks:
                         self.elementMaps[datatype][key].flat[index] = 0

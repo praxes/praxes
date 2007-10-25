@@ -49,6 +49,7 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         
         self._motors = {}
         self._motorNames = []
+        self._counterNames = []
         self.getMotorsMne()
         
         self.timer = QtCore.QTimer(self)
@@ -60,6 +61,15 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
     def close(self):
         self.clientplotoff()
         self.connection.dispatcher.disconnect()
+
+    def getCountersMne(self):
+        if len(self._counterNames) != self.getNumCounters():
+            countersMne = self.cmd.executeCommand("local md; for (i=0; \
+i<COUNTERS; i++) { md[i]=cnt_mne(i); }; return md")
+            keys = [int(i) for i in countersMne.keys()]
+            keys.sort()
+            self._counterNames = [countersMne[str(i)] for i in keys]
+        return self._counterNames
 
     def getMotor(self, motorName):
         if motorName in self._motors:
@@ -83,6 +93,10 @@ i++) { md[i]=motor_mne(i); }; return md")
             keys.sort()
             self._motorNames = [motorsMne[str(i)] for i in keys]
         return self._motorNames
+
+    def getNumCounters(self):
+        if self.connection is not None:
+            return self.connection.getChannel('var/COUNTERS').read()
 
     def getNumMotors(self):
         if self.connection is not None:

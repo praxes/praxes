@@ -98,7 +98,6 @@ class ScanAnalysis(QtGui.QWidget):
                      self._disconnect)
 
     def _disconnect(self, *args):
-        self.window().specInterface.scanControls.skipModeCheckBox.setEnabled(True)
         self.disconnect(self.scanAnalysis, 
                         QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
                         self.disconnect)

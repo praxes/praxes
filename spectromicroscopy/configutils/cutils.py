@@ -57,4 +57,4 @@ def getClientUtilsMacro():
     return open(getClientUtilsFile()).read()
 
 def getSpecClientLogFile():
-    return os.path.join(configutils.getUserConfigDir(), 'specclient.log')
+    return os.path.join(getUserConfigDir(), 'specclient.log')
