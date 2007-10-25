@@ -12,7 +12,7 @@ import os
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from PyMca import ConfigDict, Elements, FitParam, Icons, PyMcaDirs
+from PyMca import ConfigDict, Elements, FitParam, PyMca_Icons, PyMcaDirs
 from PyQt4 import QtGui, QtCore
 
 #---------------------------------------------------------------------------
@@ -26,19 +26,18 @@ from PyQt4 import QtGui, QtCore
 #---------------------------------------------------------------------------
 
 
-class PyMcaFitParams(QtGui.QDialog):
-    def __init__(self, parent=None, name="FitParam",
-                 modal=1, fl=0, initdir = None, fitresult=None):
-        QtGui.QDialog.__init__(self, parent)
-        self.setWindowTitle("PyMca - MCA Fit Parameters")
-        self.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(Icons.IconDict["gioconda16"])))
+class PyMcaFitParams(QtGui.QWidget):
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self, parent)
 
-        self.initDir = initdir
+        self.initDir = None
         layout = QtGui.QVBoxLayout(self)
         layout.setMargin(5)
         layout.setSpacing(5)
 
         self.fitparam = FitParam.FitParamWidget(self)
+#        self.fitparam.peakTable.setSizePolicy(QtGui.QSizePolicy.Expanding,
+#                                              QtGui.QSizePolicy.Expanding)
         layout.addWidget(self.fitparam)
 
         buts = QtGui.QGroupBox(self)
@@ -57,9 +56,11 @@ class PyMcaFitParams(QtGui.QDialog):
 
 #        maxheight = QtGui.QDesktopWidget().height()
 #        maxwidth = QtGui.QDesktopWidget().width()
-#        self.setMaximumWidth(maxwidth)
-#        self.setMaximumHeight(maxheight)
-#        self.resize(QtGui.QSize(min(800, maxwidth), int(0.8 * maxheight)))
+        self.setMaximumWidth(950)
+        self.setMaximumHeight(700)
+#        self.resize(100, 100)
+        self.fitparam.peakTable.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding,
+                                              QtGui.QSizePolicy.MinimumExpanding)
 
         self.connect(load, QtCore.SIGNAL("clicked()"), self.load)
         self.connect(save, QtCore.SIGNAL("clicked()"), self.save)
@@ -122,7 +123,6 @@ class PyMcaFitParams(QtGui.QDialog):
             QtGui.QMessageBox.critical(self, "Save Parameters", 
                 "ERROR while saving parameters to\n%s"%filename,
                 QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton, QtGui.QMessageBox.NoButton)
-            #self.initDir = None
             return 0
 
     def load(self):
@@ -132,7 +132,7 @@ class PyMcaFitParams(QtGui.QDialog):
         
         filedialog = QtGui.QFileDialog(self)
         filedialog.setFileMode(filedialog.ExistingFiles)
-        filedialog.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(Icons.IconDict["gioconda16"])))
+        filedialog.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(PyMca_Icons.IconDict["gioconda16"])))
         initdir = os.path.curdir
         if self.initDir is not None:
             if os.path.isdir(self.initDir):
@@ -149,13 +149,12 @@ class PyMcaFitParams(QtGui.QDialog):
 
 
     def save(self):
-        #diag= SectionFileDialog(self, "Save Parameters", FitParamSections, FitParamHeaders, QtGui.QFileDialog.AnyFile)
         if self.initDir is None:
             self.initDir = PyMcaDirs.outputDir
 
         filedialog = QtGui.QFileDialog(self)
         filedialog.setFileMode(filedialog.AnyFile)
-        filedialog.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(Icons.IconDict["gioconda16"])))
+        filedialog.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(PyMca_Icons.IconDict["gioconda16"])))
         initdir = os.path.curdir
         if self.initDir is not None:
             if os.path.isdir(self.initDir):

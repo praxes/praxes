@@ -21,7 +21,8 @@ from PyQt4 import QtCore, QtGui
 
 from spectromicroscopy import smpConfig
 from spectromicroscopy.smpgui.ui_smpspecinterface import Ui_SmpSpecInterface
-from spectromicroscopy.smpgui import configuresmp, scananalysis, scancontrols
+from spectromicroscopy.smpgui import configuresmp, pymcafitparams, \
+    scananalysis, scancontrols
 from spectromicroscopy.smpcore import specrunner, configutils, qtspecscan, \
     qtspecvariable
 from SpecClient import SpecClientError
@@ -47,9 +48,9 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
         
         pymcaConfigFile = configutils.getDefaultPymcaConfigFile()
         self.pymcaConfig = configutils.getPymcaConfig(pymcaConfigFile)
-        self.pymcaConfigDialog = FitParam.FitParamDialog(modal=0)
-        self.pymcaConfigDialog.setParameters(self.pymcaConfig)
-        self.toolBox.insertItem(1, self.pymcaConfigDialog, 'PyMca configuration')
+        self.pymcaConfigWidget = pymcafitparams.PyMcaFitParams(self)
+        self.pymcaConfigWidget.setParameters(self.pymcaConfig)
+        self.toolBox.insertItem(1, self.pymcaConfigWidget, 'PyMca configuration')
 
         self.gridlayout = QtGui.QGridLayout(self)
         
@@ -75,11 +76,12 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
         self.connect(self.specRunner.scan,
                      QtCore.SIGNAL("newScan(PyQt_PyObject)"),
                      self.setTabLabel)
-        self.connect(self.pymcaConfigDialog,
-                     QtCore.SIGNAL("accepted()"),
+        self.connect(self.pymcaConfigWidget,
+                     QtCore.SIGNAL("configChanged(PyQt_PyObject)"),
                      self.changedPyMcaConfig)
 
     def changedPyMcaConfig(self):
+        self.pymcaConfig = self.pymcaConfigWidget.getParameters()
         self.emit(QtCore.SIGNAL("changedPyMcaConfig(PyQt_PyObject)"),
                   self.pymcaConfig)
 

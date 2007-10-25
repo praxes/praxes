@@ -34,7 +34,7 @@
      </rect>
     </property>
     <attribute name="label" >
-     <string>Scan Settings</string>
+     <string>Scan Options</string>
     </attribute>
     <layout class="QGridLayout" />
    </widget>

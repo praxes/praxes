@@ -138,10 +138,6 @@ class ScanAnalysis(QtGui.QWidget):
         if filename:
             self.scanAnalysis.saveData(str(filename))
 
-    def loadPymcaConfigFile(self):
-        configFile = self.specInterface.pymcaConfigFile
-        self.scanAnalysis.loadPymcaConfig(configFile)
-
 
 class ScanAnalysis1D(ScanAnalysis):
     """Establishes a Experimenbt controls    """
@@ -156,7 +152,7 @@ class ScanAnalysis1D(ScanAnalysis):
         self.splitter.addWidget(self.elementDataPlot)
         
         self.connectSignals()
-        self.loadPymcaConfigFile()
+        self.scanAnalysis.loadPymcaConfig(self.specInterface.pymcaConfig)
         
     def connectSignals(self):
         ScanAnalysis.connectSignals(self)
@@ -175,7 +171,7 @@ class ScanAnalysis2D(ScanAnalysis):
         self.splitter.addWidget(self.elementDataPlot)
 
         self.connectSignals()
-        self.loadPymcaConfigFile()
+        self.scanAnalysis.loadPymcaConfig(self.specInterface.pymcaConfig)
 
     def connectSignals(self):
         ScanAnalysis.connectSignals(self)

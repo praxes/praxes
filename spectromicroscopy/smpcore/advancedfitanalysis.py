@@ -121,12 +121,14 @@ class AdvancedFitAnalysis(QtCore.QObject):
 #        # Thats not good!
 #        data.flat[index] = val
 
-    def loadPymcaConfig(self, configFile=None):
-        if not configFile:
-            configFile = configutils.getDefaultPymcaConfigFile()
-        self.pymcaConfig = configutils.getPymcaConfig(configFile)
-        self.peaks = [' '.join([key, val]) 
-                      for key, val in self.pymcaConfig['peaks'].iteritems()]
+    def loadPymcaConfig(self, config=None):
+        if not config:
+            config = configutils.getPymcaConfig()
+        self.pymcaConfig = config
+        self.peaks = []
+        for el, edges in self.pymcaConfig['peaks'].iteritems():
+            for edge in edges:
+                self.peaks.append(' '.join([el, edge]))
         self.peaks.sort()
         if self._currentElement is None:
             self._currentElement = self.peaks[0]
@@ -137,9 +139,9 @@ class AdvancedFitAnalysis(QtCore.QObject):
                         numpy.zeros(self.imageSize, dtype=numpy.float_)
         self.emit(QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
                   self.peaks)
-        self.advancedFit = ClassMcaTheory.McaTheory(configFile)
+        self.advancedFit = ClassMcaTheory.McaTheory(config=config)
         self.advancedFit.enableOptimizedLinearFit()
-        self.concentrationTool = ConcentrationsTool.ConcentrationsTool(configFile)
+        self.concentrationTool = ConcentrationsTool.ConcentrationsTool(config)
     
     def setCurrentElement(self, element):
         if not self._currentElement == str(element):
