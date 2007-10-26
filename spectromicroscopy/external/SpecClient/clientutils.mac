@@ -46,7 +46,7 @@ def _client_scansetenv '{
 
 
 def _client_updatescandata '{
-  local x d i scan_data_string
+  local x d i n scan_data_string
   global _SC_OLDX
 
   x = SCAN_D[NPTS][0]
@@ -60,9 +60,10 @@ def _client_updatescandata '{
   if (d > 0) {
     _SC_OLDX=x
     scan_data_string = sprintf("i=%d x=%g", NPTS, x) 
-   
+    
+    n = _stype&8? _g1:NPTS
     for (i=PLOT_MOTS;i<PLOT_MOTS+PLOT_CNTRS;i++) {
-      scan_data_string = sprintf("%s %s=%g", scan_data_string, cnt_mne(i - PLOT_MOTS), SCAN_D[NPTS][i])
+      scan_data_string = sprintf("%s %s=%g", scan_data_string, cnt_mne(i - PLOT_MOTS), SCAN_D[n][i])
     }
 
     _SC_SCANDATALINE = scan_data_string

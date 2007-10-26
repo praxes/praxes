@@ -188,38 +188,56 @@ work.'
                 mcaData = scanData['mcaData']
                 self.advancedFit.setdata(mcaData[0], mcaData[1], None)
                 self.advancedFit.estimate()
-                fitresult, result = self.advancedFit.startfit(digest=1)
                 
-                dictresult = {"result":result}
-                concentrations = self.concentrationTool.processFitResult(fitresult=dictresult)
+                fitresult = self.advancedFit.startfit(digest=0)
+                result = self.advancedFit.imagingDigestResult()
                 
                 fitData = {}
-                fitData['xdata'] = result['xdata']
-                fitData['energy'] = result['energy']
-                fitData['ydata'] = result['ydata']
-                fitData['yfit'] = result['yfit']
-                fitData['residuals'] = result['ydata']-result['yfit']
-                logres = numpy.log10(result['ydata'])-\
-                                numpy.log10(result['yfit'])
+                fitData['xdata'] = self.advancedFit.xdata
+                zero, gain = self.advancedFit.fittedpar[:2]
+                fitData['energy'] = zero + gain*self.advancedFit.xdata
+                fitData['ydata'] = self.advancedFit.ydata
+                fitData['yfit'] = self.advancedFit.\
+                        mcatheory(self.advancedFit.fittedpar,
+                                  self.advancedFit.xdata)
+                fitData['residuals'] = fitData['ydata']-fitData['yfit']
+                logres = numpy.log10(fitData['ydata'])-\
+                         numpy.log10(fitData['yfit'])
                 logres[numpy.isinf(logres)]=numpy.nan
                 fitData['logresiduals'] = logres
-                
-#                self.mcaDataFit.append(fitData)
-    #            self.archivePymcaSpectra(fitData)
+                self.emit(QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"), fitData)
                 
                 for group in result['groups']:
     #                print result[group].keys()
                     self.elementMaps["Peak Area"][group].flat[index] = \
                         result[group]['fitarea']
-    #                for t in ('fitarea', 'sigmaarea'):
-    #                    self.archiveElementData(group, t, index, result[group][t])
-                    area = numpy.where(result[group]['fitarea']==0, numpy.nan,
+                    area = numpy.where(result[group]['fitarea']==0,
+                                       numpy.nan,
                                        result[group]['fitarea'])
                     self.elementMaps["Sigma Area"][group].flat[index] = \
-                        concentrations['sigmaarea'][group]/area
-                    self.elementMaps["Mass Fraction"][group].flat[index] = \
-                        concentrations['mass fraction'][group]
-                self.emit(QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"), fitData)
+                        result[group]['sigmaarea']/area
+                
+                # prepare for concentrations:
+                temp = {}
+                temp['fitresult'] = fitresult
+                temp['result'] = result
+                temp['result']['config'] = self.advancedFit.config
+                conf = self.advancedFit.configure()
+                tconf = self.concentrationTool.configure()
+                if conf.has_key('concentrations'):
+                    tconf.update(conf['concentrations'])
+                    concentrations = self.concentrationTool.\
+                       processFitResult(config=tconf,
+                                        fitresult=temp,
+                                        elementsfrommatrix=False,
+                                        fluorates=self.advancedFit._fluoRates)
+                    for group in concentrations['mass fraction'].keys():
+                        self.elementMaps["Mass Fraction"][group].flat[index] = \
+                            concentrations['mass fraction'][group]
+                else:
+                    # TODO, need to fix selection tool in case concentrations 
+                    # not selected
+                    pass
             
             self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
                       self.elementMaps[self._currentDataType][self._currentElement])
