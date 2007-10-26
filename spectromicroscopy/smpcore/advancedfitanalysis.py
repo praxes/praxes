@@ -162,8 +162,6 @@ class AdvancedFitAnalysis(QtCore.QObject):
             if DEBUG: print 'index problem: ', self.previousIndex, self.index
         
         try:
-            if DEBUG: 
-                print 'correction:', 100./(100-float(scanData['dead']))
             scanData['mcaData'][1] *= 100./(100-float(scanData['dead']))
         except KeyError:
             if DEBUG: print 'deadtime not corrected. A counter reporting the \
@@ -208,7 +206,6 @@ work.'
                 self.emit(QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"), fitData)
                 
                 for group in result['groups']:
-    #                print result[group].keys()
                     self.elementMaps["Peak Area"][group].flat[index] = \
                         result[group]['fitarea']
                     area = numpy.where(result[group]['fitarea']==0,
@@ -218,13 +215,13 @@ work.'
                         result[group]['sigmaarea']/area
                 
                 # prepare for concentrations:
-                temp = {}
-                temp['fitresult'] = fitresult
-                temp['result'] = result
-                temp['result']['config'] = self.advancedFit.config
                 conf = self.advancedFit.configure()
-                tconf = self.concentrationTool.configure()
                 if conf.has_key('concentrations'):
+                    temp = {}
+                    temp['fitresult'] = fitresult
+                    temp['result'] = result
+                    temp['result']['config'] = self.advancedFit.config
+                    tconf = self.concentrationTool.configure()
                     tconf.update(conf['concentrations'])
                     concentrations = self.concentrationTool.\
                        processFitResult(config=tconf,
