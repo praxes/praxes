@@ -111,10 +111,8 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
         m = str(self.motorComboBox.currentText())
         s = self.scanFromSpinBox.value()
         f = self.scanToSpinBox.value()
-        result = [m, s, f]
-        if self.scanStepsSpinBox.isEnabled():
-            result.append(self.scanStepsSpinBox.value())
-        return result
+        i = self.scanStepsSpinBox.value()
+        return [m, s, f, i]
     
     def moveMotor(self):
         self._motor.move(self.nextPosSpinBox.value())

@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>138</width>
-    <height>470</height>
+    <width>165</width>
+    <height>540</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -24,138 +24,116 @@
   <property name="windowTitle" >
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" >
-   <property name="leftMargin" >
-    <number>2</number>
-   </property>
-   <property name="topMargin" >
-    <number>2</number>
-   </property>
-   <property name="rightMargin" >
-    <number>2</number>
-   </property>
-   <property name="bottomMargin" >
-    <number>2</number>
-   </property>
-   <item>
-    <layout class="QGridLayout" >
-     <property name="leftMargin" >
-      <number>0</number>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="QLabel" name="motorLabel" >
+     <property name="text" >
+      <string>motor</string>
      </property>
-     <property name="horizontalSpacing" >
-      <number>-1</number>
-     </property>
-     <item row="0" column="0" >
-      <widget class="QLabel" name="motorLabel" >
-       <property name="text" >
-        <string>motor</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1" >
-      <widget class="QComboBox" name="motorComboBox" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    </widget>
    </item>
-   <item>
+   <item row="0" column="1" >
+    <widget class="QComboBox" name="motorComboBox" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2" >
     <widget class="QGroupBox" name="posGroupBox" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="title" >
       <string>Position</string>
      </property>
-     <layout class="QVBoxLayout" >
-      <item>
-       <layout class="QGridLayout" >
-        <item row="0" column="0" >
-         <widget class="QLabel" name="currentPosLabel" >
-          <property name="text" >
-           <string>current</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1" >
-         <widget class="QLineEdit" name="currentPosReport" >
-          <property name="cursor" >
-           <cursorShape>ArrowCursor</cursorShape>
-          </property>
-          <property name="focusPolicy" >
-           <enum>Qt::NoFocus</enum>
-          </property>
-          <property name="acceptDrops" >
-           <bool>false</bool>
-          </property>
-          <property name="autoFillBackground" >
-           <bool>false</bool>
-          </property>
-          <property name="frame" >
-           <bool>false</bool>
-          </property>
-          <property name="readOnly" >
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
+     <layout class="QGridLayout" >
+      <item row="0" column="0" >
+       <widget class="QLabel" name="currentPosLabel" >
+        <property name="text" >
+         <string>current</string>
+        </property>
+       </widget>
       </item>
-      <item>
+      <item row="0" column="1" colspan="2" >
+       <widget class="QLineEdit" name="currentPosReport" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="cursor" >
+         <cursorShape>ArrowCursor</cursorShape>
+        </property>
+        <property name="focusPolicy" >
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="acceptDrops" >
+         <bool>false</bool>
+        </property>
+        <property name="autoFillBackground" >
+         <bool>false</bool>
+        </property>
+        <property name="frame" >
+         <bool>false</bool>
+        </property>
+        <property name="readOnly" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="3" >
        <widget class="QFrame" name="frame" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="frameShape" >
          <enum>QFrame::StyledPanel</enum>
         </property>
         <property name="frameShadow" >
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QHBoxLayout" >
-         <item>
-          <layout class="QVBoxLayout" >
-           <item>
-            <widget class="QLabel" name="highLim" >
-             <property name="sizePolicy" >
-              <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text" >
-              <string>1</string>
-             </property>
-             <property name="alignment" >
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer>
-             <property name="orientation" >
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" >
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QLabel" name="lowLim" >
-             <property name="text" >
-              <string>0</string>
-             </property>
-             <property name="alignment" >
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
+        <layout class="QGridLayout" >
+         <item rowspan="3" row="0" column="0" >
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
-         <item>
+         <item row="0" column="1" >
+          <widget class="QLabel" name="highLim" >
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text" >
+            <string>1</string>
+           </property>
+           <property name="alignment" >
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item rowspan="3" row="0" column="2" >
           <widget class="QSlider" name="nextPosSlider" >
            <property name="sizePolicy" >
             <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
@@ -189,32 +167,63 @@
            </property>
           </widget>
          </item>
+         <item row="1" column="1" >
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="2" column="1" >
+          <widget class="QLabel" name="lowLim" >
+           <property name="text" >
+            <string>0</string>
+           </property>
+           <property name="alignment" >
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
-      <item>
-       <layout class="QGridLayout" >
-        <item row="0" column="0" >
-         <widget class="QLabel" name="nextPosLabel" >
-          <property name="text" >
-           <string>next</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1" >
-         <widget class="QDoubleSpinBox" name="nextPosSpinBox" >
-          <property name="decimals" >
-           <number>3</number>
-          </property>
-          <property name="maximum" >
-           <double>1000.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-       </layout>
+      <item row="2" column="0" colspan="2" >
+       <widget class="QLabel" name="nextPosLabel" >
+        <property name="text" >
+         <string>next</string>
+        </property>
+       </widget>
       </item>
-      <item>
+      <item row="2" column="2" >
+       <widget class="QDoubleSpinBox" name="nextPosSpinBox" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="decimals" >
+         <number>3</number>
+        </property>
+        <property name="maximum" >
+         <double>1000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="3" >
        <widget class="QPushButton" name="nextPosPushButton" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text" >
          <string>Move</string>
         </property>
@@ -223,7 +232,7 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="2" column="0" colspan="2" >
     <widget class="QGroupBox" name="scanGroupBox" >
      <property name="title" >
       <string>Scan</string>
@@ -244,7 +253,7 @@
       <item row="0" column="0" >
        <widget class="QLabel" name="scanFromLabel" >
         <property name="sizePolicy" >
-         <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
+         <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -257,7 +266,7 @@
       <item row="0" column="1" >
        <widget class="QDoubleSpinBox" name="scanFromSpinBox" >
         <property name="sizePolicy" >
-         <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+         <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -273,7 +282,7 @@
       <item row="1" column="0" >
        <widget class="QLabel" name="scanToLabel" >
         <property name="sizePolicy" >
-         <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
+         <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -286,7 +295,7 @@
       <item row="1" column="1" >
        <widget class="QDoubleSpinBox" name="scanToSpinBox" >
         <property name="sizePolicy" >
-         <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+         <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -299,7 +308,7 @@
       <item row="2" column="0" >
        <widget class="QLabel" name="stepsLabel" >
         <property name="sizePolicy" >
-         <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
+         <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -312,7 +321,7 @@
       <item row="2" column="1" >
        <widget class="QSpinBox" name="scanStepsSpinBox" >
         <property name="sizePolicy" >
-         <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+         <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>

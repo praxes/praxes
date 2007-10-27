@@ -40,34 +40,19 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.scanTypeComboBox.addItems(scans)
         self.setScanType(scans[0])
         
-        # QStackedLayout is not included in designer, do it manually
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum,
-                                       QtGui.QSizePolicy.Fixed)
         self.scanButton = QtGui.QPushButton(self.scanControlsGroupBox)
         self.scanButton.setText('Scan')
-        self.scanButton.setSizePolicy(sizePolicy)
-        self.scanButton.setMaximumHeight(26)
         self.pauseButton = QtGui.QPushButton(self.scanControlsGroupBox)
         self.pauseButton.setText('Pause')
-        self.pauseButton.setSizePolicy(sizePolicy)
-        self.pauseButton.setMaximumHeight(26)
         self.resumeButton = QtGui.QPushButton(self.scanControlsGroupBox)
         self.resumeButton.setText('Resume')
-        self.resumeButton.setSizePolicy(sizePolicy)
-        self.resumeButton.setMaximumHeight(26)
         
-        self.scanStackedLayout = QtGui.QStackedLayout(self.scanFrame)
-        self.scanStackedLayout.setGeometry(self.scanButton.geometry())
+        self.scanStackedLayout = QtGui.QStackedLayout(self.stackedLayoutFrame)
         self.scanStackedLayout.setContentsMargins(0, 0, 0, 0)
         self.scanStackedLayout.addWidget(self.scanButton)
         self.scanStackedLayout.addWidget(self.pauseButton)
         self.scanStackedLayout.addWidget(self.resumeButton)
-        
-        self.abortButton = QtGui.QPushButton(self.scanControlsGroupBox)
-        self.abortButton.setSizePolicy(sizePolicy)
-        self.abortButton.setEnabled(False)
-        self.abortButton.setText('Abort')
-        self.vboxlayout.addWidget(self.abortButton)
+        self.stackedLayoutFrame.setGeometry(self.abortButton.geometry())
 
         self.connect(self.scanTypeComboBox,
                      QtCore.SIGNAL("currentIndexChanged(const QString&)"),
@@ -116,14 +101,15 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                             self.activityFinished)
 
     def startScan(self):
-        enabled = [m for m in self.axes if m.isEnabled()]
         scantype = str(self.scanTypeComboBox.currentText())
 
         scanArgs = []
-        for m in enabled:
-            scanArgs.extend(m.getScanInfo())
-        if self.scanStepsSpinBox.isEnabled():
-            scanArgs.append(self.scanStepsSpinBox.value())
+        for m in self.axes:
+            args = m.getScanInfo()
+            if self.independentStepsEnabled or m is self.axes[-1]:
+                scanArgs.extend(args)
+            else:
+                scanArgs.extend(args[:-1])
         scanArgs.append( self.scanCountSpinBox.value() )
 
         getattr(self.specInterface.specRunner.scan, scantype)(*scanArgs)
@@ -146,11 +132,13 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
 
     def scanStarted(self):
         self.scanTypeComboBox.setEnabled(False)
+        self.scanCountSpinBox.setEnabled(False)
         self.disconnectAxesSignals()
         self.scanStackedLayout.setCurrentWidget(self.pauseButton)
 
     def scanFinished(self):
         self.scanTypeComboBox.setEnabled(True)
+        self.scanCountSpinBox.setEnabled(True)
         self.connectAxesSignals()
         self.scanStackedLayout.setCurrentWidget(self.scanButton)
 
@@ -165,20 +153,33 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
     def setScanType(self, scanType):
         scanType = str(scanType)
         self.setAxes(scanType)
-        flag = scanType in ('mesh', )
         self.emit(QtCore.SIGNAL("scanType(string)"), scanType)
-        self.setIndependentStepsEnabled(flag)
+        self.setIndependentStepsEnabled(scanType in ('mesh', ))
 
-    def setIndependentStepsEnabled(self, val=False):
-        for m in self.axes:
-            m.scanStepsSpinBox.setEnabled(val)
-        self.scanStepsSpinBox.setEnabled(not val)
+    def setIndependentStepsEnabled(self, enabled=False):
+        self.independentStepsEnabled = enabled
+        if enabled:
+            for m in self.axes:
+                for n in self.axes:
+                    if m is not n:
+                        m.disconnect(m.scanStepsSpinBox,
+                                     QtCore.SIGNAL("valueChanged(int)"),
+                                     n.scanStepsSpinBox,
+                                     QtCore.SLOT('setValue(int)'))
+        else:
+            for m in self.axes:
+                for n in self.axes:
+                    if m is not n:
+                        m.connect(m.scanStepsSpinBox,
+                                  QtCore.SIGNAL("valueChanged(int)"),
+                                  n.scanStepsSpinBox,
+                                  QtCore.SLOT('setValue(int)'))
 
     def setAxes(self, scanType):
         self.disconnectAxesSignals()
     
         numAxes = specutils.SCAN_NUM_AXES[scanType]
-        self.setUpdatesEnabled(False)
+        self.axesTab.setUpdatesEnabled(False)
         while self.axesTab.count() > 0:
             self.axesTab.removeTab(0)
         self.axes=[]
@@ -190,7 +191,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                 if i < numAxes:
                     self.axes.append(scanmotor.ScanMotor(self, m))
                     self.axesTab.addTab(self.axes[-1], ax)
-        self.setUpdatesEnabled(True)
+        self.axesTab.setUpdatesEnabled(True)
         self.connectAxesSignals()
 
 if __name__ == "__main__":

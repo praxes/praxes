@@ -10,6 +10,7 @@ of course, replace /path/to with whatever is appropriate.
 
 You will also have to have the following packages installed:
 
+enthought.traits (version 3, from svn)
 python (version 2.4 or later, preferrably 2.5 or later)
 Qt4 (preferrably version 4.3.1 or later)
 PyQt4 (preferrably version 4.3 or later)
