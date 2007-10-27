@@ -48,6 +48,9 @@ class ScanAnalysis(QtGui.QWidget):
         self.connect(self.specInterface.specRunner.scan,
                      QtCore.SIGNAL("scanFinished()"),
                      self.disconnectSignals)
+        self.connect(self.specInterface.specRunner.scan,
+                     QtCore.SIGNAL("scanAborted()"),
+                     self._disconnect)
 
     def connectSignals(self):
         self.connect(self.elementDataPlot.dataTypeBox,

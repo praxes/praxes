@@ -56,6 +56,9 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
     def resumeScan(self):
         self._resumeScan()
 
+    def scanAborted(self):
+        self.emit(QtCore.SIGNAL("scanAborted()"))
+
     def scanFinished(self):
         if DEBUG: print 'scan finished'
         self.emit(QtCore.SIGNAL("scanFinished()"))

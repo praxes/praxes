@@ -107,4 +107,3 @@ i++) { md[i]=motor_mne(i); }; return md")
 
     def abort(self):
         self.connection.abort()
-        self.emit(QtCore.SIGNAL("specAbort()"))
