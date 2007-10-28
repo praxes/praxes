@@ -50,11 +50,11 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
         self.pymcaConfig = configutils.getPymcaConfig(pymcaConfigFile)
         self.pymcaConfigWidget = pymcafitparams.PyMcaFitParams(self)
         self.pymcaConfigWidget.setParameters(self.pymcaConfig)
-        self.toolBox.insertItem(1, self.pymcaConfigWidget, 'PyMca configuration')
+        self.tabWidget.insertTab(1, self.pymcaConfigWidget, 'PyMca configuration')
 
         self.scanControls = scancontrols.ScanControls(self)
         self.gridlayout.addWidget(self.scanControls, 0,0)
-        self.gridlayout.addWidget(self.toolBox, 0,1,1,1)
+        self.gridlayout.addWidget(self.tabWidget, 0,1,1,1)
 
         self.getDefaults()
         self.connectSignals()
@@ -138,10 +138,10 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
         smpConfig.deadtimeCorrection.enabled = enabled
 
     def disableScanOptions(self):
-        self.toolBox.setEnabled(False)
+        self.tabWidget.setEnabled(False)
 
     def enableScanOptions(self):
-        self.toolBox.setEnabled(True)
+        self.tabWidget.setEnabled(True)
 
     def skipmodeEnabled(self, enabled):
         # TODO: run skipmode macro here

@@ -161,12 +161,14 @@ class AdvancedFitAnalysis(QtCore.QObject):
         if self.index != self.previousIndex+1 and self.index != 0:
             if DEBUG: print 'index problem: ', self.previousIndex, self.index
         
-        try:
-            scanData['mcaData'][1] *= 100./(100-float(scanData['dead']))
-        except KeyError:
-            if DEBUG: print 'deadtime not corrected. A counter reporting the \
-percent dead time, called "Dead", must be created in Spec for this feature to \
-work.'
+        if smpConfig.deadtimeCorrection.enabled:
+            try:
+                if DEBUG: print 100./(100-float(scanData['dead']))
+                scanData['mcaData'][1] *= 100./(100-float(scanData['dead']))
+            except KeyError:
+                if DEBUG: print 'deadtime not corrected. A counter reporting '\
+                    'the percent dead time, called "Dead", must be created in '\
+                    'Spec for this feature to work.'
         self.dataQue.append(scanData)
         #TODO: probably needs a separate thread at some point
         self.processNextPoint()

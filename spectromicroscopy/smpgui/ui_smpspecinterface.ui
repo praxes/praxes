@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>970</width>
-    <height>733</height>
+    <width>790</width>
+    <height>822</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -14,20 +14,15 @@
   </property>
   <layout class="QGridLayout" >
    <item row="0" column="0" >
-    <widget class="QToolBox" name="toolBox" >
+    <widget class="QTabWidget" name="tabWidget" >
+     <property name="tabPosition" >
+      <enum>QTabWidget::West</enum>
+     </property>
      <property name="currentIndex" >
       <number>0</number>
      </property>
-     <widget class="QWidget" name="pageScanSettings" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>932</width>
-        <height>655</height>
-       </rect>
-      </property>
-      <attribute name="label" >
+     <widget class="QWidget" name="scanOptionsTab" >
+      <attribute name="title" >
        <string>Scan Options</string>
       </attribute>
       <layout class="QGridLayout" >
@@ -49,19 +44,6 @@
           </item>
          </layout>
         </widget>
-       </item>
-       <item rowspan="2" row="0" column="1" >
-        <spacer>
-         <property name="orientation" >
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" >
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
        <item row="1" column="0" >
         <widget class="QGroupBox" name="groupBox" >
@@ -154,12 +136,20 @@
          </property>
         </spacer>
        </item>
+       <item row="1" column="1" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
-     </widget>
-     <widget class="QWidget" name="pageSpecConfig" >
-      <attribute name="label" >
-       <string>Spec Config</string>
-      </attribute>
      </widget>
     </widget>
    </item>

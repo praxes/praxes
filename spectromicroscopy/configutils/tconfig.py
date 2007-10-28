@@ -359,7 +359,7 @@ class TConfigError(Exception): pass
 
 class TConfigInvalidKeyError(TConfigError): pass
 
-class TConfig(T.HasStrictTraits):
+class TConfig(T.HasTraits):
     """A class representing configuration objects.
 
     Note: this class should NOT have any traits itself, since the actual traits

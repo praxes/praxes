@@ -56,11 +56,11 @@ class PyMcaFitParams(QtGui.QWidget):
 
 #        maxheight = QtGui.QDesktopWidget().height()
 #        maxwidth = QtGui.QDesktopWidget().width()
-        self.setMaximumWidth(950)
-        self.setMaximumHeight(700)
+#        self.setMaximumWidth(950)
+#        self.setMaximumHeight(700)
 #        self.resize(100, 100)
-        self.fitparam.peakTable.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding,
-                                              QtGui.QSizePolicy.MinimumExpanding)
+        self.fitparam.peakTable.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                                              QtGui.QSizePolicy.Expanding)
 
         self.connect(load, QtCore.SIGNAL("clicked()"), self.load)
         self.connect(save, QtCore.SIGNAL("clicked()"), self.save)

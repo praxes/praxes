@@ -6,17 +6,17 @@
     <x>0</x>
     <y>0</y>
     <width>1255</width>
-    <height>988</height>
+    <height>1024</height>
    </rect>
   </property>
   <property name="sizePolicy" >
-   <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+   <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="windowTitle" >
-   <string>MainWindow</string>
+   <string>SMP</string>
   </property>
   <widget class="QWidget" name="centralwidget" >
    <property name="sizePolicy" >
