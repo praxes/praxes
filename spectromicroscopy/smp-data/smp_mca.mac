@@ -1,0 +1,42 @@
+#
+# skipmode [%enabled%] [%precount% %counter% %threshold%]
+#   Do a quick precount to determine if the sample is present.
+#   %enabled% can be 0 or 1. If enabled, count for %precount% 
+#   seconds (not less than 0.2), and if fewer than %threshold%
+#   counts are recorded for %counter%, don't do a full 
+#   measurement and move on to the next point in the scan.
+#
+def skipmode '{
+        if (($# < 1) || ($1 &&  $# != 4)){
+                eprint "\
+Usage: skipmode enabled [precount counter threshold]"
+                exit
+        }
+
+        if ($1) {
+                if ("$3" != cnt_mne($3) && "$3" != $3){
+                        eprint "Invalid motor name:  $3"
+                        exit
+                }
+                
+                global SKIPMODE_PRECOUNT SKIPMODE_COUNTER SKIPMODE_THRESHOLD
+                
+                SKIPMODE_PRECOUNT = $2
+                SKIPMODE_COUNTER = $3
+                SKIPMODE_THRESHOLD = $4
+                cdef("user_precount", "skip_count", "_skip_count_")
+        } else {
+                unglobal SKIPMODE_PRECOUNT SKIPMODE_COUNTER SKIPMODE_THRESHOLD
+                cdef("user_precount", "skip_count", "_skip_count_", "delete")
+        }
+}'
+
+def skip_count '{
+        tcount(SKIPMODE_PRECOUNT)
+        sleep(.2)
+        getcounts
+        if(S[SKIPMODE_COUNTER] < SKIPMODE_THRESHOLD){
+                COUNT_TIME = 0
+                array_op("fill",MCA_DATA[:][1],0)
+        }
+}'

@@ -120,6 +120,7 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
             self.specRunner = specrunner.SpecRunner(specVersion, timeout=500)
             self.specRunner.scan = \
                 qtspecscan.QtSpecScanMcaA(self.specRunner.specVersion)
+            
             self.window().statusBar().clearMessage()
         except SpecClientError.SpecClientTimeoutError:
             self.connectionError(specVersion)
