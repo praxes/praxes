@@ -50,11 +50,10 @@ def getPymcaConfig(configFile=None):
     if not configFile: configFile = getDefaultPymcaConfigFile()
     return ConfigDict.ConfigDict(filelist=configFile)
 
-def getClientUtilsFile():
-    return os.path.join(getDefaultConfigDir(), 'clientutils.mac')
-
-def getClientUtilsMacro():
-    return open(getClientUtilsFile()).read()
+def getSpecMacro(filename):
+    if not os.path.isfile(filename):
+        filename = os.path.join(getDefaultConfigDir(), filename)
+    return open(filename).read()
 
 def getSpecClientLogFile():
     return os.path.join(getUserConfigDir(), 'specclient.log')

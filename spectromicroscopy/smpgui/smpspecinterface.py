@@ -57,6 +57,8 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
         self.gridlayout.addWidget(self.tabWidget, 0,1,1,1)
 
         self.getDefaults()
+        self.configureSkipmode()
+        
         self.connectSignals()
 
     def connectSignals(self):
@@ -109,6 +111,8 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
                   self.pymcaConfig)
 
     def closeEvent(self, event):
+        print 'hi'
+        self.specRunner.skipmode(0)
         self.specRunner.close()
         event.accept()
 
@@ -120,7 +124,7 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
             self.specRunner = specrunner.SpecRunner(specVersion, timeout=500)
             self.specRunner.scan = \
                 qtspecscan.QtSpecScanMcaA(self.specRunner.specVersion)
-            
+            self.specRunner.runMacro('smp_mca.mac')
             self.window().statusBar().clearMessage()
         except SpecClientError.SpecClientTimeoutError:
             self.connectionError(specVersion)
@@ -144,18 +148,29 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
     def enableScanOptions(self):
         self.tabWidget.setEnabled(True)
 
+    def configureSkipmode(self):
+        enabled = 0
+        if smpConfig.skipmode.enabled: enabled = 1
+        self.specRunner.skipmode(enabled,
+                                 smpConfig.skipmode.precount,
+                                 str(smpConfig.skipmode.counter),
+                                 smpConfig.skipmode.threshold)
+
     def skipmodeEnabled(self, enabled):
-        # TODO: run skipmode macro here
         smpConfig.skipmode.enabled = enabled
+        self.configureSkipmode()
 
     def skipmodeCounterChanged(self, counter):
         smpConfig.skipmode.counter = '%s'%counter
+        self.configureSkipmode()
 
     def skipmodeThresholdChanged(self, threshold):
          smpConfig.skipmode.threshold = threshold
+         self.configureSkipmode()
 
     def skipmodePrecountChanged(self, precount):
         smpConfig.skipmode.precount = precount
+        self.configureSkipmode()
 
     def getDefaults(self):
         self.deadtimeCorrCheckBox.setChecked(smpConfig.deadtimeCorrection.enabled)

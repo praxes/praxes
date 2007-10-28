@@ -44,7 +44,7 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         
         self.cmd = SpecCommand.SpecCommand('', specVersion, timeout)
         # load the clientutils macros:
-        self.cmd.executeCommand(configutils.getClientUtilsMacro())
+        self.runMacro('clientutils.mac')
         self.clientploton()
         
         self._motors = {}
@@ -101,6 +101,9 @@ i++) { md[i]=motor_mne(i); }; return md")
     def getNumMotors(self):
         if self.connection is not None:
             return self.connection.getChannel('var/MOTORS').read()
+
+    def runMacro(self, macro):
+        self.cmd.executeCommand(configutils.getSpecMacro(macro))
 
     def update(self):
         SpecEventsDispatcher.dispatch()

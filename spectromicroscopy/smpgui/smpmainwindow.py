@@ -47,6 +47,8 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.gridlayout.addWidget(self.mainTab,1,0,1,1)
         
         self.statusBar().showMessage('Ready', 2000)
+        
+        self.specInterface = None
         #TODO: added Consoles and motorViews 
         self.console = None 
         self.motorView = None
@@ -92,6 +94,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
                     "X-ray fluorescence spectra"%__version__))
 
     def closeEvent(self, event):
+        if self.specInterface: self.specInterface.close()
         configutils.saveConfig()
         return event.accept()
 

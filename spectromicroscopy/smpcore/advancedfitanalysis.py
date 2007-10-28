@@ -161,6 +161,10 @@ class AdvancedFitAnalysis(QtCore.QObject):
         if self.index != self.previousIndex+1 and self.index != 0:
             if DEBUG: print 'index problem: ', self.previousIndex, self.index
         
+        scanData['pointSkipped'] = smpConfig.skipmode.enabled and \
+                (scanData[ smpConfig.skipmode.counter ] <= \
+                 smpConfig.skipmode.threshold)
+        
         if smpConfig.deadtimeCorrection.enabled:
             try:
                 if DEBUG: print 100./(100-float(scanData['dead']))
@@ -178,12 +182,10 @@ class AdvancedFitAnalysis(QtCore.QObject):
             scanData = self.dataQue.pop(0)
 #            self.archiveSpecData(scanData)
             index = scanData['i']
-            if smpConfig.skipmode.enabled and \
-                    (scanData[ smpConfig.skipmode.counter ] <= \
-                     smpConfig.skipmode.threshold):
+            if scanData['pointSkipped']:
                 for datatype in self.elementMaps:
                     for peak in self.peaks:
-                        self.elementMaps[datatype][key].flat[index] = 0
+                        self.elementMaps[datatype][peak].flat[index] = 0
             else:
                 mcaData = scanData['mcaData']
                 self.advancedFit.setdata(mcaData[0], mcaData[1], None)
