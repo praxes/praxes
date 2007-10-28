@@ -50,7 +50,8 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
         self.pymcaConfig = configutils.getPymcaConfig(pymcaConfigFile)
         self.pymcaConfigWidget = pymcafitparams.PyMcaFitParams(self)
         self.pymcaConfigWidget.setParameters(self.pymcaConfig)
-        self.tabWidget.insertTab(1, self.pymcaConfigWidget, 'PyMca configuration')
+        self.tabWidget.insertTab(1, self.pymcaConfigWidget,
+                                 'PyMca Configuration')
 
         self.scanControls = scancontrols.ScanControls(self)
         self.gridlayout.addWidget(self.scanControls, 0,0)
@@ -104,6 +105,9 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
         self.connect(self.specRunner.scan, 
                      QtCore.SIGNAL("scanFinished()"),
                      self.enableScanOptions)
+        self.connect(self.specRunner.scan, 
+                     QtCore.SIGNAL("scanAborted()"),
+                     self.enableScanOptions)
 
     def changedPyMcaConfig(self):
         self.pymcaConfig = self.pymcaConfigWidget.getParameters()
@@ -111,7 +115,6 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
                   self.pymcaConfig)
 
     def closeEvent(self, event):
-        print 'hi'
         self.specRunner.skipmode(0)
         self.specRunner.close()
         event.accept()

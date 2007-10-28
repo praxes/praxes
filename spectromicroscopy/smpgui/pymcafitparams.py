@@ -32,12 +32,8 @@ class PyMcaFitParams(QtGui.QWidget):
 
         self.initDir = None
         layout = QtGui.QVBoxLayout(self)
-        layout.setMargin(5)
-        layout.setSpacing(5)
 
         self.fitparam = FitParam.FitParamWidget(self)
-#        self.fitparam.peakTable.setSizePolicy(QtGui.QSizePolicy.Expanding,
-#                                              QtGui.QSizePolicy.Expanding)
         layout.addWidget(self.fitparam)
 
         buts = QtGui.QGroupBox(self)
@@ -53,14 +49,6 @@ class PyMcaFitParams(QtGui.QWidget):
         buts.layout.addWidget(save)
         buts.layout.addWidget(accept)
         layout.addWidget(buts)
-
-#        maxheight = QtGui.QDesktopWidget().height()
-#        maxwidth = QtGui.QDesktopWidget().width()
-#        self.setMaximumWidth(950)
-#        self.setMaximumHeight(700)
-#        self.resize(100, 100)
-        self.fitparam.peakTable.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                                              QtGui.QSizePolicy.Expanding)
 
         self.connect(load, QtCore.SIGNAL("clicked()"), self.load)
         self.connect(save, QtCore.SIGNAL("clicked()"), self.save)

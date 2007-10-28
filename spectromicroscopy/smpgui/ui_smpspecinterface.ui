@@ -16,7 +16,7 @@
    <item row="0" column="0" >
     <widget class="QTabWidget" name="tabWidget" >
      <property name="tabPosition" >
-      <enum>QTabWidget::West</enum>
+      <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex" >
       <number>0</number>
@@ -115,6 +115,9 @@
           </item>
           <item row="3" column="1" >
            <widget class="QDoubleSpinBox" name="skipmodeThreshSpinBox" >
+            <property name="decimals" >
+             <number>0</number>
+            </property>
             <property name="maximum" >
              <double>10000000000.000000000000000</double>
             </property>
