@@ -51,6 +51,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
     def newScanPoint(self, i, x, y, scanData):
         if DEBUG: print scanData
+        self.emit(QtCore.SIGNAL("newScanIndex(int)"), i)
         self.emit(QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"), scanData)
 
     def resumeScan(self):
@@ -124,4 +125,4 @@ class QtSpecScanMcaA(QtSpecScanA):
         scanData['x'] = x
         scanData['y'] = y
         scanData['mcaData'] = self.mcaData.getValue().transpose()
-        self.emit(QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"), scanData)
+        QtSpecScanA.newScanPoint(self, i, x, y, scanData)

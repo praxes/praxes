@@ -35,8 +35,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.axes = []
         self.axesTab.removeTab(0)
 
-        scans = specutils.SCAN_NUM_AXES.keys()
-        scans.sort()
+        scans = list(specutils.MOTOR_SCANS)
         self.scanTypeComboBox.addItems(scans)
         self.setScanType(scans[0])
         
@@ -81,6 +80,9 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.connect(self.specInterface.specRunner.scan,
                      QtCore.SIGNAL("scanFinished()"),
                      self.activityFinished)
+        self.connect(self.specInterface.specRunner.scan,
+                     QtCore.SIGNAL("newScanIndex(int)"),
+                     self.updateProgressBar)
 
     def connectAxesSignals(self):
         for axis in self.axes:
@@ -103,14 +105,18 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
     def startScan(self):
         scantype = str(self.scanTypeComboBox.currentText())
 
+        scanPoints = 1
         scanArgs = []
         for m in self.axes:
             args = m.getScanInfo()
             if self.independentStepsEnabled or m is self.axes[-1]:
                 scanArgs.extend(args)
+                scanPoints *= scanArgs[-1]+1
             else:
                 scanArgs.extend(args[:-1])
         scanArgs.append( self.scanCountSpinBox.value() )
+        
+        self.window().progressBar.setMaximum(scanPoints)
 
         getattr(self.specInterface.specRunner.scan, scantype)(*scanArgs)
 
@@ -135,12 +141,15 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.scanCountSpinBox.setEnabled(False)
         self.disconnectAxesSignals()
         self.scanStackedLayout.setCurrentWidget(self.pauseButton)
+        self.window().progressBar.setValue(0)
+        self.window().showProgressBar()
 
     def scanFinished(self):
         self.scanTypeComboBox.setEnabled(True)
         self.scanCountSpinBox.setEnabled(True)
         self.connectAxesSignals()
         self.scanStackedLayout.setCurrentWidget(self.scanButton)
+        self.window().hideProgressBar()
 
     def scanPaused(self):
         self.specInterface.specRunner.abort()
@@ -193,6 +202,10 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                     self.axesTab.addTab(self.axes[-1], ax)
         self.axesTab.setUpdatesEnabled(True)
         self.connectAxesSignals()
+
+    def updateProgressBar(self, val):
+        self.window().progressBar.setValue(val+1)
+
 
 if __name__ == "__main__":
     import sys

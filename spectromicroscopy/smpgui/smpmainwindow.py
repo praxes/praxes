@@ -46,7 +46,9 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.mainTab = smptabwidget.SmpTabWidget(self)
         self.gridlayout.addWidget(self.mainTab,1,0,1,1)
         
-        self.statusBar().showMessage('Ready', 2000)
+        self.statusBar.showMessage('Ready', 2000)
+        self.progressBar = QtGui.QProgressBar(self.statusBar)
+        self.progressBar.hide()
         
         self.specInterface = None
         #TODO: added Consoles and motorViews 
@@ -130,6 +132,14 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.specInterface.close()
         self.actionConnect.setEnabled(True)
         self.actionDisconnect.setEnabled(False)
+
+    def showProgressBar(self):
+        self.statusBar.addWidget(self.progressBar)
+        self.progressBar.show()
+
+    def hideProgressBar(self):
+        self.statusBar.removeWidget(self.progressBar)
+        self.progressBar.hide()
 
 #    # TODO: This interface needs attention
 #    def newMotorView(self):

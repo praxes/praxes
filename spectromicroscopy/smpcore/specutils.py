@@ -1,5 +1,4 @@
-SCAN_NUM_AXES = {'tseries': 0,
-                 'mesh': 2, 
+SCAN_NUM_AXES = {'mesh': 2, 
                  'ascan': 1, 
                  'a2scan': 2, 
                  'a3scan': 3,}
