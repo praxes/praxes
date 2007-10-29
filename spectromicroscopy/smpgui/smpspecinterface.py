@@ -126,7 +126,7 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
             QtGui.qApp.processEvents()
             self.specRunner = specrunner.SpecRunner(specVersion, timeout=500)
             self.specRunner.scan = \
-                qtspecscan.QtSpecScanMcaA(self.specRunner.specVersion)
+                qtspecscan.QtSpecScanA(self.specRunner.specVersion)
             self.specRunner.runMacro('smp_mca.mac')
             self.window().statusBar.clearMessage()
         except SpecClientError.SpecClientTimeoutError:

@@ -50,7 +50,10 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         self.emit(QtCore.SIGNAL("newScan(PyQt_PyObject)"), scanParameters)
 
     def newScanPoint(self, i, x, y, scanData):
-        if DEBUG: print scanData
+        scanData['i'] = i
+        scanData['x'] = x
+        scanData['y'] = y
+        if DEBUG: print i
         self.emit(QtCore.SIGNAL("newScanIndex(int)"), i)
         self.emit(QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"), scanData)
 
@@ -110,19 +113,3 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         cmd = "tseries %d %f"%(nbPoints, countTime)
         self.emit(QtCore.SIGNAL("newTseries(PyQt_PyObject)"), [nbPoints])
         self._startScan(cmd)
-
-
-class QtSpecScanMcaA(QtSpecScanA):
-
-    def __init__(self, specVersion = None):
-        QtSpecScanA.__init__(self, specVersion)
-        self.mcaData = SpecVariable.SpecVariable("MCA_DATA",
-                                                 specVersion, 
-                                                 timeout=500)
-
-    def newScanPoint(self, i, x, y, scanData):
-        scanData['i'] = i
-        scanData['x'] = x
-        scanData['y'] = y
-        scanData['mcaData'] = self.mcaData.getValue().transpose()
-        QtSpecScanA.newScanPoint(self, i, x, y, scanData)

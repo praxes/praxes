@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="sizePolicy" >
-   <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+   <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -66,7 +66,14 @@
    <addaction name="menuProject" />
    <addaction name="menuHelp" />
   </widget>
-  <widget class="QStatusBar" name="statusBar" />
+  <widget class="QStatusBar" name="statusBar" >
+   <property name="sizePolicy" >
+    <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+  </widget>
   <action name="actionCalibrate_Detector" >
    <property name="text" >
     <string>Calibrate Detector</string>

@@ -5,6 +5,7 @@ from SpecClient import SpecWaitObject
 import logging
 import types
 import time
+import numpy
 
 __author__ = 'Matias Guijarro'
 __version__ = 1
@@ -95,7 +96,7 @@ class SpecScanA:
         pass
 
 
-    def __newScanPoint(self, scanDataString):       
+    def __newScanPoint(self, scanDataString):
         if self.__scanning:
             scanData = {}
 
@@ -108,6 +109,8 @@ class SpecScanA:
                 elif key==self.scanCounterMne:
                   y=float(value)
                   scanData[key]=float(value)
+                elif ',' in value:
+                  scanData[key]=numpy.fromstring(value, sep=',', dtype='i')
                 else:
                   scanData[key]=float(value)
 

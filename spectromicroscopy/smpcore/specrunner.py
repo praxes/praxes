@@ -7,6 +7,7 @@
 
 import os
 import sys
+import time
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -30,6 +31,23 @@ from spectromicroscopy.smpcore import qtspecmotor
 
 DEBUG = False
 
+class Dispatcher(QtCore.QThread):
+    
+    def __init__(self, parent=None):
+        QtCore.QThread.__init__(self, parent)
+        
+        self.timer = QtCore.QTimer(self)
+        self.connect(self.timer,
+                     QtCore.SIGNAL("timeout()"),
+                     self.update)
+        self.timer.start(20)
+
+    def run(self):
+        self.exec_()
+
+    def update(self):
+        SpecEventsDispatcher.dispatch()
+
 
 class SpecRunner(Spec.Spec, QtCore.QObject):
     """SpecRunner is our primary interface to Spec. Some caching is added,
@@ -52,15 +70,18 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         self._counterNames = []
         self.getMotorsMne()
         
-        self.timer = QtCore.QTimer(self)
-        self.connect(self.timer,
-                     QtCore.SIGNAL("timeout()"),
-                     self.update)
-        self.timer.start(20)
+        self.dispatcher = Dispatcher()
+        self.dispatcher.start(QtCore.QThread.NormalPriority)
+#        self.timer = QtCore.QTimer(self)
+#        self.connect(self.timer,
+#                     QtCore.SIGNAL("timeout()"),
+#                     self.update)
+#        self.timer.start(20)
 
     def close(self):
         self.clientplotoff()
         self.connection.dispatcher.disconnect()
+        self.dispatcher.quit()
 
     def getCountersMne(self):
         if len(self._counterNames) != self.getNumCounters():
@@ -105,8 +126,8 @@ i++) { md[i]=motor_mne(i); }; return md")
     def runMacro(self, macro):
         self.cmd.executeCommand(configutils.getSpecMacro(macro))
 
-    def update(self):
-        SpecEventsDispatcher.dispatch()
+#    def update(self):
+#        SpecEventsDispatcher.dispatch()
 
     def abort(self):
         self.connection.abort()

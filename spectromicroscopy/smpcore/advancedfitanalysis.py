@@ -156,10 +156,9 @@ class AdvancedFitAnalysis(QtCore.QObject):
                       self.elementMaps[self._currentDataType][self._currentElement])
     
     def newDataPoint(self, scanData):
-        self.previousIndex = self.index
         self.index = scanData['i']
-        if self.index != self.previousIndex+1 and self.index != 0:
-            if DEBUG: print 'index problem: ', self.previousIndex, self.index
+        if self.index != self.previousIndex+1:
+            if DEBUG: print 'index problem: ', self.previousIndex, self.index, len(self.dataQue)
         
         scanData['pointSkipped'] = smpConfig.skipmode.enabled and \
                 (scanData[ smpConfig.skipmode.counter ] <= \
@@ -167,8 +166,7 @@ class AdvancedFitAnalysis(QtCore.QObject):
         
         if smpConfig.deadtimeCorrection.enabled:
             try:
-                if DEBUG: print 100./(100-float(scanData['dead']))
-                scanData['mcaData'][1] *= 100./(100-float(scanData['dead']))
+                scanData['mcaCounts'][1] *= 100./(100-float(scanData['dead']))
             except KeyError:
                 if DEBUG: print 'deadtime not corrected. A counter reporting '\
                     'the percent dead time, called "Dead", must be created in '\
@@ -185,10 +183,11 @@ class AdvancedFitAnalysis(QtCore.QObject):
             if scanData['pointSkipped']:
                 for datatype in self.elementMaps:
                     for peak in self.peaks:
-                        self.elementMaps[datatype][peak].flat[index] = 0
+                        self.elementMaps[datatype][peak].flat[index] = 1
             else:
-                mcaData = scanData['mcaData']
-                self.advancedFit.setdata(mcaData[0], mcaData[1], None)
+                self.advancedFit.setdata(scanData['mcaChannels'],
+                                         scanData['mcaCounts'],
+                                         None)
                 self.advancedFit.estimate()
                 
                 fitresult = self.advancedFit.startfit(digest=0)
@@ -246,6 +245,7 @@ class AdvancedFitAnalysis(QtCore.QObject):
             if index <= 1:
                 self.emit(QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
                           True)
+            self.previousIndex = index
         except IndexError:
             pass # no data to process
     
