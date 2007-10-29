@@ -92,6 +92,9 @@ class ScanAnalysis(QtGui.QWidget):
         self.connect(self.specInterface.specRunner.scan, 
                      QtCore.SIGNAL("yAxisLims(PyQt_PyObject)"),
                      self.elementDataPlot.setYLims)
+        self.connect(self.scanAnalysis,
+                     QtCore.SIGNAL('viewConcentrations(PyQt_PyObject)'),
+                     self.viewConcentrations)
     
     def disconnectSignals(self):
         # workaround to process last data point, reported after scanFinished 
@@ -131,6 +134,13 @@ class ScanAnalysis(QtGui.QWidget):
         self.disconnect(self.specInterface.specRunner.scan, 
                         QtCore.SIGNAL("yAxisLims(PyQt_PyObject)"),
                         self.elementDataPlot.setYLims)
+
+    def viewConcentrations(self, val):
+        text = 'Mass Fraction'
+        cbox = self.elementDataPlot.dataTypeBox
+        cur = cbox.findText(text)
+        if val and (cur < 0): cbox.addItem(text)
+        if not val and (cur >= 0): cbox.removeItem(cur)
 
     def saveData(self):
         suggested = self.scanAnalysis.getSuggestedFilename()

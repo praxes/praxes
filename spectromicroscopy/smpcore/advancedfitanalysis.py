@@ -62,6 +62,8 @@ class AdvancedFitAnalysis(QtCore.QObject):
         self._currentElement = None
         self._currentDataType = "Peak Area"
         
+        self.concentrationTool = None
+        
         self._suggested_filename = 'smp.dat'
         
         # TODO: this should be configurable
@@ -141,7 +143,11 @@ class AdvancedFitAnalysis(QtCore.QObject):
                   self.peaks)
         self.advancedFit = ClassMcaTheory.McaTheory(config=config)
         self.advancedFit.enableOptimizedLinearFit()
-        self.concentrationTool = ConcentrationsTool.ConcentrationsTool(config)
+        
+        if 'concentrations' in config:
+            self.concentrationTool = ConcentrationsTool.ConcentrationsTool(config)
+            self.emit(QtCore.SIGNAL('viewConcentrations(PyQt_PyObject)'),
+                      'concentrations' in config)
     
     def setCurrentElement(self, element):
         if not self._currentElement == str(element):
@@ -185,13 +191,16 @@ class AdvancedFitAnalysis(QtCore.QObject):
                     for peak in self.peaks:
                         self.elementMaps[datatype][peak].flat[index] = 1
             else:
+                self.advancedFit.config['fit']['use_limit'] = 1
                 self.advancedFit.setdata(scanData['mcaChannels'],
-                                         scanData['mcaCounts'],
-                                         None)
+                                         scanData['mcaCounts'])
                 self.advancedFit.estimate()
-                
-                fitresult = self.advancedFit.startfit(digest=0)
-                result = self.advancedFit.imagingDigestResult()
+                if ('concentrations' in self.advancedFit.config) and \
+                    (self.advancedFit._fluoRates is None):
+                    fitresult, result = self.advancedFit.startfit(digest=1)
+                else:
+                    fitresult = self.advancedFit.startfit(digest=0)
+                    result = self.advancedFit.imagingDigestResult()
                 
                 fitData = {}
                 fitData['xdata'] = self.advancedFit.xdata

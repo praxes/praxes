@@ -177,11 +177,6 @@ p, li { white-space: pre-wrap; }
             <string>Sigma Area</string>
            </property>
           </item>
-          <item>
-           <property name="text" >
-            <string>Mass Fraction</string>
-           </property>
-          </item>
          </widget>
         </item>
         <item row="0" column="0" >
