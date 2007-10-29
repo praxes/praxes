@@ -12,6 +12,7 @@
 #---------------------------------------------------------------------------
 
 from PyQt4 import QtCore, QtGui
+from PyMca import McaAdvancedFit
 
 #---------------------------------------------------------------------------
 # SMP imports
@@ -95,6 +96,9 @@ class ScanAnalysis(QtGui.QWidget):
         self.connect(self.scanAnalysis,
                      QtCore.SIGNAL('viewConcentrations(PyQt_PyObject)'),
                      self.viewConcentrations)
+        self.connect(self.mcaSpectrumPlot.configPyMcaButton,
+                     QtCore.SIGNAL("clicked()"),
+                     self.launchMcaAdvancedFit)
     
     def disconnectSignals(self):
         # workaround to process last data point, reported after scanFinished 
@@ -124,6 +128,17 @@ class ScanAnalysis(QtGui.QWidget):
         self.disconnect(self.specInterface.specRunner.scan, 
                         QtCore.SIGNAL("yAxisLims(PyQt_PyObject)"),
                         self.elementDataPlot.setYLims)
+
+    def launchMcaAdvancedFit(self):
+        dialog = QtGui.QDialog()
+        layout = QtGui.QVBoxLayout(dialog)
+        mcaFit = McaAdvancedFit.McaAdvancedFit(dialog)
+        mcaFit.mcafit.configure(self.specInterface.pymcaConfig)
+        x = self.mcaSpectrumPlot.fitData['xdata'].flatten()
+        y = self.mcaSpectrumPlot.mcaCountsSummed.flatten()/self.mcaSpectrumPlot.numSpectra
+        mcaFit.setData(x=x, y=y)
+        layout.addWidget(mcaFit)
+        dialog.exec_()
 
     def viewConcentrations(self, val):
         text = 'Mass Fraction'

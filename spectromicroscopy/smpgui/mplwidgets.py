@@ -119,8 +119,14 @@ class McaSpectrum(QtMplCanvas):
     def updateFigure(self, fitData=None):
         if self.fitData == {}:
             self._createInitialFigure(fitData)
+            self.mcaCountsSummed = fitData['ydata']
+            self.numSpectra = 1
         else:
-            if fitData is None: fitData = self.fitData
+            if fitData is None:
+                fitData = self.fitData
+            else:
+                self.mcaCountsSummed += fitData['ydata']
+                self.numSpectra += 1
         
             self.dataLine.set_ydata(fitData['ydata'])
             self.fitLine.set_ydata(fitData['yfit'])
