@@ -163,6 +163,7 @@ class AdvancedFitAnalysis(QtCore.QObject):
     
     def newDataPoint(self, scanData):
         self.index = scanData['i']
+        if self.index == 0: self.previousIndex = -1
         if self.index != self.previousIndex+1:
             if DEBUG: print 'index problem: ', self.previousIndex, self.index, len(self.dataQue)
         

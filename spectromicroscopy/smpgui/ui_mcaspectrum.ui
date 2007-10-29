@@ -41,7 +41,7 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0" >
+        <item row="3" column="0" >
          <spacer>
           <property name="orientation" >
            <enum>Qt::Vertical</enum>
@@ -53,6 +53,16 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="2" column="0" >
+         <widget class="QPushButton" name="configPyMcaButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="text" >
+           <string>Configure PyMca</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

@@ -50,7 +50,7 @@ class ScanAnalysis(QtGui.QWidget):
                      self.disconnectSignals)
         self.connect(self.specInterface.specRunner.scan,
                      QtCore.SIGNAL("scanAborted()"),
-                     self._disconnect)
+                     self.disconnectSignals)
 
     def connectSignals(self):
         self.connect(self.elementDataPlot.dataTypeBox,
@@ -99,20 +99,10 @@ class ScanAnalysis(QtGui.QWidget):
     def disconnectSignals(self):
         # workaround to process last data point, reported after scanFinished 
         # signal is emitted:
-        self.connect(self.scanAnalysis, 
-                     QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
-                     self._disconnect)
-
-    def _disconnect(self, *args):
-        self.disconnect(self.scanAnalysis, 
-                        QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
-                        self.disconnect)
+        self.mcaSpectrumPlot.configPyMcaButton.setEnabled(True)
         self.disconnect(self.specInterface.specRunner.scan, 
                         QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"),
                         self.scanAnalysis.newDataPoint)
-        self.disconnect(self.scanAnalysis, 
-                        QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
-                        self.mcaSpectrumPlot.updateFigure)
         self.disconnect(self.scanAnalysis, 
                         QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
                         self.elementDataPlot.xrfbandComboBox.addItems)
