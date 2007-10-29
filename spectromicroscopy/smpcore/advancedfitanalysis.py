@@ -265,7 +265,7 @@ class AdvancedFitAnalysis(QtCore.QObject):
                                self._currentDataType.replace(' ', ''))
 
     def saveData(self, filename):
-        data = self.elementMaps["Peak Areas"][self._currentElement]
+        data = self.elementMaps[self._currentDataType][self._currentElement]
         header = self.getFileHeader()
         
         format = os.path.splitext(filename)[-1]
