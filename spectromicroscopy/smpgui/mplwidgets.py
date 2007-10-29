@@ -182,7 +182,8 @@ class ElementImage(ElementCanvas):
         extent.extend(self._xlims)
         extent.extend(self._ylims)
         self._image = self.axes.imshow(elementData, extent=extent, 
-                                       aspect=1/1.414, interpolation='nearest')
+                                       aspect=1/1.414, interpolation='nearest',
+                                       origin='lower')
         self._colorbar = self.figure.colorbar(self._image)
         
         self.axes.set_xlabel(self._xlabel)
