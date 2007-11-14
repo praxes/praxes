@@ -119,7 +119,7 @@
           </property>
          </widget>
         </item>
-        <item row="11" column="1" >
+        <item row="12" column="1" >
          <spacer>
           <property name="orientation" >
            <enum>Qt::Vertical</enum>
@@ -286,6 +286,30 @@ p, li { white-space: pre-wrap; }
          <widget class="QLabel" name="label_2" >
           <property name="text" >
            <string>Interpolation</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="1" >
+         <widget class="QComboBox" name="imageOriginComboBox" >
+          <property name="currentIndex" >
+           <number>1</number>
+          </property>
+          <item>
+           <property name="text" >
+            <string>upper</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>lower</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="11" column="0" >
+         <widget class="QLabel" name="label_3" >
+          <property name="text" >
+           <string>Origin</string>
           </property>
          </widget>
         </item>

@@ -189,7 +189,7 @@ class ElementImage(ElementCanvas):
         extent.extend(self._ylims[::-1])
         self._image = self.axes.imshow(elementData, extent=extent, 
                                        aspect=1/1.414, interpolation='nearest',
-                                       origin='upper')
+                                       origin='lower')
         self._colorbar = self.figure.colorbar(self._image)
         
         self.axes.set_xlabel(self._xlabel)
@@ -213,6 +213,10 @@ class ElementImage(ElementCanvas):
 
     def setInterpolation(self, val):
         self._image.set_interpolation('%s'%val)
+        self.draw()
+
+    def setImageOrigin(self, val):
+        self._image.origin = '%s'%val
         self.draw()
 
     def updateFigure(self, elementData=None):
