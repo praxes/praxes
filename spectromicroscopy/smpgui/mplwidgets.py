@@ -31,7 +31,8 @@ import numpy
 
 
 mpl.rcdefaults()
-mpl.rcParams['axes.formatter.limits']=[-4, 4]
+mpl.rcParams['axes.formatter.limits'] = [-4, 4]
+mpl.rcParams['mathtext.fontset'] = 'stix'
 Toolbar.margin = 4
 numpy.seterr(all='ignore')
 
