@@ -187,7 +187,7 @@ class ElementImage(ElementCanvas):
         self._elementData = elementData
         extent = []
         extent.extend(self._xlims)
-        extent.extend(self._ylims[::-1])
+        extent.extend(self._ylims)
         self._image = self.axes.imshow(elementData, extent=extent, 
                                        aspect=1/1.414, interpolation='nearest',
                                        origin='lower')
