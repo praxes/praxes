@@ -206,7 +206,7 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
     def setTabLabel(self, scanParams):
         temp = scanParams['datafile']
         temp = temp.rstrip('.dat').rstrip('.txt').rstrip('.mca')
-        label = '_'.join([temp, scanParams['title'].replace(' ', '')])
+        label = ' '.join([temp, scanParams['title']])
         i = self.parent.mainTab.currentIndex()
         self.parent.mainTab.setTabText(i, label)
 
