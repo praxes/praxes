@@ -64,7 +64,7 @@ class AdvancedFitAnalysis(QtCore.QObject):
         
         self.concentrationTool = None
         
-        self._suggested_filename = 'smp.dat'
+        self._specFilename = 'smp.dat'
         
         # TODO: this should be configurable
         self.monitor = 'Icol'
@@ -263,19 +263,22 @@ class AdvancedFitAnalysis(QtCore.QObject):
         if index is None:
             return self.mcaDataFit[-1]
 
-    def setSuggestedFilename(self, scanParams):
-        filename = '_'.join([scanParams['datafile'],
+    def getSpecFilename(self):
+        return self._specFilename
+
+    def setSpecFilename(self, scanParams):
+        temp = scanParams['datafile'].rstrip('.dat').rstrip('.txt').rstrip('.mca')
+        filename = '_'.join([temp,
                              scanParams['title'].replace(' ', '')])
-        filename.strip('.dat').strip('.txt').strip('.mca')
-        self._suggested_filename = filename
+        self._specFilename = filename
     
     def getSuggestedFilename(self):
-        return '%s_%s_%s.edf'%(self._suggested_filename,
+        return '%s_%s_%s.edf'%(self._specFilename,
                                self._currentElement.replace(' ', '-'),
                                self._currentDataType.replace(' ', ''))
 
-    def saveData(self, filename):
-        data = self.elementMaps[self._currentDataType][self._currentElement]
+    def _saveData(self, filename, el, datatype):
+        data = self.elementMaps[datatype][el]
         header = self.getFileHeader()
         
         format = os.path.splitext(filename)[-1]
@@ -296,6 +299,17 @@ class AdvancedFitAnalysis(QtCore.QObject):
                 strRep = [formatStr%tuple(line) for line in data]
                 fd.writelines(strRep)
             fd.close()
+
+    def saveData(self, filename=None, filetype='edf'):
+        if not filename: filename = self._specFilename
+        for dtype, val in self.elementMaps.iteritems():
+            for el, data in val.iteritems():
+                self._saveData("%s_%s_%s.%s"%(filename,
+                                              el.replace(' ', '-'),
+                                              dtype.replace(' ', ''),
+                                              filetype), 
+                               el, dtype)
+
     
     def getFileHeader(self):
         return {}

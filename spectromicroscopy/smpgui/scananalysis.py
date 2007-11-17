@@ -50,6 +50,9 @@ class ScanAnalysis(QtGui.QWidget):
                      QtCore.SIGNAL("scanFinished()"),
                      self.disconnectSignals)
         self.connect(self.specInterface.specRunner.scan,
+                     QtCore.SIGNAL("scanFinished()"),
+                     self.saveData)
+        self.connect(self.specInterface.specRunner.scan,
                      QtCore.SIGNAL("scanAborted()"),
                      self.disconnectSignals)
 
@@ -60,9 +63,6 @@ class ScanAnalysis(QtGui.QWidget):
         self.connect(self.scanAnalysis, 
                      QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
                      self.elementDataPlot.updateFigure)
-        self.connect(self.elementDataPlot.saveDataPushButton,
-                     QtCore.SIGNAL("clicked()"),
-                     self.saveData)
         self.connect(self.specInterface.specRunner.scan, 
                      QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"),
                      self.scanAnalysis.newDataPoint)
@@ -80,7 +80,7 @@ class ScanAnalysis(QtGui.QWidget):
                      self.setEnabled)
         self.connect(self.specInterface.specRunner.scan,
                      QtCore.SIGNAL("newScan(PyQt_PyObject)"),
-                     self.scanAnalysis.setSuggestedFilename)
+                     self.scanAnalysis.setSpecFilename)
         self.connect(self.specInterface.specRunner.scan, 
                      QtCore.SIGNAL("xAxisLabel(PyQt_PyObject)"),
                      self.elementDataPlot.setXLabel)
@@ -115,7 +115,7 @@ class ScanAnalysis(QtGui.QWidget):
                         self.setEnabled)
         self.disconnect(self.specInterface.specRunner.scan,
                         QtCore.SIGNAL("newScan(PyQt_PyObject)"),
-                        self.scanAnalysis.setSuggestedFilename)
+                        self.scanAnalysis.setSpecFilename)
         self.disconnect(self.specInterface.specRunner.scan, 
                         QtCore.SIGNAL("xAxisLabel(PyQt_PyObject)"),
                         self.elementDataPlot.setXLabel)
@@ -148,12 +148,13 @@ class ScanAnalysis(QtGui.QWidget):
         if not val and (cur >= 0): cbox.removeItem(cur)
 
     def saveData(self):
-        suggested = self.scanAnalysis.getSuggestedFilename()
-        filename = QtGui.QFileDialog.getSaveFileName(self,
-                        'Save Element Data File', suggested,
-                        'EDF files (*.edf);;Plaintext files (*.dat *.txt *.*)')
-        if filename:
-            self.scanAnalysis.saveData(str(filename))
+        self.scanAnalysis.saveData()
+#        suggested = self.scanAnalysis.getSuggestedFilename()
+#        filename = QtGui.QFileDialog.getSaveFileName(self,
+#                        'Save Element Data File', suggested,
+#                        'EDF files (*.edf);;Plaintext files (*.dat *.txt *.*)')
+#        if filename:
+#            self.scanAnalysis.saveData(str(filename))
 
 
 class ScanAnalysis1D(ScanAnalysis):

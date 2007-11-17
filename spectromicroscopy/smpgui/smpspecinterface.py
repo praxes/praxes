@@ -204,8 +204,11 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
         self.newScanAnalysis(scananalysis.ScanAnalysis2D(self, scanParams))
 
     def setTabLabel(self, scanParams):
+        temp = scanParams['datafile']
+        temp = temp.rstrip('.dat').rstrip('.txt').rstrip('.mca')
+        label = '_'.join([temp, scanParams['title'].replace(' ', '')])
         i = self.parent.mainTab.currentIndex()
-        self.parent.mainTab.setTabText(i, scanParams['title'])
+        self.parent.mainTab.setTabText(i, label)
 
 
 if __name__ == "__main__":
