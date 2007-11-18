@@ -99,6 +99,9 @@ class ScanAnalysis(QtGui.QWidget):
         self.connect(self.mcaSpectrumPlot.configPyMcaButton,
                      QtCore.SIGNAL("clicked()"),
                      self.launchMcaAdvancedFit)
+        self.connect(self.elementDataPlot.saveDataButton,
+                     QtCore.SIGNAL("clicked()"),
+                     self.saveData)
     
     def disconnectSignals(self):
         # workaround to process last data point, reported after scanFinished 
