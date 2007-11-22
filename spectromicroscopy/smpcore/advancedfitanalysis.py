@@ -32,6 +32,9 @@ from spectromicroscopy import configutils
 
 DEBUG = True
 
+if DEBUG:
+    import time
+
 
 class AdvancedFitAnalysis(QtCore.QObject):
 
@@ -192,6 +195,7 @@ class AdvancedFitAnalysis(QtCore.QObject):
                     for peak in self.peaks:
                         self.elementMaps[datatype][peak].flat[index] = 1
             else:
+                if DEBUG: t0 = time.time()
                 self.advancedFit.config['fit']['use_limit'] = 1
                 self.advancedFit.setdata(scanData['mcaChannels'],
                                          scanData['mcaCounts'])
@@ -227,6 +231,10 @@ class AdvancedFitAnalysis(QtCore.QObject):
                     self.elementMaps["Sigma Area"][group].flat[index] = \
                         result[group]['sigmaarea']/area
                 
+                if DEBUG:
+                    t1 = time.time()
+                    print "fit: %s"%(t1-t0)
+                
                 # prepare for concentrations:
                 conf = self.advancedFit.configure()
                 if conf.has_key('concentrations'):
@@ -244,6 +252,10 @@ class AdvancedFitAnalysis(QtCore.QObject):
                     for group in concentrations['mass fraction'].keys():
                         self.elementMaps["Mass Fraction"][group].flat[index] = \
                             concentrations['mass fraction'][group]
+                    
+                    if DEBUG:
+                        t2 = time.time()
+                        print "conc.: %s"%(t2-t1)
                 else:
                     # TODO, need to fix selection tool in case concentrations 
                     # not selected
