@@ -190,7 +190,7 @@ class ElementImage(ElementCanvas):
         self._image = self.axes.imshow(elementData, extent=extent, 
                                        aspect=1/1.414, interpolation='nearest',
                                        origin='lower')
-#        self._colorbar = self.figure.colorbar(self._image)
+        self._colorbar = self.figure.colorbar(self._image)
         
         self.axes.set_xlabel(self._xlabel)
         self.axes.set_ylabel(self._ylabel)
