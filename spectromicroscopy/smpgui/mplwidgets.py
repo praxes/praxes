@@ -5,7 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import gc
+
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -144,7 +144,6 @@ class McaSpectrum(QtMplCanvas):
         
         self.fitData = fitData
         self.draw()
-        gc.collect()
 
 
 class ElementCanvas(QtMplCanvas):
@@ -236,7 +235,6 @@ class ElementImage(ElementCanvas):
         else:
             self._image.set_clim(self._clim)
         self.draw()
-        gc.collect()
 
 
 class ElementPlot(ElementCanvas):
@@ -287,4 +285,3 @@ class ElementPlot(ElementCanvas):
             self.axes.set_ylim(self._ylims)
         
         self.draw()
-        gc.collect()
