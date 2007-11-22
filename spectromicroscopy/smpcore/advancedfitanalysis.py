@@ -30,7 +30,7 @@ from spectromicroscopy import configutils
 #---------------------------------------------------------------------------
 
 
-DEBUG = True
+DEBUG = False
 
 if DEBUG:
     import time
@@ -193,7 +193,7 @@ class AdvancedFitAnalysis(QtCore.QObject):
             if scanData['pointSkipped']:
                 for datatype in self.elementMaps:
                     for peak in self.peaks:
-                        self.elementMaps[datatype][peak].flat[index] = 1
+                        self.elementMaps[datatype][peak].flat[index] = 0
             else:
                 if DEBUG: t0 = time.time()
                 self.advancedFit.config['fit']['use_limit'] = 1
