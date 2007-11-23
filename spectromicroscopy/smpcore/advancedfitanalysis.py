@@ -256,13 +256,9 @@ class AdvancedFitAnalysis(QtCore.QObject):
                     if DEBUG:
                         t2 = time.time()
                         print "conc.: %s"%(t2-t1)
-                else:
-                    # TODO, need to fix selection tool in case concentrations 
-                    # not selected
-                    pass
-            
-            self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
-                      self.elementMaps[self._currentDataType][self._currentElement])
+                    
+                self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
+                          self.elementMaps[self._currentDataType][self._currentElement])
             
             if index <= 1:
                 self.emit(QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
