@@ -12,62 +12,16 @@
 #---------------------------------------------------------------------------
 
 from PyQt4 import QtCore, QtGui
-import matplotlib as mpl
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
-from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg\
-    as Toolbar
-from matplotlib.figure import Figure
-import numpy
 
 #---------------------------------------------------------------------------
 # SMP imports
 #---------------------------------------------------------------------------
 
-
+from spectromicroscopy.smpgui import ui_elementsdata, mplwidgets
 
 #---------------------------------------------------------------------------
 # Normal code begins
-#--------------------------------------------------------------------------
-
-
-mpl.rcdefaults()
-mpl.rcParams['axes.formatter.limits'] = [-4, 4]
-mpl.rcParams['mathtext.fontset'] = 'stix'
-Toolbar.margin = 4
-numpy.seterr(all='ignore')
-
-
-class QtMplCanvas(FigureCanvasQTAgg):
-    """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
-    def __init__(self, parent=None):
-        self.figure = Figure()
-
-        FigureCanvasQTAgg.__init__(self, self.figure)
-        self.setParent(parent)
-
-        FigureCanvasQTAgg.setSizePolicy(self,
-                                        QtGui.QSizePolicy.Expanding,
-                                        QtGui.QSizePolicy.Expanding)
-        FigureCanvasQTAgg.updateGeometry(self)
-
-    def _createInitialFigure(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def enableAutoscale(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def enableLogscale(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def minimumSizeHint(self):
-        return QtCore.QSize(0, 0)
-
-    def sizeHint(self):
-        w, h = self.get_width_height()
-        return QtCore.QSize(w, h)
-
-    def updateFigure(self, *args, **kwargs):
-        raise NotImplementedError
+#---------------------------------------------------------------------------
 
 
 class ElementCanvas(QtMplCanvas):
@@ -94,7 +48,7 @@ class ElementCanvas(QtMplCanvas):
         self._ylims = lims
 
 
-class ElementImage(ElementCanvas):
+class ElementImageCanvas(ElementCanvas):
 
     autoscale = True
 
@@ -161,7 +115,7 @@ class ElementImage(ElementCanvas):
         self.draw()
 
 
-class ElementPlot(ElementCanvas):
+class ElementPlotCanvas(ElementCanvas):
 
     def __init__(self,parent=None):
         ElementCanvas.__init__(self, parent)
@@ -209,3 +163,73 @@ class ElementPlot(ElementCanvas):
             self.axes.set_ylim(self._ylims)
         
         self.draw()
+
+
+class ElementsImage(ui_elementsdata.Ui_ElementsData, QtGui.QWidget):
+    """Establishes a Experimenbt controls    """
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self, parent)
+        self.parent = parent
+        self.setupUi(self)
+        
+        self.elementDataPlot = mplwidgets.ElementImage(self)
+        self.gridlayout2.addWidget(self.elementDataPlot, 0, 0, 1, 1)
+        self.elementToolbar = mplwidgets.Toolbar(self.elementDataPlot, self)
+        self.gridlayout2.addWidget(self.elementToolbar, 1, 0, 1, 1)
+        
+        self.connect(self.elementDataPlot,
+                     QtCore.SIGNAL("dataMax(PyQt_PyObject)"),
+                     self.maxSpinBox.setValue)
+        self.connect(self.elementDataPlot,
+                     QtCore.SIGNAL("dataMin(PyQt_PyObject)"),
+                     self.minSpinBox.setValue)
+        self.connect(self.maxSpinBox,
+                     QtCore.SIGNAL("valueChanged(double)"),
+                     self.elementDataPlot.setDataMax)
+        self.connect(self.minSpinBox,
+                     QtCore.SIGNAL("valueChanged(double)"),
+                     self.elementDataPlot.setDataMin)
+        self.connect(self.dataAutoscaleButton, 
+                     QtCore.SIGNAL("clicked(bool)"),
+                     self.elementDataPlot.enableAutoscale)
+        self.connect(self.interpolationComboBox, 
+                     QtCore.SIGNAL("currentIndexChanged(QString)"),
+                     self.elementDataPlot.setInterpolation)
+        self.connect(self.imageOriginComboBox, 
+                     QtCore.SIGNAL("currentIndexChanged(QString)"),
+                     self.elementDataPlot.setImageOrigin)
+
+    def __getattr__(self, attr):
+        return getattr(self.elementDataPlot, attr)
+
+
+class ElementsPlot(ui_elementsplot.Ui_ElementsPlot, QtGui.QWidget):
+    """Establishes a Experimenbt controls    """
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self, parent)
+        self.parent = parent
+        self.setupUi(self)
+        
+        self.elementDataPlot = mplwidgets.ElementPlot(self)
+        self.gridlayout2.addWidget(self.elementDataPlot, 0, 0, 1, 1)
+        self.elementToolbar = mplwidgets.Toolbar(self.elementDataPlot, self)
+        self.gridlayout2.addWidget(self.elementToolbar, 1, 0, 1, 1)
+        
+        self.connect(self.elementDataPlot,
+                     QtCore.SIGNAL("dataMax(PyQt_PyObject)"),
+                     self.maxSpinBox.setValue)
+        self.connect(self.elementDataPlot,
+                     QtCore.SIGNAL("dataMin(PyQt_PyObject)"),
+                     self.minSpinBox.setValue)
+        self.connect(self.maxSpinBox,
+                     QtCore.SIGNAL("valueChanged(double)"),
+                     self.elementDataPlot.setDataMax)
+        self.connect(self.minSpinBox,
+                     QtCore.SIGNAL("valueChanged(double)"),
+                     self.elementDataPlot.setDataMin)
+        self.connect(self.dataAutoscaleButton, 
+                     QtCore.SIGNAL("clicked(bool)"),
+                     self.elementDataPlot.enableAutoscale)
+
+    def __getattr__(self, attr):
+        return getattr(self.elementDataPlot, attr)
