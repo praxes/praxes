@@ -43,8 +43,6 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self, parent)
         
         self.setupUi(self)
-#        self.mainTab = smptabwidget.SmpTabWidget(self)
-#        self.gridlayout.addWidget(self.mainTab,1,0,1,1)
         self.mdi = QtGui.QMdiArea()
         self.setCentralWidget(self.mdi)
         
