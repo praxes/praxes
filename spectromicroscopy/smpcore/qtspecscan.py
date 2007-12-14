@@ -22,6 +22,7 @@ from SpecClient import SpecScan, SpecVariable, SpecConnectionsManager, \
     SpecEventsDispatcher, SpecWaitObject
 from spectromicroscopy.smpcore import qtspeccommand, \
     qtspecvariable
+from spectromicroscopy import configutils
 
 #---------------------------------------------------------------------------
 # Normal code begins
