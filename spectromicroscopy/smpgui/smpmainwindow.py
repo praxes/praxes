@@ -212,7 +212,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.specfileView.resizeColumnToContents(2)
 
     def newScanWindow(self, scan):
-        scanView = scananalysis.ScanAnalysis2(scan)
+        scanView = scananalysis.ScanAnalysis(scan)
         self.mdi.addSubWindow(scanView)
         scanView.show()
 

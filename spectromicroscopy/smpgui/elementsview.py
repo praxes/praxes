@@ -17,43 +17,50 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.smpgui import ui_elementsdata, mplwidgets
+from spectromicroscopy.smpgui import mplwidgets, ui_elementsdata, \
+    ui_elementsplot
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 
-class ElementCanvas(QtMplCanvas):
+class ElementBaseFigure(mplwidgets.QtMplCanvas):
 
-    _xlabel = ''
-    _ylabel = ''
-    _xlims = [0, 1]
-    _ylims = [0, 1]
+    """
+    """
 
     def __init__(self, parent=None):
-        QtMplCanvas.__init__(self, parent)
+        super(ElementBaseFigure, self).__init__(parent)
+        
+        self._xlabel = ''
+        self._ylabel = ''
+        self._extent = [0, 1, 0, 1]
+        
         self.axes = self.figure.add_subplot(111)
 
     def setXLabel(self, label):
         self._xlabel = label
     
     def setXLims(self, lims):
-        self._xlims = lims
+        self._extent[:2] = lims
 
     def setYLabel(self, label):
         self._ylabel = label
     
     def setYLims(self, lims):
-        self._ylims = lims
+        self._extent[-2:] = lims
+    
+    def setExtent(self, lims):
+        self._extent = lims
 
 
-class ElementImageCanvas(ElementCanvas):
+class ElementImageFigure(ElementBaseFigure):
 
     autoscale = True
 
     def __init__(self, parent=None):
-        ElementCanvas.__init__(self, parent)
+        super(ElementImageFigure, self).__init__(parent)
         
         self._clim = [0, 1]
         self._image = None
@@ -62,10 +69,7 @@ class ElementImageCanvas(ElementCanvas):
         
     def _createInitialFigure(self, elementData):
         self._elementData = elementData
-        extent = []
-        extent.extend(self._xlims)
-        extent.extend(self._ylims)
-        self._image = self.axes.imshow(elementData, extent=extent, 
+        self._image = self.axes.imshow(elementData, extent=self._extent,
                                        aspect=1/1.414, interpolation='nearest',
                                        origin='lower')
         self._colorbar = self.figure.colorbar(self._image)
@@ -115,10 +119,10 @@ class ElementImageCanvas(ElementCanvas):
         self.draw()
 
 
-class ElementPlotCanvas(ElementCanvas):
+class ElementPlotFigure(ElementBaseFigure):
 
     def __init__(self,parent=None):
-        ElementCanvas.__init__(self, parent)
+        super(ElementPlotFigure, self).__init__(parent)
         
         self._elementData = None
         self._autoscale = True
@@ -156,80 +160,118 @@ class ElementPlotCanvas(ElementCanvas):
         self._elementData = elementData
         
         if self.axes.get_autoscale_on():
-            self._ylims = list(self.axes.get_ylim())
-            self.emit(QtCore.SIGNAL("dataMin(PyQt_PyObject)"), self._ylims[0])
-            self.emit(QtCore.SIGNAL("dataMax(PyQt_PyObject)"), self._ylims[1])
+            self._extent[2:] = list(self.axes.get_ylim())
+            self.emit(QtCore.SIGNAL("dataMin(PyQt_PyObject)"), self._extent[2])
+            self.emit(QtCore.SIGNAL("dataMax(PyQt_PyObject)"), self._ylims[3])
         else:
-            self.axes.set_ylim(self._ylims)
+            self.axes.set_ylim(self._extent[2:])
         
         self.draw()
 
 
-class ElementsImage(ui_elementsdata.Ui_ElementsData, QtGui.QWidget):
-    """Establishes a Experimenbt controls    """
-    def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+class ElementWidget(QtGui.QWidget):
+
+    """
+    """
+    
+    def __init__(self, scan, parent=None):
+        super(ElementWidget, self).__init__(parent)
         self.parent = parent
-        self.setupUi(self)
-        
-        self.elementDataPlot = mplwidgets.ElementImage(self)
-        self.gridlayout2.addWidget(self.elementDataPlot, 0, 0, 1, 1)
-        self.elementToolbar = mplwidgets.Toolbar(self.elementDataPlot, self)
-        self.gridlayout2.addWidget(self.elementToolbar, 1, 0, 1, 1)
-        
-        self.connect(self.elementDataPlot,
+        self._scan = scan
+
+    def __getattr__(self, attr):
+        return getattr(self.figure, attr)
+
+    def connectSignals(self):
+        self.connect(self.figure,
                      QtCore.SIGNAL("dataMax(PyQt_PyObject)"),
                      self.maxSpinBox.setValue)
-        self.connect(self.elementDataPlot,
+        self.connect(self.figure,
                      QtCore.SIGNAL("dataMin(PyQt_PyObject)"),
                      self.minSpinBox.setValue)
         self.connect(self.maxSpinBox,
                      QtCore.SIGNAL("valueChanged(double)"),
-                     self.elementDataPlot.setDataMax)
+                     self.figure.setDataMax)
         self.connect(self.minSpinBox,
                      QtCore.SIGNAL("valueChanged(double)"),
-                     self.elementDataPlot.setDataMin)
+                     self.figure.setDataMin)
         self.connect(self.dataAutoscaleButton, 
                      QtCore.SIGNAL("clicked(bool)"),
-                     self.elementDataPlot.enableAutoscale)
+                     self.figure.enableAutoscale)
+        self.connect(self.dataTypeBox,
+                     QtCore.SIGNAL("currentIndexChanged(QString)"),
+                     self._scan.setCurrentDataType)
+        self.connect(self._scan,
+                     QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
+                     self.updateView)
+        self.connect(self.xrfbandComboBox,
+                     QtCore.SIGNAL("currentIndexChanged(const QString&)"),
+                     self._scan.setCurrentElement)
+        self.connect(self._scan,
+                     QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
+                     self.enableInteraction)
+        self.connect(self.saveDataButton,
+                     QtCore.SIGNAL("clicked()"),
+                     self._scan.saveData)
+
+    def formatFigure(self):
+        self.figure.setXLabel(self._scan.getAxisName(0))
+        self.figure.setExtent(self._scan.getExtent())
+        if self._scan.getScanType() == '2D':
+            self.figure.setYLabel(self._scan.getAxisName(1))
+        else:
+            self.figure.setYLabel('%s'%self.dataTypeBox.currentText())
+
+    def updateView(self, data):
+        self.figure.updatePlot(data)
+
+    def viewConcentrations(self, val):
+        if self._scan.checkConcentrations():
+            self.dataTypeBox.addItem('Mass Fraction')
+
+    def enableInteraction(self):
+        pass
+
+
+class ElementImage(ui_elementsdata.Ui_ElementsData, ElementWidget):
+
+    """
+    """
+
+    def __init__(self, scan, parent=None):
+        super(ElementImage, self).__init__(scan, parent)
+        self.setupUi(self)
+        
+        self.figure = ElementImageFigure(self)
+        self.gridlayout2.addWidget(self.figure, 0, 0, 1, 1)
+        self.toolbar = mplwidgets.Toolbar(self.figure, self)
+        self.gridlayout2.addWidget(self.toolbar, 1, 0, 1, 1)
+        
+        self.formatFigure()
+        self.connectSignals()
+
+    def connectSignals(self):
+        ElementWidget.connectSignals(self)
         self.connect(self.interpolationComboBox, 
                      QtCore.SIGNAL("currentIndexChanged(QString)"),
-                     self.elementDataPlot.setInterpolation)
+                     self.figure.setInterpolation)
         self.connect(self.imageOriginComboBox, 
                      QtCore.SIGNAL("currentIndexChanged(QString)"),
-                     self.elementDataPlot.setImageOrigin)
-
-    def __getattr__(self, attr):
-        return getattr(self.elementDataPlot, attr)
+                     self.figure.setImageOrigin)
 
 
-class ElementsPlot(ui_elementsplot.Ui_ElementsPlot, QtGui.QWidget):
+class ElementPlot(ui_elementsplot.Ui_ElementsPlot, ElementWidget):
     """Establishes a Experimenbt controls    """
-    def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        self.parent = parent
+    def __init__(self, scan, parent=None):
+        super(ElementImage, self).__init__(scan, parent)
         self.setupUi(self)
         
-        self.elementDataPlot = mplwidgets.ElementPlot(self)
-        self.gridlayout2.addWidget(self.elementDataPlot, 0, 0, 1, 1)
-        self.elementToolbar = mplwidgets.Toolbar(self.elementDataPlot, self)
-        self.gridlayout2.addWidget(self.elementToolbar, 1, 0, 1, 1)
+        self._scan = scan
         
-        self.connect(self.elementDataPlot,
-                     QtCore.SIGNAL("dataMax(PyQt_PyObject)"),
-                     self.maxSpinBox.setValue)
-        self.connect(self.elementDataPlot,
-                     QtCore.SIGNAL("dataMin(PyQt_PyObject)"),
-                     self.minSpinBox.setValue)
-        self.connect(self.maxSpinBox,
-                     QtCore.SIGNAL("valueChanged(double)"),
-                     self.elementDataPlot.setDataMax)
-        self.connect(self.minSpinBox,
-                     QtCore.SIGNAL("valueChanged(double)"),
-                     self.elementDataPlot.setDataMin)
-        self.connect(self.dataAutoscaleButton, 
-                     QtCore.SIGNAL("clicked(bool)"),
-                     self.elementDataPlot.enableAutoscale)
-
-    def __getattr__(self, attr):
-        return getattr(self.elementDataPlot, attr)
+        self.figure = ElementPlotFigure(self)
+        self.gridlayout2.addWidget(self.figure, 0, 0, 1, 1)
+        self.toolbar = mplwidgets.Toolbar(self.figure, self)
+        self.gridlayout2.addWidget(self.toolbar, 1, 0, 1, 1)
+        
+        self.formatFigure()
+        self.connectSignals()

@@ -38,7 +38,9 @@ class QtSpecScan(QtCore.QObject):
         self._datafile = None
         self._scantype = None
         self._command = None
-        self._extents = [] # a list of ax, start, end tuples
+        self._scanAxes = []
+        self._scanExtent = []
+        self._scanShape = ()
         
         self._peaks = []
         self._elementMaps = {"Peak Area": {},
@@ -54,6 +56,9 @@ class QtSpecScan(QtCore.QObject):
         
         self.setPymcaConfig(kwargs.get('pymcaConfig', None))
 
+    def getAxisName(self, index=0):
+        return self._scanAxes[index]
+
     def getDatafile(self):
         return self._datafile
 
@@ -62,8 +67,8 @@ class QtSpecScan(QtCore.QObject):
         if datatype is None: datatype = self._currentDataType
         return self._elementMaps[datatype][peak]
 
-    def getExtents(self):
-        return self._extents
+    def getExtent(self):
+        return self._scanExtent
 
     def getPeaks(self):
         return self._peaks
@@ -147,6 +152,10 @@ class QtSpecScan(QtCore.QObject):
 #        if DEBUG: print 'scan started'
 #        self.emit(QtCore.SIGNAL("scanStarted()"))
 
+    def saveData(self):
+        # TODO
+        pass
+
     def setCurrentElement(self, element):
         if not self._currentElement == str(element):
             self._currentElement = str(element)
@@ -172,10 +181,10 @@ class QtSpecScan(QtCore.QObject):
             self._currentElement = self._peaks[0]
         self.emit(QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
                   self._peaks)
-        
-        if 'concentrations' in config:
-            self.emit(QtCore.SIGNAL('viewConcentrations(PyQt_PyObject)'),
-                      'concentrations' in config)
+
+    def checkConcentrations(self):
+        if 'concentrations' in self._pymcaConfig: return True
+        else: return False
 
     def timeout(self):
         if self.dirty:
@@ -248,6 +257,7 @@ class QtSpecScanAcqusition(SpecScan.SpecScanA, QtCore.QObject):
 
     def scanFinished(self):
         if DEBUG: print 'scan finished'
+        # TODO: save data!
         self.emit(QtCore.SIGNAL("scanFinished()"))
 
     def scanStarted(self):

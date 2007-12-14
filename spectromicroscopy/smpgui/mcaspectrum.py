@@ -27,7 +27,7 @@ from spectromicroscopy.smpgui import ui_mcaspectrum, mplwidgets
 class McaSpectrumFigure(mplwidgets.QtMplCanvas):
 
     def __init__(self, parent=None):
-        QtMplCanvas.__init__(self, parent)
+        super(McaSpectrumFigure, self).__init__(parent)
         
         self.fitData = {}
 
@@ -122,19 +122,34 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
         
         self.connect(self.mcaLogscaleButton, 
                      QtCore.SIGNAL("clicked(bool)"),
-                     self.enableLogscale)
+                     self.figure.enableLogscale)
         self.connect(self.mcaAutoscaleButton, 
                      QtCore.SIGNAL("clicked(bool)"),
-                     self.enableAutoscale)
+                     self.figure.enableAutoscale)
         self.connect(self._scan,
                      QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
                      self.updateView)
         self.connect(self.figure,
                      QtCore.SIGNAL('enableInteraction()'),
                      self.enableInteraction)
+        self.connect(self.configPyMcaButton,
+                     QtCore.SIGNAL("clicked()"),
+                     self.launchMcaAdvancedFit)
 
     def __getattr__(self, attr):
-        return getattr(self.elementDataPlot, attr)
+        return getattr(self.figure, attr)
+
+    def launchMcaAdvancedFit(self):
+        dialog = QtGui.QDialog()
+        layout = QtGui.QVBoxLayout(dialog)
+        from PyMca import McaAdvancedFit
+        mcaFit = McaAdvancedFit.McaAdvancedFit(dialog)
+        mcaFit.mcafit.configure(self.specInterface.pymcaConfig)
+        x = self.figure.fitData['xdata'].flatten()
+        y = self.figure.mcaCountsSummed.flatten()/self.figure.numSpectra
+        mcaFit.setData(x=x, y=y)
+        layout.addWidget(mcaFit)
+        dialog.exec_()
 
     def enableInteraction(self):
         self.mcaAutoscaleButton.setEnabled(True)
