@@ -70,7 +70,9 @@ class AdvancedFitAnalysis(QtCore.QObject):
         self.settings=QtCore.QSettings()
         # TODO: this should be configurable
         self.monitor="%s"%self.settings.value('Monitor').toString()#        self.monitor = 'Icol'
-    
+    def setMonitor(self):
+        pass
+        self.settings.setValue( )
 #    def configureSpecTable(self, scanData):
 #        desc = dict([(key, tables.Float32Col()) for key in scanData])
 #        if 'mcaData' in desc:
