@@ -20,8 +20,8 @@ from PyMca import McaAdvancedFit
 
 from spectromicroscopy import configutils
 from spectromicroscopy import __version__
-from spectromicroscopy.smpgui import configuresmp, console, scananalysis, scancontrols, \
-    smpspecfileview, smpspecinterface, smptabwidget, ui_smpmainwindow
+from spectromicroscopy.smpgui import configuresmp, console, scananalysis, \
+    smpspecfileview, smpspecinterface, ui_smpmainwindow
 from SpecClient import SpecClientError
 #from testinterface import MyUI
 
