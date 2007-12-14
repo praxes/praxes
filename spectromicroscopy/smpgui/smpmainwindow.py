@@ -40,7 +40,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
     """
 
     def __init__(self, parent=None):
-        QtGui.QMainWindow.__init__(self, parent)
+        super(SmpMainWindow, self).__init__(parent)
         
         self.setupUi(self)
         self.mdi = QtGui.QMdiArea()
@@ -57,6 +57,12 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.console = None 
         self.motorView = None
         
+        settings = QtCore.QSettings()
+        self.restoreGeometry(settings.value('Geometry').toByteArray())
+        
+        self.connectSignals()
+
+    def connectSignals(self):
         self.connect(self.actionOpen,
                      QtCore.SIGNAL("triggered()"),
                      self.openDatafile)
@@ -73,21 +79,18 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.connect(self.actionAbout_SMP,
                      QtCore.SIGNAL("triggered()"),
                      self.about)
-        self.connect(self.actionOpen,
-                     QtCore.SIGNAL("triggered()"),
-                     self.open)
-        self.connect(self.actionSave,
-                     QtCore.SIGNAL("triggered()"),
-                     self.save)
-        self.connect(self.actionSave_All,
-                     QtCore.SIGNAL("triggered()"),
-                     self.saveAll)
-        self.connect(self.actionClose,
-                     QtCore.SIGNAL("triggered()"),
-                     self.closeScan)
-        self.connect(self.actionClose_All,
-                     QtCore.SIGNAL("triggered()"),
-                     self.closeAllScans)
+#        self.connect(self.actionSave,
+#                     QtCore.SIGNAL("triggered()"),
+#                     self.save)
+#        self.connect(self.actionSave_All,
+#                     QtCore.SIGNAL("triggered()"),
+#                     self.saveAll)
+#        self.connect(self.actionClose,
+#                     QtCore.SIGNAL("triggered()"),
+#                     self.closeScan)
+#        self.connect(self.actionClose_All,
+#                     QtCore.SIGNAL("triggered()"),
+#                     self.closeAllScans)
 
     def about(self):
         QtGui.QMessageBox.about(self, self.tr("About SMP"),
@@ -103,22 +106,24 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
     def closeEvent(self, event):
         if self.specInterface: self.specInterface.close()
         configutils.saveConfig()
+        settings = QtCore.QSettings()
+        settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
         return event.accept()
 
-    def closeScan(self):
-        NotImplementedError
-
-    def closeAllScans(self):
-        NotImplementedError
-
-    def open(self):
-        NotImplementedError
-
-    def save(self):
-        raise NotImplementedError
-
-    def saveAll(self):
-        NotImplementedError
+#    def closeScan(self):
+#        NotImplementedError
+#
+#    def closeAllScans(self):
+#        NotImplementedError
+#
+#    def open(self):
+#        NotImplementedError
+#
+#    def save(self):
+#        raise NotImplementedError
+#
+#    def saveAll(self):
+#        NotImplementedError
 
     def connectToSpec(self):
         if not configuresmp.ConfigureSmp(self).exec_(): return
@@ -215,9 +220,13 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         scanView.show()
 
 
-if __name__ == "__main__":
+def main():
     import sys
     app = QtGui.QApplication(sys.argv)
-    myapp = SmpMainWindow()
-    myapp.show()
+    form = SmpMainWindow()
+    form.show()
     sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
