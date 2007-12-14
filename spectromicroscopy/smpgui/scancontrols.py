@@ -17,7 +17,6 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy import smpConfig
 from spectromicroscopy.smpgui import scanmotor, ui_scancontrols
 from spectromicroscopy.smpcore import specutils, specrunner
 

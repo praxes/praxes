@@ -17,8 +17,7 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy import smpConfig
-from spectromicroscopy import configutils
+
 from spectromicroscopy.smpgui import ui_configuresmp
 
 #---------------------------------------------------------------------------
@@ -31,25 +30,18 @@ class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
 
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
-
-        self.serverEdit.setText(smpConfig.session.server)
-        self.portEdit.setText(smpConfig.session.port)
-
-        self.connect(self.serverEdit,
-                     QtCore.SIGNAL("editingFinished()"),
-                     self.set_server)
-        self.connect(self.portEdit,
-                     QtCore.SIGNAL("editingFinished()"),
-                     self.set_port)
-
-    def set_server(self):
-        smpConfig.session.server = '%s'%self.serverEdit.text()
-    
-    def set_port(self):
-        smpConfig.session.port = '%s'%self.portEdit.text()
+        settings =QtCore.QSettings()
+        self.restoreGeometry(settings.value('Geometry').toByteArray())
+        server=settings.value('Server').toString()
+        port=settings.value('Port').toString()
+        self.serverEdit.setText(server)
+        self.portEdit.setText(port)
 
     def accept(self):
-        configutils.saveConfig()
+        settings=QtCore.QSettings()
+        settings.setValue('Port', QtCore.QVariant(self.portEdit.text()))
+        settings.setValue('Server', QtCore.QVariant(self.serverEdit.text()))
+        settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
         QtGui.QDialog.accept(self)
 
 
