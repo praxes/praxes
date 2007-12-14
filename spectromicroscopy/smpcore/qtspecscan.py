@@ -20,7 +20,7 @@ import numpy
 
 from SpecClient import SpecScan, SpecVariable, SpecConnectionsManager, \
     SpecEventsDispatcher, SpecWaitObject
-from spectromicroscopy.smpcore import configutils, qtspeccommand, \
+from spectromicroscopy.smpcore import qtspeccommand, \
     qtspecvariable
 
 #---------------------------------------------------------------------------
@@ -94,16 +94,20 @@ class QtSpecScan(QtCore.QObject):
         # update progressBars:
         self.emit(QtCore.SIGNAL("newScanIndex(int)"), i)
         
-        scanData['pointSkipped'] = smpConfig.skipmode.enabled and \
-                (scanData[ smpConfig.skipmode.counter ] <= \
-                 smpConfig.skipmode.threshold)
         
-        pointSkipped = smpConfig.skipmode.enabled and \
-                (scanData[ smpConfig.skipmode.counter ] <= \
-                 smpConfig.skipmode.threshold)
+        skipmodeStatus=self.settings.value('skipmode/enabled').toBool()
+        counter="%s"%self.settings.value('skipmode/counter').toString()
+        threshold=self.settings.value('skipmode/threshold').toFloat()
+        scanData['pointSkipped'] = skipmodeStatus and \
+                (scanData[counter ] <= threshold)
+        
+        deadtimeCorrection=self.settings.value('DeadTimeCorrection').toBool()
+        
+        pointSkipped = skipmodeStatus and \
+                (scanData[counter ] <= threshold)
 
         if not pointSkipped:
-            if smpConfig.deadtimeCorrection.enabled:
+            if deadtimeCorrection:
                 try:
                     scanData['mcaCounts'][1] *= 100./(100-float(scanData['dead']))
                 except KeyError:

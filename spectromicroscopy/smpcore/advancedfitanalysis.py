@@ -22,7 +22,6 @@ numpy.seterr(all='ignore')
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy import smpConfig
 from spectromicroscopy import configutils
 
 #---------------------------------------------------------------------------
@@ -68,9 +67,9 @@ class AdvancedFitAnalysis(QtCore.QObject):
         self.concentrationTool = None
         
         self._specFilename = 'smp.dat'
-        
+        self.settings=QtCore.QSettings()
         # TODO: this should be configurable
-        self.monitor = 'Icol'
+        self.monitor="%s"%self.settings.value('Monitor').toString()#        self.monitor = 'Icol'
     
 #    def configureSpecTable(self, scanData):
 #        desc = dict([(key, tables.Float32Col()) for key in scanData])
@@ -170,11 +169,14 @@ class AdvancedFitAnalysis(QtCore.QObject):
         if self.index != self.previousIndex+1:
             if DEBUG: print 'index problem: ', self.previousIndex, self.index, len(self.dataQue)
         
-        scanData['pointSkipped'] = smpConfig.skipmode.enabled and \
-                (scanData[ smpConfig.skipmode.counter ] <= \
-                 smpConfig.skipmode.threshold)
+        skipmodeStatus=self.settings.value('skipmode/enabled').toBool()
+        counter="%s"%self.settings.value('skipmode/counter').toString()
+        threshold=self.settings.value('skipmode/threshold').toFloat()
+        scanData['pointSkipped'] = skipmodeStatus and \
+                (scanData[counter ] <= threshold)
         
-        if smpConfig.deadtimeCorrection.enabled:
+        deadtimeCorrection=self.settings.value('DeadTimeCorrection').toBool()
+        if deadtimeCorrection:
             try:
                 scanData['mcaCounts'][1] *= 100./(100-float(scanData['dead']))
             except KeyError:

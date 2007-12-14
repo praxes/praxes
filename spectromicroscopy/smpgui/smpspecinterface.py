@@ -19,8 +19,8 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy import smpConfig
-from spectromicroscopy import configutils
+#from spectromicroscopy import smpConfig
+#from spectromicroscopy import configutils
 from spectromicroscopy.smpgui.ui_smpspecinterface import Ui_SmpSpecInterface
 from spectromicroscopy.smpgui import configuresmp, pymcafitparams, \
     scananalysis, scancontrols
@@ -42,6 +42,7 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
     def __init__(self, parent=None, statusBar=None):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
+        self.settings=QtCore.QSettings()
         
         self.parent = parent
         self.statusBar = statusBar
@@ -60,9 +61,10 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
         self.gridlayout.addWidget(self.scanControls, 0,0)
 #        self.gridlayout.addWidget(self.tabWidget, 0,1,1,1)
 
+        
+
         self.getDefaults()
         self.configureSkipmode()
-        
         self.connectSignals()
 
     def connectSignals(self):
@@ -146,7 +148,9 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
         error.exec_()
 
     def deadtimeCorrEnabled(self, enabled):
-        smpConfig.deadtimeCorrection.enabled = enabled
+        
+        self.settings.setValue('DeadTimeCorrection', QtCore.QVariant(enabled))
+#        smpConfig.deadtimeC#        smpConfig.skipmode.enabled = enabledorrection.enabled = enabled
 
     def disableScanOptions(self):
         pass
@@ -158,26 +162,31 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
 
     def configureSkipmode(self):
         enabled = 0
-        if smpConfig.skipmode.enabled: enabled = 1
-        self.specRunner.skipmode(enabled,
-                                 smpConfig.skipmode.precount,
-                                 str(smpConfig.skipmode.counter),
-                                 smpConfig.skipmode.threshold)
+        skipmodesetting=self.settings.value('skipmode/enabled').toBool()
+        precount=self.settings.value('skipmode/precount').toDouble()
+        threshold=self.settings.value('skipmode/threshold').toFloat()
+        counter=self.settings.value('skipmode/counter').toString()
+        if skipmodesetting: enabled = 1
+        self.specRunner.skipmode(enabled,precount,str(counter),threshold)
 
     def skipmodeEnabled(self, enabled):
-        smpConfig.skipmode.enabled = enabled
+        self.settings.setValue('skipmode/enabled', QtCore.QVariant(enabled))
+#        smpConfig.skipmode.enabled = enabled
         self.configureSkipmode()
 
     def skipmodeCounterChanged(self, counter):
-        smpConfig.skipmode.counter = '%s'%counter
+#        counter = '%s'%counter
+        self.settings.setValue('skipmode/counter',QtCore.QVariant(counter))
         self.configureSkipmode()
 
     def skipmodeThresholdChanged(self, threshold):
-         smpConfig.skipmode.threshold = threshold
+         self.settings.setValue('skipmode/threshold',QtCore.QVariant(threshold))
+#         smpConfig.skipmode.threshold = threshold
          self.configureSkipmode()
 
     def skipmodePrecountChanged(self, precount):
-        smpConfig.skipmode.precount = precount
+        self.settings.setValue('skipmode/precount',QtCore.QVariant(precount))
+#        smpConfig.skipmode.precount = precount
         self.configureSkipmode()
 
     def getDefaults(self):
@@ -196,8 +205,9 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
 #            smpConfig.skipmode.counter = counters[0]
 
     def getSpecVersion(self):
-        return ':'.join([smpConfig.session.server,
-                         smpConfig.session.port])
+        server="%s"%self.settings.value('Server').toString()
+        port="%s"%self.settings.value('Port').toString()
+        return ':'.join([server,port])
 
     def newScanAnalysis(self, newAnalysis):
         self.emit(QtCore.SIGNAL("newScanAnalysis(PyQt_PyObject)"), newAnalysis)
@@ -221,6 +231,7 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
 if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
-    myapp = SmpProjectInterface()
+    app.setOrganizationName('SMP')
+    myapp = SmpSpecInterface()
     myapp.show()
     sys.exit(app.exec_())
