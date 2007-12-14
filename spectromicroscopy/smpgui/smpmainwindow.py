@@ -20,8 +20,8 @@ from PyMca import McaAdvancedFit
 
 from spectromicroscopy import configutils
 from spectromicroscopy import smpConfig, __version__
-from spectromicroscopy.smpgui import configuresmp, console, \
-    smpspecinterface, smptabwidget, ui_smpmainwindow
+from spectromicroscopy.smpgui import configuresmp, console, scananalysis, scancontrols, \
+    smpspecfileview, smpspecinterface, smptabwidget, ui_smpmainwindow
 from SpecClient import SpecClientError
 #from testinterface import MyUI
 
@@ -43,18 +43,25 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self, parent)
         
         self.setupUi(self)
-        self.mainTab = smptabwidget.SmpTabWidget(self)
-        self.gridlayout.addWidget(self.mainTab,1,0,1,1)
+#        self.mainTab = smptabwidget.SmpTabWidget(self)
+#        self.gridlayout.addWidget(self.mainTab,1,0,1,1)
+        self.mdi = QtGui.QMdiArea()
+        self.setCentralWidget(self.mdi)
         
         self.statusBar.showMessage('Ready', 2000)
         self.progressBar = QtGui.QProgressBar(self.statusBar)
         self.progressBar.hide()
         
         self.specInterface = None
+        self.specfileView = None
+        self.specfileInterface = None
         #TODO: added Consoles and motorViews 
         self.console = None 
         self.motorView = None
         
+        self.connect(self.actionOpen,
+                     QtCore.SIGNAL("triggered()"),
+                     self.openDatafile)
         self.connect(self.actionConnect,
                      QtCore.SIGNAL("triggered()"),
                      self.connectToSpec)
@@ -119,17 +126,29 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         if not configuresmp.ConfigureSmp(self).exec_(): return
         try:
             self.specInterface = \
-                smpspecinterface.SmpSpecInterface(self)
-            self.mainTab.insertTab(0, self.specInterface,
-                                   "Experiment Controls")
+                smpspecinterface.SmpSpecInterface(statusBar=self.statusBar)
+            self.specDockWidget = QtGui.QDockWidget('spec', self)
+            self.specDockWidget.setObjectName('SpecDockWidget')
+            self.specDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|
+                                                QtCore.Qt.RightDockWidgetArea)
+            self.specDockWidget.setWidget(self.specInterface)
+            self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
+                               self.specDockWidget)
+            
+#            self.connect(self.specInterface,
+#                         QtCore.SIGNAL("newScanAnalysis(PyQt_PyObject)"),
+#                         self.mdi.addSubWindow)
+#            self.mainTab.insertTab(0, self.specInterface,
+#                                   "Experiment Controls")
         except SpecClientError.SpecClientTimeoutError:
             self.connectToSpec()
         self.actionConnect.setEnabled(False)
         self.actionDisconnect.setEnabled(True)
 
     def disconnectFromSpec(self):
-        self.mainTab.removeTab(0)
-        self.specInterface.close()
+#        self.mainTab.removeTab(0)
+        
+        self.specDockWidget.close()
         self.actionConnect.setEnabled(True)
         self.actionDisconnect.setEnabled(False)
 
@@ -161,6 +180,41 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
 #
 #    def Del(self):
 #        self.mainTab.removeTab(self.Tabby.currentIndex())
+
+    def openDatafile(self):
+        f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.', 
+                "Spec datafiles (*.dat *.mca);;All files (*.*)")
+        if not f: return
+        if self.specfileView is None:
+            self.specfileInterface = smpspecfileview.SpecFileModel()
+            self.connect(self.specfileInterface,
+                         QtCore.SIGNAL('specFileScanActivated'),
+                         self.newScanWindow)
+            self.specfileView = QtGui.QTreeView()
+            self.specfileView.setModel(self.specfileInterface)
+            self.specfileView.connect(self.specfileView,
+                                      QtCore.SIGNAL('activated(QModelIndex)'),
+                                      self.specfileInterface.itemActivated)
+            self.specfileDockWidget = QtGui.QDockWidget('specfile', self)
+            self.specfileDockWidget.setObjectName('SpecFileDockWidget')
+            self.specfileDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|
+                                                    QtCore.Qt.RightDockWidgetArea)
+            self.specfileDockWidget.setWidget(self.specfileView)
+            self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
+                               self.specfileDockWidget)
+        self.specfileInterface.appendSpecFile(f)
+        self.specfileView.doItemsLayout()
+        row = self.specfileInterface.rowCount(QtCore.QModelIndex())-1
+        index = self.specfileInterface.index(row, 0, QtCore.QModelIndex())
+        self.specfileView.expand(index)
+        self.specfileView.resizeColumnToContents(0)
+        self.specfileView.resizeColumnToContents(1)
+        self.specfileView.resizeColumnToContents(2)
+
+    def newScanWindow(self, scan):
+        scanView = scananalysis.ScanAnalysis2(scan)
+        self.mdi.addSubWindow(scanView)
+        scanView.show()
 
 
 if __name__ == "__main__":

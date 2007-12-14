@@ -25,7 +25,6 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QGridLayout" />
   </widget>
   <widget class="QMenuBar" name="mainToolBar" >
    <property name="geometry" >
@@ -33,7 +32,7 @@
      <x>0</x>
      <y>0</y>
      <width>1255</width>
-     <height>28</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile" >
@@ -62,8 +61,14 @@
     <addaction name="actionConnect" />
     <addaction name="actionDisconnect" />
    </widget>
+   <widget class="QMenu" name="menuWindow" >
+    <property name="title" >
+     <string>Window</string>
+    </property>
+   </widget>
    <addaction name="menuFile" />
    <addaction name="menuProject" />
+   <addaction name="menuWindow" />
    <addaction name="menuHelp" />
   </widget>
   <widget class="QStatusBar" name="statusBar" >
@@ -184,7 +189,7 @@
   </action>
   <action name="actionOpen" >
    <property name="enabled" >
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text" >
     <string>Open</string>

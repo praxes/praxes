@@ -5,12 +5,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>206</width>
+    <width>161</width>
     <height>719</height>
    </rect>
   </property>
   <property name="sizePolicy" >
-   <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+   <sizepolicy vsizetype="Expanding" hsizetype="Minimum" >
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -129,6 +129,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="alignment" >
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
         <property name="minimum" >
          <double>-10000000000.000000000000000</double>
         </property>
@@ -169,6 +172,13 @@
         </property>
         <property name="text" >
          <string>Abort</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="2" >
+       <widget class="QProgressBar" name="progressBar" >
+        <property name="value" >
+         <number>0</number>
         </property>
        </widget>
       </item>

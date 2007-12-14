@@ -5,12 +5,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>165</width>
+    <width>150</width>
     <height>540</height>
    </rect>
   </property>
   <property name="sizePolicy" >
-   <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+   <sizepolicy vsizetype="Expanding" hsizetype="Minimum" >
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -25,6 +25,18 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" >
+   <property name="leftMargin" >
+    <number>5</number>
+   </property>
+   <property name="topMargin" >
+    <number>5</number>
+   </property>
+   <property name="rightMargin" >
+    <number>5</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>5</number>
+   </property>
    <item row="0" column="0" >
     <widget class="QLabel" name="motorLabel" >
      <property name="text" >
@@ -195,6 +207,12 @@
       </item>
       <item row="2" column="0" colspan="2" >
        <widget class="QLabel" name="nextPosLabel" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text" >
          <string>next</string>
         </property>

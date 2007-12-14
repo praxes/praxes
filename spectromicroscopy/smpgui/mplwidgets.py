@@ -88,16 +88,16 @@ class McaSpectrum(QtMplCanvas):
 
     def _createInitialFigure(self, fitData):
         self.dataLine, = self.spectrumAxes.plot(fitData['energy'],
-                                               fitData['ydata'],
-                                               'b', linewidth=1.5)
+                                                fitData['ydata'],
+                                                'b', linewidth=1.5)
         self.fitLine, = self.spectrumAxes.plot(fitData['energy'],
-                                              fitData['yfit'],
-                                              'k', linewidth=1.5)
+                                               fitData['yfit'],
+                                               'k', linewidth=1.5)
         self.spectrumAxes.set_ylabel('Counts')
         
         self.resLine, = self.residualsAxes.plot(fitData['energy'],
-                                               fitData['residuals'],
-                                               'k', linewidth=1.5)
+                                                fitData['residuals'],
+                                                'k', linewidth=1.5)
         self.residualsAxes.set_ylabel('Res.')
         self.residualsAxes.set_xlabel('Energy (KeV)')
 
@@ -226,7 +226,7 @@ class ElementImage(ElementCanvas):
             if elementData is None: elementData = self._elementData
             else: self._elementData = elementData
             self._image.set_data(elementData)
-            
+        
         if self.autoscale:
             self._image.autoscale()
             self._clim = list(self._image.get_clim())

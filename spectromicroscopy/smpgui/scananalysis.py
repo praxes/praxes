@@ -27,7 +27,6 @@ from spectromicroscopy.smpcore import advancedfitanalysis
 #---------------------------------------------------------------------------
 
 class ScanAnalysis(QtGui.QWidget):
-    """Establishes a Experimenbt controls    """
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.specInterface = parent
@@ -199,3 +198,86 @@ class ScanAnalysis2D(ScanAnalysis):
         self.connect(self.elementDataPlot.aspectSpinBox,
                      QtCore.SIGNAL("valueChanged(double)"),
                      self.elementDataPlot.setImageAspect)
+
+
+class ScanAnalysis2(QtGui.QWidget):
+
+    """
+    """
+    
+    def __init__(self, scan, parent=None):
+        QtGui.QWidget.__init__(self)
+        
+        self.scan = scan
+        
+#        self.setEnabled(False)
+
+        self.mcaSpectrumPlot = mcaspectrum.McaSpectrum(scan)
+#        self.gridlayout.addWidget(self.mcaSpectrumPlot, 0, 0, 1, 1)
+        
+        layout = QtGui.QVBoxLayout()
+        splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        layout.addWidget(splitter)
+        self.setLayout(layout)
+        splitter.addWidget(self.mcaSpectrumPlot)
+        if self.scan.getScanType() == '2D':
+            self.elementDataPlot = elementsdata.ElementsData(scan)
+            splitter.addWidget(self.elementDataPlot)
+        else:
+            self.elementDataPlot = elementsplot.ElementsPlot(scan)
+            splitter.addWidget(self.elementDataPlot)
+
+
+    def connectSignals(self):
+#        self.connect(self.scan,
+#                     QtCore.SIGNAL("scanFinished()"),
+#                     self.saveData)
+        self.connect(self.elementDataPlot.dataTypeBox,
+                     QtCore.SIGNAL("currentIndexChanged(QString)"),
+                     self.scan.setCurrentDataType)
+#        self.connect(self.scan,
+#                     QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
+#                     self.elementDataPlot.updateFigure)
+#        self.connect(self.scan,
+#                     QtCore.SIGNAL("newMcaFit(PyQt_PyObject)"),
+#                     self.mcaSpectrumPlot.updateFigure)
+        self.connect(self.elementDataPlot.xrfbandComboBox,
+                     QtCore.SIGNAL("currentIndexChanged(const QString&)"),
+                     self.scan.setCurrentElement)
+#        self.connect(self.scan,
+#                     QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
+#                     self.setEnabled)
+# TODO: put these in the constructor?
+#        self.connect(self.scan, 
+#                     QtCore.SIGNAL("xAxisLabel(PyQt_PyObject)"),
+#                     self.elementDataPlot.setXLabel)
+#        self.connect(self.scan, 
+#                     QtCore.SIGNAL("xAxisLims(PyQt_PyObject)"),
+#                     self.elementDataPlot.setXLims)
+#        self.connect(self.scan, 
+#                     QtCore.SIGNAL("yAxisLabel(PyQt_PyObject)"),
+#                     self.elementDataPlot.setYLabel)
+#        self.connect(self.scan, 
+#                     QtCore.SIGNAL("yAxisLims(PyQt_PyObject)"),
+#                     self.elementDataPlot.setYLims)
+#        self.connect(self.scan,
+#                     QtCore.SIGNAL('viewConcentrations(PyQt_PyObject)'),
+#                     self.viewConcentrations)
+#        self.connect(self.mcaSpectrumPlot.configPyMcaButton,
+#                     QtCore.SIGNAL("clicked()"),
+#                     self.launchMcaAdvancedFit)
+#        self.connect(self.elementDataPlot.saveDataButton,
+#                     QtCore.SIGNAL("clicked()"),
+#                     self.saveData)
+
+# TODO: Move this into elementDataPlots
+#    def viewConcentrations(self, val):
+#        text = 'Mass Fraction'
+#        cbox = self.elementDataPlot.dataTypeBox
+#        cur = cbox.findText(text)
+#        if val and (cur < 0): cbox.addItem(text)
+#        if not val and (cur >= 0): cbox.removeItem(cur)
+
+
+    def saveData(self):
+        self.scan.saveData()
