@@ -19,8 +19,7 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-#from spectromicroscopy import smpConfig
-#from spectromicroscopy import configutils
+from spectromicroscopy import configutils
 from spectromicroscopy.smpgui.ui_smpspecinterface import Ui_SmpSpecInterface
 from spectromicroscopy.smpgui import configuresmp, pymcafitparams, \
     scananalysis, scancontrols
@@ -92,10 +91,10 @@ class SmpSpecScanOptionsDialog(QtGui.QDialog):
         val = settings.value('SkipMode/counter').toString()
         if val:
             try:
-                ind = counters.index(smpConfig.skipmode.counter)
+                ind = counters.index(val)
                 self.skipmodeCounterComboBox.setCurrentIndex(ind)
             except ValueError:
-                smpConfig.skipmode.counter = counters[0]
+                pass
 
 
 class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
