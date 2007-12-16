@@ -31,9 +31,10 @@ class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
         settings = QtCore.QSettings()
-        self.restoreGeometry(settings.value('ConfigureSmp/Geometry').toByteArray())
-        server=settings.value('Server').toString()
-        port=settings.value('Port').toString()
+        geometry = settings.value('ConfigureSmp/Geometry').toByteArray()
+        self.restoreGeometry(geometry)
+        server = settings.value('Server').toString()
+        port = settings.value('Port').toString()
         self.serverEdit.setText(server)
         self.portEdit.setText(port)
 
@@ -41,7 +42,8 @@ class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
         settings = QtCore.QSettings()
         settings.setValue('Port', QtCore.QVariant(self.portEdit.text()))
         settings.setValue('Server', QtCore.QVariant(self.serverEdit.text()))
-        settings.setValue('ConfigureSmp/Geometry', QtCore.QVariant(self.saveGeometry()))
+        settings.setValue('ConfigureSmp/Geometry',
+                          QtCore.QVariant(self.saveGeometry()))
         QtGui.QDialog.accept(self)
 
 

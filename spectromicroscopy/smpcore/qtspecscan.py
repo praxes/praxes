@@ -18,10 +18,9 @@ import numpy
 # SMP imports
 #---------------------------------------------------------------------------
 
-from SpecClient import SpecScan, SpecConnectionsManager, SpecEventsDispatcher, \
-    SpecWaitObject
-from spectromicroscopy.smpcore import qtspeccommand, \
-    qtspecvariable
+from SpecClient import SpecScan, SpecCommand, SpecConnectionsManager, \
+    SpecEventsDispatcher, SpecWaitObject
+from spectromicroscopy.smpcore import qtspeccommand
 from spectromicroscopy import configutils
 
 #---------------------------------------------------------------------------
@@ -227,9 +226,10 @@ class QtSpecScanAcqusition(SpecScan.SpecScanA, QtCore.QObject):
     def __init__(self, *args, **kwargs):
         QtCore.QObject.__init__(self)
         SpecScan.SpecScanA.__init__(self, kwargs.get('specVersion', None))
-        self._resumeScan = qtspeccommand.QtSpecCommandA('scan_on', specVersion)
-        self._datafile = qtspecvariable.QtSpecVariableA("DATAFILE",
-                                                        specVersion)
+        self._resumeScan = SpecCommand.SpecCommandA('scan_on', specVersion)
+        # TODO: this is no longer necessary, get it from scanParams
+#        self._datafile = qtspecvariable.QtSpecVariableA("DATAFILE",
+#                                                        specVersion)
 # TODO: all of these should go in the SpecScanAcquisition constructor
 #        self.connect(self.specRunner.scan,
 #                     QtCore.SIGNAL("newMesh(PyQt_PyObject)"),

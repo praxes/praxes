@@ -20,10 +20,9 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 
 from spectromicroscopy import configutils
-from spectromicroscopy.smpgui.ui_smpspecinterface import Ui_SmpSpecInterface
-from spectromicroscopy.smpgui import configuresmp, pymcafitparams, \
-    scananalysis, scancontrols
-from spectromicroscopy.smpcore import specrunner, qtspecscan, qtspecvariable
+from spectromicroscopy.smpgui import ui_smpspecinterface
+from spectromicroscopy.smpgui import pymcafitparams, scancontrols
+from spectromicroscopy.smpcore import specrunner
 from SpecClient import SpecClientError
 
 #---------------------------------------------------------------------------
@@ -97,7 +96,7 @@ class SmpSpecScanOptionsDialog(QtGui.QDialog):
                 pass
 
 
-class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
+class SmpSpecInterface(ui_smpspecinterface.Ui_SmpSpecInterface, QtGui.QWidget):
 
     """Establishes a Experiment controls
     Generates Control and Feedback instances
