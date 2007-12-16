@@ -48,82 +48,54 @@ class SmpSpecScanOptionsDialog(QtGui.QDialog):
 #                                 'PyMca Configuration')
 
         self.getDefaults()
-        self.configureSkipmode()
 
-#        self.connect(self.pymcaConfigWidget,
-#                     QtCore.SIGNAL("configChanged(PyQt_PyObject)"),
-#                     self.changedPyMcaConfig)
-#        self.connect(self.deadtimeCorrCheckBox,
-#                     QtCore.SIGNAL("clicked(bool)"),
-#                     self.deadtimeCorrEnabled)
-#        self.connect(self.skipmodeCheckBox,
-#                     QtCore.SIGNAL("clicked(bool)"),
-#                     self.skipmodeEnabled)
-#        self.connect(self.skipmodeCounterComboBox,
-#                     QtCore.SIGNAL("currentIndexChanged(QString)"),
-#                     self.skipmodeCounterChanged)
-#        self.connect(self.skipmodeThreshSpinBox,
-#                     QtCore.SIGNAL("valueChanged(double)"),
-#                     self.skipmodeThresholdChanged)
-#        self.connect(self.skipmodePrecountSpinBox,
-#                     QtCore.SIGNAL("valueChanged(double)"),
-#                     self.skipmodePrecountChanged)
+    def closeEvent(self):
+        dtc_enabled = self.deadtimeCorrCheckBox.isChecked()
+        sm_enabled = self.skipmodeCheckBox.isChecked()
+        sm_counter = self.skipmodeCounterComboBox.currentText()
+        sm_threshold = self.skipmodeThreshSpinBox.value()
+        sm_precount = self.skipmodePrecountSpinBox.value()
 
-    def deadtimeCorrEnabled(self, enabled):
-        self.settings.setValue('DeadTimeCorrection', QtCore.QVariant(enabled))
-#        smpConfig.deadtimeC#        smpConfig.skipmode.enabled = enabledorrection.enabled = enabled
+        # TODO: this needs to be fixed:
+        self.specRunner.skipmode(sm_enabled, sm_precount, str(sm_counter),
+                                 sm_threshold)
 
-    def disableScanOptions(self):
-        pass
-#        self.tabWidget.setEnabled(False)
-
-    def enableScanOptions(self):
-        pass
-#        self.tabWidget.setEnabled(True)
-
-    def configureSkipmode(self):
-        enabled = 0
-        skipmodesetting = self.settings.value('skipmode/enabled').toBool()
-        precount = self.settings.value('skipmode/precount').toDouble()
-        threshold = self.settings.value('skipmode/threshold').toFloat()
-        counter = self.settings.value('skipmode/counter').toString()
-        if skipmodesetting: enabled = 1
-        self.specRunner.skipmode(enabled, precount, str(counter), threshold)
-
-    def skipmodeEnabled(self, enabled):
-        self.settings.setValue('skipmode/enabled', QtCore.QVariant(enabled))
-#        smpConfig.skipmode.enabled = enabled
-        self.configureSkipmode()
-
-    def skipmodeCounterChanged(self, counter):
-#        counter = '%s'%counter
-        self.settings.setValue('skipmode/counter',QtCore.QVariant(counter))
-        self.configureSkipmode()
-
-    def skipmodeThresholdChanged(self, threshold):
-         self.settings.setValue('skipmode/threshold',QtCore.QVariant(threshold))
-#         smpConfig.skipmode.threshold = threshold
-         self.configureSkipmode()
-
-    def skipmodePrecountChanged(self, precount):
-        self.settings.setValue('skipmode/precount',QtCore.QVariant(precount))
-#        smpConfig.skipmode.precount = precount
-        self.configureSkipmode()
+        settings = QtGui.QSettings()
+        settings.beginGroup("SpecScanOptionsDialog")
+        settings.setValue('DeadTimeCorrection/enabled',
+                          QtCore.QVariant(dtc_enabled))
+        settings.setValue('SkipMode/enabled', QtCore.QVariant(sm_enabled))
+        settings.setValue('SkipMode/counter', QtCore.QVariant(sm_counter))
+        settings.setValue('SkipMode/threshold', QtCore.QVariant(sm_threshold))
+        settings.setValue('SkipMode/precount', QtCore.QVariant(sm_precount))
+        return event.accept()
 
     def getDefaults(self):
-        pass
-#        self.deadtimeCorrCheckBox.setChecked(smpConfig.deadtimeCorrection.enabled)
-#        self.skipmodeCheckBox.setChecked(smpConfig.skipmode.enabled)
-#        self.skipmodeThreshSpinBox.setValue(smpConfig.skipmode.threshold)
-#        self.skipmodePrecountSpinBox.setValue(smpConfig.skipmode.precount)
-#
-#        counters = self.specRunner.getCountersMne()
-#        self.skipmodeCounterComboBox.addItems(counters)
-#        try:
-#            ind = counters.index(smpConfig.skipmode.counter)
-#            self.skipmodeCounterComboBox.setCurrentIndex(ind)
-#        except ValueError:
-#            smpConfig.skipmode.counter = counters[0]
+        settings = QtGui.QSettings()
+        settings.beginGroup("SpecScanOptionsDialog")
+
+        val = settings.value('DeadTimeCorrection/enabled', False).toBool()
+        self.deadtimeCorrCheckBox.setChecked(val)
+
+        val = settings.value('SkipMode/enabled', False).toBool()
+        self.skipmodeCheckBox.setChecked(val)
+
+        val = settings.value('SkipMode/threshold', 0).toDouble()
+        self.skipmodeThreshSpinBox.setValue(val)
+
+        val = settings.value('SkipMode/precount', 1).toDouble()
+        self.skipmodePrecountSpinBox.setValue(val)
+
+        # TODO: This needs updating:
+        counters = self.specRunner.getCountersMne()
+        self.skipmodeCounterComboBox.addItems(counters)
+        val = settings.value('SkipMode/counter').toString()
+        if val:
+            try:
+                ind = counters.index(smpConfig.skipmode.counter)
+                self.skipmodeCounterComboBox.setCurrentIndex(ind)
+            except ValueError:
+                smpConfig.skipmode.counter = counters[0]
 
 
 class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):

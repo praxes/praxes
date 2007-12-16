@@ -55,6 +55,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.motorView = None
 
         settings = QtCore.QSettings()
+        settings.beginGroup('MainWindow')
         self.restoreGeometry(settings.value('Geometry').toByteArray())
 
         self.connectSignals()
@@ -102,8 +103,8 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
 
     def closeEvent(self, event):
         if self.specInterface: self.specInterface.close()
-        configutils.saveConfig()
         settings = QtCore.QSettings()
+        settings.beginGroup("MainWindow")
         settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
         return event.accept()
 
