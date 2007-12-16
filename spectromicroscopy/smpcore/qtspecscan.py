@@ -35,26 +35,26 @@ class QtSpecScan(QtCore.QObject):
 
     def __init__(self, *args, **kwargs):
         QtCore.QObject.__init__(self)
-        
+
         self._datafile = None
         self._scantype = None
         self._command = None
         self._scanAxes = []
         self._scanExtent = []
         self._scanShape = ()
-        
+
         self._peaks = []
         self._elementMaps = {"Peak Area": {},
                             "Mass Fraction": {},
                             "Sigma Area": {}}
-        
+
         self._currentElement = None
         self._currentDataType = "Peak Area"
         self._pymcaConfig = None
-        
+
         self.dataQue = []
         self.dirty = False
-        
+
         self.setPymcaConfig(kwargs.get('pymcaConfig', None))
 
     def getAxisName(self, index=0):
@@ -99,16 +99,16 @@ class QtSpecScan(QtCore.QObject):
         scanData['y'] = y
         # update progressBars:
         self.emit(QtCore.SIGNAL("newScanIndex(int)"), i)
-        
-        
+
+
         skipmodeStatus=self.settings.value('skipmode/enabled').toBool()
         counter="%s"%self.settings.value('skipmode/counter').toString()
         threshold=self.settings.value('skipmode/threshold').toFloat()
         scanData['pointSkipped'] = skipmodeStatus and \
                 (scanData[counter ] <= threshold)
-        
+
         deadtimeCorrection=self.settings.value('DeadTimeCorrection').toBool()
-        
+
         pointSkipped = skipmodeStatus and \
                 (scanData[counter ] <= threshold)
 
@@ -120,7 +120,7 @@ class QtSpecScan(QtCore.QObject):
                     if DEBUG: print 'deadtime not corrected. A counter reporting '\
                         'the percent dead time, called "Dead", must be created in '\
                         'Spec for this feature to work.'
-        
+
         self.dataQue.append(scanData)
         self.dispatch()
             # thread = self.threads.pop(0)
@@ -218,7 +218,7 @@ class QtSpecFileScan(QtSpecScan):
             self._scanAxes = (scan.alllabels()[0], )
             self._scanExtent = (scan.datacol(1)[0], scan.datacol(1)[-1])
             self.scanShape = (len(scan.datacol(1)), )
-        
+
         self.initElementMaps()
 
 
@@ -230,6 +230,25 @@ class QtSpecScanAcqusition(SpecScan.SpecScanA, QtCore.QObject):
         self._resumeScan = qtspeccommand.QtSpecCommandA('scan_on', specVersion)
         self._datafile = qtspecvariable.QtSpecVariableA("DATAFILE",
                                                         specVersion)
+# TODO: all of these should go in the SpecScanAcquisition constructor
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("newMesh(PyQt_PyObject)"),
+#                     self.newScanAnalysis2D)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("newTseries(PyQt_PyObject)"),
+#                     self.newScanAnalysis1D)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("newAscan(PyQt_PyObject)"),
+#                     self.newScanAnalysis1D)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("newA2scan(PyQt_PyObject)"),
+#                     self.newScanAnalysis1D)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("newA3scan(PyQt_PyObject)"),
+#                     self.newScanAnalysis1D)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("newScan(PyQt_PyObject)"),
+#                     self.setTabLabel)
 
     def connected(self):
         pass

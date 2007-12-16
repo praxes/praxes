@@ -138,23 +138,17 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
             self.specDockWidget.setWidget(self.specInterface)
             self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
                                self.specDockWidget)
-
-#            self.connect(self.specInterface,
-#                         QtCore.SIGNAL("newScanAnalysis(PyQt_PyObject)"),
-#                         self.mdi.addSubWindow)
-#            self.mainTab.insertTab(0, self.specInterface,
-#                                   "Experiment Controls")
+            # TODO: add to View menu
         except SpecClientError.SpecClientTimeoutError:
             self.connectToSpec()
         self.actionConnect.setEnabled(False)
         self.actionDisconnect.setEnabled(True)
 
     def disconnectFromSpec(self):
-#        self.mainTab.removeTab(0)
-
         self.specDockWidget.close()
         self.actionConnect.setEnabled(True)
         self.actionDisconnect.setEnabled(False)
+        # TODO: remove from View menu
 
     def showProgressBar(self):
         self.statusBar.addWidget(self.progressBar)
@@ -183,9 +177,6 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
 #        self.connect(self.console.Closer,
 #                     QtCore.SIGNAL("clicked()"),
 #                     self.Del)
-#
-#    def Del(self):
-#        self.mainTab.removeTab(self.Tabby.currentIndex())
 
     def openDatafile(self):
         from spectromicroscopy.smpgui import smpspecfileview

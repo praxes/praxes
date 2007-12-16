@@ -37,14 +37,14 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         scans = list(specutils.MOTOR_SCANS)
         self.scanTypeComboBox.addItems(scans)
         self.setScanType(scans[0])
-        
+
         self.scanButton = QtGui.QPushButton(self.scanControlsGroupBox)
         self.scanButton.setText('Scan')
         self.pauseButton = QtGui.QPushButton(self.scanControlsGroupBox)
         self.pauseButton.setText('Pause')
         self.resumeButton = QtGui.QPushButton(self.scanControlsGroupBox)
         self.resumeButton.setText('Resume')
-        
+
         self.scanStackedLayout = QtGui.QStackedLayout(self.stackedLayoutFrame)
         self.scanStackedLayout.setContentsMargins(0, 0, 0, 0)
         self.scanStackedLayout.addWidget(self.scanButton)
@@ -82,6 +82,16 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.connect(self.specInterface.specRunner.scan,
                      QtCore.SIGNAL("newScanIndex(int)"),
                      self.updateProgressBar)
+# TODO: update reference to newest scan, make connections when scan is created
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("scanStarted()"),
+#                     self.disableScanOptions)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("scanFinished()"),
+#                     self.enableScanOptions)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("scanAborted()"),
+#                     self.enableScanOptions)
 
     def connectAxesSignals(self):
         for axis in self.axes:
@@ -114,10 +124,14 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
             else:
                 scanArgs.extend(args[:-1])
         scanArgs.append( self.scanCountSpinBox.value() )
-        
-        self.window().progressBar.setMaximum(scanPoints)
 
-        getattr(self.specInterface.specRunner.scan, scantype)(*scanArgs)
+        self.window().progressBar.setMaximum(scanPoints)
+# TODO: need to reimpliment using new scheme: instantiate a scananalysis window
+# with a specscanacquisition instance to control it.
+#        getattr(self.specInterface.specRunner.scan, scantype)(*scanArgs)
+#            self.specRunner = specrunner.SpecRunner(specVersion, timeout=500)
+#            self.specRunner.scan = \
+#                qtspecscan.QtSpecScanA(self.specRunner.specVersion)
 
     def abort(self):
         self.specInterface.specRunner.abort()
@@ -185,15 +199,15 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
 
     def setAxes(self, scanType):
         self.disconnectAxesSignals()
-    
+
         numAxes = specutils.SCAN_NUM_AXES[scanType]
         self.axesTab.setUpdatesEnabled(False)
         while self.axesTab.count() > 0:
             self.axesTab.removeTab(0)
         self.axes=[]
-        
+
         if scanType in specutils.MOTOR_SCANS:
-            for i, ax, m in zip(xrange(numAxes), 
+            for i, ax, m in zip(xrange(numAxes),
                                 ('axis: 1', '2', '3'),
                                 ('samx', 'samz', 'samy')):
                 if i < numAxes:

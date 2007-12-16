@@ -32,24 +32,14 @@ from SpecClient import SpecClientError
 #---------------------------------------------------------------------------
 
 
-class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
+class SmpSpecScanOptionsDialog(QtGui.QDialog):
 
-    """Establishes a Experiment controls 
-    Generates Control and Feedback instances
-    Adds Scan atributes to specRunner instance 
+    """
     """
 
-    def __init__(self, parent=None, statusBar=None):
-        QtGui.QWidget.__init__(self, parent)
-        self.setupUi(self)
-        self.settings=QtCore.QSettings()
-        
-        self.parent = parent
-        self.statusBar = statusBar
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
-        
-        self.connectToSpec()
-        
+    def __init__(self, parent):
+        super(SmpSpecScanOptionsDialog, self).__init__(parent)
+
         pymcaConfigFile = configutils.getDefaultPymcaConfigFile()
         self.pymcaConfig = configutils.getPymcaConfig(pymcaConfigFile)
 #        self.pymcaConfigWidget = pymcafitparams.PyMcaFitParams(self)
@@ -57,35 +47,9 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
 #        self.tabWidget.insertTab(1, self.pymcaConfigWidget,
 #                                 'PyMca Configuration')
 
-        self.scanControls = scancontrols.ScanControls(self)
-        self.gridlayout.addWidget(self.scanControls, 0,0)
-#        self.gridlayout.addWidget(self.tabWidget, 0,1,1,1)
-
-        
-
         self.getDefaults()
         self.configureSkipmode()
-        self.connectSignals()
 
-    def connectSignals(self):
-        self.connect(self.specRunner.scan, 
-                     QtCore.SIGNAL("newMesh(PyQt_PyObject)"),
-                     self.newScanAnalysis2D)
-        self.connect(self.specRunner.scan,
-                     QtCore.SIGNAL("newTseries(PyQt_PyObject)"),
-                     self.newScanAnalysis1D)
-        self.connect(self.specRunner.scan,
-                     QtCore.SIGNAL("newAscan(PyQt_PyObject)"),
-                     self.newScanAnalysis1D)
-        self.connect(self.specRunner.scan,
-                     QtCore.SIGNAL("newA2scan(PyQt_PyObject)"),
-                     self.newScanAnalysis1D)
-        self.connect(self.specRunner.scan,
-                     QtCore.SIGNAL("newA3scan(PyQt_PyObject)"),
-                     self.newScanAnalysis1D)
-#        self.connect(self.specRunner.scan,
-#                     QtCore.SIGNAL("newScan(PyQt_PyObject)"),
-#                     self.setTabLabel)
 #        self.connect(self.pymcaConfigWidget,
 #                     QtCore.SIGNAL("configChanged(PyQt_PyObject)"),
 #                     self.changedPyMcaConfig)
@@ -104,51 +68,8 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
 #        self.connect(self.skipmodePrecountSpinBox,
 #                     QtCore.SIGNAL("valueChanged(double)"),
 #                     self.skipmodePrecountChanged)
-        self.connect(self.specRunner.scan, 
-                     QtCore.SIGNAL("scanStarted()"),
-                     self.disableScanOptions)
-        self.connect(self.specRunner.scan, 
-                     QtCore.SIGNAL("scanFinished()"),
-                     self.enableScanOptions)
-        self.connect(self.specRunner.scan, 
-                     QtCore.SIGNAL("scanAborted()"),
-                     self.enableScanOptions)
-
-#    def changedPyMcaConfig(self):
-#        self.pymcaConfig = self.pymcaConfigWidget.getParameters()
-#        self.emit(QtCore.SIGNAL("changedPyMcaConfig(PyQt_PyObject)"),
-#                  self.pymcaConfig)
-
-    def closeEvent(self, event):
-        self.specRunner.skipmode(0)
-        self.specRunner.close()
-        event.accept()
-
-    def connectToSpec(self):
-        specVersion = self.getSpecVersion()
-        try:
-            self.statusBar.showMessage('Connecting')
-            QtGui.qApp.processEvents()
-            self.specRunner = specrunner.SpecRunner(specVersion, timeout=500)
-            self.specRunner.scan = \
-                qtspecscan.QtSpecScanA(self.specRunner.specVersion)
-            self.specRunner.runMacro('smp_mca.mac')
-            self.statusBar.clearMessage()
-        except SpecClientError.SpecClientTimeoutError:
-            self.connectionError(specVersion)
-            raise SpecClientError.SpecClientTimeoutError
-
-    def connectionError(self, specVersion):
-        error = QtGui.QErrorMessage()
-        server, port = specVersion.split(':')
-        error.showMessage('''\
-        SMP was unabel to connect to the "%s" spec instance at "%s". Please \
-        make sure you have started spec in server mode (for example "spec \
-        -S").'''%(port, server))
-        error.exec_()
 
     def deadtimeCorrEnabled(self, enabled):
-        
         self.settings.setValue('DeadTimeCorrection', QtCore.QVariant(enabled))
 #        smpConfig.deadtimeC#        smpConfig.skipmode.enabled = enabledorrection.enabled = enabled
 
@@ -162,12 +83,12 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
 
     def configureSkipmode(self):
         enabled = 0
-        skipmodesetting=self.settings.value('skipmode/enabled').toBool()
-        precount=self.settings.value('skipmode/precount').toDouble()
-        threshold=self.settings.value('skipmode/threshold').toFloat()
-        counter=self.settings.value('skipmode/counter').toString()
+        skipmodesetting = self.settings.value('skipmode/enabled').toBool()
+        precount = self.settings.value('skipmode/precount').toDouble()
+        threshold = self.settings.value('skipmode/threshold').toFloat()
+        counter = self.settings.value('skipmode/counter').toString()
         if skipmodesetting: enabled = 1
-        self.specRunner.skipmode(enabled,precount,str(counter),threshold)
+        self.specRunner.skipmode(enabled, precount, str(counter), threshold)
 
     def skipmodeEnabled(self, enabled):
         self.settings.setValue('skipmode/enabled', QtCore.QVariant(enabled))
@@ -195,7 +116,7 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
 #        self.skipmodeCheckBox.setChecked(smpConfig.skipmode.enabled)
 #        self.skipmodeThreshSpinBox.setValue(smpConfig.skipmode.threshold)
 #        self.skipmodePrecountSpinBox.setValue(smpConfig.skipmode.precount)
-#        
+#
 #        counters = self.specRunner.getCountersMne()
 #        self.skipmodeCounterComboBox.addItems(counters)
 #        try:
@@ -204,34 +125,62 @@ class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
 #        except ValueError:
 #            smpConfig.skipmode.counter = counters[0]
 
+
+class SmpSpecInterface(Ui_SmpSpecInterface, QtGui.QWidget):
+
+    """Establishes a Experiment controls
+    Generates Control and Feedback instances
+    Adds Scan atributes to specRunner instance
+    """
+
+    def __init__(self, parent=None, statusBar=None):
+        QtGui.QWidget.__init__(self, parent)
+        self.setupUi(self)
+
+        self.parent = parent
+        self.statusBar = statusBar
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+
+        self.connectToSpec()
+
+        self.scanControls = scancontrols.ScanControls(self)
+        self.gridlayout.addWidget(self.scanControls, 0,0)
+
+    def closeEvent(self, event):
+        self.specRunner.skipmode(0)
+        self.specRunner.close()
+        event.accept()
+
+    def connectToSpec(self):
+        specVersion = self.getSpecVersion()
+        try:
+            self.statusBar.showMessage('Connecting')
+            QtGui.qApp.processEvents()
+            self.specRunner.runMacro('smp_mca.mac')
+            self.statusBar.clearMessage()
+        except SpecClientError.SpecClientTimeoutError:
+            self.connectionError(specVersion)
+            raise SpecClientError.SpecClientTimeoutError
+
+    def connectionError(self, specVersion):
+        error = QtGui.QErrorMessage()
+        server, port = specVersion.split(':')
+        error.showMessage('''\
+        SMP was unabel to connect to the "%s" spec instance at "%s". Please \
+        make sure you have started spec in server mode (for example "spec \
+        -S").'''%(port, server))
+        error.exec_()
+
     def getSpecVersion(self):
-        server="%s"%self.settings.value('Server').toString()
-        port="%s"%self.settings.value('Port').toString()
-        return ':'.join([server,port])
-
-    def newScanAnalysis(self, newAnalysis):
-        self.emit(QtCore.SIGNAL("newScanAnalysis(PyQt_PyObject)"), newAnalysis)
-#        self.parent.mainTab.addTab(newAnalysis, '')
-#        self.parent.mainTab.setCurrentWidget(newAnalysis)
-
-    def newScanAnalysis1D(self, scanParams):
-        self.newScanAnalysis(scananalysis.ScanAnalysis1D(self, scanParams))
-
-    def newScanAnalysis2D(self, scanParams):
-        self.newScanAnalysis(scananalysis.ScanAnalysis2D(self, scanParams))
-
-#    def setTabLabel(self, scanParams):
-#        temp = scanParams['datafile']
-#        temp = temp.rstrip('.dat').rstrip('.txt').rstrip('.mca')
-#        label = ' '.join([temp, scanParams['title']])
-#        i = self.parent.mainTab.currentIndex()
-#        self.parent.mainTab.setTabText(i, label)
+        settings = QtCore.QSettings()
+        server = "%s"% settings.value('Server').toString()
+        port = "%s"% settings.value('Port').toString()
+        return ':'.join([server, port])
 
 
 if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
-    app.setOrganizationName('SMP')
     myapp = SmpSpecInterface()
     myapp.show()
     sys.exit(app.exec_())

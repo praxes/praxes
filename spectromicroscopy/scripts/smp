@@ -9,7 +9,7 @@ from spectromicroscopy.smpgui.smpmainwindow import SmpMainWindow
 app = QtGui.QApplication(sys.argv)
 app.setOrganizationName('CHESS')
 app.setOrganizationDomain('cornell.edu')
-app.setApplicationName('smp')
+app.setApplicationName('SMP')
 myapp = SmpMainWindow()
 myapp.show()
 sys.exit(app.exec_())

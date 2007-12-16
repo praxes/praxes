@@ -19,7 +19,6 @@
 
 from cutils import getUserConfigDir, getPymcaConfig, getSpecMacro, \
     getDefaultPymcaConfigFile, getSpecClientLogFile
-from smpconfig import smpConfig, saveConfig
 
 #---------------------------------------------------------------------------
 # Normal code begins

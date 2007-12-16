@@ -66,7 +66,7 @@ class SpecScanItem(TreeItem):
         self.scanData = scan
         self.parentItem = parent
         self.childItems = []
-        
+
         scannum = '%d.%d'%(scan.number(), scan.order())
         cmd = scan.command()
         numpoints = '%d'%scan.lines()
@@ -77,7 +77,7 @@ class SpecScanItem(TreeItem):
 
 
 class SpecFileItem(TreeItem):
-    
+
     def __init__(self, filename, parent):
         self.parentItem = parent
         self.itemData = [os.path.split(filename)[-1], '', '']
@@ -177,16 +177,17 @@ class SpecFileModel(QtCore.QAbstractItemModel):
         return parentItem.childCount()
 
     def appendSpecFile(self, filename):
-        try: 
+        try:
             self.rootItem.appendChild(SpecFileItem(filename, self.rootItem))
             return True
         except specfile.error:
             return False
-    
+
     def itemActivated(self, index):
-        item = index.internalPointer()
-        scan = qtspecscan.QtSpecFileScan(item.itemActivated())
-        self.emit(QtCore.SIGNAL('specFileScanActivated'), scan)
+        scanData = index.internalPointer().itemActivated()
+        if scanData is not None:
+            scan = qtspecscan.QtSpecFileScan(scanData)
+            self.emit(QtCore.SIGNAL('specFileScanActivated'), scan)
 
 
 if __name__ == "__main__":
