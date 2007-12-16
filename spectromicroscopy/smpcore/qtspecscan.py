@@ -18,8 +18,8 @@ import numpy
 # SMP imports
 #---------------------------------------------------------------------------
 
-from SpecClient import SpecScan, SpecVariable, SpecConnectionsManager, \
-    SpecEventsDispatcher, SpecWaitObject
+from SpecClient import SpecScan, SpecConnectionsManager, SpecEventsDispatcher, \
+    SpecWaitObject
 from spectromicroscopy.smpcore import qtspeccommand, \
     qtspecvariable
 from spectromicroscopy import configutils

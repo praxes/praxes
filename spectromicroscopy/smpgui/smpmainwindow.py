@@ -20,10 +20,7 @@ from PyMca import McaAdvancedFit
 
 from spectromicroscopy import configutils
 from spectromicroscopy import __version__
-from spectromicroscopy.smpgui import configuresmp, console, scananalysis, \
-    smpspecfileview, smpspecinterface, ui_smpmainwindow
-from SpecClient import SpecClientError
-#from testinterface import MyUI
+from spectromicroscopy.smpgui import ui_smpmainwindow
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -32,34 +29,34 @@ from SpecClient import SpecClientError
 
 class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
     """Establishes a Experiment controls
-    
+
     1) establishes week connection to specrunner
     2) creates ScanIO instance with Experiment Controls
     3) Connects Actions from Toolbar
-    
+
     """
 
     def __init__(self, parent=None):
         super(SmpMainWindow, self).__init__(parent)
-        
+
         self.setupUi(self)
         self.mdi = QtGui.QMdiArea()
         self.setCentralWidget(self.mdi)
-        
+
         self.statusBar.showMessage('Ready', 2000)
         self.progressBar = QtGui.QProgressBar(self.statusBar)
         self.progressBar.hide()
-        
+
         self.specInterface = None
         self.specfileView = None
         self.specfileInterface = None
-        #TODO: added Consoles and motorViews 
-        self.console = None 
+        #TODO: added Consoles and motorViews
+        self.console = None
         self.motorView = None
-        
+
         settings = QtCore.QSettings()
         self.restoreGeometry(settings.value('Geometry').toByteArray())
-        
+
         self.connectSignals()
 
     def connectSignals(self):
@@ -126,8 +123,12 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
 #        NotImplementedError
 
     def connectToSpec(self):
+        from spectromicroscopy.smpgui import configuresmp
         if not configuresmp.ConfigureSmp(self).exec_(): return
         try:
+            from spectromicroscopy.smpgui import smpspecinterface
+            from SpecClient import SpecClientError
+
             self.specInterface = \
                 smpspecinterface.SmpSpecInterface(statusBar=self.statusBar)
             self.specDockWidget = QtGui.QDockWidget('spec', self)
@@ -137,7 +138,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
             self.specDockWidget.setWidget(self.specInterface)
             self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
                                self.specDockWidget)
-            
+
 #            self.connect(self.specInterface,
 #                         QtCore.SIGNAL("newScanAnalysis(PyQt_PyObject)"),
 #                         self.mdi.addSubWindow)
@@ -150,7 +151,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
 
     def disconnectFromSpec(self):
 #        self.mainTab.removeTab(0)
-        
+
         self.specDockWidget.close()
         self.actionConnect.setEnabled(True)
         self.actionDisconnect.setEnabled(False)
@@ -165,6 +166,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
 
 #    # TODO: This interface needs attention
 #    def newMotorView(self):
+#        from testinterface import MyUI
 #        self.motorView = MyUI(self)
 #        self.mainTab.addTab(self.Motor.centralWidget(), "Motor Controler")
 #        self.connect(self.Motor.Closer,
@@ -175,6 +177,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
 #    # Dont make it a main window, no central widget.
 #    def newConsole(self):
 #        if self.console is None:
+#            from spectromicroscopy.smpgui import console
 #            self.console = console.MyKon(self)
 #        self.mainTab.addTab(self.console.centralWidget(), "Console")
 #        self.connect(self.console.Closer,
@@ -185,7 +188,8 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
 #        self.mainTab.removeTab(self.Tabby.currentIndex())
 
     def openDatafile(self):
-        f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.', 
+        from spectromicroscopy.smpgui import smpspecfileview
+        f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',
                 "Spec datafiles (*.dat *.mca);;All files (*.*)")
         if not f: return
         if self.specfileView is None:
@@ -215,6 +219,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         self.specfileView.resizeColumnToContents(2)
 
     def newScanWindow(self, scan):
+        from spectromicroscopy.smpgui import scananalysis
         scanView = scananalysis.ScanAnalysis(scan)
         self.mdi.addSubWindow(scanView)
         scanView.show()
