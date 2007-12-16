@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>Main</class>
- <widget class="QMainWindow" name="Main" >
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -32,7 +32,7 @@
      <x>0</x>
      <y>0</y>
      <width>1255</width>
-     <height>29</height>
+     <height>32</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile" >
