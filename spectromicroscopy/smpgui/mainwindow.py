@@ -19,14 +19,14 @@ from PyQt4 import QtCore, QtGui
 
 from spectromicroscopy import configutils
 from spectromicroscopy import __version__
-from spectromicroscopy.smpgui import ui_smpmainwindow
+from spectromicroscopy.smpgui import ui_mainwindow
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 
-class SmpMainWindow(ui_smpmainwindow.Ui_MainWindow, QtGui.QMainWindow):
+class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
     """Establishes a Experiment controls
 
     1) establishes week connection to specrunner
@@ -36,7 +36,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_MainWindow, QtGui.QMainWindow):
     """
 
     def __init__(self, parent=None):
-        super(SmpMainWindow, self).__init__(parent)
+        super(MainWindow, self).__init__(parent)
 
         self.setupUi(self)
         self.mdi = QtGui.QMdiArea()

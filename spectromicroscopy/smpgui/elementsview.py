@@ -233,7 +233,7 @@ class ElementWidget(QtGui.QWidget):
         pass
 
 
-class ElementImage(ui_elementsdata.Ui_ElementsImageView, ElementWidget):
+class ElementImage(ui_elementsimage.Ui_ElementsImageView, ElementWidget):
 
     """
     """

@@ -4,12 +4,12 @@ import sys
 
 from PyQt4 import QtGui
 
-from spectromicroscopy.smpgui.smpmainwindow import SmpMainWindow
+from spectromicroscopy.smpgui.mainwindow import MainWindow
 
 app = QtGui.QApplication(sys.argv)
 app.setOrganizationName('CHESS')
 app.setOrganizationDomain('cornell.edu')
 app.setApplicationName('SMP')
-myapp = SmpMainWindow()
+myapp = MainWindow()
 myapp.show()
 sys.exit(app.exec_())
