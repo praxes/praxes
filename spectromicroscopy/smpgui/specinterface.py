@@ -30,7 +30,7 @@ from SpecClient import SpecClientError
 #---------------------------------------------------------------------------
 
 
-class SmpSpecScanOptionsDialog(QtGui.QDialog):
+class SpecScanOptionsDialog(QtGui.QDialog):
 
     """
     """
@@ -96,7 +96,7 @@ class SmpSpecScanOptionsDialog(QtGui.QDialog):
                 pass
 
 
-class SmpSpecInterface(ui_smpspecinterface.Ui_SmpSpecInterface, QtGui.QWidget):
+class SpecInterface(QtGui.QWidget):
 
     """Establishes a Experiment controls
     Generates Control and Feedback instances
@@ -105,7 +105,6 @@ class SmpSpecInterface(ui_smpspecinterface.Ui_SmpSpecInterface, QtGui.QWidget):
 
     def __init__(self, parent=None, statusBar=None):
         QtGui.QWidget.__init__(self, parent)
-        self.setupUi(self)
 
         self.parent = parent
         self.statusBar = statusBar

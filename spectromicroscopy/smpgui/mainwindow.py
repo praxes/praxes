@@ -26,7 +26,7 @@ from spectromicroscopy.smpgui import ui_smpmainwindow
 #---------------------------------------------------------------------------
 
 
-class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
+class SmpMainWindow(ui_smpmainwindow.Ui_MainWindow, QtGui.QMainWindow):
     """Establishes a Experiment controls
 
     1) establishes week connection to specrunner
@@ -48,7 +48,7 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
 
         self.specInterface = None
         self.specfileView = None
-        self.specfileInterface = None
+        self.specfileModel = None
         #TODO: added Consoles and motorViews
         self.console = None
         self.motorView = None
@@ -126,11 +126,11 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
         from spectromicroscopy.smpgui import configuresmp
         if not configuresmp.ConfigureSmp(self).exec_(): return
         try:
-            from spectromicroscopy.smpgui import smpspecinterface
+            from spectromicroscopy.smpgui import specinterface
             from SpecClient import SpecClientError
 
             self.specInterface = \
-                smpspecinterface.SmpSpecInterface(statusBar=self.statusBar)
+                specinterface.SpecInterface(statusBar=self.statusBar)
             self.specDockWidget = QtGui.QDockWidget('spec', self)
             self.specDockWidget.setObjectName('SpecDockWidget')
             self.specDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|
@@ -179,20 +179,20 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
 #                     self.Del)
 
     def openDatafile(self):
-        from spectromicroscopy.smpgui import smpspecfileview
         f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',
                 "Spec datafiles (*.dat *.mca);;All files (*.*)")
         if not f: return
         if self.specfileView is None:
-            self.specfileInterface = smpspecfileview.SpecFileModel()
-            self.connect(self.specfileInterface,
+            from spectromicroscopy.smpcore import qtspecfilemodel
+            self.specfileModel = qtspecfilemodel.SpecFileModel()
+            self.connect(self.specfileModel,
                          QtCore.SIGNAL('specFileScanActivated'),
                          self.newScanWindow)
             self.specfileView = QtGui.QTreeView()
-            self.specfileView.setModel(self.specfileInterface)
+            self.specfileView.setModel(self.specfileModel)
             self.specfileView.connect(self.specfileView,
                                       QtCore.SIGNAL('activated(QModelIndex)'),
-                                      self.specfileInterface.itemActivated)
+                                      self.specfileModel.itemActivated)
             self.specfileDockWidget = QtGui.QDockWidget('specfile', self)
             self.specfileDockWidget.setObjectName('SpecFileDockWidget')
             self.specfileDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|
@@ -200,10 +200,10 @@ class SmpMainWindow(ui_smpmainwindow.Ui_Main, QtGui.QMainWindow):
             self.specfileDockWidget.setWidget(self.specfileView)
             self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
                                self.specfileDockWidget)
-        self.specfileInterface.appendSpecFile(f)
+        self.specfileModel.appendSpecFile(f)
         self.specfileView.doItemsLayout()
-        row = self.specfileInterface.rowCount(QtCore.QModelIndex())-1
-        index = self.specfileInterface.index(row, 0, QtCore.QModelIndex())
+        row = self.specfileModel.rowCount(QtCore.QModelIndex())-1
+        index = self.specfileModel.index(row, 0, QtCore.QModelIndex())
         self.specfileView.expand(index)
         self.specfileView.resizeColumnToContents(0)
         self.specfileView.resizeColumnToContents(1)
