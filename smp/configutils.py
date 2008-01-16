@@ -24,6 +24,8 @@ import configobj
 # Normal code begins
 #---------------------------------------------------------------------------
 
+# TODO: much of this needs to go elsewhere, like in spec or spectromicroscopy
+
 def getUserConfigDir():
     '''return the path to the user's spectromicroscopy config directory'''
     configDir = os.path.join(os.path.expanduser('~'), '.spectromicroscopy')
