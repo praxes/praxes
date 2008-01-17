@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>ElementsImageView</class>
- <widget class="QWidget" name="ElementsImageView" >
+ <class>ElementsImage</class>
+ <widget class="QWidget" name="ElementsImage" >
   <property name="geometry" >
    <rect>
     <x>0</x>

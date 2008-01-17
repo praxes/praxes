@@ -14,11 +14,11 @@
 from PyQt4 import QtCore, QtGui
 
 #---------------------------------------------------------------------------
-# SMP imports
+# xpaxs imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.smpgui import scanmotor, ui_scancontrols
-from spectromicroscopy.smpcore import specutils, specrunner
+from xpaxs.spec import utils
+from xpaxs.spec.ui import scanmotor, ui_scancontrols
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -34,7 +34,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.axes = []
         self.axesTab.removeTab(0)
 
-        scans = list(specutils.MOTOR_SCANS)
+        scans = list(utils.MOTOR_SCANS)
         self.scanTypeComboBox.addItems(scans)
         self.setScanType(scans[0])
 
@@ -200,13 +200,13 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
     def setAxes(self, scanType):
         self.disconnectAxesSignals()
 
-        numAxes = specutils.SCAN_NUM_AXES[scanType]
+        numAxes = utils.SCAN_NUM_AXES[scanType]
         self.axesTab.setUpdatesEnabled(False)
         while self.axesTab.count() > 0:
             self.axesTab.removeTab(0)
         self.axes=[]
 
-        if scanType in specutils.MOTOR_SCANS:
+        if scanType in utils.MOTOR_SCANS:
             for i, ax, m in zip(xrange(numAxes),
                                 ('axis: 1', '2', '3'),
                                 ('samx', 'samz', 'samy')):

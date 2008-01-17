@@ -5,25 +5,22 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import sys
-import time
-import weakref
+
 
 #---------------------------------------------------------------------------
 # Extlib imports
 #---------------------------------------------------------------------------
 
 from PyQt4 import QtCore, QtGui
+# TODO: pymca fit params dialog
+from SpecClient import SpecClientError
 
 #---------------------------------------------------------------------------
-# SMP imports
+# xpaxs imports
 #---------------------------------------------------------------------------
 
 from spectromicroscopy import configutils
-from spectromicroscopy.smpgui import ui_smpspecinterface
-from spectromicroscopy.smpgui import pymcafitparams, scancontrols
-from spectromicroscopy.smpcore import specrunner
-from SpecClient import SpecClientError
+from xpaxs.spec.ui import scancontrols, ui_scanview
 
 #---------------------------------------------------------------------------
 # Normal code begins

@@ -14,17 +14,18 @@
 from PyQt4 import QtCore, QtGui
 
 #---------------------------------------------------------------------------
-# SMP imports
+# xpaxs imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.smpgui import ui_mcaspectrum, mplwidgets
+from xpaxs import plotwidgets
+from xpaxs.spectromicroscopy.ui import ui_mcaspectrum
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 
-class McaSpectrumFigure(mplwidgets.QtMplCanvas):
+class McaSpectrumFigure(plotwidgets.QtMplCanvas):
 
     def __init__(self, parent=None):
         super(McaSpectrumFigure, self).__init__(parent)
@@ -117,7 +118,7 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
         self.figure.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                            QtGui.QSizePolicy.Expanding)
         self.gridlayout2.addWidget(self.figure, 0, 0, 1, 1)
-        self.toolbar = mplwidgets.Toolbar(self.figure, self)
+        self.toolbar = plotwidgets.Toolbar(self.figure, self)
         self.gridlayout2.addWidget(self.toolbar, 1, 0, 1, 1)
         
         self.connect(self.mcaLogscaleButton, 

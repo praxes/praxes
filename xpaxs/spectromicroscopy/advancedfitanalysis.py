@@ -19,10 +19,10 @@ numpy.seterr(all='ignore')
 #import tables
 
 #---------------------------------------------------------------------------
-# SMP imports
+# xpaxs imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy import configutils
+from xpaxs import configutils
 
 #---------------------------------------------------------------------------
 # Normal code begins

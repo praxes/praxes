@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>ElementsPlotView</class>
- <widget class="QWidget" name="ElementsPlotView" >
+ <class>ElementsPlot</class>
+ <widget class="QWidget" name="ElementsPlot" >
   <property name="geometry" >
    <rect>
     <x>0</x>

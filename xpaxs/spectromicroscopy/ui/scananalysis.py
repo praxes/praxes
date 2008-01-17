@@ -14,10 +14,10 @@
 from PyQt4 import QtCore, QtGui
 
 #---------------------------------------------------------------------------
-# SMP imports
+# xpaxs imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.smpgui import elementsview, mcaspectrum
+from xpaxs.spectromicroscopy.ui import elementsview, mcaspectrumview
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -34,7 +34,7 @@ class ScanAnalysis(QtGui.QWidget):
 
         self.scan = scan
 
-        self.mcaSpectrumPlot = mcaspectrum.McaSpectrum(scan)
+        self.mcaSpectrumPlot = mcaspectrumview.McaSpectrumView(scan)
 
         layout = QtGui.QVBoxLayout()
         splitter = QtGui.QSplitter(QtCore.Qt.Vertical)

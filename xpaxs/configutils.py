@@ -15,10 +15,10 @@ import shutil
 from PyMca import ConfigDict
 
 #---------------------------------------------------------------------------
-# SMP imports
+# xpaxs imports
 #---------------------------------------------------------------------------
 
-import configobj
+
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -48,7 +48,7 @@ def getDefaultPymcaConfigFile():
     return configFile
 
 def getPymcaConfig(configFile=None):
-    '''return a ConfigObj containing the pymca config data'''
+    '''return a ConfigDict containing the pymca config data'''
     if not configFile: configFile = getDefaultPymcaConfigFile()
     return ConfigDict.ConfigDict(filelist=configFile)
 

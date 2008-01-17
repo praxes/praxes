@@ -11,17 +11,16 @@ import os
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from PyQt4 import QtCore
 import numpy
-
-#---------------------------------------------------------------------------
-# SMP imports
-#---------------------------------------------------------------------------
-
+from PyQt4 import QtCore
 from SpecClient import SpecScan, SpecCommand, SpecConnectionsManager, \
     SpecEventsDispatcher, SpecWaitObject
-from spectromicroscopy.smpcore import qtspeccommand
-from spectromicroscopy import configutils
+
+#---------------------------------------------------------------------------
+# xpaxs imports
+#---------------------------------------------------------------------------
+
+from xpaxs import configutils
 
 #---------------------------------------------------------------------------
 # Normal code begins

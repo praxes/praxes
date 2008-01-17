@@ -17,15 +17,15 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.smpgui import mplwidgets, ui_elementsimage, \
-    ui_elementsplot
+from xpaxs import plotwidgets
+from xpaxs.spectromicroscopy.ui import ui_elementsimage, ui_elementsplot
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 
-class ElementBaseFigure(mplwidgets.QtMplCanvas):
+class ElementBaseFigure(plotwidgets.QtMplCanvas):
 
     """
     """
@@ -233,7 +233,7 @@ class ElementWidget(QtGui.QWidget):
         pass
 
 
-class ElementImage(ui_elementsimage.Ui_ElementsImageView, ElementWidget):
+class ElementImage(ui_elementsimage.Ui_ElementsImage, ElementWidget):
 
     """
     """
@@ -244,7 +244,7 @@ class ElementImage(ui_elementsimage.Ui_ElementsImageView, ElementWidget):
 
         self.figure = ElementImageFigure(self)
         self.gridlayout2.addWidget(self.figure, 0, 0, 1, 1)
-        self.toolbar = mplwidgets.Toolbar(self.figure, self)
+        self.toolbar = plotwidgets.Toolbar(self.figure, self)
         self.gridlayout2.addWidget(self.toolbar, 1, 0, 1, 1)
 
         self.formatFigure()
@@ -260,7 +260,7 @@ class ElementImage(ui_elementsimage.Ui_ElementsImageView, ElementWidget):
                      self.figure.setImageOrigin)
 
 
-class ElementPlot(ui_elementsplot.Ui_ElementsPlotView, ElementWidget):
+class ElementPlot(ui_elementsplot.Ui_ElementsPlot, ElementWidget):
     """Establishes a Experimenbt controls    """
     def __init__(self, scan, parent=None):
         super(ElementImage, self).__init__(scan, parent)
@@ -270,7 +270,7 @@ class ElementPlot(ui_elementsplot.Ui_ElementsPlotView, ElementWidget):
 
         self.figure = ElementPlotFigure(self)
         self.gridlayout2.addWidget(self.figure, 0, 0, 1, 1)
-        self.toolbar = mplwidgets.Toolbar(self.figure, self)
+        self.toolbar = plotwidgets.Toolbar(self.figure, self)
         self.gridlayout2.addWidget(self.toolbar, 1, 0, 1, 1)
 
         self.formatFigure()

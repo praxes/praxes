@@ -14,12 +14,12 @@
 from PyQt4 import QtCore, QtGui
 
 #---------------------------------------------------------------------------
-# SMP imports
+# xpaxs imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy import configutils
-from spectromicroscopy import __version__
-from spectromicroscopy.smpgui import ui_mainwindow
+from xpaxs import configutils
+from xpaxs import __version__
+from xpaxs.spectromicroscopy.ui import ui_mainwindow
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -93,8 +93,8 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         QtGui.QMessageBox.about(self, self.tr("About SMP"),
             self.tr("SMP Application, version %s\n\n"
                     "SMP is a user interface for controlling synchrotron "
-                    "experiments and analyzing data. SMP depends on several "
-                    "programs and libraries:\n\n"
+                    "experiments and analyzing data. SMP is a part of xpaxs "
+                    "and depends on several programs and libraries:\n\n"
                     "    spec: for controlling hardware and data acquisition\n"
                     "    SpecClient: a python interface to the spec server\n"
                     "    PyMca: a set of programs and libraries for analyzing "

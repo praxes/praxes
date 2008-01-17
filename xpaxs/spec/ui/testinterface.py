@@ -20,12 +20,11 @@ from PyMca import ClassMcaTheory , ConcentrationsTool
 from PyQt4 import QtCore, QtGui
 
 #---------------------------------------------------------------------------
-# SMP imports
+# xpaxs imports
 #---------------------------------------------------------------------------
 
-from ui_testinterface import Ui_MotorHead
-from spectromicroscopy.smpcore import SpecRunner
-#from SpecConfig import SpecConfig
+from xpaxs.spec.ui import ui_testinterface
+from xpaxs.spec.client import runner
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -37,7 +36,7 @@ Rollcall=2    #if set to 1 it auto starts spec -s on f3.chess.cornell.edu
               #if set to 3 it will autoconnect and start spec on roll
 
               
-class MyUI(Ui_MotorHead, QtGui.QMainWindow):
+class MyUI(ui_testinterface.Ui_TestInterface, QtGui.QMainWindow):
     """Any and all things GUI"""
     def __init__(self, parent=None):
         self.startSesh() #to be removed when done
@@ -54,7 +53,7 @@ class MyUI(Ui_MotorHead, QtGui.QMainWindow):
         self.command = ''
         self.estop = ''
         sys.stdout = self
-        self.specrun = SpecRunner(self, DEBUG)
+        self.specrun = runner.SpecRunner(self, DEBUG)
         time_ = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
         print "Rollcall=%s, DEBUG=%s"%(Rollcall,DEBUG) # REMOVE WHEN DONE
         print "\n New Session started (%s)\n Enter spec server hostname: "%time_
@@ -327,7 +326,7 @@ class MyUI(Ui_MotorHead, QtGui.QMainWindow):
 
     def reStart(self):
         """restarts the run"""
-        self.specrun = SpecRunner(DEBUG, self)
+        self.specrun = runner.SpecRunner(DEBUG, self)
         self.MotorsTree.clear()
         print "\n Enter spec server hostname: "
         self.clearlog()

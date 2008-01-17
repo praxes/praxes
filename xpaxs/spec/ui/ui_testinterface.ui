@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>MotorHead</class>
- <widget class="QMainWindow" name="MotorHead" >
+ <class>TestInterface</class>
+ <widget class="QMainWindow" name="TestInterface" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -197,7 +197,7 @@
      <x>0</x>
      <y>0</y>
      <width>1252</width>
-     <height>31</height>
+     <height>29</height>
     </rect>
    </property>
   </widget>
@@ -239,7 +239,7 @@
   <connection>
    <sender>Closer</sender>
    <signal>clicked()</signal>
-   <receiver>MotorHead</receiver>
+   <receiver>TestInterface</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel" >

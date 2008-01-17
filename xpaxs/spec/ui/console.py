@@ -17,10 +17,10 @@ import sys
 from PyQt4 import QtCore, QtGui
 
 #---------------------------------------------------------------------------
-# SMP imports
+# xpaxs imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.smpgui import ui_console
+from xpaxs.spec.ui import ui_console
 
 #---------------------------------------------------------------------------
 # Normal code begins

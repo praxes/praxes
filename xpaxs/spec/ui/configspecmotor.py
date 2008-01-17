@@ -14,10 +14,10 @@
 from PyQt4 import QtGui, QtCore
 
 #---------------------------------------------------------------------------
-# SMP imports
+# xpaxs imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.smpgui import ui_configspecmotor
+from xpaxs.spec.ui import ui_configspecmotor
 
 #---------------------------------------------------------------------------
 # Normal code begins

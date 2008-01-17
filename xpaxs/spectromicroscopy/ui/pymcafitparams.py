@@ -16,7 +16,7 @@ from PyMca import ConfigDict, Elements, FitParam, PyMca_Icons, PyMcaDirs
 from PyQt4 import QtGui, QtCore
 
 #---------------------------------------------------------------------------
-# SMP imports
+# xpaxs imports
 #---------------------------------------------------------------------------
 
 

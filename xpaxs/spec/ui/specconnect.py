@@ -14,17 +14,17 @@
 from PyQt4 import QtCore, QtGui
 
 #---------------------------------------------------------------------------
-# SMP imports
+# xpaxs imports
 #---------------------------------------------------------------------------
 
 
-from spectromicroscopy.smpgui import ui_configuresmp
+from xpaxs.spec.ui import ui_specconnect
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-class ConfigureSmp(ui_configuresmp.Ui_ConfigureSmp, QtGui.QDialog):
+class ConfigureSmp(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def __init__(self, parent=None):
 

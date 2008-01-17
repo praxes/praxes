@@ -14,16 +14,16 @@ import time
 #---------------------------------------------------------------------------
 
 from PyQt4 import QtCore
-
-#---------------------------------------------------------------------------
-# SMP imports
-#---------------------------------------------------------------------------
-
-from spectromicroscopy import configutils
 import SpecClient
 SpecClient.setLogFile(configutils.getSpecClientLogFile())
 from SpecClient import Spec, SpecEventsDispatcher, SpecCommand
-from spectromicroscopy.smpcore import qtspecmotor
+
+#---------------------------------------------------------------------------
+# xpaxs imports
+#---------------------------------------------------------------------------
+
+from xpaxs import configutils
+from xpaxs.spec.client import motor
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -96,8 +96,8 @@ i<COUNTERS; i++) { md[i]=cnt_mne(i); }; return md")
         if motorName in self._motors:
             return self._motors[motorName]
         else:
-            self._motors[motorName] = qtspecmotor.QtSpecMotorA(motorName,
-                                                               self.specVersion)
+            self._motors[motorName] = motor.QtSpecMotorA(motorName,
+                                                         self.specVersion)
             return self._motors[motorName]
 
     def getMotorMne(self, motorId):

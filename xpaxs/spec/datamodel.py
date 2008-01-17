@@ -16,10 +16,10 @@ from PyQt4 import QtCore
 from pychess.esrf import specfile
 
 #---------------------------------------------------------------------------
-# SMP imports
+# xpaxs imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy.smpcore import qtspecscan
+
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -185,9 +185,7 @@ class SpecFileModel(QtCore.QAbstractItemModel):
 
     def itemActivated(self, index):
         scanData = index.internalPointer().itemActivated()
-        if scanData is not None:
-            scan = qtspecscan.QtSpecFileScan(scanData)
-            self.emit(QtCore.SIGNAL('specFileScanActivated'), scan)
+        self.emit(QtCore.SIGNAL('scanActivated'), scanData)
 
 
 if __name__ == "__main__":
