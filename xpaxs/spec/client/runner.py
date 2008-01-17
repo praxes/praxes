@@ -85,8 +85,8 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
 
     def getCountersMne(self):
         if len(self._counterNames) != self.getNumCounters():
-            countersMne = self.cmd.executeCommand("local md; for (i=0; \
-i<COUNTERS; i++) { md[i]=cnt_mne(i); }; return md")
+            countersMne = self.cmd.executeCommand("local md; for (i=0; "
+                        "i<COUNTERS; i++) { md[i]=cnt_mne(i); }; return md")
             keys = [int(i) for i in countersMne.keys()]
             keys.sort()
             self._counterNames = [countersMne[str(i)] for i in keys]
