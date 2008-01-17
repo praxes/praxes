@@ -13,7 +13,7 @@ import sys
 #---------------------------------------------------------------------------
 
 from PyQt4 import QtCore
-from pychess.esrf import specfile
+from PyMca import specfile
 
 #---------------------------------------------------------------------------
 # xpaxs imports

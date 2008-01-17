@@ -47,8 +47,8 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.progressBar.hide()
 
         self.specInterface = None
-        self.specfileView = None
-        self.specfileModel = None
+        self.fileView = None
+        self.fileModel = None
         #TODO: added Consoles and motorViews
         self.console = None
         self.motorView = None
@@ -180,38 +180,41 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
     def openDatafile(self):
         f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',
-                "Spec datafiles (*.dat *.mca);;All files (*.*)")
+                "hdf5 files (*.h5 *.hdf5);;Spec datafiles (*.dat *.mca);;All files (*.*)")
+        # TODO: convert specfiles to hdf5
         if not f: return
-        if self.specfileView is None:
-            from spectromicroscopy.smpcore import qtspecfilemodel
-            self.specfileModel = qtspecfilemodel.SpecFileModel()
-            self.connect(self.specfileModel,
-                         QtCore.SIGNAL('specFileScanActivated'),
+        if self.fileView is None:
+            from xpaxs.datalib.hdf5 import qtdatamodel
+            self.fileModel = qtdatamodel.FileModel()
+            self.connect(self.fileModel,
+                         QtCore.SIGNAL('scanActivated'),
                          self.newScanWindow)
-            self.specfileView = QtGui.QTreeView()
-            self.specfileView.setModel(self.specfileModel)
-            self.specfileView.connect(self.specfileView,
-                                      QtCore.SIGNAL('activated(QModelIndex)'),
-                                      self.specfileModel.itemActivated)
-            self.specfileDockWidget = QtGui.QDockWidget('specfile', self)
-            self.specfileDockWidget.setObjectName('SpecFileDockWidget')
-            self.specfileDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|
+            self.fileView = QtGui.QTreeView()
+            self.fileView.setModel(self.fileModel)
+            self.fileView.connect(self.fileView,
+                                  QtCore.SIGNAL('activated(QModelIndex)'),
+                                  self.fileModel.itemActivated)
+            self.fileDockWidget = QtGui.QDockWidget('file', self)
+            self.fileDockWidget.setObjectName('FileDockWidget')
+            self.fileDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|
                                                     QtCore.Qt.RightDockWidgetArea)
-            self.specfileDockWidget.setWidget(self.specfileView)
+            self.fileDockWidget.setWidget(self.fileView)
             self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
-                               self.specfileDockWidget)
-        self.specfileModel.appendSpecFile(f)
-        self.specfileView.doItemsLayout()
-        row = self.specfileModel.rowCount(QtCore.QModelIndex())-1
-        index = self.specfileModel.index(row, 0, QtCore.QModelIndex())
-        self.specfileView.expand(index)
-        self.specfileView.resizeColumnToContents(0)
-        self.specfileView.resizeColumnToContents(1)
-        self.specfileView.resizeColumnToContents(2)
+                               self.fileDockWidget)
+        self.fileModel.appendFile(f)
+        self.fileView.doItemsLayout()
+        row = self.fileModel.rowCount(QtCore.QModelIndex())-1
+        index = self.fileModel.index(row, 0, QtCore.QModelIndex())
+        self.fileView.expand(index)
+        self.fileView.resizeColumnToContents(0)
+        self.fileView.resizeColumnToContents(1)
+        self.fileView.resizeColumnToContents(2)
 
     def newScanWindow(self, scan):
-        from spectromicroscopy.smpgui import scananalysis
-        scanView = scananalysis.ScanAnalysis(scan)
+        from xpaxs.spectromicroscopy.ui import scananalysis
+        from xpaxs.spectromicroscopy import analysisController
+        controller = analysisController.AnalysisController(scan)
+        scanView = scananalysis.ScanAnalysis(controller)
         self.mdi.addSubWindow(scanView)
         scanView.show()
 

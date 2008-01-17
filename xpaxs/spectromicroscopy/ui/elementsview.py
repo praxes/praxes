@@ -263,7 +263,7 @@ class ElementImage(ui_elementsimage.Ui_ElementsImage, ElementWidget):
 class ElementPlot(ui_elementsplot.Ui_ElementsPlot, ElementWidget):
     """Establishes a Experimenbt controls    """
     def __init__(self, scan, parent=None):
-        super(ElementImage, self).__init__(scan, parent)
+        super(ElementPlot, self).__init__(scan, parent)
         self.setupUi(self)
 
         self._scan = scan

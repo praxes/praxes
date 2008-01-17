@@ -73,7 +73,7 @@ class McaSpectrumFigure(plotwidgets.QtMplCanvas):
             self.spectrumAxes.set_yscale('linear')
             self.updateFigure()
 
-    def updatePlot(self, fitData=None):
+    def updateFigure(self, fitData=None):
         if self.fitData == {}:
             self._createInitialFigure(fitData)
             self.mcaCountsSummed = fitData['ydata']

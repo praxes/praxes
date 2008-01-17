@@ -19,12 +19,23 @@ import os
 from itertools import izip
 import numpy
 
-from PyMca import specfile
+from PyMca.specfile import Specfile, Scandata, error
 from pychess.specfile.mcdata import McaData, McsData
 try: import tables
 except ImportError: pass
 
 __all__ = ['load']
+
+
+def getScanShape(commandList):
+    commandType, args = commandList[0], commandList[1:]
+    if commandType in ('mesh', ):
+        shape = (int(args[7])+1, int(args[3])+1)
+    elif commandType in ('ascan', 'a2scan', 'a3scan', 
+                       'dscan', 'd2scan', 'd3scan'):
+        shape = (int(args[-2])+1, )
+    else:
+        shape = None
 
 
 class ChessSpecfile(object):
@@ -37,7 +48,7 @@ class ChessSpecfile(object):
             a string
         """
         self._filename = filename
-        self._specfile = specfile.Specfile(filename)
+        self._specfile = Specfile(filename)
 
     def __getitem__(self, index):
         try:
@@ -375,28 +386,46 @@ def load(filename, *scans, **kwargs):
 
 filters = tables.Filters(complib='zlib', complevel=9)
 
-class Data(tables.IsDescription):
-    pass
-
+# A dict that will be populated to create our tables
 Data = {}
 
 def convertScan(scan, sfile, h5file):
-    scanEntry = h5file.createGroup('/', 'scan%d'%scan.number())
+    # access a bunch of metadata before creating an hdf5 group
+    # if specfile raises an error because the scan is empty,
+    # we will skip it and move on to the next
+    fileName = scan.fileheader('F')[0].split()[1]
+    scanNumber = '%dr%d'%(scan.number(), scan.order())
+    scanNumber = scanNumber.replace('r1', '')
+    scanName = 'scan'+scanNumber
+    scanLines = scan.lines()
+    scanCommand = scan.command()
+    epoch = sfile.epoch()
+    labels = scan.alllabels()
+    numMca = int(scan.nbmca()/scan.lines())
+    mcaInfo = scan.header('@')
+    # TODO: need to determine the axes and the limits, the dataspace or 
+    # whatever I want to call it (what does Chaco call it?)
+    
+    scanEntry = h5file.createGroup('/', scanName)
     
     
     attrs = scanEntry._v_attrs
-    epoch = sfile.epoch()
+    attrs.fileName = fileName
+    attrs.scanNumber = scanNumber
+    attrs.scanLines = scanLines
+    attrs.scanCommand = scanCommand
+    attrs.scanType = scanCommand.split()[0]
+    scanShape = getScanShape(attrs.scanCommand.split())
+    if scanShape is None: scanShape = (attrs.scanLines, )
+    attrs.scanShape = scanShape
     for motor, pos in zip(sfile.allmotors(), scan.allmotorpos()):
         setattr(attrs, motor, pos)
     
-    labels = scan.alllabels()
+    
     for label in labels:
-#        setattr(Data, label, tables.Float32Col())
         Data[label] = tables.Float32Col()
     
-    numMca = int(scan.nbmca()/scan.lines())
     # try to get MCA metadata:
-    mcaInfo = scan.header('@')
     mcaNames = []
     if len(mcaInfo)/3 == numMca:
         for i in xrange(numMca):
@@ -408,7 +437,6 @@ def convertScan(scan, sfile, h5file):
             energy = numpy.polyval([float(i) for i in itemInfo[2].split()[1:]],
                                    channels)
             
-#            setattr(Data, mcaName, tables.Float32Col(shape=channels.shape))
             Data[mcaName] = tables.Float32Col(shape=channels.shape)
             
             mcaEntry = h5file.createGroup(scanEntry, mcaName)
@@ -430,7 +458,6 @@ def convertScan(scan, sfile, h5file):
             channels = numpy.arange(len(temp))
             energy = channels
             
-#            setattr(Data, mcaName, tables.Float32Col(shape=channels.shape))
             Data[mcaName] = tables.Float32Col(shape=channels.shape)
             
             mcaEntry = h5file.createGroup(scanEntry, mcaName)
@@ -445,9 +472,9 @@ def convertScan(scan, sfile, h5file):
     
     # create the table:
     dataTable = h5file.createTable(scanEntry, 'data', Data, filters=filters,
-                                   expectedrows=scan.lines())
+                                   expectedrows=attrs.scanLines)
     
-    for i in xrange(scan.lines()):
+    for i in xrange(scanLines):
         row = dataTable.row
         for label, val in zip(labels, scan.dataline(i+1)):
             if label.lower() == 'epoch': val += epoch
@@ -456,16 +483,20 @@ def convertScan(scan, sfile, h5file):
             row[label] = scan.mca((numMca*i+1)+j)
         row.append()
 
-def spec2hdf5(filename):
+def spec2hdf5(filename, force=False):
     """returns a pytables file object
     """
     h5filename = filename + '.h5'
-    if os.path.exists(h5filename):
+    if os.path.exists(h5filename) and force==False:
         h5file = tables.openFile(h5filename, 'r+')
+        return h5file
     else:
-        h5file = tables.openFile(h5filename, 'w')
-        sfile = specfile.Specfile(filename)
-        for scan in sfile:
-            convertScan(scan, sfile, h5file)
-        h5file.flush()
-    return h5file
+        try:
+            h5file = tables.openFile(h5filename, 'w')
+            sfile = Specfile(filename)
+            for scan in sfile:
+                try: convertScan(scan, sfile, h5file)
+                except error: pass
+            h5file.flush()
+        finally:
+            return h5file
