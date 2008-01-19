@@ -29,12 +29,12 @@ class ScanAnalysis(QtGui.QWidget):
     """
     """
 
-    def __init__(self, scan, parent=None):
+    def __init__(self, controller, parent=None):
         super(ScanAnalysis, self).__init__(parent)
 
-        self.scan = scan
+        self.controller = controller
 
-        self.mcaSpectrumPlot = mcaspectrum.McaSpectrum(scan)
+        self.mcaSpectrumPlot = mcaspectrum.McaSpectrum(controller)
 
         layout = QtGui.QVBoxLayout()
         splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
@@ -42,11 +42,11 @@ class ScanAnalysis(QtGui.QWidget):
         self.setLayout(layout)
         splitter.addWidget(self.mcaSpectrumPlot)
 
-        if self.scan.getScanType() == '2D':
-            self.elementDataPlot = elementsview.ElementImage(scan)
+        if self.controller.getScanDimensions() == 2:
+            self.elementDataPlot = elementsview.ElementImage(controller)
             splitter.addWidget(self.elementDataPlot)
         else:
-            self.elementDataPlot = elementsview.ElementPlot(scan)
+            self.elementDataPlot = elementsview.ElementPlot(controller)
             splitter.addWidget(self.elementDataPlot)
 
 # TODO: update the window title

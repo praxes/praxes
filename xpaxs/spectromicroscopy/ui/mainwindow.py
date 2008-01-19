@@ -102,6 +102,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
     def closeEvent(self, event):
         if self.specInterface: self.specInterface.close()
+        print self.mdi.DontMaximizeSubWindowOnActivation
         settings = QtCore.QSettings()
         settings.beginGroup("MainWindow")
         settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
@@ -202,6 +203,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
                                self.fileDockWidget)
         self.fileModel.appendFile(f)
+        # TODO: add file to list of open files in menu
         self.fileView.doItemsLayout()
         row = self.fileModel.rowCount(QtCore.QModelIndex())-1
         index = self.fileModel.index(row, 0, QtCore.QModelIndex())
@@ -215,6 +217,12 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         from xpaxs.spectromicroscopy import analysisController
         controller = analysisController.AnalysisController(scan)
         scanView = scananalysis.ScanAnalysis(controller)
+        currentSubWindow = self.mdi.currentSubWindow()
+        if not currentSubWindow:
+            settings = QtCore.QSettings()
+            settings.beginGroup('MainWindow/MDI')
+            isMaximized = settings.value('isMaximized').toByteArray()
+        # TODO: finish this, save maximization state
         self.mdi.addSubWindow(scanView)
         scanView.show()
 

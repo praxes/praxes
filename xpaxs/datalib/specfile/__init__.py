@@ -27,15 +27,31 @@ except ImportError: pass
 __all__ = ['load']
 
 
-def getScanShape(commandList):
-    commandType, args = commandList[0], commandList[1:]
-    if commandType in ('mesh', ):
-        shape = (int(args[7])+1, int(args[3])+1)
-    elif commandType in ('ascan', 'a2scan', 'a3scan', 
-                       'dscan', 'd2scan', 'd3scan'):
-        shape = (int(args[-2])+1, )
+def getScanInfo(commandList):
+    scanType, args = commandList[0], commandList[1:]
+    scanAxes = []
+    scanRange = {}
+    scanShape = []
+    if scanType in ('mesh', ):
+        while len(args) > 4:
+            (axis, start, stop, step), args = args[:4], args[4:]
+            scanAxes.append((axis, ))
+            scanRange[axis] = (float(start), float(stop))
+            scanShape.append(int(step)+1)
+    elif scanType in ('ascan', 'a2scan', 'a3scan',
+                         'dscan', 'd2scan', 'd3scan'):
+        temp = []
+        while len(args) > 3:
+            (axis, start, stop), args = args[:3], args[3:]
+            temp.append(axis)
+            scanRange[axis] = (float(start), float(stop))
+        scanaxes.append(tuple(temp))
+        scanShape.append(int(args[0])+1)
     else:
-        shape = None
+        raise RuntimeError('Scan %s not recognized!'%commandType)
+    scanShape = tuple(scanShape[::-1])
+
+    return (scanType, scanAxes, scanRange, scanShape)
 
 
 class ChessSpecfile(object):
@@ -403,28 +419,26 @@ def convertScan(scan, sfile, h5file):
     labels = scan.alllabels()
     numMca = int(scan.nbmca()/scan.lines())
     mcaInfo = scan.header('@')
-    # TODO: need to determine the axes and the limits, the dataspace or 
-    # whatever I want to call it (what does Chaco call it?)
-    
+    scanType, scanAxes, scanRange, scanShape = getScanInfo(scanCommand.split())
+
     scanEntry = h5file.createGroup('/', scanName)
-    
-    
+
     attrs = scanEntry._v_attrs
     attrs.fileName = fileName
     attrs.scanNumber = scanNumber
     attrs.scanLines = scanLines
     attrs.scanCommand = scanCommand
-    attrs.scanType = scanCommand.split()[0]
-    scanShape = getScanShape(attrs.scanCommand.split())
+    attrs.scanType = scanType
+    attrs.scanAxes = scanAxes
+    attrs.scanRange = scanRange
     if scanShape is None: scanShape = (attrs.scanLines, )
     attrs.scanShape = scanShape
     for motor, pos in zip(sfile.allmotors(), scan.allmotorpos()):
         setattr(attrs, motor, pos)
-    
-    
+
     for label in labels:
         Data[label] = tables.Float32Col()
-    
+
     # try to get MCA metadata:
     mcaNames = []
     if len(mcaInfo)/3 == numMca:
@@ -436,9 +450,9 @@ def convertScan(scan, sfile, h5file):
             channels = numpy.arange(start,  stop+1, step)
             energy = numpy.polyval([float(i) for i in itemInfo[2].split()[1:]],
                                    channels)
-            
+
             Data[mcaName] = tables.Float32Col(shape=channels.shape)
-            
+
             mcaEntry = h5file.createGroup(scanEntry, mcaName)
             channelsEntry = h5file.createCArray(mcaEntry, 'channels',
                                                 tables.UInt16Atom(),
@@ -454,12 +468,12 @@ def convertScan(scan, sfile, h5file):
             mcaName = 'MCA%d'%i
             mcaNames.append(mcaName)
             temp = scan.mca(1)
-            
+
             channels = numpy.arange(len(temp))
             energy = channels
-            
+
             Data[mcaName] = tables.Float32Col(shape=channels.shape)
-            
+
             mcaEntry = h5file.createGroup(scanEntry, mcaName)
             channelsEntry = h5file.createCArray(mcaEntry, 'channels',
                                                 tables.UInt16Atom(),
@@ -469,11 +483,11 @@ def convertScan(scan, sfile, h5file):
                                               tables.Float32Atom(),
                                               energy.shape, filters=filters)
             energyEntry[:] = energy
-    
+
     # create the table:
     dataTable = h5file.createTable(scanEntry, 'data', Data, filters=filters,
                                    expectedrows=attrs.scanLines)
-    
+
     for i in xrange(scanLines):
         row = dataTable.row
         for label, val in zip(labels, scan.dataline(i+1)):

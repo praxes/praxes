@@ -13,6 +13,7 @@ import os
 
 import numpy
 from PyQt4 import QtCore
+from PyMca.FitParam import FitParamDialog
 
 #---------------------------------------------------------------------------
 # xpaxs imports
@@ -29,18 +30,12 @@ DEBUG = False
 
 class AnalysisController(QtCore.QObject):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, scan, *args, **kwargs):
         QtCore.QObject.__init__(self)
 
-        # TODO: most of this can be delegated to the hdf file
-        self._datafile = None
-        self._scantype = None
-        self._command = None
-        self._scanAxes = ['temp']
-        self._scanExtent = [0, 1]
-        self._scanShape = ()
+        self.scan = scan
 
-        self._peaks = []
+        # TODO: add a new group to store this information
         self._elementMaps = {"Peak Area": {},
                             "Mass Fraction": {},
                             "Sigma Area": {}}
@@ -48,31 +43,52 @@ class AnalysisController(QtCore.QObject):
         self._currentElement = None
         self._currentDataType = "Peak Area"
         self._pymcaConfig = None
+        self._peaks = []
 
         self.dataQue = []
         self.dirty = False
+        self.currentIndex = 0
 
-        self.setPymcaConfig(kwargs.get('pymcaConfig', None))
+        self.getPymcaConfig()
 
-    def getAxisName(self, index=0):
-        return self._scanAxes[index]
+    def getScanAxis(self, axis=0, index=0):
+        """some scans have multiple axes, some axes have multiple components"""
+        try:
+            return self.scan.attrs.scanAxes[axis][index]
+        except IndexError, KeyError:
+            return ''
+
+    def getScanAxes(self):
+        return self.scan.attrs.scanAxes
 
     def getDatafile(self):
-        return self._datafile
+        return self.scan.attrs.fileName
+
+    def getNumScanLines(self):
+        return len(self.scan.data)
+
+    def getExpectedScanLines(self):
+        return self.scan.attrs.scanLines
 
     def getElementMap(self, peak=None, datatype=None):
         if peak is None: peak = self._currentElement
         if datatype is None: datatype = self._currentDataType
         return self._elementMaps[datatype][peak]
 
-    def getExtent(self):
-        return self._scanExtent
+    def getScanRange(self, axis):
+        return self.scan.attrs.scanRange[axis]
+
+    def getScanShape(self):
+        return self.scan.attrs.scanShape
 
     def getPeaks(self):
         return self._peaks
 
     def getScanType(self):
-        return self._scantype
+        return self.scan.attrs.scanType
+
+    def getScanDimensions(self):
+        return len(self.scan.attrs.scanAxes)
 
     def initElementMaps(self):
         for datatype in self._elementMaps:
@@ -166,10 +182,11 @@ class AnalysisController(QtCore.QObject):
             self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
                       self.getElementMap())
 
-    def setPymcaConfig(self, config=None):
-        if not config:
-            config = configutils.getPymcaConfig()
-        self._pymcaConfig = config
+    def getPymcaConfig(self):
+        # TODO: use QSettings to save and restore a config file?
+        dlg = FitParamDialog()
+        dlg.exec_()
+        self._pymcaConfig = dlg.getParameters()
         self._peaks = []
         for el, edges in self._pymcaConfig['peaks'].iteritems():
             for edge in edges:
@@ -177,8 +194,8 @@ class AnalysisController(QtCore.QObject):
         self._peaks.sort()
         if self._currentElement is None:
             self._currentElement = self._peaks[0]
-        self.emit(QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
-                  self._peaks)
+#        self.emit(QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
+#                  self._peaks)
 
     def checkConcentrations(self):
         if 'concentrations' in self._pymcaConfig: return True
