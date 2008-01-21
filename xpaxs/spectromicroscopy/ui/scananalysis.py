@@ -49,6 +49,9 @@ class ScanAnalysis(QtGui.QWidget):
             self.elementDataPlot = elementsview.ElementPlot(controller)
             splitter.addWidget(self.elementDataPlot)
 
+        self.show()
+        self.controller.processData()
+
 # TODO: update the window title
 #    def setWindowLabel(self, scanParams):
 #        temp = scanParams['datafile']

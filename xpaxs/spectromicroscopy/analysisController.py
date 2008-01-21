@@ -5,7 +5,9 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+import copy
 import os
+import time
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -14,18 +16,31 @@ import os
 import numpy
 from PyQt4 import QtCore
 from PyMca.FitParam import FitParamDialog
+import tables
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
 from xpaxs import configutils
+from xpaxs.spectromicroscopy.advancedfitanalysis import AdvancedFitRunner
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 DEBUG = False
+
+filters = tables.Filters(complib='zlib', complevel=9)
+
+def flat_to_nd(index, shape):
+    res = []
+    for i in xrange(1, len(shape)):
+        p = numpy.product(shape[i:])
+        res.append(index//p)
+        index = index % p
+    res.append(index)
+    return tuple(res)
 
 
 class AnalysisController(QtCore.QObject):
@@ -40,15 +55,35 @@ class AnalysisController(QtCore.QObject):
                             "Mass Fraction": {},
                             "Sigma Area": {}}
 
+        self.h5file = scan._v_file
+        try:
+            elementMaps = self.h5file.getNode(scan, 'elementMaps')
+        except tables.NoSuchNodeError:
+            elementMaps = self.h5file.createGroup(scan, 'elementMaps')
+            for i in ['PeakArea', 'MassFraction', 'SigmaArea']:
+                self.h5file.createGroup(elementMaps, i)
+            self.h5file.flush()
+
         self._currentElement = None
-        self._currentDataType = "Peak Area"
+        self._currentDataType = "PeakArea"
         self._pymcaConfig = None
         self._peaks = []
+
+        self.threads = []
 
         self.dataQue = []
         self.dirty = False
         self.currentIndex = 0
 
+        self.fitParamDlg = FitParamDialog()
+
+#        try:
+#            print 1
+#            self._pymcaConfig = scan.attrs.pymcaConfig
+#            print type(self._pymcaConfig)
+#            self.resetPeaks()
+#        except AttributeError:
+#            print 2
         self.getPymcaConfig()
 
     def getScanAxis(self, axis=0, index=0):
@@ -57,6 +92,10 @@ class AnalysisController(QtCore.QObject):
             return self.scan.attrs.scanAxes[axis][index]
         except IndexError, KeyError:
             return ''
+
+    def appendDataPoint(self):
+        raise NotImplementedError
+        # TODO: use this for acquisition
 
     def getScanAxes(self):
         return self.scan.attrs.scanAxes
@@ -73,7 +112,10 @@ class AnalysisController(QtCore.QObject):
     def getElementMap(self, peak=None, datatype=None):
         if peak is None: peak = self._currentElement
         if datatype is None: datatype = self._currentDataType
-        return self._elementMaps[datatype][peak]
+        dataPath = '/'.join(['elementMaps', self._currentDataType,
+                             self._currentElement])
+        node = self.scan._v_file.getNode(self.scan, dataPath)
+        return node
 
     def getScanRange(self, axis):
         return self.scan.attrs.scanRange[axis]
@@ -90,74 +132,90 @@ class AnalysisController(QtCore.QObject):
     def getScanDimensions(self):
         return len(self.scan.attrs.scanAxes)
 
-    def initElementMaps(self):
-        for datatype in self._elementMaps:
-            for peak in self._peaks:
-                if not peak in self._elementMaps[datatype]:
-                    self._elementMaps[datatype][peak] = \
-                        numpy.zeros(self._scanShape, dtype=numpy.float_)
-
-    def newScan(self, scanParameters):
-        pass
-
     def dispatch(self):
-        if len(self.threads) > 0 and len(self.dataQue) > 0:
-            thread = self.threads.pop(0)
-            data = self.dataQue.pop()
-            thread.process(data)
+        if len(self.threads) > 0 and (self.currentIndex< len(self.scan.data)):
+            time.sleep(1)
+#            thread = self.threads.pop(0)
+            thread = self.threads[0]
+            data = copy.deepcopy(self.scan.data[self.currentIndex])
+            thread.processData(self.currentIndex, data)
 
-    def newScanPoint(self, i, x, y, scanData):
-        scanData['i'] = i
-        scanData['x'] = x
-        scanData['y'] = y
-        # update progressBars:
-        self.emit(QtCore.SIGNAL("newScanIndex(int)"), i)
+#            self.currentIndex += 1
 
-
-        skipmodeStatus=self.settings.value('skipmode/enabled').toBool()
-        counter="%s"%self.settings.value('skipmode/counter').toString()
-        threshold=self.settings.value('skipmode/threshold').toFloat()
-        scanData['pointSkipped'] = skipmodeStatus and \
-                (scanData[counter ] <= threshold)
-
-        deadtimeCorrection=self.settings.value('DeadTimeCorrection').toBool()
-
-        pointSkipped = skipmodeStatus and \
-                (scanData[counter ] <= threshold)
-
-        if not pointSkipped:
-            if deadtimeCorrection:
-                try:
-                    scanData['mcaCounts'][1] *= 100./(100-float(scanData['dead']))
-                except KeyError:
-                    if DEBUG: print 'deadtime not corrected. A counter reporting '\
-                        'the percent dead time, called "Dead", must be created in '\
-                        'Spec for this feature to work.'
-
-        self.dataQue.append(scanData)
+    def processData(self):
+        config = copy.deepcopy(self._pymcaConfig)
+        thread = AdvancedFitRunner(config, self)
+        self.threads.append(thread)
+        self.connect(thread,
+                     QtCore.SIGNAL('dataProcessed'),
+                     self.updateProcessedData)
         self.dispatch()
+
+#    def newScanPoint(self, i, x, y, scanData):
+#        scanData['i'] = i
+#        scanData['x'] = x
+#        scanData['y'] = y
+#        # update progressBars:
+#        self.emit(QtCore.SIGNAL("newScanIndex(int)"), i)
+#
+#
+#        skipmodeStatus=self.settings.value('skipmode/enabled').toBool()
+#        counter="%s"%self.settings.value('skipmode/counter').toString()
+#        threshold=self.settings.value('skipmode/threshold').toFloat()
+#        scanData['pointSkipped'] = skipmodeStatus and \
+#                (scanData[counter ] <= threshold)
+#
+#        deadtimeCorrection=self.settings.value('DeadTimeCorrection').toBool()
+#
+#        pointSkipped = skipmodeStatus and \
+#                (scanData[counter ] <= threshold)
+#
+#        if not pointSkipped:
+#            if deadtimeCorrection:
+#                try:
+#                    scanData['mcaCounts'][1] *= 100./(100-float(scanData['dead']))
+#                except KeyError:
+#                    if DEBUG: print 'deadtime not corrected. A counter reporting '\
+#                        'the percent dead time, called "Dead", must be created in '\
+#                        'Spec for this feature to work.'
+#
+#        self.dataQue.append(scanData)
+#        self.dispatch()
             # thread = self.threads.pop(0)
             # processed = thread.process(scanData)
 
     def updateProcessedData(self, processedData):
         # TODO: This method is basically pseudocode at the moment
-        for group in result['groups']:
-            self.elementMaps["Peak Area"][group].flat[index] = \
-                result[group]['fitarea']
-            area = numpy.where(result[group]['fitarea']==0,
+        index = flat_to_nd(processedData['index'], self.getScanShape())
+        for group in processedData['groups']:
+            peakArea = self.scan._v_file.getNode(self.scan.elementMaps.PeakArea,
+                                                 group.replace(' ', ''))
+            peakArea[index] = processedData[group]['fitarea']
+            area = numpy.where(processedData[group]['fitarea']==0,
                                numpy.nan,
-                               result[group]['fitarea'])
-            self.elementMaps["Sigma Area"][group].flat[index] = \
-                result[group]['sigmaarea']/area
+                               processedData[group]['fitarea'])
+            sigmaArea = self.scan._v_file.getNode(self.scan.elementMaps.SigmaArea,
+                                                  group.replace(' ', ''))
+            sigmaArea[index] = processedData[group]['sigmaarea']/area
 
-        if 'concentrations' in self._pymcaConfig:
-            for group in concentrations['mass fraction'].keys():
-                self.elementMaps["Mass Fraction"][group].flat[index] = \
-                    concentrations['mass fraction'][group]
-        self.dirty = True
-        self.threads.append(thread)
-        # emit a signal so we can dispatch
-        self.emit(QtCore.SIGNAL('dataProcessed'))
+        if 'concentrations' in processedData:
+            for key, val in processedData['concentrations']['mass fraction'].iteritems():
+                mf = self.scan._v_file.getNode(self.scan.elementMaps.MassFraction,
+                                               key.replace(' ', ''))
+                mf[index] = val
+
+        self.emit(QtCore.SIGNAL("newMcaFit"), processedData['mcaFit'])
+
+        dataPath = '/'.join(['elementMaps', self._currentDataType,
+                             self._currentElement])
+        node = self.scan._v_file.getNode(self.scan, dataPath)
+        self.emit(QtCore.SIGNAL("elementDataChanged"),
+                  node)
+
+#        self.threads.append(thread)
+        # TODO: next line temporary:
+        self.currentIndex += 1
+        self.dispatch()
 
 #    def scanFinished(self):
 #        self.emit(QtCore.SIGNAL("scanFinished()"))
@@ -171,31 +229,44 @@ class AnalysisController(QtCore.QObject):
         pass
 
     def setCurrentElement(self, element):
-        if not self._currentElement == str(element):
-            self._currentElement = str(element)
+        element = str(element).replace(' ', '')
+        if not self._currentElement == element:
+            self._currentElement = element
             self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
                       self.getElementMap())
 
     def setCurrentDataType(self, datatype):
-        if not self._currentDataType == str(datatype):
-            self._currentDataType = str(datatype)
+        datatype = str(datatype).replace(' ', '')
+        if not self._currentDataType == datatype:
+            self._currentDataType = datatype
             self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
                       self.getElementMap())
 
     def getPymcaConfig(self):
-        # TODO: use QSettings to save and restore a config file?
-        dlg = FitParamDialog()
-        dlg.exec_()
-        self._pymcaConfig = dlg.getParameters()
+        self.fitParamDlg.exec_()
+        self._pymcaConfig = self.fitParamDlg.getParameters()
+        self.scan.attrs.pymcaConfig = self._pymcaConfig
+        self.resetPeaks()
+        self.emit(QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
+                  self._peaks)
+
+    def resetPeaks(self):
         self._peaks = []
         for el, edges in self._pymcaConfig['peaks'].iteritems():
             for edge in edges:
-                self._peaks.append(' '.join([el, edge]))
+                name = ' '.join([el, edge])
+                self._peaks.append(name)
+                for i in ['PeakArea', 'MassFraction', 'SigmaArea']:
+                    node = self.h5file.getNode(self.scan.elementMaps, i)
+                    h5Name = name.replace(' ', '')
+                    if not h5Name in node:
+                        self.h5file.createCArray(node, h5Name,
+                                                 tables.Float32Atom(),
+                                                 self.getScanShape(),
+                                                 filters=filters)
         self._peaks.sort()
         if self._currentElement is None:
-            self._currentElement = self._peaks[0]
-#        self.emit(QtCore.SIGNAL("availablePeaks(PyQt_PyObject)"),
-#                  self._peaks)
+            self._currentElement = self._peaks[0].replace(' ', '')
 
     def checkConcentrations(self):
         if 'concentrations' in self._pymcaConfig: return True

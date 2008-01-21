@@ -217,12 +217,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         from xpaxs.spectromicroscopy import analysisController
         controller = analysisController.AnalysisController(scan)
         scanView = scananalysis.ScanAnalysis(controller)
-        currentSubWindow = self.mdi.currentSubWindow()
-        if not currentSubWindow:
-            settings = QtCore.QSettings()
-            settings.beginGroup('MainWindow/MDI')
-            isMaximized = settings.value('isMaximized').toByteArray()
-        # TODO: finish this, save maximization state
         self.mdi.addSubWindow(scanView)
         scanView.show()
 

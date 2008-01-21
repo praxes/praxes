@@ -40,6 +40,10 @@ class ElementBaseFigure(plotwidgets.QtMplCanvas):
         self._elementData = numpy.zeros(self.controller.getScanShape(), 'f')
         self._createInitialFigure()
 
+        self.connect(self.controller,
+                     QtCore.SIGNAL("elementDataChanged"),
+                     self.updateFigure)
+
     def _createInitialFigure(self):
         raise NotImplementedError
 
@@ -64,9 +68,6 @@ class ElementImageFigure(ElementBaseFigure):
         super(ElementImageFigure, self).__init__(controller, parent)
 
         self._clim = [0, 1]
-        self._image = None
-        self._elementData = None
-        self._colorbar = None
 
     def _createInitialFigure(self):
         extent = []
@@ -108,12 +109,9 @@ class ElementImageFigure(ElementBaseFigure):
         self.draw()
 
     def updateFigure(self, elementData=None):
-        if self._image is None:
-            self._createInitialFigure(elementData)
-        else:
-            if elementData is None: elementData = self._elementData
-            else: self._elementData = elementData
-            self._image.set_data(elementData)
+        if elementData is None: elementData = self._elementData
+        else: self._elementData = elementData
+        self._image.set_data(elementData)
 
         if self.autoscale:
             self._image.autoscale()
@@ -153,17 +151,12 @@ class ElementPlotFigure(ElementBaseFigure):
 #        self.updateFigure()
 
     def updateFigure(self, elementData=None):
-        if self._elementData is None:
-            self._createInitialFigure(elementData)
-        else:
-            if elementData is None: elementData = self._elementData
-            else: self._elementData = elementData
+        if elementData is None: elementData = self._elementData
+        else: self._elementData = elementData
 
-            self._elementPlot.set_ydata(elementData)
-            self.axes.relim()
-            self.axes.autoscale_view()
-
-        self._elementData = elementData
+        self._elementPlot.set_ydata(elementData)
+        self.axes.relim()
+        self.axes.autoscale_view()
 
 #        if self.axes.get_autoscale_on():
 #            self._extent[2:] = list(self.axes.get_ylim())
@@ -222,11 +215,12 @@ class ElementWidget(QtGui.QWidget):
 #            self.figure.setYLabel('%s'%self.dataTypeBox.currentText())
 
     def updateView(self, data):
-        self.figure.updatePlot(data)
+        self.figure.updateFigure(data)
 
     def viewConcentrations(self, val):
         if self.controller.checkConcentrations():
             self.dataTypeBox.addItem('Mass Fraction')
+            self.controller.setCurrentDataType('Mass Fraction')
 
     def enableInteraction(self):
         pass
