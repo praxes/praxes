@@ -102,7 +102,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
     def closeEvent(self, event):
         if self.specInterface: self.specInterface.close()
-        print self.mdi.DontMaximizeSubWindowOnActivation
         settings = QtCore.QSettings()
         settings.beginGroup("MainWindow")
         settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
@@ -219,6 +218,9 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         scanView = scananalysis.ScanAnalysis(controller)
         self.mdi.addSubWindow(scanView)
         scanView.show()
+        # TODO: this next line is just for convenience during development
+        # needs to be implemented elsewhere
+        controller.processData()
 
 
 def main():

@@ -14,7 +14,7 @@ import time
 #---------------------------------------------------------------------------
 
 import numpy
-from PyQt4 import QtCore
+from PyQt4 import QtCore, QtGui # gui for testing only
 from PyMca.FitParam import FitParamDialog
 import tables
 
@@ -77,14 +77,11 @@ class AnalysisController(QtCore.QObject):
 
         self.fitParamDlg = FitParamDialog()
 
-#        try:
-#            print 1
-#            self._pymcaConfig = scan.attrs.pymcaConfig
-#            print type(self._pymcaConfig)
-#            self.resetPeaks()
-#        except AttributeError:
-#            print 2
-        self.getPymcaConfig()
+        try:
+            self._pymcaConfig = scan.attrs.pymcaConfig
+            self.resetPeaks()
+        except AttributeError:
+            self.getPymcaConfig()
 
     def getScanAxis(self, axis=0, index=0):
         """some scans have multiple axes, some axes have multiple components"""
@@ -134,7 +131,7 @@ class AnalysisController(QtCore.QObject):
 
     def dispatch(self):
         if len(self.threads) > 0 and (self.currentIndex< len(self.scan.data)):
-            time.sleep(1)
+            QtGui.qApp.processEvents()
 #            thread = self.threads.pop(0)
             thread = self.threads[0]
             data = copy.deepcopy(self.scan.data[self.currentIndex])

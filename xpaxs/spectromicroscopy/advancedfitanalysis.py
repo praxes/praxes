@@ -79,7 +79,6 @@ class AdvancedFitRunner(QtCore.QObject):
                  numpy.log10(fitData['yfit'])
         logres[numpy.isinf(logres)]=numpy.nan
         fitData['logresiduals'] = logres
-        print logres.sum()
 
         result['mcaFit'] = fitData
 
