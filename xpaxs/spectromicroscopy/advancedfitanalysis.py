@@ -65,15 +65,19 @@ class AdvancedFitRunner(QtCore.QObject):
             result = self.advancedFit.imagingDigestResult()
         result['index'] = index
 
+
+
         fitData = {}
         fitData['index'] = index
         fitData['xdata'] = self.advancedFit.xdata
         zero, gain = self.advancedFit.fittedpar[:2]
         fitData['energy'] = zero + gain*self.advancedFit.xdata
         fitData['ydata'] = self.advancedFit.ydata
-        fitData['yfit'] = self.advancedFit.\
-                mcatheory(self.advancedFit.fittedpar,
-                          self.advancedFit.xdata)
+        fitData['yfit'] = \
+                self.advancedFit.mcatheory(self.advancedFit.fittedpar,
+                                           self.advancedFit.xdata)
+#        fitData['yfit'] += self.advancedFit.continuum(self.advancedFit.fittedpar, self.advancedFit.xdata)
+        fitData['yfit'] += self.advancedFit.zz
         fitData['residuals'] = fitData['ydata']-fitData['yfit']
         logres = numpy.log10(fitData['ydata'])-\
                  numpy.log10(fitData['yfit'])

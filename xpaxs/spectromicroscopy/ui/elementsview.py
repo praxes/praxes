@@ -236,6 +236,7 @@ class ElementImage(ui_elementsimage.Ui_ElementsImage, ElementWidget):
         self.setupUi(self)
 
         self.xrfbandComboBox.addItems(controller.getPeaks())
+        self.normalizationComboBox.addItems(controller.getNormalizationChannels())
 
         self.figure = ElementImageFigure(controller, self)
         self.gridlayout2.addWidget(self.figure, 0, 0, 1, 1)
@@ -258,6 +259,9 @@ class ElementImage(ui_elementsimage.Ui_ElementsImage, ElementWidget):
         self.connect(self.imageOriginComboBox,
                      QtCore.SIGNAL("currentIndexChanged(QString)"),
                      self.figure.setImageOrigin)
+        self.connect(self.normalizationComboBox,
+                     QtCore.SIGNAL("currentIndexChanged(QString)"),
+                     self.controller.setNormalizationChannel)
 
 
 class ElementPlot(ui_elementsplot.Ui_ElementsPlot, ElementWidget):

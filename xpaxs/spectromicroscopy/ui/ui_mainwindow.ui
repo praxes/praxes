@@ -32,14 +32,21 @@
      <x>0</x>
      <y>0</y>
      <width>1255</width>
-     <height>32</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile" >
     <property name="title" >
      <string>File</string>
     </property>
+    <widget class="QMenu" name="menuImport" >
+     <property name="title" >
+      <string>Import</string>
+     </property>
+     <addaction name="actionImportSpecFile" />
+    </widget>
     <addaction name="actionOpen" />
+    <addaction name="menuImport" />
     <addaction name="separator" />
     <addaction name="actionSave" />
     <addaction name="actionSave_All" />
@@ -193,6 +200,11 @@
    </property>
    <property name="text" >
     <string>Open</string>
+   </property>
+  </action>
+  <action name="actionImportSpecFile" >
+   <property name="text" >
+    <string>Spec file</string>
    </property>
   </action>
  </widget>

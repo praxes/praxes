@@ -68,6 +68,7 @@ class AnalysisController(QtCore.QObject):
         self._currentDataType = "PeakArea"
         self._pymcaConfig = None
         self._peaks = []
+        self._normalizationChannel = None
 
         self.threads = []
 
@@ -111,14 +112,29 @@ class AnalysisController(QtCore.QObject):
         if datatype is None: datatype = self._currentDataType
         dataPath = '/'.join(['elementMaps', self._currentDataType,
                              self._currentElement])
-        node = self.scan._v_file.getNode(self.scan, dataPath)
-        return node
+        elementMap = self.scan._v_file.getNode(self.scan, dataPath)[:]
+        if self._normalizationChannel:
+            norm = getattr(self.scan.data.cols, self._normalizationChannel)[:]
+            elementMap.flat[:len(norm)] /= norm
+        return elementMap
 
     def getScanRange(self, axis):
         return self.scan.attrs.scanRange[axis]
 
     def getScanShape(self):
         return self.scan.attrs.scanShape
+
+    def getNormalizationChannels(self):
+        return [i for i in self.scan.data.colnames if not i in self.scan.attrs]
+
+    def setNormalizationChannel(self, channel):
+        channel = str(channel)
+        if channel == 'None': channel = None
+        if not self._normalizationChannel == channel:
+            self._normalizationChannel = channel
+            elementMap = self.getElementMap()
+            self.emit(QtCore.SIGNAL("elementDataChanged"), elementMap)
+
 
     def getPeaks(self):
         return self._peaks
@@ -205,9 +221,8 @@ class AnalysisController(QtCore.QObject):
 
         dataPath = '/'.join(['elementMaps', self._currentDataType,
                              self._currentElement])
-        node = self.scan._v_file.getNode(self.scan, dataPath)
-        self.emit(QtCore.SIGNAL("elementDataChanged"),
-                  node)
+        elementMap = self.getElementMap()
+        self.emit(QtCore.SIGNAL("elementDataChanged"), elementMap)
 
 #        self.threads.append(thread)
         # TODO: next line temporary:

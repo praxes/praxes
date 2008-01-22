@@ -497,17 +497,17 @@ def convertScan(scan, sfile, h5file):
             row[label] = scan.mca((numMca*i+1)+j)
         row.append()
 
-def spec2hdf5(filename, force=False):
+def spec2hdf5(specFilename, hdf5Filename=None, force=False):
     """returns a pytables file object
     """
-    h5filename = filename + '.h5'
-    if os.path.exists(h5filename) and force==False:
-        h5file = tables.openFile(h5filename, 'r+')
-        return h5file
+    if hdf5Filename is None:
+        hdf5Filename = specFilename + '.h5'
+    if os.path.exists(hdf5Filename) and force==False:
+        raise IOError('%s already exists! Use force flag to overwrite'%hdf5Filename)
     else:
         try:
-            h5file = tables.openFile(h5filename, 'w')
-            sfile = Specfile(filename)
+            h5file = tables.openFile(hdf5Filename, 'w')
+            sfile = Specfile(specFilename)
             for scan in sfile:
                 try: convertScan(scan, sfile, h5file)
                 except error: pass

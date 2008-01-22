@@ -63,6 +63,9 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.connect(self.actionOpen,
                      QtCore.SIGNAL("triggered()"),
                      self.openDatafile)
+        self.connect(self.actionImportSpecFile,
+                     QtCore.SIGNAL("triggered()"),
+                     self.importSpecFile)
         self.connect(self.actionConnect,
                      QtCore.SIGNAL("triggered()"),
                      self.connectToSpec)
@@ -178,11 +181,11 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 #                     QtCore.SIGNAL("clicked()"),
 #                     self.Del)
 
-    def openDatafile(self):
-        f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',
-                "hdf5 files (*.h5 *.hdf5);;Spec datafiles (*.dat *.mca);;All files (*.*)")
-        # TODO: convert specfiles to hdf5
-        if not f: return
+    def openDatafile(self, filename=None):
+        if filename is None:
+            filename = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',
+                    "hdf5 files (*.h5 *.hdf5);;Spec datafiles (*.dat *.mca);;All files (*.*)")
+        if not filename: return
         if self.fileView is None:
             from xpaxs.datalib.hdf5 import qtdatamodel
             self.fileModel = qtdatamodel.FileModel()
@@ -201,7 +204,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             self.fileDockWidget.setWidget(self.fileView)
             self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
                                self.fileDockWidget)
-        self.fileModel.appendFile(f)
+        self.fileModel.appendFile(filename)
         # TODO: add file to list of open files in menu
         self.fileView.doItemsLayout()
         row = self.fileModel.rowCount(QtCore.QModelIndex())-1
@@ -210,6 +213,18 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.fileView.resizeColumnToContents(0)
         self.fileView.resizeColumnToContents(1)
         self.fileView.resizeColumnToContents(2)
+
+    def importSpecFile(self):
+        f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',
+                    "Spec datafiles (*.dat *.mca);;All files (*.*)")
+        if f:
+            from xpaxs.datalib import specfile
+            # TODO: dialog to overwrite
+            # Do we want to save to a temporary file first?
+            h5file = specfile.spec2hdf5(f, force=True)
+            h5filename = h5file.filename
+            h5file.close()
+            self.openDatafile(h5filename)
 
     def newScanWindow(self, scan):
         from xpaxs.spectromicroscopy.ui import scananalysis
