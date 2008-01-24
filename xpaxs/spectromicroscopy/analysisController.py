@@ -64,6 +64,15 @@ class AnalysisController(QtCore.QObject):
                 self.h5file.createGroup(elementMaps, i)
             self.h5file.flush()
 
+        if 'skipmodeMonitor' in scan.attrs:
+            self._skipmodeEnabled = True
+            self._skipmodeMonitor = scan.attrs.skipmodeMonitor
+            self._skipmodeThresh = scan.attrs.skipmodeThresh
+        else:
+            self._skipmodeEnabled = False
+            self._skipmodeMonitor = None
+            self._skipmodeThresh = 0
+
         self._currentElement = None
         self._currentDataType = "PeakArea"
         self._pymcaConfig = None
@@ -114,7 +123,10 @@ class AnalysisController(QtCore.QObject):
                              self._currentElement])
         elementMap = self.scan._v_file.getNode(self.scan, dataPath)[:]
         if self._normalizationChannel:
-            norm = getattr(self.scan.data.cols, self._normalizationChannel)[:]
+            if self._normalizationChannel == 'Dead time %': temp = 'Dead'
+            else: temp = self._normalizationChannel
+            norm = getattr(self.scan.data.cols, temp)[:]
+            if self._normalizationChannel == 'Dead time %': norm = 100/(100-norm)
             elementMap.flat[:len(norm)] /= norm
         return elementMap
 
@@ -125,7 +137,9 @@ class AnalysisController(QtCore.QObject):
         return self.scan.attrs.scanShape
 
     def getNormalizationChannels(self):
-        return [i for i in self.scan.data.colnames if not i in self.scan.attrs]
+        channels = [i for i in self.scan.data.colnames if not i in self.scan.attrs]
+        channels.insert(0, 'Dead time %')
+        return channels
 
     def setNormalizationChannel(self, channel):
         channel = str(channel)
@@ -146,12 +160,22 @@ class AnalysisController(QtCore.QObject):
         return len(self.scan.attrs.scanAxes)
 
     def dispatch(self):
-        if len(self.threads) > 0 and (self.currentIndex< len(self.scan.data)):
+        thread = self.threads[0]
+        for index, row in enumerate(self.scan.data):
+            if self._skipmodeEnabled:
+                if row[self._skipmodeMonitor] > self._skipmodeThresh:
+                    thread.processData(index, row)
+            else:
+                thread.processData(index, row)
             QtGui.qApp.processEvents()
-#            thread = self.threads.pop(0)
-            thread = self.threads[0]
-            data = copy.deepcopy(self.scan.data[self.currentIndex])
-            thread.processData(self.currentIndex, data)
+
+
+#        if len(self.threads) > 0 and (self.currentIndex< len(self.scan.data)):
+#            QtGui.qApp.processEvents()
+##            thread = self.threads.pop(0)
+#            thread = self.threads[0]
+#            data = copy.deepcopy(self.scan.data[self.currentIndex])
+#            thread.processData(self.currentIndex, data)
 
 #            self.currentIndex += 1
 
@@ -219,15 +243,13 @@ class AnalysisController(QtCore.QObject):
 
         self.emit(QtCore.SIGNAL("newMcaFit"), processedData['mcaFit'])
 
-        dataPath = '/'.join(['elementMaps', self._currentDataType,
-                             self._currentElement])
         elementMap = self.getElementMap()
         self.emit(QtCore.SIGNAL("elementDataChanged"), elementMap)
 
 #        self.threads.append(thread)
         # TODO: next line temporary:
         self.currentIndex += 1
-        self.dispatch()
+#        self.dispatch()
 
 #    def scanFinished(self):
 #        self.emit(QtCore.SIGNAL("scanFinished()"))

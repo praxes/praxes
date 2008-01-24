@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Tasks SYSTEM "Tasks-4.1.dtd">
 <!-- eric4 tasks file for project xpaxs -->
-<!-- Saved: 2008-01-21, 09:30:18 -->
+<!-- Saved: 2008-01-22, 15:13:22 -->
 <Tasks version="4.1">
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: This method is basically pseudocode at the moment</Summary>
@@ -102,45 +102,6 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: this module should be eliminated</Summary>
-    <Description></Description>
-    <Created>2008-01-17, 10:33:29</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>advancedfitanalysis.py</Name>
-      </Filename>
-      <Linenumber>37</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: this should be configurable</Summary>
-    <Description></Description>
-    <Created>2008-01-17, 10:33:29</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>advancedfitanalysis.py</Name>
-      </Filename>
-      <Linenumber>71</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: probably needs a separate thread at some point</Summary>
-    <Description></Description>
-    <Created>2008-01-17, 10:33:29</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>advancedfitanalysis.py</Name>
-      </Filename>
-      <Linenumber>189</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: much of this needs to go elsewhere, like in spec or spectromicroscopy</Summary>
     <Description></Description>
     <Created>2008-01-17, 10:34:31</Created>
@@ -220,45 +181,6 @@
         <Name>scananalysis.py</Name>
       </Filename>
       <Linenumber>52</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: add a new group to store this information</Summary>
-    <Description></Description>
-    <Created>2008-01-18, 15:56:52</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>analysisController.py</Name>
-      </Filename>
-      <Linenumber>38</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: This method is basically pseudocode at the moment</Summary>
-    <Description></Description>
-    <Created>2008-01-18, 15:56:52</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>analysisController.py</Name>
-      </Filename>
-      <Linenumber>143</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: use QSettings to save and restore a config file?</Summary>
-    <Description></Description>
-    <Created>2008-01-18, 15:56:52</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>analysisController.py</Name>
-      </Filename>
-      <Linenumber>186</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
@@ -357,6 +279,123 @@
         <Name>mainwindow.py</Name>
       </Filename>
       <Linenumber>206</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: get the channels from the controller</Summary>
+    <Description></Description>
+    <Created>2008-01-22, 14:26:19</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>advancedfitanalysis.py</Name>
+      </Filename>
+      <Linenumber>57</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: get the channels from the controller</Summary>
+    <Description></Description>
+    <Created>2008-01-22, 14:26:19</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>advancedfitanalysis.py</Name>
+      </Filename>
+      <Linenumber>138</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this module should be eliminated</Summary>
+    <Description></Description>
+    <Created>2008-01-22, 14:26:19</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>advancedfitanalysis.py</Name>
+      </Filename>
+      <Linenumber>197</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this should be configurable</Summary>
+    <Description></Description>
+    <Created>2008-01-22, 14:26:19</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>advancedfitanalysis.py</Name>
+      </Filename>
+      <Linenumber>231</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: probably needs a separate thread at some point</Summary>
+    <Description></Description>
+    <Created>2008-01-22, 14:26:19</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>advancedfitanalysis.py</Name>
+      </Filename>
+      <Linenumber>349</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: add a new group to store this information</Summary>
+    <Description></Description>
+    <Created>2008-01-22, 14:29:14</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>analysisController.py</Name>
+      </Filename>
+      <Linenumber>53</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: use this for acquisition</Summary>
+    <Description></Description>
+    <Created>2008-01-22, 14:29:14</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>analysisController.py</Name>
+      </Filename>
+      <Linenumber>96</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: This method is basically pseudocode at the moment</Summary>
+    <Description></Description>
+    <Created>2008-01-22, 14:29:14</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>analysisController.py</Name>
+      </Filename>
+      <Linenumber>207</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: next line temporary:</Summary>
+    <Description></Description>
+    <Created>2008-01-22, 14:29:14</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>analysisController.py</Name>
+      </Filename>
+      <Linenumber>232</Linenumber>
     </Resource>
   </Task>
 </Tasks>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.2.dtd">
 <!-- eric4 project file for project xpaxs -->
-<!-- Saved: 2008-01-18, 08:54:33 -->
+<!-- Saved: 2008-01-22, 15:13:22 -->
 <!-- Copyright (C) 2008 ,  -->
 <Project version="4.2">
   <ProgLanguage mixed="1">Python</ProgLanguage>
@@ -431,6 +431,18 @@
       <Dir>datalib</Dir>
       <Dir>specfile</Dir>
       <Name>datamodel.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>macros</Dir>
+      <Name>clientutils.mac</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>macros</Dir>
+      <Name>smp_mca.mac</Name>
     </Source>
   </Sources>
   <Forms>

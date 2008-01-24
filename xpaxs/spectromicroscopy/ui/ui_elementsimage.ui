@@ -195,11 +195,6 @@ p, li { white-space: pre-wrap; }
           </property>
           <item>
            <property name="text" >
-            <string>Mass Fraction</string>
-           </property>
-          </item>
-          <item>
-           <property name="text" >
             <string>Peak Area</string>
            </property>
           </item>

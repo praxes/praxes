@@ -217,11 +217,6 @@ class ElementWidget(QtGui.QWidget):
     def updateView(self, data):
         self.figure.updateFigure(data)
 
-    def viewConcentrations(self, val):
-        if self.controller.checkConcentrations():
-            self.dataTypeBox.addItem('Mass Fraction')
-            self.controller.setCurrentDataType('Mass Fraction')
-
     def enableInteraction(self):
         pass
 
@@ -237,6 +232,10 @@ class ElementImage(ui_elementsimage.Ui_ElementsImage, ElementWidget):
 
         self.xrfbandComboBox.addItems(controller.getPeaks())
         self.normalizationComboBox.addItems(controller.getNormalizationChannels())
+        if self.controller.checkConcentrations():
+            self.dataTypeBox.insertItem(0, 'Mass Fraction')
+            self.dataTypeBox.setCurrentIndex(0)
+            self.controller.setCurrentDataType('Mass Fraction')
 
         self.figure = ElementImageFigure(controller, self)
         self.gridlayout2.addWidget(self.figure, 0, 0, 1, 1)
@@ -271,6 +270,10 @@ class ElementPlot(ui_elementsplot.Ui_ElementsPlot, ElementWidget):
         self.setupUi(self)
 
         self.xrfbandComboBox.addItems(controller.getPeaks())
+        if self.controller.checkConcentrations():
+            self.dataTypeBox.insertItem(0, 'Mass Fraction')
+            self.dataTypeBox.setCurrentIndex(0)
+            self.controller.setCurrentDataType('Mass Fraction')
 
         self.figure = ElementPlotFigure(controller, self)
         self.gridlayout2.addWidget(self.figure, 0, 0, 1, 1)

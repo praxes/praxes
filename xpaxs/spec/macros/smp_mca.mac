@@ -1,9 +1,9 @@
 #
 # skipmode [%enabled%] [%precount% %counter% %threshold%]
 #   Do a quick precount to determine if the sample is present.
-#   %enabled% can be 0 or 1. If enabled, count for %precount% 
+#   %enabled% can be 0 or 1. If enabled, count for %precount%
 #   seconds (not less than 0.2), and if fewer than %threshold%
-#   counts are recorded for %counter%, don't do a full 
+#   counts are recorded for %counter%, don't do a full
 #   measurement and move on to the next point in the scan.
 #
 def skipmode '{
@@ -15,20 +15,25 @@ Usage: skipmode enabled [precount counter threshold]"
 
         if ($1) {
                 if ("$3" != cnt_mne($3) && "$3" != $3){
-                        eprint "Invalid motor name:  $3"
+                        eprint "Invalid counter name:  $3"
                         exit
                 }
-                
+
                 global SKIPMODE_PRECOUNT SKIPMODE_COUNTER SKIPMODE_THRESHOLD
-                
+
                 SKIPMODE_PRECOUNT = $2
                 SKIPMODE_COUNTER = $3
                 SKIPMODE_THRESHOLD = $4
                 cdef("user_precount", "skip_count", "_skip_count_")
+                cdef("user_Fheader", "skipmode_Fheader", "_skip_count_")
         } else {
                 unglobal SKIPMODE_PRECOUNT SKIPMODE_COUNTER SKIPMODE_THRESHOLD
-                cdef("user_precount", "skip_count", "_skip_count_", "delete")
+                cdef("", "", "_skip_count_", "delete")
         }
+}'
+
+def skipmode_Fheader '{
+        printf("#C SKIPMODE %s %d\n", SKIPMODE_COUNTER, SKIPMODE_THRESHOLD)
 }'
 
 def skip_count '{

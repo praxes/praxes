@@ -421,6 +421,13 @@ def convertScan(scan, sfile, h5file):
     mcaInfo = scan.header('@')
     scanType, scanAxes, scanRange, scanShape = getScanInfo(scanCommand.split())
 
+    skipmode = scan.header('C SKIPMODE')
+    if skipmode:
+        skipmodeMonitor, skipmodeThresh = skipmode[0].split()[2:]
+        skipmodeThresh = int(skipmodeThresh)
+    else:
+        skipmodeMonitor, skipmodeThresh = None, 0
+
     scanEntry = h5file.createGroup('/', scanName)
 
     attrs = scanEntry._v_attrs
@@ -435,6 +442,9 @@ def convertScan(scan, sfile, h5file):
     attrs.scanShape = scanShape
     for motor, pos in zip(sfile.allmotors(), scan.allmotorpos()):
         setattr(attrs, motor, pos)
+    if skipmodeMonitor:
+        attrs.skipmodeMonitor = skipmodeMonitor
+        attrs.skipmodeThresh = skipmodeThresh
 
     for label in labels:
         Data[label] = tables.Float32Col()
