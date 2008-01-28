@@ -126,7 +126,7 @@ class AnalysisController(QtCore.QObject):
             if self._normalizationChannel == 'Dead time %': temp = 'Dead'
             else: temp = self._normalizationChannel
             norm = getattr(self.scan.data.cols, temp)[:]
-            if self._normalizationChannel == 'Dead time %': norm = 100/(100-norm)
+            if self._normalizationChannel == 'Dead time %': norm = 1-norm/100
             elementMap.flat[:len(norm)] /= norm
         return elementMap
 

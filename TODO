@@ -1,10 +1,47 @@
+=== XPaXS reorganization and development ===
+
+O Use NeXuS instead of pytables, much more sophisticated infrastructure
+    designed specifically for this kind of work
+
+O Fix the spec acquisition interface, which was broken during the reorganization
+
+O load a scan for inspection, but not for processing
+
+O toolbar for scan analysis window, for configuring pymca, starting fits, etc
+
+O reimplement the calibration routine
+
+O Add crosshairs to inspect an individual spectrum and its fit
+
+O Advanced fit in separate thread(s)
+
+O Improve MVC organization, many methods in the controller should be moved to
+    the data model
+
+O If an image already exists when the scan is opened, load it
+
+O need a progress bar during analysis
+
+O close the scan analysis widget when the subwindow is closed. double check
+    when about to close if some analysis is in progress
+
+O Set window title based on the active scan
+
+O fix the autoscale limits
+
+O add an integer id to each data point in spec to make indexing the images
+    easier
+
+O updated tree view of a datafile based on nexus heirarchy
+
+
 === The following needs to happen before SMP can be used for experiments ===
 
 O RHEL5 installed on F3 station computer
 
 X save images to edf files and plain text files
 
-X move residuals from spectrum fitting into a separate plot, just below the 
+X move residuals from spectrum fitting into a separate plot, just below the
     spectrum plot. Keep ylimits fixed.
 
 X fix bug in starting a second scan (some bug in caching of element images)
@@ -18,18 +55,18 @@ X emit signal when creating advancedfitanalysis, which sets the X-axis and,
 
 X each new scan opens a new tab in the scan feedback window
 
-X if scan is not mesh-type, create a different kind of plot canvas in the 
+X if scan is not mesh-type, create a different kind of plot canvas in the
     lower window. Simple plot instead of an image.
 
 X scanfeedback does not load user's pymcaconfig file, uses default.
 
-P need unified deadtime correction reported by spec, preferrably in S:
+X need unified deadtime correction reported by spec, preferrably in S:
     vortex: ICR/OCR*Real/Live
     xflash: pulser_rate/reported_rate
 
 O need new variable that reports absolute flux at sample, can this be done in S?
 
-P copy skipmode macro into smp-data, run (but dont enable) at smp startup
+X copy skipmode macro into smp-data, run (but dont enable) at smp startup
     macro needs to be improved:
         set variable to monitoring
         set threshold
@@ -44,15 +81,15 @@ X   save image button
 X   min/max/autoscale
 X   fix pymcaloadconfig toolbar button
 
-X turn off feedback signals after a scan is complete or aborted, old tabs 
+X turn off feedback signals after a scan is complete or aborted, old tabs
     continue to process new data right now
 
-P scale counts by deadtime and incident flux before sending to PyMca for 
+P scale counts by deadtime and incident flux before sending to PyMca for
     analysis
 
-O use pytables to store data on disk, rather than in memory
+X use pytables to store data on disk, rather than in memory
 
-P element images can (but dont have to) report concentrations instead of areas
+X element images can (but dont have to) report concentrations instead of areas
 
   write setup.py for distribution
 
