@@ -521,6 +521,6 @@ def spec2hdf5(specFilename, hdf5Filename=None, force=False):
             for scan in sfile:
                 try: convertScan(scan, sfile, h5file)
                 except error: pass
-            h5file.flush()
+                h5file.flush()
         finally:
             return h5file
