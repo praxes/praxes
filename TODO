@@ -1,4 +1,4 @@
-=== XPaXS reorganization and development ===
+== XPaXS reorganization and development ===
 
 O NeXuS wrapper for pytables, much more sophisticated infrastructure
     designed specifically for this kind of work
