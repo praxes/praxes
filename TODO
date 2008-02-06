@@ -3,6 +3,8 @@
 O NeXuS wrapper for pytables, much more sophisticated infrastructure
     designed specifically for this kind of work
 
+O Jeff's konsole and config interface
+
 O Fix the spec acquisition interface, which was broken during the reorganization
 
 O load a scan for inspection, but not for processing
