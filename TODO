@@ -1,6 +1,6 @@
 === XPaXS reorganization and development ===
 
-O Use NeXuS instead of pytables, much more sophisticated infrastructure
+O NeXuS wrapper for pytables, much more sophisticated infrastructure
     designed specifically for this kind of work
 
 O Fix the spec acquisition interface, which was broken during the reorganization
