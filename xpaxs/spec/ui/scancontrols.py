@@ -93,6 +93,11 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
 #                     QtCore.SIGNAL("scanAborted()"),
 #                     self.enableScanOptions)
 
+#    def closeEvent(self, event):
+#        self.specRunner.skipmode(0)
+#        self.specRunner.close()
+#        event.accept()
+
     def connectAxesSignals(self):
         for axis in self.axes:
             self.connect(axis,

@@ -15,7 +15,6 @@ import time
 
 from PyQt4 import QtCore
 import SpecClient
-SpecClient.setLogFile(configutils.getSpecClientLogFile())
 from SpecClient import Spec, SpecEventsDispatcher, SpecCommand
 
 #---------------------------------------------------------------------------
@@ -30,6 +29,8 @@ from xpaxs.spec.client import motor
 #---------------------------------------------------------------------------
 
 DEBUG = False
+
+SpecClient.setLogFile(configutils.getSpecClientLogFile())
 
 class Dispatcher(QtCore.QThread):
     
@@ -64,6 +65,7 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         # load the clientutils macros:
         self.runMacro('clientutils.mac')
         self.clientploton()
+        self.runMacro('smp_mca.mac')
         
         self._motors = {}
         self._motorNames = []
@@ -78,6 +80,11 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
 #                     QtCore.SIGNAL("timeout()"),
 #                     self.update)
 #        self.timer.start(20)
+
+    def __del__(self):
+        self.clientplotoff()
+        self.connection.dispatcher.disconnect()
+        self.dispatcher.quit()
 
     def close(self):
         self.clientplotoff()

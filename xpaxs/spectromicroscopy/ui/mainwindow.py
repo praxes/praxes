@@ -46,7 +46,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.progressBar = QtGui.QProgressBar(self.statusBar)
         self.progressBar.hide()
 
-        self.specInterface = None
+        self.spec = {}
         self.fileView = None
         self.fileModel = None
         #TODO: added Consoles and motorViews
@@ -104,7 +104,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                     "X-ray fluorescence spectra"%__version__))
 
     def closeEvent(self, event):
-        if self.specInterface: self.specInterface.close()
+        if self.spec: self.spec.close()
         settings = QtCore.QSettings()
         settings.beginGroup("MainWindow")
         settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
@@ -133,13 +133,13 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             from spectromicroscopy.smpgui import specinterface
             from SpecClient import SpecClientError
 
-            self.specInterface = \
+            self.spec['runner'] = \
                 specinterface.SpecInterface(statusBar=self.statusBar)
             self.specDockWidget = QtGui.QDockWidget('spec', self)
             self.specDockWidget.setObjectName('SpecDockWidget')
             self.specDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|
                                                 QtCore.Qt.RightDockWidgetArea)
-            self.specDockWidget.setWidget(self.specInterface)
+            self.specDockWidget.setWidget(self.spec)
             self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
                                self.specDockWidget)
             # TODO: add to View menu
