@@ -24,14 +24,14 @@ from xpaxs.spec.ui import ui_specconnect
 # Normal code begins
 #---------------------------------------------------------------------------
 
-class ConfigureSmp(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
+class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def __init__(self, parent=None):
 
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
         settings = QtCore.QSettings()
-        geometry = settings.value('ConfigureSmp/Geometry').toByteArray()
+        geometry = settings.value('SpecConnect/Geometry').toByteArray()
         self.restoreGeometry(geometry)
         server = settings.value('Server').toString()
         port = settings.value('Port').toString()
@@ -42,7 +42,7 @@ class ConfigureSmp(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
         settings = QtCore.QSettings()
         settings.setValue('Port', QtCore.QVariant(self.portEdit.text()))
         settings.setValue('Server', QtCore.QVariant(self.serverEdit.text()))
-        settings.setValue('ConfigureSmp/Geometry',
+        settings.setValue('SpecConnect/Geometry',
                           QtCore.QVariant(self.saveGeometry()))
         QtGui.QDialog.accept(self)
 
@@ -50,7 +50,7 @@ class ConfigureSmp(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
-    app.setOrganizationName('SMP')
-    myapp = ConfigureSmp()
+    app.setOrganizationName('XPaXS')
+    myapp = SpecConnect()
     myapp.show()
     sys.exit(app.exec_())

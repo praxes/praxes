@@ -126,6 +126,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 #        NotImplementedError
 
     def connectToSpec(self):
+        from xpaxs.spec.ui import specconnect
         from spectromicroscopy.smpgui import configuresmp
         if not configuresmp.ConfigureSmp(self).exec_(): return
         try:
@@ -241,6 +242,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 def main():
     import sys
     app = QtGui.QApplication(sys.argv)
+    app.setOrganizationName('XPaXS')
     form = SmpMainWindow()
     form.show()
     sys.exit(app.exec_())

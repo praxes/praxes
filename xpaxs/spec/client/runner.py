@@ -69,6 +69,7 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         self._motorNames = []
         self._counterNames = []
         self.getMotorsMne()
+        self.getCountersMne()
         
         self.dispatcher = Dispatcher()
         self.dispatcher.start(QtCore.QThread.NormalPriority)
@@ -93,12 +94,13 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         return self._counterNames
 
     def getMotor(self, motorName):
-        if motorName in self._motors:
-            return self._motors[motorName]
-        else:
-            self._motors[motorName] = motor.QtSpecMotorA(motorName,
-                                                         self.specVersion)
-            return self._motors[motorName]
+        motor.QtSpecMotorA(motorName, self.specVersion)
+#        if motorName in self._motors:
+#            return self._motors[motorName]
+#        else:
+#            self._motors[motorName] = motor.QtSpecMotorA(motorName,
+#                                                         self.specVersion)
+#            return self._motors[motorName]
 
     def getMotorMne(self, motorId):
         motorMne = self.motor_mne(motorId, function = True)

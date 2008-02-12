@@ -61,10 +61,9 @@ class MyKon(ui_console.Ui_Kontrol, QtGui.QMainWindow):
 
     def konsole(self):
         self.textDisplay.append(">>>"+self.textEditKonsole.toPlainText())
-        Kommands=self.textEditKonsole.toPlainText().split(";")
-        for i in range(len(Kommands)):
-            Kommand="%s"%Kommands[i]
-            doingit=pexpect.run(Kommand)
+        commands = self.textEditKonsole.toPlainText().split(";")
+        for command in commands:
+            doingit = pexpect.run("%s"%command)
             self.textDisplay.append(doingit)
 
             
