@@ -32,11 +32,11 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
-        
+
         self.specRunner = None
-        
+
         self.restore()
-    
+
     def exec_(self):
         if QtGui.QDialog.exec_(self):
             self.connect()
@@ -92,4 +92,4 @@ if __name__ == "__main__":
     app.setOrganizationName('XPaXS')
     myapp = SpecConnect()
     runner = myapp.exec_()
-    print runner.getMotorsMne()
+#    print runner.getMotorsMne()
