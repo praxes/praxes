@@ -30,13 +30,21 @@ from xpaxs.spec.client import motor
 
 DEBUG = False
 
-SpecClient.setLogFile(configutils.getSpecClientLogFile())
+logfile = os.path.join(configutils.getUserConfigDir(), 'specclient.log')
+
+SpecClient.setLogFile(logfile)
+
+def getSpecMacro(filename):
+    temp = os.path.split(os.path.split(__file__)[0])[0]
+    filename = os.path.join(temp, 'macros', filename)
+    return open(filename).read()
+
 
 class Dispatcher(QtCore.QThread):
-    
+
     def __init__(self, parent=None):
         QtCore.QThread.__init__(self, parent)
-        
+
         self.timer = QtCore.QTimer(self)
         self.connect(self.timer,
                      QtCore.SIGNAL("timeout()"),
@@ -54,37 +62,36 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
     """SpecRunner is our primary interface to Spec. Some caching is added,
     to improve performance.
     """
-    
+
     def __init__(self, specVersion=None, timeout=None):
         """specVersion is a string like 'foo.bar:spec' or '127.0.0.1:fourc'
         """
         QtCore.QObject.__init__(self)
         Spec.Spec.__init__(self, specVersion, timeout)
-        
+
         self.cmd = SpecCommand.SpecCommand('', specVersion, timeout)
+
         # load the clientutils macros:
         self.runMacro('clientutils.mac')
         self.clientploton()
         self.runMacro('smp_mca.mac')
-        
+
         self._motors = {}
         self._motorNames = []
         self._counterNames = []
         self.getMotorsMne()
         self.getCountersMne()
-        
+
         self.dispatcher = Dispatcher()
         self.dispatcher.start(QtCore.QThread.NormalPriority)
-#        self.timer = QtCore.QTimer(self)
-#        self.connect(self.timer,
-#                     QtCore.SIGNAL("timeout()"),
-#                     self.update)
-#        self.timer.start(20)
 
     def __del__(self):
-        self.clientplotoff()
-        self.connection.dispatcher.disconnect()
-        self.dispatcher.quit()
+        try:
+            self.clientplotoff()
+            self.connection.dispatcher.disconnect()
+            self.dispatcher.quit()
+        except:
+            pass
 
     def close(self):
         self.clientplotoff()
@@ -117,8 +124,9 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
 
     def getMotorsMne(self):
         if len(self._motorNames) != self.getNumMotors():
-            motorsMne = self.cmd.executeCommand("local md; for (i=0; i<MOTORS; \
-i++) { md[i]=motor_mne(i); }; return md")
+            motorsMne = self.cmd.executeCommand("local md; for (i=0; i<MOTORS;"
+                                                "i++) { md[i]=motor_mne(i); };"
+                                                "return md")
             keys = [int(i) for i in motorsMne.keys()]
             keys.sort()
             self._motorNames = [motorsMne[str(i)] for i in keys]
@@ -133,10 +141,7 @@ i++) { md[i]=motor_mne(i); }; return md")
             return self.connection.getChannel('var/MOTORS').read()
 
     def runMacro(self, macro):
-        self.cmd.executeCommand(configutils.getSpecMacro(macro))
-
-#    def update(self):
-#        SpecEventsDispatcher.dispatch()
+        self.cmd.executeCommand(getSpecMacro(macro))
 
     def abort(self):
         self.connection.abort()

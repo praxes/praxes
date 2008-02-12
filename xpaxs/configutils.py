@@ -51,11 +51,3 @@ def getPymcaConfig(configFile=None):
     '''return a ConfigDict containing the pymca config data'''
     if not configFile: configFile = getDefaultPymcaConfigFile()
     return ConfigDict.ConfigDict(filelist=configFile)
-
-def getSpecMacro(filename):
-    if not os.path.isfile(filename):
-        filename = os.path.join(getDefaultConfigDir(), filename)
-    return open(filename).read()
-
-def getSpecClientLogFile():
-    return os.path.join(getUserConfigDir(), 'specclient.log')

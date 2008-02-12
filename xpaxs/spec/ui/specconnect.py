@@ -39,14 +39,14 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
     
     def exec_(self):
         if QtGui.QDialog.exec_(self):
-            self.__connect()
+            self.connect()
             if self.specRunner is None: self.exec_()
             else: return self.specRunner
 
     def connect(self):
         try:
-            self.specRunner = specrunner.SpecRunner(self.getSpecVersion(),
-                                                    timeout=500)
+            self.specRunner = runner.SpecRunner(self.getSpecVersion(),
+                                                timeout=500)
         except SpecClientError.SpecClientTimeoutError:
             self.connectionError()
             self.specRunner = None
@@ -91,7 +91,5 @@ if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     app.setOrganizationName('XPaXS')
     myapp = SpecConnect()
-#    app.exec_()
-    print myapp.exec_()
-    
-#    sys.exit(app.exec_())
+    runner = myapp.exec_()
+    print runner.getMotorsMne()

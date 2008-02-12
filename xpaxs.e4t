@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Tasks SYSTEM "Tasks-4.1.dtd">
 <!-- eric4 tasks file for project xpaxs -->
-<!-- Saved: 2008-01-22, 15:13:22 -->
+<!-- Saved: 2008-02-12, 14:30:17 -->
 <Tasks version="4.1">
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: This method is basically pseudocode at the moment</Summary>
@@ -57,34 +57,6 @@
         <Name>scan.py</Name>
       </Filename>
       <Linenumber>279</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: update reference to newest scan, make connections when scan is created</Summary>
-    <Description></Description>
-    <Created>2008-01-17, 10:30:56</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>ui</Dir>
-        <Name>scancontrols.py</Name>
-      </Filename>
-      <Linenumber>85</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: need to reimpliment using new scheme: instantiate a scananalysis window</Summary>
-    <Description></Description>
-    <Created>2008-01-17, 10:30:56</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>ui</Dir>
-        <Name>scancontrols.py</Name>
-      </Filename>
-      <Linenumber>129</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
@@ -181,104 +153,6 @@
         <Name>scananalysis.py</Name>
       </Filename>
       <Linenumber>52</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: added Consoles and motorViews</Summary>
-    <Description></Description>
-    <Created>2008-01-21, 08:10:11</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>mainwindow.py</Name>
-      </Filename>
-      <Linenumber>52</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: add to View menu</Summary>
-    <Description></Description>
-    <Created>2008-01-21, 08:10:11</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>mainwindow.py</Name>
-      </Filename>
-      <Linenumber>142</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: remove from View menu</Summary>
-    <Description></Description>
-    <Created>2008-01-21, 08:10:11</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>mainwindow.py</Name>
-      </Filename>
-      <Linenumber>152</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: This interface needs attention</Summary>
-    <Description></Description>
-    <Created>2008-01-21, 08:10:11</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>mainwindow.py</Name>
-      </Filename>
-      <Linenumber>162</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: update the console UI, use proper naming convention</Summary>
-    <Description></Description>
-    <Created>2008-01-21, 08:10:11</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>mainwindow.py</Name>
-      </Filename>
-      <Linenumber>171</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: convert specfiles to hdf5</Summary>
-    <Description></Description>
-    <Created>2008-01-21, 08:10:11</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>mainwindow.py</Name>
-      </Filename>
-      <Linenumber>185</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: add file to list of open files in menu</Summary>
-    <Description></Description>
-    <Created>2008-01-21, 08:10:11</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>mainwindow.py</Name>
-      </Filename>
-      <Linenumber>206</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
@@ -396,6 +270,146 @@
         <Name>analysisController.py</Name>
       </Filename>
       <Linenumber>232</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: update reference to newest scan, make connections when scan is created</Summary>
+    <Description></Description>
+    <Created>2008-02-12, 12:56:32</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spec</Dir>
+        <Dir>ui</Dir>
+        <Name>scancontrols.py</Name>
+      </Filename>
+      <Linenumber>85</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: need to reimpliment using new scheme: instantiate a scananalysis window</Summary>
+    <Description></Description>
+    <Created>2008-02-12, 12:56:32</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spec</Dir>
+        <Dir>ui</Dir>
+        <Name>scancontrols.py</Name>
+      </Filename>
+      <Linenumber>134</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: added Consoles and motorViews</Summary>
+    <Description></Description>
+    <Created>2008-02-12, 13:48:37</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Dir>ui</Dir>
+        <Name>mainwindow.py</Name>
+      </Filename>
+      <Linenumber>52</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: add to View menu</Summary>
+    <Description></Description>
+    <Created>2008-02-12, 13:48:37</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Dir>ui</Dir>
+        <Name>mainwindow.py</Name>
+      </Filename>
+      <Linenumber>145</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: remove from View menu</Summary>
+    <Description></Description>
+    <Created>2008-02-12, 13:48:37</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Dir>ui</Dir>
+        <Name>mainwindow.py</Name>
+      </Filename>
+      <Linenumber>155</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: This interface needs attention</Summary>
+    <Description></Description>
+    <Created>2008-02-12, 13:48:37</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Dir>ui</Dir>
+        <Name>mainwindow.py</Name>
+      </Filename>
+      <Linenumber>165</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: update the console UI, use proper naming convention</Summary>
+    <Description></Description>
+    <Created>2008-02-12, 13:48:37</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Dir>ui</Dir>
+        <Name>mainwindow.py</Name>
+      </Filename>
+      <Linenumber>174</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: add file to list of open files in menu</Summary>
+    <Description></Description>
+    <Created>2008-02-12, 13:48:37</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Dir>ui</Dir>
+        <Name>mainwindow.py</Name>
+      </Filename>
+      <Linenumber>209</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: dialog to overwrite</Summary>
+    <Description></Description>
+    <Created>2008-02-12, 13:48:37</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Dir>ui</Dir>
+        <Name>mainwindow.py</Name>
+      </Filename>
+      <Linenumber>223</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this next line is just for convenience during development</Summary>
+    <Description></Description>
+    <Created>2008-02-12, 13:48:37</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Dir>ui</Dir>
+        <Name>mainwindow.py</Name>
+      </Filename>
+      <Linenumber>237</Linenumber>
     </Resource>
   </Task>
 </Tasks>
