@@ -46,7 +46,8 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.progressBar = QtGui.QProgressBar(self.statusBar)
         self.progressBar.hide()
 
-        self.spec = {}
+        self.specRunner = None
+
         self.fileView = None
         self.fileModel = None
         #TODO: added Consoles and motorViews
@@ -104,7 +105,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                     "X-ray fluorescence spectra"%__version__))
 
     def closeEvent(self, event):
-        if self.spec: self.spec.close()
         settings = QtCore.QSettings()
         settings.beginGroup("MainWindow")
         settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
@@ -126,27 +126,13 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 #        NotImplementedError
 
     def connectToSpec(self):
-        from xpaxs.spec.ui import specconnect
-        from spectromicroscopy.smpgui import configuresmp
-        if not configuresmp.ConfigureSmp(self).exec_(): return
-        try:
-            from spectromicroscopy.smpgui import specinterface
-            from SpecClient import SpecClientError
+        from xpaxs.spec.ui.specconnect import SpecConnect
 
-            self.spec['runner'] = \
-                specinterface.SpecInterface(statusBar=self.statusBar)
-            self.specDockWidget = QtGui.QDockWidget('spec', self)
-            self.specDockWidget.setObjectName('SpecDockWidget')
-            self.specDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|
-                                                QtCore.Qt.RightDockWidgetArea)
-            self.specDockWidget.setWidget(self.spec)
-            self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
-                               self.specDockWidget)
-            # TODO: add to View menu
-        except SpecClientError.SpecClientTimeoutError:
-            self.connectToSpec()
-        self.actionConnect.setEnabled(False)
-        self.actionDisconnect.setEnabled(True)
+        dlg = SpecConnect(self)
+        self.expInterface = dlg.exec_()
+        if self.expInterface:
+            self.actionConnect.setEnabled(False)
+            self.actionDisconnect.setEnabled(True)
 
     def disconnectFromSpec(self):
         self.specDockWidget.close()

@@ -22,7 +22,7 @@ from SpecClient import Spec, SpecEventsDispatcher, SpecCommand
 #---------------------------------------------------------------------------
 
 from xpaxs import configutils
-from xpaxs.spec.client import motor
+from xpaxs.spec.client.motor import QtSpecMotorA
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -88,8 +88,9 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
     def __del__(self):
         try:
             self.clientplotoff()
+            self.dispatcher.exit()
+            self.dispatcher.wait()
             self.connection.dispatcher.disconnect()
-            self.dispatcher.quit()
         except:
             pass
 
@@ -108,11 +109,11 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         return self._counterNames
 
     def getMotor(self, motorName):
-        motor.QtSpecMotorA(motorName, self.specVersion)
+        return QtSpecMotorA(motorName, self.specVersion)
 #        if motorName in self._motors:
 #            return self._motors[motorName]
 #        else:
-#            self._motors[motorName] = motor.QtSpecMotorA(motorName,
+#            self._motors[motorName] = QtSpecMotorA(motorName,
 #                                                         self.specVersion)
 #            return self._motors[motorName]
 

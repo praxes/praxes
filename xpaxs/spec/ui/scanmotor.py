@@ -25,27 +25,27 @@ from xpaxs.spec.ui import ui_scanmotor
 
 
 class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
-    
+
     """Establishes a Experimenbt controls    """
-    
+
     def __init__(self, parent, motor):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
-    
+
         self.parent = parent
-        self.specInterface = parent.specInterface
-        
-        motors = self.specInterface.specRunner.getMotorsMne()
+        self.specRunner = parent.specRunner
+
+        motors = self.specRunner.getMotorsMne()
         try:
             ind = motors.index(motor)
         except ValueError:
             motor = motors[0]
             ind = 0
-        self.setMotor(motor, self.specInterface.specRunner.specVersion)
-        
+        self.setMotor(motor, self.specRunner.specVersion)
+
         self.motorComboBox.addItems(motors)
         self.motorComboBox.setCurrentIndex(ind)
-        
+
         self.connect(self.motorComboBox,
                      QtCore.SIGNAL("currentIndexChanged(const QString&)"),
                      self.setMotor)
@@ -57,7 +57,7 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
                      self.setNextPosition)
 
     def setMotor(self, motor, hostport=None):
-        self._motor = motor = self.specInterface.specRunner.getMotor(str(motor))
+        self._motor = motor = self.specRunner.getMotor(str(motor))
         self.setLimits(motor.getLimits())
 
         position = motor.getPosition()
@@ -91,13 +91,13 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
         self.nextPosSlider.setRange(int(low*1000), int(high*1000))
         self.scanFromSpinBox.setRange(low, high)
         self.scanToSpinBox.setRange(low, high)
-    
+
     def setNextPosition(self, position):
         if isinstance(position, int):
             self.nextPosSpinBox.setValue(position*0.001)
         else:
             self.nextPosSlider.setValue(int(position*1000))
-    
+
     def getState(self):
         return self._motor.getState()
 
@@ -113,6 +113,6 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
         f = self.scanToSpinBox.value()
         i = self.scanStepsSpinBox.value()
         return [m, s, f, i]
-    
+
     def moveMotor(self):
         self._motor.move(self.nextPosSpinBox.value())

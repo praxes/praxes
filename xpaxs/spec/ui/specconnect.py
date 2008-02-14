@@ -21,12 +21,18 @@ from SpecClient import SpecClientError
 
 from xpaxs.spec.ui import ui_specconnect
 from xpaxs.spec.client import runner
+from xpaxs.spec.ui.scancontrols import ScanControls
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
+
+    """This dialog allows the user to identify the spec server and port
+
+    returns a SpecRunner instance
+    """
 
     def __init__(self, parent=None):
 
@@ -41,7 +47,9 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
         if QtGui.QDialog.exec_(self):
             self.connect()
             if self.specRunner is None: self.exec_()
-            else: return self.specRunner
+            return SpecInterface(self.specRunner, self.parent())
+        else:
+            return None
 
     def connect(self):
         try:
@@ -86,10 +94,30 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
         QtGui.QDialog.accept(self)
 
 
+class SpecInterface(object):
+
+    def __init__(self, specRunner=None, mainWindow=None):
+
+        self.specRunner = specRunner
+        self.mainWindow = mainWindow
+        self.views = {}
+
+        self.scanControls = ScanControls(specRunner)
+        self.scanControlsDock = QtGui.QDockWidget('Scan Controls')
+        self.scanControlsDock.setObjectName('SpecScanControlsWidget')
+        self.scanControlsDock.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|
+                                              QtCore.Qt.RightDockWidgetArea)
+        self.scanControlsDock.setWidget(self.scanControls)
+        mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
+                             self.scanControlsDock)
+
+        self.views['Scan Controls'] = self.scanControlsDock
+
+
 if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
     app.setOrganizationName('XPaXS')
-    myapp = SpecConnect()
-    runner = myapp.exec_()
-#    print runner.getMotorsMne()
+    dlg = SpecConnect()
+    interface = dlg.exec_()
+    print interface

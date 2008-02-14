@@ -17,7 +17,7 @@ from PyQt4 import QtCore, QtGui
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.spec import utils
+from xpaxs.spec.client import utils
 from xpaxs.spec.ui import scanmotor, ui_scancontrols
 
 #---------------------------------------------------------------------------
@@ -26,23 +26,24 @@ from xpaxs.spec.ui import scanmotor, ui_scancontrols
 
 class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
     """Establishes a Experimenbt controls    """
-    def __init__(self, parent=None):
+    def __init__(self, specRunner, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.specInterface = parent
+        self.specRunner = specRunner
         self.setupUi(self)
 
         self.axes = []
         self.axesTab.removeTab(0)
+        self.progressBar.setVisible(False)
 
         scans = list(utils.MOTOR_SCANS)
         self.scanTypeComboBox.addItems(scans)
         self.setScanType(scans[0])
 
-        self.scanButton = QtGui.QPushButton(self.scanControlsGroupBox)
+        self.scanButton = QtGui.QPushButton(self)
         self.scanButton.setText('Scan')
-        self.pauseButton = QtGui.QPushButton(self.scanControlsGroupBox)
+        self.pauseButton = QtGui.QPushButton(self)
         self.pauseButton.setText('Pause')
-        self.resumeButton = QtGui.QPushButton(self.scanControlsGroupBox)
+        self.resumeButton = QtGui.QPushButton(self)
         self.resumeButton.setText('Resume')
 
         self.scanStackedLayout = QtGui.QStackedLayout(self.stackedLayoutFrame)
@@ -51,6 +52,8 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.scanStackedLayout.addWidget(self.pauseButton)
         self.scanStackedLayout.addWidget(self.resumeButton)
         self.stackedLayoutFrame.setGeometry(self.abortButton.geometry())
+
+        self.getMainWindow()
 
         self.connect(self.scanTypeComboBox,
                      QtCore.SIGNAL("currentIndexChanged(const QString&)"),
@@ -67,21 +70,21 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.connect(self.resumeButton,
                      QtCore.SIGNAL("clicked()"),
                      self.scanResumed)
-        self.connect(self.specInterface.specRunner.scan,
-                     QtCore.SIGNAL("scanStarted()"),
-                     self.scanStarted)
-        self.connect(self.specInterface.specRunner.scan,
-                     QtCore.SIGNAL("scanStarted()"),
-                     self.activityStarted)
-        self.connect(self.specInterface.specRunner.scan,
-                     QtCore.SIGNAL("scanFinished()"),
-                     self.scanFinished)
-        self.connect(self.specInterface.specRunner.scan,
-                     QtCore.SIGNAL("scanFinished()"),
-                     self.activityFinished)
-        self.connect(self.specInterface.specRunner.scan,
-                     QtCore.SIGNAL("newScanIndex(int)"),
-                     self.updateProgressBar)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("scanStarted()"),
+#                     self.scanStarted)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("scanStarted()"),
+#                     self.activityStarted)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("scanFinished()"),
+#                     self.scanFinished)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("scanFinished()"),
+#                     self.activityFinished)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("newScanIndex(int)"),
+#                     self.updateProgressBar)
 # TODO: update reference to newest scan, make connections when scan is created
 #        self.connect(self.specRunner.scan,
 #                     QtCore.SIGNAL("scanStarted()"),
@@ -97,6 +100,12 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
 #        self.specRunner.skipmode(0)
 #        self.specRunner.close()
 #        event.accept()
+
+    def getMainWindow(self):
+        parent = self.parent()
+        while parent:
+            parent = parent.parent()
+        print parent
 
     def connectAxesSignals(self):
         for axis in self.axes:
@@ -133,16 +142,16 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.window().progressBar.setMaximum(scanPoints)
 # TODO: need to reimpliment using new scheme: instantiate a scananalysis window
 # with a specscanacquisition instance to control it.
-#        getattr(self.specInterface.specRunner.scan, scantype)(*scanArgs)
+#        getattr(self.specRunner.scan, scantype)(*scanArgs)
 #            self.specRunner = specrunner.SpecRunner(specVersion, timeout=500)
 #            self.specRunner.scan = \
 #                qtspecscan.QtSpecScanA(self.specRunner.specVersion)
 
     def abort(self):
-        self.specInterface.specRunner.abort()
+        self.specRunner.abort()
         self.scanFinished()
         self.activityFinished()
-        self.specInterface.specRunner.scan.scanAborted()
+        self.specRunner.scan.scanAborted()
 
     def activityStarted(self):
         self.axesTab.setEnabled(False)
@@ -170,11 +179,11 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.window().hideProgressBar()
 
     def scanPaused(self):
-        self.specInterface.specRunner.abort()
+        self.specRunner.abort()
         self.scanStackedLayout.setCurrentWidget(self.resumeButton)
 
     def scanResumed(self):
-        self.specInterface.specRunner.scan.resumeScan()
+        self.specRunner.scan.resumeScan()
         self.scanStackedLayout.setCurrentWidget(self.pauseButton)
 
     def setScanType(self, scanType):
