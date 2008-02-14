@@ -94,24 +94,23 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
         QtGui.QDialog.accept(self)
 
 
-class SpecInterface(object):
+class SpecInterface(QtCore.QObject):
 
-    def __init__(self, specRunner=None, mainWindow=None):
+    def __init__(self, specRunner=None, parent=None):
+        super(SpecInterface, self).__init__(parent)
 
         self.specRunner = specRunner
-        self.mainWindow = mainWindow
-        self.views = {}
+        self.dockWidgets = {}
 
         self.scanControls = ScanControls(specRunner)
-        self.scanControlsDock = QtGui.QDockWidget('Scan Controls')
-        self.scanControlsDock.setObjectName('SpecScanControlsWidget')
-        self.scanControlsDock.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|
-                                              QtCore.Qt.RightDockWidgetArea)
-        self.scanControlsDock.setWidget(self.scanControls)
-        mainWindow.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
-                             self.scanControlsDock)
+        scanControlsDock = QtGui.QDockWidget('Scan Controls')
+        scanControlsDock.setObjectName('SpecScanControlsWidget')
+        scanControlsDock.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|
+                                         QtCore.Qt.RightDockWidgetArea)
+        scanControlsDock.setWidget(self.scanControls)
 
-        self.views['Scan Controls'] = self.scanControlsDock
+        self.dockWidgets['Scan Controls'] = (QtCore.Qt.LeftDockWidgetArea,
+                                             scanControlsDock)
 
 
 if __name__ == "__main__":

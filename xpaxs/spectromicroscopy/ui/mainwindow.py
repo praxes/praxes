@@ -134,6 +134,12 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             self.actionConnect.setEnabled(False)
             self.actionDisconnect.setEnabled(True)
 
+            for key, (area, item) in self.expInterface.dockWidgets.iteritems():
+                viewAction = item.toggleViewAction()
+                viewAction.setText(key)
+                self.menuWindow.addAction(viewAction)
+                self.addDockWidget(area, item)
+
     def disconnectFromSpec(self):
         self.specDockWidget.close()
         self.actionConnect.setEnabled(True)

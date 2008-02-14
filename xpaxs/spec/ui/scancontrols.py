@@ -53,8 +53,6 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.scanStackedLayout.addWidget(self.resumeButton)
         self.stackedLayoutFrame.setGeometry(self.abortButton.geometry())
 
-        self.getMainWindow()
-
         self.connect(self.scanTypeComboBox,
                      QtCore.SIGNAL("currentIndexChanged(const QString&)"),
                      self.setScanType)
@@ -103,9 +101,11 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
 
     def getMainWindow(self):
         parent = self.parent()
+        if parent is None: return self
         while parent:
-            parent = parent.parent()
-        print parent
+            temp = parent.parent()
+            if temp is None: return parent
+            else: parent = temp
 
     def connectAxesSignals(self):
         for axis in self.axes:
