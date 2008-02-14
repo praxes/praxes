@@ -137,7 +137,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             for key, (area, item) in self.expInterface.dockWidgets.iteritems():
                 viewAction = item.toggleViewAction()
                 viewAction.setText(key)
-                self.menuWindow.addAction(viewAction)
+                self.menuSpec.addAction(viewAction)
                 self.addDockWidget(area, item)
 
     def disconnectFromSpec(self):
