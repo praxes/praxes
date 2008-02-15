@@ -175,6 +175,7 @@ class FileModel(QtCore.QAbstractItemModel):
         return parentItem.childCount()
 
     def appendFile(self, filename):
+        # TODO: check if file has already been opened
         self.rootItem.appendChild(FileItem(filename, self.rootItem))
 
     def itemActivated(self, index):

@@ -32,7 +32,7 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
 
-        self.parent = parent
+        self.setParent(parent)
         self.specRunner = parent.specRunner
 
         motors = self.specRunner.getMotorsMne()
@@ -58,6 +58,7 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
 
     def setMotor(self, motor, hostport=None):
         self._motor = motor = self.specRunner.getMotor(str(motor))
+
         self.setLimits(motor.getLimits())
 
         position = motor.getPosition()
@@ -66,6 +67,7 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
         self.nextPosSpinBox.setValue(position)
         self.scanFromSpinBox.setValue(position)
         self.scanToSpinBox.setValue(position+1)
+        self.motorStateChanged(self.getState())
 
         self.connect(self._motor,
                      QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
@@ -104,8 +106,10 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
     def motorStateChanged(self, state):
         if state in ('READY', 'ONLIMIT'):
             self.emit(QtCore.SIGNAL("motorReady()"))
+            self.setEnabled(True)
         else:
             self.emit(QtCore.SIGNAL("motorActive()"))
+            self.setEnabled(False)
 
     def getScanInfo(self):
         m = str(self.motorComboBox.currentText())

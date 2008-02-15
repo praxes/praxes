@@ -28,7 +28,7 @@ from xpaxs.spec.client.motor import QtSpecMotorA
 # Normal code begins
 #---------------------------------------------------------------------------
 
-DEBUG = False
+DEBUG = True
 
 logfile = os.path.join(configutils.getUserConfigDir(), 'specclient.log')
 
@@ -85,7 +85,7 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         self.dispatcher = Dispatcher()
         self.dispatcher.start(QtCore.QThread.NormalPriority)
 
-    def __del__(self):
+    def close(self):
         try:
             self.clientplotoff()
             self.dispatcher.exit()
@@ -93,11 +93,6 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
             self.connection.dispatcher.disconnect()
         except:
             pass
-
-    def close(self):
-        self.clientplotoff()
-        self.connection.dispatcher.disconnect()
-        self.dispatcher.quit()
 
     def getCountersMne(self):
         if len(self._counterNames) != self.getNumCounters():

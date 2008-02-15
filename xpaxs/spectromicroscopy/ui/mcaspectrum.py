@@ -109,7 +109,7 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
 
     def __init__(self, controller, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.parent = parent
+        self.setParent(parent)
         self.setupUi(self)
 
         self.controller = controller

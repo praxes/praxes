@@ -5,7 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-
+import gc
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -103,14 +103,27 @@ class SpecInterface(QtCore.QObject):
         self.dockWidgets = {}
 
         self.scanControls = ScanControls(specRunner)
-        scanControlsDock = QtGui.QDockWidget('Scan Controls')
-        scanControlsDock.setObjectName('SpecScanControlsWidget')
-        scanControlsDock.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|
-                                         QtCore.Qt.RightDockWidgetArea)
-        scanControlsDock.setWidget(self.scanControls)
+        self.addDockWidget(self.scanControls, 'Scan Controls',
+                           QtCore.Qt.LeftDockWidgetArea|
+                           QtCore.Qt.RightDockWidgetArea,
+                           QtCore.Qt.LeftDockWidgetArea,
+                           'SpecScanControlsWidget')
 
-        self.dockWidgets['Scan Controls'] = (QtCore.Qt.LeftDockWidgetArea,
-                                             scanControlsDock)
+    def addDockWidget(self, widget, title, allowedAreas, defaultArea,
+                      name=None):
+        dock = QtGui.QDockWidget(title)
+        if name: dock.setObjectName(name)
+        dock.setAllowedAreas(allowedAreas)
+        dock.setWidget(widget)
+        action = dock.toggleViewAction()
+        action.setText(title)
+        self.dockWidgets[title] = (dock, defaultArea, action)
+
+    def close(self):
+        self.scanControls = None
+        self.dockWidgets = {}
+        self.specRunner.close()
+        self.specRunner = None
 
 
 if __name__ == "__main__":
@@ -120,3 +133,5 @@ if __name__ == "__main__":
     dlg = SpecConnect()
     interface = dlg.exec_()
     print interface
+    interface.close()
+

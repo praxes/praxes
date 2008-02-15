@@ -175,7 +175,7 @@ class ElementWidget(QtGui.QWidget):
 
     def __init__(self, controller, parent=None):
         super(ElementWidget, self).__init__(parent)
-        self.parent = parent
+        self.setParent(parent)
         self.controller = controller
 
     def __getattr__(self, attr):

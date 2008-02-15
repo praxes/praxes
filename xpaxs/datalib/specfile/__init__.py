@@ -507,8 +507,11 @@ def convertScan(scan, sfile, h5file):
             row[label] = scan.mca((numMca*i+1)+j)
         row.append()
 
-def spec2hdf5(specFilename, hdf5Filename=None, force=False):
-    """returns a pytables file object
+def spec2hdf5(specFilename, hdf5Filename=None, force=False, returnH5File=False):
+    """convert a spec data file to hdf5
+
+    if returnH5File is True, returns an open pytables file object,
+        otherwise returns the h5 filename
     """
     if hdf5Filename is None:
         hdf5Filename = specFilename + '.h5'
@@ -523,4 +526,8 @@ def spec2hdf5(specFilename, hdf5Filename=None, force=False):
                 except error: pass
                 h5file.flush()
         finally:
-            return h5file
+            if returnH5File:
+                return h5file
+            else:
+                h5file.close()
+                return hdf5Filename

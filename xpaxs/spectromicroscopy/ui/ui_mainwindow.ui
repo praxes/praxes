@@ -71,7 +71,7 @@
    </widget>
    <widget class="QMenu" name="menuView" >
     <property name="title" >
-     <string>Window</string>
+     <string>View</string>
     </property>
    </widget>
    <addaction name="menuFile" />
@@ -87,47 +87,9 @@
     </sizepolicy>
    </property>
   </widget>
-  <action name="actionCalibrate_Detector" >
-   <property name="text" >
-    <string>Calibrate Detector</string>
-   </property>
-  </action>
-  <action name="actionMeasure_Standard" >
-   <property name="text" >
-    <string>Measure Standard</string>
-   </property>
-  </action>
   <action name="actionAbout_SMP" >
    <property name="text" >
     <string>About SMP</string>
-   </property>
-  </action>
-  <action name="actionLoad_PyMca_Config" >
-   <property name="text" >
-    <string>Load Config</string>
-   </property>
-  </action>
-  <action name="actionModify_PyMca_Config" >
-   <property name="text" >
-    <string>Modify Config</string>
-   </property>
-  </action>
-  <action name="actionModify_SMP_Config" >
-   <property name="text" >
-    <string>Modify Config</string>
-   </property>
-  </action>
-  <action name="actionLoad_Default_Pymca_Config" >
-   <property name="text" >
-    <string>Default Config</string>
-   </property>
-  </action>
-  <action name="actionNew" >
-   <property name="enabled" >
-    <bool>false</bool>
-   </property>
-   <property name="text" >
-    <string>New Sample</string>
    </property>
   </action>
   <action name="actionConnect" >
@@ -146,21 +108,6 @@
   <action name="actionAbout_Qt" >
    <property name="text" >
     <string>About Qt</string>
-   </property>
-  </action>
-  <action name="actionAbout_PyMca" >
-   <property name="text" >
-    <string>About PyMca</string>
-   </property>
-  </action>
-  <action name="actionAbout_SpecClient" >
-   <property name="text" >
-    <string>About SpecClient</string>
-   </property>
-  </action>
-  <action name="actionConfigure_SMP" >
-   <property name="text" >
-    <string>Configure SMP</string>
    </property>
   </action>
   <action name="actionSave" >
