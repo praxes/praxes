@@ -118,7 +118,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 #
 #    def save(self):
 #        raise NotImplementedError
-#
+
 #    def saveAll(self):
 #        NotImplementedError
 
