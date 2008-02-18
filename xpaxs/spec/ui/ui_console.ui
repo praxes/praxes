@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>972</width>
-    <height>686</height>
+    <width>1138</width>
+    <height>599</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -31,21 +31,6 @@
       <property name="flat" >
        <bool>true</bool>
       </property>
-     </widget>
-    </item>
-    <item rowspan="2" row="1" column="7" >
-     <widget class="QTreeWidget" name="treeWidget" >
-      <property name="minimumSize" >
-       <size>
-        <width>300</width>
-        <height>600</height>
-       </size>
-      </property>
-      <column>
-       <property name="text" >
-        <string>1</string>
-       </property>
-      </column>
      </widget>
     </item>
     <item row="2" column="0" colspan="6" >
@@ -144,6 +129,55 @@
        <string>Directory</string>
       </property>
      </widget>
+    </item>
+    <item rowspan="2" row="1" column="7" >
+     <layout class="QVBoxLayout" >
+      <item>
+       <widget class="QTabWidget" name="motorTab" >
+        <property name="currentIndex" >
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="specTab" >
+         <attribute name="title" >
+          <string>Spec</string>
+         </attribute>
+         <widget class="QPushButton" name="specConnectButton" >
+          <property name="geometry" >
+           <rect>
+            <x>90</x>
+            <y>170</y>
+            <width>121</width>
+            <height>111</height>
+           </rect>
+          </property>
+          <property name="text" >
+           <string>Connect Spec</string>
+          </property>
+         </widget>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2" >
+        <property name="text" >
+         <string>Spec Server</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="specServerEdit" />
+      </item>
+      <item>
+       <widget class="QLabel" name="label_3" >
+        <property name="text" >
+         <string>Spec Port</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="specPortEdit" />
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
