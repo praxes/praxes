@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.2.dtd">
 <!-- eric4 project file for project xpaxs -->
-<!-- Saved: 2008-02-15, 13:12:23 -->
+<!-- Saved: 2008-02-15, 16:28:26 -->
 <!-- Copyright (C) 2008 ,  -->
 <Project version="4.2">
   <ProgLanguage mixed="1">Python</ProgLanguage>
@@ -520,6 +520,30 @@
   <Interfaces>
   </Interfaces>
   <Others>
+    <Other>
+      <Name>CHANGELOG</Name>
+    </Other>
+    <Other>
+      <Name>DEVNOTES</Name>
+    </Other>
+    <Other>
+      <Name>INSTALL</Name>
+    </Other>
+    <Other>
+      <Name>KNOWN_BUGS</Name>
+    </Other>
+    <Other>
+      <Name>LICENSE</Name>
+    </Other>
+    <Other>
+      <Name>PKG-INFO</Name>
+    </Other>
+    <Other>
+      <Name>README</Name>
+    </Other>
+    <Other>
+      <Name>TODO</Name>
+    </Other>
   </Others>
   <Vcs>
     <VcsType>None</VcsType>

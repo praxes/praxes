@@ -23,6 +23,7 @@ from SpecClient import Spec, SpecEventsDispatcher, SpecCommand
 
 from xpaxs import configutils
 from xpaxs.spec.client.motor import QtSpecMotorA
+from xpaxs.spec.client.scan import QtSpecScanA
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -70,6 +71,7 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         Spec.Spec.__init__(self, specVersion, timeout)
 
         self.cmd = SpecCommand.SpecCommand('', specVersion, timeout)
+        self.scan = QtSpecScanA(self.specRunner.specVersion)
 
         # load the clientutils macros:
         self.runMacro('clientutils.mac')

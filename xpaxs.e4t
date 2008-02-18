@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Tasks SYSTEM "Tasks-4.1.dtd">
 <!-- eric4 tasks file for project xpaxs -->
-<!-- Saved: 2008-02-14, 15:47:22 -->
+<!-- Saved: 2008-02-15, 16:28:35 -->
 <Tasks version="4.1">
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: Don't ever use hardcoded filenames</Summary>
@@ -71,20 +71,6 @@
         <Name>scanview.py</Name>
       </Filename>
       <Linenumber>84</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: update the window title</Summary>
-    <Description></Description>
-    <Created>2008-01-18, 15:56:07</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>scananalysis.py</Name>
-      </Filename>
-      <Linenumber>52</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
@@ -217,135 +203,9 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: this is no longer necessary, get it from scanParams</Summary>
-    <Description></Description>
-    <Created>2008-02-14, 14:53:26</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>client</Dir>
-        <Name>scan.py</Name>
-      </Filename>
-      <Linenumber>38</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: all of these should go in the SpecScanAcquisition constructor</Summary>
-    <Description></Description>
-    <Created>2008-02-14, 14:53:26</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>client</Dir>
-        <Name>scan.py</Name>
-      </Filename>
-      <Linenumber>41</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: save data!</Summary>
-    <Description></Description>
-    <Created>2008-02-14, 14:53:26</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>client</Dir>
-        <Name>scan.py</Name>
-      </Filename>
-      <Linenumber>88</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: added Consoles and motorViews</Summary>
-    <Description></Description>
-    <Created>2008-02-14, 15:17:49</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>mainwindow.py</Name>
-      </Filename>
-      <Linenumber>53</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: remove from View menu</Summary>
-    <Description></Description>
-    <Created>2008-02-14, 15:17:49</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>mainwindow.py</Name>
-      </Filename>
-      <Linenumber>141</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: This interface needs attention</Summary>
-    <Description></Description>
-    <Created>2008-02-14, 15:17:49</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>mainwindow.py</Name>
-      </Filename>
-      <Linenumber>151</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: update the console UI, use proper naming convention</Summary>
-    <Description></Description>
-    <Created>2008-02-14, 15:17:49</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>mainwindow.py</Name>
-      </Filename>
-      <Linenumber>160</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: add file to list of open files in menu</Summary>
-    <Description></Description>
-    <Created>2008-02-14, 15:17:49</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>mainwindow.py</Name>
-      </Filename>
-      <Linenumber>195</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: dialog to overwrite</Summary>
-    <Description></Description>
-    <Created>2008-02-14, 15:17:49</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>mainwindow.py</Name>
-      </Filename>
-      <Linenumber>209</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: this next line is just for convenience during development</Summary>
     <Description></Description>
-    <Created>2008-02-14, 15:17:49</Created>
+    <Created>2008-02-15, 13:16:34</Created>
     <Resource>
       <Filename>
         <Dir>xpaxs</Dir>
@@ -353,13 +213,27 @@
         <Dir>ui</Dir>
         <Name>mainwindow.py</Name>
       </Filename>
-      <Linenumber>223</Linenumber>
+      <Linenumber>189</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: update the window title</Summary>
+    <Description></Description>
+    <Created>2008-02-15, 13:52:19</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Dir>ui</Dir>
+        <Name>scananalysis.py</Name>
+      </Filename>
+      <Linenumber>54</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: update reference to newest scan, make connections when scan is created</Summary>
     <Description></Description>
-    <Created>2008-02-14, 15:40:31</Created>
+    <Created>2008-02-15, 14:12:02</Created>
     <Resource>
       <Filename>
         <Dir>xpaxs</Dir>
@@ -373,7 +247,7 @@
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: need to reimpliment using new scheme: instantiate a scananalysis window</Summary>
     <Description></Description>
-    <Created>2008-02-14, 15:40:31</Created>
+    <Created>2008-02-15, 14:12:02</Created>
     <Resource>
       <Filename>
         <Dir>xpaxs</Dir>
@@ -382,6 +256,48 @@
         <Name>scancontrols.py</Name>
       </Filename>
       <Linenumber>143</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this is no longer necessary, get it from scanParams</Summary>
+    <Description></Description>
+    <Created>2008-02-15, 14:12:24</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spec</Dir>
+        <Dir>client</Dir>
+        <Name>scan.py</Name>
+      </Filename>
+      <Linenumber>38</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: all of these should go in the SpecScanAcquisition constructor</Summary>
+    <Description></Description>
+    <Created>2008-02-15, 14:12:24</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spec</Dir>
+        <Dir>client</Dir>
+        <Name>scan.py</Name>
+      </Filename>
+      <Linenumber>41</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: save data!</Summary>
+    <Description></Description>
+    <Created>2008-02-15, 14:12:24</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spec</Dir>
+        <Dir>client</Dir>
+        <Name>scan.py</Name>
+      </Filename>
+      <Linenumber>88</Linenumber>
     </Resource>
   </Task>
 </Tasks>
