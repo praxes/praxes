@@ -160,6 +160,9 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         if self.fileInterface is None:
             from xpaxs.datalib.hdf5.qtdataview import FileInterface
             self.fileInterface = FileInterface()
+            self.connect(self.fileInterface.fileModel,
+                         QtCore.SIGNAL('scanActivated'),
+                         self.newScanWindow)
             for key, (area, item) in self.fileInterface.dockWidgets.iteritems():
                 viewAction = item.toggleViewAction()
                 viewAction.setText(key)
