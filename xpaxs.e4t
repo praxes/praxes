@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Tasks SYSTEM "Tasks-4.1.dtd">
 <!-- eric4 tasks file for project xpaxs -->
-<!-- Saved: 2008-02-25, 14:22:02 -->
+<!-- Saved: 2008-02-26, 14:22:13 -->
 <Tasks version="4.1">
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: Don't ever use hardcoded filenames</Summary>
@@ -180,48 +180,6 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: this is no longer necessary, get it from scanParams</Summary>
-    <Description></Description>
-    <Created>2008-02-15, 14:12:24</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>client</Dir>
-        <Name>scan.py</Name>
-      </Filename>
-      <Linenumber>38</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: all of these should go in the SpecScanAcquisition constructor</Summary>
-    <Description></Description>
-    <Created>2008-02-15, 14:12:24</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>client</Dir>
-        <Name>scan.py</Name>
-      </Filename>
-      <Linenumber>41</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: save data!</Summary>
-    <Description></Description>
-    <Created>2008-02-15, 14:12:24</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>client</Dir>
-        <Name>scan.py</Name>
-      </Filename>
-      <Linenumber>88</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: get the channels from the controller</Summary>
     <Description></Description>
     <Created>2008-02-25, 14:10:43</Created>
@@ -287,9 +245,65 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: check if file has already been opened</Summary>
+    <Description></Description>
+    <Created>2008-02-25, 14:23:50</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>datalib</Dir>
+        <Dir>hdf5</Dir>
+        <Name>qtdatamodel.py</Name>
+      </Filename>
+      <Linenumber>178</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this is no longer necessary, get it from scanParams</Summary>
+    <Description></Description>
+    <Created>2008-02-25, 14:30:58</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spec</Dir>
+        <Dir>client</Dir>
+        <Name>scan.py</Name>
+      </Filename>
+      <Linenumber>38</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: all of these should go in the SpecScanAcquisition constructor</Summary>
+    <Description></Description>
+    <Created>2008-02-25, 14:30:58</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spec</Dir>
+        <Dir>client</Dir>
+        <Name>scan.py</Name>
+      </Filename>
+      <Linenumber>41</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: save data!</Summary>
+    <Description></Description>
+    <Created>2008-02-25, 14:30:58</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spec</Dir>
+        <Dir>client</Dir>
+        <Name>scan.py</Name>
+      </Filename>
+      <Linenumber>88</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: this next line is just for convenience during development</Summary>
     <Description></Description>
-    <Created>2008-02-25, 14:21:18</Created>
+    <Created>2008-02-26, 11:49:41</Created>
     <Resource>
       <Filename>
         <Dir>xpaxs</Dir>
@@ -297,7 +311,21 @@
         <Dir>ui</Dir>
         <Name>mainwindow.py</Name>
       </Filename>
-      <Linenumber>194</Linenumber>
+      <Linenumber>192</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: add file to list of open files in menu?</Summary>
+    <Description></Description>
+    <Created>2008-02-26, 14:22:10</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>datalib</Dir>
+        <Dir>hdf5</Dir>
+        <Name>qtdataview.py</Name>
+      </Filename>
+      <Linenumber>62</Linenumber>
     </Resource>
   </Task>
 </Tasks>
