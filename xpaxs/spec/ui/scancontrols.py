@@ -139,7 +139,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                 scanArgs.extend(args[:-1])
         scanArgs.append( self.scanCountSpinBox.value() )
 
-        self.window().progressBar.setMaximum(scanPoints)
+        self.progressBar.setMaximum(scanPoints)
 # TODO: need to reimpliment using new scheme: instantiate a scananalysis window
 # with a specscanacquisition instance to control it.
 #        getattr(self.specRunner.scan, scantype)(*scanArgs)
@@ -168,15 +168,15 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.scanCountSpinBox.setEnabled(False)
         self.disconnectAxesSignals()
         self.scanStackedLayout.setCurrentWidget(self.pauseButton)
-        self.window().progressBar.setValue(0)
-        self.window().showProgressBar()
+        self.progressBar.setValue(0)
+        self.progressBar.setVisible(True)
 
     def scanFinished(self):
         self.scanTypeComboBox.setEnabled(True)
         self.scanCountSpinBox.setEnabled(True)
         self.connectAxesSignals()
         self.scanStackedLayout.setCurrentWidget(self.scanButton)
-        self.window().hideProgressBar()
+        self.progressBar.setVisible(False)
 
     def scanPaused(self):
         self.specRunner.abort()
@@ -231,7 +231,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.connectAxesSignals()
 
     def updateProgressBar(self, val):
-        self.window().progressBar.setValue(val+1)
+        self.progressBar.setValue(val+1)
 
 
 if __name__ == "__main__":

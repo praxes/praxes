@@ -75,18 +75,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.connect(self.actionAbout_SMP,
                      QtCore.SIGNAL("triggered()"),
                      self.about)
-#        self.connect(self.actionSave,
-#                     QtCore.SIGNAL("triggered()"),
-#                     self.save)
-#        self.connect(self.actionSave_All,
-#                     QtCore.SIGNAL("triggered()"),
-#                     self.saveAll)
-#        self.connect(self.actionClose,
-#                     QtCore.SIGNAL("triggered()"),
-#                     self.closeScan)
-#        self.connect(self.actionClose_All,
-#                     QtCore.SIGNAL("triggered()"),
-#                     self.closeAllScans)
 
     def about(self):
         QtGui.QMessageBox.about(self, self.tr("About SMP"),
@@ -106,21 +94,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         if self.expInterface:
             self.expInterface.close()
         return event.accept()
-
-#    def closeScan(self):
-#        NotImplementedError
-#
-#    def closeAllScans(self):
-#        NotImplementedError
-#
-#    def open(self):
-#        NotImplementedError
-#
-#    def save(self):
-#        raise NotImplementedError
-
-#    def saveAll(self):
-#        NotImplementedError
 
     def connectToSpec(self):
         from xpaxs.spec.ui.specconnect import SpecConnect
@@ -144,13 +117,16 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.actionConnect.setEnabled(True)
         self.actionDisconnect.setEnabled(False)
 
-    def showProgressBar(self):
-        self.statusBar.addWidget(self.progressBar)
-        self.progressBar.show()
-
-    def hideProgressBar(self):
-        self.statusBar.removeWidget(self.progressBar)
-        self.progressBar.hide()
+    def importSpecFile(self, force=False):
+        f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',
+                    "Spec datafiles (*.dat *.mca);;All files (*.*)")
+        if f:
+            h5filename = QtGui.QFileDialog.getSaveFileName(self, caption, '.',
+                                            'HDF5 files (*.h5 *.hdf5)', f+'.h5')
+            if h5filename:
+                from xpaxs.datalib import specfile
+                specfile.spec2hdf5(f, hdf5Filename=h5filename, force=True)
+                self.openDatafile(h5filename)
 
     def openDatafile(self, filename=None):
         if filename is None:
@@ -158,7 +134,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                             'Open File', '.', "hdf5 files (*.h5 *.hdf5)")
         if not filename: return
         if self.fileInterface is None:
-            from xpaxs.datalib.hdf5.qtdataview import FileInterface
+            from xpaxs.datalib.hdf5 import FileInterface
             self.fileInterface = FileInterface()
             self.connect(self.fileInterface.fileModel,
                          QtCore.SIGNAL('scanActivated'),
@@ -170,17 +146,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                 self.addDockWidget(area, item)
 
         self.fileInterface.openFile(filename)
-
-    def importSpecFile(self, force=False):
-        f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',
-                    "Spec datafiles (*.dat *.mca);;All files (*.*)")
-        if f:
-            h5filename = QtGui.QFileDialog.getSaveFileName(self, caption, '.',
-                                            'HDF5 files (*.h5 *.hdf5)', f+'.h5')
-            if h5filename:
-                from xpaxs.datalib import specfile
-                specfile.spec2hdf5(f, hdf5Filename=h5filename, force=True)
-                self.openDatafile(h5filename)
 
     def newScanWindow(self, scan):
         from xpaxs.spectromicroscopy.ui import scananalysis

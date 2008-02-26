@@ -124,6 +124,12 @@
      <layout class="QVBoxLayout" >
       <item>
        <widget class="QDoubleSpinBox" name="stepSizeSpin" >
+        <property name="accessibleName" >
+         <string>step_size</string>
+        </property>
+        <property name="accessibleDescription" >
+         <string/>
+        </property>
         <property name="minimum" >
          <double>-100000000000.000000000000000</double>
         </property>
@@ -134,6 +140,12 @@
       </item>
       <item>
        <widget class="QDoubleSpinBox" name="signSpin" >
+        <property name="accessibleName" >
+         <string>sign</string>
+        </property>
+        <property name="accessibleDescription" >
+         <string/>
+        </property>
         <property name="decimals" >
          <number>0</number>
         </property>
@@ -153,6 +165,12 @@
       </item>
       <item>
        <widget class="QDoubleSpinBox" name="accelSpin" >
+        <property name="accessibleName" >
+         <string>acceleration</string>
+        </property>
+        <property name="accessibleDescription" >
+         <string/>
+        </property>
         <property name="minimum" >
          <double>-100000000000.000000000000000</double>
         </property>
@@ -163,6 +181,9 @@
       </item>
       <item>
        <widget class="QDoubleSpinBox" name="baseRateSpin" >
+        <property name="accessibleName" >
+         <string>base_rate</string>
+        </property>
         <property name="minimum" >
          <double>-100000000000.000000000000000</double>
         </property>
@@ -173,6 +194,9 @@
       </item>
       <item>
        <widget class="QDoubleSpinBox" name="speedSpin" >
+        <property name="accessibleName" >
+         <string>slew_rate</string>
+        </property>
         <property name="minimum" >
          <double>1.000000000000000</double>
         </property>
@@ -186,6 +210,9 @@
       </item>
       <item>
        <widget class="QDoubleSpinBox" name="backlashSpin" >
+        <property name="accessibleName" >
+         <string>backlash</string>
+        </property>
         <property name="minimum" >
          <double>-100000000000000000.000000000000000</double>
         </property>
@@ -199,6 +226,9 @@
       </item>
       <item>
        <widget class="QDoubleSpinBox" name="upperLimitSpin" >
+        <property name="accessibleName" >
+         <string>high_limit</string>
+        </property>
         <property name="minimum" >
          <double>-100000000000.000000000000000</double>
         </property>
@@ -209,6 +239,9 @@
       </item>
       <item>
        <widget class="QDoubleSpinBox" name="lowerLimitSpin" >
+        <property name="accessibleName" >
+         <string>low_limit</string>
+        </property>
         <property name="minimum" >
          <double>-100000000000.000000000000000</double>
         </property>
@@ -219,6 +252,9 @@
       </item>
       <item>
        <widget class="QDoubleSpinBox" name="offsetSpin" >
+        <property name="accessibleName" >
+         <string>offset</string>
+        </property>
         <property name="minimum" >
          <double>-100000000000.000000000000000</double>
         </property>
@@ -229,6 +265,9 @@
       </item>
       <item>
        <widget class="QDoubleSpinBox" name="positionSpin" >
+        <property name="accessibleName" >
+         <string>position</string>
+        </property>
         <property name="minimum" >
          <double>-100000000000.000000000000000</double>
         </property>

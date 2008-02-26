@@ -90,7 +90,7 @@ class FileItem(TreeItem):
             self.appendChild(ScanItem(scan, self))
 
 
-class FileModel(QtCore.QAbstractItemModel):
+class QtFileModel(QtCore.QAbstractItemModel):
 
     """
     """

@@ -19,7 +19,7 @@ from SpecClient import SpecClientError
 #---------------------------------------------------------------------------
 
 
-from xpaxs.spec.ui import ui_specconnect
+from xpaxs.spec.ui import ui_specconnect, configdialog
 from xpaxs.spec.client import runner
 from xpaxs.spec.ui.scancontrols import ScanControls
 
@@ -99,8 +99,11 @@ class SpecInterface(QtCore.QObject):
     def __init__(self, specRunner=None, parent=None):
         super(SpecInterface, self).__init__(parent)
 
+        QtCore.QObject.__init__(self)
         self.specRunner = specRunner
         self.dockWidgets = {}
+
+        self.mainWindow = parent
 
         self.scanControls = ScanControls(specRunner)
         self.addDockWidget(self.scanControls, 'Scan Controls',
@@ -108,6 +111,11 @@ class SpecInterface(QtCore.QObject):
                            QtCore.Qt.RightDockWidgetArea,
                            QtCore.Qt.LeftDockWidgetArea,
                            'SpecScanControlsWidget')
+
+        self.connect(self.mainWindow.actionConfigure,
+                     QtCore.SIGNAL("triggered()"),
+                     lambda : configdialog.ConfigDialog(self.specRunner,
+                                                        self.mainWindow))
 
     def addDockWidget(self, widget, title, allowedAreas, defaultArea,
                       name=None):
@@ -120,10 +128,12 @@ class SpecInterface(QtCore.QObject):
         self.dockWidgets[title] = (dock, defaultArea, action)
 
     def close(self):
+
         self.scanControls = None
         self.dockWidgets = {}
         self.specRunner.close()
         self.specRunner = None
+
 
 
 if __name__ == "__main__":
