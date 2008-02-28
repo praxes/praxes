@@ -121,8 +121,8 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',
                     "Spec datafiles (*.dat *.mca);;All files (*.*)")
         if f:
-            h5filename = QtGui.QFileDialog.getSaveFileName(self, caption, '.',
-                                            'HDF5 files (*.h5 *.hdf5)', f+'.h5')
+            h5filename = '%s'% QtGui.QFileDialog.getSaveFileName(self,
+                    'Save HDF5 File', '.', 'HDF5 files (*.h5 *.hdf5)', f+'.h5')
             if h5filename:
                 from xpaxs.datalib import specfile
                 specfile.spec2hdf5(f, hdf5Filename=h5filename, force=True)

@@ -37,9 +37,6 @@ class FileInterface(QtCore.QObject):
 
         self.fileModel = QtFileModel()
         self.fileView = QtDataView(self.fileModel)
-        self.fileView.connect(self.fileView,
-                              QtCore.SIGNAL('activated(QModelIndex)'),
-                              self.fileModel.itemActivated)
         fileDockWidget = QtGui.QDockWidget('File View')
         fileDockWidget.setObjectName('FileDockWidget')
         fileDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea|

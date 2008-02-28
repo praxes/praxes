@@ -1,22 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Tasks SYSTEM "Tasks-4.1.dtd">
 <!-- eric4 tasks file for project xpaxs -->
-<!-- Saved: 2008-02-26, 14:22:13 -->
+<!-- Saved: 2008-02-26, 16:48:47 -->
 <Tasks version="4.1">
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: Don't ever use hardcoded filenames</Summary>
-    <Description></Description>
-    <Created>2008-01-17, 10:31:17</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>ui</Dir>
-        <Name>testinterface.py</Name>
-      </Filename>
-      <Linenumber>145</Linenumber>
-    </Resource>
-  </Task>
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: is this necessary?</Summary>
     <Description></Description>
@@ -74,58 +60,6 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: add a new group to store this information</Summary>
-    <Description></Description>
-    <Created>2008-01-22, 14:29:14</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>analysisController.py</Name>
-      </Filename>
-      <Linenumber>53</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: use this for acquisition</Summary>
-    <Description></Description>
-    <Created>2008-01-22, 14:29:14</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>analysisController.py</Name>
-      </Filename>
-      <Linenumber>96</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: This method is basically pseudocode at the moment</Summary>
-    <Description></Description>
-    <Created>2008-01-22, 14:29:14</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>analysisController.py</Name>
-      </Filename>
-      <Linenumber>207</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: next line temporary:</Summary>
-    <Description></Description>
-    <Created>2008-01-22, 14:29:14</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>analysisController.py</Name>
-      </Filename>
-      <Linenumber>232</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: much of this needs to go elsewhere, like in spec or spectromicroscopy</Summary>
     <Description></Description>
     <Created>2008-02-12, 15:43:03</Created>
@@ -149,34 +83,6 @@
         <Name>scananalysis.py</Name>
       </Filename>
       <Linenumber>54</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: update reference to newest scan, make connections when scan is created</Summary>
-    <Description></Description>
-    <Created>2008-02-15, 14:12:02</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>ui</Dir>
-        <Name>scancontrols.py</Name>
-      </Filename>
-      <Linenumber>86</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: need to reimpliment using new scheme: instantiate a scananalysis window</Summary>
-    <Description></Description>
-    <Created>2008-02-15, 14:12:02</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>ui</Dir>
-        <Name>scancontrols.py</Name>
-      </Filename>
-      <Linenumber>143</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
@@ -245,20 +151,6 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: check if file has already been opened</Summary>
-    <Description></Description>
-    <Created>2008-02-25, 14:23:50</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>datalib</Dir>
-        <Dir>hdf5</Dir>
-        <Name>qtdatamodel.py</Name>
-      </Filename>
-      <Linenumber>178</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: this is no longer necessary, get it from scanParams</Summary>
     <Description></Description>
     <Created>2008-02-25, 14:30:58</Created>
@@ -301,9 +193,37 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: check if file has already been opened</Summary>
+    <Description></Description>
+    <Created>2008-02-26, 15:03:03</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>datalib</Dir>
+        <Dir>hdf5</Dir>
+        <Name>qtdatamodel.py</Name>
+      </Filename>
+      <Linenumber>178</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: add file to list of open files in menu?</Summary>
+    <Description></Description>
+    <Created>2008-02-26, 15:04:48</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>datalib</Dir>
+        <Dir>hdf5</Dir>
+        <Name>__init__.py</Name>
+      </Filename>
+      <Linenumber>53</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: this next line is just for convenience during development</Summary>
     <Description></Description>
-    <Created>2008-02-26, 11:49:41</Created>
+    <Created>2008-02-26, 15:15:41</Created>
     <Resource>
       <Filename>
         <Dir>xpaxs</Dir>
@@ -311,21 +231,101 @@
         <Dir>ui</Dir>
         <Name>mainwindow.py</Name>
       </Filename>
-      <Linenumber>192</Linenumber>
+      <Linenumber>157</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: add file to list of open files in menu?</Summary>
+    <Summary>TODO: update reference to newest scan, make connections when scan is created</Summary>
     <Description></Description>
-    <Created>2008-02-26, 14:22:10</Created>
+    <Created>2008-02-26, 15:20:01</Created>
     <Resource>
       <Filename>
         <Dir>xpaxs</Dir>
-        <Dir>datalib</Dir>
-        <Dir>hdf5</Dir>
-        <Name>qtdataview.py</Name>
+        <Dir>spec</Dir>
+        <Dir>ui</Dir>
+        <Name>scancontrols.py</Name>
       </Filename>
-      <Linenumber>62</Linenumber>
+      <Linenumber>86</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: need to reimpliment using new scheme: instantiate a scananalysis window</Summary>
+    <Description></Description>
+    <Created>2008-02-26, 15:20:01</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spec</Dir>
+        <Dir>ui</Dir>
+        <Name>scancontrols.py</Name>
+      </Filename>
+      <Linenumber>143</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: add a new group to store this information</Summary>
+    <Description></Description>
+    <Created>2008-02-26, 15:24:50</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>analysisController.py</Name>
+      </Filename>
+      <Linenumber>53</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: use this for acquisition</Summary>
+    <Description></Description>
+    <Created>2008-02-26, 15:24:50</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>analysisController.py</Name>
+      </Filename>
+      <Linenumber>105</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: This method is basically pseudocode at the moment</Summary>
+    <Description></Description>
+    <Created>2008-02-26, 15:24:50</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>analysisController.py</Name>
+      </Filename>
+      <Linenumber>225</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: next line temporary:</Summary>
+    <Description></Description>
+    <Created>2008-02-26, 15:24:50</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>analysisController.py</Name>
+      </Filename>
+      <Linenumber>250</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: Don't ever use hardcoded filenames</Summary>
+    <Description></Description>
+    <Created>2008-02-26, 15:27:09</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spec</Dir>
+        <Dir>ui</Dir>
+        <Name>testinterface.py</Name>
+      </Filename>
+      <Linenumber>145</Linenumber>
     </Resource>
   </Task>
 </Tasks>
