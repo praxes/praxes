@@ -13,6 +13,7 @@ import tempfile
 # Extlib imports
 #---------------------------------------------------------------------------
 
+import pp
 from PyMca import ClassMcaTheory, EdfFile
 from PyMca.ConcentrationsTool import ConcentrationsTool
 from PyQt4 import QtCore
@@ -46,82 +47,43 @@ def flat_to_nd(index, shape):
     return tuple(res)
 
 
-class AdvancedFitRunner(QtCore.QObject):
+def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
+    DEBUG=0
+    if DEBUG:
+        t0 = time.time()
 
-    def __init__(self, config, parent):
-        super(AdvancedFitRunner, self).__init__(parent)
+    advancedFit.config['fit']['use_limit'] = 1
+    # TODO: get the channels from the controller
+    advancedFit.setdata(y=spectrum)
+    advancedFit.estimate()
+    if ('concentrations' in advancedFit.config) and \
+            (advancedFit._fluoRates is None):
+        fitresult, result = advancedFit.startfit(digest=1)
+    else:
+        fitresult = advancedFit.startfit(digest=0)
+        result = advancedFit.imagingDigestResult()
+    result['index'] = index
 
-        self.config = config
+    if DEBUG:
+        t1 = time.time()
+        print "fit: %s"%(t1-t0)
 
-        self.advancedFit = ClassMcaTheory.McaTheory(config=config)
-        self.advancedFit.enableOptimizedLinearFit()
-
-        self.concentrationsTool = None
-        if 'concentrations' in config:
-            self.concentrationsTool = ConcentrationsTool(config)
-            self.tconf = self.concentrationsTool.configure()
-
-    def processData(self, index, scanData):
-        if DEBUG: t0 = time.time()
-        self.advancedFit.config['fit']['use_limit'] = 1
-        # TODO: get the channels from the controller
-        self.advancedFit.setdata(y=scanData['MCA'])
-        self.advancedFit.estimate()
-        if ('concentrations' in self.advancedFit.config) and \
-            (self.advancedFit._fluoRates is None):
-            fitresult, result = self.advancedFit.startfit(digest=1)
-        else:
-            fitresult = self.advancedFit.startfit(digest=0)
-            result = self.advancedFit.imagingDigestResult()
-        result['index'] = index
-
-
-
-        fitData = {}
-        fitData['index'] = index
-        fitData['xdata'] = self.advancedFit.xdata
-        zero, gain = self.advancedFit.fittedpar[:2]
-        fitData['energy'] = zero + gain*self.advancedFit.xdata
-        fitData['ydata'] = self.advancedFit.ydata
-        fitData['yfit'] = \
-                self.advancedFit.mcatheory(self.advancedFit.fittedpar,
-                                           self.advancedFit.xdata)
-#        fitData['yfit'] += self.advancedFit.continuum(self.advancedFit.fittedpar, self.advancedFit.xdata)
-        fitData['yfit'] += self.advancedFit.zz
-        fitData['residuals'] = fitData['ydata']-fitData['yfit']
-        logres = numpy.log10(fitData['ydata'])-\
-                 numpy.log10(fitData['yfit'])
-        logres[numpy.isinf(logres)]=numpy.nan
-        fitData['logresiduals'] = logres
-
-        result['mcaFit'] = fitData
+    if mfTool:
+        temp = {}
+        temp['fitresult'] = fitresult
+        temp['result'] = result
+        temp['result']['config'] = advancedFit.config
+        tconf.update(advancedFit.configure()['concentrations'])
+        conc = mfTool.processFitResult(config=tconf, fitresult=temp,
+                                       elementsfrommatrix=False,
+                                       fluorates=advancedFit._fluoRates)
+        result['concentrations'] = conc
 
         if DEBUG:
-            t1 = time.time()
-            print "fit: %s"%(t1-t0)
+            t2 = time.time()
+            print "conc.: %s"%(t2-t1)
 
-        # prepare for concentrations:
-        # is this step always necessary?
-        config = self.advancedFit.configure()
-
-        if self.concentrationsTool:
-            temp = {}
-            temp['fitresult'] = fitresult
-            temp['result'] = result
-            temp['result']['config'] = self.advancedFit.config
-            self.tconf.update(config['concentrations'])
-            conc = self.concentrationsTool.processFitResult(config=self.tconf,
-                                fitresult=temp,
-                                elementsfrommatrix=False,
-                                fluorates=self.advancedFit._fluoRates)
-            result['concentrations'] = conc
-
-            if DEBUG:
-                t2 = time.time()
-                print "conc.: %s"%(t2-t1)
-
-        self.emit(QtCore.SIGNAL("dataProcessed"),
-                  result)
+    return {'index': index, 'result': result, 'advancedFit': advancedFit}
 
 
 class AdvancedFitThread(QtCore.QThread):
@@ -132,6 +94,9 @@ class AdvancedFitThread(QtCore.QThread):
         self.stopped = False
         self.mutex = QtCore.QMutex()
         self.completed = False
+
+        self.jobServer = pp.Server()
+        self.jobServer.set_ncpus(4)
 
     def estimateMassFractions(self):
         # prepare for concentrations:
@@ -166,12 +131,13 @@ class AdvancedFitThread(QtCore.QThread):
         self._fitresult = fitresult
 
     def findNextPoint(self):
-        self._index = self.queue.get()
+        index = self.queue.get()
         try:
             self.lock.lockForRead()
-            self._spectrum = self.scan.data[self._index]['MCA']
+            spectrum = self.scan.data[index]['MCA']
         finally:
             self.lock.unlock()
+        return index, spectrum
 
     def getSpectrumFit(self):
         fitData = {}
@@ -219,24 +185,18 @@ class AdvancedFitThread(QtCore.QThread):
         while 1:
             if self.isStopped(): return
 
-            try:
-                self.findNextPoint()
+            for i in xrange(100):
+                try:
+                    index, spectrum = self.findNextPoint()
 
-                if DEBUG: t0 = time.time()
-                self.fitSpectrum()
-                if DEBUG:
-                    t1 = time.time()
-                    print "fit: %s"%(t1-t0)
-                self.estimateMassFractions()
-                if DEBUG:
-                    t2 = time.time()
-                    print "conc.: %s"%(t2-t1)
-                self.updateRecords()
-                self.queue.task_done()
+                    args = (index, spectrum, self.tconf, self.advancedFit,
+                            self.concentrationsTool)
 
-                self.emit(QtCore.SIGNAL("dataProcessed"))
-            except Queue.Empty:
-                pass
+                    self.jobServer.submit(analyzeSpectrum, args,
+                                          callback=self.updateRecords)
+                except Queue.Empty:
+                    break
+            self.jobServer.wait()
 
     def run(self):
         self.processData()
@@ -250,20 +210,27 @@ class AdvancedFitThread(QtCore.QThread):
         finally:
             self.mutex.unlock()
 
-    def updateRecords(self):
+    def updateRecords(self, data):
+        result = data['result']
+        try:
+            self.lock.lockForWrite()
+            self.advancedFit = data['advancedFit']
+        finally:
+            self.lock.unlock()
+
         try:
             self.lock.lockForRead()
             shape = self.scan.attrs.scanShape
         finally:
             self.lock.unlock()
 
-        index = flat_to_nd(self._index, shape)
+        index = flat_to_nd(data['index'], shape)
 
-        for group in self._result['groups']:
+        for group in result['groups']:
             g = group.replace(' ', '')
 
-            fitArea = self._result[group]['fitarea']
-            if fitArea: sigmaArea = self._result[group]['sigmaarea']/fitArea
+            fitArea = result[group]['fitarea']
+            if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
             else: sigmaArea = numpy.nan
 
             try:
@@ -273,8 +240,8 @@ class AdvancedFitThread(QtCore.QThread):
             finally:
                 self.lock.unlock()
 
-        if 'concentrations' in self._result:
-            massFractions = self._result['concentrations']['mass fraction']
+        if 'concentrations' in result:
+            massFractions = result['concentrations']['mass fraction']
             for key, val in massFractions.iteritems():
                 k = key.replace(' ', '')
                 try:
@@ -283,6 +250,8 @@ class AdvancedFitThread(QtCore.QThread):
                     mf[index] = val
                 finally:
                     self.lock.unlock()
+
+        self.emit(QtCore.SIGNAL("dataProcessed"))
 
 
 # TODO: this module should be eliminated

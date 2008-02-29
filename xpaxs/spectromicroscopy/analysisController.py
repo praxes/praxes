@@ -24,8 +24,7 @@ import tables
 #---------------------------------------------------------------------------
 
 from xpaxs import configutils
-from xpaxs.spectromicroscopy.advancedfitanalysis import AdvancedFitRunner, \
-    AdvancedFitThread
+from xpaxs.spectromicroscopy.advancedfitanalysis import AdvancedFitThread
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -190,17 +189,15 @@ class AnalysisController(QtCore.QObject):
                 pass
 
     def processData(self):
-        # TODO: need a better way to select number of threads
-        for i in range(6):
-            config = copy.deepcopy(self._pymcaConfig)
-            thread = AdvancedFitThread(self.lock, self)
-            thread.initialize(config, self.scan, self.queue)
-            self.threads.append(thread)
-            self.connect(thread,
-                         QtCore.SIGNAL('dataProcessed'),
-                         self.dataUpdated)
-            thread.start(QtCore.QThread.NormalPriority)
-            QtGui.qApp.processEvents()
+        config = copy.deepcopy(self._pymcaConfig)
+        thread = AdvancedFitThread(self.lock, self)
+        thread.initialize(config, self.scan, self.queue)
+        self.threads.append(thread)
+        self.connect(thread,
+                     QtCore.SIGNAL('dataProcessed'),
+                     self.dataUpdated)
+        thread.start(QtCore.QThread.NormalPriority)
+#        QtGui.qApp.processEvents()
 #        self.dispatch()
 
     def dataUpdated(self):
@@ -273,7 +270,7 @@ class AnalysisController(QtCore.QObject):
 
         now = time.time()
         elapsed = now-self.lastUpdate
-        print elapsed
+#        print elapsed
         if elapsed > 0:
             elementMap = self.getElementMap()
             self.emit(QtCore.SIGNAL("elementDataChanged"), elementMap)
