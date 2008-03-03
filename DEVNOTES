@@ -13,6 +13,7 @@ You will also have to have the following packages installed:
 python (version 2.5 or later)
 Qt4 (preferrably version 4.3.3 or later)
 PyQt4 (preferrably version 4.3.3 or later)
-matplotlib (0.90.1 or later)
+matplotlib (0.92.1 or later)
 PyMca
 pexpect (for the console module)
+pp (parallel python for concurrent data analysis)
