@@ -34,15 +34,6 @@ DEBUG = False
 
 filters = tables.Filters(complib='zlib', complevel=0)
 
-def flat_to_nd(index, shape):
-    res = []
-    for i in xrange(1, len(shape)):
-        p = numpy.product(shape[i:])
-        res.append(index//p)
-        index = index % p
-    res.append(index)
-    return tuple(res)
-
 
 class AnalysisController(QtCore.QObject):
 
@@ -50,17 +41,13 @@ class AnalysisController(QtCore.QObject):
         QtCore.QObject.__init__(self)
 
         self.lock = QtCore.QReadWriteLock()
+        self.mutex = QtCore.QMutex()
         self.lastUpdate = time.time()
 
         self.scan = scan
         self.queue = Queue.Queue()
         for i in range(len(self.scan.data)):
             self.queue.put(i)
-
-        # TODO: add a new group to store this information
-        self._elementMaps = {"Peak Area": {},
-                            "Mass Fraction": {},
-                            "Sigma Area": {}}
 
         self.h5file = scan._v_file
         try:
@@ -88,7 +75,6 @@ class AnalysisController(QtCore.QObject):
 
         self.threads = []
 
-        self.dataQue = []
         self.dirty = False
 
         self.fitParamDlg = FitParamDialog()
@@ -128,18 +114,22 @@ class AnalysisController(QtCore.QObject):
         dataPath = '/'.join(['elementMaps', self._currentDataType,
                              self._currentElement])
         try:
-            self.lock.lockForRead()
+            self.mutex.lock()
+#            self.lock.lockForRead()
             elementMap = self.scan._v_file.getNode(self.scan, dataPath)[:]
         finally:
-            self.lock.unlock()
+            self.mutex.unlock()
+#            self.lock.unlock()
         if self._normalizationChannel:
             if self._normalizationChannel == 'Dead time %': temp = 'Dead'
             else: temp = self._normalizationChannel
             try:
-                self.lock.lockForRead()
+                self.mutex.lock()
+#                self.lock.lockForRead()
                 norm = getattr(self.scan.data.cols, temp)[:]
             finally:
-                self.lock.unlock()
+                self.mutex.unlock()
+#                self.lock.unlock()
             if self._normalizationChannel == 'Dead time %': norm = 1-norm/100
             elementMap.flat[:len(norm)] /= norm
         return elementMap
@@ -173,119 +163,34 @@ class AnalysisController(QtCore.QObject):
     def getScanDimensions(self):
         return len(self.scan.attrs.scanAxes)
 
-    def dispatch(self):
-        while self.threads:
-            thread = self.threads.pop(0)
-            try:
-                index = self.queue.pop(0)
-                row = self.scan.data[index]
-                thread.initialize(index, row)
-                if self._skipmodeEnabled:
-                    if row[self._skipmodeMonitor] > self._skipmodeThresh:
-                        thread.start(QtCore.QThread.HighestPriority)
-                else:
-                    thread.start(QtCore.QThread.HighestPriority)
-            except IndexError:
-                pass
-
     def processData(self):
         config = copy.deepcopy(self._pymcaConfig)
-        thread = AdvancedFitThread(self.lock, self)
+#        thread = AdvancedFitThread(self.lock, self)
+        thread = AdvancedFitThread(self.mutex, self)
         thread.initialize(config, self.scan, self.queue)
         self.threads.append(thread)
         self.connect(thread,
                      QtCore.SIGNAL('dataProcessed'),
                      self.dataUpdated)
         thread.start(QtCore.QThread.NormalPriority)
-#        QtGui.qApp.processEvents()
-#        self.dispatch()
 
     def dataUpdated(self):
         self.dirty = True
         self.update()
 
     def update(self):
-        # TODO: wire this to a QTimer
-        now = time.time()
-        elapsed = now-self.lastUpdate
-        print elapsed
-        if elapsed > 1:
-            elementMap = self.getElementMap()
-            self.emit(QtCore.SIGNAL("elementDataChanged"), elementMap)
-            self.lastUpdate = time.time()
 
-#    def newScanPoint(self, i, x, y, scanData):
-#        scanData['i'] = i
-#        scanData['x'] = x
-#        scanData['y'] = y
-#        # update progressBars:
-#        self.emit(QtCore.SIGNAL("newScanIndex(int)"), i)
-#
-#
-#        skipmodeStatus=self.settings.value('skipmode/enabled').toBool()
-#        counter="%s"%self.settings.value('skipmode/counter').toString()
-#        threshold=self.settings.value('skipmode/threshold').toFloat()
-#        scanData['pointSkipped'] = skipmodeStatus and \
-#                (scanData[counter ] <= threshold)
-#
-#        deadtimeCorrection=self.settings.value('DeadTimeCorrection').toBool()
-#
-#        pointSkipped = skipmodeStatus and \
-#                (scanData[counter ] <= threshold)
-#
-#        if not pointSkipped:
-#            if deadtimeCorrection:
-#                try:
-#                    scanData['mcaCounts'][1] *= 100./(100-float(scanData['dead']))
-#                except KeyError:
-#                    if DEBUG: print 'deadtime not corrected. A counter reporting '\
-#                        'the percent dead time, called "Dead", must be created in '\
-#                        'Spec for this feature to work.'
-#
-#        self.dataQue.append(scanData)
-#        self.dispatch()
-            # thread = self.threads.pop(0)
-            # processed = thread.process(scanData)
 
-    def updateProcessedData(self, processedData):
-        thread = self.sender()
-        self.threads.append(thread)
-        # TODO: This method is basically pseudocode at the moment
-        index = flat_to_nd(processedData['index'], self.getScanShape())
-        for group in processedData['groups']:
-            peakArea = self.scan._v_file.getNode(self.scan.elementMaps.PeakArea,
-                                                 group.replace(' ', ''))
-            peakArea[index] = processedData[group]['fitarea']
-            area = processedData[group]['fitarea']
-            if not area: area = numpy.nan
-            sigmaArea = self.scan._v_file.getNode(self.scan.elementMaps.SigmaArea,
-                                                  group.replace(' ', ''))
-            sigmaArea[index] = processedData[group]['sigmaarea']/area
+#        try:
+#            self.mutex.lock()
+##            self.lock.lockForWrite()
+#            self.scan._f_flush()
+#        finally:
+#            self.mutex.unlock()
+##            self.lock.unlock()
 
-        if 'concentrations' in processedData:
-            for key, val in processedData['concentrations']['mass fraction'].iteritems():
-                mf = self.scan._v_file.getNode(self.scan.elementMaps.MassFraction,
-                                               key.replace(' ', ''))
-                mf[index] = val
-
-        now = time.time()
-        elapsed = now-self.lastUpdate
-#        print elapsed
-        if elapsed > 0:
-            elementMap = self.getElementMap()
-            self.emit(QtCore.SIGNAL("elementDataChanged"), elementMap)
-            self.emit(QtCore.SIGNAL("newMcaFit"), processedData['mcaFit'])
-            self.lastUpdate = time.time()
-
-#        self.threads.append(thread)
-        self.dispatch()
-
-#    def scanFinished(self):
-#        self.emit(QtCore.SIGNAL("scanFinished()"))
-
-#    def scanStarted(self):
-#        if DEBUG: print 'scan started'
-#        self.emit(QtCore.SIGNAL("scanStarted()"))
+        elementMap = self.getElementMap()
+        self.emit(QtCore.SIGNAL("elementDataChanged"), elementMap)
 
     def saveData(self):
         # TODO
@@ -341,30 +246,3 @@ class AnalysisController(QtCore.QObject):
             self.emit(QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
                       self.getElementMap())
             self.dirty = False
-
-
-class AcquisitionAnalysisController(AnalysisController):
-
-    def __init__(self, scan, **kwargs):
-        QtSpecScan.__init__(self)
-
-        self.initScanData(scan)
-
-    def initScanData(self, scan):
-        self._specscan = scan
-        self._datafile = scan.fileheader('F')[0].split()[1]
-        self._scannum = scan.number()
-        self._command = scan.command()
-        if self._command.split()[0] == 'mesh':
-            self._scantype = '2D'
-            self._scanAxes = (scan.alllabels()[0], scan.alllabels()[1])
-            self._scanExtent = (scan.datacol(1)[0], scan.datacol(1)[-1],
-                                scan.datacol(2)[0], scan.datacol(2)[-1])
-            self._scanShape = (len(scan.datacol(1)), len(scan.datacol(2)))
-        else:
-            self._scantype = '1D'
-            self._scanAxes = (scan.alllabels()[0], )
-            self._scanExtent = (scan.datacol(1)[0], scan.datacol(1)[-1])
-            self.scanShape = (len(scan.datacol(1)), )
-
-        self.initElementMaps()
