@@ -37,17 +37,15 @@ filters = tables.Filters(complib='zlib', complevel=0)
 
 class AnalysisController(QtCore.QObject):
 
-    def __init__(self, scan, *args, **kwargs):
+    def __init__(self, scan, mutex, *args, **kwargs):
         QtCore.QObject.__init__(self)
 
         self.lock = QtCore.QReadWriteLock()
-        self.mutex = QtCore.QMutex()
+        self.mutex = mutex
         self.lastUpdate = time.time()
 
         self.scan = scan
         self.queue = Queue.Queue()
-        for i in range(len(self.scan.data)):
-            self.queue.put(i)
 
         self.h5file = scan._v_file
         try:
@@ -115,21 +113,20 @@ class AnalysisController(QtCore.QObject):
                              self._currentElement])
         try:
             self.mutex.lock()
-#            self.lock.lockForRead()
-            elementMap = self.scan._v_file.getNode(self.scan, dataPath)[:]
+            try:
+                elementMap = self.scan._v_file.getNode(self.scan, dataPath)[:]
+            except NoSuchNodeError:
+                return numpy.zeros(self.getScanShape())
         finally:
             self.mutex.unlock()
-#            self.lock.unlock()
         if self._normalizationChannel:
             if self._normalizationChannel == 'Dead time %': temp = 'Dead'
             else: temp = self._normalizationChannel
             try:
                 self.mutex.lock()
-#                self.lock.lockForRead()
                 norm = getattr(self.scan.data.cols, temp)[:]
             finally:
                 self.mutex.unlock()
-#                self.lock.unlock()
             if self._normalizationChannel == 'Dead time %': norm = 1-norm/100
             elementMap.flat[:len(norm)] /= norm
         return elementMap
@@ -164,6 +161,15 @@ class AnalysisController(QtCore.QObject):
         return len(self.scan.attrs.scanAxes)
 
     def processData(self):
+        try:
+            self.mutex.lock()
+            l = len(self.scan.data)
+        finally:
+            self.mutex.unlock()
+
+        for i in xrange(l):
+            self.queue.put(i)
+
         config = copy.deepcopy(self._pymcaConfig)
 #        thread = AdvancedFitThread(self.lock, self)
         thread = AdvancedFitThread(self.mutex, self)
@@ -172,23 +178,19 @@ class AnalysisController(QtCore.QObject):
         self.connect(thread,
                      QtCore.SIGNAL('dataProcessed'),
                      self.dataUpdated)
+        self.connect(thread,
+                     QtCore.SIGNAL('finished()'),
+                     self.finished)
         thread.start(QtCore.QThread.NormalPriority)
+
+    def finished(self):
+        self.emit(QtCore.SIGNAL('finished()'))
 
     def dataUpdated(self):
         self.dirty = True
         self.update()
 
     def update(self):
-
-
-#        try:
-#            self.mutex.lock()
-##            self.lock.lockForWrite()
-#            self.scan._f_flush()
-#        finally:
-#            self.mutex.unlock()
-##            self.lock.unlock()
-
         elementMap = self.getElementMap()
         self.emit(QtCore.SIGNAL("elementDataChanged"), elementMap)
 

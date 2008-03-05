@@ -103,8 +103,6 @@ class SpecInterface(QtCore.QObject):
         self.specRunner = specRunner
         self.dockWidgets = {}
 
-        self.mainWindow = parent
-
         self.scanControls = ScanControls(specRunner)
         self.addDockWidget(self.scanControls, 'Scan Controls',
                            QtCore.Qt.LeftDockWidgetArea|
@@ -112,10 +110,10 @@ class SpecInterface(QtCore.QObject):
                            QtCore.Qt.LeftDockWidgetArea,
                            'SpecScanControlsWidget')
 
+        self.mainWindow = parent
         self.connect(self.mainWindow.actionConfigure,
                      QtCore.SIGNAL("triggered()"),
-                     lambda : configdialog.ConfigDialog(self.specRunner,
-                                                        self.mainWindow))
+                     self.configure)
 
     def addDockWidget(self, widget, title, allowedAreas, defaultArea,
                       name=None):
@@ -128,11 +126,13 @@ class SpecInterface(QtCore.QObject):
         self.dockWidgets[title] = (dock, defaultArea, action)
 
     def close(self):
-
         self.scanControls = None
         self.dockWidgets = {}
         self.specRunner.close()
         self.specRunner = None
+
+    def configure(self):
+        configdialog.ConfigDialog(self.specRunner, self.mainWindow)
 
 
 

@@ -55,12 +55,12 @@
     <addaction name="actionAbout_SMP" />
     <addaction name="actionAbout_Qt" />
    </widget>
-   <widget class="QMenu" name="menuSpec" >
+   <widget class="QMenu" name="menuAcquisition" >
     <property name="title" >
-     <string>Spec</string>
+     <string>Acquisition</string>
     </property>
-    <addaction name="actionConnect" />
-    <addaction name="actionDisconnect" />
+    <addaction name="actionOffline" />
+    <addaction name="actionSpec" />
     <addaction name="separator" />
     <addaction name="actionConfigure" />
    </widget>
@@ -69,8 +69,17 @@
      <string>View</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuTools" >
+    <property name="enabled" >
+     <bool>false</bool>
+    </property>
+    <property name="title" >
+     <string>Tools</string>
+    </property>
+   </widget>
    <addaction name="menuFile" />
-   <addaction name="menuSpec" />
+   <addaction name="menuAcquisition" />
+   <addaction name="menuTools" />
    <addaction name="menuView" />
    <addaction name="menuHelp" />
   </widget>
@@ -87,9 +96,12 @@
     <string>About SMP</string>
    </property>
   </action>
-  <action name="actionConnect" >
+  <action name="actionSpec" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
    <property name="text" >
-    <string>Connect</string>
+    <string>Spec</string>
    </property>
   </action>
   <action name="actionDisconnect" >
@@ -151,8 +163,19 @@
    </property>
   </action>
   <action name="actionConfigure" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
    <property name="text" >
     <string>Configure</string>
+   </property>
+  </action>
+  <action name="actionOffline" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>Offline</string>
    </property>
   </action>
  </widget>

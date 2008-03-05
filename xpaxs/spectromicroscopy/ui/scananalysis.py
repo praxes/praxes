@@ -33,23 +33,43 @@ class ScanAnalysis(QtGui.QWidget):
         super(ScanAnalysis, self).__init__(parent)
 
         self.controller = controller
+        self.createActions()
 
-        self.mcaSpectrumPlot = mcaspectrum.McaSpectrum(controller)
-
-        layout = QtGui.QVBoxLayout()
-        splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
-        layout.addWidget(splitter)
+        layout = QtGui.QGridLayout()
         self.setLayout(layout)
-        splitter.addWidget(self.mcaSpectrumPlot)
 
         if self.controller.getScanDimensions() == 2:
-            self.elementDataPlot = elementsview.ElementImage(controller)
-            splitter.addWidget(self.elementDataPlot)
+            self.elementDataPlot = elementsview.ElementImage(controller, self)
         else:
-            self.elementDataPlot = elementsview.ElementPlot(controller)
-            splitter.addWidget(self.elementDataPlot)
+            self.elementDataPlot = elementsview.ElementPlot(controller, self)
+        layout.addWidget(self.elementDataPlot)
 
-#        self.controller.processData()
+    def createActions(self):
+        self.actions = []
+        analyzeSpectra = QtGui.QAction('Analyze Spectra', None)
+        self.connect(analyzeSpectra,
+                     QtCore.SIGNAL("triggered()"),
+                     self.controller.processData)
+        self.connect(analyzeSpectra,
+                     QtCore.SIGNAL("triggered()"),
+                     self.disableMenuToolsActions)
+        self.connect(self.controller,
+                     QtCore.SIGNAL("finished()"),
+                     self.enableMenuToolsActions)
+        self.actions.append(analyzeSpectra)
+
+    def getMenuToolsActions(self):
+        return self.actions
+
+    def enableMenuToolsActions(self):
+        for action in self.actions:
+            action.setEnabled(True)
+
+    def disableMenuToolsActions(self):
+        for action in self.actions:
+            action.setEnabled(False)
+
+
 
 # TODO: update the window title
 #    def setWindowLabel(self, scanParams):

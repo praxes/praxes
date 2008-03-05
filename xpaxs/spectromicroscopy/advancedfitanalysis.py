@@ -180,7 +180,7 @@ class AdvancedFitThread(QtCore.QThread):
     def run(self):
         self.processData()
         self.stop()
-        self.emit(QtCore.SIGNAL('finished(bool)'), self.completed)
+        self.emit(QtCore.SIGNAL('finished()'))
 
     def stop(self):
         try:

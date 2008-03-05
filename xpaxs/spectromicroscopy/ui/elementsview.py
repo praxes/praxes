@@ -35,9 +35,11 @@ class ElementBaseFigure(plotwidgets.QtMplCanvas):
         super(ElementBaseFigure, self).__init__(parent)
 
         self.controller = controller
+        self.autoscale = True
 
         self.axes = self.figure.add_subplot(111)
-        self._elementData = numpy.zeros(self.controller.getScanShape(), 'f')
+
+        self._elementData = controller.getElementMap()
         self._createInitialFigure()
 
         self.connect(self.controller,
@@ -62,12 +64,11 @@ class ElementBaseFigure(plotwidgets.QtMplCanvas):
 
 class ElementImageFigure(ElementBaseFigure):
 
-    autoscale = True
-
     def __init__(self, controller, parent=None):
         super(ElementImageFigure, self).__init__(controller, parent)
 
-        self._clim = [0, 1]
+        min, max = self._elementData.min(), self._elementData.max()
+        self._clim = [min, max or float(max==0)]
 
     def _createInitialFigure(self):
         extent = []
@@ -76,7 +77,7 @@ class ElementImageFigure(ElementBaseFigure):
         ylim = self.controller.getScanRange(self.controller.getScanAxis(1, 0))
         extent.extend(ylim)
         self._image = self.axes.imshow(self._elementData, extent=extent,
-                                       aspect=1/1.414, interpolation='nearest',
+                                       interpolation='nearest',
                                        origin='lower')
         self._colorbar = self.figure.colorbar(self._image)
 
@@ -96,17 +97,13 @@ class ElementImageFigure(ElementBaseFigure):
         self._clim[0] = val
         self.updateFigure()
 
-    def setImageAspect(self, aspect):
-        self.axes.set_aspect(1/aspect)
-        self.updateFigure()
-
     def setInterpolation(self, val):
         self._image.set_interpolation('%s'%val)
         self.draw()
 
     def setImageOrigin(self, val):
         self._image.origin = '%s'%val
-        self.draw()
+        self.updateFigure()
 
     def updateFigure(self, elementData=None):
         if elementData is None: elementData = self._elementData
@@ -116,8 +113,8 @@ class ElementImageFigure(ElementBaseFigure):
         if self.autoscale:
             self._image.autoscale()
             self._clim = list(self._image.get_clim())
-            self.emit(QtCore.SIGNAL("dataMin(PyQt_PyObject)"), self._clim[0])
-            self.emit(QtCore.SIGNAL("dataMax(PyQt_PyObject)"), self._clim[1])
+            self.emit(QtCore.SIGNAL("dataMin"), self._clim[0])
+            self.emit(QtCore.SIGNAL("dataMax"), self._clim[1])
         else:
             self._image.set_clim(self._clim)
         self.draw()
@@ -127,9 +124,6 @@ class ElementPlotFigure(ElementBaseFigure):
 
     def __init__(self, controller, parent=None):
         super(ElementPlotFigure, self).__init__(controller, parent)
-
-        self._elementData = None
-        self._autoscale = True
 
     def _createInitialFigure(self, elementData):
         self._elementPlot, = self.axes.plot(self._elementData, 'b')
@@ -142,13 +136,13 @@ class ElementPlotFigure(ElementBaseFigure):
         self.axes.enable_autoscale_on(val)
         self.updateFigure()
 
-#    def setDataMax(self, val):
-#        self._ylims[1]=val
-#        self.updateFigure()
-#
-#    def setDataMin(self, val):
-#        self._ylims[0]=val
-#        self.updateFigure()
+    def setDataMax(self, val):
+        self._ylims[1]=val
+        self.updateFigure()
+
+    def setDataMin(self, val):
+        self._ylims[0]=val
+        self.updateFigure()
 
     def updateFigure(self, elementData=None):
         if elementData is None: elementData = self._elementData
@@ -158,12 +152,12 @@ class ElementPlotFigure(ElementBaseFigure):
         self.axes.relim()
         self.axes.autoscale_view()
 
-#        if self.axes.get_autoscale_on():
-#            self._extent[2:] = list(self.axes.get_ylim())
-#            self.emit(QtCore.SIGNAL("dataMin(PyQt_PyObject)"), self._extent[2])
-#            self.emit(QtCore.SIGNAL("dataMax(PyQt_PyObject)"), self._ylims[3])
-#        else:
-#            self.axes.set_ylim(self._extent[2:])
+        if self.axes.get_autoscale_on():
+            self._extent[2:] = list(self.axes.get_ylim())
+            self.emit(QtCore.SIGNAL("dataMin"), self._extent[2])
+            self.emit(QtCore.SIGNAL("dataMax"), self._ylims[3])
+        else:
+            self.axes.set_ylim(self._extent[2:])
 
         self.draw()
 
@@ -182,12 +176,18 @@ class ElementWidget(QtGui.QWidget):
         return getattr(self.figure, attr)
 
     def connectSignals(self):
-#        self.connect(self.maxSpinBox,
-#                     QtCore.SIGNAL("valueChanged(double)"),
-#                     self.figure.setDataMax)
-#        self.connect(self.minSpinBox,
-#                     QtCore.SIGNAL("valueChanged(double)"),
-#                     self.figure.setDataMin)
+        self.connect(self.figure,
+                     QtCore.SIGNAL("dataMax"),
+                     self.maxSpinBox.setValue)
+        self.connect(self.figure,
+                     QtCore.SIGNAL("dataMin"),
+                     self.minSpinBox.setValue)
+        self.connect(self.maxSpinBox,
+                     QtCore.SIGNAL("valueChanged(double)"),
+                     self.figure.setDataMax)
+        self.connect(self.minSpinBox,
+                     QtCore.SIGNAL("valueChanged(double)"),
+                     self.figure.setDataMin)
         self.connect(self.dataAutoscaleButton,
                      QtCore.SIGNAL("clicked(bool)"),
                      self.figure.enableAutoscale)
@@ -196,16 +196,13 @@ class ElementWidget(QtGui.QWidget):
                      self.controller.setCurrentDataType)
         self.connect(self.controller,
                      QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
-                     self.updateView)
+                     self.updateFigure)
         self.connect(self.xrfbandComboBox,
                      QtCore.SIGNAL("currentIndexChanged(const QString&)"),
                      self.controller.setCurrentElement)
         self.connect(self.controller,
                      QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
                      self.enableInteraction)
-        self.connect(self.saveDataButton,
-                     QtCore.SIGNAL("clicked()"),
-                     self.controller.saveData)
 
 #    def formatFigure(self):
 #        self.figure.setXLabel(self.controller.getScanAxis(0, 0))
@@ -213,9 +210,6 @@ class ElementWidget(QtGui.QWidget):
 #            self.figure.setYLabel(self.controller.getScanAxis(1, 0))
 #        except IndexError:
 #            self.figure.setYLabel('%s'%self.dataTypeBox.currentText())
-
-    def updateView(self, data):
-        self.figure.updateFigure(data)
 
     def enableInteraction(self):
         pass
@@ -243,15 +237,10 @@ class ElementImage(ui_elementsimage.Ui_ElementsImage, ElementWidget):
         self.gridlayout2.addWidget(self.toolbar, 1, 0, 1, 1)
 
         self.connectSignals()
+        self.updateFigure()
 
     def connectSignals(self):
         ElementWidget.connectSignals(self)
-#        self.connect(self.figure,
-#                     QtCore.SIGNAL("dataMax(PyQt_PyObject)"),
-#                     self.maxSpinBox.setValue)
-#        self.connect(self.figure,
-#                     QtCore.SIGNAL("dataMin(PyQt_PyObject)"),
-#                     self.minSpinBox.setValue)
         self.connect(self.interpolationComboBox,
                      QtCore.SIGNAL("currentIndexChanged(QString)"),
                      self.figure.setInterpolation)
@@ -281,3 +270,4 @@ class ElementPlot(ui_elementsplot.Ui_ElementsPlot, ElementWidget):
         self.gridlayout2.addWidget(self.toolbar, 1, 0, 1, 1)
 
         self.connectSignals()
+        self.updateFigure()

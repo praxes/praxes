@@ -42,6 +42,11 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.mdi = QtGui.QMdiArea()
         self.setCentralWidget(self.mdi)
 
+        acquisitionGroup = QtGui.QActionGroup(self)
+        acquisitionGroup.addAction(self.actionOffline)
+        acquisitionGroup.addAction(self.actionSpec)
+        self.actionOffline.setChecked(True)
+
         self.expInterface = None
         self.fileInterface = None
 
@@ -62,12 +67,9 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.connect(self.actionImportSpecFile,
                      QtCore.SIGNAL("triggered()"),
                      self.importSpecFile)
-        self.connect(self.actionConnect,
-                     QtCore.SIGNAL("triggered()"),
+        self.connect(self.actionSpec,
+                     QtCore.SIGNAL("toggled(bool)"),
                      self.connectToSpec)
-        self.connect(self.actionDisconnect,
-                     QtCore.SIGNAL("triggered()"),
-                     self.disconnectFromSpec)
         self.connect(self.actionAbout_Qt,
                      QtCore.SIGNAL("triggered()"),
                      QtGui.qApp,
@@ -75,6 +77,9 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.connect(self.actionAbout_SMP,
                      QtCore.SIGNAL("triggered()"),
                      self.about)
+        self.connect(self.menuTools,
+                     QtCore.SIGNAL("aboutToShow()"),
+                     self.updateToolsMenu)
 
     def about(self):
         QtGui.QMessageBox.about(self, self.tr("About SMP"),
@@ -95,27 +100,25 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             self.expInterface.close()
         return event.accept()
 
-    def connectToSpec(self):
-        from xpaxs.spec.ui.specconnect import SpecConnect
+    def connectToSpec(self, bool):
+        if bool:
+            from xpaxs.spec.ui.specconnect import SpecConnect
 
-        dlg = SpecConnect(self)
-        self.expInterface = dlg.exec_()
-        if self.expInterface:
-            self.actionConnect.setEnabled(False)
-            self.actionDisconnect.setEnabled(True)
-
+            dlg = SpecConnect(self)
+            self.expInterface = dlg.exec_()
+            if self.expInterface:
+                self.actionConfigure.setEnabled(True)
+                for key, (item, area, action) in self.expInterface.dockWidgets.iteritems():
+                    self.menuView.addAction(action)
+                    self.addDockWidget(area, item)
+        else:
+            self.actionConfigure.setEnabled(False)
             for key, (item, area, action) in self.expInterface.dockWidgets.iteritems():
-                self.menuSpec.addAction(action)
-                self.addDockWidget(area, item)
+                self.removeDockWidget(item)
+                self.menuView.removeAction(action)
+                self.expInterface.close()
+            self.expInterface = None
 
-    def disconnectFromSpec(self):
-        for key, (item, area, action) in self.expInterface.dockWidgets.iteritems():
-            self.removeDockWidget(item)
-            self.menuSpec.removeAction(action)
-            self.expInterface.close()
-        self.expInterface = None
-        self.actionConnect.setEnabled(True)
-        self.actionDisconnect.setEnabled(False)
 
     def importSpecFile(self, force=False):
         f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',
@@ -147,16 +150,24 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
         self.fileInterface.openFile(filename)
 
-    def newScanWindow(self, scan):
+    def newScanWindow(self, scan, mutex):
         from xpaxs.spectromicroscopy.ui import scananalysis
         from xpaxs.spectromicroscopy import analysisController
-        controller = analysisController.AnalysisController(scan)
+        controller = analysisController.AnalysisController(scan, mutex)
         scanView = scananalysis.ScanAnalysis(controller)
         self.mdi.addSubWindow(scanView)
         scanView.show()
+        self.menuTools.setEnabled(True)
         # TODO: this next line is just for convenience during development
         # needs to be implemented elsewhere
-        controller.processData()
+#        controller.processData()
+
+    def updateToolsMenu(self):
+        self.menuTools.clear()
+        window = self.mdi.currentSubWindow().widget()
+        actions = window.getMenuToolsActions()
+        for action in actions:
+            self.menuTools.addAction(action)
 
 
 def main():

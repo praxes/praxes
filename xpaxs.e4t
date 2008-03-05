@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE Tasks SYSTEM "Tasks-4.1.dtd">
+<!DOCTYPE Tasks SYSTEM "Tasks-4.2.dtd">
 <!-- eric4 tasks file for project xpaxs -->
-<!-- Saved: 2008-02-29, 17:37:44 -->
-<Tasks version="4.1">
+<!-- Saved: 2008-03-05, 09:31:18 -->
+<Tasks version="4.2">
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: pymca fit params dialog</Summary>
     <Description></Description>
     <Created>2008-01-18, 11:53:07</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>ui</Dir>
-        <Name>scanview.py</Name>
-      </Filename>
+      <Filename>xpaxs/spec/ui/scanview.py</Filename>
       <Linenumber>15</Linenumber>
     </Resource>
   </Task>
@@ -22,12 +17,7 @@
     <Description></Description>
     <Created>2008-01-18, 11:53:07</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>ui</Dir>
-        <Name>scanview.py</Name>
-      </Filename>
+      <Filename>xpaxs/spec/ui/scanview.py</Filename>
       <Linenumber>54</Linenumber>
     </Resource>
   </Task>
@@ -36,12 +26,7 @@
     <Description></Description>
     <Created>2008-01-18, 11:53:07</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>ui</Dir>
-        <Name>scanview.py</Name>
-      </Filename>
+      <Filename>xpaxs/spec/ui/scanview.py</Filename>
       <Linenumber>84</Linenumber>
     </Resource>
   </Task>
@@ -50,10 +35,7 @@
     <Description></Description>
     <Created>2008-02-12, 15:43:03</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Name>configutils.py</Name>
-      </Filename>
+      <Filename>xpaxs/configutils.py</Filename>
       <Linenumber>27</Linenumber>
     </Resource>
   </Task>
@@ -62,12 +44,7 @@
     <Description></Description>
     <Created>2008-02-25, 14:30:58</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>client</Dir>
-        <Name>scan.py</Name>
-      </Filename>
+      <Filename>xpaxs/spec/client/scan.py</Filename>
       <Linenumber>38</Linenumber>
     </Resource>
   </Task>
@@ -76,12 +53,7 @@
     <Description></Description>
     <Created>2008-02-25, 14:30:58</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>client</Dir>
-        <Name>scan.py</Name>
-      </Filename>
+      <Filename>xpaxs/spec/client/scan.py</Filename>
       <Linenumber>41</Linenumber>
     </Resource>
   </Task>
@@ -90,12 +62,7 @@
     <Description></Description>
     <Created>2008-02-25, 14:30:58</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>client</Dir>
-        <Name>scan.py</Name>
-      </Filename>
+      <Filename>xpaxs/spec/client/scan.py</Filename>
       <Linenumber>88</Linenumber>
     </Resource>
   </Task>
@@ -104,12 +71,7 @@
     <Description></Description>
     <Created>2008-02-26, 15:20:01</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>ui</Dir>
-        <Name>scancontrols.py</Name>
-      </Filename>
+      <Filename>xpaxs/spec/ui/scancontrols.py</Filename>
       <Linenumber>86</Linenumber>
     </Resource>
   </Task>
@@ -118,12 +80,7 @@
     <Description></Description>
     <Created>2008-02-26, 15:20:01</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>ui</Dir>
-        <Name>scancontrols.py</Name>
-      </Filename>
+      <Filename>xpaxs/spec/ui/scancontrols.py</Filename>
       <Linenumber>143</Linenumber>
     </Resource>
   </Task>
@@ -132,12 +89,7 @@
     <Description></Description>
     <Created>2008-02-26, 15:27:09</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>ui</Dir>
-        <Name>testinterface.py</Name>
-      </Filename>
+      <Filename>xpaxs/spec/ui/testinterface.py</Filename>
       <Linenumber>145</Linenumber>
     </Resource>
   </Task>
@@ -146,12 +98,7 @@
     <Description></Description>
     <Created>2008-02-27, 11:25:16</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>scananalysis.py</Name>
-      </Filename>
+      <Filename>xpaxs/spectromicroscopy/ui/scananalysis.py</Filename>
       <Linenumber>54</Linenumber>
     </Resource>
   </Task>
@@ -160,12 +107,7 @@
     <Description></Description>
     <Created>2008-02-27, 11:36:19</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>datalib</Dir>
-        <Dir>hdf5</Dir>
-        <Name>qtdatamodel.py</Name>
-      </Filename>
+      <Filename>xpaxs/datalib/hdf5/qtdatamodel.py</Filename>
       <Linenumber>178</Linenumber>
     </Resource>
   </Task>
@@ -174,12 +116,7 @@
     <Description></Description>
     <Created>2008-02-27, 11:45:00</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>datalib</Dir>
-        <Dir>hdf5</Dir>
-        <Name>__init__.py</Name>
-      </Filename>
+      <Filename>xpaxs/datalib/hdf5/__init__.py</Filename>
       <Linenumber>50</Linenumber>
     </Resource>
   </Task>
@@ -188,12 +125,7 @@
     <Description></Description>
     <Created>2008-02-27, 12:13:26</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>mainwindow.py</Name>
-      </Filename>
+      <Filename>xpaxs/spectromicroscopy/ui/mainwindow.py</Filename>
       <Linenumber>157</Linenumber>
     </Resource>
   </Task>
@@ -202,12 +134,7 @@
     <Description></Description>
     <Created>2008-02-27, 13:57:59</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>datalib</Dir>
-        <Dir>specfile</Dir>
-        <Name>__init__.py</Name>
-      </Filename>
+      <Filename>xpaxs/datalib/specfile/__init__.py</Filename>
       <Linenumber>325</Linenumber>
     </Resource>
   </Task>
@@ -216,11 +143,7 @@
     <Description></Description>
     <Created>2008-02-29, 17:17:07</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>analysisController.py</Name>
-      </Filename>
+      <Filename>xpaxs/spectromicroscopy/analysisController.py</Filename>
       <Linenumber>105</Linenumber>
     </Resource>
   </Task>
@@ -229,11 +152,7 @@
     <Description></Description>
     <Created>2008-02-29, 17:17:07</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>analysisController.py</Name>
-      </Filename>
+      <Filename>xpaxs/spectromicroscopy/analysisController.py</Filename>
       <Linenumber>202</Linenumber>
     </Resource>
   </Task>
@@ -242,11 +161,7 @@
     <Description></Description>
     <Created>2008-02-29, 17:27:17</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>advancedfitanalysis.py</Name>
-      </Filename>
+      <Filename>xpaxs/spectromicroscopy/advancedfitanalysis.py</Filename>
       <Linenumber>56</Linenumber>
     </Resource>
   </Task>
@@ -255,11 +170,7 @@
     <Description></Description>
     <Created>2008-02-29, 17:27:17</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>advancedfitanalysis.py</Name>
-      </Filename>
+      <Filename>xpaxs/spectromicroscopy/advancedfitanalysis.py</Filename>
       <Linenumber>120</Linenumber>
     </Resource>
   </Task>
@@ -268,11 +179,7 @@
     <Description></Description>
     <Created>2008-02-29, 17:27:17</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>advancedfitanalysis.py</Name>
-      </Filename>
+      <Filename>xpaxs/spectromicroscopy/advancedfitanalysis.py</Filename>
       <Linenumber>163</Linenumber>
     </Resource>
   </Task>
@@ -281,11 +188,7 @@
     <Description></Description>
     <Created>2008-02-29, 17:27:17</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>advancedfitanalysis.py</Name>
-      </Filename>
+      <Filename>xpaxs/spectromicroscopy/advancedfitanalysis.py</Filename>
       <Linenumber>263</Linenumber>
     </Resource>
   </Task>
@@ -294,11 +197,7 @@
     <Description></Description>
     <Created>2008-02-29, 17:27:17</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>advancedfitanalysis.py</Name>
-      </Filename>
+      <Filename>xpaxs/spectromicroscopy/advancedfitanalysis.py</Filename>
       <Linenumber>297</Linenumber>
     </Resource>
   </Task>
@@ -307,11 +206,7 @@
     <Description></Description>
     <Created>2008-02-29, 17:27:17</Created>
     <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Name>advancedfitanalysis.py</Name>
-      </Filename>
+      <Filename>xpaxs/spectromicroscopy/advancedfitanalysis.py</Filename>
       <Linenumber>415</Linenumber>
     </Resource>
   </Task>

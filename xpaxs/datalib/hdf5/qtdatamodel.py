@@ -62,9 +62,12 @@ class TreeItem:
 
 class ScanItem(TreeItem):
 
-    def __init__(self, scan, parent):
+    def __init__(self, scan, mutex, parent):
         self.scan = scan
         self.scan.attrs = scan._v_attrs
+
+        self.mutex = mutex
+
         self.parentItem = parent
         self.childItems = []
 
@@ -74,7 +77,7 @@ class ScanItem(TreeItem):
         self.itemData = [scannum, cmd, numpoints]
 
     def itemActivated(self):
-        return self.scan
+        return self.scan, self.mutex
 
 
 class FileItem(TreeItem):
@@ -84,10 +87,11 @@ class FileItem(TreeItem):
         self.itemData = [os.path.split(filename)[-1], '', '']
         self.childItems = []
 
+        mutex = QtCore.QMutex()
         datafile = tables.openFile(filename, 'r+')
 
         for scan in datafile.root:
-            self.appendChild(ScanItem(scan, self))
+            self.appendChild(ScanItem(scan, mutex, self))
 
 
 class QtFileModel(QtCore.QAbstractItemModel):
@@ -179,8 +183,8 @@ class QtFileModel(QtCore.QAbstractItemModel):
         self.rootItem.appendChild(FileItem(filename, self.rootItem))
 
     def itemActivated(self, index):
-        scanData = index.internalPointer().itemActivated()
-        self.emit(QtCore.SIGNAL('scanActivated'), scanData)
+        scanData, mutex = index.internalPointer().itemActivated()
+        self.emit(QtCore.SIGNAL('scanActivated'), scanData, mutex)
 
 
 if __name__ == "__main__":
