@@ -64,16 +64,15 @@ class ScanItem(TreeItem):
 
     def __init__(self, scan, mutex, parent):
         self.scan = scan
-        self.scan.attrs = scan._v_attrs
 
         self.mutex = mutex
 
         self.parentItem = parent
         self.childItems = []
 
-        scannum = '%s'%self.scan.attrs.scanNumber
-        cmd = self.scan.attrs.scanCommand
-        numpoints = '%d'%self.scan.attrs.scanLines
+        scannum = '%s'%self.scan._v_attrs.scanNumber
+        cmd = self.scan._v_attrs.scanCommand
+        numpoints = '%d'%self.scan._v_attrs.scanLines
         self.itemData = [scannum, cmd, numpoints]
 
     def itemActivated(self):

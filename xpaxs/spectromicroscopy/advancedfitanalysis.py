@@ -92,11 +92,15 @@ def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
 
 class AdvancedFitThread(QtCore.QThread):
 
-    def __init__(self, mutex, parent):
+    def __init__(self, scan, parent):
         super(AdvancedFitThread, self).__init__(parent)
-        self.lock = None
+
+        self.scan = scan
+
         self.stopped = False
-        self.mutex = mutex
+        self.mutex = scan.mutex
+
+        self.queue = Queue.Queue()
 
         self.dirty = False
         self.previousIndex = None
@@ -125,13 +129,12 @@ class AdvancedFitThread(QtCore.QThread):
             self.mutex.unlock()
         return index, spectrum
 
-    def initialize(self, config, scan, queue):
+    def initialize(self, config):
 
         # TODO: enable skipmode, needs moved from analysisController
 
         self.config = config
-        self.scan = scan
-        self.queue = queue
+        # TODO, need to update queue based on available data, and future updates
 
         self.advancedFit = ClassMcaTheory.McaTheory(config=config)
         self.advancedFit.enableOptimizedLinearFit()
@@ -215,6 +218,7 @@ class AdvancedFitThread(QtCore.QThread):
             try:
                 self.mutex.lock()
                 try:
+                    # TODO: use scan.updateElementMap
                     getattr(self.scan.elementMaps.PeakArea, g)[index] = fitArea
                     getattr(self.scan.elementMaps.SigmaArea, g)[index] = sigmaArea
                 except ValueError:
