@@ -31,64 +31,55 @@ DEBUG = False
 
 class SmpScanInterface(XpaxsScanInterface):
 
-    def __init__(self, scan, mutex, *args, **kwargs):
-        super(SmpScanInterface, self).__init__(self, scan, mutex,
-                                               *args, **kwargs)
+    def __init__(self, h5Entry, mutex, parent=None):
+        super(SmpScanInterface, self).__init__(h5Entry, mutex, parent)
 
-        try:
-            self.mutex.lock()
-            elementMaps = self.h5file.getNode(scan, 'elementMaps')
-        except tables.NoSuchNodeError:
-            elementMaps = self.h5file.createGroup(scan, 'elementMaps')
-            for i in ['PeakArea', 'MassFraction', 'SigmaArea']:
-                self.h5file.createGroup(elementMaps, i)
-            self.h5file.flush()
-        finally:
-            self.mutex.unlock()
-
-        if 'skipmodeMonitor' in self.scan._v_attrs:
-            self.skipmodeEnabled = True
-            self.skipmodeMonitor = scan.attrs.skipmodeMonitor
-            self.skipmodeThresh = scan.attrs.skipmodeThresh
-        else:
-            self.skipmodeEnabled = False
-
-        self._currentElement = None
-        self._currentDataType = "PeakArea"
-        self._pymcaConfig = None
-        self._peaks = []
-        self._normalizationChannel = None
-
-    def getScanAxis(self, axis=0, index=0):
-        """some scans have multiple axes, some axes have multiple components"""
-        try:
-            return self.scan._v_attrs.scanAxes[axis][index]
-        except IndexError, KeyError:
-            return ''
-
-    def appendDataPoint(self):
-        raise NotImplementedError
-        # TODO: use this for acquisition
-
-    def getScanAxes(self):
-        return self.scan._v_attrs.scanAxes
-
-    def getDatafile(self):
-        return self.scan._v_attrs.fileName
-
-    def getNumScanLines(self):
-        return len(self.scan.data)
-
-    def getExpectedScanLines(self):
-        return self.scan._v_attrs.scanLines
-
-    def getElementMap(self, element, datatype, normalization=None):
-        dataPath = '/'.join(['elementMaps', datatype, element])
+    def initializeElementMaps(self, elements):
+        shape = self.getScanShape()
+        filters = self.getH5Filters()
         try:
             self.mutex.lock()
             try:
-                elementMap = self.scan._v_file.getNode(self.scan, dataPath)[:]
-            except NoSuchNodeError:
+                self.h5File.removeNode(self.h5Entry, 'elementMaps',
+                                       recursive=True)
+                self.h5File.flush()
+            except tables.NoSuchNodeError:
+                pass
+            elementMaps = self.h5File.createGroup(self.h5Entry, 'elementMaps')
+            for mapType in ['fitArea', 'massFraction', 'sigmaArea']:
+                self.h5File.createGroup(elementMaps, mapType)
+                for element in elements:
+                    node = self.h5File.getNode(self.h5Entry.elementMaps,
+                                               mapType)
+                    self.h5File.createCArray(node,
+                                             element.replace(' ', ''),
+                                             tables.Float32Atom(),
+                                             shape,
+                                             filters=filters)
+            self.h5File.flush()
+        finally:
+            self.mutex.unlock()
+
+    def getAvailableElements(self):
+        try:
+            self.mutex.lock()
+            elements = [el for el in self.h5Entry.elementMaps.fitArea._v_leaves.keys()]
+        except tables.NoSuchNodeError:
+            return []
+        finally:
+            self.mutex.unlock()
+        elements.sort()
+        return elements
+
+    def getElementMap(self, mapType, element, normalization=None):
+        dataPath = '/'.join(['elementMaps', mapType, element])
+        try:
+            self.mutex.lock()
+            try:
+                elementMap = self.h5File.getNode(self.h5Entry,
+                                                          dataPath)[:]
+            except tables.NoSuchNodeError:
+                print dataPath
                 return numpy.zeros(self.getScanShape())
         finally:
             self.mutex.unlock()
@@ -97,40 +88,48 @@ class SmpScanInterface(XpaxsScanInterface):
             if normalization == 'Dead time %':
                 try:
                     self.mutex.lock()
-                    norm = getattr(self.scan.data.cols, 'Dead')[:]
+                    norm = getattr(self.h5Entry.data.cols, 'Dead')[:]
                 finally:
                     self.mutex.unlock()
                 norm = 1-norm/100
             else:
                 try:
                     self.mutex.lock()
-                    norm = getattr(self.scan.data.cols, normalization)[:]
+                    norm = getattr(self.h5Entry.data.cols, normalization)[:]
                 finally:
                     self.mutex.unlock()
             elementMap.flat[:len(norm)] /= norm
         return elementMap
 
-    def getScanRange(self, axis):
-        return self.scan._v_attrs.scanRange[axis]
-
-    def getScanShape(self):
-        return self.scan._v_attrs.scanShape
+    def getMcaSpectrum(self, mcaName, index):
+        try:
+            self.mutex.lock()
+            return self.h5Entry.data[index]['MCA'][:]
+        finally:
+            self.mutex.unlock()
 
     def getNormalizationChannels(self):
-        channels = [i for i in self.scan.data.colnames if not i in self.scan._v_attrs]
+        try:
+            self.mutex.lock()
+            channels = [i for i in self.h5Entry.data.colnames
+                        if not i in self.h5Entry._v_attrs]
+        finally:
+            self.mutex.unlock()
         channels.insert(0, 'Dead time %')
         return channels
 
-    def getPeaks(self):
-        return self._peaks
+    def getSkipmode(self):
+        try:
+            self.mutex.lock()
+            mon = scan._v_attrs.skipmodeMonitor
+            thresh = scan._v_attrs.skipmodeThresh
+            return (mon, thresh)
+        except AttributeError:
+            return (None, 0)
+        finally:
+            self.mutex.unlock()
 
-    def getScanType(self):
-        return self.scan._v_attrs.scanType
-
-    def getScanDimensions(self):
-        return len(self.scan._v_attrs.scanAxes)
-
-    def setSkipmode(self, monitor, thresh):
+    def setSkipmode(self, monitor=None, thresh=0):
         try:
             self.mutex.lock()
             scan._v_attrs.skipmodeMonitor = monitor
@@ -138,41 +137,32 @@ class SmpScanInterface(XpaxsScanInterface):
         finally:
             self.mutex.unlock()
 
-    def dataUpdated(self):
-        self.dirty = True
-        self.update()
+    def resetPeaks(self, peaksDict):
+        self.initializeElementMaps()
+        try:
+            self.mutex.lock()
+            self._peaks = []
+            for el, edges in pymcaConfig['peaks'].iteritems():
+                for edge in edges:
+                    name = ' '.join([el, edge])
+                    self._peaks.append(name)
+
+            self._peaks.sort()
+            if self._currentElement is None:
+                self._currentElement = self._peaks[0].replace(' ', '')
+
+            self.emit(QtCore.SIGNAL("availablePeaks"),
+                      copy.deepcopy(self._peaks))
+        finally:
+            self.mutex.unlock()
 
     def updateElementMap(self, mapType, element, index, val):
-        node = '/'.join([mapType, element])
+        node = '/'.join(['elementMaps', mapType, element])
         try:
             self.mutex.lock()
             try:
-                self.h5file.getNode(self.scan, node)[index] = val
+                self.h5File.getNode(self.h5Entry, node)[index] = val
             except ValueError:
                 print index, node
         finally:
             self.mutex.unlock()
-
-
-    def resetPeaks(self, pymcaConfig):
-        # TODO: this needs to be thread safe!
-        self._peaks = []
-        for el, edges in pymcaConfig['peaks'].iteritems():
-            for edge in edges:
-                name = ' '.join([el, edge])
-                self._peaks.append(name)
-                for i in ['PeakArea', 'MassFraction', 'SigmaArea']:
-                    node = self.h5file.getNode(self.scan.elementMaps, i)
-                    h5Name = name.replace(' ', '')
-                    if not h5Name in node:
-                        self.h5file.createCArray(node, h5Name,
-                                                 tables.Float32Atom(),
-                                                 self.getScanShape(),
-                                                 filters=filters)
-        self._peaks.sort()
-        if self._currentElement is None:
-            self._currentElement = self._peaks[0].replace(' ', '')
-
-        self.emit(QtCore.SIGNAL("availablePeaks"), self._peaks)
-
-

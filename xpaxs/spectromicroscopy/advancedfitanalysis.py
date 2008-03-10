@@ -20,7 +20,6 @@ from PyMca.ConcentrationsTool import ConcentrationsTool
 from PyQt4 import QtCore
 import numpy
 numpy.seterr(all='ignore')
-#import tables
 
 #---------------------------------------------------------------------------
 # xpaxs imports
@@ -92,22 +91,32 @@ def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
 
 class AdvancedFitThread(QtCore.QThread):
 
-    def __init__(self, scan, parent):
+    def __init__(self, scan, config, parent):
         super(AdvancedFitThread, self).__init__(parent)
+
+        self.mutex = QtCore.QMutex()
 
         self.scan = scan
 
-        self.stopped = False
-        self.mutex = scan.mutex
-
-        self.queue = Queue.Queue()
-
-        self.dirty = False
-        self.previousIndex = None
-        self.completed = False
+        self.config = config
+        self.advancedFit = ClassMcaTheory.McaTheory(config=config)
+        self.advancedFit.enableOptimizedLinearFit()
+        self.concentrationsTool = None
+        if 'concentrations' in config:
+            self.concentrationsTool = ConcentrationsTool(config)
+            self.tconf = self.concentrationsTool.configure()
 
         self.jobServer = pp.Server()
 #        self.jobServer.set_ncpus(1)
+
+        self.queue = Queue.Queue()
+        for i in xrange(self.scan.getNumScanLines()):
+            self.queue.put(i)
+        self.previousIndex = None
+
+        self.dirty = False
+        self.stopped = False
+        self.completed = False
 
         self.timer = QtCore.QTimer(self)
         self.connect(self.timer,
@@ -121,28 +130,17 @@ class AdvancedFitThread(QtCore.QThread):
 
     def findNextPoint(self):
         index = self.queue.get(False)
+        # TODO: need to be able to select which mca
+        spectrum = self.scan.getMcaSpectrum('MCA', index)
         try:
             self.mutex.lock()
             self.previousIndex = index
-            spectrum = self.scan.data[index]['MCA']
         finally:
             self.mutex.unlock()
         return index, spectrum
 
-    def initialize(self, config):
-
-        # TODO: enable skipmode, needs moved from analysisController
-
-        self.config = config
-        # TODO, need to update queue based on available data, and future updates
-
-        self.advancedFit = ClassMcaTheory.McaTheory(config=config)
-        self.advancedFit.enableOptimizedLinearFit()
-
-        self.concentrationsTool = None
-        if 'concentrations' in config:
-            self.concentrationsTool = ConcentrationsTool(config)
-            self.tconf = self.concentrationsTool.configure()
+    def getQueue(self):
+        return self.queue
 
     def isStopped(self):
         try:
@@ -164,14 +162,8 @@ class AdvancedFitThread(QtCore.QThread):
 
             self.jobServer.wait()
 
-            try:
-                self.mutex.lock()
-                expectedLines = self.scan.attrs.scanLines
-            finally:
-                self.mutex.unlock()
-
+            expectedLines = self.scan.getNumExpectedScanLines()
             if expectedLines <= (self.previousIndex+1): return
-
 
     def queueNext(self):
         index, spectrum = self.findNextPoint()
@@ -200,11 +192,7 @@ class AdvancedFitThread(QtCore.QThread):
         finally:
             self.mutex.unlock()
 
-        try:
-            self.mutex.lock()
-            shape = self.scan.attrs.scanShape
-        finally:
-            self.mutex.unlock()
+        shape = self.scan.getScanShape()
 
         index = flat_to_nd(data['index'], shape)
 
@@ -215,30 +203,14 @@ class AdvancedFitThread(QtCore.QThread):
             if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
             else: sigmaArea = numpy.nan
 
-            try:
-                self.mutex.lock()
-                try:
-                    # TODO: use scan.updateElementMap
-                    getattr(self.scan.elementMaps.PeakArea, g)[index] = fitArea
-                    getattr(self.scan.elementMaps.SigmaArea, g)[index] = sigmaArea
-                except ValueError:
-                    print index, g
-            finally:
-                self.mutex.unlock()
+            self.scan.updateElementMap('fitArea', g, index, fitArea)
+            self.scan.updateElementMap('sigmaArea', g, index, sigmaArea)
 
         if 'concentrations' in result:
             massFractions = result['concentrations']['mass fraction']
             for key, val in massFractions.iteritems():
                 k = key.replace(' ', '')
-                try:
-                    self.mutex.lock()
-                    try:
-                        getattr(self.scan.elementMaps.MassFraction, k)[index] = val
-                    except ValueError:
-                        print index, k
-                finally:
-                    self.mutex.unlock()
-
+                self.scan.updateElementMap('massFraction', k, index, val)
         self.dirty = True
 
         try: self.queueNext()
@@ -248,5 +220,3 @@ class AdvancedFitThread(QtCore.QThread):
         if self.dirty:
             self.emit(QtCore.SIGNAL("dataProcessed"))
             self.dirty = False
-
-

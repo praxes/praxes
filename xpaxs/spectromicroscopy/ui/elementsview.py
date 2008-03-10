@@ -31,18 +31,18 @@ class ElementBaseFigure(plotwidgets.QtMplCanvas):
     """
     """
 
-    def __init__(self, controller, parent=None):
+    def __init__(self, scanData, parent=None):
         super(ElementBaseFigure, self).__init__(parent)
 
-        self.controller = controller
+        self.scanData = scanData
         self.autoscale = True
 
         self.axes = self.figure.add_subplot(111)
 
-        self._elementData = controller.getElementMap()
+        self._elementData = self.window().getElementMap()
         self._createInitialFigure()
 
-        self.connect(self.controller,
+        self.connect(self.scanData,
                      QtCore.SIGNAL("elementDataChanged"),
                      self.updateFigure)
 
@@ -64,25 +64,25 @@ class ElementBaseFigure(plotwidgets.QtMplCanvas):
 
 class ElementImageFigure(ElementBaseFigure):
 
-    def __init__(self, controller, parent=None):
-        super(ElementImageFigure, self).__init__(controller, parent)
+    def __init__(self, scanData, parent=None):
+        super(ElementImageFigure, self).__init__(scanData, parent)
 
         min, max = self._elementData.min(), self._elementData.max()
         self._clim = [min, max or float(max==0)]
 
     def _createInitialFigure(self):
         extent = []
-        xlim = self.controller.getScanRange(self.controller.getScanAxis(0, 0))
+        xlim = self.scanData.getScanRange(self.scanData.getScanAxis(0, 0))
         extent.extend(xlim)
-        ylim = self.controller.getScanRange(self.controller.getScanAxis(1, 0))
+        ylim = self.scanData.getScanRange(self.scanData.getScanAxis(1, 0))
         extent.extend(ylim)
         self._image = self.axes.imshow(self._elementData, extent=extent,
                                        interpolation='nearest',
                                        origin='lower')
         self._colorbar = self.figure.colorbar(self._image)
 
-        self.axes.set_xlabel(self.controller.getScanAxis(0, 0))
-        try: self.axes.set_ylabel(self.controller.getScanAxis(1, 0))
+        self.axes.set_xlabel(self.scanData.getScanAxis(0, 0))
+        try: self.axes.set_ylabel(self.scanData.getScanAxis(1, 0))
         except IndexError: pass
 
     def enableAutoscale(self, val):
@@ -122,14 +122,14 @@ class ElementImageFigure(ElementBaseFigure):
 
 class ElementPlotFigure(ElementBaseFigure):
 
-    def __init__(self, controller, parent=None):
-        super(ElementPlotFigure, self).__init__(controller, parent)
+    def __init__(self, scanData, parent=None):
+        super(ElementPlotFigure, self).__init__(scanData, parent)
 
     def _createInitialFigure(self, elementData):
         self._elementPlot, = self.axes.plot(self._elementData, 'b')
 
-        self.axes.set_xlabel(self.controller.getScanAxis(0, 0))
-        try: self.axes.set_ylabel(self.controller.getScanAxis(1, 0))
+        self.axes.set_xlabel(self.scanData.getScanAxis(0, 0))
+        try: self.axes.set_ylabel(self.scanData.getScanAxis(1, 0))
         except IndexError: pass
 
     def enableAutoscale(self, val):
@@ -167,10 +167,10 @@ class ElementWidget(QtGui.QWidget):
     """
     """
 
-    def __init__(self, controller, parent=None):
+    def __init__(self, scanData, parent=None):
         super(ElementWidget, self).__init__(parent)
         self.setParent(parent)
-        self.controller = controller
+        self.scanData = scanData
 
     def __getattr__(self, attr):
         return getattr(self.figure, attr)
@@ -193,21 +193,25 @@ class ElementWidget(QtGui.QWidget):
                      self.figure.enableAutoscale)
         self.connect(self.dataTypeBox,
                      QtCore.SIGNAL("currentIndexChanged(QString)"),
-                     self.controller.setCurrentDataType)
-        self.connect(self.controller,
-                     QtCore.SIGNAL("elementDataChanged(PyQt_PyObject)"),
+                     self.window().setCurrentMapType)
+        self.connect(self.window(),
+                     QtCore.SIGNAL("elementDataChanged"),
                      self.updateFigure)
         self.connect(self.xrfbandComboBox,
                      QtCore.SIGNAL("currentIndexChanged(const QString&)"),
-                     self.controller.setCurrentElement)
-        self.connect(self.controller,
-                     QtCore.SIGNAL("enableDataInteraction(PyQt_PyObject)"),
+                     self.window().setCurrentElement)
+        self.connect(self.scanData,
+                     QtCore.SIGNAL("enableDataInteraction"),
                      self.enableInteraction)
 
+    def setAvailablePeaks(self, peaks):
+        self.xrfbandComboBox.clear()
+        self.xrfbandComboBox.addItems(peaks)
+
 #    def formatFigure(self):
-#        self.figure.setXLabel(self.controller.getScanAxis(0, 0))
+#        self.figure.setXLabel(self.scanData.getScanAxis(0, 0))
 #        try:
-#            self.figure.setYLabel(self.controller.getScanAxis(1, 0))
+#            self.figure.setYLabel(self.scanData.getScanAxis(1, 0))
 #        except IndexError:
 #            self.figure.setYLabel('%s'%self.dataTypeBox.currentText())
 
@@ -220,18 +224,14 @@ class ElementImage(ui_elementsimage.Ui_ElementsImage, ElementWidget):
     """
     """
 
-    def __init__(self, controller, parent=None):
-        super(ElementImage, self).__init__(controller, parent)
+    def __init__(self, scanData, parent=None):
+        super(ElementImage, self).__init__(scanData, parent)
         self.setupUi(self)
 
-        self.xrfbandComboBox.addItems(controller.getPeaks())
-        self.normalizationComboBox.addItems(controller.getNormalizationChannels())
-        if self.controller.checkConcentrations():
-            self.dataTypeBox.insertItem(0, 'Mass Fraction')
-            self.dataTypeBox.setCurrentIndex(0)
-            self.controller.setCurrentDataType('Mass Fraction')
+        self.xrfbandComboBox.addItems(self.window().getPeaks())
+        self.normalizationComboBox.addItems(scanData.getNormalizationChannels())
 
-        self.figure = ElementImageFigure(controller, self)
+        self.figure = ElementImageFigure(scanData, self)
         self.gridlayout2.addWidget(self.figure, 0, 0, 1, 1)
         self.toolbar = plotwidgets.Toolbar(self.figure, self)
         self.gridlayout2.addWidget(self.toolbar, 1, 0, 1, 1)
@@ -249,22 +249,18 @@ class ElementImage(ui_elementsimage.Ui_ElementsImage, ElementWidget):
                      self.figure.setImageOrigin)
         self.connect(self.normalizationComboBox,
                      QtCore.SIGNAL("currentIndexChanged(QString)"),
-                     self.controller.setNormalizationChannel)
+                     self.window().setNormalizationChannel)
 
 
 class ElementPlot(ui_elementsplot.Ui_ElementsPlot, ElementWidget):
     """Establishes a Experimenbt controls    """
-    def __init__(self, controller, parent=None):
-        super(ElementPlot, self).__init__(controller, parent)
+    def __init__(self, scanData, parent=None):
+        super(ElementPlot, self).__init__(scanData, parent)
         self.setupUi(self)
 
-        self.xrfbandComboBox.addItems(controller.getPeaks())
-        if self.controller.checkConcentrations():
-            self.dataTypeBox.insertItem(0, 'Mass Fraction')
-            self.dataTypeBox.setCurrentIndex(0)
-            self.controller.setCurrentDataType('Mass Fraction')
+        self.xrfbandComboBox.addItems(scanData.getPeaks())
 
-        self.figure = ElementPlotFigure(controller, self)
+        self.figure = ElementPlotFigure(scanData, self)
         self.gridlayout2.addWidget(self.figure, 0, 0, 1, 1)
         self.toolbar = plotwidgets.Toolbar(self.figure, self)
         self.gridlayout2.addWidget(self.toolbar, 1, 0, 1, 1)

@@ -107,12 +107,12 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
     """
     """
 
-    def __init__(self, controller, parent=None):
+    def __init__(self, scanData, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.setParent(parent)
         self.setupUi(self)
 
-        self.controller = controller
+        self.scanData = scanData
 
         self.figure = McaSpectrumFigure(self)
         self.figure.setSizePolicy(QtGui.QSizePolicy.Expanding,
@@ -127,7 +127,7 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
         self.connect(self.mcaAutoscaleButton,
                      QtCore.SIGNAL("clicked(bool)"),
                      self.figure.enableAutoscale)
-        self.connect(self.controller,
+        self.connect(self.scanData,
                      QtCore.SIGNAL("newMcaFit"),
                      self.updateView)
         self.connect(self.figure,

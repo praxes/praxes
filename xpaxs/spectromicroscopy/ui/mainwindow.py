@@ -11,6 +11,7 @@
 # Extlib imports
 #---------------------------------------------------------------------------
 
+from PyMca.McaAdvancedFit import McaAdvancedFit
 from PyQt4 import QtCore, QtGui
 
 #---------------------------------------------------------------------------
@@ -49,6 +50,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
         self.expInterface = None
         self.fileInterface = None
+        self.advancedFitWidget = None
 
         self.statusBar.showMessage('Ready', 2000)
         self.progressBar = QtGui.QProgressBar(self.statusBar)
@@ -58,7 +60,19 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         settings.beginGroup('MainWindow')
         self.restoreGeometry(settings.value('Geometry').toByteArray())
 
+        self.__configureDockArea()
+
         self.connectSignals()
+
+    def __configureDockArea(self):
+        """
+        Private method to configure the usage of the dockarea corners.
+        """
+        self.setCorner(QtCore.Qt.TopLeftCorner, QtCore.Qt.LeftDockWidgetArea)
+        self.setCorner(QtCore.Qt.BottomLeftCorner, QtCore.Qt.LeftDockWidgetArea)
+        self.setCorner(QtCore.Qt.TopRightCorner, QtCore.Qt.RightDockWidgetArea)
+        self.setCorner(QtCore.Qt.BottomRightCorner, QtCore.Qt.BottomDockWidgetArea)
+        self.setDockNestingEnabled(True)
 
     def connectSignals(self):
         self.connect(self.actionOpen,
@@ -91,6 +105,21 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                     "    SpecClient: a python interface to the spec server\n"
                     "    PyMca: a set of programs and libraries for analyzing "
                     "X-ray fluorescence spectra"%__version__))
+
+    def createAdvancedFitWidget(self, smpScan=None):
+        if self.advancedFitWidget is None:
+            from xpaxs.spectromicroscopy.ui.mcaspectrum import McaSpectrum
+#            self.advancedFitWidget = McaAdvancedFit(top=False)
+            self.advancedFitWidget = McaSpectrum(smpScan)
+            fitDockWidget = QtGui.QDockWidget('PyMca Advanced Fit')
+            fitDockWidget.setObjectName('PyMcaAdvancedFitWidget')
+            fitDockWidget.setAllowedAreas(QtCore.Qt.AllDockWidgetAreas)
+            fitDockWidget.setWidget(self.advancedFitWidget)
+#            fitDockWidget.setFeatures(QtGui.QDockWidget.DockWidgetFeatures(QtGui.QDockWidget.AllDockWidgetFeatures))
+            fitAction = fitDockWidget.toggleViewAction()
+            fitAction.setText('PyMca Advanced Fit')
+            self.menuView.addAction(fitAction)
+            self.addDockWidget(QtCore.Qt.TopDockWidgetArea, fitDockWidget)
 
     def closeEvent(self, event):
         settings = QtCore.QSettings()
@@ -151,16 +180,14 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.fileInterface.openFile(filename)
 
     def newScanWindow(self, scan, mutex):
-        from xpaxs.spectromicroscopy.ui import scananalysis
-        from xpaxs.spectromicroscopy import analysisController
-        controller = analysisController.AnalysisController(scan, mutex)
-        scanView = scananalysis.ScanAnalysis(controller)
+        from xpaxs.spectromicroscopy.ui.scananalysis import ScanAnalysis
+        from xpaxs.spectromicroscopy.smpdatainterface import SmpScanInterface
+        smpScan = SmpScanInterface(scan, mutex)
+        scanView = ScanAnalysis(smpScan)
         self.mdi.addSubWindow(scanView)
         scanView.show()
         self.menuTools.setEnabled(True)
-        # TODO: this next line is just for convenience during development
-        # needs to be implemented elsewhere
-#        controller.processData()
+        self.createAdvancedFitWidget(smpScan)
 
     def updateToolsMenu(self):
         self.menuTools.clear()

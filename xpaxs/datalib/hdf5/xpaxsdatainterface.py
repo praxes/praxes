@@ -5,7 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-
+import copy
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -31,15 +31,15 @@ class XpaxsScanInterface(QtCore.QObject):
 
     """A thread-safe interface to the scan data"""
 
-    def __init__(self, scan, mutex, *args, **kwargs):
-        QtCore.QObject.__init__(self)
+    def __init__(self, h5Entry, mutex, parent=None):
+        super(XpaxsScanInterface, self).__init__()
 
         self.mutex = mutex
 
-        self.scan = scan
+        self.h5Entry = h5Entry
 
-        self.h5file = scan._v_file
-        self.h5filters = tables.Filters(complib='zlib', complevel=9)
+        self.h5File = h5Entry._v_file
+        self.h5Filters = tables.Filters(complib='zlib', complevel=9)
 
         self.dirty = False
 
@@ -47,45 +47,94 @@ class XpaxsScanInterface(QtCore.QObject):
         raise NotImplementedError
         # TODO: use this for acquisition
 
-    def getDataFileName(self):
-        return self.scan._v_attrs.fileName
+    def dataUpdated(self):
+        try:
+            self.mutex.lock()
+            self.dirty = True
+        finally:
+            self.mutex.unlock()
 
-    def getExpectedScanLines(self):
-        return self.scan._v_attrs.scanLines
+    def getDataFileName(self):
+        try:
+            self.mutex.lock()
+            return self.h5Entry._v_attrs.fileName
+        finally:
+            self.mutex.unlock()
+
+    def getH5Filters(self):
+        try:
+            self.mutex.lock()
+            return copy.deepcopy(self.h5Filters)
+        finally:
+            self.mutex.unlock()
 
     def getNormalizationChannels(self):
         raise NotImplementedError
 
+    def getNumExpectedScanLines(self):
+        try:
+            self.mutex.lock()
+            return self.h5Entry._v_attrs.scanLines
+        finally:
+            self.mutex.unlock()
+
     def getNumScanLines(self):
-        return len(self.scan.data)
+        try:
+            self.mutex.lock()
+            return len(self.h5Entry.data)
+        finally:
+            self.mutex.unlock()
 
     def getScanAxes(self):
-        return self.scan._v_attrs.scanAxes
+        try:
+            self.mutex.lock()
+            return self.h5Entry._v_attrs.scanAxes
+        finally:
+            self.mutex.unlock()
 
     def getScanAxis(self, axis=0, index=0):
         """some scans have multiple axes, some axes have multiple components"""
         # TODO: this is confusing and needs to be improved, probably when
         # we adopt the nexus format
         try:
-            return self.scan._v_attrs.scanAxes[axis][index]
+            self.mutex.lock()
+            return self.h5Entry._v_attrs.scanAxes[axis][index]
         except IndexError, KeyError:
             return ''
+        finally:
+            self.mutex.unlock()
+
+    def getNumScanDimensions(self):
+        try:
+            self.mutex.lock()
+            return len(self.h5Entry._v_attrs.scanAxes)
+        finally:
+            self.mutex.unlock()
 
     def getScanRange(self, axis):
-        return self.scan._v_attrs.scanRange[axis]
+        try:
+            self.mutex.lock()
+            return self.h5Entry._v_attrs.scanRange[axis]
+        finally:
+            self.mutex.unlock()
 
     def getScanShape(self):
-        return self.scan._v_attrs.scanShape
+        try:
+            self.mutex.lock()
+            return self.h5Entry._v_attrs.scanShape
+        finally:
+            self.mutex.unlock()
 
     def getScanType(self):
-        return self.scan._v_attrs.scanType
-
-    def getScanDimensions(self):
-        return len(self.scan._v_attrs.scanAxes)
+        try:
+            self.mutex.lock()
+            return self.h5Entry._v_attrs.scanType
+        finally:
+            self.mutex.unlock()
 
     def saveData(self):
         try:
             self.mutex.lock()
-            self.h5file.flush()
+            self.h5File.flush()
         finally:
             self.mutex.unlock()

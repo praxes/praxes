@@ -105,8 +105,7 @@ class SpecInterface(QtCore.QObject):
 
         self.scanControls = ScanControls(specRunner)
         self.addDockWidget(self.scanControls, 'Scan Controls',
-                           QtCore.Qt.LeftDockWidgetArea|
-                           QtCore.Qt.RightDockWidgetArea,
+                           QtCore.Qt.AllDockWidgetAreas,
                            QtCore.Qt.LeftDockWidgetArea,
                            'SpecScanControlsWidget')
 

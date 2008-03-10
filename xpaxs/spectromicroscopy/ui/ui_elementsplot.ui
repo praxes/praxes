@@ -136,7 +136,12 @@
          <widget class="QComboBox" name="dataTypeBox" >
           <item>
            <property name="text" >
-            <string>Peak Area</string>
+            <string>Mass Fraction</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Fit Area</string>
            </property>
           </item>
           <item>

@@ -81,7 +81,7 @@ class AnalysisController(QtCore.QObject):
             self._pymcaConfig = scan.attrs.pymcaConfig
             self.resetPeaks()
         except AttributeError:
-            self.getPymcaConfig()
+            pass
 
     def getScanAxis(self, axis=0, index=0):
         """some scans have multiple axes, some axes have multiple components"""
@@ -161,6 +161,10 @@ class AnalysisController(QtCore.QObject):
         return len(self.scan.attrs.scanAxes)
 
     def processData(self):
+        # TODO: This needs to be improved
+        if self._pymcaConfig is None:
+            self.getPymcaConfig()
+
         try:
             self.mutex.lock()
             l = len(self.scan.data)
