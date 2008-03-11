@@ -232,9 +232,9 @@ class ElementImage(ui_elementsimage.Ui_ElementsImage, ElementWidget):
         self.normalizationComboBox.addItems(scanData.getNormalizationChannels())
 
         self.figure = ElementImageFigure(scanData, self)
-        self.gridlayout2.addWidget(self.figure, 0, 0, 1, 1)
         self.toolbar = plotwidgets.Toolbar(self.figure, self)
-        self.gridlayout2.addWidget(self.toolbar, 1, 0, 1, 1)
+        self.gridlayout1.addWidget(self.toolbar, 0, 0, 1, 1)
+        self.gridlayout1.addWidget(self.figure, 1, 0, 1, 1)
 
         self.connectSignals()
         self.updateFigure()
@@ -261,9 +261,9 @@ class ElementPlot(ui_elementsplot.Ui_ElementsPlot, ElementWidget):
         self.xrfbandComboBox.addItems(scanData.getPeaks())
 
         self.figure = ElementPlotFigure(scanData, self)
-        self.gridlayout2.addWidget(self.figure, 0, 0, 1, 1)
         self.toolbar = plotwidgets.Toolbar(self.figure, self)
-        self.gridlayout2.addWidget(self.toolbar, 1, 0, 1, 1)
+        self.gridlayout1.addWidget(self.toolbar, 0, 0, 1, 1)
+        self.gridlayout1.addWidget(self.figure, 1, 0, 1, 1)
 
         self.connectSignals()
         self.updateFigure()

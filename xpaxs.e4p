@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.3.dtd">
 <!-- eric4 project file for project xpaxs -->
-<!-- Saved: 2008-03-09, 20:08:32 -->
+<!-- Saved: 2008-03-10, 16:55:20 -->
 <!-- Copyright (C) 2008 ,  -->
 <Project version="4.3">
   <ProgLanguage mixed="1">Python</ProgLanguage>
@@ -72,7 +72,6 @@
     <Source>xpaxs/datalib/specfile/external/specfile/include/Lists.h</Source>
     <Source>xpaxs/datalib/specfile/external/specfile/include/SpecFile.h</Source>
     <Source>xpaxs/datalib/specfile/external/specfile/include/SpecFileP.h</Source>
-    <Source>xpaxs/spectromicroscopy/analysisController.py</Source>
     <Source>xpaxs/datalib/specfile/datamodel.py</Source>
     <Source>xpaxs/spec/macros/clientutils.mac</Source>
     <Source>xpaxs/spec/macros/smp_mca.mac</Source>

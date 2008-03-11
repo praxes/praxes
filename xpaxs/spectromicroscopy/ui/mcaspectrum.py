@@ -107,20 +107,28 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
     """
     """
 
-    def __init__(self, scanData, parent=None):
+    def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.setParent(parent)
         self.setupUi(self)
 
-        self.scanData = scanData
+        self.scanData = None
 
         self.figure = McaSpectrumFigure(self)
-        self.figure.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                                           QtGui.QSizePolicy.Expanding)
-        self.gridlayout2.addWidget(self.figure, 0, 0, 1, 1)
+#        self.figure.setSizePolicy(QtGui.QSizePolicy.Expanding,
+#                                  QtGui.QSizePolicy.Expanding)
         self.toolbar = plotwidgets.Toolbar(self.figure, self)
-        self.gridlayout2.addWidget(self.toolbar, 1, 0, 1, 1)
+        self.gridlayout1.addWidget(self.toolbar, 0, 0, 1, 1)
+        self.gridlayout1.addWidget(self.figure, 1, 0, 1, 1)
 
+    def __getattr__(self, attr):
+        return getattr(self.figure, attr)
+
+    def enableInteraction(self):
+        self.mcaAutoscaleButton.setEnabled(True)
+        self.mcaLogscaleButton.setEnabled(True)
+
+    def setScanData(self, scanData):
+        self.scanData = scanData
         self.connect(self.mcaLogscaleButton,
                      QtCore.SIGNAL("clicked(bool)"),
                      self.figure.enableLogscale)
@@ -133,28 +141,6 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
         self.connect(self.figure,
                      QtCore.SIGNAL('enableInteraction()'),
                      self.enableInteraction)
-        self.connect(self.configPyMcaButton,
-                     QtCore.SIGNAL("clicked()"),
-                     self.launchMcaAdvancedFit)
-
-    def __getattr__(self, attr):
-        return getattr(self.figure, attr)
-
-    def launchMcaAdvancedFit(self):
-        dialog = QtGui.QDialog()
-        layout = QtGui.QVBoxLayout(dialog)
-        from PyMca import McaAdvancedFit
-        mcaFit = McaAdvancedFit.McaAdvancedFit(dialog)
-        mcaFit.mcafit.configure(self.specInterface.pymcaConfig)
-        x = self.figure.fitData['xdata'].flatten()
-        y = self.figure.mcaCountsSummed.flatten()/self.figure.numSpectra
-        mcaFit.setData(x=x, y=y)
-        layout.addWidget(mcaFit)
-        dialog.exec_()
-
-    def enableInteraction(self):
-        self.mcaAutoscaleButton.setEnabled(True)
-        self.mcaLogscaleButton.setEnabled(True)
 
     def updateView(self, data):
         self.figure.updateFigure(data)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Tasks SYSTEM "Tasks-4.2.dtd">
 <!-- eric4 tasks file for project xpaxs -->
-<!-- Saved: 2008-03-06, 11:33:59 -->
+<!-- Saved: 2008-03-10, 16:55:20 -->
 <Tasks version="4.2">
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: pymca fit params dialog</Summary>
@@ -85,15 +85,6 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: check if file has already been opened</Summary>
-    <Description></Description>
-    <Created>2008-03-05, 10:03:58</Created>
-    <Resource>
-      <Filename>xpaxs/datalib/hdf5/qtdatamodel.py</Filename>
-      <Linenumber>182</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: update reference to newest scan, make connections when scan is created</Summary>
     <Description></Description>
     <Created>2008-03-05, 10:49:16</Created>
@@ -112,45 +103,27 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: get the channels from the controller</Summary>
+    <Summary>TODO: add file to list of open files in menu?</Summary>
     <Description></Description>
-    <Created>2008-03-05, 14:26:06</Created>
+    <Created>2008-03-10, 10:51:56</Created>
     <Resource>
-      <Filename>xpaxs/spectromicroscopy/advancedfitanalysis.py</Filename>
-      <Linenumber>67</Linenumber>
+      <Filename>xpaxs/datalib/hdf5/__init__.py</Filename>
+      <Linenumber>49</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: enable skipmode, needs moved from analysisController</Summary>
+    <Summary>TODO: check if file has already been opened</Summary>
     <Description></Description>
-    <Created>2008-03-05, 14:26:06</Created>
+    <Created>2008-03-10, 10:52:07</Created>
     <Resource>
-      <Filename>xpaxs/spectromicroscopy/advancedfitanalysis.py</Filename>
-      <Linenumber>129</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: report this progress in a progressBar</Summary>
-    <Description></Description>
-    <Created>2008-03-05, 14:26:06</Created>
-    <Resource>
-      <Filename>xpaxs/spectromicroscopy/advancedfitanalysis.py</Filename>
-      <Linenumber>156</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: update the window title</Summary>
-    <Description></Description>
-    <Created>2008-03-05, 15:05:00</Created>
-    <Resource>
-      <Filename>xpaxs/spectromicroscopy/ui/scananalysis.py</Filename>
-      <Linenumber>74</Linenumber>
+      <Filename>xpaxs/datalib/hdf5/qtdatamodel.py</Filename>
+      <Linenumber>181</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: use this for acquisition</Summary>
     <Description></Description>
-    <Created>2008-03-06, 08:53:05</Created>
+    <Created>2008-03-10, 13:52:15</Created>
     <Resource>
       <Filename>xpaxs/spectromicroscopy/analysisController.py</Filename>
       <Linenumber>95</Linenumber>
@@ -159,28 +132,73 @@
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: This needs to be improved</Summary>
     <Description></Description>
-    <Created>2008-03-06, 08:53:05</Created>
+    <Created>2008-03-10, 13:52:15</Created>
     <Resource>
       <Filename>xpaxs/spectromicroscopy/analysisController.py</Filename>
       <Linenumber>164</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: add file to list of open files in menu?</Summary>
+    <Summary>TODO: use this for acquisition</Summary>
     <Description></Description>
-    <Created>2008-03-06, 09:01:47</Created>
+    <Created>2008-03-10, 14:06:05</Created>
     <Resource>
-      <Filename>xpaxs/datalib/hdf5/__init__.py</Filename>
-      <Linenumber>49</Linenumber>
+      <Filename>xpaxs/datalib/hdf5/xpaxsdatainterface.py</Filename>
+      <Linenumber>48</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: this next line is just for convenience during development</Summary>
+    <Summary>TODO: this is confusing and needs to be improved, probably when</Summary>
     <Description></Description>
-    <Created>2008-03-06, 11:33:12</Created>
+    <Created>2008-03-10, 14:06:05</Created>
     <Resource>
-      <Filename>xpaxs/spectromicroscopy/ui/mainwindow.py</Filename>
-      <Linenumber>196</Linenumber>
+      <Filename>xpaxs/datalib/hdf5/xpaxsdatainterface.py</Filename>
+      <Linenumber>97</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: get the channels from the controller</Summary>
+    <Description></Description>
+    <Created>2008-03-10, 14:28:12</Created>
+    <Resource>
+      <Filename>xpaxs/spectromicroscopy/advancedfitanalysis.py</Filename>
+      <Linenumber>67</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: need to be able to select which mca</Summary>
+    <Description></Description>
+    <Created>2008-03-10, 14:28:12</Created>
+    <Resource>
+      <Filename>xpaxs/spectromicroscopy/advancedfitanalysis.py</Filename>
+      <Linenumber>133</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: report this progress in a progressBar</Summary>
+    <Description></Description>
+    <Created>2008-03-10, 14:28:12</Created>
+    <Resource>
+      <Filename>xpaxs/spectromicroscopy/advancedfitanalysis.py</Filename>
+      <Linenumber>158</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this if is a wart:</Summary>
+    <Description></Description>
+    <Created>2008-03-10, 16:11:17</Created>
+    <Resource>
+      <Filename>xpaxs/spectromicroscopy/smpdatainterface.py</Filename>
+      <Linenumber>87</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: update the window title</Summary>
+    <Description></Description>
+    <Created>2008-03-10, 16:22:35</Created>
+    <Resource>
+      <Filename>xpaxs/spectromicroscopy/ui/scananalysis.py</Filename>
+      <Linenumber>177</Linenumber>
     </Resource>
   </Task>
 </Tasks>

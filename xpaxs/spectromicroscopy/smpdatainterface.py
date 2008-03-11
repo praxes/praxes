@@ -20,7 +20,7 @@ import tables
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.datalib.hdf5.xpaxsdatainterface import XpaxsScanInterface
+from xpaxs.datalib.hdf5 import XpaxsScanInterface
 
 #---------------------------------------------------------------------------
 # Normal code begins

@@ -36,7 +36,7 @@ class ScanAnalysis(QtGui.QWidget):
         super(ScanAnalysis, self).__init__(parent)
 
         self.scanData = scanData
-        self._currentMapType = "fitArea"
+        self._currentMapType = "massFraction"
         self._normalizationChannel = None
         self._peaks = scanData.getAvailableElements()
         if self._peaks: self._currentElement = self._peaks[0]
@@ -97,6 +97,18 @@ class ScanAnalysis(QtGui.QWidget):
     def getPymcaConfig(self):
         self.fitParamDlg.exec_()
         self._pymcaConfig = self.fitParamDlg.getParameters()
+
+#    def launchMcaAdvancedFit(self):
+#        dialog = QtGui.QDialog()
+#        layout = QtGui.QVBoxLayout(dialog)
+#        from PyMca import McaAdvancedFit
+#        mcaFit = McaAdvancedFit.McaAdvancedFit(dialog)
+#        mcaFit.mcafit.configure(self.specInterface.pymcaConfig)
+#        x = self.figure.fitData['xdata'].flatten()
+#        y = self.figure.mcaCountsSummed.flatten()/self.figure.numSpectra
+#        mcaFit.setData(x=x, y=y)
+#        layout.addWidget(mcaFit)
+#        dialog.exec_()
 
     def processData(self):
         if self._pymcaConfig is None:

@@ -60,23 +60,23 @@ class TreeItem:
         pass
 
 
-class ScanItem(TreeItem):
+class H5EntryItem(TreeItem):
 
-    def __init__(self, scan, mutex, parent):
-        self.scan = scan
+    def __init__(self, scanData, mutex, parent):
+        self.scanData = scanData
 
         self.mutex = mutex
 
         self.parentItem = parent
         self.childItems = []
 
-        scannum = '%s'%self.scan._v_attrs.scanNumber
-        cmd = self.scan._v_attrs.scanCommand
-        numpoints = '%d'%self.scan._v_attrs.scanLines
+        scannum = '%s'%self.scanData._v_attrs.scanNumber
+        cmd = self.scanData._v_attrs.scanCommand
+        numpoints = '%d'%self.scanData._v_attrs.scanLines
         self.itemData = [scannum, cmd, numpoints]
 
     def itemActivated(self):
-        return self.scan, self.mutex
+        return self.scanData, self.mutex
 
 
 class FileItem(TreeItem):
@@ -90,19 +90,19 @@ class FileItem(TreeItem):
         datafile = tables.openFile(filename, 'r+')
 
         for scan in datafile.root:
-            self.appendChild(ScanItem(scan, mutex, self))
+            self.appendChild(H5EntryItem(scan, mutex, self))
 
 
-class QtFileModel(QtCore.QAbstractItemModel):
+class H5FileModel(QtCore.QAbstractItemModel):
 
     """
     """
 
     def __init__(self, filename=None, parent=None):
-        QtCore.QAbstractItemModel.__init__(self, parent)
+        super(H5FileModel, self).__init__(parent)
 
         rootData = []
-        rootData.append(QtCore.QVariant('File/Scan #'))
+        rootData.append(QtCore.QVariant('File/Entry #'))
         rootData.append(QtCore.QVariant('Command'))
         rootData.append(QtCore.QVariant('Points'))
         self.rootItem = TreeItem(rootData)
@@ -180,6 +180,9 @@ class QtFileModel(QtCore.QAbstractItemModel):
     def appendFile(self, filename):
         # TODO: check if file has already been opened
         self.rootItem.appendChild(FileItem(filename, self.rootItem))
+        row = self.rowCount(QtCore.QModelIndex())-1
+        index = self.index(row, 0, QtCore.QModelIndex())
+        self.emit(QtCore.SIGNAL('fileAppended'), index)
 
     def itemActivated(self, index):
         scanData, mutex = index.internalPointer().itemActivated()

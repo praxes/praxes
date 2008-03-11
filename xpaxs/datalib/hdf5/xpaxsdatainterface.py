@@ -78,6 +78,13 @@ class XpaxsScanInterface(QtCore.QObject):
         finally:
             self.mutex.unlock()
 
+    def getNumScanDimensions(self):
+        try:
+            self.mutex.lock()
+            return len(self.h5Entry._v_attrs.scanAxes)
+        finally:
+            self.mutex.unlock()
+
     def getNumScanLines(self):
         try:
             self.mutex.lock()
@@ -104,10 +111,10 @@ class XpaxsScanInterface(QtCore.QObject):
         finally:
             self.mutex.unlock()
 
-    def getNumScanDimensions(self):
+    def getScanNumber(self):
         try:
             self.mutex.lock()
-            return len(self.h5Entry._v_attrs.scanAxes)
+            return self.h5Entry._v_attrs.scanNumber
         finally:
             self.mutex.unlock()
 

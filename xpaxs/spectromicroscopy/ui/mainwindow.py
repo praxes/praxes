@@ -21,6 +21,10 @@ from PyQt4 import QtCore, QtGui
 from xpaxs import configutils
 from xpaxs import __version__
 from xpaxs.spectromicroscopy.ui import ui_mainwindow
+from xpaxs.datalib.hdf5 import H5FileModel, H5FileView
+from xpaxs.spectromicroscopy.ui.mcaspectrum import McaSpectrum
+from xpaxs.spectromicroscopy.ui.scananalysis import ScanAnalysis
+from xpaxs.spectromicroscopy.smpdatainterface import SmpScanInterface
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -40,8 +44,31 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         super(MainWindow, self).__init__(parent)
 
         self.setupUi(self)
+
+        self.__configureDockArea()
+
         self.mdi = QtGui.QMdiArea()
         self.setCentralWidget(self.mdi)
+
+        self.spectrumAnalysisDock = self.__createDockWindow('SpectrumAnalysisDock')
+#        self.spectrumAnalysis = McaAdvancedFit(top=False)
+        self.spectrumAnalysis = McaSpectrum()
+        self.__setupDockWindow(self.spectrumAnalysisDock,
+                               QtCore.Qt.BottomDockWidgetArea,
+                               self.spectrumAnalysis, 'Spectrum Analysis')
+
+        self.fileViewDock = self.__createDockWindow('FileViewDock')
+        self.fileModel = H5FileModel()
+        self.fileView = H5FileView(self.fileModel)
+        self.connect(self.fileModel,
+                     QtCore.SIGNAL('fileAppended'),
+                     self.fileView.appendItem)
+        self.connect(self.fileModel,
+                     QtCore.SIGNAL('scanActivated'),
+                     self.newScanWindow)
+        self.__setupDockWindow(self.fileViewDock,
+                               QtCore.Qt.LeftDockWidgetArea,
+                               self.fileView, 'File View')
 
         acquisitionGroup = QtGui.QActionGroup(self)
         acquisitionGroup.addAction(self.actionOffline)
@@ -56,13 +83,12 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.progressBar = QtGui.QProgressBar(self.statusBar)
         self.progressBar.hide()
 
+        self.connectSignals()
+
         settings = QtCore.QSettings()
         settings.beginGroup('MainWindow')
         self.restoreGeometry(settings.value('Geometry').toByteArray())
-
-        self.__configureDockArea()
-
-        self.connectSignals()
+        self.restoreState(settings.value('State').toByteArray())
 
     def __configureDockArea(self):
         """
@@ -73,6 +99,38 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.setCorner(QtCore.Qt.TopRightCorner, QtCore.Qt.RightDockWidgetArea)
         self.setCorner(QtCore.Qt.BottomRightCorner, QtCore.Qt.BottomDockWidgetArea)
         self.setDockNestingEnabled(True)
+
+    def __createDockWindow(self, name):
+        """
+        Private method to create a dock window with common properties.
+
+        @param name object name of the new dock window (string or QString)
+        @return the generated dock window (QDockWindow)
+        """
+        dock = QtGui.QDockWidget()
+        dock.setObjectName(name)
+        dock.setFeatures(QtGui.QDockWidget.DockWidgetFeatures(\
+                                    QtGui.QDockWidget.AllDockWidgetFeatures))
+        return dock
+
+    def __setupDockWindow(self, dock, where, widget, caption):
+        """
+        Private method to configure the dock window created with __createDockWindow().
+
+        @param dock the dock window (QDockWindow)
+        @param where dock area to be docked to (Qt.DockWidgetArea)
+        @param widget widget to be shown in the dock window (QWidget)
+        @param caption caption of the dock window (string or QString)
+        """
+        if caption is None:
+            caption = QtCore.QString()
+        self.addDockWidget(where, dock)
+        dock.setWidget(widget)
+        dock.setWindowTitle(caption)
+        action = dock.toggleViewAction()
+        action.setText(caption)
+        self.menuView.addAction(action)
+        dock.show()
 
     def connectSignals(self):
         self.connect(self.actionOpen,
@@ -106,27 +164,12 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                     "    PyMca: a set of programs and libraries for analyzing "
                     "X-ray fluorescence spectra"%__version__))
 
-    def createAdvancedFitWidget(self, smpScan=None):
-        if self.advancedFitWidget is None:
-            from xpaxs.spectromicroscopy.ui.mcaspectrum import McaSpectrum
-#            self.advancedFitWidget = McaAdvancedFit(top=False)
-            self.advancedFitWidget = McaSpectrum(smpScan)
-            fitDockWidget = QtGui.QDockWidget('PyMca Advanced Fit')
-            fitDockWidget.setObjectName('PyMcaAdvancedFitWidget')
-            fitDockWidget.setAllowedAreas(QtCore.Qt.AllDockWidgetAreas)
-            fitDockWidget.setWidget(self.advancedFitWidget)
-#            fitDockWidget.setFeatures(QtGui.QDockWidget.DockWidgetFeatures(QtGui.QDockWidget.AllDockWidgetFeatures))
-            fitAction = fitDockWidget.toggleViewAction()
-            fitAction.setText('PyMca Advanced Fit')
-            self.menuView.addAction(fitAction)
-            self.addDockWidget(QtCore.Qt.TopDockWidgetArea, fitDockWidget)
-
     def closeEvent(self, event):
         settings = QtCore.QSettings()
         settings.beginGroup("MainWindow")
         settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
-        if self.expInterface:
-            self.expInterface.close()
+        settings.setValue('State', QtCore.QVariant(self.saveState()))
+        if self.expInterface: self.expInterface.close()
         return event.accept()
 
     def connectToSpec(self, bool):
@@ -165,29 +208,18 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             filename = '%s'% QtGui.QFileDialog.getOpenFileName(self,
                             'Open File', '.', "hdf5 files (*.h5 *.hdf5)")
         if not filename: return
-        if self.fileInterface is None:
-            from xpaxs.datalib.hdf5 import FileInterface
-            self.fileInterface = FileInterface()
-            self.connect(self.fileInterface.fileModel,
-                         QtCore.SIGNAL('scanActivated'),
-                         self.newScanWindow)
-            for key, (area, item) in self.fileInterface.dockWidgets.iteritems():
-                viewAction = item.toggleViewAction()
-                viewAction.setText(key)
-                self.menuView.addAction(viewAction)
-                self.addDockWidget(area, item)
 
-        self.fileInterface.openFile(filename)
+        self.fileModel.appendFile(filename)
 
     def newScanWindow(self, scan, mutex):
-        from xpaxs.spectromicroscopy.ui.scananalysis import ScanAnalysis
-        from xpaxs.spectromicroscopy.smpdatainterface import SmpScanInterface
         smpScan = SmpScanInterface(scan, mutex)
         scanView = ScanAnalysis(smpScan)
-        self.mdi.addSubWindow(scanView)
-        scanView.show()
+        subWindow = self.mdi.addSubWindow(scanView)
+        title = '%s: Scan %s'%(smpScan.getDataFileName(),
+                              smpScan.getScanNumber())
+        subWindow.setWindowTitle(title)
+        subWindow.showMaximized()
         self.menuTools.setEnabled(True)
-        self.createAdvancedFitWidget(smpScan)
 
     def updateToolsMenu(self):
         self.menuTools.clear()
