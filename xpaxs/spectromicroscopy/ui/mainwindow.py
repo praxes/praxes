@@ -57,6 +57,18 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                                QtCore.Qt.BottomDockWidgetArea,
                                self.spectrumAnalysis, 'Spectrum Analysis')
 
+        ## Sets up Log location
+        self.logRead=QtGui.QTextEdit(self)
+        self.logRead.setReadOnly(True)
+        self.logRead.setWordWrapMode(QtGui.QTextOption.NoWrap)
+        self.logReadDock= self.__createDockWindow('Log Dock')
+        self.__setupDockWindow(self.logReadDock, 
+                               QtCore.Qt.RightDockWidgetArea, 
+                               self.logRead, 'System Log')
+        
+        
+        
+        
         self.fileViewDock = self.__createDockWindow('FileViewDock')
         self.fileModel = H5FileModel()
         self.fileView = H5FileView(self.fileModel)

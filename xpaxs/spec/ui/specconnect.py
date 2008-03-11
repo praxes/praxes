@@ -19,7 +19,7 @@ from SpecClient import SpecClientError
 #---------------------------------------------------------------------------
 
 
-from xpaxs.spec.ui import ui_specconnect, configdialog
+from xpaxs.spec.ui import ui_specconnect,  configdialog#ui_motordialog,  ui_motorconfig   
 from xpaxs.spec.client import runner
 from xpaxs.spec.ui.scancontrols import ScanControls
 
@@ -43,14 +43,24 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
         self.restore()
 
+        self.ssh=None
+        
     def exec_(self):
         if QtGui.QDialog.exec_(self):
-            self.connect()
+            self.startSSH() 
+            if self.ssh:self.connect()
             if self.specRunner is None: self.exec_()
             return SpecInterface(self.specRunner, self.parent())
         else:
             return None
-
+            
+    def startSSH(self):
+        if not self.ssh:
+            from xpaxs.spec.ui import sshdialog
+            sshdlg=sshdialog.SshDialog(self.parent())
+            sshdlg.show()
+            self.ssh=sshdlg.exec_()
+        
     def connect(self):
         try:
             self.specRunner = runner.SpecRunner(self.getSpecVersion(),
@@ -103,16 +113,19 @@ class SpecInterface(QtCore.QObject):
         self.specRunner = specRunner
         self.dockWidgets = {}
 
+        self.mainWindow = parent
+        
         self.scanControls = ScanControls(specRunner)
         self.addDockWidget(self.scanControls, 'Scan Controls',
-                           QtCore.Qt.AllDockWidgetAreas,
+                           QtCore.Qt.LeftDockWidgetArea|
+                           QtCore.Qt.RightDockWidgetArea,
                            QtCore.Qt.LeftDockWidgetArea,
                            'SpecScanControlsWidget')
-
-        self.mainWindow = parent
+                           
+        #added by Jeff for configuring spec
         self.connect(self.mainWindow.actionConfigure,
                      QtCore.SIGNAL("triggered()"),
-                     self.configure)
+                     lambda : configdialog.ConfigDialog(self.specRunner, self.mainWindow))
 
     def addDockWidget(self, widget, title, allowedAreas, defaultArea,
                       name=None):
@@ -125,16 +138,14 @@ class SpecInterface(QtCore.QObject):
         self.dockWidgets[title] = (dock, defaultArea, action)
 
     def close(self):
+        
         self.scanControls = None
         self.dockWidgets = {}
         self.specRunner.close()
         self.specRunner = None
-
-    def configure(self):
-        configdialog.ConfigDialog(self.specRunner, self.mainWindow)
-
-
-
+        
+        
+        
 if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
