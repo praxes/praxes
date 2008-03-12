@@ -137,20 +137,25 @@ class McaSpectrumFigure(plotwidgets.QtMplCanvas):
         self.spectrumAxes.clear()
         self.residualsAxes.clear()
 
-        self.spectrumAxes.plot(xdata, results['ydata'], '.', label='data')
-        self.spectrumAxes.plot(xdata, results['yfit'], linewidth=1.5, label='fit')
-        self.spectrumAxes.plot(xdata, results['continuum'], linewidth=1.5, label='continuum')
+        self.spectrumAxes.plot(xdata, results['ydata'], label='data')
+        self.spectrumAxes.plot(xdata, results['yfit'], linewidth=1.5,
+                               label='fit')
+        self.spectrumAxes.plot(xdata, results['continuum'], linewidth=1.5,
+                               label='continuum')
 
         if self.fitconfig['fit']['sumflag']:
             continuum = results['pileup']+results['continuum']
-            self.spectrumAxes.plot(xdata, continuum, linewidth=1.5, label='pileup')
+            self.spectrumAxes.plot(xdata, continuum, linewidth=1.5,
+                                   label='pileup')
         if results.has_key('ymatrix'):
-            self.spectrumAxes.plot(xdata, results['ymatrix'], linewidth=1.5, label='matrix')
+            self.spectrumAxes.plot(xdata, results['ymatrix'], linewidth=1.5,
+                                   label='matrix')
 
         for group in results['groups']:
             label = 'y'+group
             if results.has_key(label):
-                self.spectrumAxes.plot(xdata, results[label], linewidth=1.5, label=group)
+                self.spectrumAxes.plot(xdata, results[label], linewidth=1.5,
+                                       label=group)
 
         self.spectrumAxes.xaxis.set_visible(False)
         self.spectrumAxes.set_ylabel('Counts')
@@ -159,6 +164,7 @@ class McaSpectrumFigure(plotwidgets.QtMplCanvas):
 
         if self.useLogScale:
             res = numpy.log10(results['ydata']) - numpy.log10(results['yfit'])
+            res[numpy.isinf(res)] = numpy.nan
             self.residualsAxes.plot(xdata, res, linewidth=1.5)
         else:
             res = results['ydata'] - results['yfit']

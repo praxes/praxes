@@ -51,22 +51,9 @@ class ImageCursor(QtCore.QObject, Cursor):
         Cursor.__init__(self, im.axes, useblit, **lineprops)
         QtCore.QObject.__init__(self, parent)
 
+        self.setImage(im)
 
         self.canvas.mpl_connect('button_release_event', self.onpick)
-
-        xmin, xmax, ymin, ymax = im.get_extent()
-        if im.origin == 'upper': ymin, ymax = ymax, ymin
-
-        self.im = im
-
-        imarray = im.get_array()
-
-        self.indices = numpy.arange(len(im.get_array().flat))
-        self.indices.shape = im.get_array().shape
-
-        xshape, yshape = im.get_size()
-        self.xPixelLocs = numpy.linspace(xmin, xmax, xshape)
-        self.yPixelLocs = numpy.linspace(ymin, ymax, yshape)
 
     def onpick(self, event):
         if event.inaxes is self.ax:
@@ -74,6 +61,19 @@ class ImageCursor(QtCore.QObject, Cursor):
             yIndex = locateClosest(event.ydata, self.yPixelLocs)
 
             self.emit(QtCore.SIGNAL('pickEvent'), self.indices[yIndex, xIndex])
+
+    def setImage(self, im):
+        xmin, xmax, ymin, ymax = im.get_extent()
+        if im.origin == 'upper': ymin, ymax = ymax, ymin
+
+        imarray = im.get_array()
+
+        self.indices = numpy.arange(len(im.get_array().flat))
+        self.indices.shape = im.get_array().shape
+
+        yshape, xshape = im.get_size()
+        self.xPixelLocs = numpy.linspace(xmin, xmax, xshape)
+        self.yPixelLocs = numpy.linspace(ymin, ymax, yshape)
 
 
 class QtMplCanvas(FigureCanvasQTAgg):

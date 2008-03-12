@@ -131,7 +131,7 @@ class AdvancedFitThread(QtCore.QThread):
     def findNextPoint(self):
         index = self.queue.get(False)
         # TODO: need to be able to select which mca
-        spectrum = self.scan.getMcaSpectrum('MCA', index)
+        spectrum = self.scan.getMcaSpectrum(index)
         try:
             self.mutex.lock()
             self.previousIndex = index
