@@ -57,18 +57,14 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                                QtCore.Qt.BottomDockWidgetArea,
                                self.spectrumAnalysis, 'Spectrum Analysis')
 
-        ## Sets up Log location
-        self.logRead=QtGui.QTextEdit(self)
+        self.logRead = QtGui.QTextEdit(self)
         self.logRead.setReadOnly(True)
         self.logRead.setWordWrapMode(QtGui.QTextOption.NoWrap)
-        self.logReadDock= self.__createDockWindow('Log Dock')
-        self.__setupDockWindow(self.logReadDock, 
-                               QtCore.Qt.RightDockWidgetArea, 
+        self.logReadDock = self.__createDockWindow('Log Dock')
+        self.__setupDockWindow(self.logReadDock,
+                               QtCore.Qt.RightDockWidgetArea,
                                self.logRead, 'System Log')
-        
-        
-        
-        
+
         self.fileViewDock = self.__createDockWindow('FileViewDock')
         self.fileModel = H5FileModel()
         self.fileView = H5FileView(self.fileModel)
@@ -192,16 +188,21 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             self.expInterface = dlg.exec_()
             if self.expInterface:
                 self.actionConfigure.setEnabled(True)
-                for key, (item, area, action) in self.expInterface.dockWidgets.iteritems():
+                for key, (item, area, action) in \
+                        self.expInterface.dockWidgets.iteritems():
                     self.menuView.addAction(action)
                     self.addDockWidget(area, item)
+            else:
+                self.actionOffline.setChecked(True)
         else:
-            self.actionConfigure.setEnabled(False)
-            for key, (item, area, action) in self.expInterface.dockWidgets.iteritems():
-                self.removeDockWidget(item)
-                self.menuView.removeAction(action)
-                self.expInterface.close()
-            self.expInterface = None
+            if self.expInterface:
+                self.actionConfigure.setEnabled(False)
+                for key, (item, area, action) in \
+                        self.expInterface.dockWidgets.iteritems():
+                    self.removeDockWidget(item)
+                    self.menuView.removeAction(action)
+                    self.expInterface.close()
+                self.expInterface = None
 
 
     def importSpecFile(self, force=False):
@@ -226,6 +227,9 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
     def newScanWindow(self, scan, mutex):
         smpScan = SmpScanInterface(scan, mutex)
         scanView = ScanAnalysis(smpScan)
+        self.connect(scanView, QtCore.SIGNAL("analyzeSpectrum"),
+                     self.spectrumAnalysis.analyzeSpectrum)
+
         subWindow = self.mdi.addSubWindow(scanView)
         title = '%s: Scan %s'%(smpScan.getDataFileName(),
                               smpScan.getScanNumber())
@@ -235,10 +239,13 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
     def updateToolsMenu(self):
         self.menuTools.clear()
-        window = self.mdi.currentSubWindow().widget()
-        actions = window.getMenuToolsActions()
-        for action in actions:
-            self.menuTools.addAction(action)
+        try:
+            window = self.mdi.currentSubWindow().widget()
+            actions = window.getMenuToolsActions()
+            for action in actions:
+                self.menuTools.addAction(action)
+        except AttributeError:
+            pass
 
 
 def main():

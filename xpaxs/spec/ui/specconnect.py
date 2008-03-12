@@ -19,7 +19,7 @@ from SpecClient import SpecClientError
 #---------------------------------------------------------------------------
 
 
-from xpaxs.spec.ui import ui_specconnect,  configdialog#ui_motordialog,  ui_motorconfig   
+from xpaxs.spec.ui import ui_specconnect,  configdialog#ui_motordialog,  ui_motorconfig
 from xpaxs.spec.client import runner
 from xpaxs.spec.ui.scancontrols import ScanControls
 
@@ -44,30 +44,10 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
         self.restore()
 
         self.ssh=None
-        
-    def exec_(self):
-        if QtGui.QDialog.exec_(self):
-            self.startSSH() 
-            if self.ssh:self.connect()
-            if self.specRunner is None: self.exec_()
-            return SpecInterface(self.specRunner, self.parent())
-        else:
-            return None
-            
-    def startSSH(self):
-        if not self.ssh:
-            from xpaxs.spec.ui import sshdialog
-            sshdlg=sshdialog.SshDialog(self.parent())
-            sshdlg.show()
-            self.ssh=sshdlg.exec_()
-        
-    def connect(self):
-        try:
-            self.specRunner = runner.SpecRunner(self.getSpecVersion(),
-                                                timeout=500)
-        except SpecClientError.SpecClientTimeoutError:
-            self.connectionError()
-            self.specRunner = None
+
+    def accept(self):
+        self.save()
+        QtGui.QDialog.accept(self)
 
     def connectionError(self):
         error = QtGui.QErrorMessage()
@@ -76,6 +56,24 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
         make sure you have started spec in server mode (for example "spec \
         -S").'''%tuple(self.getSpecVersion().split(':')))
         error.exec_()
+
+    def connectToSpec(self):
+        try:
+            self.specRunner = runner.SpecRunner(self.getSpecVersion(),
+                                                timeout=500)
+        except SpecClientError.SpecClientTimeoutError:
+            self.connectionError()
+            self.specRunner = None
+
+    def exec_(self):
+        if QtGui.QDialog.exec_(self):
+#            self.startSSH()
+#            if self.ssh: self.connectToSpec()
+            self.connectToSpec()
+            if self.specRunner is None: self.exec_()
+
+        if self.specRunner: return SpecInterface(self.specRunner, self.parent())
+        else: return None
 
     def getSpecVersion(self):
         settings = QtCore.QSettings()
@@ -92,16 +90,18 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
         self.serverEdit.setText(server)
         self.portEdit.setText(port)
 
+    def startSSH(self):
+        if not self.ssh:
+            from xpaxs.spec.ui import sshdialog
+            sshdlg = sshdialog.SshDialog(self.parent())
+            self.ssh = sshdlg.exec_()
+
     def save(self):
         settings = QtCore.QSettings()
         settings.setValue('Port', QtCore.QVariant(self.portEdit.text()))
         settings.setValue('Server', QtCore.QVariant(self.serverEdit.text()))
         settings.setValue('SpecConnect/Geometry',
                           QtCore.QVariant(self.saveGeometry()))
-
-    def accept(self):
-        self.save()
-        QtGui.QDialog.accept(self)
 
 
 class SpecInterface(QtCore.QObject):
@@ -114,14 +114,14 @@ class SpecInterface(QtCore.QObject):
         self.dockWidgets = {}
 
         self.mainWindow = parent
-        
+
         self.scanControls = ScanControls(specRunner)
         self.addDockWidget(self.scanControls, 'Scan Controls',
                            QtCore.Qt.LeftDockWidgetArea|
                            QtCore.Qt.RightDockWidgetArea,
                            QtCore.Qt.LeftDockWidgetArea,
                            'SpecScanControlsWidget')
-                           
+
         #added by Jeff for configuring spec
         self.connect(self.mainWindow.actionConfigure,
                      QtCore.SIGNAL("triggered()"),
@@ -138,14 +138,14 @@ class SpecInterface(QtCore.QObject):
         self.dockWidgets[title] = (dock, defaultArea, action)
 
     def close(self):
-        
+
         self.scanControls = None
         self.dockWidgets = {}
         self.specRunner.close()
         self.specRunner = None
-        
-        
-        
+
+
+
 if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)

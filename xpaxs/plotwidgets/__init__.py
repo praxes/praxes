@@ -17,6 +17,7 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg\
     as Toolbar
 from matplotlib.figure import Figure
+from matplotlib.widgets import Cursor
 import numpy
 
 #---------------------------------------------------------------------------
@@ -33,8 +34,46 @@ import numpy
 mpl.rcdefaults()
 mpl.rcParams['axes.formatter.limits'] = [-4, 4]
 mpl.rcParams['mathtext.fontset'] = 'stix'
+mpl.rcParams['legend.fontsize'] = 'small'
 Toolbar.margin = 4
 numpy.seterr(all='ignore')
+
+
+
+def locateClosest(point, points):
+    compare = numpy.abs(points-point)
+    return numpy.nonzero(numpy.ravel(compare==compare.min()))[0]
+
+
+class ImageCursor(QtCore.QObject, Cursor):
+
+    def __init__(self, im, useblit=False, parent=None, **lineprops):
+        Cursor.__init__(self, im.axes, useblit, **lineprops)
+        QtCore.QObject.__init__(self, parent)
+
+
+        self.canvas.mpl_connect('button_release_event', self.onpick)
+
+        xmin, xmax, ymin, ymax = im.get_extent()
+        if im.origin == 'upper': ymin, ymax = ymax, ymin
+
+        self.im = im
+
+        imarray = im.get_array()
+
+        self.indices = numpy.arange(len(im.get_array().flat))
+        self.indices.shape = im.get_array().shape
+
+        xshape, yshape = im.get_size()
+        self.xPixelLocs = numpy.linspace(xmin, xmax, xshape)
+        self.yPixelLocs = numpy.linspace(ymin, ymax, yshape)
+
+    def onpick(self, event):
+        if event.inaxes is self.ax:
+            xIndex = locateClosest(event.xdata, self.xPixelLocs)
+            yIndex = locateClosest(event.ydata, self.yPixelLocs)
+
+            self.emit(QtCore.SIGNAL('pickEvent'), self.indices[yIndex, xIndex])
 
 
 class QtMplCanvas(FigureCanvasQTAgg):
@@ -83,13 +122,13 @@ class ElementCanvas(QtMplCanvas):
 
     def setXLabel(self, label):
         self._xlabel = label
-    
+
     def setXLims(self, lims):
         self._xlims = lims
 
     def setYLabel(self, label):
         self._ylabel = label
-    
+
     def setYLims(self, lims):
         self._ylims = lims
 
@@ -100,22 +139,22 @@ class ElementImage(ElementCanvas):
 
     def __init__(self, parent=None):
         ElementCanvas.__init__(self, parent)
-        
+
         self._clim = [0, 1]
         self._image = None
         self._elementData = None
         self._colorbar = None
-        
+
     def _createInitialFigure(self, elementData):
         self._elementData = elementData
         extent = []
         extent.extend(self._xlims)
         extent.extend(self._ylims)
-        self._image = self.axes.imshow(elementData, extent=extent, 
+        self._image = self.axes.imshow(elementData, extent=extent,
                                        aspect=1/1.414, interpolation='nearest',
                                        origin='lower')
         self._colorbar = self.figure.colorbar(self._image)
-        
+
         self.axes.set_xlabel(self._xlabel)
         self.axes.set_ylabel(self._ylabel)
 
@@ -150,7 +189,7 @@ class ElementImage(ElementCanvas):
             if elementData is None: elementData = self._elementData
             else: self._elementData = elementData
             self._image.set_data(elementData)
-        
+
         if self.autoscale:
             self._image.autoscale()
             self._clim = list(self._image.get_clim())
@@ -165,13 +204,13 @@ class ElementPlot(ElementCanvas):
 
     def __init__(self,parent=None):
         ElementCanvas.__init__(self, parent)
-        
+
         self._elementData = None
         self._autoscale = True
 
     def _createInitialFigure(self, elementData):
         self._elementData = elementData
-        
+
         self._elementPlot, = self.axes.plot(elementData, 'b')
         self.axes.set_xlabel(self._xlabel)
         self.axes.set_ylabel(self._ylabel)
@@ -194,18 +233,18 @@ class ElementPlot(ElementCanvas):
         else:
             if elementData is None: elementData = self._elementData
             else: self._elementData = elementData
-            
+
             self._elementPlot.set_ydata(elementData)
             self.axes.relim()
             self.axes.autoscale_view()
-        
+
         self._elementData = elementData
-        
+
         if self.axes.get_autoscale_on():
             self._ylims = list(self.axes.get_ylim())
             self.emit(QtCore.SIGNAL("dataMin(PyQt_PyObject)"), self._ylims[0])
             self.emit(QtCore.SIGNAL("dataMax(PyQt_PyObject)"), self._ylims[1])
         else:
             self.axes.set_ylim(self._ylims)
-        
+
         self.draw()

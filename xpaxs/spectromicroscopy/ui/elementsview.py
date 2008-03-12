@@ -67,6 +67,9 @@ class ElementImageFigure(ElementBaseFigure):
     def __init__(self, scanData, parent=None):
         super(ElementImageFigure, self).__init__(scanData, parent)
 
+        cursor = plotwidgets.ImageCursor(self.image, useblit=True, parent=self, color='w')
+        self.connect(cursor, QtCore.SIGNAL('pickEvent'), self.window().plotSpectrum)
+
         min, max = self._elementData.min(), self._elementData.max()
         self._clim = [min, max or float(max==0)]
 
@@ -76,10 +79,10 @@ class ElementImageFigure(ElementBaseFigure):
         extent.extend(xlim)
         ylim = self.scanData.getScanRange(self.scanData.getScanAxis(1, 0))
         extent.extend(ylim)
-        self._image = self.axes.imshow(self._elementData, extent=extent,
+        self.image = self.axes.imshow(self._elementData, extent=extent,
                                        interpolation='nearest',
                                        origin='lower')
-        self._colorbar = self.figure.colorbar(self._image)
+        self._colorbar = self.figure.colorbar(self.image)
 
         self.axes.set_xlabel(self.scanData.getScanAxis(0, 0))
         try: self.axes.set_ylabel(self.scanData.getScanAxis(1, 0))
@@ -98,25 +101,31 @@ class ElementImageFigure(ElementBaseFigure):
         self.updateFigure()
 
     def setInterpolation(self, val):
-        self._image.set_interpolation('%s'%val)
+        self.image.set_interpolation('%s'%val)
         self.draw()
 
     def setImageOrigin(self, val):
-        self._image.origin = '%s'%val
+        self.image.origin = '%s'%val
         self.updateFigure()
 
     def updateFigure(self, elementData=None):
         if elementData is None: elementData = self._elementData
         else: self._elementData = elementData
-        self._image.set_data(elementData)
+        self.image.set_data(elementData)
 
         if self.autoscale:
-            self._image.autoscale()
-            self._clim = list(self._image.get_clim())
+            self.image.autoscale()
+            self._clim = list(self.image.get_clim())
             self.emit(QtCore.SIGNAL("dataMin"), self._clim[0])
             self.emit(QtCore.SIGNAL("dataMax"), self._clim[1])
         else:
-            self._image.set_clim(self._clim)
+            self.image.set_clim(self._clim)
+
+        xlim = self.scanData.getScanRange(self.scanData.getScanAxis(0, 0))
+        ylim = self.scanData.getScanRange(self.scanData.getScanAxis(1, 0))
+        self.axes.set_xlim(xlim)
+        self.axes.set_ylim(ylim)
+
         self.draw()
 
 

@@ -78,6 +78,11 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>userEdit</tabstop>
+  <tabstop>pwdEdit</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

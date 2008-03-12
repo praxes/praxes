@@ -41,7 +41,10 @@ class ScanAnalysis(QtGui.QWidget):
         self._peaks = scanData.getAvailableElements()
         if self._peaks: self._currentElement = self._peaks[0]
         else: self._currentElement = None
-        self._pymcaConfig = None
+        try:
+            self._pymcaConfig = scanData.getPymcaConfig()
+        except:
+            self._pymcaConfig = None
 
         self.createActions()
 
@@ -61,6 +64,7 @@ class ScanAnalysis(QtGui.QWidget):
 
     def createActions(self):
         self.actions = []
+
         analyzeSpectra = QtGui.QAction('Analyze Spectra', None)
         self.connect(analyzeSpectra,
                      QtCore.SIGNAL("triggered()"),
@@ -69,6 +73,12 @@ class ScanAnalysis(QtGui.QWidget):
                      QtCore.SIGNAL("triggered()"),
                      self.disableMenuToolsActions)
         self.actions.append(analyzeSpectra)
+
+        configurePyMca = QtGui.QAction('Configure PyMca', None)
+        self.connect(configurePyMca,
+                     QtCore.SIGNAL("triggered()"),
+                     self.configurePyMca)
+        self.actions.append(configurePyMca)
 
     def disableMenuToolsActions(self):
         for action in self.actions:
@@ -94,9 +104,10 @@ class ScanAnalysis(QtGui.QWidget):
     def getPeaks(self):
         return copy.deepcopy(self._peaks)
 
-    def getPymcaConfig(self):
+    def configurePyMca(self):
         self.fitParamDlg.exec_()
         self._pymcaConfig = self.fitParamDlg.getParameters()
+        self.scanData.setPymcaConfig(self._pymcaConfig)
 
 #    def launchMcaAdvancedFit(self):
 #        dialog = QtGui.QDialog()
@@ -110,9 +121,19 @@ class ScanAnalysis(QtGui.QWidget):
 #        layout.addWidget(mcaFit)
 #        dialog.exec_()
 
+    def plotSpectrum(self, index):
+        if self._pymcaConfig is None:
+            self.configurePyMca()
+
+        channels = self.scanData.getMcaChannels()
+        counts = self.scanData.getMcaSpectrum(index)
+        config = self._pymcaConfig
+
+        self.emit(QtCore.SIGNAL("analyzeSpectrum"), channels, counts, config)
+
     def processData(self):
         if self._pymcaConfig is None:
-            self.getPymcaConfig()
+            self.configurePyMca()
 
         self.resetPeaks()
 

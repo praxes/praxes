@@ -173,6 +173,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>dataTypeBox</tabstop>
+  <tabstop>xrfbandComboBox</tabstop>
+  <tabstop>normalizationComboBox</tabstop>
+  <tabstop>maxSpinBox</tabstop>
+  <tabstop>minSpinBox</tabstop>
+  <tabstop>dataAutoscaleButton</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

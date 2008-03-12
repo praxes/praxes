@@ -101,10 +101,18 @@ class SmpScanInterface(XpaxsScanInterface):
             elementMap.flat[:len(norm)] /= norm
         return elementMap
 
-    def getMcaSpectrum(self, mcaName, index):
+    def getMcaSpectrum(self, index, id='MCA'):
         try:
             self.mutex.lock()
-            return self.h5Entry.data[index]['MCA'][:]
+            return self.h5Entry.data[index][id][:]
+        finally:
+            self.mutex.unlock()
+
+    def getMcaChannels(self, id='MCA'):
+        try:
+            self.mutex.lock()
+            mcaMetaData = getattr(self.h5Entry, id)
+            return mcaMetaData.channels[:]
         finally:
             self.mutex.unlock()
 
@@ -118,11 +126,25 @@ class SmpScanInterface(XpaxsScanInterface):
         channels.insert(0, 'Dead time %')
         return channels
 
+    def getPymcaConfig(self):
+        try:
+            self.mutex.lock()
+            return self.h5Entry._v_attrs.pymcaConfig
+        finally:
+            self.mutex.unlock()
+
+    def setPymcaConfig(self, config):
+        try:
+            self.mutex.lock()
+            self.h5Entry._v_attrs.pymcaConfig = config
+        finally:
+            self.mutex.unlock()
+
     def getSkipmode(self):
         try:
             self.mutex.lock()
-            mon = scan._v_attrs.skipmodeMonitor
-            thresh = scan._v_attrs.skipmodeThresh
+            mon = self.h5Entry._v_attrs.skipmodeMonitor
+            thresh = self.h5Entry._v_attrs.skipmodeThresh
             return (mon, thresh)
         except AttributeError:
             return (None, 0)
@@ -132,27 +154,8 @@ class SmpScanInterface(XpaxsScanInterface):
     def setSkipmode(self, monitor=None, thresh=0):
         try:
             self.mutex.lock()
-            scan._v_attrs.skipmodeMonitor = monitor
-            scan._v_attrs.skipmodeThresh = thresh
-        finally:
-            self.mutex.unlock()
-
-    def resetPeaks(self, peaksDict):
-        self.initializeElementMaps()
-        try:
-            self.mutex.lock()
-            self._peaks = []
-            for el, edges in pymcaConfig['peaks'].iteritems():
-                for edge in edges:
-                    name = ' '.join([el, edge])
-                    self._peaks.append(name)
-
-            self._peaks.sort()
-            if self._currentElement is None:
-                self._currentElement = self._peaks[0].replace(' ', '')
-
-            self.emit(QtCore.SIGNAL("availablePeaks"),
-                      copy.deepcopy(self._peaks))
+            self.h5Entry._v_attrs.skipmodeMonitor = monitor
+            self.h5Entry._v_attrs.skipmodeThresh = thresh
         finally:
             self.mutex.unlock()
 
