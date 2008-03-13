@@ -11,7 +11,7 @@
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from PyMca.McaAdvancedFit import McaAdvancedFit
+from PyMca import McaAdvancedFit
 from PyQt4 import QtCore, QtGui
 
 #---------------------------------------------------------------------------
@@ -32,6 +32,7 @@ from xpaxs.spectromicroscopy.smpdatainterface import SmpScanInterface
 
 
 USE_PYMCA_ADVANCEDFIT = True
+McaAdvancedFit.USE_BOLD_FONTS = False
 
 
 class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
@@ -55,7 +56,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
         self.spectrumAnalysisDock = self.__createDockWindow('SpectrumAnalysisDock')
         if USE_PYMCA_ADVANCEDFIT:
-            self.spectrumAnalysis = McaAdvancedFit(top=False)
+            self.spectrumAnalysis = McaAdvancedFit.McaAdvancedFit(top=False)
             self.spectrumAnalysis.headerLabel.hide()
             self.spectrumAnalysis.dismissButton.hide()
         else:
