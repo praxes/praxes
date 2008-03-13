@@ -94,6 +94,8 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.expInterface = None
         self.fileInterface = None
         self.advancedFitWidget = None
+    
+        self.SSH=None
 
         self.statusBar.showMessage('Ready', 2000)
         self.progressBar = QtGui.QProgressBar(self.statusBar)

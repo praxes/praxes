@@ -137,7 +137,8 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
             else:
                 scanArgs.extend(args[:-1])
         scanArgs.append( self.scanCountSpinBox.value() )
-
+        print scanArgs
+        print args
         self.progressBar.setMaximum(scanPoints)
 # TODO: need to reimpliment using new scheme: instantiate a scananalysis window
 # with a specscanacquisition instance to control it.
@@ -224,7 +225,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                                 ('axis: 1', '2', '3'),
                                 ('samx', 'samz', 'samy')):
                 if i < numAxes:
-                    self.axes.append(scanmotor.ScanMotor(self, m))
+                    self.axes.append(scanmotor.ScanMotor(self, m))#TODO:source of error
                     self.axesTab.addTab(self.axes[-1], ax)
         self.axesTab.setUpdatesEnabled(True)
         self.connectAxesSignals()
@@ -232,6 +233,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
     def updateProgressBar(self, val):
         self.progressBar.setValue(val+1)
 
+        
 
 if __name__ == "__main__":
     import sys

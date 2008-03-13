@@ -77,6 +77,7 @@ class SshDialog(ui_sshdialog.Ui_Dialog, QtGui.QDialog):
                                               str(self.SSH))
             self.log.append(self.SSH)
             self.SSH = None
+        self.parent().SSH=self.SSH
 
 
 if __name__ == "__main__":

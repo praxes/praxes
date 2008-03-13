@@ -19,7 +19,7 @@ from SpecClient import SpecClientError
 #---------------------------------------------------------------------------
 
 
-from xpaxs.spec.ui import ui_specconnect,  configdialog#ui_motordialog,  ui_motorconfig
+from xpaxs.spec.ui import ui_specconnect,  configdialog, sshdialog
 from xpaxs.spec.client import runner
 from xpaxs.spec.ui.scancontrols import ScanControls
 
@@ -91,9 +91,9 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def startSSH(self):
         if not self.ssh:
-            from xpaxs.spec.ui import sshdialog
             sshdlg = sshdialog.SshDialog(self.parent())
             self.ssh = sshdlg.exec_()
+
 
     def save(self):
         settings = QtCore.QSettings()
@@ -107,7 +107,7 @@ class SpecInterface(QtCore.QObject):
 
     def __init__(self, specRunner=None, parent=None):
         super(SpecInterface, self).__init__(parent)
-
+        self.parent=parent
         QtCore.QObject.__init__(self)
         self.specRunner = specRunner
         self.dockWidgets = {}
@@ -121,7 +121,6 @@ class SpecInterface(QtCore.QObject):
                            QtCore.Qt.LeftDockWidgetArea,
                            'SpecScanControlsWidget')
 
-        #added by Jeff for configuring spec
         self.connect(self.mainWindow.actionConfigure,
                      QtCore.SIGNAL("triggered()"),
                      lambda : configdialog.ConfigDialog(self.specRunner, self.mainWindow))
@@ -142,6 +141,8 @@ class SpecInterface(QtCore.QObject):
         self.dockWidgets = {}
         self.specRunner.close()
         self.specRunner = None
+        self.parent.SSH=None
+        
 
 
 
