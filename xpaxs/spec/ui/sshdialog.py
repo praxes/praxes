@@ -32,11 +32,13 @@ class SshDialog(ui_sshdialog.Ui_Dialog, QtGui.QDialog):
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
+        self.userEdit.setFocus()
         self.log = parent.logRead
         self.SSH = None
         self.settings = QtCore.QSettings()
         geometry = self.settings.value('SpecConnect/SSHGeometry').toByteArray()
         self.restoreGeometry(geometry)
+        
         
     def exec_(self):
         if QtGui.QDialog.exec_(self):

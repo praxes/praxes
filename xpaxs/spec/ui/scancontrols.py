@@ -127,7 +127,6 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
 
     def startScan(self):
         scantype = str(self.scanTypeComboBox.currentText())
-
         scanPoints = 1
         scanArgs = []
         for m in self.axes:
