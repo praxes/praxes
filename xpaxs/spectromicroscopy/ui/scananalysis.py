@@ -32,7 +32,7 @@ class ScanAnalysis(QtGui.QWidget):
     """
     """
 
-    def __init__(self, scanData, parent=None):
+    def __init__(self, scanData, parent=None, advancedFit=None):
         super(ScanAnalysis, self).__init__(parent)
 
         self.scanData = scanData
@@ -45,6 +45,8 @@ class ScanAnalysis(QtGui.QWidget):
             self._pymcaConfig = scanData.getPymcaConfig()
         except:
             self._pymcaConfig = None
+
+        self.advancedFit = advancedFit
 
         self.createActions()
 
@@ -129,7 +131,15 @@ class ScanAnalysis(QtGui.QWidget):
         counts = self.scanData.getMcaSpectrum(index)
         config = self._pymcaConfig
 
-        self.emit(QtCore.SIGNAL("analyzeSpectrum"), channels, counts, config)
+        if self.advancedFit:
+            # We are using PyMca's AdvancedFit
+            self.advancedFit.configure(config)
+            self.advancedFit.setData(x=channels, y=counts)
+            self.advancedFit.fit()
+        else:
+            self.emit(QtCore.SIGNAL("analyzeSpectrum"),
+                      channels, counts, config)
+
 
     def processData(self):
         if self._pymcaConfig is None:

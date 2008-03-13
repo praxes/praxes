@@ -31,6 +31,9 @@ from xpaxs.spectromicroscopy.smpdatainterface import SmpScanInterface
 #---------------------------------------------------------------------------
 
 
+USE_PYMCA_ADVANCEDFIT = True
+
+
 class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
     """Establishes a Experiment controls
 
@@ -51,8 +54,12 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.setCentralWidget(self.mdi)
 
         self.spectrumAnalysisDock = self.__createDockWindow('SpectrumAnalysisDock')
-#        self.spectrumAnalysis = McaAdvancedFit(top=False)
-        self.spectrumAnalysis = McaSpectrum()
+        if USE_PYMCA_ADVANCEDFIT:
+            self.spectrumAnalysis = McaAdvancedFit(top=False)
+            self.spectrumAnalysis.headerLabel.hide()
+            self.spectrumAnalysis.dismissButton.hide()
+        else:
+            self.spectrumAnalysis = McaSpectrum()
         self.__setupDockWindow(self.spectrumAnalysisDock,
                                QtCore.Qt.BottomDockWidgetArea,
                                self.spectrumAnalysis, 'Spectrum Analysis')
@@ -226,13 +233,16 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
     def newScanWindow(self, scan, mutex):
         smpScan = SmpScanInterface(scan, mutex)
-        scanView = ScanAnalysis(smpScan)
-        self.connect(scanView, QtCore.SIGNAL("analyzeSpectrum"),
-                     self.spectrumAnalysis.analyzeSpectrum)
+        if USE_PYMCA_ADVANCEDFIT:
+            scanView = ScanAnalysis(smpScan, advancedFit=self.spectrumAnalysis)
+        else:
+            scanView = ScanAnalysis(smpScan)
+            self.connect(scanView, QtCore.SIGNAL("analyzeSpectrum"),
+                         self.spectrumAnalysis.analyzeSpectrum)
 
         subWindow = self.mdi.addSubWindow(scanView)
         title = '%s: Scan %s'%(smpScan.getDataFileName(),
-                              smpScan.getScanNumber())
+                               smpScan.getScanNumber())
         subWindow.setWindowTitle(title)
         subWindow.showMaximized()
         self.menuTools.setEnabled(True)
