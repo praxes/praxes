@@ -13,7 +13,7 @@ import time
 #---------------------------------------------------------------------------
 
 from PyQt4 import QtCore, QtGui
-from pexpect import pxssh
+import pxssh
 
 
 #---------------------------------------------------------------------------
@@ -34,17 +34,22 @@ class SshDialog(ui_sshdialog.Ui_Dialog, QtGui.QDialog):
         self.setupUi(self)
         self.log = parent.logRead
         self.SSH = None
-
+        self.settings = QtCore.QSettings()
+        geometry = self.settings.value('SpecConnect/SSHGeometry').toByteArray()
+        self.restoreGeometry(geometry)
+        
+        
     def exec_(self):
         if QtGui.QDialog.exec_(self):
             self.sshconnect()
             if self.SSH is None: self.exec_()
+            self.settings.setValue('SpecConnect/SSHGeometry',
+                          QtCore.QVariant(self.saveGeometry()))
             return self.SSH
 
     def sshconnect(self):
-        settings = QtCore.QSettings()
-        server = settings.value('Server').toString()
-        spec = settings.value("Port").toString()
+        server = self.settings.value('Server').toString()
+        spec = self.settings.value("Port").toString()
         cmd = spec+" -S"
         user = "%s"%self.userEdit.text()
         pwd = "%s"%self.pwdEdit.text()

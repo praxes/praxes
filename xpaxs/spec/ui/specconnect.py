@@ -69,7 +69,6 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
         if QtGui.QDialog.exec_(self):
             self.startSSH()
             if self.ssh: self.connectToSpec()
-            self.connectToSpec()
             if self.specRunner is None: self.exec_()
 
         if self.specRunner: return SpecInterface(self.specRunner, self.parent())
