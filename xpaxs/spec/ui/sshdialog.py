@@ -13,7 +13,7 @@ import time
 #---------------------------------------------------------------------------
 
 from PyQt4 import QtCore, QtGui
-import pxssh
+from pexpect import pxssh
 
 
 #---------------------------------------------------------------------------
@@ -48,7 +48,7 @@ class SshDialog(ui_sshdialog.Ui_Dialog, QtGui.QDialog):
         cmd = spec+" -S"
         user = "%s"%self.userEdit.text()
         pwd = "%s"%self.pwdEdit.text()
-        self.SSH = pxssh.pxssh(timeout=10000)
+        self.SSH = pxssh.pxssh()
 
         try:
             if self.SSH.login(server, user, pwd, login_timeout=10000):

@@ -67,8 +67,8 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def exec_(self):
         if QtGui.QDialog.exec_(self):
-#            self.startSSH()
-#            if self.ssh: self.connectToSpec()
+            self.startSSH()
+            if self.ssh: self.connectToSpec()
             self.connectToSpec()
             if self.specRunner is None: self.exec_()
 

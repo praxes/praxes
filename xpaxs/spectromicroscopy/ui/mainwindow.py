@@ -31,7 +31,7 @@ from xpaxs.spectromicroscopy.smpdatainterface import SmpScanInterface
 #---------------------------------------------------------------------------
 
 
-USE_PYMCA_ADVANCEDFIT = True
+USE_PYMCA_ADVANCEDFIT = False
 
 
 class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
