@@ -32,7 +32,7 @@ from xpaxs.spectromicroscopy.smpdatainterface import SmpScanInterface
 
 
 USE_PYMCA_ADVANCEDFIT = True
-McaAdvancedFit.USE_BOLD_FONTS = False
+McaAdvancedFit.USE_BOLD_FONT = False
 
 
 class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):

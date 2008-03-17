@@ -1,32 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE Tasks SYSTEM "Tasks-3.8.dtd">
+<!DOCTYPE Tasks SYSTEM "Tasks-4.1.dtd">
 <!-- eric4 tasks file for project xpaxs -->
-<!-- Saved: 2008-03-13, 16:04:35 -->
-<Tasks version="3.8">
-  <Task priority="1" completed="False" bugfix="False">
-    <Description>TODO: update reference to newest scan, make connections when scan is created</Description>
-    <Created>2008-03-13, 15:57:58</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>ui</Dir>
-        <Name>scancontrols.py</Name>
-      </Filename>
-      <Linenumber>86</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Description>TODO: need to reimpliment using new scheme: instantiate a scananalysis window</Description>
-    <Created>2008-03-13, 15:57:58</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spec</Dir>
-        <Dir>ui</Dir>
-        <Name>scancontrols.py</Name>
-      </Filename>
-      <Linenumber>142</Linenumber>
-    </Resource>
-  </Task>
+<!-- Saved: 2008-03-17, 10:01:14 -->
+<Tasks version="4.1">
 </Tasks>
