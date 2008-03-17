@@ -5,3 +5,6 @@ syntax: glob
 ui_*.py
 *~
 .ropeproject/*
+build/*
+dist/*
+MANIFEST

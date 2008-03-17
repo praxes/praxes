@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.2.dtd">
 <!-- eric4 project file for project xpaxs -->
-<!-- Saved: 2008-03-17, 10:01:03 -->
+<!-- Saved: 2008-03-17, 16:38:13 -->
 <!-- Copyright (C) 2008 ,  -->
 <Project version="4.2">
   <ProgLanguage mixed="0">Python</ProgLanguage>
-  <ProjectType>Qt4</ProjectType>
+  <ProjectType>Console</ProjectType>
   <Description></Description>
   <Version>0.1</Version>
   <Author></Author>
@@ -430,6 +430,127 @@
     <Source>
       <Name>setup.py</Name>
     </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>datalib</Dir>
+      <Dir>specfile</Dir>
+      <Dir>external</Dir>
+      <Dir>specfile</Dir>
+      <Dir>src</Dir>
+      <Name>sfdata.c</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>datalib</Dir>
+      <Dir>specfile</Dir>
+      <Dir>external</Dir>
+      <Dir>specfile</Dir>
+      <Dir>src</Dir>
+      <Name>sfheader.c</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>datalib</Dir>
+      <Dir>specfile</Dir>
+      <Dir>external</Dir>
+      <Dir>specfile</Dir>
+      <Dir>src</Dir>
+      <Name>sfindex.c</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>datalib</Dir>
+      <Dir>specfile</Dir>
+      <Dir>external</Dir>
+      <Dir>specfile</Dir>
+      <Dir>src</Dir>
+      <Name>sfinit.c</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>datalib</Dir>
+      <Dir>specfile</Dir>
+      <Dir>external</Dir>
+      <Dir>specfile</Dir>
+      <Dir>src</Dir>
+      <Name>sflabel.c</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>datalib</Dir>
+      <Dir>specfile</Dir>
+      <Dir>external</Dir>
+      <Dir>specfile</Dir>
+      <Dir>src</Dir>
+      <Name>sflists.c</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>datalib</Dir>
+      <Dir>specfile</Dir>
+      <Dir>external</Dir>
+      <Dir>specfile</Dir>
+      <Dir>src</Dir>
+      <Name>sfmca.c</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>datalib</Dir>
+      <Dir>specfile</Dir>
+      <Dir>external</Dir>
+      <Dir>specfile</Dir>
+      <Dir>src</Dir>
+      <Name>sftools.c</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>datalib</Dir>
+      <Dir>specfile</Dir>
+      <Dir>external</Dir>
+      <Dir>specfile</Dir>
+      <Dir>src</Dir>
+      <Name>sfwrite.c</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>datalib</Dir>
+      <Dir>specfile</Dir>
+      <Dir>external</Dir>
+      <Dir>specfile</Dir>
+      <Dir>src</Dir>
+      <Name>specfile_py.c</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>datalib</Dir>
+      <Dir>specfile</Dir>
+      <Dir>external</Dir>
+      <Dir>specfile</Dir>
+      <Dir>include</Dir>
+      <Name>Lists.h</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>datalib</Dir>
+      <Dir>specfile</Dir>
+      <Dir>external</Dir>
+      <Dir>specfile</Dir>
+      <Dir>include</Dir>
+      <Name>SpecFile.h</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>datalib</Dir>
+      <Dir>specfile</Dir>
+      <Dir>external</Dir>
+      <Dir>specfile</Dir>
+      <Dir>include</Dir>
+      <Name>SpecFileP.h</Name>
+    </Source>
+    <Source>
+      <Dir>scripts</Dir>
+      <Name>smp</Name>
+    </Source>
   </Sources>
   <Forms>
     <Form>
@@ -524,17 +645,38 @@
   <Interfaces>
   </Interfaces>
   <Others>
+    <Other>
+      <Name>CHANGELOG</Name>
+    </Other>
+    <Other>
+      <Name>DEVNOTES</Name>
+    </Other>
+    <Other>
+      <Name>INSTALL</Name>
+    </Other>
+    <Other>
+      <Name>KNOWN_BUGS</Name>
+    </Other>
+    <Other>
+      <Name>LICENSE</Name>
+    </Other>
+    <Other>
+      <Name>PKG-INFO</Name>
+    </Other>
+    <Other>
+      <Name>README</Name>
+    </Other>
+    <Other>
+      <Name>TODO</Name>
+    </Other>
   </Others>
   <Vcs>
     <VcsType>None</VcsType>
   </Vcs>
   <FiletypeAssociations>
-    <FiletypeAssociation pattern="*.ui" type="FORMS" />
-    <FiletypeAssociation pattern="*.idl" type="INTERFACES" />
-    <FiletypeAssociation pattern="*.ptl" type="SOURCES" />
     <FiletypeAssociation pattern="*.pyw" type="SOURCES" />
-    <FiletypeAssociation pattern="*.ui.h" type="FORMS" />
+    <FiletypeAssociation pattern="*.idl" type="INTERFACES" />
     <FiletypeAssociation pattern="*.py" type="SOURCES" />
-    <FiletypeAssociation pattern="*.qrc" type="RESOURCES" />
+    <FiletypeAssociation pattern="*.ptl" type="SOURCES" />
   </FiletypeAssociations>
 </Project>

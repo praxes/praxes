@@ -5,7 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-
+import sys
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -86,16 +86,14 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                                QtCore.Qt.LeftDockWidgetArea,
                                self.fileView, 'File View')
 
-        acquisitionGroup = QtGui.QActionGroup(self)
-        acquisitionGroup.addAction(self.actionOffline)
-        acquisitionGroup.addAction(self.actionSpec)
-        self.actionOffline.setChecked(True)
+#        acquisitionGroup = QtGui.QActionGroup(self)
+#        acquisitionGroup.addAction(self.actionOffline)
+#        acquisitionGroup.addAction(self.actionSpec)
+#        self.actionOffline.setChecked(True)
 
         self.expInterface = None
         self.fileInterface = None
         self.advancedFitWidget = None
-    
-        self.SSH=None
 
         self.statusBar.showMessage('Ready', 2000)
         self.progressBar = QtGui.QProgressBar(self.statusBar)
@@ -170,6 +168,9 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.connect(self.menuTools,
                      QtCore.SIGNAL("aboutToShow()"),
                      self.updateToolsMenu)
+        self.connect(self.menuAcquisition,
+                     QtCore.SIGNAL("aboutToShow()"),
+                     self.updateAcquisitionMenu)
 
     def about(self):
         QtGui.QMessageBox.about(self, self.tr("About SMP"),
@@ -249,6 +250,17 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         subWindow.setWindowTitle(title)
         subWindow.showMaximized()
         self.menuTools.setEnabled(True)
+
+    def updateAcquisitionMenu(self):
+        self.menuAcquisition.clear()
+        acquisitionGroup = QtGui.QActionGroup(self)
+        acquisitionGroup.addAction(self.actionOffline)
+        self.menuAcquisition.addAction(self.actionOffline)
+        # TODO: will acquisition work on other platforms?
+        if sys.platform == 'linux2':
+            acquisitionGroup.addAction(self.actionSpec)
+            self.menuAcquisition.addAction(self.actionSpec)
+        self.actionOffline.setChecked(True)
 
     def updateToolsMenu(self):
         self.menuTools.clear()
