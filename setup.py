@@ -24,9 +24,9 @@ if LooseVersion(pyVer) < LooseVersion(pyReq):
         'found python-%s, python-%s or later required'%(pyVersion, pyReq))
 
 try:
+    npReq = '1.0.4'
     import numpy
     npVer = numpy.__version__
-    npReq = '1.0.4'
     if LooseVersion(npVer) < LooseVersion(npReq):
         raise ImportError(
         'found numpy-%s, numpy-%s or later required'%(npVer, npReq))
@@ -43,9 +43,10 @@ http://sourceforge.net/project/showfiles.php?group_id=164626
 """)
 
 try:
+
+    mplReq = '0.91.2'
     import matplotlib
     mplVer = matplotlib.__version__
-    mplReq = '0.91.2'
     if LooseVersion(mplVer) < LooseVersion(mplReq):
         raise ImportError(
         'found matplotlib-%s, matplotlib-%s or later required'%(mplVer, mplReq))
@@ -55,8 +56,8 @@ http://sourceforge.net/project/showfiles.php?group_id=80706
 """%mplReq)
 
 try:
-    from PyQt4 import pyqtconfig
     qtReq = '4.3'
+    from PyQt4 import pyqtconfig
     qtVer = convert_qt_version(pyqtconfig.Configuration().qt_version)
     pyqtVer = pyqtconfig.Configuration().pyqt_version_str
     if ( LooseVersion(qtVer) < LooseVersion(qtReq) ) |\
@@ -72,9 +73,9 @@ http://www.riverbankcomputing.co.uk/pyqt/download.php
 """%qtReq)
 
 try:
+    ppReq = '1.4.3'
     import pp
     ppVer = pp.version
-    ppReq = '1.4.3'
     if LooseVersion(ppVer) < LooseVersion(ppReq):
         raise ImportError(
         'found pp-%s, pp-%s or later required'%(ppVer, ppReq))
@@ -84,9 +85,9 @@ http://www.parallelpython.com/
 """%ppReq)
 
 try:
+    pxReq = '2.3'
     import pexpect
     pxVer = pexpect.__version__
-    pxReq = '2.3'
     if LooseVersion(pxVer) < LooseVersion(pxReq):
         warnings.warn(
         'found pexpect-%s, pexpect-%s or later suggested'%(pxVer, pxReq))
