@@ -141,13 +141,16 @@ field of X-ray science.
 
 # TODO: add documentation
 scriptfiles = filter(os.path.isfile, glob.glob('scripts/*'))
-package_data = {'xpaxs': ['spec/macros/*']}
+package_data = {'xpaxs': ['spec/macros/*',
+                          'resources/icons/*',
+                          'resources/cursors/*']}
 
 packages = ['xpaxs',
             'xpaxs/datalib',
             'xpaxs/datalib/specfile',
             'xpaxs/datalib/hdf5',
             'xpaxs/plotwidgets',
+            'xpaxs/resources',
             'xpaxs/spec',
             'xpaxs/spec/client',
             'xpaxs/spec/ui',

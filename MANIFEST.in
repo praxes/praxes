@@ -1,2 +1,5 @@
 include xpaxs/datalib/specfile/external/specfile/src/*
 include xpaxs/datalib/specfile/external/specfile/include/*
+include xpaxs/resources/*
+include xpaxs/resources/icons/*
+include xpaxs/resources/cursors/*
