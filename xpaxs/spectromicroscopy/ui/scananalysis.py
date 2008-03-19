@@ -67,6 +67,11 @@ class ScanAnalysis(QtGui.QWidget):
                      QtCore.SIGNAL("pickEvent"),
                      self.plotSpectrum)
 
+    def configurePyMca(self):
+        self.fitParamDlg.exec_()
+        self._pymcaConfig = self.fitParamDlg.getParameters()
+        self.scanData.setPymcaConfig(self._pymcaConfig)
+
     def createActions(self):
         self.actions = []
 
@@ -84,6 +89,12 @@ class ScanAnalysis(QtGui.QWidget):
                      QtCore.SIGNAL("triggered()"),
                      self.configurePyMca)
         self.actions.append(configurePyMca)
+
+        calibration = QtGui.QAction('Fit Average Spectrum', None)
+        self.connect(calibration,
+                     QtCore.SIGNAL("triggered()"),
+                     lambda: self.plotSpectrum(None))
+        self.actions.append(calibration)
 
     def disableMenuToolsActions(self):
         for action in self.actions:
@@ -109,29 +120,16 @@ class ScanAnalysis(QtGui.QWidget):
     def getPeaks(self):
         return copy.deepcopy(self._peaks)
 
-    def configurePyMca(self):
-        self.fitParamDlg.exec_()
-        self._pymcaConfig = self.fitParamDlg.getParameters()
-        self.scanData.setPymcaConfig(self._pymcaConfig)
-
-#    def launchMcaAdvancedFit(self):
-#        dialog = QtGui.QDialog()
-#        layout = QtGui.QVBoxLayout(dialog)
-#        from PyMca import McaAdvancedFit
-#        mcaFit = McaAdvancedFit.McaAdvancedFit(dialog)
-#        mcaFit.mcafit.configure(self.specInterface.pymcaConfig)
-#        x = self.figure.fitData['xdata'].flatten()
-#        y = self.figure.mcaCountsSummed.flatten()/self.figure.numSpectra
-#        mcaFit.setData(x=x, y=y)
-#        layout.addWidget(mcaFit)
-#        dialog.exec_()
-
-    def plotSpectrum(self, index):
+    def plotSpectrum(self, indices):
         if self._pymcaConfig is None:
             self.configurePyMca()
 
+        indices = self.scanData.getValidDataPoints(indices)
+        if not indices: return
+
+        counts = numpy.array([self.scanData.getMcaSpectrum(index)
+                              for index in indices]).sum(0)/len(indices)
         channels = self.scanData.getMcaChannels()
-        counts = self.scanData.getMcaSpectrum(index)
         config = self._pymcaConfig
 
         if self.advancedFit:
@@ -142,7 +140,6 @@ class ScanAnalysis(QtGui.QWidget):
         else:
             self.emit(QtCore.SIGNAL("analyzeSpectrum"),
                       channels, counts, config)
-
 
     def processData(self):
         if self._pymcaConfig is None:
@@ -207,11 +204,3 @@ class ScanAnalysis(QtGui.QWidget):
 
     def elementMapUpdated(self):
         self.emit(QtCore.SIGNAL("elementDataChanged"), self.getElementMap())
-
-# TODO: update the window title
-#    def setWindowLabel(self, scanParams):
-#        temp = scanParams['datafile']
-#        temp = temp.rstrip('.dat').rstrip('.txt').rstrip('.mca')
-#        label = ' '.join([temp, scanParams['title']])
-#        i = self.parent.mainTab.currentIndex()
-#        self.parent.mainTab.setTabText(i, label)

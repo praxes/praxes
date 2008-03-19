@@ -43,25 +43,6 @@ def flat_to_nd(index, shape):
     res.append(index)
     return tuple(res)
 
-def getSpectrumFit(self):
-    fitData = {}
-    fitData['index'] = self._index
-    fitData['xdata'] = self.advancedFit.xdata
-    zero, gain = self.advancedFit.fittedpar[:2]
-    fitData['energy'] = zero + gain*self.advancedFit.xdata
-    fitData['ydata'] = self.advancedFit.ydata
-    fitData['yfit'] = \
-            self.advancedFit.mcatheory(self.advancedFit.fittedpar,
-                                       self.advancedFit.xdata)
-    fitData['yfit'] += self.advancedFit.zz
-    fitData['residuals'] = fitData['ydata']-fitData['yfit']
-    logres = numpy.log10(fitData['ydata'])-\
-             numpy.log10(fitData['yfit'])
-    logres[numpy.isinf(logres)]=numpy.nan
-    fitData['logresiduals'] = logres
-
-    return fitData
-
 def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
     advancedFit.config['fit']['use_limit'] = 1
     # TODO: get the channels from the controller
@@ -155,8 +136,7 @@ class AdvancedFitThread(QtCore.QThread):
 
             d0 = time.time()
 
-            # TODO: report this progress in a progressBar
-            for i in xrange(100):
+            for i in xrange(self.jobServer.get_ncpus()*2):
                 try: self.queueNext()
                 except Queue.Empty: break
 
@@ -193,7 +173,6 @@ class AdvancedFitThread(QtCore.QThread):
             self.mutex.unlock()
 
         shape = self.scan.getScanShape()
-
         index = flat_to_nd(data['index'], shape)
 
         for group in result['groups']:

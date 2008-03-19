@@ -111,7 +111,7 @@ class ElementImageFigure(ElementBaseFigure):
     def getIndices(self, xdata, ydata):
         xIndex = locateClosest(xdata, self.xPixelLocs)
         yIndex = locateClosest(ydata, self.yPixelLocs)
-        return self.indices[yIndex, xIndex]
+        return [self.indices[yIndex, xIndex]]
 
     def setDataMax(self, val):
         self._clim[1] = val
@@ -143,11 +143,6 @@ class ElementImageFigure(ElementBaseFigure):
         else:
             self.image.set_clim(self._clim)
 
-        xlim = self.scanData.getScanRange(self.scanData.getScanAxis(0, 0))
-        ylim = self.scanData.getScanRange(self.scanData.getScanAxis(1, 0))
-        self.axes.set_xlim(xlim)
-        self.axes.set_ylim(ylim)
-
         self.draw()
 
 
@@ -156,6 +151,8 @@ class ElementPlotFigure(ElementBaseFigure):
     def __init__(self, scanData, parent=None):
         super(ElementPlotFigure, self).__init__(scanData, parent)
 
+        self._updatePixelMap()
+
     def _createInitialFigure(self, elementData):
         self._elementPlot, = self.axes.plot(self._elementData, 'b')
 
@@ -163,9 +160,21 @@ class ElementPlotFigure(ElementBaseFigure):
         try: self.axes.set_ylabel(self.scanData.getScanAxis(1, 0))
         except IndexError: pass
 
+    def _updatePixelMap(self):
+        xmin, xmax = self.axes.get_xlim()
+
+        data = self.axes.get_lines()[0].get_xdata()
+
+        self.indices = numpy.arange(len(data))
+
+        self.xPixelLocs = numpy.linspace(xmin, xmax, len(data))
+
     def enableAutoscale(self, val):
         self.axes.enable_autoscale_on(val)
         self.updateFigure()
+
+    def getIndices(self, xdata, ydata):
+        return [self.indices[locateClosest(xdata, self.xPixelLocs)]]
 
     def setDataMax(self, val):
         self._ylims[1]=val

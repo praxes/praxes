@@ -151,6 +151,21 @@ class SmpScanInterface(XpaxsScanInterface):
         finally:
             self.mutex.unlock()
 
+    def getValidDataPoints(self, indices=None):
+        mon, thresh = self.getSkipmode()
+        try:
+            self.mutex.lock()
+            if mon and thresh:
+                temp = getattr(self.h5Entry.data.cols, mon)[:]
+                valid = numpy.nonzero(temp > thresh)[0]
+            else:
+                valid = range(len(self.h5Entry.data))
+        finally:
+            self.mutex.unlock()
+
+        if indices: return [i for i in indices if i in valid]
+        else: return valid
+
     def setSkipmode(self, monitor=None, thresh=0):
         try:
             self.mutex.lock()
