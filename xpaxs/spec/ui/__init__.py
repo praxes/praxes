@@ -1,7 +1,7 @@
 """
 """
 
-UI_DEVEL = True
+from xpaxs import UI_DEVEL
 
 def gen_ui():
     import glob

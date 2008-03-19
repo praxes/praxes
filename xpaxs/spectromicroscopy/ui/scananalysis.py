@@ -63,6 +63,9 @@ class ScanAnalysis(QtGui.QWidget):
 
         self.connect(self, QtCore.SIGNAL("availablePeaks"),
                      self.elementDataPlot.setAvailablePeaks)
+        self.connect(self.elementDataPlot,
+                     QtCore.SIGNAL("pickEvent"),
+                     self.plotSpectrum)
 
     def createActions(self):
         self.actions = []

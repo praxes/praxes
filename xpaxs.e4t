@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Tasks SYSTEM "Tasks-4.1.dtd">
 <!-- eric4 tasks file for project xpaxs -->
-<!-- Saved: 2008-03-17, 16:38:13 -->
+<!-- Saved: 2008-03-19, 11:11:59 -->
 <Tasks version="4.1">
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: will acquisition work on other platforms?</Summary>
@@ -20,12 +20,12 @@
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: add documentation</Summary>
     <Description></Description>
-    <Created>2008-03-17, 16:34:24</Created>
+    <Created>2008-03-18, 15:37:22</Created>
     <Resource>
       <Filename>
         <Name>setup.py</Name>
       </Filename>
-      <Linenumber>128</Linenumber>
+      <Linenumber>142</Linenumber>
     </Resource>
   </Task>
 </Tasks>

@@ -26,6 +26,11 @@ from xpaxs.spectromicroscopy.ui import ui_elementsimage, ui_elementsplot
 #---------------------------------------------------------------------------
 
 
+def locateClosest(point, points):
+    compare = numpy.abs(points-point)
+    return numpy.nonzero(numpy.ravel(compare==compare.min()))[0]
+
+
 class ElementBaseFigure(plotwidgets.QtMplCanvas):
 
     """
@@ -67,11 +72,22 @@ class ElementImageFigure(ElementBaseFigure):
     def __init__(self, scanData, parent=None):
         super(ElementImageFigure, self).__init__(scanData, parent)
 
-        cursor = plotwidgets.ImageCursor(self.image, useblit=True, parent=self, color='w')
-        self.connect(cursor, QtCore.SIGNAL('pickEvent'), self.window().plotSpectrum)
-
         min, max = self._elementData.min(), self._elementData.max()
         self._clim = [min, max or float(max==0)]
+        self._updatePixelMap()
+
+    def _updatePixelMap(self):
+        xmin, xmax, ymin, ymax = self.image.get_extent()
+        if self.image.origin == 'upper': ymin, ymax = ymax, ymin
+
+        imarray = self.image.get_array()
+
+        self.indices = numpy.arange(len(self.image.get_array().flat))
+        self.indices.shape = self.image.get_array().shape
+
+        yshape, xshape = self.image.get_size()
+        self.xPixelLocs = numpy.linspace(xmin, xmax, xshape)
+        self.yPixelLocs = numpy.linspace(ymin, ymax, yshape)
 
     def _createInitialFigure(self):
         extent = []
@@ -92,6 +108,11 @@ class ElementImageFigure(ElementBaseFigure):
         self.autoscale = val
         self.updateFigure()
 
+    def getIndices(self, xdata, ydata):
+        xIndex = locateClosest(xdata, self.xPixelLocs)
+        yIndex = locateClosest(ydata, self.yPixelLocs)
+        return self.indices[yIndex, xIndex]
+
     def setDataMax(self, val):
         self._clim[1] = val
         self.updateFigure()
@@ -106,6 +127,7 @@ class ElementImageFigure(ElementBaseFigure):
 
     def setImageOrigin(self, val):
         self.image.origin = '%s'%val
+        self._updatePixelMap()
         self.updateFigure()
 
     def updateFigure(self, elementData=None):
@@ -209,20 +231,17 @@ class ElementWidget(QtGui.QWidget):
         self.connect(self.xrfbandComboBox,
                      QtCore.SIGNAL("currentIndexChanged(const QString&)"),
                      self.window().setCurrentElement)
-        self.connect(self.scanData,
-                     QtCore.SIGNAL("enableDataInteraction"),
-                     self.enableInteraction)
+        self.connect(self.toolbar,
+                     QtCore.SIGNAL("pickEvent"),
+                     self.onPick)
+
+    def onPick(self, xdata, ydata):
+        indices = self.figure.getIndices(xdata, ydata)
+        self.emit(QtCore.SIGNAL('pickEvent'), indices)
 
     def setAvailablePeaks(self, peaks):
         self.xrfbandComboBox.clear()
         self.xrfbandComboBox.addItems(peaks)
-
-#    def formatFigure(self):
-#        self.figure.setXLabel(self.scanData.getScanAxis(0, 0))
-#        try:
-#            self.figure.setYLabel(self.scanData.getScanAxis(1, 0))
-#        except IndexError:
-#            self.figure.setYLabel('%s'%self.dataTypeBox.currentText())
 
     def enableInteraction(self):
         pass

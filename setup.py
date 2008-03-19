@@ -38,7 +38,8 @@ http://sourceforge.net/project/showfiles.php?group_id=1369&package_id=175103
 try:
     import PyMca
 except ImportError:
-    raise RuntimeError("""You must have PyMca-4.2.3 or later installed. See
+    raise RuntimeError("""You must have PyMca-4.2.3 or later installed from
+source (this also requires PyQwt-5 or later). See
 http://sourceforge.net/project/showfiles.php?group_id=164626
 """)
 
@@ -94,6 +95,18 @@ try:
 except ImportError:
     warnings.warn("""pexpect-%s or later is suggested, but not necessary. See
 http://sourceforge.net/project/showfiles.php?group_id=59762
+"""%pxReq)
+
+try:
+    tbReq = '2.0.3'
+    import tables
+    tbVer = tables.__version__
+    if LooseVersion(tbVer) < LooseVersion(tbReq):
+        warnings.warn(
+        'found pytables-%s, pytables-%s or later suggested'%(tbVer, tbReq))
+except ImportError:
+    warnings.warn("""You must have pytables-%s or later installed. See
+http://www.pytables.org/moin/Downloads
 """%pxReq)
 
 
