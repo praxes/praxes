@@ -1,31 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE Tasks SYSTEM "Tasks-4.1.dtd">
+<!DOCTYPE Tasks SYSTEM "Tasks-3.8.dtd">
 <!-- eric4 tasks file for project xpaxs -->
-<!-- Saved: 2008-03-19, 11:11:59 -->
-<Tasks version="4.1">
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: will acquisition work on other platforms?</Summary>
-    <Description></Description>
-    <Created>2008-03-17, 16:00:07</Created>
-    <Resource>
-      <Filename>
-        <Dir>xpaxs</Dir>
-        <Dir>spectromicroscopy</Dir>
-        <Dir>ui</Dir>
-        <Name>mainwindow.py</Name>
-      </Filename>
-      <Linenumber>259</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: add documentation</Summary>
-    <Description></Description>
-    <Created>2008-03-18, 15:37:22</Created>
-    <Resource>
-      <Filename>
-        <Name>setup.py</Name>
-      </Filename>
-      <Linenumber>142</Linenumber>
-    </Resource>
-  </Task>
+<!-- Saved: 2008-03-27, 13:55:27 -->
+<Tasks version="3.8">
 </Tasks>

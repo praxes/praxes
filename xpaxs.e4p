@@ -1,39 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE Project SYSTEM "Project-4.2.dtd">
+<!DOCTYPE Project SYSTEM "Project-4.0.dtd">
 <!-- eric4 project file for project xpaxs -->
-<!-- Saved: 2008-03-19, 11:11:59 -->
+<!-- Saved: 2008-03-25, 14:55:31 -->
 <!-- Copyright (C) 2008 ,  -->
-<Project version="4.2">
+<Project version="4.0">
   <ProgLanguage mixed="0">Python</ProgLanguage>
-  <ProjectType>Qt4</ProjectType>
+  <UIType>Qt4</UIType>
   <Description></Description>
   <Version>0.1</Version>
   <Author></Author>
   <Email></Email>
   <Sources>
     <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>hdf5</Dir>
-      <Name>qth5fileview.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>hdf5</Dir>
-      <Name>xpaxsdatainterface.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>hdf5</Dir>
-      <Name>__init__.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>hdf5</Dir>
-      <Name>qth5filemodel.py</Name>
+      <Name>setup.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
@@ -47,18 +26,13 @@
       <Dir>xpaxs</Dir>
       <Dir>datalib</Dir>
       <Dir>specfile</Dir>
-      <Name>datamodel.py</Name>
+      <Name>__init__.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
       <Dir>datalib</Dir>
       <Dir>specfile</Dir>
-      <Name>__init__.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Name>__init__.py</Name>
+      <Name>datamodel.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
@@ -67,145 +41,60 @@
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>configspecmotor.py</Name>
+      <Dir>datalib</Dir>
+      <Dir>hdf5</Dir>
+      <Name>qth5fileview.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>scancontrols.py</Name>
+      <Dir>datalib</Dir>
+      <Dir>hdf5</Dir>
+      <Name>qth5filemodel.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>ui_scancontrols.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>testinterface.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>ui_testinterface.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>ui_specconnect.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>ui_scanmotor.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>console.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>ui_motorconfig.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>ui_sshdialog.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>scanmotor.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>configdialog.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>scanview.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>ui_motordialog.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>ui_console.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>sshdialog.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>specconnect.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
+      <Dir>datalib</Dir>
+      <Dir>hdf5</Dir>
       <Name>__init__.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>ui_configspecmotor.py</Name>
+      <Dir>datalib</Dir>
+      <Dir>hdf5</Dir>
+      <Name>xpaxsdatainterface.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>external</Dir>
-      <Dir>SpecClient</Dir>
-      <Name>SpecConnectionsManager.py</Name>
+      <Dir>datalib</Dir>
+      <Name>__init__.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>external</Dir>
-      <Dir>SpecClient</Dir>
-      <Name>SpecScan.py</Name>
+      <Dir>resources</Dir>
+      <Name>icons.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>external</Dir>
-      <Dir>SpecClient</Dir>
-      <Name>SpecArray.py</Name>
+      <Dir>resources</Dir>
+      <Name>__init__.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>external</Dir>
-      <Dir>SpecClient</Dir>
-      <Name>SpecClientError.py</Name>
+      <Dir>resources</Dir>
+      <Name>cursors.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Name>configutils.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Name>__init__.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>plotwidgets</Dir>
+      <Name>__init__.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
@@ -219,49 +108,14 @@
       <Dir>spec</Dir>
       <Dir>external</Dir>
       <Dir>SpecClient</Dir>
-      <Name>SpecReply.py</Name>
+      <Name>SpecScan.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
       <Dir>spec</Dir>
       <Dir>external</Dir>
       <Dir>SpecClient</Dir>
-      <Name>SpecEventsDispatcher.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>external</Dir>
-      <Dir>SpecClient</Dir>
-      <Name>SpecServer.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>external</Dir>
-      <Dir>SpecClient</Dir>
-      <Name>SpecCommand.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>external</Dir>
-      <Dir>SpecClient</Dir>
-      <Name>SpecWaitObject.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>external</Dir>
-      <Dir>SpecClient</Dir>
-      <Name>Spec.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>external</Dir>
-      <Dir>SpecClient</Dir>
-      <Name>SpecVariable.py</Name>
+      <Name>SpecMessage.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
@@ -275,7 +129,14 @@
       <Dir>spec</Dir>
       <Dir>external</Dir>
       <Dir>SpecClient</Dir>
-      <Name>__init__.py</Name>
+      <Name>Spec.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>external</Dir>
+      <Dir>SpecClient</Dir>
+      <Name>SpecClientError.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
@@ -289,6 +150,55 @@
       <Dir>spec</Dir>
       <Dir>external</Dir>
       <Dir>SpecClient</Dir>
+      <Name>SpecEventsDispatcher.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>external</Dir>
+      <Dir>SpecClient</Dir>
+      <Name>SpecReply.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>external</Dir>
+      <Dir>SpecClient</Dir>
+      <Name>SpecVariable.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>external</Dir>
+      <Dir>SpecClient</Dir>
+      <Name>SpecWaitObject.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>external</Dir>
+      <Dir>SpecClient</Dir>
+      <Name>SpecArray.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>external</Dir>
+      <Dir>SpecClient</Dir>
+      <Name>__init__.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>external</Dir>
+      <Dir>SpecClient</Dir>
+      <Name>SpecCommand.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>external</Dir>
+      <Dir>SpecClient</Dir>
       <Name>SpecMotor.py</Name>
     </Source>
     <Source>
@@ -296,19 +206,26 @@
       <Dir>spec</Dir>
       <Dir>external</Dir>
       <Dir>SpecClient</Dir>
-      <Name>SpecMessage.py</Name>
+      <Name>SpecConnectionsManager.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
       <Dir>spec</Dir>
-      <Dir>client</Dir>
-      <Name>scan.py</Name>
+      <Dir>external</Dir>
+      <Dir>SpecClient</Dir>
+      <Name>SpecServer.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
       <Dir>spec</Dir>
       <Dir>client</Dir>
       <Name>motor.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>client</Dir>
+      <Name>utils.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
@@ -326,7 +243,121 @@
       <Dir>xpaxs</Dir>
       <Dir>spec</Dir>
       <Dir>client</Dir>
-      <Name>utils.py</Name>
+      <Name>scan.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>ui_configspecmotor.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>scancontrols.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>console.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>ui_sshdialog.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>ui_testinterface.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>specconnect.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>configspecmotor.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>ui_scanmotor.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>ui_scancontrols.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>scanmotor.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>scanview.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>configdialog.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>sshdialog.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>ui_motordialog.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>__init__.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>ui_specconnect.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>ui_motorconfig.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>testinterface.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
+      <Name>ui_console.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
@@ -336,8 +367,7 @@
     <Source>
       <Dir>xpaxs</Dir>
       <Dir>spectromicroscopy</Dir>
-      <Dir>ui</Dir>
-      <Name>pymcafitparams.py</Name>
+      <Name>smpdatainterface.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
@@ -349,31 +379,7 @@
       <Dir>xpaxs</Dir>
       <Dir>spectromicroscopy</Dir>
       <Dir>ui</Dir>
-      <Name>ui_scananalysis.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spectromicroscopy</Dir>
-      <Dir>ui</Dir>
       <Name>ui_mcaspectrum.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spectromicroscopy</Dir>
-      <Dir>ui</Dir>
-      <Name>elementsview.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spectromicroscopy</Dir>
-      <Dir>ui</Dir>
-      <Name>ui_mainwindow.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spectromicroscopy</Dir>
-      <Dir>ui</Dir>
-      <Name>ui_elementsplot.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
@@ -385,13 +391,7 @@
       <Dir>xpaxs</Dir>
       <Dir>spectromicroscopy</Dir>
       <Dir>ui</Dir>
-      <Name>mcaspectrum.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spectromicroscopy</Dir>
-      <Dir>ui</Dir>
-      <Name>__init__.py</Name>
+      <Name>ui_mainwindow.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
@@ -402,172 +402,51 @@
     <Source>
       <Dir>xpaxs</Dir>
       <Dir>spectromicroscopy</Dir>
+      <Dir>ui</Dir>
+      <Name>elementsview.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spectromicroscopy</Dir>
+      <Dir>ui</Dir>
+      <Name>ui_elementsplot.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spectromicroscopy</Dir>
+      <Dir>ui</Dir>
+      <Name>pymcafitparams.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spectromicroscopy</Dir>
+      <Dir>ui</Dir>
+      <Name>ui_scananalysis.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spectromicroscopy</Dir>
+      <Dir>ui</Dir>
+      <Name>__init__.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spectromicroscopy</Dir>
+      <Dir>ui</Dir>
+      <Name>mcaspectrum.py</Name>
+    </Source>
+    <Source>
+      <Dir>xpaxs</Dir>
+      <Dir>spectromicroscopy</Dir>
       <Name>advancedfitanalysis.py</Name>
     </Source>
     <Source>
       <Dir>xpaxs</Dir>
       <Dir>spectromicroscopy</Dir>
-      <Name>smpdatainterface.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>spectromicroscopy</Dir>
-      <Name>__init__.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>plotwidgets</Dir>
-      <Name>__init__.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Name>configutils.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Name>__init__.py</Name>
-    </Source>
-    <Source>
-      <Name>setup.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>specfile</Dir>
-      <Dir>external</Dir>
-      <Dir>specfile</Dir>
-      <Dir>src</Dir>
-      <Name>sfdata.c</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>specfile</Dir>
-      <Dir>external</Dir>
-      <Dir>specfile</Dir>
-      <Dir>src</Dir>
-      <Name>sfheader.c</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>specfile</Dir>
-      <Dir>external</Dir>
-      <Dir>specfile</Dir>
-      <Dir>src</Dir>
-      <Name>sfindex.c</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>specfile</Dir>
-      <Dir>external</Dir>
-      <Dir>specfile</Dir>
-      <Dir>src</Dir>
-      <Name>sfinit.c</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>specfile</Dir>
-      <Dir>external</Dir>
-      <Dir>specfile</Dir>
-      <Dir>src</Dir>
-      <Name>sflabel.c</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>specfile</Dir>
-      <Dir>external</Dir>
-      <Dir>specfile</Dir>
-      <Dir>src</Dir>
-      <Name>sflists.c</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>specfile</Dir>
-      <Dir>external</Dir>
-      <Dir>specfile</Dir>
-      <Dir>src</Dir>
-      <Name>sfmca.c</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>specfile</Dir>
-      <Dir>external</Dir>
-      <Dir>specfile</Dir>
-      <Dir>src</Dir>
-      <Name>sftools.c</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>specfile</Dir>
-      <Dir>external</Dir>
-      <Dir>specfile</Dir>
-      <Dir>src</Dir>
-      <Name>sfwrite.c</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>specfile</Dir>
-      <Dir>external</Dir>
-      <Dir>specfile</Dir>
-      <Dir>src</Dir>
-      <Name>specfile_py.c</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>specfile</Dir>
-      <Dir>external</Dir>
-      <Dir>specfile</Dir>
-      <Dir>include</Dir>
-      <Name>Lists.h</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>specfile</Dir>
-      <Dir>external</Dir>
-      <Dir>specfile</Dir>
-      <Dir>include</Dir>
-      <Name>SpecFile.h</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>datalib</Dir>
-      <Dir>specfile</Dir>
-      <Dir>external</Dir>
-      <Dir>specfile</Dir>
-      <Dir>include</Dir>
-      <Name>SpecFileP.h</Name>
-    </Source>
-    <Source>
-      <Dir>scripts</Dir>
-      <Name>smp</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Name>resources_rc.py</Name>
-    </Source>
-    <Source>
-      <Dir>xpaxs</Dir>
-      <Dir>resources</Dir>
       <Name>__init__.py</Name>
     </Source>
   </Sources>
   <Forms>
-    <Form>
-      <Dir>xpaxs</Dir>
-      <Dir>spec</Dir>
-      <Dir>ui</Dir>
-      <Name>ui_scancontrols.ui</Name>
-    </Form>
     <Form>
       <Dir>xpaxs</Dir>
       <Dir>spec</Dir>
@@ -578,13 +457,13 @@
       <Dir>xpaxs</Dir>
       <Dir>spec</Dir>
       <Dir>ui</Dir>
-      <Name>ui_specconnect.ui</Name>
+      <Name>ui_motordialog.ui</Name>
     </Form>
     <Form>
       <Dir>xpaxs</Dir>
       <Dir>spec</Dir>
       <Dir>ui</Dir>
-      <Name>ui_scanmotor.ui</Name>
+      <Name>ui_scancontrols.ui</Name>
     </Form>
     <Form>
       <Dir>xpaxs</Dir>
@@ -602,7 +481,7 @@
       <Dir>xpaxs</Dir>
       <Dir>spec</Dir>
       <Dir>ui</Dir>
-      <Name>ui_motordialog.ui</Name>
+      <Name>ui_specconnect.ui</Name>
     </Form>
     <Form>
       <Dir>xpaxs</Dir>
@@ -614,13 +493,25 @@
       <Dir>xpaxs</Dir>
       <Dir>spec</Dir>
       <Dir>ui</Dir>
+      <Name>ui_scanmotor.ui</Name>
+    </Form>
+    <Form>
+      <Dir>xpaxs</Dir>
+      <Dir>spec</Dir>
+      <Dir>ui</Dir>
       <Name>ui_configspecmotor.ui</Name>
     </Form>
     <Form>
       <Dir>xpaxs</Dir>
       <Dir>spectromicroscopy</Dir>
       <Dir>ui</Dir>
-      <Name>ui_scananalysis.ui</Name>
+      <Name>ui_elementsimage.ui</Name>
+    </Form>
+    <Form>
+      <Dir>xpaxs</Dir>
+      <Dir>spectromicroscopy</Dir>
+      <Dir>ui</Dir>
+      <Name>ui_elementsplot.ui</Name>
     </Form>
     <Form>
       <Dir>xpaxs</Dir>
@@ -638,13 +529,7 @@
       <Dir>xpaxs</Dir>
       <Dir>spectromicroscopy</Dir>
       <Dir>ui</Dir>
-      <Name>ui_elementsplot.ui</Name>
-    </Form>
-    <Form>
-      <Dir>xpaxs</Dir>
-      <Dir>spectromicroscopy</Dir>
-      <Dir>ui</Dir>
-      <Name>ui_elementsimage.ui</Name>
+      <Name>ui_scananalysis.ui</Name>
     </Form>
   </Forms>
   <Translations>
@@ -655,39 +540,15 @@
       <Dir>resources</Dir>
       <Name>icons.qrc</Name>
     </Resource>
+    <Resource>
+      <Dir>xpaxs</Dir>
+      <Dir>resources</Dir>
+      <Name>cursors.qrc</Name>
+    </Resource>
   </Resources>
   <Interfaces>
   </Interfaces>
   <Others>
-    <Other>
-      <Name>CHANGELOG</Name>
-    </Other>
-    <Other>
-      <Name>DEVNOTES</Name>
-    </Other>
-    <Other>
-      <Name>INSTALL</Name>
-    </Other>
-    <Other>
-      <Name>KNOWN_BUGS</Name>
-    </Other>
-    <Other>
-      <Name>LICENSE</Name>
-    </Other>
-    <Other>
-      <Name>PKG-INFO</Name>
-    </Other>
-    <Other>
-      <Name>README</Name>
-    </Other>
-    <Other>
-      <Name>TODO</Name>
-    </Other>
-    <Other>
-      <Dir>xpaxs</Dir>
-      <Dir>xpaxs-data</Dir>
-      <Name>images</Name>
-    </Other>
   </Others>
   <Vcs>
     <VcsType>None</VcsType>

@@ -82,6 +82,7 @@ class H5EntryItem(TreeItem):
 class FileItem(TreeItem):
 
     def __init__(self, filename, parent):
+        
         self.parentItem = parent
         self.itemData = [os.path.split(filename)[-1], '', '']
         self.childItems = []
@@ -94,13 +95,13 @@ class FileItem(TreeItem):
 
 
 class H5FileModel(QtCore.QAbstractItemModel):
-
     """
     """
 
     def __init__(self, filename=None, parent=None):
         super(H5FileModel, self).__init__(parent)
-
+        
+        self.openFiles=[]
         rootData = []
         rootData.append(QtCore.QVariant('File/Entry #'))
         rootData.append(QtCore.QVariant('Command'))
@@ -178,11 +179,12 @@ class H5FileModel(QtCore.QAbstractItemModel):
         return parentItem.childCount()
 
     def appendFile(self, filename):
-        # TODO: check if file has already been opened
-        self.rootItem.appendChild(FileItem(filename, self.rootItem))
-        row = self.rowCount(QtCore.QModelIndex())-1
-        index = self.index(row, 0, QtCore.QModelIndex())
-        self.emit(QtCore.SIGNAL('fileAppended'), index)
+        if filename not in self.openFiles:
+            self.rootItem.appendChild(FileItem(filename, self.rootItem))
+            row = self.rowCount(QtCore.QModelIndex())-1
+            index = self.index(row, 0, QtCore.QModelIndex())
+            self.emit(QtCore.SIGNAL('fileAppended'), index)
+            self.openFiles.append(filename)
 
     def itemActivated(self, index):
         scanData, mutex = index.internalPointer().itemActivated()
