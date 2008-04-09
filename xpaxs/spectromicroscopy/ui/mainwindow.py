@@ -24,7 +24,7 @@ from xpaxs.spectromicroscopy.ui import ui_mainwindow
 from xpaxs.datalib.hdf5 import H5FileModel, H5FileView
 from xpaxs.spectromicroscopy.ui.mcaspectrum import McaSpectrum
 from xpaxs.spectromicroscopy.ui.scananalysis import ScanAnalysis
-from xpaxs.spectromicroscopy.smpdatainterface import SmpScanInterface
+from xpaxs.spectromicroscopy.smpdatainterface import SmpFile
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -74,7 +74,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                                self.logRead, 'System Log')
 
         self.fileViewDock = self.__createDockWindow('FileViewDock')
-        self.fileModel = H5FileModel()
+        self.fileModel = H5FileModel(interface=SmpFile)
         self.fileView = H5FileView(self.fileModel)
         self.connect(self.fileModel,
                      QtCore.SIGNAL('fileAppended'),
@@ -85,11 +85,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.__setupDockWindow(self.fileViewDock,
                                QtCore.Qt.LeftDockWidgetArea,
                                self.fileView, 'File View')
-
-#        acquisitionGroup = QtGui.QActionGroup(self)
-#        acquisitionGroup.addAction(self.actionOffline)
-#        acquisitionGroup.addAction(self.actionSpec)
-#        self.actionOffline.setChecked(True)
 
         self.expInterface = None
         self.fileInterface = None
@@ -235,18 +230,17 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
         self.fileModel.appendFile(filename)
 
-    def newScanWindow(self, scan, mutex):
-        smpScan = SmpScanInterface(scan, mutex)
+    def newScanWindow(self, scan):
         if USE_PYMCA_ADVANCEDFIT:
-            scanView = ScanAnalysis(smpScan, advancedFit=self.spectrumAnalysis)
+            scanView = ScanAnalysis(scan, advancedFit=self.spectrumAnalysis)
         else:
-            scanView = ScanAnalysis(smpScan)
+            scanView = ScanAnalysis(scan)
             self.connect(scanView, QtCore.SIGNAL("analyzeSpectrum"),
                          self.spectrumAnalysis.analyzeSpectrum)
 
         subWindow = self.mdi.addSubWindow(scanView)
-        title = '%s: Scan %s'%(smpScan.getDataFileName(),
-                               smpScan.getScanNumber())
+        title = '%s: Scan %s'%(scan.getDataFileName(),
+                               scan.getScanNumber())
         subWindow.setWindowTitle(title)
         subWindow.showMaximized()
         self.menuTools.setEnabled(True)

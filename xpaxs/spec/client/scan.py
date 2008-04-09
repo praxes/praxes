@@ -31,9 +31,9 @@ DEBUG = False
 
 class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
-    def __init__(self, *args, **kwargs):
-        QtCore.QObject.__init__(self)
-        SpecScan.SpecScanA.__init__(self, kwargs.get('specVersion', None))
+    def __init__(self, specVersion, parent=None):
+        QtCore.QObject.__init__(self, parent)
+        SpecScan.SpecScanA.__init__(self, specVersion)
         self._resumeScan = SpecCommand.SpecCommandA('scan_on', specVersion)
         # TODO: this is no longer necessary, get it from scanParams
 #        self._datafile = qtspecvariable.QtSpecVariableA("DATAFILE",

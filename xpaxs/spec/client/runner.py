@@ -70,7 +70,7 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         QtCore.QObject.__init__(self)
         Spec.Spec.__init__(self, specVersion, timeout)
         self.cmd = SpecCommand.SpecCommand('', specVersion, timeout)
-#        self.scan = QtSpecScanA(self.specRunner.specVersion)
+        self.scan = QtSpecScanA(specVersion, parent=self)
 
         # load the clientutils macros:
         self.runMacro('clientutils.mac')

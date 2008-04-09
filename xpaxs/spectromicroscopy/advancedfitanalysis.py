@@ -88,6 +88,7 @@ class AdvancedFitThread(QtCore.QThread):
             self.tconf = self.concentrationsTool.configure()
 
         self.jobServer = pp.Server()
+        # TODO: make this configurable
 #        self.jobServer.set_ncpus(1)
 
         self.queue = Queue.Queue()

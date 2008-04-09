@@ -19,7 +19,7 @@ import tables
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-
+from xpaxs.datalib.hdf5.xpaxsdatainterface import XpaxsFile
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -62,45 +62,43 @@ class TreeItem:
 
 class H5EntryItem(TreeItem):
 
-    def __init__(self, scanData, mutex, parent):
+    def __init__(self, scanData, parent):
         self.scanData = scanData
-
-        self.mutex = mutex
 
         self.parentItem = parent
         self.childItems = []
 
-        scannum = '%s'%self.scanData._v_attrs.scanNumber
-        cmd = self.scanData._v_attrs.scanCommand
-        numpoints = '%d'%self.scanData._v_attrs.scanLines
+        scannum = '%s'%self.scanData.getScanNumber()
+        cmd = self.scanData.getScanCommand()
+        numpoints = '%d'%self.scanData.getNumExpectedScanLines()
         self.itemData = [scannum, cmd, numpoints]
 
     def itemActivated(self):
-        return self.scanData, self.mutex
+        return self.scanData
 
 
 class FileItem(TreeItem):
 
-    def __init__(self, filename, parent):
-        
+    def __init__(self, datafile, parent):
+
         self.parentItem = parent
+        filename = datafile.getFileName()
         self.itemData = [os.path.split(filename)[-1], '', '']
         self.childItems = []
 
-        mutex = QtCore.QMutex()
-        datafile = tables.openFile(filename, 'r+')
-
-        for scan in datafile.root:
-            self.appendChild(H5EntryItem(scan, mutex, self))
+        for entry in datafile.getNodes():
+            self.appendChild(H5EntryItem(entry, self))
 
 
 class H5FileModel(QtCore.QAbstractItemModel):
     """
     """
 
-    def __init__(self, filename=None, parent=None):
+    def __init__(self, filename=None, interface=XpaxsFile, parent=None):
         super(H5FileModel, self).__init__(parent)
-        
+
+        self._openFile = interface
+
         self.openFiles=[]
         rootData = []
         rootData.append(QtCore.QVariant('File/Entry #'))
@@ -129,7 +127,6 @@ class H5FileModel(QtCore.QAbstractItemModel):
     def flags(self, index):
         if not index.isValid():
             return QtCore.Qt.ItemIsEnabled
-
         return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
 
     def headerData(self, section, orientation, role):
@@ -180,15 +177,16 @@ class H5FileModel(QtCore.QAbstractItemModel):
 
     def appendFile(self, filename):
         if filename not in self.openFiles:
-            self.rootItem.appendChild(FileItem(filename, self.rootItem))
+            datafile = self._openFile(filename)
+            self.rootItem.appendChild(FileItem(datafile, self.rootItem))
             row = self.rowCount(QtCore.QModelIndex())-1
             index = self.index(row, 0, QtCore.QModelIndex())
             self.emit(QtCore.SIGNAL('fileAppended'), index)
             self.openFiles.append(filename)
 
     def itemActivated(self, index):
-        scanData, mutex = index.internalPointer().itemActivated()
-        self.emit(QtCore.SIGNAL('scanActivated'), scanData, mutex)
+        scanData = index.internalPointer().itemActivated()
+        self.emit(QtCore.SIGNAL('scanActivated'), scanData)
 
 
 if __name__ == "__main__":

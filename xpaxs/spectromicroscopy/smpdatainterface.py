@@ -20,7 +20,7 @@ import tables
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.datalib.hdf5 import XpaxsScanInterface
+from xpaxs.datalib.hdf5 import XpaxsFile, XpaxsScan
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -29,10 +29,17 @@ from xpaxs.datalib.hdf5 import XpaxsScanInterface
 DEBUG = False
 
 
-class SmpScanInterface(XpaxsScanInterface):
+class SmpFile(XpaxsFile):
 
-    def __init__(self, h5Entry, mutex, parent=None):
-        super(SmpScanInterface, self).__init__(h5Entry, mutex, parent)
+    def getNode(self, where, name=None):
+        node = self.h5File.getNode(where, name)
+        # TODO: these checks should eventually look for nexus classes
+        # for now just use the pytables classes
+        if isinstance(node, tables.Group):
+            return SmpScan(node, self)
+
+
+class SmpScan(XpaxsScan):
 
     def initializeElementMaps(self, elements):
         shape = self.getScanShape()
@@ -40,30 +47,31 @@ class SmpScanInterface(XpaxsScanInterface):
         try:
             self.mutex.lock()
             try:
-                self.h5File.removeNode(self.h5Entry, 'elementMaps',
+                self.h5Node._v_file.removeNode(self.h5Node, 'elementMaps',
                                        recursive=True)
-                self.h5File.flush()
+                self.flush()
             except tables.NoSuchNodeError:
                 pass
-            elementMaps = self.h5File.createGroup(self.h5Entry, 'elementMaps')
+            elementMaps = self.h5Node._v_file.createGroup(self.h5Node,
+                                                          'elementMaps')
             for mapType in ['fitArea', 'massFraction', 'sigmaArea']:
-                self.h5File.createGroup(elementMaps, mapType)
+                self.h5Node._v_file.createGroup(elementMaps, mapType)
                 for element in elements:
-                    node = self.h5File.getNode(self.h5Entry.elementMaps,
+                    node = self.h5Node._v_file.getNode(self.h5Node.elementMaps,
                                                mapType)
-                    self.h5File.createCArray(node,
+                    self.h5Node._v_file.createCArray(node,
                                              element.replace(' ', ''),
                                              tables.Float32Atom(),
                                              shape,
                                              filters=filters)
-            self.h5File.flush()
+            self.flush()
         finally:
             self.mutex.unlock()
 
     def getAvailableElements(self):
         try:
             self.mutex.lock()
-            elements = [el for el in self.h5Entry.elementMaps.fitArea._v_leaves.keys()]
+            elements = self.h5Node.elementMaps.fitArea._v_leaves.keys()
         except tables.NoSuchNodeError:
             return []
         finally:
@@ -76,8 +84,7 @@ class SmpScanInterface(XpaxsScanInterface):
         try:
             self.mutex.lock()
             try:
-                elementMap = self.h5File.getNode(self.h5Entry,
-                                                          dataPath)[:]
+                elementMap = self.h5Node._v_file.getNode(self.h5Node, dataPath)[:]
             except tables.NoSuchNodeError:
                 print dataPath
                 return numpy.zeros(self.getScanShape())
@@ -88,14 +95,14 @@ class SmpScanInterface(XpaxsScanInterface):
             if normalization == 'Dead time %':
                 try:
                     self.mutex.lock()
-                    norm = getattr(self.h5Entry.data.cols, 'Dead')[:]
+                    norm = getattr(self.h5Node.data.cols, 'Dead')[:]
                 finally:
                     self.mutex.unlock()
                 norm = 1-norm/100
             else:
                 try:
                     self.mutex.lock()
-                    norm = getattr(self.h5Entry.data.cols, normalization)[:]
+                    norm = getattr(self.h5Node.data.cols, normalization)[:]
                 finally:
                     self.mutex.unlock()
             elementMap.flat[:len(norm)] /= norm
@@ -104,14 +111,14 @@ class SmpScanInterface(XpaxsScanInterface):
     def getMcaSpectrum(self, index, id='MCA'):
         try:
             self.mutex.lock()
-            return self.h5Entry.data[index][id]
+            return self.h5Node.data[index][id]
         finally:
             self.mutex.unlock()
 
     def getMcaChannels(self, id='MCA'):
         try:
             self.mutex.lock()
-            mcaMetaData = getattr(self.h5Entry, id)
+            mcaMetaData = getattr(self.h5Node, id)
             return mcaMetaData.channels[:]
         finally:
             self.mutex.unlock()
@@ -119,8 +126,8 @@ class SmpScanInterface(XpaxsScanInterface):
     def getNormalizationChannels(self):
         try:
             self.mutex.lock()
-            channels = [i for i in self.h5Entry.data.colnames
-                        if not i in self.h5Entry._v_attrs]
+            channels = [i for i in self.h5Node.data.colnames
+                        if not i in self.h5Node._v_attrs]
         finally:
             self.mutex.unlock()
         channels.insert(0, 'Dead time %')
@@ -129,22 +136,22 @@ class SmpScanInterface(XpaxsScanInterface):
     def getPymcaConfig(self):
         try:
             self.mutex.lock()
-            return self.h5Entry._v_attrs.pymcaConfig
+            return self.h5Node._v_attrs.pymcaConfig
         finally:
             self.mutex.unlock()
 
     def setPymcaConfig(self, config):
         try:
             self.mutex.lock()
-            self.h5Entry._v_attrs.pymcaConfig = config
+            self.h5Node._v_attrs.pymcaConfig = config
         finally:
             self.mutex.unlock()
 
     def getSkipmode(self):
         try:
             self.mutex.lock()
-            mon = self.h5Entry._v_attrs.skipmodeMonitor
-            thresh = self.h5Entry._v_attrs.skipmodeThresh
+            mon = self.h5Node._v_attrs.skipmodeMonitor
+            thresh = self.h5Node._v_attrs.skipmodeThresh
             return (mon, thresh)
         except AttributeError:
             return (None, 0)
@@ -156,10 +163,10 @@ class SmpScanInterface(XpaxsScanInterface):
         try:
             self.mutex.lock()
             if mon and thresh:
-                temp = getattr(self.h5Entry.data.cols, mon)[:]
+                temp = getattr(self.h5Node.data.cols, mon)[:]
                 valid = numpy.nonzero(temp > thresh)[0]
             else:
-                valid = range(len(self.h5Entry.data))
+                valid = range(len(self.h5Node.data))
         finally:
             self.mutex.unlock()
 
@@ -169,8 +176,8 @@ class SmpScanInterface(XpaxsScanInterface):
     def setSkipmode(self, monitor=None, thresh=0):
         try:
             self.mutex.lock()
-            self.h5Entry._v_attrs.skipmodeMonitor = monitor
-            self.h5Entry._v_attrs.skipmodeThresh = thresh
+            self.h5Node._v_attrs.skipmodeMonitor = monitor
+            self.h5Node._v_attrs.skipmodeThresh = thresh
         finally:
             self.mutex.unlock()
 
@@ -179,7 +186,7 @@ class SmpScanInterface(XpaxsScanInterface):
         try:
             self.mutex.lock()
             try:
-                self.h5File.getNode(self.h5Entry, node)[index] = val
+                self.h5Node._v_file.getNode(self.h5Node, node)[index] = val
             except ValueError:
                 print index, node
         finally:

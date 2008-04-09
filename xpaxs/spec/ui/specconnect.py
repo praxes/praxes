@@ -27,6 +27,9 @@ from xpaxs.spec.ui.scancontrols import ScanControls
 # Normal code begins
 #---------------------------------------------------------------------------
 
+USESSH = False
+
+
 class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     """This dialog allows the user to identify the spec server and port
@@ -67,8 +70,11 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def exec_(self):
         if QtGui.QDialog.exec_(self):
-            self.startSSH()
-            if self.ssh: self.connectToSpec()
+            if USESSH:
+                self.startSSH()
+                if self.ssh: self.connectToSpec()
+            else:
+                self.connectToSpec()
             if self.specRunner is None: self.exec_()
 
         if self.specRunner: return SpecInterface(self.specRunner, self.parent())
@@ -142,7 +148,7 @@ class SpecInterface(QtCore.QObject):
         self.specRunner.close()
         self.specRunner = None
         self.parent.SSH=None
-        
+
 
 
 

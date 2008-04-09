@@ -19,7 +19,7 @@ from PyQt4 import QtCore, QtGui
 
 from xpaxs.datalib.hdf5.qth5filemodel import H5FileModel
 from xpaxs.datalib.hdf5.qth5fileview import H5FileView
-from xpaxs.datalib.hdf5.xpaxsdatainterface import XpaxsScanInterface
+from xpaxs.datalib.hdf5.xpaxsdatainterface import XpaxsFile, XpaxsScan
 
 #---------------------------------------------------------------------------
 # Normal code begins
