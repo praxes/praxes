@@ -1,6 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Tasks SYSTEM "Tasks-3.8.dtd">
 <!-- eric4 tasks file for project xpaxs -->
-<!-- Saved: 2008-03-27, 13:55:27 -->
+<!-- Saved: 2008-04-08, 18:10:55 -->
 <Tasks version="3.8">
+  <Task priority="1" completed="False" bugfix="False">
+    <Description>TODO: will acquisition work on other platforms?</Description>
+    <Created>2008-03-27, 16:43:48</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Dir>ui</Dir>
+        <Name>mainwindow.py</Name>
+      </Filename>
+      <Linenumber>259</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Description>TODO: this if is a wart:</Description>
+    <Created>2008-03-27, 16:45:14</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>smpdatainterface.py</Name>
+      </Filename>
+      <Linenumber>87</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Description>TODO: much of this needs to go elsewhere, like in spec or spectromicroscopy</Description>
+    <Created>2008-03-27, 16:45:22</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Name>configutils.py</Name>
+      </Filename>
+      <Linenumber>27</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Description>TODO: get the channels from the controller</Description>
+    <Created>2008-04-01, 14:48:43</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>advancedfitanalysis.py</Name>
+      </Filename>
+      <Linenumber>48</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Description>TODO: need to be able to select which mca</Description>
+    <Created>2008-04-01, 14:48:43</Created>
+    <Resource>
+      <Filename>
+        <Dir>xpaxs</Dir>
+        <Dir>spectromicroscopy</Dir>
+        <Name>advancedfitanalysis.py</Name>
+      </Filename>
+      <Linenumber>114</Linenumber>
+    </Resource>
+  </Task>
 </Tasks>

@@ -120,11 +120,12 @@ class ScanAnalysis(QtGui.QWidget):
     def getPeaks(self):
         return copy.deepcopy(self._peaks)
 
-    def plotSpectrum(self, indices):
+    def plotSpectrum(self,indices):
         if self._pymcaConfig is None:
             self.configurePyMca()
 
         indices = self.scanData.getValidDataPoints(indices)
+
         if not indices: return
 
         counts = numpy.array([self.scanData.getMcaSpectrum(index)

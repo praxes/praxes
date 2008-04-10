@@ -112,7 +112,7 @@ class ElementImageFigure(ElementBaseFigure):
         xIndex = locateClosest(xdata, self.xPixelLocs)
         yIndex = locateClosest(ydata, self.yPixelLocs)
         return [self.indices[yIndex, xIndex]]
-
+    
     def setDataMax(self, val):
         self._clim[1] = val
         self.updateFigure()
@@ -244,9 +244,33 @@ class ElementWidget(QtGui.QWidget):
                      QtCore.SIGNAL("pickEvent"),
                      self.onPick)
 
-    def onPick(self, xdata, ydata):
-        indices = self.figure.getIndices(xdata, ydata)
-        self.emit(QtCore.SIGNAL('pickEvent'), indices)
+    def onPick(self, xstart, ystart,  xend, yend):
+        xmin, xmax, ymin, ymax = self.image.get_extent()
+        numberOfX = self.figure.xPixelLocs.shape[0]
+        numberOfY = self.figure.yPixelLocs.shape[0]
+        dx = xmax/numberOfX
+        dy = ymax/numberOfY
+
+        startIndices  = self.figure.getIndices(xstart, ystart)
+        endIndices = self.figure.getIndices(xend, yend)
+        
+        iend = (endIndices[0]-endIndices[0]%numberOfX)/numberOfX
+        jend = endIndices[0]%numberOfY
+        istart = (startIndices[0]-startIndices[0]%numberOfX)/numberOfX
+        jstart = startIndices[0]%numberOfY
+
+        
+        Indices = [] 
+        di=2*(istart<iend)-1
+        dj=2*(jstart<jend)-1
+        
+        
+        for i in range(istart, iend+di, di):
+            for j in range(jstart, jend+dj, dj):
+                Indices.append(i*numberOfY+j)
+    
+        print Indices#for DEBUG only
+        self.emit(QtCore.SIGNAL('pickEvent'), Indices)
 
     def setAvailablePeaks(self, peaks):
         self.xrfbandComboBox.clear()
@@ -290,7 +314,7 @@ class ElementImage(ui_elementsimage.Ui_ElementsImage, ElementWidget):
 
 
 class ElementPlot(ui_elementsplot.Ui_ElementsPlot, ElementWidget):
-    """Establishes a Experimenbt controls    """
+    """Establishes a Experiment controls    """
     def __init__(self, scanData, parent=None):
         super(ElementPlot, self).__init__(scanData, parent)
         self.setupUi(self)
