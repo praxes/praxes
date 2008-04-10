@@ -244,8 +244,25 @@ class ElementWidget(QtGui.QWidget):
                      QtCore.SIGNAL("pickEvent"),
                      self.onPick)
 
-    def onPick(self, xdata, ydata):
-        indices = self.figure.getIndices(xdata, ydata)
+    def onPick(self, xstart, ystart, xend, yend):
+        numberOfX = self.figure.xPixelLocs.shape[0]
+        numberOfY = self.figure.yPixelLocs.shape[0]
+
+        startIndex  = self.figure.getIndices(xstart, ystart)[0]
+        endIndex = self.figure.getIndices(xend, yend)[0]
+
+        # make x, y refer to indices, rather than data coords
+        xend = (endIndex-endIndex%numberOfX)/numberOfX
+        yend = endIndex%numberOfY
+        xstart = (startIndex-startIndex%numberOfX)/numberOfX
+        ystart = startIndex%numberOfY
+
+        dx = 2*(xstart < xend) - 1
+        dy = 2*(ystart < yend) - 1
+
+        indices = [x*numberOfY+y for x in range(xstart, xend+dx, dx)
+                   for y in range(ystart, yend+dy, dy)]
+
         self.emit(QtCore.SIGNAL('pickEvent'), indices)
 
     def setAvailablePeaks(self, peaks):
@@ -290,7 +307,7 @@ class ElementImage(ui_elementsimage.Ui_ElementsImage, ElementWidget):
 
 
 class ElementPlot(ui_elementsplot.Ui_ElementsPlot, ElementWidget):
-    """Establishes a Experimenbt controls    """
+    """Establishes a Experiment controls    """
     def __init__(self, scanData, parent=None):
         super(ElementPlot, self).__init__(scanData, parent)
         self.setupUi(self)
