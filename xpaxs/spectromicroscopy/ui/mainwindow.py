@@ -90,6 +90,8 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.fileInterface = None
         self.advancedFitWidget = None
 
+
+
         self.statusBar.showMessage('Ready', 2000)
         self.progressBar = QtGui.QProgressBar(self.statusBar)
         self.progressBar.hide()
@@ -166,6 +168,9 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.connect(self.menuAcquisition,
                      QtCore.SIGNAL("aboutToShow()"),
                      self.updateAcquisitionMenu)
+        self.connect(self.actionOffline,
+                     QtCore.SIGNAL("triggered()"),
+                     self.setOffline)
 
     def about(self):
         QtGui.QMessageBox.about(self, self.tr("About SMP"),
@@ -179,6 +184,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                     "X-ray fluorescence spectra"%__version__))
 
     def closeEvent(self, event):
+        self.connectToSpec(False)
         settings = QtCore.QSettings()
         settings.beginGroup("MainWindow")
         settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
@@ -193,6 +199,13 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             dlg = SpecConnect(self)
             self.expInterface = dlg.exec_()
             if self.expInterface:
+
+                # load the macros:
+#                self.expInterface.specRunner.runMacro('clientutils_sxfm.mac')
+#                self.expInterface.specRunner.clientdataon()
+#                self.expInterface.specRunner.clientploton()
+#                self.expInterface.specRunner.runMacro('skipmode.mac')
+
                 self.actionConfigure.setEnabled(True)
                 for key, (item, area, action) in \
                         self.expInterface.dockWidgets.iteritems():
@@ -202,6 +215,10 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                 self.actionOffline.setChecked(True)
         else:
             if self.expInterface:
+
+                self.expInterface.specRunner.clientdataoff()
+                self.expInterface.specRunner.clientplotoff()
+
                 self.actionConfigure.setEnabled(False)
                 for key, (item, area, action) in \
                         self.expInterface.dockWidgets.iteritems():
@@ -228,7 +245,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                             'Open File', '.', "hdf5 files (*.h5 *.hdf5)")
         if not filename: return
 
-        self.fileModel.appendFile(filename)
+        self.fileModel.openFile(filename)
 
     def newScanWindow(self, scan):
         if USE_PYMCA_ADVANCEDFIT:
@@ -245,6 +262,11 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         subWindow.showMaximized()
         self.menuTools.setEnabled(True)
 
+    def setOffline(self):
+        if self.expInterface is None: return
+        if self.expInterface.name == 'spec':
+            self.connectToSpec(False)
+
     def updateAcquisitionMenu(self):
         self.menuAcquisition.clear()
         acquisitionGroup = QtGui.QActionGroup(self)
@@ -254,7 +276,10 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         if sys.platform == 'linux2':
             acquisitionGroup.addAction(self.actionSpec)
             self.menuAcquisition.addAction(self.actionSpec)
-        self.actionOffline.setChecked(True)
+        if self.expInterface is None:
+            self.actionOffline.setChecked(True)
+        elif self.expInterface.name == 'spec':
+            self.actionSpec.setChecked(True)
 
     def updateToolsMenu(self):
         self.menuTools.clear()

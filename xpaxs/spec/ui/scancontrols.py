@@ -137,9 +137,8 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
             else:
                 scanArgs.extend(args[:-1])
         scanArgs.append( self.scanCountSpinBox.value() )
-        print scanArgs
-        print args
         self.progressBar.setMaximum(scanPoints)
+        getattr(self.specRunner.scan, scantype)(*scanArgs)
 # TODO: need to reimpliment using new scheme: instantiate a scananalysis window
 # with a specscanacquisition instance to control it.
 #        getattr(self.specRunner.scan, scantype)(*scanArgs)
@@ -233,7 +232,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
     def updateProgressBar(self, val):
         self.progressBar.setValue(val+1)
 
-        
+
 
 if __name__ == "__main__":
     import sys

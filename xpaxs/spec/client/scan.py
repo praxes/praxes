@@ -26,7 +26,7 @@ from xpaxs import configutils
 # Normal code begins
 #---------------------------------------------------------------------------
 
-DEBUG = False
+DEBUG = True
 
 
 class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
@@ -65,15 +65,19 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         pass
 
     def newScan(self, scanParameters):
-        scanParameters['datafile'] = os.path.split(self._datafile.getValue())[1]
-        if DEBUG: print scanParameters
+#        scanParameters['datafile'] = os.path.split(self._datafile.getValue())[1]
+        if DEBUG: print 'newScan:', scanParameters
         self.emit(QtCore.SIGNAL("newScan(PyQt_PyObject)"), scanParameters)
+
+    def newScanData(self, scanData):
+        if DEBUG: print 'scanData:', scanData
+        pass
 
     def newScanPoint(self, i, x, y, scanData):
         scanData['i'] = i
         scanData['x'] = x
         scanData['y'] = y
-        if DEBUG: print i
+        if DEBUG: print "newScanPoint:", scanData
         self.emit(QtCore.SIGNAL("newScanIndex(int)"), i)
         self.emit(QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"), scanData)
 

@@ -119,6 +119,7 @@ class SpecInterface(QtCore.QObject):
         self.dockWidgets = {}
 
         self.mainWindow = parent
+        self.name = "spec"
 
         self.scanControls = ScanControls(specRunner)
         self.addDockWidget(self.scanControls, 'Scan Controls',

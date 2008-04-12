@@ -248,7 +248,7 @@ class ElementWidget(QtGui.QWidget):
         numberOfX = self.figure.xPixelLocs.shape[0]
         numberOfY = self.figure.yPixelLocs.shape[0]
 
-        startIndex  = self.figure.getIndices(xstart, ystart)[0]
+        startIndex = self.figure.getIndices(xstart, ystart)[0]
         endIndex = self.figure.getIndices(xend, yend)[0]
 
         # make x, y refer to indices, rather than data coords

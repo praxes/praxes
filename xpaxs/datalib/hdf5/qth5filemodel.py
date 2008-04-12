@@ -53,7 +53,6 @@ class TreeItem:
     def row(self):
         if self.parentItem:
             return self.parentItem.childItems.index(self)
-
         return 0
 
     def itemActivated(self):
@@ -80,6 +79,7 @@ class H5EntryItem(TreeItem):
 class FileItem(TreeItem):
 
     def __init__(self, datafile, parent):
+        self.xpaxsFile = datafile
 
         self.parentItem = parent
         filename = datafile.getFileName()
@@ -87,7 +87,15 @@ class FileItem(TreeItem):
         self.childItems = []
 
         for entry in datafile.getNodes():
-            self.appendChild(H5EntryItem(entry, self))
+            self.appendChild(entry)
+
+        QtCore.QObject.connect(self.xpaxsFile,
+                               QtCore.SIGNAL('newEntry'),
+                               self.appendChild)
+
+    def appendChild(self, h5Entry):
+        item = H5EntryItem(h5Entry, self)
+        self.childItems.append(item)
 
 
 class H5FileModel(QtCore.QAbstractItemModel):
@@ -105,7 +113,7 @@ class H5FileModel(QtCore.QAbstractItemModel):
         rootData.append(QtCore.QVariant('Command'))
         rootData.append(QtCore.QVariant('Points'))
         self.rootItem = TreeItem(rootData)
-        if filename: self.appendFile(filename)
+        if filename: self.openFile(filename)
 
     def columnCount(self, parent):
         if parent.isValid():
@@ -175,7 +183,7 @@ class H5FileModel(QtCore.QAbstractItemModel):
 
         return parentItem.childCount()
 
-    def appendFile(self, filename):
+    def openFile(self, filename):
         if filename not in self.openFiles:
             datafile = self._openFile(filename)
             self.rootItem.appendChild(FileItem(datafile, self.rootItem))
@@ -183,6 +191,7 @@ class H5FileModel(QtCore.QAbstractItemModel):
             index = self.index(row, 0, QtCore.QModelIndex())
             self.emit(QtCore.SIGNAL('fileAppended'), index)
             self.openFiles.append(filename)
+        return datafile
 
     def itemActivated(self, index):
         scanData = index.internalPointer().itemActivated()
