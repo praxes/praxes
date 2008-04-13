@@ -33,8 +33,9 @@ def _client_setscanenv '{
 
     # define additional parameters for data storage:
     scan_env["datafile"] = DATAFILE
-    scan_env["command"] = HEADING
+    scan_env["scanCommand"] = HEADING
     scan_env["scanNumber"] = sprintf("%d", SCAN_N+1)
+    scan_env["scanLines"] = sprintf("%d", (_stype&8? _n1*_n2:_n1))
     scan_env["monitor"] = cnt_mne(MON)
     column_names = ""
     for (i=0;i<_nm;i++) {

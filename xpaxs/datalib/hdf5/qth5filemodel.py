@@ -199,9 +199,6 @@ class H5FileModel(QtCore.QAbstractItemModel):
 
         dataObject = self._openFile(filename)
         item = FileItem(dataObject, self.rootItem)
-        self.connect(dataObject,
-                     QtCore.SIGNAL("newEntry"),
-                     item.appendChild)
         self.rootItem.appendChild(item)
         row = self.rowCount(QtCore.QModelIndex())-1
         index = self.index(row, 0, QtCore.QModelIndex())

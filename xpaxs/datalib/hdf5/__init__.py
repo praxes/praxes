@@ -59,8 +59,8 @@ class H5FileInterface(QtCore.QObject):
     def openFile(self, filename):
         return self.fileModel.openFile(filename)
 
-    def createEntry(self, filename, scan, force=False):
+    def createEntry(self, filename, scanParams):
         fileObject = self.openFile(filename)
-        entry = fileObject.createEntry
+        entry = fileObject.createEntry(scanParams)
         self.fileView.doItemsLayout()
         return entry

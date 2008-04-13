@@ -28,15 +28,34 @@ from xpaxs.datalib.hdf5 import XpaxsFile, XpaxsScan
 
 DEBUG = False
 
+filters = tables.Filters(complib='zlib', complevel=9)
+
 
 class SmpFile(XpaxsFile):
+
+    def createEntry(self, scanParams):
+        # This should be reimplemented in subclasses
+        scanName = scanParams['title'].lower().replace(' ', '')
+        try:
+            self.mutex.lock()
+            h5Entry = self.h5File.createGroup('/', scanName, title=scanName,
+                                              filters=filters)
+            attrs = h5Entry._v_attrs
+            attrs.scanNumber = scanParams['scanNumber']
+            attrs.scanCommand = scanParams['scanCommand']
+            attrs.scanLines = scanParams['scanLines']
+            scanEntry = SmpScan(self, h5Entry)
+        finally:
+            self.mutex.unlock()
+        self.emit(QtCore.SIGNAL('newEntry'), scanEntry)
+        return scanEntry
 
     def getNode(self, where, name=None):
         node = self.h5File.getNode(where, name)
         # TODO: these checks should eventually look for nexus classes
         # for now just use the pytables classes
         if isinstance(node, tables.Group):
-            return SmpScan(node, self)
+            return SmpScan(self, node)
 
 
 class SmpScan(XpaxsScan):
