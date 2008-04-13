@@ -1,5 +1,6 @@
 """Helper module for managing scans"""
 from SpecClient.SpecConnectionsManager import SpecConnectionsManager
+from SpecClient import SpecCommand
 from SpecClient import SpecEventsDispatcher
 from SpecClient import SpecWaitObject
 import logging
@@ -29,6 +30,7 @@ class SpecScanA:
 
     def connectToSpec(self, specVersion):
         self.connection = SpecConnectionsManager().getConnection(specVersion)
+
         SpecEventsDispatcher.connect(self.connection, 'connected',
                                      self.connected)
         SpecEventsDispatcher.connect(self.connection, 'disconnected',

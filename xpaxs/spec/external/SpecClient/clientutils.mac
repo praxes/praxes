@@ -1,109 +1,105 @@
 #$Id: clientutils.mac,v 1.5 2006/09/25 15:24:55 guijarro Exp $
 
+# All globals to which SpecScan will connect need to be created before
+# the SpecScan is instantiated.
+
 def _clientutils_on '{
-  global _SC_ACTIVE _SC_NEWSCAN _SC_SCANENV
-  if (_SC_ACTIVE < 1) {
-    _SC_ACTIVE = 0
+    global _SC_NEWSCAN _SC_SCANENV
     _SC_NEWSCAN = 0
+
     cdef("user_prescan_head", "_client_setscanenv;", "_clientutils_")
     cdef("user_scan_tail", "_SC_NEWSCAN = 0;", "_clientutils_")
-  }
-  _SC_ACTIVE += 1
 }'
 
 
 def _clientutils_off '{
-  _SC_ACTIVE -= 1
-  if (_SC_ACTIVE < 1){
-    unglobal _SC_ACTIVE _SC_NEWSCAN _SC_SCANENV
-    cdef("", "", "_clientutils_", "delete")
-  }
+    if (_SC_PLOT_ACTIVE == 0 && _SC_DATA_ACTIVE == 0){
+        unglobal _SC_ACTIVE _SC_NEWSCAN _SC_SCANENV
+        cdef("", "", "_clientutils_", "delete")
+    }
 }'
 
 
 def _client_setscanenv '{
-  local scan_env
+    local scan_env
 
-  scan_env["type"] = _stype
-  scan_env["title"] = sprintf("Scan %d", SCAN_N+1)
-  scan_env["xlabel"] = X_L
-  scan_env["ylabel"] = cnt_mne(DET)
-  scan_env["nb_motors"] = PLOT_MOTS
-  scan_env["motor"] = motor_mne(_m[0])
-  scan_env["counter"] = cnt_mne(DET)
+    scan_env["type"] = _stype
+    scan_env["title"] = sprintf("Scan %d", SCAN_N+1)
+    scan_env["xlabel"] = X_L
+    scan_env["ylabel"] = cnt_mne(DET)
+    scan_env["nb_motors"] = PLOT_MOTS
+    scan_env["motor"] = motor_mne(_m[0])
+    scan_env["counter"] = cnt_mne(DET)
 
-  _SC_SCANENV = scan_env
-  _SC_NEWSCAN = 1
+    _SC_SCANENV = scan_env
+    _SC_NEWSCAN = 1
 }'
 
 
 def clientploton '{
-  if (_SC_PLOT_ACTIVE < 1) {
     _clientutils_on
-  }
 
-  global _SC_OLDX _SC_NEWPLOTDATA _SC_PLOTDATA _SC_PLOT_ACTIVE
-  _SC_PLOT_ACTIVE = 1
-  _SC_NEWPLOTDATA = -1
+    global _SC_OLDX _SC_NEWPLOTDATA _SC_PLOTDATA _SC_PLOT_ACTIVE
+    _SC_PLOT_ACTIVE = 1
+    _SC_NEWPLOTDATA = -1
 
-  _SC_OLDX=0
+    _SC_OLDX=0
 
-  if (length(plotlist()) == 0)  {
-      tty_cntl("md");
-      printf("\n- NO COUNTER SELECTED. Run plotselect\n");
-      tty_cntl("me")
-  }
+    if (length(plotlist()) == 0)  {
+        tty_cntl("md");
+        printf("\n- NO COUNTER SELECTED. Run plotselect\n");
+        tty_cntl("me")
+    }
 
-  cdef("user_scan_plot", "_client_updateplotdata;", "_client_plot_")
-  cdef("user_scan_tail", "_SC_NEWPLOTDATA = -1;", "_client_plot_")
+    cdef("user_scan_plot", "_client_updateplotdata;", "_client_plot_")
+    cdef("user_scan_tail", "_SC_NEWPLOTDATA = -1;", "_client_plot_")
 }'
 
 
 def clientplotoff '{
-  if (_SC_PLOT_ACTIVE) {
+    _SC_PLOT_ACTIVE = 0
     _clientutils_off
-  }
-  cdef("", "", "_client_plot_", "delete")
-  unglobal _SC_OLDX _SC_NEWPLOTDATA _SC_PLOTDATA _SC_PLOT_ACTIVE
+
+    cdef("", "", "_client_plot_", "delete")
+    unglobal _SC_OLDX _SC_NEWPLOTDATA _SC_PLOTDATA _SC_PLOT_ACTIVE
 }'
 
 
 def _client_updateplotdata '{
-  local x d i n plot_data
-  global _SC_OLDX
+    local x d i n plot_data
+    global _SC_OLDX
 
-  x = SCAN_D[NPTS][0]
+    x = SCAN_D[NPTS][0]
 
-  if (_stype >= 257) {
-    d = 1
-  } else {
-    d = x - _SC_OLDX
-  }
-
-  if (d > 0) {
-    _SC_OLDX = x
-
-    plot_data["i"] = sprintf("%d", NPTS)
-    plot_data["x"] = sprintf("%g", x)
-
-    n = _stype&8? _g1:NPTS
-    for (i=PLOT_MOTS; i<(PLOT_CNTRS+PLOT_MOTS); i++) {
-      plot_data[PLOT_MNE[i]] = sprintf("%g", SCAN_D[n][i])
+    if (_stype >= 257) {
+        d = 1
+    } else {
+        d = x - _SC_OLDX
     }
 
-    _SC_PLOTDATA = plot_data
-    _SC_NEWPLOTDATA = NPTS
-  }
+    if (d > 0) {
+        _SC_OLDX = x
+
+        plot_data["i"] = sprintf("%d", NPTS)
+        plot_data["x"] = sprintf("%g", x)
+
+        n = _stype&8? _g1:NPTS
+        for (i=PLOT_MOTS; i<(PLOT_CNTRS+PLOT_MOTS); i++) {
+            plot_data[PLOT_MNE[i]] = sprintf("%g", SCAN_D[n][i])
+        }
+
+        _SC_PLOTDATA = plot_data
+        _SC_NEWPLOTDATA = NPTS
+    }
 }'
 
 
 def clientdataon '{
-    if (_SC_DATA_ACTIVE < 1) {
-        _clientutils_on
-    }
-
     global _SC_NEWDATAENV _SC_DATAENV _SC_NEWSCANDATA _SC_SCANDATA
     global _SC_DATA_ACTIVE
+
+    _clientutils_on
+
     _SC_DATA_ACTIVE = 1
     _SC_NEWSCANDATA = -1
 
@@ -114,9 +110,9 @@ def clientdataon '{
 
 
 def clientdataoff '{
-    if (_SC_DATA_ACTIVE) {
-        _clientutils_off
-    }
+    _SC_DATA_ACTIVE = 0
+    _clientutils_off
+
     cdef("", "", "_client_data_", "delete")
     unglobal _SC_NEWDATAENV _SC_DATAENV _SC_NEWSCANDATA _SC_SCANDATA
     unglobal _SC_DATA_ACTIVE

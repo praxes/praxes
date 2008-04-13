@@ -35,28 +35,6 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         QtCore.QObject.__init__(self, parent)
         SpecScan.SpecScanA.__init__(self, specVersion)
         self._resumeScan = SpecCommand.SpecCommandA('scan_on', specVersion)
-        # TODO: this is no longer necessary, get it from scanParams
-#        self._datafile = qtspecvariable.QtSpecVariableA("DATAFILE",
-#                                                        specVersion)
-# TODO: all of these should go in the SpecScanAcquisition constructor
-#        self.connect(self.specRunner.scan,
-#                     QtCore.SIGNAL("newMesh(PyQt_PyObject)"),
-#                     self.newScanAnalysis2D)
-#        self.connect(self.specRunner.scan,
-#                     QtCore.SIGNAL("newTseries(PyQt_PyObject)"),
-#                     self.newScanAnalysis1D)
-#        self.connect(self.specRunner.scan,
-#                     QtCore.SIGNAL("newAscan(PyQt_PyObject)"),
-#                     self.newScanAnalysis1D)
-#        self.connect(self.specRunner.scan,
-#                     QtCore.SIGNAL("newA2scan(PyQt_PyObject)"),
-#                     self.newScanAnalysis1D)
-#        self.connect(self.specRunner.scan,
-#                     QtCore.SIGNAL("newA3scan(PyQt_PyObject)"),
-#                     self.newScanAnalysis1D)
-#        self.connect(self.specRunner.scan,
-#                     QtCore.SIGNAL("newScan(PyQt_PyObject)"),
-#                     self.setTabLabel)
 
     def connected(self):
         pass

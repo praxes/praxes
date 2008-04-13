@@ -20,7 +20,6 @@ from SpecClient import SpecClientError
 
 
 from xpaxs.spec.ui import ui_specconnect,  configdialog, sshdialog
-from xpaxs.spec.client import runner
 from xpaxs.spec.ui.scancontrols import ScanControls
 
 #---------------------------------------------------------------------------
@@ -37,11 +36,15 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
     returns a SpecRunner instance
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, runnerType=None, parent=None):
 
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
 
+        if runnerType is None:
+            from xpaxs.spec.client import runner
+            runnerType = runner.SpecRunner
+        self.getSpecRunner = runnerType
         self.specRunner = None
 
         self.restore()
@@ -62,8 +65,8 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def connectToSpec(self):
         try:
-            self.specRunner = runner.SpecRunner(self.getSpecVersion(),
-                                                timeout=500)
+            self.specRunner = self.getSpecRunner(self.getSpecVersion(),
+                                                 timeout=500)
         except SpecClientError.SpecClientTimeoutError:
             self.connectionError()
             self.specRunner = None
@@ -149,8 +152,6 @@ class SpecInterface(QtCore.QObject):
         self.specRunner.close()
         self.specRunner = None
         self.parent.SSH=None
-
-
 
 
 if __name__ == "__main__":

@@ -195,16 +195,11 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
     def connectToSpec(self, bool):
         if bool:
             from xpaxs.spec.ui.specconnect import SpecConnect
+            from xpaxs.spectromicroscopy.spec import SmpSpecRunner
 
-            dlg = SpecConnect(self)
+            dlg = SpecConnect(SmpSpecRunner, self)
             self.expInterface = dlg.exec_()
             if self.expInterface:
-
-                # load the macros:
-#                self.expInterface.specRunner.runMacro('clientutils_sxfm.mac')
-#                self.expInterface.specRunner.clientdataon()
-#                self.expInterface.specRunner.clientploton()
-#                self.expInterface.specRunner.runMacro('skipmode.mac')
 
                 self.actionConfigure.setEnabled(True)
                 for key, (item, area, action) in \
@@ -215,10 +210,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                 self.actionOffline.setChecked(True)
         else:
             if self.expInterface:
-
-                self.expInterface.specRunner.clientdataoff()
-                self.expInterface.specRunner.clientplotoff()
-
                 self.actionConfigure.setEnabled(False)
                 for key, (item, area, action) in \
                         self.expInterface.dockWidgets.iteritems():

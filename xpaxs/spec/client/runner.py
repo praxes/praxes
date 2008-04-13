@@ -71,14 +71,6 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         Spec.Spec.__init__(self, specVersion, timeout)
         self.cmd = SpecCommand.SpecCommand('', specVersion, timeout)
 
-#        # load the clientutils macros:
-        self.runMacro('clientutils_sxfm.mac')
-        self.clientdataon()
-        self.clientploton()
-        self.runMacro('skipmode.mac')
-
-        self.scan = QtSpecScanA(specVersion, parent=self)
-
         self._motors = {}
         self._motorNames = []
         self._counterNames = []
@@ -90,7 +82,6 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
 
     def close(self):
         try:
-#            self.clientplotoff()
             self.dispatcher.exit()
             self.dispatcher.wait()
             self.connection.dispatcher.disconnect()
