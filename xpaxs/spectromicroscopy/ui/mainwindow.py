@@ -194,10 +194,9 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
     def connectToSpec(self, bool):
         if bool:
-            from xpaxs.spec.ui.specconnect import SpecConnect
-            from xpaxs.spectromicroscopy.spec import SmpSpecRunner
+            from xpaxs.spectromicroscopy.spec import SmpSpecConnect
 
-            dlg = SpecConnect(SmpSpecRunner, self)
+            dlg = SmpSpecConnect(self)
             self.expInterface = dlg.exec_()
             if self.expInterface:
 

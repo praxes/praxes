@@ -18,7 +18,7 @@ from SpecClient import SpecClientError
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-
+from xpaxs.spec.client.runner import SpecRunner
 from xpaxs.spec.ui import ui_specconnect,  configdialog, sshdialog
 from xpaxs.spec.ui.scancontrols import ScanControls
 
@@ -36,20 +36,21 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
     returns a SpecRunner instance
     """
 
-    def __init__(self, runnerType=None, parent=None):
+    def __init__(self, parent=None):
 
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
 
-        if runnerType is None:
-            from xpaxs.spec.client import runner
-            runnerType = runner.SpecRunner
-        self.getSpecRunner = runnerType
-        self.specRunner = None
+        self.defineInterface()
+
+        self.ssh=None
 
         self.restore()
 
-        self.ssh=None
+    def defineInterface(self):
+        # The following should be redefined in subclasses of SpecConnect:
+        self.getSpecRunner = SpecRunner
+        self.getSpecInterface = SpecInterface
 
     def accept(self):
         self.save()
@@ -80,8 +81,10 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
                 self.connectToSpec()
             if self.specRunner is None: self.exec_()
 
-        if self.specRunner: return SpecInterface(self.specRunner, self.parent())
-        else: return None
+        if self.specRunner:
+            return self.getSpecInterface(self.specRunner, self.parent())
+        else:
+            return None
 
     def getSpecVersion(self):
         settings = QtCore.QSettings()
@@ -124,7 +127,10 @@ class SpecInterface(QtCore.QObject):
         self.mainWindow = parent
         self.name = "spec"
 
-        self.scanControls = ScanControls(specRunner)
+        self._configure()
+
+    def _configure(self):
+        self.scanControls = ScanControls(self.specRunner)
         self.addDockWidget(self.scanControls, 'Scan Controls',
                            QtCore.Qt.LeftDockWidgetArea|
                            QtCore.Qt.RightDockWidgetArea,
@@ -133,7 +139,8 @@ class SpecInterface(QtCore.QObject):
 
         self.connect(self.mainWindow.actionConfigure,
                      QtCore.SIGNAL("triggered()"),
-                     lambda : configdialog.ConfigDialog(self.specRunner, self.mainWindow))
+                     lambda : configdialog.ConfigDialog(self.specRunner,
+                                                        self.mainWindow))
 
     def addDockWidget(self, widget, title, allowedAreas, defaultArea,
                       name=None):

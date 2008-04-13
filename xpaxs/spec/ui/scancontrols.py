@@ -1,4 +1,6 @@
 """
+This is a library that subclasses many of the generic qt spec classes to
+provide support specific to the spectromicroscopy package.
 """
 
 #---------------------------------------------------------------------------
@@ -24,8 +26,11 @@ from xpaxs.spec.ui import scanmotor, ui_scancontrols
 # Normal code begins
 #---------------------------------------------------------------------------
 
+
 class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
-    """Establishes a Experimenbt controls    """
+
+    """Provides a GUI interface for positioning motors and running scans"""
+
     def __init__(self, specRunner, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.specRunner = specRunner
@@ -53,6 +58,9 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.scanStackedLayout.addWidget(self.resumeButton)
         self.stackedLayoutFrame.setGeometry(self.abortButton.geometry())
 
+        self.connectSignals()
+
+    def connectSignals(self):
         self.connect(self.scanTypeComboBox,
                      QtCore.SIGNAL("currentIndexChanged(const QString&)"),
                      self.setScanType)
@@ -68,44 +76,21 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.connect(self.resumeButton,
                      QtCore.SIGNAL("clicked()"),
                      self.scanResumed)
-#        self.connect(self.specRunner.scan,
-#                     QtCore.SIGNAL("scanStarted()"),
-#                     self.scanStarted)
-#        self.connect(self.specRunner.scan,
-#                     QtCore.SIGNAL("scanStarted()"),
-#                     self.activityStarted)
-#        self.connect(self.specRunner.scan,
-#                     QtCore.SIGNAL("scanFinished()"),
-#                     self.scanFinished)
-#        self.connect(self.specRunner.scan,
-#                     QtCore.SIGNAL("scanFinished()"),
-#                     self.activityFinished)
-#        self.connect(self.specRunner.scan,
-#                     QtCore.SIGNAL("newScanIndex(int)"),
-#                     self.updateProgressBar)
-# TODO: update reference to newest scan, make connections when scan is created
-#        self.connect(self.specRunner.scan,
-#                     QtCore.SIGNAL("scanStarted()"),
-#                     self.disableScanOptions)
-#        self.connect(self.specRunner.scan,
-#                     QtCore.SIGNAL("scanFinished()"),
-#                     self.enableScanOptions)
-#        self.connect(self.specRunner.scan,
-#                     QtCore.SIGNAL("scanAborted()"),
-#                     self.enableScanOptions)
-
-#    def closeEvent(self, event):
-#        self.specRunner.skipmode(0)
-#        self.specRunner.close()
-#        event.accept()
-
-    def getMainWindow(self):
-        parent = self.parent()
-        if parent is None: return self
-        while parent:
-            temp = parent.parent()
-            if temp is None: return parent
-            else: parent = temp
+        self.connect(self.specRunner.scan,
+                     QtCore.SIGNAL("scanStarted()"),
+                     self.scanStarted)
+        self.connect(self.specRunner.scan,
+                     QtCore.SIGNAL("scanStarted()"),
+                     self.activityStarted)
+        self.connect(self.specRunner.scan,
+                     QtCore.SIGNAL("scanFinished()"),
+                     self.scanFinished)
+        self.connect(self.specRunner.scan,
+                     QtCore.SIGNAL("scanFinished()"),
+                     self.activityFinished)
+        self.connect(self.specRunner.scan,
+                     QtCore.SIGNAL("newScanIndex(int)"),
+                     self.updateProgressBar)
 
     def connectAxesSignals(self):
         for axis in self.axes:
@@ -139,12 +124,6 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         scanArgs.append( self.scanCountSpinBox.value() )
         self.progressBar.setMaximum(scanPoints)
         getattr(self.specRunner.scan, scantype)(*scanArgs)
-# TODO: need to reimpliment using new scheme: instantiate a scananalysis window
-# with a specscanacquisition instance to control it.
-#        getattr(self.specRunner.scan, scantype)(*scanArgs)
-#            self.specRunner = specrunner.SpecRunner(specVersion, timeout=500)
-#            self.specRunner.scan = \
-#                qtspecscan.QtSpecScanA(self.specRunner.specVersion)
 
     def abort(self):
         self.specRunner.abort()
@@ -231,7 +210,6 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
 
     def updateProgressBar(self, val):
         self.progressBar.setValue(val+1)
-
 
 
 if __name__ == "__main__":
