@@ -33,7 +33,9 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
 
     def __init__(self, specRunner, parent=None):
         QtGui.QWidget.__init__(self, parent)
+
         self.specRunner = specRunner
+        self.specScan = specRunner.specScan
         self.setupUi(self)
 
         self.axes = []

@@ -49,6 +49,17 @@ def _client_setscanenv '{
         scan_env["skipmode"] = sprintf("%s %d", cnt_mne(SKIPMODE_COUNTER), \
                                        SKIPMODE_THRESHOLD)
     }
+    if (MCA_CHAN > 0) {
+        local mca_channels
+        mca_channels = ""
+        mca_energy = ""
+        for(i = 0; i < MCA_CHAN; i++){
+            mca_channels = sprintf("%s%g,", mca_channels, MCA_DATA[i][0])
+            mca_energy = sprintf("%s%g,", mca_energy, MCA_DATA_FL[i][0])
+        }
+        scan_env["mcaChannels"] = mca_channels
+        scan_env["mcaEnergy"] = mca_energy
+    }
 
     _SC_SCANENV = scan_env
     _SC_NEWSCAN = 1
@@ -151,15 +162,12 @@ def _client_updatescandata '{
     }
 
     if (MCA_CHAN > 0) {
-        local mca_channels mca_counts
-        mca_channels = ""
+        local mca_counts
         mca_counts = ""
         for(i = 0; i < MCA_CHAN; i++){
-            mca_channels = sprintf("%s%g,", mca_channels, MCA_DATA[i][0])
             mca_counts = sprintf("%s%g,", mca_counts, MCA_DATA[i][1])
         }
-        scan_data["mcaChannels"] = mca_channels
-        scan_data["mcaCounts"] = mca_counts
+        scan_data["MCA"] = mca_counts
     }
 
     _SC_SCANDATA = scan_data

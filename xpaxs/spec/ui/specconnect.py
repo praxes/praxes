@@ -36,13 +36,14 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
     returns a SpecRunner instance
     """
 
-    def __init__(self, parent=None):
-
+    def __init__(self, fileInterface=None, parent=None):
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
 
+        self.fileInterface = fileInterface
         self.defineInterface()
 
+        self.specRunner = None
         self.ssh=None
 
         self.restore()
@@ -67,7 +68,7 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
     def connectToSpec(self):
         try:
             self.specRunner = self.getSpecRunner(self.getSpecVersion(),
-                                                 timeout=500)
+                                timeout=500, fileInterface=self.fileInterface)
         except SpecClientError.SpecClientTimeoutError:
             self.connectionError()
             self.specRunner = None
@@ -119,8 +120,7 @@ class SpecInterface(QtCore.QObject):
 
     def __init__(self, specRunner=None, parent=None):
         super(SpecInterface, self).__init__(parent)
-        self.parent=parent
-        QtCore.QObject.__init__(self)
+
         self.specRunner = specRunner
         self.dockWidgets = {}
 
@@ -157,9 +157,6 @@ class SpecInterface(QtCore.QObject):
         self.dockWidgets = {}
         self.specRunner.close()
         self.specRunner = None
-
-    def setFileInterface(self, fileInterface):
-        self.fileInterface = fileInterface
 
 
 if __name__ == "__main__":

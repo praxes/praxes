@@ -46,6 +46,14 @@ def _client_setscanenv '{
         column_names = sprintf("%s %s", column_names, cnt_mne(i))
     }
     scan_env["columnNames"] = column_names
+    if (MCA_CHAN > 0) {
+        local mca_channels
+        mca_channels = ""
+        for(i = 0; i < MCA_CHAN; i++){
+            mca_channels = sprintf("%s%g,", mca_channels, MCA_DATA[i][0])
+        }
+        scan_env["mcaChannels"] = mca_channels
+    }
 
     _SC_SCANENV = scan_env
     _SC_NEWSCAN = 1
@@ -148,14 +156,11 @@ def _client_updatescandata '{
     }
 
     if (MCA_CHAN > 0) {
-        local mca_channels mca_counts
-        mca_channels = ""
+        local mca_counts
         mca_counts = ""
         for(i = 0; i < MCA_CHAN; i++){
-            mca_channels = sprintf("%s%g,", mca_channels, MCA_DATA[i][0])
             mca_counts = sprintf("%s%g,", mca_counts, MCA_DATA[i][1])
         }
-        scan_data["mcaChannels"] = mca_channels
         scan_data["mcaCounts"] = mca_counts
     }
 

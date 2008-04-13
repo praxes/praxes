@@ -64,7 +64,7 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
     to improve performance.
     """
 
-    def __init__(self, specVersion=None, timeout=None):
+    def __init__(self, specVersion=None, timeout=None, **kwargs):
         """specVersion is a string like 'foo.bar:spec' or '127.0.0.1:fourc'
         """
         QtCore.QObject.__init__(self)

@@ -82,8 +82,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.expInterface = None
 
         self.statusBar.showMessage('Ready', 2000)
-        self.progressBar = QtGui.QProgressBar(self.statusBar)
-        self.progressBar.hide()
 
         self.connectSignals()
 
@@ -185,7 +183,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         if bool:
             from xpaxs.spectromicroscopy.spec import SmpSpecConnect
 
-            dlg = SmpSpecConnect(self)
+            dlg = SmpSpecConnect(self.fileInterface, self)
             self.expInterface = dlg.exec_()
             if self.expInterface:
                 self.actionConfigure.setEnabled(True)
