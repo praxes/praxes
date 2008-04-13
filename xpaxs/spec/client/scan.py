@@ -43,7 +43,6 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         pass
 
     def newScan(self, scanParameters):
-#        scanParameters['datafile'] = os.path.split(self._datafile.getValue())[1]
         if DEBUG: print 'newScan:', scanParameters
         self.emit(QtCore.SIGNAL("newScan(PyQt_PyObject)"), scanParameters)
 

@@ -118,7 +118,6 @@ class SpecScanA:
                         value = numpy.fromstring(value, sep=',', dtype='i')
                 else:
                     value = float(value)
-
                 scanData[key] = value
 
             self.newScanData(scanData)
@@ -142,7 +141,6 @@ class SpecScanA:
                         value = numpy.fromstring(value, sep=',', dtype='i')
                 else:
                     value = float(value)
-
                 scanData[key] = value
 
                 if key == "i": i = value

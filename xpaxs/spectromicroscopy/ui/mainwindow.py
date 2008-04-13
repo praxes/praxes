@@ -21,7 +21,7 @@ from PyQt4 import QtCore, QtGui
 from xpaxs import configutils
 from xpaxs import __version__
 from xpaxs.spectromicroscopy.ui import ui_mainwindow
-from xpaxs.datalib.hdf5 import H5FileModel, H5FileView
+from xpaxs.datalib.hdf5 import H5FileModel, H5FileView, H5FileInterface
 from xpaxs.spectromicroscopy.ui.mcaspectrum import McaSpectrum
 from xpaxs.spectromicroscopy.ui.scananalysis import ScanAnalysis
 from xpaxs.spectromicroscopy.smpdatainterface import SmpFile
@@ -73,24 +73,13 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                                QtCore.Qt.RightDockWidgetArea,
                                self.logRead, 'System Log')
 
-        self.fileViewDock = self.__createDockWindow('FileViewDock')
-        self.fileModel = H5FileModel(interface=SmpFile)
-        self.fileView = H5FileView(self.fileModel)
-        self.connect(self.fileModel,
-                     QtCore.SIGNAL('fileAppended'),
-                     self.fileView.appendItem)
-        self.connect(self.fileModel,
-                     QtCore.SIGNAL('scanActivated'),
-                     self.newScanWindow)
-        self.__setupDockWindow(self.fileViewDock,
-                               QtCore.Qt.LeftDockWidgetArea,
-                               self.fileView, 'File View')
+        self.fileInterface = H5FileInterface(SmpFile, self)
+        for key, (item, area, action) in \
+                self.fileInterface.dockWidgets.iteritems():
+            self.menuView.addAction(action)
+            self.addDockWidget(area, item)
 
         self.expInterface = None
-        self.fileInterface = None
-        self.advancedFitWidget = None
-
-
 
         self.statusBar.showMessage('Ready', 2000)
         self.progressBar = QtGui.QProgressBar(self.statusBar)
@@ -199,7 +188,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             dlg = SmpSpecConnect(self)
             self.expInterface = dlg.exec_()
             if self.expInterface:
-
                 self.actionConfigure.setEnabled(True)
                 for key, (item, area, action) in \
                         self.expInterface.dockWidgets.iteritems():
@@ -235,7 +223,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                             'Open File', '.', "hdf5 files (*.h5 *.hdf5)")
         if not filename: return
 
-        self.fileModel.openFile(filename)
+        self.fileInterface.openFile(filename)
 
     def newScanWindow(self, scan):
         if USE_PYMCA_ADVANCEDFIT:

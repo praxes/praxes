@@ -130,20 +130,20 @@ class SpecInterface(QtCore.QObject):
         self._configure()
 
     def _configure(self):
+        # This method should be redefined in subclasses of SpecInterface
         self.scanControls = ScanControls(self.specRunner)
         self.addDockWidget(self.scanControls, 'Scan Controls',
                            QtCore.Qt.LeftDockWidgetArea|
                            QtCore.Qt.RightDockWidgetArea,
                            QtCore.Qt.LeftDockWidgetArea,
                            'SpecScanControlsWidget')
-
         self.connect(self.mainWindow.actionConfigure,
                      QtCore.SIGNAL("triggered()"),
                      lambda : configdialog.ConfigDialog(self.specRunner,
                                                         self.mainWindow))
 
     def addDockWidget(self, widget, title, allowedAreas, defaultArea,
-                      name=None):
+                      name = None):
         dock = QtGui.QDockWidget(title)
         if name: dock.setObjectName(name)
         dock.setAllowedAreas(allowedAreas)
@@ -153,12 +153,13 @@ class SpecInterface(QtCore.QObject):
         self.dockWidgets[title] = (dock, defaultArea, action)
 
     def close(self):
-
         self.scanControls = None
         self.dockWidgets = {}
         self.specRunner.close()
         self.specRunner = None
-        self.parent.SSH=None
+
+    def setFileInterface(self, fileInterface):
+        self.fileInterface = fileInterface
 
 
 if __name__ == "__main__":

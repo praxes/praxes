@@ -82,8 +82,8 @@ class FileItem(TreeItem):
         self.xpaxsFile = datafile
 
         self.parentItem = parent
-        filename = datafile.getFileName()
-        self.itemData = [os.path.split(filename)[-1], '', '']
+        self.filename = datafile.getFileName()
+        self.itemData = [os.path.split(self.filename)[-1], '', '']
         self.childItems = []
 
         for entry in datafile.getNodes():
@@ -97,17 +97,22 @@ class FileItem(TreeItem):
         item = H5EntryItem(h5Entry, self)
         self.childItems.append(item)
 
+    def getFileName(self):
+        return self.filename
+
+    def getFileObject(self):
+        return self.xpaxsFile
+
 
 class H5FileModel(QtCore.QAbstractItemModel):
     """
     """
 
-    def __init__(self, filename=None, interface=XpaxsFile, parent=None):
+    def __init__(self, filename=None, fileClass=XpaxsFile, parent=None):
         super(H5FileModel, self).__init__(parent)
 
-        self._openFile = interface
+        self._openFile = fileClass
 
-        self.openFiles=[]
         rootData = []
         rootData.append(QtCore.QVariant('File/Entry #'))
         rootData.append(QtCore.QVariant('Command'))
@@ -183,15 +188,25 @@ class H5FileModel(QtCore.QAbstractItemModel):
 
         return parentItem.childCount()
 
+    def getFileItem(self, filename):
+        for item in self.rootItem.childItems:
+            if item.getFileName() == filename:
+                return item
+
     def openFile(self, filename):
-        if filename not in self.openFiles:
-            datafile = self._openFile(filename)
-            self.rootItem.appendChild(FileItem(datafile, self.rootItem))
-            row = self.rowCount(QtCore.QModelIndex())-1
-            index = self.index(row, 0, QtCore.QModelIndex())
-            self.emit(QtCore.SIGNAL('fileAppended'), index)
-            self.openFiles.append(filename)
-        return datafile
+        item = self.getFileItem(filename)
+        if item: return item.getFileObject()
+
+        dataObject = self._openFile(filename)
+        item = FileItem(dataObject, self.rootItem)
+        self.connect(dataObject,
+                     QtCore.SIGNAL("newEntry"),
+                     item.appendChild)
+        self.rootItem.appendChild(item)
+        row = self.rowCount(QtCore.QModelIndex())-1
+        index = self.index(row, 0, QtCore.QModelIndex())
+        self.emit(QtCore.SIGNAL('fileAppended'), index)
+        return dataObject
 
     def itemActivated(self, index):
         scanData = index.internalPointer().itemActivated()

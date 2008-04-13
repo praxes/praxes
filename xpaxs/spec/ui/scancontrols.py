@@ -203,7 +203,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                                 ('axis: 1', '2', '3'),
                                 ('samx', 'samz', 'samy')):
                 if i < numAxes:
-                    self.axes.append(scanmotor.ScanMotor(self, m))#TODO:source of error
+                    self.axes.append(scanmotor.ScanMotor(self, m))
                     self.axesTab.addTab(self.axes[-1], ax)
         self.axesTab.setUpdatesEnabled(True)
         self.connectAxesSignals()

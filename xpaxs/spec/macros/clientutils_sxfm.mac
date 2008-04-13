@@ -20,8 +20,9 @@ def _clientutils_off '{
 
 
 def _client_setscanenv '{
-    local scan_env
+    local scan_env column_names
 
+    # define reserved parameters for plotting:
     scan_env["type"] = _stype
     scan_env["title"] = sprintf("Scan %d", SCAN_N+1)
     scan_env["xlabel"] = X_L
@@ -29,6 +30,25 @@ def _client_setscanenv '{
     scan_env["nb_motors"] = PLOT_MOTS
     scan_env["motor"] = motor_mne(_m[0])
     scan_env["counter"] = cnt_mne(DET)
+
+    # define additional parameters for data storage:
+    scan_env["datafile"] = DATAFILE
+    scan_env["command"] = HEADING
+    scan_env["scanNumber"] = sprintf("%d", SCAN_N+1)
+    scan_env["monitor"] = cnt_mne(MON)
+    column_names = ""
+    for (i=0;i<_nm;i++) {
+        column_names = sprintf("%s %s", column_names, motor_mne(_m[i]))
+    }
+    column_names = sprintf("%s epoch", column_names)
+    for (i=0;i<COUNTERS;i++) {
+        column_names = sprintf("%s %s", column_names, cnt_mne(i))
+    }
+    scan_env["columnNames"] = column_names
+    if (SKIPMODE_COUNTER) {
+        scan_env["skipmode"] = sprintf("%s %d", cnt_mne(SKIPMODE_COUNTER), \
+                                       SKIPMODE_THRESHOLD)
+    }
 
     _SC_SCANENV = scan_env
     _SC_NEWSCAN = 1
@@ -94,17 +114,15 @@ def _client_updateplotdata '{
 
 
 def clientdataon '{
-    global _SC_NEWDATAENV _SC_DATAENV _SC_NEWSCANDATA _SC_SCANDATA
-    global _SC_DATA_ACTIVE
+    global _SC_NEWSCANDATA _SC_SCANDATA _SC_DATA_ACTIVE
 
     _clientutils_on
 
     _SC_DATA_ACTIVE = 1
     _SC_NEWSCANDATA = -1
 
-    cdef("user_prescan_head", "_client_setdataenv;", "_client_data_")
     cdef("user_scan_loop", "_client_updatescandata;", "_client_data_")
-    cdef("user_scan_tail", "_client_cleardataenv;", "_client_data_")
+    cdef("user_scan_tail", "_SC_NEWSCANDATA = -1;", "_client_data_")
 }'
 
 
@@ -113,32 +131,7 @@ def clientdataoff '{
     _clientutils_off
 
     cdef("", "", "_client_data_", "delete")
-    unglobal _SC_NEWDATAENV _SC_DATAENV _SC_NEWSCANDATA _SC_SCANDATA
-    unglobal _SC_DATA_ACTIVE
-}'
-
-
-def _client_setdataenv '{
-    local data_env
-
-    data_env["command"] = HEADING
-    data_env["scanNumber"] = SCAN_N+1
-    data_env["columnNames"] = sprintf("i %s %s", FPRNT, _c2)
-    data_env["monitor"] = cnt_mne(MON)
-    data_env["counter"] = cnt_mne(DET)
-    if (SKIPMODE_COUNTER) {
-        data_env["skipmode"] = sprintf("%s %d", cnt_mne(SKIPMODE_COUNTER), \
-                                       SKIPMODE_THRESHOLD)
-    }
-
-    _SC_DATAENV = data_env
-    _SC_NEWDATAENV = 1
-}'
-
-
-def _client_cleardataenv '{
-    _SC_NEWSCANDATA = -1
-    _SC_NEWDATAENV = 0
+    unglobal _SC_NEWSCANDATA _SC_SCANDATA _SC_DATA_ACTIVE
 }'
 
 
@@ -150,6 +143,8 @@ def _client_updatescandata '{
     for (i=0;i<_nm;i++) {
         scan_data[motor_mne(_m[i])] = sprintf("%g", A[_m[i]])
     }
+
+    scan_data["epoch"] = sprintf("%f", time())
 
     for (i=0;i<COUNTERS;i++) {
         scan_data[cnt_mne(i)] = sprintf("%g", S[i])
