@@ -1,0 +1,47 @@
+#
+# skipmode [%precount%] [%counter% %threshold%]
+#   Do a quick precount to determine if the sample is present.
+#   If precount is not zero, integrate %counter% for %precount%
+#   duration (not less than 0.2 seconds), and if fewer than
+#   %threshold% counts are recorded for %counter%, don't do a
+#   full measurement and move on to the next point in the scan.
+#
+def skipmode '{
+    if (($# < 1) || ($1 &&  $# != 3)){
+        eprint "\
+Usage: skipmode precount [counter threshold]"
+        exit
+    }
+
+    if ($1 != 0) {
+        if ("$2" != cnt_mne($2) && "$2" != $2){
+            eprint "Invalid counter name:  $2"
+            exit
+        }
+
+        global SKIPMODE_PRECOUNT SKIPMODE_COUNTER SKIPMODE_THRESHOLD
+
+        SKIPMODE_PRECOUNT = $1
+        SKIPMODE_COUNTER = $2
+        SKIPMODE_THRESHOLD = $3
+        cdef("user_precount", "skip_count;", "_skip_count_")
+        cdef("user_Fheader", "skipmode_Fheader;", "_skip_count_")
+    } else {
+        unglobal SKIPMODE_PRECOUNT SKIPMODE_COUNTER SKIPMODE_THRESHOLD
+        cdef("", "", "_skip_count_", "delete")
+    }
+}'
+
+def skipmode_Fheader '{
+    printf("#C SKIPMODE %s %d\n", cnt_mne(SKIPMODE_COUNTER), SKIPMODE_THRESHOLD)
+}'
+
+def skip_count '{
+    tcount(SKIPMODE_PRECOUNT)
+    sleep(.2)
+    getcounts
+    if(S[SKIPMODE_COUNTER] < SKIPMODE_THRESHOLD){
+        COUNT_TIME = 0
+        array_op("fill",MCA_DATA[:][1],0)
+    }
+}'
