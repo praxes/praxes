@@ -56,6 +56,7 @@ class SmpSpecScanA(QtSpecScanA):
         super(SmpSpecScanA, self).__init__(specVersion, parent)
 
         self.fileInterface = fileInterface
+        self.smpEntry = None
         # TODO: wire events to the file interface and the data objects
 
     def connected(self):
@@ -66,19 +67,19 @@ class SmpSpecScanA(QtSpecScanA):
 
     def newScan(self, scanParams):
         QtSpecScanA.newScan(self, scanParams)
-        scanEntry = self.fileInterface.createEntry('temp.h5', scanParams)
-        if DEBUG: print 'newScan:', scanParams
-        self.emit(QtCore.SIGNAL("newScan(PyQt_PyObject)"), scanParams)
+        self.smpEntry = self.fileInterface.createEntry('temp.h5', scanParams)
+        if DEBUG: print 'newScan:', self.smpEntry
+        self.emit(QtCore.SIGNAL("newSmpScan"), self.smpEntry, True)
 
     def newScanData(self, scanData):
         if DEBUG: print 'scanData:', scanData
-        pass
+        self.smpEntry.appendDataPoint(scanData)
 
     def newScanPoint(self, i, x, y, scanData):
         scanData['i'] = i
         scanData['x'] = x
         scanData['y'] = y
-        if DEBUG: print "newScanPoint:", scanData
+#        if DEBUG: print "newScanPoint:", scanData
         self.emit(QtCore.SIGNAL("newScanIndex(int)"), i)
         self.emit(QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"), scanData)
 
@@ -129,6 +130,10 @@ class SmpSpecInterface(SpecInterface):
                      QtCore.SIGNAL("triggered()"),
                      lambda : configdialog.ConfigDialog(self.specRunner,
                                                         self.mainWindow))
+
+        self.connect(self.specRunner.scan,
+                     QtCore.SIGNAL("newSmpScan"),
+                     self.parent().newScanWindow)
 
 
 class SmpSpecConnect(SpecConnect):

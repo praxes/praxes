@@ -14,16 +14,16 @@ import types
 
 (DOREG, DONTREG, WAITREG) = (0, 1, 2)
 
-class SpecChannel:    
+class SpecChannel:
     """SpecChannel class
 
     Represent a channel in Spec
-    
+
     Signals:
     valueChanged(channelValue, channelName) -- emitted when the channel gets updated
     """
     channel_aliases = {}
-    
+
     def __init__(self, connection, channelName, registrationFlag = DOREG):
         """Constructor
 
@@ -39,7 +39,7 @@ class SpecChannel:
         """
         self.connection = weakref.ref(connection)
         self.name = channelName
-        
+
         if channelName.startswith("var/") and '/' in channelName[4:]:
             l = channelName.split('/')
             self.spec_chan_name = "/".join((l[0], l[1]))
@@ -47,7 +47,7 @@ class SpecChannel:
                 SpecChannel.channel_aliases[self.spec_chan_name].append(self.name)
             else:
                 SpecChannel.channel_aliases[self.spec_chan_name] = [self.name]
-            
+
             if len(l)==3:
                 self.access1=l[2]
                 self.access2=None
@@ -64,14 +64,14 @@ class SpecChannel:
         self.isdisconnected = True
         self.registered = False
         self.value = None
-                    
+
         SpecEventsDispatcher.connect(connection, 'connected', self.connected)
         SpecEventsDispatcher.connect(connection, 'disconnected', self.disconnected)
 
         if connection.isSpecConnected():
             self.connected()
-            
-            
+
+
     def connected(self):
         """Do registration when Spec gets connected
 
@@ -83,21 +83,21 @@ class SpecChannel:
                 self.registrationFlag = DOREG
 
         self.isdisconnected = False
-         
+
         if self.registrationFlag == DOREG:
             self.register()
-                       
+
 
     def disconnected(self):
         """Reset channel object when Spec gets disconnected."""
         self.value = None
         self.isdisconnected = True
-            
+
 
     def unregister(self):
         """Unregister channel."""
         connection = self.connection()
-        
+
         if connection is not None:
             connection.send_msg_unregister(self.spec_chan_name)
             self.registered = False
@@ -115,8 +115,8 @@ class SpecChannel:
         if connection is not None:
             connection.send_msg_register(self.spec_chan_name)
             self.registered = True
-                   
-    
+
+
     def update(self, channelValue, deleted = False):
         """Update channel's value and emit the 'valueChanged' signal."""
         if type(channelValue) == types.DictType and self.access1 is not None:
@@ -135,7 +135,7 @@ class SpecChannel:
                                 self.value = channelValue[self.access1][self.access2]
                                 SpecEventsDispatcher.emit(self, 'valueChanged', (self.value, self.name, ))
             return
-        
+
         if type(self.value) == types.DictType and type(channelValue) == types.DictType:
             # update dictionary
             if deleted:
@@ -171,7 +171,7 @@ class SpecChannel:
             value2emit=self.value
 
         SpecEventsDispatcher.emit(self, 'valueChanged', (value2emit, self.name, ))
-             
+
 
     def read(self):
         """Read the channel value
@@ -188,16 +188,16 @@ class SpecChannel:
             return self.value
         else:
             connection = self.connection()
-            
+
             if connection is not None:
                 w = SpecWaitObject.SpecWaitObject(connection)
                 w.waitReply('send_msg_chan_read', (self.spec_chan_name, ))
 
                 self.update(w.value)
-                
+
         return self.value
 
-        
+
     def write(self, value):
         """Write a channel value."""
         connection = self.connection()
@@ -208,7 +208,7 @@ class SpecChannel:
                     value = { self.access1: value }
                 else:
                     value = { self.access1: { self.access2: value } }
-                
+
             connection.send_msg_chan_send(self.spec_chan_name, value)
 
 

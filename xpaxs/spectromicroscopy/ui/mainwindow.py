@@ -228,7 +228,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
         self.fileInterface.openFile(filename)
 
-    def newScanWindow(self, scan):
+    def newScanWindow(self, scan, beginProcessing=False):
         if scan in self.openScans:
             return
 
@@ -249,6 +249,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.openScans.append(scan)
 
         self.menuTools.setEnabled(True)
+        if beginProcessing: scanView.processData()
 
     def setOffline(self):
         if self.expInterface is None: return

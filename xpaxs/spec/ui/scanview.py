@@ -103,7 +103,6 @@ class SpecInterface(QtGui.QWidget):
     def __init__(self, parent=None, statusBar=None):
         QtGui.QWidget.__init__(self, parent)
 
-        self.parent = parent
         self.statusBar = statusBar
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 

@@ -8,6 +8,8 @@ import types
 import time
 import numpy
 
+import copy
+
 __author__ = 'Matias Guijarro'
 __version__ = 1
 
@@ -120,7 +122,7 @@ class SpecScanA:
                     value = float(value)
                 scanData[key] = value
 
-            self.newScanData(scanData)
+            self.newScanData(copy.deepcopy(scanData))
 
     def newScanData(self, scanData):
         if DEBUG: print "SpecScanA.newScanData", scanData

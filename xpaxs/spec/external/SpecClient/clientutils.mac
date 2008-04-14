@@ -33,7 +33,7 @@ def _client_setscanenv '{
     scan_env["counter"] = cnt_mne(DET)
 
     # define additional parameters for data storage:
-    scan_env["datafile"] = DATAFILE
+    scan_env["fileName"] = DATAFILE
     scan_env["command"] = HEADING
     scan_env["scanNumber"] = sprintf("%d", SCAN_N+1)
     scan_env["monitor"] = cnt_mne(MON)

@@ -51,8 +51,13 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
                     temp = numpy.fromstring(value, sep=',', dtype='i')
                 if len(temp) == value.count(','): value = temp
             else:
-                try: value = float(value)
-                except ValueError: pass
+                try:
+                    if ('e' in value) or ('.' in value):
+                        value = float(value)
+                    else:
+                        value = int(value)
+                except ValueError:
+                    pass
             scanParameters[key] = value
         if DEBUG: print 'newScan:', scanParameters
 

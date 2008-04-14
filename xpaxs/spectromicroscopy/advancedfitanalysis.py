@@ -89,12 +89,12 @@ class AdvancedFitThread(QtCore.QThread):
 
         self.jobServer = pp.Server()
         # TODO: make this configurable
-#        self.jobServer.set_ncpus(1)
+        self.jobServer.set_ncpus(2)
 
         self.queue = Queue.Queue()
         for i in xrange(self.scan.getNumScanLines()):
             self.queue.put(i)
-        self.previousIndex = None
+        self.previousIndex = -1
 
         self.dirty = False
         self.stopped = False
@@ -144,10 +144,12 @@ class AdvancedFitThread(QtCore.QThread):
             self.jobServer.wait()
 
             expectedLines = self.scan.getNumExpectedScanLines()
+            time.sleep(0.01)
             if expectedLines <= (self.previousIndex+1): return
 
     def queueNext(self):
         index, spectrum = self.findNextPoint()
+        print index, spectrum
         args = (index, spectrum, self.tconf, self.advancedFit,
                 self.concentrationsTool)
         self.jobServer.submit(analyzeSpectrum, args,

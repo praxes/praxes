@@ -31,22 +31,105 @@ DEBUG = False
 filters = tables.Filters(complib='zlib', complevel=9)
 
 
+def getSpecScanInfo(commandList):
+    scanType, args = commandList[0], commandList[1:]
+    scanAxes = []
+    scanRange = {}
+    scanShape = []
+    if scanType in ('mesh', ):
+        while len(args) > 4:
+            (axis, start, stop, step), args = args[:4], args[4:]
+            scanAxes.append((axis, ))
+            scanRange[axis] = (float(start), float(stop))
+            scanShape.append(int(step)+1)
+    elif scanType in ('ascan', 'a2scan', 'a3scan',
+                         'dscan', 'd2scan', 'd3scan'):
+        temp = []
+        while len(args) > 3:
+            (axis, start, stop), args = args[:3], args[3:]
+            temp.append(axis)
+            scanRange[axis] = (float(start), float(stop))
+        scanaxes.append(tuple(temp))
+        scanShape.append(int(args[0])+1)
+    else:
+        raise RuntimeError('Scan %s not recognized!'%commandType)
+    scanShape = tuple(scanShape[::-1])
+
+    return (scanType, scanAxes, scanRange, scanShape)
+
+
 class SmpFile(XpaxsFile):
 
     def createEntry(self, scanParams):
-        # This should be reimplemented in subclasses
         scanName = scanParams['title'].lower().replace(' ', '')
         try:
             self.mutex.lock()
+
+            # It is possible for a scan number to appear multiple times in a
+            # spec file. Booo!
+            scanOrder = ''
+            i = 0
+            while '%s%s'%(scanName, scanOrder) in self.h5File.root:
+                i += 1
+                scanOrder = '.%d'%i
+
             h5Entry = self.h5File.createGroup('/', scanName, title=scanName,
                                               filters=filters)
             attrs = h5Entry._v_attrs
             attrs.scanNumber = scanParams['scanNumber']
             attrs.scanCommand = scanParams['scanCommand']
             attrs.scanLines = scanParams['scanLines']
+            attrs.fileName = scanParams['fileName'].split('/')[-1]
+            scanInfo = getSpecScanInfo(scanParams['scanCommand'].split())
+            attrs.scanType = scanInfo[0]
+            attrs.scanAxes = scanInfo[1]
+            attrs.scanRange = scanInfo[2]
+            attrs.scanShape = scanInfo[3]
+
+            skipmode = scanParams.get('skipmode', None)
+            if skipmode:
+                mon, thresh = skipmode.split()
+                attrs.skipmodeMonitor = mon
+                attrs.skipmodeThresh = float(thresh)
+
+            for entry in scanParams['motorPositions'].split():
+                key, val = entry.split('=')
+                setattr(attrs, key, float(val))
+
+            Data = {}
+            for label in scanParams['columnNames'].split():
+                if label == 'epoch': Data[label] = tables.Float64Col()
+                else: Data[label] = tables.Float32Col()
+
+            mcas = scanParams.get('mcas', '').split()
+            for mca in mcas:
+                mcaEntry = self.h5File.createGroup(h5Entry, mca, title=mca,
+                                                   filters=filters)
+
+                channels = scanParams['mcaChannels_%s'%mca]
+                channelsEntry = self.h5File.createCArray(mcaEntry, 'channels',
+                                                         tables.UInt16Atom(),
+                                                         channels.shape,
+                                                         filters=filters)
+                channelsEntry[:] = channels
+
+                energy = scanParams['mcaEnergy_%s'%mca]
+                energyEntry = self.h5File.createCArray(mcaEntry, 'energy',
+                                                         tables.UInt16Atom(),
+                                                         energy.shape,
+                                                         filters=filters)
+                energyEntry[:] = energy
+
+                Data[mca] = tables.Float32Col(shape=channels.shape)
+
+            dataTable = self.h5File.createTable(h5Entry, 'data', Data,
+                                                filters=filters,
+                                                expectedrows=attrs.scanLines)
+
             scanEntry = SmpScan(self, h5Entry)
         finally:
             self.mutex.unlock()
+        self.flush()
         self.emit(QtCore.SIGNAL('newEntry'), scanEntry)
         return scanEntry
 
@@ -68,7 +151,7 @@ class SmpScan(XpaxsScan):
             try:
                 self.h5Node._v_file.removeNode(self.h5Node, 'elementMaps',
                                        recursive=True)
-                self.flush()
+#                self.flush()
             except tables.NoSuchNodeError:
                 pass
             elementMaps = self.h5Node._v_file.createGroup(self.h5Node,
@@ -83,7 +166,7 @@ class SmpScan(XpaxsScan):
                                              tables.Float32Atom(),
                                              shape,
                                              filters=filters)
-            self.flush()
+#            self.flush()
         finally:
             self.mutex.unlock()
 

@@ -107,6 +107,8 @@ class XpaxsNode(QtCore.QObject):
         self.__h5Node = h5Node
         self.__mutex = xpaxsFile.mutex
 
+        self.queue = None
+
     xpaxsFile = property(lambda self: self.__xpaxsFile)
     h5Node = property(lambda self: self.__h5Node)
     mutex = property(lambda self: self.__mutex)
@@ -116,9 +118,17 @@ class XpaxsScan(XpaxsNode):
 
     """A thread-safe interface to the scan data"""
 
-    def appendDataPoint(self, index, data):
-        raise NotImplementedError
-        # TODO: use this for acquisition
+    def appendDataPoint(self, data):
+        try:
+            self.mutex.lock()
+            row = self.h5Node.data.row
+            for key, val in data.iteritems():
+                row[key] = val
+            row.append()
+            self.h5Node.data.flush()
+            self.queue.put(int(data['i']))
+        finally:
+            self.mutex.unlock()
 
     def flush(self):
         self.xpaxsFile.flush()
@@ -133,7 +143,7 @@ class XpaxsScan(XpaxsNode):
     def getH5Filters(self):
         try:
             self.mutex.lock()
-            return copy.deepcopy(self.__h5Node._v_filters)
+            return copy.deepcopy(self.h5Node._v_filters)
         finally:
             self.mutex.unlock()
 
@@ -218,3 +228,10 @@ class XpaxsScan(XpaxsNode):
     def saveData(self):
         print "use flush instead of saveData"
         self.flush()
+
+    def setQueue(self, queue):
+        try:
+            self.mutex.lock()
+            self.queue = queue
+        finally:
+            self.mutex.unlock()

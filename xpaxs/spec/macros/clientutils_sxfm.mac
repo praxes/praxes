@@ -32,12 +32,12 @@ def _client_setscanenv '{
     scan_env["counter"] = cnt_mne(DET)
 
     # define additional parameters for data storage:
-    scan_env["datafile"] = DATAFILE
+    scan_env["fileName"] = DATAFILE
     scan_env["scanCommand"] = HEADING
     scan_env["scanNumber"] = sprintf("%d", SCAN_N+1)
     scan_env["scanLines"] = sprintf("%d", (_stype&8? _n1*_n2:_n1))
     scan_env["monitor"] = cnt_mne(MON)
-    column_names = ""
+    column_names = "i"
     for (i=0;i<_nm;i++) {
         column_names = sprintf("%s %s", column_names, motor_mne(_m[i]))
     }
@@ -47,9 +47,14 @@ def _client_setscanenv '{
     }
     scan_env["columnNames"] = column_names
     if (SKIPMODE_COUNTER) {
-        scan_env["skipmode"] = sprintf("%s %d", cnt_mne(SKIPMODE_COUNTER), \
+        scan_env["skipmode"] = sprintf("%s %g", cnt_mne(SKIPMODE_COUNTER), \
                                        SKIPMODE_THRESHOLD)
     }
+    motor_positions = ""
+    for (i=0;i<MOTORS;i++){
+        motor_positions = sprintf("%s%s=%g ", motor_positions, motor_mne(i), A[i])
+    }
+    scan_env["motorPositions"] = motor_positions
     if (MCA_CHAN > 0) {
         local mca_channels
         mca_channels = ""
@@ -58,8 +63,10 @@ def _client_setscanenv '{
             mca_channels = sprintf("%s%g,", mca_channels, MCA_DATA[i][0])
             mca_energy = sprintf("%s%g,", mca_energy, MCA_DATA_FL[i][0])
         }
-        scan_env["mcaChannels"] = mca_channels
-        scan_env["mcaEnergy"] = mca_energy
+        # This could be extended to support muliple MCAs
+        scan_env["mcas"] = "MCA"
+        scan_env["mcaChannels_MCA"] = mca_channels
+        scan_env["mcaEnergy_MCA"] = mca_energy
     }
 
     _SC_SCANENV = scan_env

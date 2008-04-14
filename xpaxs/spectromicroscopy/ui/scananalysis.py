@@ -156,7 +156,7 @@ class ScanAnalysis(QtGui.QWidget):
         config = copy.deepcopy(self._pymcaConfig)
 
         thread = AdvancedFitThread(self.scanData, config, self)
-        queue = thread.getQueue()
+        self.scanData.setQueue(thread.getQueue())
 
         self.connect(thread,
                      QtCore.SIGNAL('dataProcessed'),
@@ -170,7 +170,6 @@ class ScanAnalysis(QtGui.QWidget):
 
         thread.start(QtCore.QThread.NormalPriority)
 
-        return queue
 
     def resetPeaks(self):
         self._peaks = []

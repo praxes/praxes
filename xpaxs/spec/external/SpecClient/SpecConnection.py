@@ -33,7 +33,7 @@ asyncore.dispatcher.ac_in_buffer_size = 32768 #32 ko input buffer
 
 class SpecConnection:
     """Represent a connection to a remote Spec
-    
+
     Signals:
     connected() -- emitted when the required Spec version gets connected
     disconnected() -- emitted when the required Spec version gets disconnected
@@ -52,15 +52,15 @@ class SpecConnection:
 
     def __str__(self):
         return str(self.dispatcher)
-    
-        
+
+
     def __getattr__(self, attr):
         """Delegate access to the underlying SpecConnectionDispatcher object"""
         if not attr.startswith('__'):
             return getattr(self.dispatcher, attr)
         else:
             raise AttributeError
-        
+
 
     def connected(self):
         """Propagate 'connection' event"""
@@ -111,8 +111,8 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         self.sendq = []
         self.outputStrings = []
         self.simulationMode = False
-        
-                
+
+
         # some shortcuts
         self.macro       = self.send_msg_cmd_with_return
         self.macro_noret = self.send_msg_cmd
@@ -120,7 +120,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
 
         tmp = str(specVersion).split(':')
         self.host = tmp[0]
-       
+
         if len(tmp) > 1:
             self.port = tmp[1]
         else:
@@ -131,15 +131,15 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         except:
             self.scanname = self.port
             self.port = None
-            self.scanport = True        
+            self.scanport = True
 
         #
         # register 'service' channels
         #
-        self.registerChannel('error', self.error, dispatchMode = SpecEventsDispatcher.FIREEVENT)      
+        self.registerChannel('error', self.error, dispatchMode = SpecEventsDispatcher.FIREEVENT)
         self.registerChannel('status/simulate', self.simulationStatusChanged)
-        
-        
+
+
     def __str__(self):
         return '<connection to Spec, host=%s, port=%s>' % (self.host, self.port or self.scanname)
 
@@ -155,20 +155,20 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         if not self.connected:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.settimeout(0.2)
-            
+
             if self.scanport:
                 if self.port is None or self.port > MAX_PORT:
                     self.port = MIN_PORT
-                else:      
+                else:
                     self.port += 1
-    
+
             try:
                 if s.connect_ex( (self.host, self.port) ) == 0:
                     self.set_socket(s)
             except socket.error, err:
                 pass #exception could be 'host not found' for example, we ignore it
-                
-                
+
+
     def registerChannel(self, chanName, receiverSlot, registrationFlag = SpecChannel.DOREG, dispatchMode = SpecEventsDispatcher.UPDATEVALUE):
         """Register a channel
 
@@ -198,7 +198,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
             newChannel = SpecChannel.SpecChannel(self, chanName, registrationFlag)
             self.registeredChannels[chanName] = newChannel
 
-        SpecEventsDispatcher.connect(self.registeredChannels[chanName], 'valueChanged', receiverSlot, dispatchMode) 
+        SpecEventsDispatcher.connect(self.registeredChannels[chanName], 'valueChanged', receiverSlot, dispatchMode)
 
         channelValue = self.registeredChannels[chanName].value
         if channelValue is not None:
@@ -213,7 +213,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         chanName -- a string representing the channel to unregister, i.e. 'var/toto'
         """
         chanName = str(chanName)
-        
+
         if chanName in self.registeredChannels:
             self.registeredChannels[chanName].unregister()
             del self.registeredChannels[chanName]
@@ -232,14 +232,14 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         if not chanName in self.registeredChannels:
             # return a newly created temporary SpecChannel object, without registering
             return SpecChannel.SpecChannel(self, chanName, SpecChannel.DONTREG)
-                       
+
         return self.registeredChannels[chanName]
-                       
-            
+
+
     def error(self, error):
         """Emit the 'error' signal when the remote Spec version signals an error."""
         logging.getLogger('SpecClient').error('Error from Spec: %s', error)
-        
+
         SpecEventsDispatcher.emit(self, 'error', (error, ))
 
 
@@ -251,27 +251,27 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         """Return True if the remote Spec version is connected."""
         return self.state == CONNECTED
 
-    
+
     def specConnected(self):
         """Emit the 'connected' signal when the remote Spec version is connected."""
         if self.state != CONNECTED:
             logging.getLogger('SpecClient').info('Connected to %s:%s', self.host, (self.scanport and self.scanname) or self.port)
-            
+
             SpecEventsDispatcher.emit(self, 'connected', ())
 
         self.state = CONNECTED
-        
-        
+
+
     def specDisconnected(self):
         """Emit the 'disconnected' signal when the remote Spec version is disconnected."""
         if self.state == CONNECTED:
             logging.getLogger('SpecClient').info('Disconnected from %s:%s', self.host, (self.scanport and self.scanname) or self.port)
 
             SpecEventsDispatcher.emit(self, 'disconnected', ())
-            
+
         self.state = DISCONNECTED
-    
-        
+
+
     def handle_close(self):
         """Handle 'close' event on socket."""
         self.connected = False
@@ -279,12 +279,12 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         if self.socket:
             self.close()
         self.specDisconnected()
-        
-        
+
+
     def disconnect(self):
         """Disconnect from the remote Spec version."""
         self.handle_close()
-        
+
 
     def handle_error(self):
         """Handle an uncaught error."""
@@ -295,7 +295,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         self.close()
         self.specDisconnected()
 
-        
+
     def handle_read(self):
         """Handle 'read' events on socket
 
@@ -306,7 +306,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         sbuffer = buffer(s)
         consumedBytes = 0
         offset = 0
-        
+
         while offset < len(sbuffer):
             if self.message is None:
                 self.message = SpecMessage.message(version = self.serverVersion)
@@ -315,14 +315,14 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
 
             if consumedBytes == 0:
                 break
-            
+
             offset += consumedBytes
-            
+
             if self.message.isComplete():
                 # dispatch incoming message
-                if self.message.cmd == SpecMessage.REPLY:                    
+                if self.message.cmd == SpecMessage.REPLY:
                     replyID = self.message.sn
-                    
+
                     if replyID > 0:
                         try:
                             reply = self.registeredReplies[replyID]
@@ -347,12 +347,12 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
                         self.connected = False
                         self.close()
                         self.state = DISCONNECTED
-                       
+
                 self.message = None
-                    
+
         self.receivedStrings = [ s[offset:] ]
-        
-        
+
+
     def checkourversion(self, name):
         """Check remote Spec version
 
@@ -367,23 +367,23 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
                 return False
         else:
             return True
-            
+
 
     def writable(self):
         """Return True if socket should be written."""
-        return len(self.sendq) > 0 or sum(map(len, self.outputStrings)) > 0 or self.state == DISCONNECTED 
+        return len(self.sendq) > 0 or sum(map(len, self.outputStrings)) > 0 or self.state == DISCONNECTED
 
-    
+
     def handle_connect(self):
         """Handle 'connect' event on socket
 
         Send a HELLO message.
         """
         self.connected = True
-    
+
         self.state = WAITINGFORHELLO
         self.send_msg_hello()
-    
+
 
     def handle_write(self):
         """Handle 'write' events on socket
@@ -394,12 +394,12 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
             self.outputStrings.append(self.sendq.pop().sendingString())
 
         outputBuffer = ''.join(self.outputStrings)
-        
+
         sent = self.send(outputBuffer)
-        
+
         self.outputStrings = [ outputBuffer[sent:] ]
 
-    
+
     def send_msg_cmd_with_return(self, cmd):
         """Send a command message to the remote Spec server, and return the reply id.
 
@@ -412,7 +412,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
                 caller = sys._getframe(1).f_locals['self']
             except KeyError:
                 caller = None
-                
+
             return self.__send_msg_with_reply(replyReceiverObject = caller, *SpecMessage.msg_cmd_with_return(cmd, version = self.serverVersion))
         else:
             raise SpecClientNotConnectedError
@@ -438,7 +438,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
                 return self.__send_msg_with_reply(replyReceiverObject = caller, *message)
             else:
                 raise SpecClientNotConnectedError
-            
+
 
     def send_msg_cmd(self, cmd):
         """Send a command message to the remote Spec server.
@@ -450,7 +450,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
             self.__send_msg_no_reply(SpecMessage.msg_cmd(cmd, version = self.serverVersion))
         else:
             raise SpecClientNotConnectedError
-        
+
 
     def send_msg_func(self, cmd):
         """Send a command message to the remote Spec server using the new 'func' feature
@@ -465,7 +465,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
                 self.__send_msg_no_reply(SpecMessage.msg_func(cmd, version = self.serverVersion))
             else:
                 raise SpecClientNotConnectedError
-            
+
 
     def send_msg_chan_read(self, chanName):
         """Send a channel read message, and return the reply id.
@@ -483,7 +483,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
             return self.__send_msg_with_reply(replyReceiverObject = caller, *SpecMessage.msg_chan_read(chanName, version = self.serverVersion))
         else:
             raise SpecClientNotConnectedError
-        
+
 
     def send_msg_chan_send(self, chanName, value):
         """Send a channel write message.
@@ -496,7 +496,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
             self.__send_msg_no_reply(SpecMessage.msg_chan_send(chanName, value, version = self.serverVersion))
         else:
             raise SpecClientNotConnectedError
-        
+
 
     def send_msg_register(self, chanName):
         """Send a channel register message.
@@ -508,7 +508,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
             self.__send_msg_no_reply(SpecMessage.msg_register(chanName, version = self.serverVersion))
         else:
             raise SpecClientNotConnectedError
-        
+
 
     def send_msg_unregister(self, chanName):
         """Send a channel unregister message.
@@ -520,7 +520,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
             self.__send_msg_no_reply(SpecMessage.msg_unregister(chanName, version = self.serverVersion))
         else:
             raise SpecClientNotConnectedError
-        
+
 
     def send_msg_close(self):
         """Send a close message."""
@@ -528,7 +528,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
             self.__send_msg_no_reply(SpecMessage.msg_close(version = self.serverVersion))
         else:
             raise SpecClientNotConnectedError
-        
+
 
     def send_msg_abort(self):
         """Send an abort message."""
@@ -536,13 +536,13 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
             self.__send_msg_no_reply(SpecMessage.msg_abort(version = self.serverVersion))
         else:
             raise SpecClientNotConnectedError
-        
-    
+
+
     def send_msg_hello(self):
         """Send a hello message."""
         self.__send_msg_no_reply(SpecMessage.msg_hello())
-                
-        
+
+
     def __send_msg_with_reply(self, reply, message, replyReceiverObject = None):
         """Send a message to the remote Spec, and return the reply id.
 
@@ -556,14 +556,14 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         """
         replyID = reply.id
         self.registeredReplies[replyID] = reply
-        
+
         if hasattr(replyReceiverObject, 'replyArrived'):
             SpecEventsDispatcher.connect(reply, 'replyFromSpec', replyReceiverObject.replyArrived)
-        
+
         self.sendq.insert(0, message)
-        
+
         return replyID
-       
+
 
     def __send_msg_no_reply(self, message):
         """Send a message to the remote Spec.
