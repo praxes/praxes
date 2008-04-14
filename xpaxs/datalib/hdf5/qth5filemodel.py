@@ -97,6 +97,9 @@ class FileItem(TreeItem):
         item = H5EntryItem(h5Entry, self)
         self.childItems.append(item)
 
+    def close(self):
+        self.xpaxsFile.close()
+
     def getFileName(self):
         return self.filename
 
@@ -119,6 +122,10 @@ class H5FileModel(QtCore.QAbstractItemModel):
         rootData.append(QtCore.QVariant('Points'))
         self.rootItem = TreeItem(rootData)
         if filename: self.openFile(filename)
+
+    def close(self):
+        for item in self.rootItem.childItems:
+            item.close()
 
     def columnCount(self, parent):
         if parent.isValid():
@@ -197,7 +204,7 @@ class H5FileModel(QtCore.QAbstractItemModel):
         item = self.getFileItem(filename)
         if item: return item.getFileObject()
 
-        dataObject = self._openFile(filename)
+        dataObject = self._openFile(filename, 'r+', self)
         item = FileItem(dataObject, self.rootItem)
         self.rootItem.appendChild(item)
         row = self.rowCount(QtCore.QModelIndex())-1

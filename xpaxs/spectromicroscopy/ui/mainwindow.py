@@ -80,6 +80,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             self.addDockWidget(area, item)
 
         self.expInterface = None
+        self.openScans = []
 
         self.statusBar.showMessage('Ready', 2000)
 
@@ -176,8 +177,12 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         settings.beginGroup("MainWindow")
         settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
         settings.setValue('State', QtCore.QVariant(self.saveState()))
+        self.fileInterface.close()
         if self.expInterface: self.expInterface.close()
         return event.accept()
+
+    def scanClosed(self, scan):
+        self.openScans.remove(scan)
 
     def connectToSpec(self, bool):
         if bool:
@@ -224,18 +229,25 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.fileInterface.openFile(filename)
 
     def newScanWindow(self, scan):
+        if scan in self.openScans:
+            return
+
         if USE_PYMCA_ADVANCEDFIT:
             scanView = ScanAnalysis(scan, advancedFit=self.spectrumAnalysis)
         else:
             scanView = ScanAnalysis(scan)
             self.connect(scanView, QtCore.SIGNAL("analyzeSpectrum"),
                          self.spectrumAnalysis.analyzeSpectrum)
+        self.connect(scanView, QtCore.SIGNAL("scanClosed"), self.scanClosed)
 
         subWindow = self.mdi.addSubWindow(scanView)
+        subWindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         title = '%s: Scan %s'%(scan.getDataFileName(),
                                scan.getScanNumber())
         subWindow.setWindowTitle(title)
         subWindow.showMaximized()
+        self.openScans.append(scan)
+
         self.menuTools.setEnabled(True)
 
     def setOffline(self):

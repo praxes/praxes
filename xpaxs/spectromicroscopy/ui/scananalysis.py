@@ -67,6 +67,11 @@ class ScanAnalysis(QtGui.QWidget):
                      QtCore.SIGNAL("pickEvent"),
                      self.plotSpectrum)
 
+    def closeEvent(self, event):
+        self.scanData.flush()
+        self.emit(QtCore.SIGNAL("scanClosed"), self.scanData)
+        return event.accept()
+
     def configurePyMca(self):
         self.fitParamDlg.exec_()
         self._pymcaConfig = self.fitParamDlg.getParameters()

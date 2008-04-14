@@ -80,13 +80,14 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         self.dispatcher = Dispatcher()
         self.dispatcher.start(QtCore.QThread.NormalPriority)
 
-    def close(self):
+    def closeEvent(self, event):
         try:
             self.dispatcher.exit()
             self.dispatcher.wait()
             self.connection.dispatcher.disconnect()
         except:
             pass
+        return event.accept()
 
     def getCountersMne(self):
         if len(self._counterNames) != self.getNumCounters():

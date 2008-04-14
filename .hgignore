@@ -8,3 +8,4 @@ ui_*.py
 build/*
 dist/*
 MANIFEST
+xpaxs.e4*

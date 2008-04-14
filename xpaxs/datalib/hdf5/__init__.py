@@ -56,6 +56,9 @@ class H5FileInterface(QtCore.QObject):
         action.setText(title)
         self.dockWidgets[title] = (dock, defaultArea, action)
 
+    def close(self):
+        self.fileModel.close()
+
     def openFile(self, filename):
         return self.fileModel.openFile(filename)
 

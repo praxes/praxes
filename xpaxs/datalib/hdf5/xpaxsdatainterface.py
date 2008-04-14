@@ -49,6 +49,13 @@ class XpaxsFile(QtCore.QObject):
     mutex = property(lambda self: self.__mutex)
     h5File = property(lambda self: self.__h5file)
 
+    def close(self):
+        try:
+            self.mutex.lock()
+            self.h5File.close()
+        finally:
+            self.mutex.unlock()
+
     def createEntry(self, scanParams):
         # This should be reimplemented in subclasses
         scanName = scanParams['title'].lower().replace(' ', '')
@@ -112,6 +119,9 @@ class XpaxsScan(XpaxsNode):
     def appendDataPoint(self, index, data):
         raise NotImplementedError
         # TODO: use this for acquisition
+
+    def flush(self):
+        self.xpaxsFile.flush()
 
     def getDataFileName(self):
         try:
@@ -208,10 +218,3 @@ class XpaxsScan(XpaxsNode):
     def saveData(self):
         print "use flush instead of saveData"
         self.flush()
-
-    def flush(self):
-        try:
-            self.mutex.lock()
-            self.xpaxsFile.flush()
-        finally:
-            self.mutex.unlock()

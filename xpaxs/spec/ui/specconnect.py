@@ -152,11 +152,12 @@ class SpecInterface(QtCore.QObject):
         action.setText(title)
         self.dockWidgets[title] = (dock, defaultArea, action)
 
-    def close(self):
+    def closeEvent(self, event):
         self.scanControls = None
         self.dockWidgets = {}
         self.specRunner.close()
         self.specRunner = None
+        return event.accept()
 
 
 if __name__ == "__main__":
