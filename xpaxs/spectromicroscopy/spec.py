@@ -29,7 +29,7 @@ from xpaxs.spec.ui.specconnect import SpecConnect, SpecInterface
 # Normal code begins
 #---------------------------------------------------------------------------
 
-DEBUG = True
+DEBUG = False
 
 
 class SmpSpecRunner(SpecRunner):

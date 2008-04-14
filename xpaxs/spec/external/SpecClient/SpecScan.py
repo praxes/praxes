@@ -66,9 +66,9 @@ class SpecScanA:
     def disconnected(self):
         pass
 
-    def __newScan(self, newscan):
-        if DEBUG: print "SpecScanA.__newScan", newscan
-        if not newscan:
+    def __newScan(self, scanParams):
+        if DEBUG: print "SpecScanA.__newScan", scanParams
+        if not scanParams:
             if self.__scanning:
                 self.scanFinished()
                 self.__scanning = False
@@ -76,9 +76,8 @@ class SpecScanA:
 
         self.__scanning = False
 
-        self.scanParams = SpecWaitObject.waitReply(self.connection,
-                                                   'send_msg_chan_read',
-                                                   ('var/_SC_SCANENV', ))
+        self.scanParams = dict([i.split("=", 1)
+                                for i in scanParams.rstrip("\t").split("\t")])
 
         if type(self.scanParams) != types.DictType:
             return
@@ -105,12 +104,11 @@ class SpecScanA:
         if DEBUG: print "SpecScanA.newScan", scanParameters
         pass
 
-    def __newScanData(self, newScanData):
-        if DEBUG: print "SpecScanA.__newScanData", newScanData
+    def __newScanData(self, scanData):
+        if DEBUG: print "SpecScanA.__newScanData", scanData
         if self.__scanning:
-            scanData = SpecWaitObject.waitReply(self.connection,
-                                                'send_msg_chan_read',
-                                                ('var/_SC_SCANDATA', ))
+            scanData = dict([i.split("=", 1)
+                             for i in scanData.rstrip("\t").split("\t")])
 
             for key, value in scanData.iteritems():
                 if ',' in value:
@@ -128,12 +126,11 @@ class SpecScanA:
         if DEBUG: print "SpecScanA.newScanData", scanData
         pass
 
-    def __newScanPoint(self, newScanPoint):
-        if DEBUG: print "SpecScanA.__newScanPoint", newScanPoint
+    def __newScanPoint(self, scanData):
+        if DEBUG: print "SpecScanA.__newScanPoint", scanData
         if self.__scanning:
-            scanData = SpecWaitObject.waitReply(self.connection,
-                                                'send_msg_chan_read',
-                                                ('var/_SC_PLOTDATA', ))
+            scanData = dict([i.split("=", 1)
+                             for i in scanData.rstrip("\t").split("\t")])
 
             for key, value in scanData.iteritems():
                 if ',' in value:

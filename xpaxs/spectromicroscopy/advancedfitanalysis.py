@@ -149,7 +149,6 @@ class AdvancedFitThread(QtCore.QThread):
 
     def queueNext(self):
         index, spectrum = self.findNextPoint()
-        print index, spectrum
         args = (index, spectrum, self.tconf, self.advancedFit,
                 self.concentrationsTool)
         self.jobServer.submit(analyzeSpectrum, args,

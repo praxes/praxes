@@ -1,9 +1,12 @@
 
-# All globals to which SpecScan will connect need to be created before
-# the SpecScan is instantiated.
+# All globals to which SpecScan will connect need to be created before the
+# SpecScan is instantiated. DO NOT USE ASSOCIATIVE ARRAYS TO REPORT DATA!
+# They are not broadcast at the time they are set, but polled by SpecClient
+# at a later time. This means their values may have changed before SpecClient
+# could read them.
 
 def _clientutils_on '{
-    global _SC_NEWSCAN _SC_SCANENV
+    global _SC_NEWSCAN
     _SC_NEWSCAN = 0
 
     cdef("user_prescan_head", "_client_setscanenv;", "_clientutils_")
@@ -13,7 +16,7 @@ def _clientutils_on '{
 
 def _clientutils_off '{
     if (_SC_PLOT_ACTIVE == 0 && _SC_DATA_ACTIVE == 0){
-        unglobal _SC_ACTIVE _SC_NEWSCAN _SC_SCANENV
+        unglobal _SC_NEWSCAN
         cdef("", "", "_clientutils_", "delete")
     }
 }'
@@ -22,21 +25,22 @@ def _clientutils_off '{
 def _client_setscanenv '{
     local scan_env column_names
 
+    scan_env = ""
     # define reserved parameters for plotting:
-    scan_env["type"] = _stype
-    scan_env["title"] = sprintf("Scan %d", SCAN_N+1)
-    scan_env["xlabel"] = X_L
-    scan_env["ylabel"] = cnt_mne(DET)
-    scan_env["nb_motors"] = PLOT_MOTS
-    scan_env["motor"] = motor_mne(_m[0])
-    scan_env["counter"] = cnt_mne(DET)
+    scan_env = sprintf("%stype=%s\t", scan_env, _stype)
+    scan_env = sprintf("%stitle=Scan %d\t", scan_env, SCAN_N+1)
+    scan_env = sprintf("%sxlabel=%s\t", scan_env, X_L)
+    scan_env = sprintf("%sylabel=%s\t", scan_env, cnt_mne(DET))
+    scan_env = sprintf("%snb_motors=%d\t", scan_env, PLOT_MOTS)
+    scan_env = sprintf("%smotor=%s\t", scan_env, motor_mne(_m[0]))
+    scan_env = sprintf("%scounter=%s\t", scan_env, cnt_mne(DET))
 
     # define additional parameters for data storage:
-    scan_env["fileName"] = DATAFILE
-    scan_env["scanCommand"] = HEADING
-    scan_env["scanNumber"] = sprintf("%d", SCAN_N+1)
-    scan_env["scanLines"] = sprintf("%d", (_stype&8? _n1*_n2:_n1))
-    scan_env["monitor"] = cnt_mne(MON)
+    scan_env = sprintf("%sfileName=%s\t", scan_env, DATAFILE)
+    scan_env = sprintf("%sscanCommand=%s\t", scan_env, HEADING)
+    scan_env = sprintf("%sscanNumber=%d\t", scan_env, SCAN_N+1)
+    scan_env = sprintf("%sscanLines=%d\t", scan_env, (_stype&8? _n1*_n2:_n1))
+    scan_env = sprintf("%smonitor=%s\t", scan_env, cnt_mne(MON))
     column_names = "i"
     for (i=0;i<_nm;i++) {
         column_names = sprintf("%s %s", column_names, motor_mne(_m[i]))
@@ -45,16 +49,17 @@ def _client_setscanenv '{
     for (i=0;i<COUNTERS;i++) {
         column_names = sprintf("%s %s", column_names, cnt_mne(i))
     }
-    scan_env["columnNames"] = column_names
+    scan_env = sprintf("%scolumnNames=%s\t", scan_env, column_names)
     if (SKIPMODE_COUNTER) {
-        scan_env["skipmode"] = sprintf("%s %g", cnt_mne(SKIPMODE_COUNTER), \
-                                       SKIPMODE_THRESHOLD)
+        scan_env = sprintf("%sskipmode=%s %g\t", scan_env, \
+                           cnt_mne(SKIPMODE_COUNTER), SKIPMODE_THRESHOLD)
     }
     motor_positions = ""
     for (i=0;i<MOTORS;i++){
-        motor_positions = sprintf("%s%s=%g ", motor_positions, motor_mne(i), A[i])
+        motor_positions = sprintf("%s%s=%g ", motor_positions, motor_mne(i), \
+                                  A[i])
     }
-    scan_env["motorPositions"] = motor_positions
+    scan_env = sprintf("%smotorPositions=%s\t", scan_env, motor_positions)
     if (MCA_CHAN > 0) {
         local mca_channels
         mca_channels = ""
@@ -64,22 +69,20 @@ def _client_setscanenv '{
             mca_energy = sprintf("%s%g,", mca_energy, MCA_DATA_FL[i][0])
         }
         # This could be extended to support muliple MCAs
-        scan_env["mcas"] = "MCA"
-        scan_env["mcaChannels_MCA"] = mca_channels
-        scan_env["mcaEnergy_MCA"] = mca_energy
+        scan_env = sprintf("%smcas=%s\t", scan_env, "MCA")
+        scan_env = sprintf("%smcaChannels_MCA=%s\t", scan_env, mca_channels)
+        scan_env = sprintf("%smcaEnergy_MCA=%s\t", scan_env, mca_energy)
     }
 
-    _SC_SCANENV = scan_env
-    _SC_NEWSCAN = 1
+    _SC_NEWSCAN = scan_env
 }'
 
 
 def clientploton '{
     _clientutils_on
 
-    global _SC_OLDX _SC_NEWPLOTDATA _SC_PLOTDATA _SC_PLOT_ACTIVE
+    global _SC_OLDX _SC_NEWPLOTDATA _SC_PLOT_ACTIVE
     _SC_PLOT_ACTIVE = 1
-    _SC_NEWPLOTDATA = -1
 
     _SC_OLDX=0
 
@@ -90,16 +93,14 @@ def clientploton '{
     }
 
     cdef("user_scan_plot", "_client_updateplotdata;", "_client_plot_")
-    cdef("user_scan_tail", "_SC_NEWPLOTDATA = -1;", "_client_plot_")
 }'
 
 
 def clientplotoff '{
-    _SC_PLOT_ACTIVE = 0
+    unglobal _SC_OLDX _SC_NEWPLOTDATA _SC_PLOT_ACTIVE
     _clientutils_off
 
     cdef("", "", "_client_plot_", "delete")
-    unglobal _SC_OLDX _SC_NEWPLOTDATA _SC_PLOTDATA _SC_PLOT_ACTIVE
 }'
 
 
@@ -118,55 +119,53 @@ def _client_updateplotdata '{
     if (d > 0) {
         _SC_OLDX = x
 
-        plot_data["i"] = sprintf("%d", NPTS)
-        plot_data["x"] = sprintf("%g", x)
+        plot_data = ""
+        plot_data = sprintf("%si=%d\t", plot_data, NPTS)
+        plot_data = sprintf("%sx=%g\t", plot_data, x)
 
         n = _stype&8? _g1:NPTS
         for (i=PLOT_MOTS; i<(PLOT_CNTRS+PLOT_MOTS); i++) {
-            plot_data[PLOT_MNE[i]] = sprintf("%g", SCAN_D[n][i])
+            plot_data = sprintf("%s%s=%g\t", plot_data, PLOT_MNE[i], \
+                                SCAN_D[n][i])
         }
 
-        _SC_PLOTDATA = plot_data
-        _SC_NEWPLOTDATA = NPTS
+        _SC_NEWPLOTDATA = plot_data
     }
 }'
 
 
 def clientdataon '{
-    global _SC_NEWSCANDATA _SC_SCANDATA _SC_DATA_ACTIVE
-
+    global _SC_NEWSCANDATA _SC_DATA_ACTIVE
     _clientutils_on
 
     _SC_DATA_ACTIVE = 1
-    _SC_NEWSCANDATA = -1
 
     cdef("user_scan_loop", "_client_updatescandata;", "_client_data_")
-    cdef("user_scan_tail", "_SC_NEWSCANDATA = -1;", "_client_data_")
 }'
 
 
 def clientdataoff '{
-    _SC_DATA_ACTIVE = 0
+    unglobal _SC_NEWSCANDATA _SC_DATA_ACTIVE
     _clientutils_off
 
     cdef("", "", "_client_data_", "delete")
-    unglobal _SC_NEWSCANDATA _SC_SCANDATA _SC_DATA_ACTIVE
 }'
 
 
 def _client_updatescandata '{
     local i scan_data
 
-    scan_data["i"] = sprintf("%d", NPTS)
+    scan_data = ""
+    scan_data = sprintf("%si=%d\t", scan_data, NPTS)
 
     for (i=0;i<_nm;i++) {
-        scan_data[motor_mne(_m[i])] = sprintf("%g", A[_m[i]])
+        scan_data = sprintf("%s%s=%g\t", scan_data, motor_mne(_m[i]), A[_m[i]])
     }
 
-    scan_data["epoch"] = sprintf("%f", time())
+    scan_data = sprintf("%sepoch=%f\t", scan_data, time())
 
     for (i=0;i<COUNTERS;i++) {
-        scan_data[cnt_mne(i)] = sprintf("%g", S[i])
+        scan_data = sprintf("%s%s=%g\t", scan_data, cnt_mne(i), S[i])
     }
 
     if (MCA_CHAN > 0) {
@@ -175,9 +174,8 @@ def _client_updatescandata '{
         for(i = 0; i < MCA_CHAN; i++){
             mca_counts = sprintf("%s%g,", mca_counts, MCA_DATA[i][1])
         }
-        scan_data["MCA"] = mca_counts
+        scan_data = sprintf("%sMCA=%s\t", scan_data, mca_counts)
     }
 
-    _SC_SCANDATA = scan_data
-    _SC_NEWSCANDATA = NPTS
+    _SC_NEWSCANDATA = scan_data
 }'

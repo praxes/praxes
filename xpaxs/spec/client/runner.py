@@ -71,23 +71,14 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         Spec.Spec.__init__(self, specVersion, timeout)
         self.cmd = SpecCommand.SpecCommand('', specVersion, timeout)
 
-        self.timer = QtCore.QTimer(self)
-        self.connect(self.timer,
-                     QtCore.SIGNAL("timeout()"),
-                     self.update)
-        self.timer.start(20)
-
         self._motors = {}
         self._motorNames = []
         self._counterNames = []
         self.getMotorsMne()
         self.getCountersMne()
 
-#        self.dispatcher = Dispatcher()
-#        self.dispatcher.start(QtCore.QThread.NormalPriority)
-
-    def update(self):
-        SpecEventsDispatcher.dispatch()
+        self.dispatcher = Dispatcher()
+        self.dispatcher.start(QtCore.QThread.NormalPriority)
 
     def close(self):
         try:
