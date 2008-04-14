@@ -1,6 +1,4 @@
 """
-This is a library that subclasses many of the generic qt spec classes to
-provide support specific to the spectromicroscopy package.
 """
 
 #---------------------------------------------------------------------------
@@ -20,22 +18,18 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 
 from xpaxs.spec.client import utils
-from xpaxs.spec.ui import scanmotor, ui_scancontrols
+from xpaxs.spec.ui import scanmotor, ui_scancontrols,  ui_scandialog
+#from xpaxs import configutils
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-
 class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
-
-    """Provides a GUI interface for positioning motors and running scans"""
-
+    """Establishes a Experiment controls    """
     def __init__(self, specRunner, parent=None):
         QtGui.QWidget.__init__(self, parent)
-
         self.specRunner = specRunner
-        self.specScan = specRunner.specScan
         self.setupUi(self)
 
         self.axes = []
@@ -60,9 +54,6 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.scanStackedLayout.addWidget(self.resumeButton)
         self.stackedLayoutFrame.setGeometry(self.abortButton.geometry())
 
-        self.connectSignals()
-
-    def connectSignals(self):
         self.connect(self.scanTypeComboBox,
                      QtCore.SIGNAL("currentIndexChanged(const QString&)"),
                      self.setScanType)
@@ -78,21 +69,44 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.connect(self.resumeButton,
                      QtCore.SIGNAL("clicked()"),
                      self.scanResumed)
-        self.connect(self.specRunner.scan,
-                     QtCore.SIGNAL("scanStarted()"),
-                     self.scanStarted)
-        self.connect(self.specRunner.scan,
-                     QtCore.SIGNAL("scanStarted()"),
-                     self.activityStarted)
-        self.connect(self.specRunner.scan,
-                     QtCore.SIGNAL("scanFinished()"),
-                     self.scanFinished)
-        self.connect(self.specRunner.scan,
-                     QtCore.SIGNAL("scanFinished()"),
-                     self.activityFinished)
-        self.connect(self.specRunner.scan,
-                     QtCore.SIGNAL("newScanIndex(int)"),
-                     self.updateProgressBar)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("scanStarted()"),
+#                     self.scanStarted)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("scanStarted()"),
+#                     self.activityStarted)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("scanFinished()"),
+#                     self.scanFinished)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("scanFinished()"),
+#                     self.activityFinished)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("newScanIndex(int)"),
+#                     self.updateProgressBar)
+# TODO: update reference to newest scan, make connections when scan is created
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("scanStarted()"),
+#                     self.disableScanOptions)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("scanFinished()"),
+#                     self.enableScanOptions)
+#        self.connect(self.specRunner.scan,
+#                     QtCore.SIGNAL("scanAborted()"),
+#                     self.enableScanOptions)
+
+#    def closeEvent(self, event):
+#        self.specRunner.skipmode(0)
+#        self.specRunner.close()
+#        event.accept()
+
+    def getMainWindow(self):
+        parent = self.parent()
+        if parent is None: return self
+        while parent:
+            temp = parent.parent()
+            if temp is None: return parent
+            else: parent = temp
 
     def connectAxesSignals(self):
         for axis in self.axes:
@@ -113,19 +127,22 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                             self.activityFinished)
 
     def startScan(self):
-        scantype = str(self.scanTypeComboBox.currentText())
-        scanPoints = 1
-        scanArgs = []
-        for m in self.axes:
-            args = m.getScanInfo()
-            if self.independentStepsEnabled or m is self.axes[-1]:
-                scanArgs.extend(args)
-                scanPoints *= scanArgs[-1]+1
-            else:
-                scanArgs.extend(args[:-1])
-        scanArgs.append( self.scanCountSpinBox.value() )
-        self.progressBar.setMaximum(scanPoints)
-        getattr(self.specRunner.scan, scantype)(*scanArgs)
+        scandlg=scanDialog(self)
+        if scandlg.exec_():
+            scantype = str(self.scanTypeComboBox.currentText())
+            scanPoints = 1
+            scanArgs = []
+            for m in self.axes:
+                args = m.getScanInfo()
+                if self.independentStepsEnabled or m is self.axes[-1]:
+                    scanArgs.extend(args)
+                    scanPoints *= scanArgs[-1]+1
+                else:
+                    scanArgs.extend(args[:-1])
+            scanArgs.append( self.scanCountSpinBox.value() )
+            self.progressBar.setMaximum(scanPoints)
+            getattr(self.specRunner.scan, scantype)(*scanArgs)
+
 
     def abort(self):
         self.specRunner.abort()
@@ -205,7 +222,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                                 ('axis: 1', '2', '3'),
                                 ('samx', 'samz', 'samy')):
                 if i < numAxes:
-                    self.axes.append(scanmotor.ScanMotor(self, m))
+                    self.axes.append(scanmotor.ScanMotor(self, m))#TODO:source of error
                     self.axesTab.addTab(self.axes[-1], ax)
         self.axesTab.setUpdatesEnabled(True)
         self.connectAxesSignals()
@@ -214,9 +231,113 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.progressBar.setValue(val+1)
 
 
+class scanDialog(ui_scandialog.Ui_Dialog, QtGui.QDialog):
+    """Dialog for Setting spec scan options"""
+    def __init__(self, parent):
+        QtGui.QDialog.__init__(self, parent)
+        self.setupUi(self)
+        self.specRunner = parent.specRunner
+        self.getDefaults()
+#        pymcaConfigFile = configutils.getDefaultPymcaConfigFile()
+#        self.pymcaConfig = configutils.getPymcaConfig(pymcaConfigFile)
+    
+    def exec_(self):
+        if QtGui.QDialog.exec_(self):
+            self.setskipmode()
+            self.setFile()
+            return True
+
+            
+    def setskipmode(self):
+        sm_enabled = self.skipGroup.isChecked()
+        if sm_enabled:
+            sm_counter = str("%s"%self.counterBox.currentText())
+            sm_threshold = self.thresholdSpin.value()
+            sm_precount = self.precountSpin.value()
+            
+            settings = QtCore.QSettings()
+            settings.beginGroup("SpecScanOptionsDialog")
+            settings.setValue('SkipMode/enabled', QtCore.QVariant(sm_enabled))
+            settings.setValue('SkipMode/counter', QtCore.QVariant(sm_counter))
+            settings.setValue('SkipMode/threshold', QtCore.QVariant(sm_threshold))
+            settings.setValue('SkipMode/precount', QtCore.QVariant(sm_precount))
+            
+            specString = "skipmode %s %s %s"%(sm_precount, sm_counter, sm_threshold)
+
+        else: 
+            settings = QtCore.QSettings()
+            settings.beginGroup("SpecScanOptionsDialog")
+            settings.setValue('SkipMode/enabled', QtCore.QVariant(sm_enabled))
+            
+            specString = 'skipmode 0'
+        
+        self.specRunner(specString)
+        
+    def setFile(self):
+        fileName = str("%s"%self.fileNameEdit.text())
+        scanNumber = self.scanNumberSpin.value()
+        
+        settings = QtCore.QSettings()
+        settings.beginGroup("SpecScanOptionsDialog")
+        settings.setValue('Scan/name', QtCore.QVariant(fileName))
+        settings.setValue('Scan/number', QtCore.QVariant(scanNumber))
+        
+        if fileName == self.baseFile and scanNumber == self.baseNumber:
+            self.specRunner('SCAN_N=%s'%scanNumber)
+        elif not fileName == self.baseFile:
+            self.specRunner("DATAFILE='%s'"%fileName)
+            self.specRunner('SCAN_N=%s'%scanNumber)
+        
+        
+    
+
+    
+    def getDefaults(self):
+        settings = QtCore.QSettings()
+        settings.beginGroup("SpecScanOptionsDialog")
+
+        #Scan Options
+        val=self.specRunner.getVarVal('DATAFILE')
+        self.baseFile=val
+        val = settings.value('Scan/name', QtCore.QVariant(val)).toString()
+        self.fileNameEdit.setText(val)
+        
+        
+        
+        val=self.specRunner.getVarVal('SCAN_N')+1
+        self.baseNumber=val
+        val = settings.value('Scan/number', QtCore.QVariant(val)).toInt()[0]
+        self.scanNumberSpin.setValue(val)
+       
+        
+        
+        #SKIPMODE OPTIONS
+        val = settings.value('SkipMode/enabled', QtCore.QVariant(False)).toBool()
+        self.skipGroup.setChecked(val)
+
+        val = settings.value('SkipMode/threshold', QtCore.QVariant(0)).toInt()[0]
+        self.thresholdSpin.setValue(val)
+
+        val = settings.value('SkipMode/precount', QtCore.QVariant(0)).toDouble()[0]
+        self.precountSpin.setValue(val)
+
+
+        counters = self.specRunner.getCountersMne()
+        self.counterBox.addItems(counters)
+        val = settings.value('SkipMode/counter').toString()
+        if val:
+            try:
+                ind = counters.index(val)
+                self.counterBox.setCurrentIndex(ind)
+            except ValueError:
+                pass
+        
+        
+
 if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
+    app.setOrganizationName('XPaXS')
     myapp = ScanControls()
     myapp.show()
     sys.exit(app.exec_())

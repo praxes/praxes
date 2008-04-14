@@ -59,7 +59,7 @@ class SshDialog(ui_sshdialog.Ui_Dialog, QtGui.QDialog):
         if self.SSH.login(server, user, pwd):
             self.SSH.sendline(cmd)
             self.SSH.prompt()
-            print self.SSH.before
+#            print self.SSH.before
             self.log.append(self.SSH.before)
             time.sleep(1)
             if not len(self.SSH.before) > 250:
@@ -81,7 +81,7 @@ class SshDialog(ui_sshdialog.Ui_Dialog, QtGui.QDialog):
 
 
 if __name__ == "__main__":
-    print __file__
+#    print __file__
     app = QtGui.QApplication(sys.argv)
     app.setOrganizationName('XPaXS')
     myapp = SshDialog()

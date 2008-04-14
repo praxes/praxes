@@ -64,12 +64,18 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
     to improve performance.
     """
 
-    def __init__(self, specVersion=None, timeout=None, **kwargs):
+    def __init__(self, specVersion=None, timeout=None):
         """specVersion is a string like 'foo.bar:spec' or '127.0.0.1:fourc'
         """
         QtCore.QObject.__init__(self)
         Spec.Spec.__init__(self, specVersion, timeout)
         self.cmd = SpecCommand.SpecCommand('', specVersion, timeout)
+#        self.scan = QtSpecScanA(self.specRunner.specVersion)
+
+        # load the clientutils macros:
+        self.runMacro('clientutils.mac')
+        self.clientploton()
+        self.runMacro('smp_mca.mac')
 
         self._motors = {}
         self._motorNames = []
@@ -80,14 +86,17 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         self.dispatcher = Dispatcher()
         self.dispatcher.start(QtCore.QThread.NormalPriority)
 
-    def closeEvent(self, event):
+    def __call__(self, command):
+        self.cmd.executeCommand(command)
+    
+    def close(self):
         try:
+            self.clientplotoff()
             self.dispatcher.exit()
             self.dispatcher.wait()
             self.connection.dispatcher.disconnect()
         except:
             pass
-        return event.accept()
 
     def getCountersMne(self):
         if len(self._counterNames) != self.getNumCounters():
@@ -133,6 +142,10 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
 
     def runMacro(self, macro):
         self.cmd.executeCommand(getSpecMacro(macro))
-
+        
+    def getVarVal(self, var):
+        if self.connection is not None:
+            return self.connection.getChannel('var/%s'%var).read()
+    
     def abort(self):
         self.connection.abort()

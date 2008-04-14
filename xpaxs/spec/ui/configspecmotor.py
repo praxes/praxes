@@ -87,7 +87,7 @@ class SpecConfig(QtGui.QWidget, ui_configspecmotor.Ui_SpecSetter):
         Sign = self.Sign.getValue()
         Speed = self.Speed.getValue()
         UL = self.UL.getValue()
-        print "set_lim(%s,%s,%s)"%(Name,LL,UL)
+#        print "set_lim(%s,%s,%s)"%(Name,LL,UL)
         
     
 
