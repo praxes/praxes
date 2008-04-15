@@ -5,34 +5,7 @@ O NeXuS wrapper for pytables, much more sophisticated infrastructure
 
 O Jeff's konsole and config interface
 
-O Fix the spec acquisition interface, which was broken during the reorganization
-
-O load a scan for inspection, but not for processing
-
-O toolbar for scan analysis window, for configuring pymca, starting fits, etc
-
-O reimplement the calibration routine
-
-O Add crosshairs to inspect an individual spectrum and its fit
-
-O Advanced fit in separate thread(s)
-
-O Improve MVC organization, many methods in the controller should be moved to
-    the data model
-
-O If an image already exists when the scan is opened, load it
-
 O need a progress bar during analysis
-
-O close the scan analysis widget when the subwindow is closed. double check
-    when about to close if some analysis is in progress
-
-O Set window title based on the active scan
-
-O fix the autoscale limits
-
-O add an integer id to each data point in spec to make indexing the images
-    easier
 
 O updated tree view of a datafile based on nexus heirarchy
 

@@ -29,7 +29,7 @@ from xpaxs.spec.ui.specconnect import SpecConnect, SpecInterface
 # Normal code begins
 #---------------------------------------------------------------------------
 
-DEBUG = False
+DEBUG = True
 
 
 class SmpSpecRunner(SpecRunner):
@@ -67,6 +67,7 @@ class SmpSpecScanA(QtSpecScanA):
 
     def newScan(self, scanParams):
         QtSpecScanA.newScan(self, scanParams)
+        if DEBUG: print scanParams
 
         specFileName = scanParams['fileName'].split('/')[-1]
         filename = os.path.abspath('%s.h5'%(scanParams['fileName'].split('/')[-1]))

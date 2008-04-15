@@ -2,3 +2,4 @@ spectromicroscopy requires several packages in order to run:
 
 pexpect: see http://pexpect.sourceforge.net/ for downloads and
     installation instructions
+pymca
