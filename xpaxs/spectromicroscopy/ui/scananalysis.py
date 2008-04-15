@@ -51,7 +51,7 @@ class ScanAnalysis(QtGui.QWidget):
         self.createActions()
 
         self.fitParamDlg = FitParamDialog()
-
+        
         layout = QtGui.QGridLayout()
         self.setLayout(layout)
 
@@ -77,6 +77,7 @@ class ScanAnalysis(QtGui.QWidget):
         self._pymcaConfig = self.fitParamDlg.getParameters()
         self.scanData.setPymcaConfig(self._pymcaConfig)
 
+        
     def createActions(self):
         self.actions = []
 
@@ -154,7 +155,6 @@ class ScanAnalysis(QtGui.QWidget):
         self.resetPeaks()
 
         config = copy.deepcopy(self._pymcaConfig)
-
         thread = AdvancedFitThread(self.scanData, config, self)
         self.scanData.setQueue(thread.getQueue())
 
@@ -209,3 +209,9 @@ class ScanAnalysis(QtGui.QWidget):
 
     def elementMapUpdated(self):
         self.emit(QtCore.SIGNAL("elementDataChanged"), self.getElementMap())
+
+if __name__ == "__main__":
+    app = QtGui.QApplication(sys.argv)
+    app.setOrganizationName('XPaXS')
+    myapp = ScanAnalysis
+    sys.exit(app.exec_())

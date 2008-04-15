@@ -7,7 +7,7 @@ provide support specific to the spectromicroscopy package.
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import os
+
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -113,7 +113,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                             self.activityFinished)
 
     def startScan(self):
-        scandlg = scanDialog(self)
+        scandlg = ScanDialog(self)
         if scandlg.exec_():
             scantype = str(self.scanTypeComboBox.currentText())
             scanPoints = 1
@@ -216,47 +216,22 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.progressBar.setValue(val+1)
 
 
-class scanDialog(ui_scandialog.Ui_Dialog, QtGui.QDialog):
-
-    """Dialog for setting spec scan options"""
-
+class ScanDialog(ui_scandialog.Ui_Dialog, QtGui.QDialog):
+    """Dialog for Setting spec scan options"""
     def __init__(self, parent):
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
         self.specRunner = parent.specRunner
         self.getDefaults()
-
-        self.connect(self.precountSpin,
-                     QtCore.SIGNAL("valueChanged(double)"),
-                     self.enableSkipmode)
-        self.connect(self.fileNameEdit,
-                     QtCore.SIGNAL("editingFinished()"),
-                     self.formatFileName)
-
-    def enableSkipmode(self, val):
-        isEnabled = bool(val)
-        self.thresholdSpin.setEnabled(isEnabled)
-        self.thresholdLabel.setEnabled(isEnabled)
-        self.counterBox.setEnabled(isEnabled)
-        self.counterLabel.setEnabled(isEnabled)
+#        pymcaConfigFile = configutils.getDefaultPymcaConfigFile()
+#        self.pymcaConfig = configutils.getPymcaConfig(pymcaConfigFile)
 
     def exec_(self):
         if QtGui.QDialog.exec_(self):
             self.setskipmode()
-            if not self.setFile(): self.exec_()
+            self.setFile()
+            return True
 
-            return self.result()
-
-    def fileError(self, requested, current):
-        error = QtGui.QErrorMessage()
-        error.showMessage('''\
-        Spec was unable to create the requested file: %s. Perhaps there is a
-        permissions issue. The current spec file is %s".'''%(requested,current))
-        error.exec_()
-
-    def formatFileName(self):
-        fullname = str("%s"%self.fileNameEdit.text())
-        self.fileNameEdit.setText(os.path.split(fullname)[-1])
 
     def setskipmode(self):
         sm_counter = str("%s"%self.counterBox.currentText())
@@ -269,12 +244,7 @@ class scanDialog(ui_scandialog.Ui_Dialog, QtGui.QDialog):
         settings.setValue('SkipMode/threshold', QtCore.QVariant(sm_threshold))
         settings.setValue('SkipMode/precount', QtCore.QVariant(sm_precount))
 
-        if bool(sm_precount):
-            specString = "skipmode %s %s %s"%(sm_precount, sm_counter,
-                                              sm_threshold)
-        else:
-            specString = 'skipmode 0'
-
+        specString = "skipmode %s %s %s"%(sm_precount, sm_counter, sm_threshold)
         self.specRunner(specString)
 
     def setFile(self):
@@ -284,32 +254,30 @@ class scanDialog(ui_scandialog.Ui_Dialog, QtGui.QDialog):
         settings.beginGroup("SpecScanOptionsDialog")
         settings.setValue('Scan/name', QtCore.QVariant(fileName))
 
-        specname = fileName.rstrip('.h5').rstrip('.hdf5').rstrip('.nxs')
-        self.specRunner('newfile %s'%specname)
-        specfile = self.specRunner.getVarVal('DATAFILE')
-        specCreated = os.path.split(specfile)[-1]
-        print specname, specfile, specCreated
-        if specname == specCreated:
-            return True
-        else:
-            self.fileError(specname, specfile)
+        if not fileName == self.baseFile: self.specRunner("DATAFILE='%s'"%fileName)
+
+
+
 
     def getDefaults(self):
         settings = QtCore.QSettings()
         settings.beginGroup("SpecScanOptionsDialog")
 
         #Scan Options
-        val = os.path.split(self.specRunner.getVarVal('DATAFILE'))[-1]
+        val=self.specRunner.getVarVal('DATAFILE')
+        self.baseFile=val
+        
         val = settings.value('Scan/name', QtCore.QVariant(val)).toString()
         self.fileNameEdit.setText(val)
 
+
+
         #SKIPMODE OPTIONS
-        val = settings.value('SkipMode/threshold',
-                             QtCore.QVariant(0)).toInt()[0]
+
+        val = settings.value('SkipMode/threshold', QtCore.QVariant(0)).toInt()[0]
         self.thresholdSpin.setValue(val)
 
-        val = settings.value('SkipMode/precount',
-                             QtCore.QVariant(0)).toDouble()[0]
+        val = settings.value('SkipMode/precount', QtCore.QVariant(0)).toDouble()[0]
         self.precountSpin.setValue(val)
 
         counters = self.specRunner.getCountersMne()
@@ -321,6 +289,7 @@ class scanDialog(ui_scandialog.Ui_Dialog, QtGui.QDialog):
                 self.counterBox.setCurrentIndex(ind)
             except ValueError:
                 pass
+
 
 
 if __name__ == "__main__":

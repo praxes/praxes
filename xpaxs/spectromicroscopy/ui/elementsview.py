@@ -168,7 +168,11 @@ class ElementPlotFigure(ElementBaseFigure):
         self.indices = numpy.arange(len(data))
 
         self.xPixelLocs = numpy.linspace(xmin, xmax, len(data))
-
+        self.yPixelLocs = numpy.linspace(0, 1, 1)
+    def getIndices(self, xdata, ydata):
+        xIndex = locateClosest(xdata, self.xPixelLocs)
+        
+        return [self.indices[0, xIndex]]
     def enableAutoscale(self, val):
         self.axes.enable_autoscale_on(val)
         self.updateFigure()

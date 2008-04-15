@@ -1,4 +1,5 @@
 """
+THIS IS NOT USED********************* USE PYMCA SITEPACKAGE
 """
 
 #---------------------------------------------------------------------------
@@ -160,3 +161,18 @@ class PyMcaFitParams(QtGui.QWidget):
                 filename = filename+".cfg"
             self.saveParameters(filename, None)
             self.initDir = os.path.dirname(filename)
+        print 'called settings'
+        settings=QtCore.QSettings()
+        settings.beginGroup("PyMcaSettings")
+        settings.setValue('Config/filename', QtCore.QVariant(fileName))
+        settings.setValue('Config/dirname', QtCore.QVariant(self.initDir))
+
+            
+            
+if __name__ == "__main__":
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    app.setOrganizationName('XPaXS')
+    myapp = PyMcaFitParams()
+    myapp.show()
+    sys.exit(app.exec_())

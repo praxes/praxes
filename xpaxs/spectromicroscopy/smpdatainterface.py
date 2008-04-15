@@ -49,7 +49,7 @@ def getSpecScanInfo(commandList):
             (axis, start, stop), args = args[:3], args[3:]
             temp.append(axis)
             scanRange[axis] = (float(start), float(stop))
-        scanaxes.append(tuple(temp))
+        scanAxes.append(tuple(temp))
         scanShape.append(int(args[0])+1)
     else:
         raise RuntimeError('Scan %s not recognized!'%commandType)
