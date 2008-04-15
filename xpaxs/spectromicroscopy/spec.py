@@ -67,7 +67,8 @@ class SmpSpecScanA(QtSpecScanA):
 
     def newScan(self, scanParams):
         QtSpecScanA.newScan(self, scanParams)
-        self.smpEntry = self.fileInterface.createEntry('temp.h5', scanParams)
+        filename = '%s.h5'%scanParams['fileName']
+        self.smpEntry = self.fileInterface.createEntry(filename, scanParams)
         if DEBUG: print 'newScan:', self.smpEntry
         self.emit(QtCore.SIGNAL("newSmpScan"), self.smpEntry, True)
 

@@ -12,14 +12,13 @@
 #---------------------------------------------------------------------------
 
 from PyQt4 import QtCore, QtGui
-# TODO: pymca fit params dialog
 from SpecClient import SpecClientError
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from spectromicroscopy import configutils
+from xpaxs import configutils
 from xpaxs.spec.ui import scancontrols, ui_scanview
 
 #---------------------------------------------------------------------------

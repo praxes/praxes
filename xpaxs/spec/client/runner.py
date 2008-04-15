@@ -80,6 +80,9 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         self.dispatcher = Dispatcher()
         self.dispatcher.start(QtCore.QThread.NormalPriority)
 
+    def __call__(self, command):
+        self.cmd.executeCommand(command)
+
     def close(self):
         try:
             self.dispatcher.exit()
@@ -99,12 +102,6 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
 
     def getMotor(self, motorName):
         return QtSpecMotorA(motorName, self.specVersion)
-#        if motorName in self._motors:
-#            return self._motors[motorName]
-#        else:
-#            self._motors[motorName] = QtSpecMotorA(motorName,
-#                                                         self.specVersion)
-#            return self._motors[motorName]
 
     def getMotorMne(self, motorId):
         motorMne = self.motor_mne(motorId, function = True)
@@ -132,6 +129,10 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
 
     def runMacro(self, macro):
         self.cmd.executeCommand(getSpecMacro(macro))
+
+    def getVarVal(self, var):
+        if self.connection is not None:
+            return self.connection.getChannel('var/%s'%var).read()
 
     def abort(self):
         self.connection.abort()

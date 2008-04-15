@@ -165,6 +165,6 @@ if __name__ == "__main__":
     app.setOrganizationName('XPaXS')
     dlg = SpecConnect()
     interface = dlg.exec_()
-    print interface
+#    print interface
     interface.close()
 
