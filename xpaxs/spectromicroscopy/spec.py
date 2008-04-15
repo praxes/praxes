@@ -67,7 +67,9 @@ class SmpSpecScanA(QtSpecScanA):
 
     def newScan(self, scanParams):
         QtSpecScanA.newScan(self, scanParams)
-        filename = '%s.h5'%scanParams['fileName']
+
+        specFileName = scanParams['fileName'].split('/')[-1]
+        filename = os.path.abspath('%s.h5'%(scanParams['fileName'].split('/')[-1]))
         self.smpEntry = self.fileInterface.createEntry(filename, scanParams)
         if DEBUG: print 'newScan:', self.smpEntry
         self.emit(QtCore.SIGNAL("newSmpScan"), self.smpEntry, True)

@@ -60,7 +60,7 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
     def connectionError(self):
         error = QtGui.QErrorMessage()
         error.showMessage('''\
-        SMP was unabel to connect to the "%s" spec instance at "%s". Please \
+        Unabel to connect to the "%s" spec instance at "%s". Please \
         make sure you have started spec in server mode (for example "spec \
         -S").'''%tuple(self.getSpecVersion().split(':')))
         error.exec_()

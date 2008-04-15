@@ -69,7 +69,7 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         """
         QtCore.QObject.__init__(self)
         Spec.Spec.__init__(self, specVersion, timeout)
-        self.cmd = SpecCommand.SpecCommand('', specVersion, timeout)
+        self.cmd = SpecCommand.SpecCommand('', specVersion, None)
 
         self._motors = {}
         self._motorNames = []
@@ -81,6 +81,7 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         self.dispatcher.start(QtCore.QThread.NormalPriority)
 
     def __call__(self, command):
+        if DEBUG: print "SpecRunner(%s)"%command
         self.cmd.executeCommand(command)
 
     def close(self):
