@@ -51,7 +51,7 @@ class ScanAnalysis(QtGui.QWidget):
         self.createActions()
 
         self.fitParamDlg = FitParamDialog()
-        
+
         layout = QtGui.QGridLayout()
         self.setLayout(layout)
 
@@ -73,11 +73,10 @@ class ScanAnalysis(QtGui.QWidget):
         return event.accept()
 
     def configurePyMca(self):
-        self.fitParamDlg.exec_()
-        self._pymcaConfig = self.fitParamDlg.getParameters()
-        self.scanData.setPymcaConfig(self._pymcaConfig)
+        if self.fitParamDlg.exec_():
+            self._pymcaConfig = self.fitParamDlg.getParameters()
+            self.scanData.setPymcaConfig(self._pymcaConfig)
 
-        
     def createActions(self):
         self.actions = []
 
@@ -149,7 +148,7 @@ class ScanAnalysis(QtGui.QWidget):
                       channels, counts, config)
 
     def processData(self):
-        if self._pymcaConfig is None:
+        while self._pymcaConfig is None:
             self.configurePyMca()
 
         self.resetPeaks()
@@ -169,7 +168,6 @@ class ScanAnalysis(QtGui.QWidget):
                      thread, QtCore.SLOT("deleteLater()"))
 
         thread.start(QtCore.QThread.NormalPriority)
-
 
     def resetPeaks(self):
         self._peaks = []

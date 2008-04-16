@@ -42,7 +42,7 @@ class ElementBaseFigure(plotwidgets.QtMplCanvas):
         self.scanData = scanData
         self.autoscale = True
 
-        self.axes = self.figure.add_subplot(111)
+        self.axes = self.figure.add_axes([0.1, 0.1, 0.8, 0.8])
 
         self._elementData = self.window().getElementMap()
         self._createInitialFigure()
@@ -153,7 +153,7 @@ class ElementPlotFigure(ElementBaseFigure):
 
         self._updatePixelMap()
 
-    def _createInitialFigure(self, elementData):
+    def _createInitialFigure(self):
         self._elementPlot, = self.axes.plot(self._elementData, 'b')
 
         self.axes.set_xlabel(self.scanData.getScanAxis(0, 0))
@@ -169,10 +169,12 @@ class ElementPlotFigure(ElementBaseFigure):
 
         self.xPixelLocs = numpy.linspace(xmin, xmax, len(data))
         self.yPixelLocs = numpy.linspace(0, 1, 1)
+
     def getIndices(self, xdata, ydata):
         xIndex = locateClosest(xdata, self.xPixelLocs)
-        
+
         return [self.indices[0, xIndex]]
+
     def enableAutoscale(self, val):
         self.axes.enable_autoscale_on(val)
         self.updateFigure()
@@ -197,11 +199,11 @@ class ElementPlotFigure(ElementBaseFigure):
         self.axes.autoscale_view()
 
         if self.axes.get_autoscale_on():
-            self._extent[2:] = list(self.axes.get_ylim())
-            self.emit(QtCore.SIGNAL("dataMin"), self._extent[2])
-            self.emit(QtCore.SIGNAL("dataMax"), self._ylims[3])
+            self._ylims = list(self.axes.get_ylim())
+            self.emit(QtCore.SIGNAL("dataMin"), self._ylims[0])
+            self.emit(QtCore.SIGNAL("dataMax"), self._ylims[1])
         else:
-            self.axes.set_ylim(self._extent[2:])
+            self.axes.set_ylim(self._ylims)
 
         self.draw()
 
@@ -213,7 +215,6 @@ class ElementWidget(QtGui.QWidget):
 
     def __init__(self, scanData, parent=None):
         super(ElementWidget, self).__init__(parent)
-        self.setParent(parent)
         self.scanData = scanData
 
     def __getattr__(self, attr):
@@ -316,7 +317,7 @@ class ElementPlot(ui_elementsplot.Ui_ElementsPlot, ElementWidget):
         super(ElementPlot, self).__init__(scanData, parent)
         self.setupUi(self)
 
-        self.xrfbandComboBox.addItems(scanData.getPeaks())
+        self.xrfbandComboBox.addItems(self.window().getPeaks())
 
         self.figure = ElementPlotFigure(scanData, self)
         self.toolbar = plotwidgets.Toolbar(self.figure, self)
