@@ -56,7 +56,9 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
         self.spectrumAnalysisDock = self.__createDockWindow('SpectrumAnalysisDock')
         if USE_PYMCA_ADVANCEDFIT:
-            self.spectrumAnalysis = McaAdvancedFit.McaAdvancedFit(top=False)
+            self.spectrumAnalysis = McaAdvancedFit.McaAdvancedFit(top=False,
+                                                                  margin=0,
+                                                                  spacing=0)
             self.spectrumAnalysis.matrixSpectrumButton.close()
             self.spectrumAnalysis.graphWindow.setMinimumHeight(10)
             self.spectrumAnalysis.headerLabel.hide()
