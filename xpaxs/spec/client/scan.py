@@ -63,14 +63,13 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
     def newScanData(self, scanData):
         if DEBUG: print 'scanData:', scanData
-        pass
+        self.emit(QtCore.SIGNAL("newScanIndex(int)"), i)
 
     def newScanPoint(self, i, x, y, scanData):
         scanData['i'] = i
         scanData['x'] = x
         scanData['y'] = y
         if DEBUG: print "newScanPoint:", scanData
-        self.emit(QtCore.SIGNAL("newScanIndex(int)"), i)
         self.emit(QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"), scanData)
 
     def resumeScan(self):

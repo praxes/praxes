@@ -185,9 +185,6 @@ class ScanAnalysis(QtGui.QWidget):
         if self.advancedFit:
             self.advancedFit.setData(x=channels, y=counts)
             self.advancedFit.fit()
-        else:
-            self.emit(QtCore.SIGNAL("analyzeSpectrum"),
-                      channels, counts, config)
 
     def processComplete(self):
         self.statusBarWidget.hide()

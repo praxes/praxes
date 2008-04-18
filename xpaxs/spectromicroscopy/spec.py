@@ -78,13 +78,13 @@ class SmpSpecScanA(QtSpecScanA):
     def newScanData(self, scanData):
         if DEBUG: print 'scanData:', scanData
         self.smpEntry.appendDataPoint(scanData)
+        self.emit(QtCore.SIGNAL("newScanIndex(int)"), scanData['i'])
 
     def newScanPoint(self, i, x, y, scanData):
         scanData['i'] = i
         scanData['x'] = x
         scanData['y'] = y
 #        if DEBUG: print "newScanPoint:", scanData
-        self.emit(QtCore.SIGNAL("newScanIndex(int)"), i)
         self.emit(QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"), scanData)
 
     def resumeScan(self):

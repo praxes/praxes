@@ -213,7 +213,7 @@ class SmpScan(XpaxsScan):
     def getMcaSpectrum(self, index, id='MCA'):
         try:
             self.mutex.lock()
-            return self.h5Node.data[index][id]
+            return self.h5Node.data[index][id][:]
         finally:
             self.mutex.unlock()
 
