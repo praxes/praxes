@@ -285,7 +285,6 @@ class ScanDialog(ui_scandialog.Ui_Dialog, QtGui.QDialog):
         self.specRunner('newfile %s'%specname)
         specfile = self.specRunner.getVarVal('DATAFILE')
         specCreated = os.path.split(specfile)[-1]
-        print specname, specfile, specCreated
         if specname == specCreated:
             return True
         else:
@@ -307,6 +306,7 @@ class ScanDialog(ui_scandialog.Ui_Dialog, QtGui.QDialog):
         val = settings.value('SkipMode/precount',
                              QtCore.QVariant(0)).toDouble()[0]
         self.precountSpin.setValue(val)
+        self.enableSkipmode(val)
 
         counters = self.specRunner.getCountersMne()
         self.counterBox.addItems(counters)

@@ -29,7 +29,7 @@ from xpaxs.spec.client.scan import QtSpecScanA
 # Normal code begins
 #---------------------------------------------------------------------------
 
-DEBUG = True
+DEBUG = False
 
 logfile = os.path.join(configutils.getUserConfigDir(), 'specclient.log')
 
@@ -77,7 +77,7 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         self.getMotorsMne()
         self.getCountersMne()
 
-        self.dispatcher = Dispatcher()
+        self.dispatcher = Dispatcher(self)
         self.dispatcher.start(QtCore.QThread.NormalPriority)
 
     def __call__(self, command):
@@ -88,7 +88,7 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         try:
             self.dispatcher.exit()
             self.dispatcher.wait()
-            self.connection.dispatcher.disconnect()
+#            self.connection.dispatcher.disconnect()
         except:
             pass
 

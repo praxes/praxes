@@ -72,7 +72,8 @@ def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
 
 class AdvancedFitThread(QtCore.QThread):
 
-    def __init__(self, scan, config, parent):
+    def __init__(self, scan, config, ncpus='autodetect', ppservers=(),
+                 parent=None):
         super(AdvancedFitThread, self).__init__(parent)
 
         self.mutex = QtCore.QMutex()
@@ -89,12 +90,16 @@ class AdvancedFitThread(QtCore.QThread):
 
         self.jobServer = pp.Server()
         # TODO: make this configurable
-        self.jobServer.set_ncpus(2)
+        self.jobServer.set_ncpus(ncpus)
+        self.numCpus = numpy.sum([i for i in
+                        self.jobServer.get_active_nodes().itervalues()])
+        self.numQueued = 0
+        self.numProcessed = 0
+        self.expectedLines = self.scan.getNumExpectedScanLines()
 
         self.queue = Queue.Queue()
         for i in xrange(self.scan.getNumScanLines()):
             self.queue.put(i)
-        self.previousIndex = -1
 
         self.dirty = False
         self.stopped = False
@@ -114,11 +119,6 @@ class AdvancedFitThread(QtCore.QThread):
         index = self.queue.get(False)
         # TODO: need to be able to select which mca
         spectrum = self.scan.getMcaSpectrum(index)
-        try:
-            self.mutex.lock()
-            self.previousIndex = index
-        finally:
-            self.mutex.unlock()
         return index, spectrum
 
     def getQueue(self):
@@ -137,22 +137,29 @@ class AdvancedFitThread(QtCore.QThread):
 
             d0 = time.time()
 
-            for i in xrange(self.jobServer.get_ncpus()*2):
-                try: self.queueNext()
-                except Queue.Empty: break
+            self.queueNext()
 
             self.jobServer.wait()
 
-            expectedLines = self.scan.getNumExpectedScanLines()
             time.sleep(0.01)
-            if expectedLines <= (self.previousIndex+1): return
+            self.expectedLines = self.scan.getNumExpectedScanLines()
+            if self.expectedLines <= (self.numProcessed): return
 
     def queueNext(self):
-        index, spectrum = self.findNextPoint()
-        args = (index, spectrum, self.tconf, self.advancedFit,
-                self.concentrationsTool)
-        self.jobServer.submit(analyzeSpectrum, args,
-                              callback=self.updateRecords)
+        try:
+            self.mutex.lock()
+            while self.numQueued < self.numCpus*2:
+                try:
+                    index, spectrum = self.findNextPoint()
+                    args = (index, spectrum, self.tconf, self.advancedFit,
+                            self.concentrationsTool)
+                    self.jobServer.submit(analyzeSpectrum, args,
+                                          callback=self.updateRecords)
+                    self.numQueued += 1
+                except Queue.Empty:
+                    break
+        finally:
+            self.mutex.unlock()
 
     def run(self):
         self.processData()
@@ -167,34 +174,41 @@ class AdvancedFitThread(QtCore.QThread):
             self.mutex.unlock()
 
     def updateRecords(self, data):
-        result = data['result']
         try:
             self.mutex.lock()
-            self.advancedFit = data['advancedFit']
+            self.numQueued -= 1
+            self.numProcessed += 1
+            self.emit(QtCore.SIGNAL('percentComplete'),
+                      100*self.numProcessed/self.expectedLines)
+            if data: self.advancedFit = data['advancedFit']
         finally:
             self.mutex.unlock()
 
-        shape = self.scan.getScanShape()
-        index = flat_to_nd(data['index'], shape)
+        if data:
+            shape = self.scan.getScanShape()
+            index = flat_to_nd(data['index'], shape)
 
-        for group in result['groups']:
-            g = group.replace(' ', '')
+            result = data['result']
+            for group in result['groups']:
+                g = group.replace(' ', '')
 
-            fitArea = result[group]['fitarea']
-            if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
-            else: sigmaArea = numpy.nan
+                fitArea = result[group]['fitarea']
+                if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
+                else: sigmaArea = numpy.nan
 
-            self.scan.updateElementMap('fitArea', g, index, fitArea)
-            self.scan.updateElementMap('sigmaArea', g, index, sigmaArea)
+                self.scan.updateElementMap('fitArea', g, index, fitArea)
+                self.scan.updateElementMap('sigmaArea', g, index, sigmaArea)
 
-        if 'concentrations' in result:
-            massFractions = result['concentrations']['mass fraction']
-            for key, val in massFractions.iteritems():
-                k = key.replace(' ', '')
-                self.scan.updateElementMap('massFraction', k, index, val)
-        self.dirty = True
+            if 'concentrations' in result:
+                massFractions = result['concentrations']['mass fraction']
+                for key, val in massFractions.iteritems():
+                    k = key.replace(' ', '')
+                    self.scan.updateElementMap('massFraction', k, index, val)
+            self.dirty = True
 
-        try: self.queueNext()
+        try:
+            if not self.isStopped():
+                self.queueNext()
         except Queue.Empty: pass
 
     def report(self):

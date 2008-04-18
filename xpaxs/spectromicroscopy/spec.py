@@ -29,7 +29,7 @@ from xpaxs.spec.ui.specconnect import SpecConnect, SpecInterface
 # Normal code begins
 #---------------------------------------------------------------------------
 
-DEBUG = True
+DEBUG = False
 
 
 class SmpSpecRunner(SpecRunner):
@@ -91,6 +91,7 @@ class SmpSpecScanA(QtSpecScanA):
         self._resumeScan()
 
     def scanAborted(self):
+        self.smpEntry.setNumExpectedScanLines(self.smpEntry.getNumScanLines())
         self.emit(QtCore.SIGNAL("scanAborted()"))
 
     def scanFinished(self):

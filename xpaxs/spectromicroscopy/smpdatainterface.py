@@ -238,7 +238,10 @@ class SmpScan(XpaxsScan):
     def getPymcaConfig(self):
         try:
             self.mutex.lock()
-            return self.h5Node._v_attrs.pymcaConfig
+            try:
+                return self.h5Node._v_attrs.pymcaConfig
+            except AttributeError:
+                return None
         finally:
             self.mutex.unlock()
 

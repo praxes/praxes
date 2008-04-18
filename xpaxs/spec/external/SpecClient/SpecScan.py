@@ -106,7 +106,7 @@ class SpecScanA:
 
     def __newScanData(self, scanData):
         if DEBUG: print "SpecScanA.__newScanData", scanData
-        if self.__scanning:
+        if self.__scanning and scanData:
             scanData = dict([i.split("=", 1)
                              for i in scanData.rstrip("\t").split("\t")])
 
@@ -128,7 +128,7 @@ class SpecScanA:
 
     def __newScanPoint(self, scanData):
         if DEBUG: print "SpecScanA.__newScanPoint", scanData
-        if self.__scanning:
+        if self.__scanning and scanData:
             scanData = dict([i.split("=", 1)
                              for i in scanData.rstrip("\t").split("\t")])
 

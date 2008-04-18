@@ -13,6 +13,7 @@ import sys
 
 from PyMca import McaAdvancedFit
 from PyQt4 import QtCore, QtGui
+import numpy
 
 #---------------------------------------------------------------------------
 # xpaxs imports
@@ -31,7 +32,6 @@ from xpaxs.spectromicroscopy.smpdatainterface import SmpFile
 #---------------------------------------------------------------------------
 
 
-USE_PYMCA_ADVANCEDFIT = True
 McaAdvancedFit.USE_BOLD_FONT = False
 
 
@@ -55,16 +55,16 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.setCentralWidget(self.mdi)
 
         self.spectrumAnalysisDock = self.__createDockWindow('SpectrumAnalysisDock')
-        if USE_PYMCA_ADVANCEDFIT:
-            self.spectrumAnalysis = McaAdvancedFit.McaAdvancedFit(top=False,
-                                                                  margin=0,
-                                                                  spacing=0)
-            self.spectrumAnalysis.matrixSpectrumButton.close()
-            self.spectrumAnalysis.graphWindow.setMinimumHeight(10)
-            self.spectrumAnalysis.headerLabel.hide()
-            self.spectrumAnalysis.dismissButton.hide()
-        else:
-            self.spectrumAnalysis = McaSpectrum()
+        self.spectrumAnalysis = McaAdvancedFit.McaAdvancedFit(top=False,
+                                                              margin=0,
+                                                              spacing=0)
+        self.spectrumAnalysis.matrixSpectrumButton.close()
+        self.spectrumAnalysis.graphWindow.setMinimumHeight(10)
+        self.spectrumAnalysis.headerLabel.hide()
+        self.spectrumAnalysis.dismissButton.hide()
+        self.spectrumAnalysis.configureButton.hide()
+        self.spectrumAnalysis.setData(x=numpy.arange(1000),
+                                      y=numpy.zeros(1000))
         self.__setupDockWindow(self.spectrumAnalysisDock,
                                QtCore.Qt.BottomDockWidgetArea,
                                self.spectrumAnalysis, 'Spectrum Analysis')
@@ -176,6 +176,9 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                     "X-ray fluorescence spectra"%__version__))
 
     def closeEvent(self, event):
+        self.mdi.closeAllSubWindows()
+        if len(self.mdi.subWindowList()) > 0:
+            return event.ignore()
         self.connectToSpec(False)
         settings = QtCore.QSettings()
         settings.beginGroup("MainWindow")
@@ -236,13 +239,13 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         if scan in self.openScans:
             return
 
-        if USE_PYMCA_ADVANCEDFIT:
-            scanView = ScanAnalysis(scan, advancedFit=self.spectrumAnalysis)
-        else:
-            scanView = ScanAnalysis(scan)
-            self.connect(scanView, QtCore.SIGNAL("analyzeSpectrum"),
-                         self.spectrumAnalysis.analyzeSpectrum)
+        scanView = ScanAnalysis(scan, self.spectrumAnalysis)
+
         self.connect(scanView, QtCore.SIGNAL("scanClosed"), self.scanClosed)
+        self.connect(scanView, QtCore.SIGNAL("addStatusBarWidget"),
+                     self.statusBar.addPermanentWidget)
+        self.connect(scanView, QtCore.SIGNAL("removeStatusBarWidget"),
+                     self.statusBar.removeWidget)
 
         subWindow = self.mdi.addSubWindow(scanView)
         subWindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)
