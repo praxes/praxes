@@ -58,6 +58,7 @@ class XpaxsFile(QtCore.QObject):
 
     def createEntry(self, scanParams):
         # This should be reimplemented in subclasses
+        scanParams = copy.deepcopy(scanParams)
         scanName = scanParams['title'].lower().replace(' ', '')
         try:
             self.mutex.lock()
@@ -119,6 +120,7 @@ class XpaxsScan(XpaxsNode):
     """A thread-safe interface to the scan data"""
 
     def appendDataPoint(self, data):
+        data = copy.deepcopy(data)
         try:
             self.mutex.lock()
             row = self.h5Node.data.row
@@ -136,7 +138,7 @@ class XpaxsScan(XpaxsNode):
     def getDataFileName(self):
         try:
             self.mutex.lock()
-            return self.h5Node._v_attrs.fileName
+            return self.h5Node._v_attrs.fileName[:]
         finally:
             self.mutex.unlock()
 
@@ -153,7 +155,7 @@ class XpaxsScan(XpaxsNode):
     def getNumExpectedScanLines(self):
         try:
             self.mutex.lock()
-            return self.h5Node._v_attrs.scanLines
+            return copy.copy(self.h5Node._v_attrs.scanLines)
         finally:
             self.mutex.unlock()
 
@@ -174,7 +176,7 @@ class XpaxsScan(XpaxsNode):
     def getScanAxes(self):
         try:
             self.mutex.lock()
-            return self.h5Node._v_attrs.scanAxes
+            return copy.deepcopy(self.h5Node._v_attrs.scanAxes)
         finally:
             self.mutex.unlock()
 
@@ -184,7 +186,7 @@ class XpaxsScan(XpaxsNode):
         # we adopt the nexus format
         try:
             self.mutex.lock()
-            return self.h5Node._v_attrs.scanAxes[axis][index]
+            return self.h5Node._v_attrs.scanAxes[axis][index][:]
         except IndexError, KeyError:
             return ''
         finally:
@@ -193,35 +195,35 @@ class XpaxsScan(XpaxsNode):
     def getScanCommand(self):
         try:
             self.mutex.lock()
-            return self.h5Node._v_attrs.scanCommand
+            return self.h5Node._v_attrs.scanCommand[:]
         finally:
             self.mutex.unlock()
 
     def getScanNumber(self):
         try:
             self.mutex.lock()
-            return self.h5Node._v_attrs.scanNumber
+            return copy.copy(self.h5Node._v_attrs.scanNumber)
         finally:
             self.mutex.unlock()
 
     def getScanRange(self, axis):
         try:
             self.mutex.lock()
-            return self.h5Node._v_attrs.scanRange[axis]
+            return copy.deepcopy(self.h5Node._v_attrs.scanRange[axis])
         finally:
             self.mutex.unlock()
 
     def getScanShape(self):
         try:
             self.mutex.lock()
-            return self.h5Node._v_attrs.scanShape
+            return copy.deepcopy(self.h5Node._v_attrs.scanShape)
         finally:
             self.mutex.unlock()
 
     def getScanType(self):
         try:
             self.mutex.lock()
-            return self.h5Node._v_attrs.scanType
+            return self.h5Node._v_attrs.scanType[:]
         finally:
             self.mutex.unlock()
 
@@ -230,6 +232,7 @@ class XpaxsScan(XpaxsNode):
         self.flush()
 
     def setNumExpectedScanLines(self, val):
+        val = copy.copy(val)
         try:
             self.mutex.lock()
             self.h5Node._v_attrs.scanLines = val

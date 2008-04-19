@@ -61,6 +61,7 @@ def getSpecScanInfo(commandList):
 class SmpFile(XpaxsFile):
 
     def createEntry(self, scanParams):
+        scanParams = copy.deepcopy(scanParams)
         scanName = scanParams['title'].lower().replace(' ', '')
         try:
             self.mutex.lock()
@@ -144,6 +145,7 @@ class SmpFile(XpaxsFile):
 class SmpScan(XpaxsScan):
 
     def initializeElementMaps(self, elements):
+        elements = copy.deepcopy(elements)
         shape = self.getScanShape()
         filters = self.getH5Filters()
         try:
@@ -151,7 +153,6 @@ class SmpScan(XpaxsScan):
             try:
                 self.h5Node._v_file.removeNode(self.h5Node, 'elementMaps',
                                        recursive=True)
-#                self.flush()
             except tables.NoSuchNodeError:
                 pass
             elementMaps = self.h5Node._v_file.createGroup(self.h5Node,
@@ -166,9 +167,9 @@ class SmpScan(XpaxsScan):
                                              tables.Float32Atom(),
                                              shape,
                                              filters=filters)
-#            self.flush()
         finally:
             self.mutex.unlock()
+        self.flush()
 
     def getAvailableElements(self):
         try:
@@ -220,15 +221,14 @@ class SmpScan(XpaxsScan):
     def getMcaChannels(self, id='MCA'):
         try:
             self.mutex.lock()
-            mcaMetaData = getattr(self.h5Node, id)
-            return mcaMetaData.channels[:]
+            return getattr(self.h5Node, id).channels[:]
         finally:
             self.mutex.unlock()
 
     def getNormalizationChannels(self):
         try:
             self.mutex.lock()
-            channels = [i for i in self.h5Node.data.colnames
+            channels = [i for i in copy.deepcopy(self.h5Node.data.colnames)
                         if not i in self.h5Node._v_attrs]
         finally:
             self.mutex.unlock()
@@ -239,7 +239,7 @@ class SmpScan(XpaxsScan):
         try:
             self.mutex.lock()
             try:
-                return self.h5Node._v_attrs.pymcaConfig
+                return copy.deepcopy(self.h5Node._v_attrs.pymcaConfig)
             except AttributeError:
                 return None
         finally:
@@ -248,15 +248,15 @@ class SmpScan(XpaxsScan):
     def setPymcaConfig(self, config):
         try:
             self.mutex.lock()
-            self.h5Node._v_attrs.pymcaConfig = config
+            self.h5Node._v_attrs.pymcaConfig = copy.deepcopy(config)
         finally:
             self.mutex.unlock()
 
     def getSkipmode(self):
         try:
             self.mutex.lock()
-            mon = self.h5Node._v_attrs.skipmodeMonitor
-            thresh = self.h5Node._v_attrs.skipmodeThresh
+            mon = self.h5Node._v_attrs.skipmodeMonitor[:]
+            thresh = copy.copy(self.h5Node._v_attrs.skipmodeThresh)
             return (mon, thresh)
         except AttributeError:
             return (None, 0)
@@ -279,6 +279,8 @@ class SmpScan(XpaxsScan):
         else: return valid
 
     def setSkipmode(self, monitor=None, thresh=0):
+        monitor = copy.copy(monitor)
+        thresh = copy.copy(thresh)
         try:
             self.mutex.lock()
             self.h5Node._v_attrs.skipmodeMonitor = monitor
@@ -287,6 +289,7 @@ class SmpScan(XpaxsScan):
             self.mutex.unlock()
 
     def updateElementMap(self, mapType, element, index, val):
+        val = copy.copy(val)
         node = '/'.join(['elementMaps', mapType, element])
         try:
             self.mutex.lock()
