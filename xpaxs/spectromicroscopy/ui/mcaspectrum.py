@@ -11,6 +11,8 @@
 # Extlib imports
 #---------------------------------------------------------------------------
 
+from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg\
+    as MplToolbar
 import numpy
 from PyMca.ClassMcaTheory import McaTheory
 from PyQt4 import QtCore, QtGui
@@ -66,15 +68,30 @@ class McaSpectrumFigure(plotwidgets.QtMplCanvas):
         self.residualsAxes.set_ylabel('Res.')
         self.residualsAxes.set_xlabel('Energy (KeV)')
 
+    def configure(self, configDict):
+        msg = QtGui.QDialog(self, QtCore.Qt.FramelessWindowHint)
+        msg.setModal(0)
+        msg.setWindowTitle("Please Wait")
+        layout = QtGui.QHBoxLayout(msg)
+        label = QtGui.QLabel(msg)
+        layout.addWidget(label)
+        label.setText("Configuring, please wait...")
+        label.show()
+        msg.show()
+        QtGui.qApp.processEvents()
+        newDict = self.mcafit.configure(configDict)
+        msg.close()
+        return newDict
+
     def enableLogscale(self, val):
         self.useLogScale = val
         self.updateFigure()
 
-    def analyzeSpectrum(self, channels, counts, config):
-        self.fitconfig = fitconfig = self.mcafit.configure(config)
-        self.mcafit.setdata(x=channels, y=counts)
+    def setData(self, *args, **kwargs):
+        self.mcafit.setdata(*args, **kwargs)
 
-        if fitconfig['peaks'] == {}:
+    def fit(self):
+        if self.mcafit.config['peaks'] == {}:
             msg = QtGui.QMessageBox(self)
             msg.setIcon(QtGui.QMessageBox.Information)
             msg.setText("No peaks defined.\nPlease configure peaks")
@@ -87,7 +104,7 @@ class McaSpectrumFigure(plotwidgets.QtMplCanvas):
         layout = QtGui.QHBoxLayout(msg)
         label = QtGui.QLabel(msg)
         layout.addWidget(label)
-        label.setText("Please Wait")
+        label.setText("Calculating fit...")
         label.show()
         msg.show()
         QtGui.qApp.processEvents()
@@ -143,10 +160,12 @@ class McaSpectrumFigure(plotwidgets.QtMplCanvas):
         self.spectrumAxes.plot(xdata, results['continuum'], linewidth=1.5,
                                label='continuum')
 
-        if self.fitconfig['fit']['sumflag']:
+        try:
             continuum = results['pileup']+results['continuum']
             self.spectrumAxes.plot(xdata, continuum, linewidth=1.5,
                                    label='pileup')
+        except KeyError:
+            pass
         if results.has_key('ymatrix'):
             self.spectrumAxes.plot(xdata, results['ymatrix'], linewidth=1.5,
                                    label='matrix')
@@ -189,7 +208,7 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
         self.setupUi(self)
 
         self.figure = McaSpectrumFigure(self)
-        self.toolbar = plotwidgets.Toolbar(self.figure, self)
+        self.toolbar = MplToolbar(self.figure, self)
         self.gridlayout1.addWidget(self.toolbar, 0, 0, 1, 1)
         self.gridlayout1.addWidget(self.figure, 1, 0, 1, 1)
 

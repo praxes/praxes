@@ -66,7 +66,7 @@ class ScanAnalysis(QtGui.QWidget):
                                            QtGui.QSizePolicy.Minimum)
         self.progressBar = QtGui.QProgressBar()
         self.processAbortButton = QtGui.QPushButton("Abort")
-        label = QtGui.QLabel('analysis proceeding:')
+        label = QtGui.QLabel('analysis in progress:')
         layout = QtGui.QHBoxLayout()
         layout.setMargin(0)
         layout.setSpacing(0)
@@ -172,6 +172,7 @@ class ScanAnalysis(QtGui.QWidget):
                 self.configurePyMca()
             else:
                 self.advancedFit.configure(self._pymcaConfig)
+                self._pymcaConfig = self.advancedFit.mcafit.config
 
         indices = self.scanData.getValidDataPoints(indices)
 
@@ -180,11 +181,9 @@ class ScanAnalysis(QtGui.QWidget):
         counts = numpy.array([self.scanData.getMcaSpectrum(index)
                               for index in indices]).sum(0)/len(indices)
         channels = self.scanData.getMcaChannels()
-        config = self._pymcaConfig
 
-        if self.advancedFit:
-            self.advancedFit.setData(x=channels, y=counts)
-            self.advancedFit.fit()
+        self.advancedFit.setData(x=channels, y=counts)
+        self.advancedFit.fit()
 
     def processComplete(self):
         self.statusBarWidget.hide()

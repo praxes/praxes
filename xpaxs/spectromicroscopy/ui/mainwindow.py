@@ -31,7 +31,7 @@ from xpaxs.spectromicroscopy.smpdatainterface import SmpFile
 # Normal code begins
 #---------------------------------------------------------------------------
 
-
+USE_PYMCA_ADVANCEDFIT = False
 McaAdvancedFit.USE_BOLD_FONT = False
 
 
@@ -55,16 +55,19 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.setCentralWidget(self.mdi)
 
         self.spectrumAnalysisDock = self.__createDockWindow('SpectrumAnalysisDock')
-        self.spectrumAnalysis = McaAdvancedFit.McaAdvancedFit(top=False,
-                                                              margin=0,
-                                                              spacing=0)
-        self.spectrumAnalysis.matrixSpectrumButton.close()
-        self.spectrumAnalysis.graphWindow.setMinimumHeight(10)
-        self.spectrumAnalysis.headerLabel.hide()
-        self.spectrumAnalysis.dismissButton.hide()
-        self.spectrumAnalysis.configureButton.hide()
-        self.spectrumAnalysis.setData(x=numpy.arange(1000),
-                                      y=numpy.zeros(1000))
+        if USE_PYMCA_ADVANCEDFIT:
+            self.spectrumAnalysis = McaAdvancedFit.McaAdvancedFit(top=False,
+                                                                  margin=0,
+                                                                  spacing=0)
+            self.spectrumAnalysis.matrixSpectrumButton.close()
+            self.spectrumAnalysis.graphWindow.setMinimumHeight(10)
+            self.spectrumAnalysis.headerLabel.hide()
+            self.spectrumAnalysis.dismissButton.hide()
+            self.spectrumAnalysis.configureButton.hide()
+            self.spectrumAnalysis.setData(x=numpy.arange(1000),
+                                          y=numpy.zeros(1000))
+        else:
+            self.spectrumAnalysis = McaSpectrum()
         self.__setupDockWindow(self.spectrumAnalysisDock,
                                QtCore.Qt.BottomDockWidgetArea,
                                self.spectrumAnalysis, 'Spectrum Analysis')

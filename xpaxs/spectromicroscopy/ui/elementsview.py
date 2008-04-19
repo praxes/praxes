@@ -25,6 +25,7 @@ from xpaxs.spectromicroscopy.ui import ui_elementsimage, ui_elementsplot
 # Normal code begins
 #---------------------------------------------------------------------------
 
+DEBUG = True
 
 def locateClosest(point, points):
     compare = numpy.abs(points-point)
@@ -250,6 +251,8 @@ class ElementWidget(QtGui.QWidget):
                      self.onPick)
 
     def onPick(self, xstart, ystart, xend, yend):
+        self.setEnabled(False)
+
         numberOfX = self.figure.xPixelLocs.shape[0]
         numberOfY = self.figure.yPixelLocs.shape[0]
 
@@ -265,10 +268,15 @@ class ElementWidget(QtGui.QWidget):
         dx = 2*(xstart < xend) - 1
         dy = 2*(ystart < yend) - 1
 
-        indices = [x*numberOfY+y for x in range(xstart, xend+dx, dx)
-                   for y in range(ystart, yend+dy, dy)]
+        try:
+            indices = [x*numberOfY+y for x in range(xstart, xend+dx, dx)
+                       for y in range(ystart, yend+dy, dy)]
 
-        self.emit(QtCore.SIGNAL('pickEvent'), indices)
+            self.emit(QtCore.SIGNAL('pickEvent'), indices)
+        except TypeError:
+            # This occurs when args to onPick are len > 1. How can this happen?
+            pass
+        self.setEnabled(True)
 
     def setAvailablePeaks(self, peaks):
         self.xrfbandComboBox.clear()
