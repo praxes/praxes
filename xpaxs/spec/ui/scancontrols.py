@@ -40,7 +40,6 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
 
         self.axes = []
         self.axesTab.removeTab(0)
-        self.progressBar.setVisible(False)
 
         scans = list(utils.MOTOR_SCANS)
         self.scanTypeComboBox.addItems(scans)
@@ -58,7 +57,24 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.scanStackedLayout.addWidget(self.scanButton)
         self.scanStackedLayout.addWidget(self.pauseButton)
         self.scanStackedLayout.addWidget(self.resumeButton)
-        self.stackedLayoutFrame.setGeometry(self.abortButton.geometry())
+#        self.stackedLayoutFrame.setGeometry(self.abortButton.geometry())
+
+        self.statusBarWidget = QtGui.QWidget(self)
+        # make it fit in the status bar without resizing the status bar
+        self.statusBarWidget.setMaximumHeight(17)
+        self.statusBarWidget.setSizePolicy(QtGui.QSizePolicy.Minimum,
+                                           QtGui.QSizePolicy.Minimum)
+        self.progressBar = QtGui.QProgressBar()
+        self.abortButton = QtGui.QPushButton("Abort")
+        label = QtGui.QLabel('scan in progress:')
+        layout = QtGui.QHBoxLayout()
+        layout.setMargin(0)
+        layout.setSpacing(0)
+        layout.addWidget(label)
+        layout.addWidget(self.progressBar)
+        layout.addWidget(self.abortButton)
+        self.statusBarWidget.setLayout(layout)
+        self.statusBarWidget.hide()
 
         self.connectSignals()
 
@@ -150,15 +166,17 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.scanCountSpinBox.setEnabled(False)
         self.disconnectAxesSignals()
         self.scanStackedLayout.setCurrentWidget(self.pauseButton)
-        self.progressBar.setValue(0)
-        self.progressBar.setVisible(True)
+        self.progressBar.reset()
+        self.emit(QtCore.SIGNAL("addStatusBarWidget"), self.statusBarWidget)
+        self.statusBarWidget.show()
 
     def scanFinished(self):
         self.scanTypeComboBox.setEnabled(True)
         self.scanCountSpinBox.setEnabled(True)
         self.connectAxesSignals()
         self.scanStackedLayout.setCurrentWidget(self.scanButton)
-        self.progressBar.setVisible(False)
+        self.emit(QtCore.SIGNAL("removeStatusBarWidget"), self.statusBarWidget)
+        self.statusBarWidget.hide()
 
     def scanPaused(self):
         self.specRunner.abort()

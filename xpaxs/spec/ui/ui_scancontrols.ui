@@ -153,23 +153,6 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2" >
-    <widget class="QPushButton" name="abortButton" >
-     <property name="enabled" >
-      <bool>false</bool>
-     </property>
-     <property name="text" >
-      <string>Abort</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="2" >
-    <widget class="QProgressBar" name="progressBar" >
-     <property name="value" >
-      <number>0</number>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <resources/>

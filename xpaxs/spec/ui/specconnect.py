@@ -141,6 +141,10 @@ class SpecInterface(QtCore.QObject):
                      QtCore.SIGNAL("triggered()"),
                      lambda : configdialog.ConfigDialog(self.specRunner,
                                                         self.mainWindow))
+        self.connect(self.scanControls, QtCore.SIGNAL("addStatusBarWidget"),
+                     self.mainWindow.statusBar.addPermanentWidget)
+        self.connect(self.scanControls, QtCore.SIGNAL("removeStatusBarWidget"),
+                     self.mainWindow.statusBar.removeWidget)
 
     def addDockWidget(self, widget, title, allowedAreas, defaultArea,
                       name = None):
