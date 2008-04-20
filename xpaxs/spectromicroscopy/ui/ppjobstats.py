@@ -103,4 +103,5 @@ class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):
 
         self.jobStatsTable.resizeColumnsToContents()
         self.jobStatsTable.resizeRowsToContents()
+        self.jobStatsTable.sortItems(0, QtCore.Qt.DescendingOrder)
         self.jobStatsTable.setUpdatesEnabled(True)
