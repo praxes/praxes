@@ -67,10 +67,10 @@ class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):
 
         totalJobs = numpy.sum([i.njobs for i in statsDict.itervalues()])
 
+        self.jobStatsTable.setUpdatesEnabled(False)
         self.jobStatsTable.clearContents()
-        self.jobStatsTable.setRowCount(0)
+        self.jobStatsTable.setRowCount(len(statsDict))
         for row, (address, stats) in enumerate(statsDict.iteritems()):
-            self.jobStatsTable.insertRow(row)
             item = QtGui.QTableWidgetItem(address)
             item.setTextAlignment(QtCore.Qt.AlignCenter)
             self.jobStatsTable.setItem(row, 0, item)
@@ -84,7 +84,7 @@ class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):
             self.jobStatsTable.setItem(row, 2, item)
 
             try:
-                item = QtGui.QTableWidgetItem('%d'%(100*stats.njobs/totalJobs))
+                item = QtGui.QTableWidgetItem('%.2f'%(100*stats.njobs/totalJobs))
                 item.setTextAlignment(QtCore.Qt.AlignCenter)
                 self.jobStatsTable.setItem(row, 3, item)
             except ZeroDivisionError:
@@ -103,3 +103,4 @@ class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):
 
         self.jobStatsTable.resizeColumnsToContents()
         self.jobStatsTable.resizeRowsToContents()
+        self.jobStatsTable.setUpdatesEnabled(True)
