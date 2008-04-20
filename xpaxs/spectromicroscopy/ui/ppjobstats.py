@@ -84,7 +84,7 @@ class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):
             self.jobStatsTable.setItem(row, 2, item)
 
             try:
-                item = QtGui.QTableWidgetItem('%.2f'%(100*stats.njobs/totalJobs))
+                item = QtGui.QTableWidgetItem('%.2f'%(100.*stats.njobs/totalJobs))
                 item.setTextAlignment(QtCore.Qt.AlignCenter)
                 self.jobStatsTable.setItem(row, 3, item)
             except ZeroDivisionError:
