@@ -89,6 +89,7 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def getSpecVersion(self):
         settings = QtCore.QSettings()
+        settings.beginGroup('SpecConnect')
         server = "%s"% settings.value('Server').toString()
         port = "%s"% settings.value('Port').toString()
         return ':'.join([server, port])
@@ -97,7 +98,6 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
         settings = QtCore.QSettings()
         settings.beginGroup('SpecConnect')
         server = settings.value('Server').toString()
-        print server
         port = settings.value('Port').toString()
         self.serverEdit.setText(server)
         self.portEdit.setText(port)

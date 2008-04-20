@@ -197,6 +197,7 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
         self.peaksSpectrum()
         self.updateFigure()
         msg.close()
+        QtGui.qApp.processEvents()
 
         # handle concentrations:
         config = self.mcafit.config
