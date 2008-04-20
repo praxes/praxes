@@ -8,6 +8,7 @@ from xpaxs.spectromicroscopy.ui import mainwindow
 
 app = QtGui.QApplication(sys.argv)
 app.setOrganizationName('XPaXS')
+app.setApplicationName('SFXM')
 myapp = mainwindow.MainWindow()
 myapp.show()
 sys.exit(app.exec_())
