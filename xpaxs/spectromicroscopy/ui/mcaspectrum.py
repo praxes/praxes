@@ -64,10 +64,6 @@ class McaSpectrumFigure(plotwidgets.QtMplCanvas):
         self.residualsAxes.set_ylabel('Res.')
         self.residualsAxes.set_xlabel('Energy (KeV)')
 
-    def enableLogscale(self, val):
-        self.useLogScale = val
-        self.updateFigure()
-
     def updateFigure(self, results):
         xdata = results['energy'][:]
 
@@ -114,6 +110,10 @@ class McaSpectrumFigure(plotwidgets.QtMplCanvas):
 
         if self.useLogScale:
             self.spectrumAxes.set_yscale('log')
+            ylim = self.spectrumAxes.get_ylim()
+            if ylim[0] < 0.001:
+                ylim[0] = 0.001
+                self.spectrumAxes.set_ylim(ylim)
 
         self.draw()
 
@@ -140,7 +140,7 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
 
         self.connect(self.mcaLogscaleButton,
                      QtCore.SIGNAL("clicked(bool)"),
-                     self.figure.enableLogscale)
+                     self.enableLogscale)
 
     def __getattr__(self, attr):
         return getattr(self.figure, attr)
@@ -168,6 +168,10 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
     def enableInteraction(self):
         self.mcaAutoscaleButton.setEnabled(True)
         self.mcaLogscaleButton.setEnabled(True)
+
+    def enableLogscale(self, val):
+        self.figure.useLogScale = val
+        self.updateFigure()
 
     def fit(self):
         if self.mcafit.config['peaks'] == {}:
