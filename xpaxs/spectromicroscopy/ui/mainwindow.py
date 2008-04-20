@@ -67,7 +67,19 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             self.spectrumAnalysis.setData(x=numpy.arange(1000),
                                           y=numpy.zeros(1000))
         else:
-            self.spectrumAnalysis = McaSpectrum()
+            # The standard Concentrations widget requires too much space,
+            # we'll use a slightly modified one unless the changes area
+            # accepted upstream...
+            #from PyMca.ConcentrationsWidget import Concentrations
+            from xpaxs.spectromicroscopy.ui.concentrations import Concentrations
+            self.concentrationsAnalysisDock = \
+                    self.__createDockWindow('ConcentrationAnalysisDock')
+            self.concentrationsAnalysis = Concentrations()
+            self.__setupDockWindow(self.concentrationsAnalysisDock,
+                                   QtCore.Qt.BottomDockWidgetArea,
+                                   self.concentrationsAnalysis,
+                                   'Concentrations Analysis')
+            self.spectrumAnalysis = McaSpectrum(self.concentrationsAnalysis)
         self.__setupDockWindow(self.spectrumAnalysisDock,
                                QtCore.Qt.BottomDockWidgetArea,
                                self.spectrumAnalysis, 'Spectrum Analysis')

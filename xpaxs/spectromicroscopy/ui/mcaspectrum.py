@@ -53,10 +53,6 @@ class McaSpectrumFigure(plotwidgets.QtMplCanvas):
     def __init__(self, parent=None):
         super(McaSpectrumFigure, self).__init__(parent)
 
-        self.mcafit = McaTheory()
-#        self.mcafit.enableOptimizedLinearFit()
-        self.fitData = None
-
         self.useLogScale = False
 
         self.spectrumAxes = self.figure.add_axes([.1, .4, .7, .55])
@@ -68,87 +64,11 @@ class McaSpectrumFigure(plotwidgets.QtMplCanvas):
         self.residualsAxes.set_ylabel('Res.')
         self.residualsAxes.set_xlabel('Energy (KeV)')
 
-    def configure(self, configDict):
-        msg = QtGui.QDialog(self, QtCore.Qt.FramelessWindowHint)
-        msg.setModal(0)
-        msg.setWindowTitle("Please Wait")
-        layout = QtGui.QHBoxLayout(msg)
-        label = QtGui.QLabel(msg)
-        layout.addWidget(label)
-        label.setText("Configuring, please wait...")
-        label.show()
-        msg.show()
-        QtGui.qApp.processEvents()
-        newDict = self.mcafit.configure(configDict)
-        msg.close()
-        return newDict
-
     def enableLogscale(self, val):
         self.useLogScale = val
         self.updateFigure()
 
-    def setData(self, *args, **kwargs):
-        self.mcafit.setdata(*args, **kwargs)
-
-    def fit(self):
-        if self.mcafit.config['peaks'] == {}:
-            msg = QtGui.QMessageBox(self)
-            msg.setIcon(QtGui.QMessageBox.Information)
-            msg.setText("No peaks defined.\nPlease configure peaks")
-            msg.exec_()
-            return
-
-        msg = QtGui.QDialog(self, QtCore.Qt.FramelessWindowHint)
-        msg.setModal(0)
-        msg.setWindowTitle("Please Wait")
-        layout = QtGui.QHBoxLayout(msg)
-        label = QtGui.QLabel(msg)
-        layout.addWidget(label)
-        label.setText("Calculating fit...")
-        label.show()
-        msg.show()
-        QtGui.qApp.processEvents()
-
-        self.mcafit.estimate()
-        fitresult, self.fitData = self.mcafit.startfit(digest=1)
-
-        self.peaksSpectrum()
-        self.updateFigure()
-
-        msg.close()
-
-    def peaksSpectrum(self):
-        fitresult = self.fitData
-        config = self.mcafit.configure()
-        groupsList = fitresult['groups']
-        if not isinstance(groupsList, list): groupsList = [groupsList]
-
-        nglobal = len(fitresult['parameters']) - len(groupsList)
-        dict = self.fitData
-
-        newparameters = fitresult['fittedpar'] * 1
-        for i in range(nglobal, len(fitresult['parameters'])):
-            newparameters[i] = 0.0
-        for i in range(nglobal, len(fitresult['parameters'])):
-            group = fitresult['parameters'][i]
-            group = fitresult['parameters'][i]
-            parameters = newparameters * 1
-            parameters[i] = fitresult['fittedpar'][i]
-            xmatrix = fitresult['xdata']
-            ymatrix = self.mcafit.mcatheory(parameters, xmatrix)
-            ymatrix.shape = [len(ymatrix), 1]
-            label = 'y'+group
-            if self.mcafit.STRIP:
-                dict[label] = ymatrix + self.mcafit.zz
-            else:
-                dict[label] = ymatrix
-            dict[label].shape = (len(dict[label]),)
-
-            self.fitData[label] = dict[label] * 1.0
-
-    def updateFigure(self):
-        results = self.fitData
-
+    def updateFigure(self, results):
         xdata = results['energy'][:]
 
         self.spectrumAxes.clear()
@@ -203,9 +123,15 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
     """
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, concentrationsWidget=None, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
+
+        self.concentrationsWidget = concentrationsWidget
+
+        self.mcafit = McaTheory()
+#        self.mcafit.enableOptimizedLinearFit()
+        self.fitData = None
 
         self.figure = McaSpectrumFigure(self)
         self.toolbar = MplToolbar(self.figure, self)
@@ -219,6 +145,106 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
     def __getattr__(self, attr):
         return getattr(self.figure, attr)
 
+    def configure(self, configDict):
+        msg = QtGui.QDialog(self, QtCore.Qt.FramelessWindowHint)
+        msg.setModal(0)
+        msg.setWindowTitle("Please Wait")
+        layout = QtGui.QHBoxLayout(msg)
+        label = QtGui.QLabel(msg)
+        layout.addWidget(label)
+        label.setText("Configuring, please wait...")
+        label.show()
+        msg.show()
+        QtGui.qApp.processEvents()
+        newDict = self.mcafit.configure(configDict)
+        try:
+            self.concentrationsWidget.setParameters(newDict['concentrations'],
+                                                    signal=False)
+        except KeyError:
+            pass
+        msg.close()
+        return newDict
+
     def enableInteraction(self):
         self.mcaAutoscaleButton.setEnabled(True)
         self.mcaLogscaleButton.setEnabled(True)
+
+    def fit(self):
+        if self.mcafit.config['peaks'] == {}:
+            msg = QtGui.QMessageBox(self)
+            msg.setIcon(QtGui.QMessageBox.Information)
+            msg.setText("No peaks defined.\nPlease configure peaks")
+            msg.exec_()
+            return
+
+        msg = QtGui.QDialog(self, QtCore.Qt.FramelessWindowHint)
+        msg.setModal(0)
+        msg.setWindowTitle("Please Wait")
+        layout = QtGui.QHBoxLayout(msg)
+        label = QtGui.QLabel(msg)
+        layout.addWidget(label)
+        label.setText("Calculating fit...")
+        label.show()
+        msg.show()
+        QtGui.qApp.processEvents()
+
+        self.mcafit.estimate()
+        fitresult, self.fitData = self.mcafit.startfit(digest=1)
+        self.peaksSpectrum()
+        self.updateFigure()
+        msg.close()
+
+        # handle concentrations:
+        config = self.mcafit.config
+        if 'concentrations' in self.mcafit.config:
+            fitresult = {'fitresult': fitresult,
+                         'result': self.fitData}
+            tool = self.concentrationsWidget
+            toolconfig = tool.getParameters()
+            concDict = config['concentrations']
+            tool.setParameters(concDict, signal=False)
+            try:
+                dict = tool.processFitResult(config=concDict,
+                                             fitresult=fitresult,
+                                             elementsfrommatrix=False,
+                                             fluorates=self.mcafit._fluoRates)
+            except:
+                msg = qt.QMessageBox(self)
+                msg.setIcon(qt.QMessageBox.Critical)
+                msg.setText("Error processing fit result: %s" % (sys.exc_info()[1]))
+                msg.exec_()
+
+    def peaksSpectrum(self):
+        fitresult = self.fitData
+        config = self.mcafit.configure()
+        groupsList = fitresult['groups']
+        if not isinstance(groupsList, list): groupsList = [groupsList]
+
+        nglobal = len(fitresult['parameters']) - len(groupsList)
+        dict = self.fitData
+
+        newparameters = fitresult['fittedpar'] * 1
+        for i in range(nglobal, len(fitresult['parameters'])):
+            newparameters[i] = 0.0
+        for i in range(nglobal, len(fitresult['parameters'])):
+            group = fitresult['parameters'][i]
+            group = fitresult['parameters'][i]
+            parameters = newparameters * 1
+            parameters[i] = fitresult['fittedpar'][i]
+            xmatrix = fitresult['xdata']
+            ymatrix = self.mcafit.mcatheory(parameters, xmatrix)
+            ymatrix.shape = [len(ymatrix), 1]
+            label = 'y'+group
+            if self.mcafit.STRIP:
+                dict[label] = ymatrix + self.mcafit.zz
+            else:
+                dict[label] = ymatrix
+            dict[label].shape = (len(dict[label]),)
+
+            self.fitData[label] = dict[label] * 1.0
+
+    def setData(self, *args, **kwargs):
+        self.mcafit.setdata(*args, **kwargs)
+
+    def updateFigure(self):
+        self.figure.updateFigure(self.fitData)

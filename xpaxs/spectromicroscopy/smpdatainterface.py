@@ -194,21 +194,12 @@ class SmpScan(XpaxsScan):
         finally:
             self.mutex.unlock()
         if normalization:
-            # TODO: this if is a wart:
-            if normalization == 'Dead time %':
-                try:
-                    self.mutex.lock()
-                    norm = getattr(self.h5Node.data.cols, 'Dead')[:]
-                finally:
-                    self.mutex.unlock()
-                norm = 1-norm/100
-            else:
-                try:
-                    self.mutex.lock()
-                    norm = getattr(self.h5Node.data.cols, normalization)[:]
-                finally:
-                    self.mutex.unlock()
-            elementMap.flat[:len(norm)] /= norm
+            try:
+                self.mutex.lock()
+                norm = getattr(self.h5Node.data.cols, normalization)[:]
+            finally:
+                self.mutex.unlock()
+            elementMap.flat[:len(norm)] /= numpy.where(norm==0, numpy.inf, norm)
         return elementMap
 
     def getMcaSpectrum(self, index, id='MCA'):
@@ -230,9 +221,11 @@ class SmpScan(XpaxsScan):
             self.mutex.lock()
             channels = [i for i in copy.deepcopy(self.h5Node.data.colnames)
                         if not i in self.h5Node._v_attrs]
+            # TODO: This is a wart, to be fixed with better structuring of
+            # files via nexus standard:
+            channels.remove('MCA')
         finally:
             self.mutex.unlock()
-        channels.insert(0, 'Dead time %')
         return channels
 
     def getPymcaConfig(self):
