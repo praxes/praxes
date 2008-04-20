@@ -199,13 +199,17 @@ class ScanAnalysis(QtGui.QWidget):
         self.resetPeaks()
 
         config = copy.deepcopy(self._pymcaConfig)
-        thread = AdvancedFitThread(self.scanData, config, ncpus=2, ppservers=(),
-                                   parent=self)
+        # TODO: get ncpus from QSettings
+        thread = AdvancedFitThread(self.scanData, config, parent=self)
         self.scanData.setQueue(thread.getQueue())
 
         self.connect(thread,
                      QtCore.SIGNAL('dataProcessed'),
                      self.elementMapUpdated)
+        self.connect(thread,
+                     QtCore.SIGNAL('ppJobStats'),
+                     self,
+                     QtCore.SIGNAL("ppJobStats"))
         self.connect(thread, QtCore.SIGNAL("finished()"),
                      self.elementMapUpdated)
         self.connect(thread, QtCore.SIGNAL("finished()"),

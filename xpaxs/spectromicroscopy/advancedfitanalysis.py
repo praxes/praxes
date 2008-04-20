@@ -5,6 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+import hashlib
 import os
 import Queue
 import tempfile
@@ -25,7 +26,7 @@ numpy.seterr(all='ignore')
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs import configutils
+
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -72,8 +73,7 @@ def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
 
 class AdvancedFitThread(QtCore.QThread):
 
-    def __init__(self, scan, config, ncpus='autodetect', ppservers=(),
-                 parent=None):
+    def __init__(self, scan, config, parent=None):
         super(AdvancedFitThread, self).__init__(parent)
 
         self.mutex = QtCore.QMutex()
@@ -88,7 +88,11 @@ class AdvancedFitThread(QtCore.QThread):
             self.concentrationsTool = ConcentrationsTool(config)
             self.tconf = self.concentrationsTool.configure()
 
-        self.jobServer = pp.Server()
+        settings = QtCore.QSettings()
+        settings.beginGroup('PPJobServers')
+        ncpus, ok = settings.value('LocalProcesses',
+                                 QtCore.QVariant(1)).toInt()
+        self.jobServer = pp.Server(ncpus, ('*',))
         # TODO: make this configurable
         self.jobServer.set_ncpus(ncpus)
         self.numCpus = numpy.sum([i for i in
@@ -214,4 +218,5 @@ class AdvancedFitThread(QtCore.QThread):
     def report(self):
         if self.dirty:
             self.emit(QtCore.SIGNAL("dataProcessed"))
+            self.emit(QtCore.SIGNAL("ppJobStats"), self.jobServer.get_stats())
             self.dirty = False

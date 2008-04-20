@@ -25,6 +25,7 @@ from xpaxs.spectromicroscopy.ui import ui_mainwindow
 from xpaxs.datalib.hdf5 import H5FileModel, H5FileView, H5FileInterface
 from xpaxs.spectromicroscopy.ui.mcaspectrum import McaSpectrum
 from xpaxs.spectromicroscopy.ui.scananalysis import ScanAnalysis
+from xpaxs.spectromicroscopy.ui.ppjobstats import PPJobStats
 from xpaxs.spectromicroscopy.smpdatainterface import SmpFile
 
 #---------------------------------------------------------------------------
@@ -87,10 +88,16 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.logRead = QtGui.QTextEdit(self)
         self.logRead.setReadOnly(True)
         self.logRead.setWordWrapMode(QtGui.QTextOption.NoWrap)
-        self.logReadDock = self.__createDockWindow('Log Dock')
+        self.logReadDock = self.__createDockWindow('LogDock')
         self.__setupDockWindow(self.logReadDock,
                                QtCore.Qt.RightDockWidgetArea,
                                self.logRead, 'System Log')
+
+        self.ppJobStats = PPJobStats()
+        self.ppJobStatsDock = self.__createDockWindow('PPJobStatsDock')
+        self.__setupDockWindow(self.ppJobStatsDock,
+                               QtCore.Qt.RightDockWidgetArea,
+                               self.ppJobStats, 'Analysis Server Stats')
 
         self.fileInterface = H5FileInterface(SmpFile, self)
         for key, (item, area, action) in \
@@ -261,6 +268,8 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                      self.statusBar.addPermanentWidget)
         self.connect(scanView, QtCore.SIGNAL("removeStatusBarWidget"),
                      self.statusBar.removeWidget)
+        self.connect(scanView, QtCore.SIGNAL("ppJobStats"),
+                     self.ppJobStats.updateTable)
 
         subWindow = self.mdi.addSubWindow(scanView)
         subWindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)

@@ -95,9 +95,9 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def restore(self):
         settings = QtCore.QSettings()
-        geometry = settings.value('SpecConnect/Geometry').toByteArray()
-        self.restoreGeometry(geometry)
+        settings.beginGroup('SpecConnect')
         server = settings.value('Server').toString()
+        print server
         port = settings.value('Port').toString()
         self.serverEdit.setText(server)
         self.portEdit.setText(port)
@@ -110,10 +110,9 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def save(self):
         settings = QtCore.QSettings()
+        settings.beginGroup('SpecConnect')
         settings.setValue('Port', QtCore.QVariant(self.portEdit.text()))
         settings.setValue('Server', QtCore.QVariant(self.serverEdit.text()))
-        settings.setValue('SpecConnect/Geometry',
-                          QtCore.QVariant(self.saveGeometry()))
 
 
 class SpecInterface(QtCore.QObject):
