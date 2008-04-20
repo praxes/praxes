@@ -100,6 +100,7 @@ class ScanAnalysis(QtGui.QWidget):
             else:
                 return event.ignore()
 
+        if self._pymcaConfig: self.scanData.setPymcaConfig(self._pymcaConfig)
         self.scanData.flush()
         self.emit(QtCore.SIGNAL("scanClosed"), self.scanData)
         return event.accept()
