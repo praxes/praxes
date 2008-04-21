@@ -62,6 +62,16 @@ class XpaxsFile(QtCore.QObject):
         scanName = scanParams['title'].lower().replace(' ', '')
         try:
             self.mutex.lock()
+
+            # It is possible for a scan number to appear multiple times in a
+            # spec file. Booo!
+            scanOrder = ''
+            i = 0
+            while (scanName + scanOrder) in self.h5File.root:
+                i += 1
+                scanOrder = '.%d'%i
+            scanName = scanName + scanOrder
+
             h5Entry = self.h5File.createGroup('/', scanName, title=scanName,
                                               filters=filters)
             attrs = h5Entry._v_attrs
