@@ -57,7 +57,6 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.scanStackedLayout.addWidget(self.scanButton)
         self.scanStackedLayout.addWidget(self.pauseButton)
         self.scanStackedLayout.addWidget(self.resumeButton)
-#        self.stackedLayoutFrame.setGeometry(self.abortButton.geometry())
 
         self.statusBarWidget = QtGui.QWidget(self)
         # make it fit in the status bar without resizing the status bar
@@ -299,14 +298,16 @@ class ScanDialog(ui_scandialog.Ui_Dialog, QtGui.QDialog):
     def setFile(self):
         fileName = str("%s"%self.fileNameEdit.text())
 
-        specname = fileName.rstrip('.h5').rstrip('.hdf5').rstrip('.nxs')
-        self.specRunner('newfile %s'%specname)
+        if fileName.endswith('.h5'): fileName = fileName[:-3]
+        elif fileName.endswith('.hdf5'): fileName = fileName[:-5]
+        elif fileName.endswith('.nxs'): fileName = fileName[:-4]
+        self.specRunner('newfile %s'%fileName)
         specfile = self.specRunner.getVarVal('DATAFILE')
         specCreated = os.path.split(specfile)[-1]
-        if specname == specCreated:
+        if fileName == specCreated:
             return True
         else:
-            self.fileError(specname, specfile)
+            self.fileError(fileName, specfile)
 
     def getDefaults(self):
         settings = QtCore.QSettings()
