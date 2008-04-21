@@ -70,9 +70,10 @@ class SmpFile(XpaxsFile):
             # spec file. Booo!
             scanOrder = ''
             i = 0
-            while '%s%s'%(scanName, scanOrder) in self.h5File.root:
+            while (scanName + scanOrder) in self.h5File.root:
                 i += 1
                 scanOrder = '.%d'%i
+            scanName = scanName + scanOrder
 
             h5Entry = self.h5File.createGroup('/', scanName, title=scanName,
                                               filters=filters)
