@@ -55,6 +55,25 @@ class ElementBaseFigure(plotwidgets.QtMplCanvas):
     def _createInitialFigure(self):
         raise NotImplementedError
 
+    def getIndices(self, xdata, ydata):
+        xIndex = locateClosest(xdata, self.xPixelLocs)
+        yIndex = locateClosest(ydata, self.yPixelLocs)
+        return xIndex, yIndex
+
+    def onPick(self, xstart, ystart, xend, yend):
+        xstart_i, ystart_i = self.getIndices(xstart, ystart)
+        xend_i, yend_i = self.getIndices(xend, yend)
+
+        if xstart_i > xend_i: xstart_i, xend_i = xend_i, xstart_i
+        if ystart_i > yend_i: ystart_i, yend_i = yend_i, ystart_i
+
+        try:
+            indices = self.indices[ystart_i:yend_i+1, xstart_i:xend_i+1]
+            self.emit(QtCore.SIGNAL('pickEvent'), indices.flatten())
+        except TypeError:
+            # This occurs when args to onPick are len > 1. How can this happen?
+            pass
+
     def setXLabel(self, label):
         self._xlabel = label
 
@@ -83,6 +102,7 @@ class ElementImageFigure(ElementBaseFigure):
 
         imarray = self.image.get_array()
 
+
         self.indices = numpy.arange(len(self.image.get_array().flat))
         self.indices.shape = self.image.get_array().shape
 
@@ -108,11 +128,6 @@ class ElementImageFigure(ElementBaseFigure):
     def enableAutoscale(self, val):
         self.autoscale = val
         self.updateFigure()
-
-    def getIndices(self, xdata, ydata):
-        xIndex = locateClosest(xdata, self.xPixelLocs)
-        yIndex = locateClosest(ydata, self.yPixelLocs)
-        return [self.indices[yIndex, xIndex]]
 
     def setDataMax(self, val):
         self._clim[1] = val
@@ -167,21 +182,14 @@ class ElementPlotFigure(ElementBaseFigure):
         data = self.axes.get_lines()[0].get_xdata()
 
         self.indices = numpy.arange(len(data))
+        self.indices.shape = (1, len(data))
 
         self.xPixelLocs = numpy.linspace(xmin, xmax, len(data))
-        self.yPixelLocs = numpy.linspace(0, 1, 1)
-
-    def getIndices(self, xdata, ydata):
-        xIndex = locateClosest(xdata, self.xPixelLocs)
-
-        return [self.indices[0, xIndex]]
+        self.yPixelLocs = [0]
 
     def enableAutoscale(self, val):
         self.axes.enable_autoscale_on(val)
         self.updateFigure()
-
-    def getIndices(self, xdata, ydata):
-        return [self.indices[locateClosest(xdata, self.xPixelLocs)]]
 
     def setDataMax(self, val):
         self._ylims[1]=val
@@ -248,35 +256,10 @@ class ElementWidget(QtGui.QWidget):
                      self.window().setCurrentElement)
         self.connect(self.toolbar,
                      QtCore.SIGNAL("pickEvent"),
-                     self.onPick)
-
-    def onPick(self, xstart, ystart, xend, yend):
-        self.setEnabled(False)
-
-        numberOfX = self.figure.xPixelLocs.shape[0]
-        numberOfY = self.figure.yPixelLocs.shape[0]
-
-        startIndex = self.figure.getIndices(xstart, ystart)[0]
-        endIndex = self.figure.getIndices(xend, yend)[0]
-
-        # make x, y refer to indices, rather than data coords
-        xend = (endIndex-endIndex%numberOfX)/numberOfX
-        yend = endIndex%numberOfY
-        xstart = (startIndex-startIndex%numberOfX)/numberOfX
-        ystart = startIndex%numberOfY
-
-        dx = 2*(xstart < xend) - 1
-        dy = 2*(ystart < yend) - 1
-
-        try:
-            indices = [x*numberOfY+y for x in range(xstart, xend+dx, dx)
-                       for y in range(ystart, yend+dy, dy)]
-
-            self.emit(QtCore.SIGNAL('pickEvent'), indices)
-        except TypeError:
-            # This occurs when args to onPick are len > 1. How can this happen?
-            pass
-        self.setEnabled(True)
+                     self.figure.onPick)
+        self.connect(self.figure,
+                     QtCore.SIGNAL("pickEvent"),
+                     self, QtCore.SIGNAL("pickEvent"))
 
     def setAvailablePeaks(self, peaks):
         self.xrfbandComboBox.clear()

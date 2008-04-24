@@ -175,12 +175,12 @@ class ScanAnalysis(QtGui.QWidget):
                 self.advancedFit.configure(self._pymcaConfig)
                 self._pymcaConfig = self.advancedFit.mcafit.config
 
+        print indices.shape
         indices = self.scanData.getValidDataPoints(indices)
 
         if not indices: return
 
-        counts = numpy.array([self.scanData.getMcaSpectrum(index)
-                              for index in indices]).sum(0)/len(indices)
+        counts = self.scanData.getAverageMcaSpectrum(indices)
         channels = self.scanData.getMcaChannels()
 
         self.advancedFit.setData(x=channels, y=counts)

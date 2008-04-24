@@ -183,6 +183,17 @@ class SmpScan(XpaxsScan):
         elements.sort()
         return elements
 
+    def getAverageMcaSpectrum(self, indices=[], id='MCA'):
+        if len(indices) > 0:
+            try:
+                self.mutex.lock()
+                spectrum = self.h5Node.data[indices[0]][id]*0
+                for index in indices:
+                    spectrum += self.h5Node.data[index][id]
+                return spectrum / len(indices)
+            finally:
+                self.mutex.unlock()
+
     def getElementMap(self, mapType, element, normalization=None):
         dataPath = '/'.join(['elementMaps', mapType, element])
         try:
@@ -269,7 +280,7 @@ class SmpScan(XpaxsScan):
         finally:
             self.mutex.unlock()
 
-        if indices: return [i for i in indices if i in valid]
+        if len(indices): return [i for i in indices if i in valid]
         else: return valid
 
     def setSkipmode(self, monitor=None, thresh=0):
