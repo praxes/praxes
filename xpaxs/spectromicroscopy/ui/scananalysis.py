@@ -175,7 +175,6 @@ class ScanAnalysis(QtGui.QWidget):
                 self.advancedFit.configure(self._pymcaConfig)
                 self._pymcaConfig = self.advancedFit.mcafit.config
 
-        print indices.shape
         indices = self.scanData.getValidDataPoints(indices)
 
         if not indices: return
