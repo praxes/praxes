@@ -103,7 +103,7 @@ class ElementImageFigure(ElementBaseFigure):
         imarray = self.image.get_array()
 
 
-        self.indices = numpy.arange(len(self.image.get_array().flat))
+        self.indices = numpy.arange(len(self.image.get_array().flatten()))
         self.indices.shape = self.image.get_array().shape
 
         yshape, xshape = self.image.get_size()

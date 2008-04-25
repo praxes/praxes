@@ -45,7 +45,7 @@ def getScanInfo(commandList):
             (axis, start, stop), args = args[:3], args[3:]
             temp.append(axis)
             scanRange[axis] = (float(start), float(stop))
-        scanaxes.append(tuple(temp))
+        scanAxes.append(tuple(temp))
         scanShape.append(int(args[0])+1)
     else:
         raise RuntimeError('Scan %s not recognized!'%commandType)
@@ -517,17 +517,16 @@ def spec2hdf5(specFilename, hdf5Filename=None, force=False, returnH5File=False):
         hdf5Filename = specFilename + '.h5'
     if os.path.exists(hdf5Filename) and force==False:
         raise IOError('%s already exists! Use force flag to overwrite'%hdf5Filename)
-    else:
-        try:
-            h5file = tables.openFile(hdf5Filename, 'w')
-            sfile = Specfile(specFilename)
-            for scan in sfile:
-                try: convertScan(scan, sfile, h5file)
-                except error: pass
-                h5file.flush()
-        finally:
-            if returnH5File:
-                return h5file
-            else:
-                h5file.close()
-                return hdf5Filename
+    try:
+        h5file = tables.openFile(hdf5Filename, 'w')
+        sfile = Specfile(specFilename)
+        for scan in sfile:
+            try: convertScan(scan, sfile, h5file)
+            except error: pass
+            h5file.flush()
+    finally:
+        if returnH5File:
+            return h5file
+        else:
+            h5file.close()
+            return hdf5Filename
