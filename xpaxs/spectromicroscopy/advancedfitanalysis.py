@@ -102,7 +102,7 @@ class AdvancedFitThread(QtCore.QThread):
         self.expectedLines = self.scan.getNumExpectedScanLines()
 
         self.queue = Queue.Queue()
-        for i in xrange(self.scan.getNumScanLines()):
+        for i in self.scan.getValidDataPoints():
             self.queue.put(i)
 
         self.dirty = False

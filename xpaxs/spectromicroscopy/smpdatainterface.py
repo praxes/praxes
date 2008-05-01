@@ -145,6 +145,21 @@ class SmpFile(XpaxsFile):
 
 class SmpScan(XpaxsScan):
 
+    def appendDataPoint(self, data):
+        data = copy.deepcopy(data)
+        mon, thresh = self.getSkipmode()
+        try:
+            self.mutex.lock()
+            row = self.h5Node.data.row
+            for key, val in data.iteritems():
+                row[key] = val
+            row.append()
+            self.h5Node.data.flush()
+            if data[mon] > thresh:
+                self.queue.put(int(data['i']))
+        finally:
+            self.mutex.unlock()
+
     def initializeElementMaps(self, elements):
         elements = copy.deepcopy(elements)
         shape = self.getScanShape()
@@ -183,13 +198,18 @@ class SmpScan(XpaxsScan):
         elements.sort()
         return elements
 
-    def getAverageMcaSpectrum(self, indices=[], id='MCA'):
+    def getAverageMcaSpectrum(self, indices=[], id='MCA', normalization=None):
         if len(indices) > 0:
             try:
                 self.mutex.lock()
                 spectrum = self.h5Node.data[indices[0]][id]*0
+                numIndices = len(indices)
                 for index in indices:
-                    spectrum += self.h5Node.data[index][id]
+                    result = self.h5Node.data[index][id]
+                    if normalization is not None:
+                        result /= getattr(self.h5Node.data.cols,
+                                          normalization)[index]
+                    spectrum += result
                 return spectrum / len(indices)
             finally:
                 self.mutex.unlock()
@@ -214,10 +234,13 @@ class SmpScan(XpaxsScan):
             elementMap.flat[:len(norm)] /= numpy.where(norm==0, numpy.inf, norm)
         return elementMap
 
-    def getMcaSpectrum(self, index, id='MCA'):
+    def getMcaSpectrum(self, index, id='MCA', normalization=None):
         try:
             self.mutex.lock()
-            return self.h5Node.data[index][id][:]
+            result = self.h5Node.data[index][id][:]
+            if normalization is not None:
+                result /= getattr(self.h5Node.data.cols, normalization)[index]
+            return result
         finally:
             self.mutex.unlock()
 
@@ -280,6 +303,7 @@ class SmpScan(XpaxsScan):
         finally:
             self.mutex.unlock()
 
+        if indices is None: return valid
         if len(indices): return [i for i in indices if i in valid]
         else: return valid
 

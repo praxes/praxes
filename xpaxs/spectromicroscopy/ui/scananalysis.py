@@ -179,7 +179,8 @@ class ScanAnalysis(QtGui.QWidget):
 
         if not indices: return
 
-        counts = self.scanData.getAverageMcaSpectrum(indices)
+        counts = self.scanData.getAverageMcaSpectrum(indices,
+                                    normalization=self._normalizationChannel)
         channels = self.scanData.getMcaChannels()
 
         self.advancedFit.setData(x=channels, y=counts)

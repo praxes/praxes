@@ -73,6 +73,7 @@ class SmpSpecScanA(QtSpecScanA):
         filename = os.path.abspath('%s.h5'%(scanParams['fileName'].split('/')[-1]))
         self.smpEntry = self.fileInterface.createEntry(filename, scanParams)
         if DEBUG: print 'newScan:', self.smpEntry
+        # This signal gets connected to a MainWindow.newScanWindow:
         self.emit(QtCore.SIGNAL("newSmpScan"), self.smpEntry, True)
 
     def newScanData(self, scanData):
