@@ -99,6 +99,7 @@ class AdvancedFitThread(QtCore.QThread):
                         self.jobServer.get_active_nodes().itervalues()])
         self.numQueued = 0
         self.numProcessed = 0
+        self.numSkipped = 0 # skipped by skipmode
         self.expectedLines = self.scan.getNumExpectedScanLines()
 
         self.queue = Queue.Queue()
@@ -147,7 +148,7 @@ class AdvancedFitThread(QtCore.QThread):
 
             time.sleep(0.01)
             self.expectedLines = self.scan.getNumExpectedScanLines()
-            if self.expectedLines <= (self.numProcessed): return
+            if self.expectedLines <= (self.numProcessed+self.numSkipped): return
 
     def queueNext(self):
         try:
@@ -178,12 +179,13 @@ class AdvancedFitThread(QtCore.QThread):
             self.mutex.unlock()
 
     def updateRecords(self, data):
+        self.numSkipped = self.scan.getNumSkippedPoints()
         try:
             self.mutex.lock()
             self.numQueued -= 1
             self.numProcessed += 1
             self.emit(QtCore.SIGNAL('percentComplete'),
-                      100*self.numProcessed/self.expectedLines)
+                      100*(self.numProcessed+self.numSkipped)/self.expectedLines)
             if data: self.advancedFit = data['advancedFit']
         finally:
             self.mutex.unlock()

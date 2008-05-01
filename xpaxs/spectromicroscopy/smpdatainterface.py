@@ -145,6 +145,10 @@ class SmpFile(XpaxsFile):
 
 class SmpScan(XpaxsScan):
 
+    def __init__(self, *args, **kwargs):
+        super(SmpScan, self).__init__(*args, **kwargs)
+        self._numSkippedPoints = len(self.getInvalidDataPoints())
+
     def appendDataPoint(self, data):
         data = copy.deepcopy(data)
         mon, thresh = self.getSkipmode()
@@ -157,35 +161,10 @@ class SmpScan(XpaxsScan):
             self.h5Node.data.flush()
             if data[mon] > thresh:
                 self.queue.put(int(data['i']))
+            else:
+                self._numSkippedPoints += 1
         finally:
             self.mutex.unlock()
-
-    def initializeElementMaps(self, elements):
-        elements = copy.deepcopy(elements)
-        shape = self.getScanShape()
-        filters = self.getH5Filters()
-        try:
-            self.mutex.lock()
-            try:
-                self.h5Node._v_file.removeNode(self.h5Node, 'elementMaps',
-                                       recursive=True)
-            except tables.NoSuchNodeError:
-                pass
-            elementMaps = self.h5Node._v_file.createGroup(self.h5Node,
-                                                          'elementMaps')
-            for mapType in ['fitArea', 'massFraction', 'sigmaArea']:
-                self.h5Node._v_file.createGroup(elementMaps, mapType)
-                for element in elements:
-                    node = self.h5Node._v_file.getNode(self.h5Node.elementMaps,
-                                               mapType)
-                    self.h5Node._v_file.createCArray(node,
-                                             element.replace(' ', ''),
-                                             tables.Float32Atom(),
-                                             shape,
-                                             filters=filters)
-        finally:
-            self.mutex.unlock()
-        self.flush()
 
     def getAvailableElements(self):
         try:
@@ -234,6 +213,22 @@ class SmpScan(XpaxsScan):
             elementMap.flat[:len(norm)] /= numpy.where(norm==0, numpy.inf, norm)
         return elementMap
 
+    def getInvalidDataPoints(self, indices=None):
+        mon, thresh = self.getSkipmode()
+        try:
+            self.mutex.lock()
+            if mon and thresh:
+                temp = getattr(self.h5Node.data.cols, mon)[:]
+                invalid = numpy.nonzero(temp < thresh)[0]
+            else:
+                invalid = []
+        finally:
+            self.mutex.unlock()
+
+        if indices is None: return invalid
+        if len(indices): return [i for i in indices if i in invalid]
+        else: return invalid
+
     def getMcaSpectrum(self, index, id='MCA', normalization=None):
         try:
             self.mutex.lock()
@@ -263,6 +258,13 @@ class SmpScan(XpaxsScan):
             self.mutex.unlock()
         return channels
 
+    def getNumSkippedPoints(self):
+        try:
+            self.mutex.lock()
+            return copy.copy(self._numSkippedPoints)
+        finally:
+            self.mutex.unlock()
+
     def getPymcaConfig(self):
         try:
             self.mutex.lock()
@@ -270,24 +272,6 @@ class SmpScan(XpaxsScan):
                 return copy.deepcopy(self.h5Node._v_attrs.pymcaConfig)
             except AttributeError:
                 return None
-        finally:
-            self.mutex.unlock()
-
-    def setPymcaConfig(self, config):
-        try:
-            self.mutex.lock()
-            self.h5Node._v_attrs.pymcaConfig = copy.deepcopy(config)
-        finally:
-            self.mutex.unlock()
-
-    def getSkipmode(self):
-        try:
-            self.mutex.lock()
-            mon = self.h5Node._v_attrs.skipmodeMonitor[:]
-            thresh = copy.copy(self.h5Node._v_attrs.skipmodeThresh)
-            return (mon, thresh)
-        except AttributeError:
-            return (None, 0)
         finally:
             self.mutex.unlock()
 
@@ -306,6 +290,51 @@ class SmpScan(XpaxsScan):
         if indices is None: return valid
         if len(indices): return [i for i in indices if i in valid]
         else: return valid
+
+    def initializeElementMaps(self, elements):
+        elements = copy.deepcopy(elements)
+        shape = self.getScanShape()
+        filters = self.getH5Filters()
+        try:
+            self.mutex.lock()
+            try:
+                self.h5Node._v_file.removeNode(self.h5Node, 'elementMaps',
+                                       recursive=True)
+            except tables.NoSuchNodeError:
+                pass
+            elementMaps = self.h5Node._v_file.createGroup(self.h5Node,
+                                                          'elementMaps')
+            for mapType in ['fitArea', 'massFraction', 'sigmaArea']:
+                self.h5Node._v_file.createGroup(elementMaps, mapType)
+                for element in elements:
+                    node = self.h5Node._v_file.getNode(self.h5Node.elementMaps,
+                                               mapType)
+                    self.h5Node._v_file.createCArray(node,
+                                             element.replace(' ', ''),
+                                             tables.Float32Atom(),
+                                             shape,
+                                             filters=filters)
+        finally:
+            self.mutex.unlock()
+        self.flush()
+
+    def setPymcaConfig(self, config):
+        try:
+            self.mutex.lock()
+            self.h5Node._v_attrs.pymcaConfig = copy.deepcopy(config)
+        finally:
+            self.mutex.unlock()
+
+    def getSkipmode(self):
+        try:
+            self.mutex.lock()
+            mon = self.h5Node._v_attrs.skipmodeMonitor[:]
+            thresh = copy.copy(self.h5Node._v_attrs.skipmodeThresh)
+            return (mon, thresh)
+        except AttributeError:
+            return (None, 0)
+        finally:
+            self.mutex.unlock()
 
     def setSkipmode(self, monitor=None, thresh=0):
         monitor = copy.copy(monitor)
