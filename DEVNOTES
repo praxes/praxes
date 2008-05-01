@@ -1,16 +1,15 @@
-In order to work on SMP development, the spectromicroscopy
-working directory and the "external" directory must both be
-on your PYTHONPATH. This can be done by adding the following
-to your .bashrc file, (assuming you use bash):
+In order to work on xpaxs development, the xpaxs working directory and the
+"external" directory must both be on your PYTHONPATH. This can be done by
+adding the following to your .bashrc file, (assuming you use bash):
 
-export PYTHONPATH=/path/to/spectromicroscopy:${PYTHONPATH}
-export PYTHONPATH=/path/to/spectromicroscopy/spectromicroscopy/external:${PYTHONPATH}
-
-of course, replace /path/to with whatever is appropriate.
+# change the next line to point to your xpaxs directory:
+xpaxs=~/src/xpaxs
+export PYTHONPATH=${xpaxs}:${xpaxs}/xpaxs/spec/external:${PYTHONPATH}
+export PATH=${xpaxs}/scripts:${PATH}
 
 You will also have to have the following packages installed:
 
-numpy (version 1.0.4 or later)
+numpy (version 1.1 or later)
 python (version 2.5 or later)
 Qt4 (preferrably version 4.3.3 or later)
 PyQt4 (preferrably version 4.3.3 or later)
