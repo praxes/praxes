@@ -131,6 +131,7 @@ class XpaxsScan(XpaxsNode):
 
     def appendDataPoint(self, data):
         data = copy.deepcopy(data)
+        if DEBUG: print "appending data point:", data['i']
         try:
             self.mutex.lock()
             row = self.h5Node.data.row

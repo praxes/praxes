@@ -77,8 +77,18 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
         self.getMotorsMne()
         self.getCountersMne()
 
-        self.dispatcher = Dispatcher(self)
-        self.dispatcher.start(QtCore.QThread.NormalPriority)
+#        self.dispatcher = Dispatcher(self)
+#        self.dispatcher.start(QtCore.QThread.NormalPriority)
+#########
+        self.timer = QtCore.QTimer(self)
+        self.connect(self.timer,
+                     QtCore.SIGNAL("timeout()"),
+                     self.update)
+        self.timer.start(20)
+
+    def update(self):
+        SpecEventsDispatcher.dispatch()
+#########
 
     def __call__(self, command):
         if DEBUG: print "SpecRunner(%s)"%command

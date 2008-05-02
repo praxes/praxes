@@ -152,6 +152,7 @@ class SmpScan(XpaxsScan):
     def appendDataPoint(self, data):
         data = copy.deepcopy(data)
         mon, thresh = self.getSkipmode()
+        if DEBUG: print "appending data point:", data['i']
         try:
             self.mutex.lock()
             row = self.h5Node.data.row
@@ -165,6 +166,7 @@ class SmpScan(XpaxsScan):
                 self._numSkippedPoints += 1
         finally:
             self.mutex.unlock()
+#        self.flush()
 
     def getAvailableElements(self):
         try:

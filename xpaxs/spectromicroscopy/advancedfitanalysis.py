@@ -5,6 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+import gc
 import hashlib
 import os
 import Queue
@@ -114,11 +115,19 @@ class AdvancedFitThread(QtCore.QThread):
         self.connect(self.timer,
                      QtCore.SIGNAL("timeout()"),
                      self.report)
+        self.connect(self.timer,
+                     QtCore.SIGNAL("timeout()"),
+                     self.cleanup)
         self.timer.start(1000)
 
-        self.connect(self,
-                     QtCore.SIGNAL("processed"),
-                     self.updateRecords)
+        self.time = time.time()
+
+#        self.connect(self,
+#                     QtCore.SIGNAL("processed"),
+#                     self.updateRecords)
+
+    def cleanup(self):
+        gc.collect()
 
     def findNextPoint(self):
         index = self.queue.get(False)
@@ -153,7 +162,7 @@ class AdvancedFitThread(QtCore.QThread):
     def queueNext(self):
         try:
             self.mutex.lock()
-            while self.numQueued < self.numCpus*2:
+            while self.numQueued < self.numCpus*3:
                 try:
                     index, spectrum = self.findNextPoint()
                     args = (index, spectrum, self.tconf, self.advancedFit,
@@ -212,12 +221,13 @@ class AdvancedFitThread(QtCore.QThread):
                     self.scan.updateElementMap('massFraction', k, index, val)
             self.dirty = True
 
-        try:
-            if not self.isStopped():
-                self.queueNext()
-        except Queue.Empty: pass
+#        try:
+#            if not self.isStopped():
+#                self.queueNext()
+#        except Queue.Empty: pass
 
     def report(self):
+        if DEBUG: print self
         if self.dirty:
             self.emit(QtCore.SIGNAL("dataProcessed"))
             self.emit(QtCore.SIGNAL("ppJobStats"), self.jobServer.get_stats())
