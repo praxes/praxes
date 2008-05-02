@@ -188,7 +188,7 @@ class ElementPlotFigure(ElementBaseFigure):
         self.yPixelLocs = [0]
 
     def enableAutoscale(self, val):
-        self.axes.enable_autoscale_on(val)
+        self.axes.set_autoscale_on(val)
         self.updateFigure()
 
     def setDataMax(self, val):
