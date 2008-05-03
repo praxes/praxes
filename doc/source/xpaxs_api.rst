@@ -1,11 +1,13 @@
-
+***************************************
 XPaXS Application Programming Interface
-=======================================
+***************************************
 
 XPaXS was organized with the intention of easily extending the current
 capabilities, to add new features and support new experiments or analysis
 without having to repeat too much effort.
 
+DataLib
+=======
 
 :mod:`xpaxs` -- API Documentation
 ---------------------------------

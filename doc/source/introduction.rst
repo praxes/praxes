@@ -2,10 +2,13 @@
 Introduction
 ************
 
-This is a birds eye view.
+About XPaXS
+===========
+
+.. automodule:: xpaxs
 
 
-Section 1
-=========
+Getting Started
+===============
 
-This is the introduction to XPaXS.
+

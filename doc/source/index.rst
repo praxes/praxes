@@ -10,14 +10,5 @@ XPaXS documentation contents
 .. toctree::
    :maxdepth: 3
 
-   introduction
-   xpaxs_api
-   spectroscopy
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   userguide
+   developerguide
