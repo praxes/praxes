@@ -100,7 +100,7 @@ class AdvancedFitThread(QtCore.QThread):
                         self.jobServer.get_active_nodes().itervalues()])
         self.numQueued = 0
         self.numProcessed = 0
-        self.numSkipped = 0 # skipped by skipmode
+        self.numSkipped = self.scan.getNumSkippedPoints() # skipped by skipmode
         self.expectedLines = self.scan.getNumExpectedScanLines()
 
         self.queue = Queue.Queue()
@@ -189,7 +189,6 @@ class AdvancedFitThread(QtCore.QThread):
             self.mutex.unlock()
 
     def updateRecords(self, data):
-        self.numSkipped = self.scan.getNumSkippedPoints()
         try:
             self.mutex.lock()
             self.numQueued -= 1

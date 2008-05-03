@@ -1,5 +1,5 @@
 """
-pychess.specfile is an interface to datafiles created by Certified
+specfile is an interface to datafiles created by Certified
 Scientific's spec program, which is commonly used in synchrotron labs.
 pychess.specfile extends an established esrf library called SpecFile, which
 is written in C, so it is very fast.
