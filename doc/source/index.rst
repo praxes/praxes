@@ -4,8 +4,8 @@
 
 .. _contents:
 
-XPaXS documentation contents
-============================
+XPaXS
+=====
 
 .. toctree::
    :maxdepth: 3

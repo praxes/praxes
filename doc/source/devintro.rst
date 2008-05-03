@@ -2,13 +2,7 @@
 Introduction
 ************
 
-About XPaXS
-===========
-
-.. automodule:: xpaxs
-
-
 Getting Started
 ===============
 
-.. include:: ../INSTALL
+.. include:: ../DEVNOTES
