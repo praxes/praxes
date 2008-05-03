@@ -78,9 +78,9 @@ class XpaxsFile(QtCore.QObject):
             attrs.scanNumber = scanParams['scanNumber']
             attrs.scanCommand = scanParams['scanCommand']
             attrs.scanLines = scanParams['scanLines']
-            scanEntry = XpaxsScan(self, h5Entry)
         finally:
             self.mutex.unlock()
+        scanEntry = XpaxsScan(self, h5Entry)
         self.emit(QtCore.SIGNAL('newEntry'), scanEntry)
         return scanEntry
 

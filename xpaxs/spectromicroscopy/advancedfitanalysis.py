@@ -157,6 +157,7 @@ class AdvancedFitThread(QtCore.QThread):
 
             time.sleep(0.01)
             self.expectedLines = self.scan.getNumExpectedScanLines()
+            self.numSkipped = self.scan.getNumSkippedPoints()
             if self.expectedLines <= (self.numProcessed+self.numSkipped): return
 
     def queueNext(self):

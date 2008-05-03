@@ -127,11 +127,10 @@ class SmpFile(XpaxsFile):
             dataTable = self.h5File.createTable(h5Entry, 'data', Data,
                                                 filters=filters,
                                                 expectedrows=attrs.scanLines)
-
-            scanEntry = SmpScan(self, h5Entry)
         finally:
             self.mutex.unlock()
         self.flush()
+        scanEntry = SmpScan(self, h5Entry)
         self.emit(QtCore.SIGNAL('newEntry'), scanEntry)
         return scanEntry
 
