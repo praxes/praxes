@@ -7,6 +7,11 @@ User's Guide
 .. toctree::
    :maxdepth: 3
 
-   license
    introduction
-   spectroscopy
+   constants
+   matter
+   absorption
+   fluorescence
+   scattering
+   reflectivity
+   phase_contrast_imaging

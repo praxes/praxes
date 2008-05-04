@@ -9,3 +9,7 @@ Developer's Guide
 
    devintro
    xpaxs_api
+   fluorescence_api
+   matter_api
+
+   license

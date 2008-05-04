@@ -1,7 +1,9 @@
 In order to work on xpaxs development, in addition to the installing the xpaxs
 dependencies, the xpaxs working directory and the "external" directory must both
 be on your PYTHONPATH. With Linux, this can be done by adding the following to
-your .bashrc file, (assuming you use bash)::
+your .bashrc file, (assuming you use bash):
+
+.. code-block:: bash
 
    # change the next line to point to your xpaxs directory:
    xpaxs=~/src/xpaxs

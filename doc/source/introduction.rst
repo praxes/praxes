@@ -7,6 +7,11 @@ About XPaXS
 
 .. automodule:: xpaxs
 
+Why Python?
+===========
+
+
+
 
 Getting Started
 ===============

@@ -4,11 +4,11 @@
 
 .. _contents:
 
-XPaXS
-=====
+XPaXS -- eXtensible Packages for X-ray Science
+==============================================
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 4
 
    userguide
    developerguide
