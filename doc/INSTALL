@@ -5,7 +5,7 @@ XPaXS requires several packages in order to run:
 * Qt4 (preferrably version 4.3.3 or later)
 * PyQt4 (preferrably version 4.3.3 or later)
 * matplotlib (0.92.1 or later, please install from svn for now)
-* PyMca (version 4.2.4 or later, please install from svn for now)
+* PyMca (version 4.2.4 or later)
 * pexpect (only required for the console module)
 * pp (parallel python for concurrent data analysis)
 * pytables (version 2.0.3 or later)
