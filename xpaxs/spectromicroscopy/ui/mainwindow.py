@@ -5,6 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+import logging
 import sys
 
 #---------------------------------------------------------------------------
@@ -31,6 +32,8 @@ from xpaxs.spectromicroscopy.smpdatainterface import SmpFile
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
+
+logger = logging.getLogger('XPaXS.spectromicroscopy.mainwindow')
 
 USE_PYMCA_ADVANCEDFIT = False
 McaAdvancedFit.USE_BOLD_FONT = False
@@ -71,8 +74,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             # The standard Concentrations widget requires too much space,
             # we'll use a slightly modified one unless the changes area
             # accepted upstream...
-            #from PyMca.ConcentrationsWidget import Concentrations
-            from xpaxs.spectromicroscopy.ui.concentrations import Concentrations
+            from PyMca.ConcentrationsWidget import Concentrations
             self.concentrationsAnalysisDock = \
                     self.__createDockWindow('ConcentrationAnalysisDock')
             self.concentrationsAnalysis = Concentrations()

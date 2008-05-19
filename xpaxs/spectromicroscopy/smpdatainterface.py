@@ -6,6 +6,7 @@
 #---------------------------------------------------------------------------
 
 import copy
+import logging
 import Queue
 
 #---------------------------------------------------------------------------
@@ -26,6 +27,8 @@ from xpaxs.datalib.hdf5 import XpaxsFile, XpaxsScan
 # Normal code begins
 #---------------------------------------------------------------------------
 
+
+logger = logging.getLogger('XPaXS.spectromicroscopy.smpdatainterface')
 DEBUG = False
 
 filters = tables.Filters(complib='zlib', complevel=9)

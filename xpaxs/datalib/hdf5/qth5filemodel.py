@@ -5,6 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+import logging
 import os
 import sys
 
@@ -24,6 +25,8 @@ from xpaxs.datalib.hdf5.xpaxsdatainterface import XpaxsFile
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
+
+logger = logging.getLogger('XPaXS.datalib.hdf5.qth5filemodel')
 
 
 class TreeItem:

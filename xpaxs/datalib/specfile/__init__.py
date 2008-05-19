@@ -13,16 +13,30 @@ stored in the scan header, like motor positions, scan parameters, etc.
 
 """
 
+#---------------------------------------------------------------------------
+# Stdlib imports
+#---------------------------------------------------------------------------
+
 from __future__ import division
+import logging
 import os
-
 from itertools import izip
-import numpy
 
+#---------------------------------------------------------------------------
+# Extlib imports
+#---------------------------------------------------------------------------
+
+import numpy
 from PyMca.specfile import Specfile, Scandata, error
 from pychess.specfile.mcdata import McaData, McsData
 try: import tables
 except ImportError: pass
+
+#---------------------------------------------------------------------------
+# xpaxs imports
+#---------------------------------------------------------------------------
+
+logger = logging.getLogger('XPaXS.datalib.specfile')
 
 __all__ = ['load']
 

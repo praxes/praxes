@@ -5,7 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-
+import logging
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -24,6 +24,8 @@ from xpaxs.datalib.hdf5.xpaxsdatainterface import XpaxsFile, XpaxsScan
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
+
+logger = logging.getLogger('XPaXS.datalib.hdf5')
 
 
 class H5FileInterface(QtCore.QObject):

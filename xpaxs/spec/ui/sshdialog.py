@@ -3,9 +3,9 @@
 #---------------------------------------------------------------------------
 
 import codecs
+import logging
 import os
 import sys
-
 import time
 
 #---------------------------------------------------------------------------
@@ -26,6 +26,9 @@ from xpaxs.spec.ui import ui_sshdialog
 # Normal code begins
 #--------------------------------------------------------------------------
 
+logger = logging.getLogger('XPaXS.spec.sshdialog')
+
+
 class SshDialog(ui_sshdialog.Ui_Dialog, QtGui.QDialog):
     """Establishes a SSH to start spec"""
 
@@ -38,8 +41,8 @@ class SshDialog(ui_sshdialog.Ui_Dialog, QtGui.QDialog):
         self.settings = QtCore.QSettings()
         geometry = self.settings.value('SpecConnect/SSHGeometry').toByteArray()
         self.restoreGeometry(geometry)
-        
-        
+
+
     def exec_(self):
         if QtGui.QDialog.exec_(self):
             self.sshconnect()

@@ -5,7 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-
+import logging
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -28,6 +28,7 @@ from xpaxs.spectromicroscopy.ui import ui_mcaspectrum
 # Normal code begins
 #---------------------------------------------------------------------------
 
+logger = logging.getLogger('XPaXS.spectromicroscopy.mcaspectrum')
 
 class SpectrumAnalysisThread(QtCore.QThread):
 

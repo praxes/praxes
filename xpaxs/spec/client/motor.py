@@ -5,6 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+import logging
 import os
 import sys
 
@@ -25,18 +26,8 @@ from SpecClient import SpecMotor
 # Normal code begins
 #---------------------------------------------------------------------------
 
+logger = logging.getLogger('XPaXS.spec.client.motor')
 DEBUG = 0
-
-#    def readParam(self,motor):
-#        motor = self._motors[motor]
-#        value = []
-#        for param in self._param_names:
-#            try:
-#                value.append(motor.getParameter(param))
-#            except:
-#                value.append("unable to get value")
-#            self._parameters[motor] = value
-#        return self._parameters[motor]
 
 
 class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):

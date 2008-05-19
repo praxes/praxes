@@ -5,6 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+import logging
 import os
 
 #---------------------------------------------------------------------------
@@ -31,6 +32,7 @@ from xpaxs.resources import icons, cursors
 # Normal code begins
 #--------------------------------------------------------------------------
 
+logger = logging.getLogger('XPaXS.plotwidgets')
 
 mpl.rcdefaults()
 mpl.rcParams['axes.formatter.limits'] = [-4, 4]
@@ -49,7 +51,7 @@ class Toolbar(MplToolbar):
         mplCursors.SELECT_POINT = pixmap
         super(Toolbar, self).__init__(*args, **kwargs)
 
-        
+
     def _init_toolbar(self):
         self.basedir = os.path.join(mpl.rcParams[ 'datapath' ],'images')
 
@@ -147,7 +149,7 @@ class Toolbar(MplToolbar):
             self.mode = ''
 
         if self._active:
-            
+
             self._idRelease = self.canvas.mpl_connect(
                 'button_press_event', self.selectPoint)
             self.mode = 'pixel select mode'
@@ -157,7 +159,7 @@ class Toolbar(MplToolbar):
 
         self.set_message(self.mode)
 
-    
+
     def selectPoint(self, event):
         if event.inaxes and event.inaxes.get_navigate():
             self.xdatastart=event.xdata
@@ -169,7 +171,7 @@ class Toolbar(MplToolbar):
             self._idRelease = self.canvas.mpl_disconnect(self._idRelease)
             self._idRelease = self.canvas.mpl_connect(
                 'button_release_event', self.selectSecondPoint)
-            
+
     def selectSecondPoint(self, event):
         if event.inaxes and event.inaxes.get_navigate():
             self._banddraw=self.canvas.mpl_disconnect(self._banddraw)
@@ -178,14 +180,14 @@ class Toolbar(MplToolbar):
                 'button_press_event', self.selectPoint)
             self.draw_rubberband(event, 0, 0, 0, 0)
             self.emit(QtCore.SIGNAL('pickEvent'), self.xdatastart, self.ydatastart, event.xdata, event.ydata)
-            
+
 
     def drawband(self, event):
         self.draw_rubberband(event,self.xstart, self.ystart, event.x, event.y)
 
-    
-    
-    
+
+
+
 class QtMplCanvas(FigureCanvasQTAgg):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
     def __init__(self, parent=None):

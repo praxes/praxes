@@ -5,6 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+import logging
 import os
 
 #---------------------------------------------------------------------------
@@ -29,6 +30,8 @@ from xpaxs.spec.ui.specconnect import SpecConnect, SpecInterface
 # Normal code begins
 #---------------------------------------------------------------------------
 
+
+logger = logging.getLogger('XPaXS.spectromicroscopy.spec')
 DEBUG = False
 
 

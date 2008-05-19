@@ -5,6 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+import logging
 import os
 
 #---------------------------------------------------------------------------
@@ -26,6 +27,7 @@ from xpaxs import configutils
 # Normal code begins
 #---------------------------------------------------------------------------
 
+logger = logging.getLogger('XPaXS.spec.client.scan')
 DEBUG = False
 
 

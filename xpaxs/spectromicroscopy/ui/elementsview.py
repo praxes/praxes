@@ -5,7 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-
+import logging
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -25,6 +25,7 @@ from xpaxs.spectromicroscopy.ui import ui_elementsimage, ui_elementsplot
 # Normal code begins
 #---------------------------------------------------------------------------
 
+logger = logging.getLogger('XPaXS.spectromicroscopy.elementsview')
 DEBUG = True
 
 def locateClosest(point, points):

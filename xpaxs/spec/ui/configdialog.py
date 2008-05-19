@@ -2,7 +2,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-
+import logging
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -20,7 +20,14 @@ from xpaxs.spec.ui import ui_motordialog, ui_motorconfig
 # Normal code begins
 #--------------------------------------------------------------------------
 
+logger = logging.getLogger('XPaXS.spec.configdialog')
+
+
 class ConfigDialog(ui_motordialog.Ui_Dialog, QtGui.QDialog):
+
+    """
+    """
+
     def __init__(self, specRunner, parent=None):
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)

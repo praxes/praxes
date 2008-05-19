@@ -5,6 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+import logging
 import os
 import sys
 import time
@@ -27,6 +28,7 @@ from xpaxs.spec.client.scan import QtSpecScanA
 # Normal code begins
 #---------------------------------------------------------------------------
 
+logger = logging.getLogger('XPaXS.spec.client.runner')
 DEBUG = False
 
 def getSpecMacro(filename):

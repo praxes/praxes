@@ -6,6 +6,7 @@
 #---------------------------------------------------------------------------
 
 import copy
+import logging
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -25,6 +26,8 @@ from xpaxs.spectromicroscopy.advancedfitanalysis import AdvancedFitThread
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
+
+logger = logging.getLogger('XPaXS.spectromicroscopy.scananalysis')
 
 
 class ScanAnalysis(QtGui.QWidget):

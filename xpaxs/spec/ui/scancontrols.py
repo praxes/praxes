@@ -7,6 +7,7 @@ provide support specific to the spectromicroscopy package.
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+import logging
 import os
 
 #---------------------------------------------------------------------------
@@ -25,6 +26,8 @@ from xpaxs.spec.ui import scanmotor, ui_scancontrols,  ui_scandialog
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
+
+logger = logging.getLogger('XPaXS.spec.scancontrols')
 
 
 class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):

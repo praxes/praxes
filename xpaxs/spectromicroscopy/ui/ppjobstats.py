@@ -5,7 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-
+import logging
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -24,6 +24,8 @@ from xpaxs.spectromicroscopy.ui import ui_ppjobstats
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
+
+logger = logging.getLogger('XPaXS.spectromicroscopy.ppjobstats')
 
 
 class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):

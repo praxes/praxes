@@ -11,6 +11,12 @@ import logging.handlers
 import os
 
 #---------------------------------------------------------------------------
+# Extlib imports
+#---------------------------------------------------------------------------
+
+
+
+#---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
@@ -34,15 +40,13 @@ handler.setLevel(logLevel)
 
 if logLevel == DEBUG:
     fmtString = """\
-%(asctime)s - %(name)s
-%(pathname)s: %(funcName)s, line %(lineno)d
-%(levelname)s: %(message)s
-"""
+=== %(asctime)s - %(name)s ===
+%(funcName)s, line %(lineno)d
+%(levelname)s: %(message)s"""
 else:
     fmtString = """\
-%(asctime)s - %(name)s
-%(levelname)s: %(message)s
-"""
+=== %(asctime)s - %(name)s ===
+%(levelname)s: %(message)s"""
 
 formatter = logging.Formatter(fmtString)
 handler.setFormatter(formatter)

@@ -7,6 +7,7 @@
 
 import gc
 import hashlib
+import logging
 import os
 import Queue
 import tempfile
@@ -34,6 +35,7 @@ numpy.seterr(all='ignore')
 #---------------------------------------------------------------------------
 
 
+logger = logging.getLogger('XPaXS.spectromicroscopy.advancedfitanalysis')
 DEBUG = False
 
 def flat_to_nd(index, shape):

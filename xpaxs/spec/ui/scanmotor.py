@@ -5,7 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-
+import logging
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -22,6 +22,8 @@ from xpaxs.spec.ui import ui_scanmotor
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
+
+logger = logging.getLogger('XPaXS.spec.scanmotor')
 
 
 class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):

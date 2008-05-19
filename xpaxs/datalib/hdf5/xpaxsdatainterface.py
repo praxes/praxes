@@ -10,6 +10,7 @@ ascii files. A new interface will be developed based on the NeXus standard.
 #---------------------------------------------------------------------------
 
 import copy
+import logging
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -28,6 +29,7 @@ import tables
 # Normal code begins
 #---------------------------------------------------------------------------
 
+logger = logging.getLogger('XPaXS.datalib.hdf5.xpaxsdatainterface')
 DEBUG = False
 
 filters = tables.Filters(complib='zlib', complevel=9)
