@@ -14,14 +14,12 @@ import time
 #---------------------------------------------------------------------------
 
 from PyQt4 import QtCore
-import SpecClient
 from SpecClient import Spec, SpecEventsDispatcher, SpecCommand
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs import configutils
 from xpaxs.spec.client.motor import QtSpecMotorA
 from xpaxs.spec.client.scan import QtSpecScanA
 
@@ -30,10 +28,6 @@ from xpaxs.spec.client.scan import QtSpecScanA
 #---------------------------------------------------------------------------
 
 DEBUG = False
-
-logfile = os.path.join(configutils.getUserConfigDir(), 'specclient.log')
-
-SpecClient.setLogFile(logfile)
 
 def getSpecMacro(filename):
     temp = os.path.split(os.path.split(__file__)[0])[0]

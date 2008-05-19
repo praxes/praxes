@@ -3,6 +3,7 @@
 #import signal
 #signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+import logging
 import sys
 
 from PyQt4 import QtGui
@@ -14,4 +15,10 @@ app.setOrganizationName('XPaXS')
 app.setApplicationName('SFXM')
 myapp = mainwindow.MainWindow()
 myapp.show()
-sys.exit(app.exec_())
+
+logger = logging.getLogger('XPaXS.sxfm')
+logger.debug('sxfm started')
+
+app.exec_()
+
+logger.debug('sxfm finished')
