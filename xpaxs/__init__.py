@@ -26,7 +26,7 @@ from xpaxs import configutils
 # Normal code begins
 #---------------------------------------------------------------------------
 
-__version__ = '0.4a1'
+__version__ = '0.5a1'
 
 # One of DEBUG, INFO, WARNING, ERROR, CRITICAL:
 logLevel = DEBUG

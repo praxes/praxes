@@ -8,4 +8,6 @@ ui_*.py
 build/*
 dist/*
 MANIFEST
-xpaxs.e4*
+*.e4*
+xpaxs.egg-info/*
+*.so
