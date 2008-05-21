@@ -1,21 +1,35 @@
 XPaXS requires several packages in order to run:
 
-* python (version 2.5 or later)
-* setuptools (version 0.6c8 or later)
-* numpy (version 1.1 or later, please install from svn for now)
-* Qt4 (preferrably version 4.3 or later)
-* PyQt4 (preferrably version 4.3.3 or later)
-* matplotlib (0.98pre or later, please install from svn for now)
-* PyMca (version 4.2.4 or later)
-* pexpect (only required for the console module, version 2.3 or later)
-* pp (parallel python for concurrent data analysis, version 1.5.3 or later)
-* pytables (version 2.0.3 or later)
+* Python_ (version 2.5 or later)
+* setuptools_ (version 0.6c8 or later)
+* NumPy_ (version 1.1 or later, please install from svn for now)
+* PyQt4_ (preferrably version 4.3.3 or later)
+* PyQwt_ (version 5.0.1 or later)
+* PyMca_ (version 4.2.4 or later)
+* matplotlib_ (0.98pre or later, please install from svn for now)
+* PP_ (parallel python for concurrent data analysis, version 1.5.3 or later)
+* PyTables_ (version 2.0.3 or later)
+* Pexpect_ (only required for the console module, version 2.3 or later)
 
 On several distributions, like Ubuntu, you may need to install the developer
 tools and devel libraries in order to use XPaXS.
 
-
 In order to compile the documentation, you will also need:
 
-* sphinx (please install from svn for now)
+* Sphinx_ (version 0.3.1 or later, please install from svn for now)
+* LaTeX_ (TeX_Live_ recommended)
 
+.. _Python: http://www.python.org/
+.. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
+.. _NumPy: http://www.scipy.org
+.. _PyQt4: http://www.riverbankcomputing.com/software/pyqt/intro
+.. _matplotlib: http://matplotlib.sourceforge.net/
+.. _PyMca: http://pymca.sourceforge.net/
+.. _Pexpect: http://www.noah.org/wiki/Pexpect
+.. _PyQwt: http://pyqwt.sourceforge.net/
+.. _PP: http://www.parallelpython.com
+.. _PyTables: http://www.pytables.org/moin
+.. http://www.noah.org/wiki/Pexpect
+.. _Sphinx: http://sphinx.pocoo.org/
+.. _LaTeX: http://www.latex-project.org/
+.. _TeX_Live: http://www.tug.org/texlive/

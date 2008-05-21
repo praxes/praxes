@@ -1,4 +1,5 @@
 import fileinput
+import glob
 import os
 import shutil
 import sys
@@ -12,7 +13,11 @@ for d in build_dirs:
         pass
 
 # html manual.
-os.system('sphinx-build -d build/doctrees source build/html')
+os.system('sphinx-build -b html -d build/doctrees source build/html')
+#htmls = glob.glob('build/html/*.html')
+#for html in htmls:
+#    base = os.path.splitext(os.path.abspath(html))[0]
+#    shutil.move(html, base+'.xhtml')
 
 if sys.platform != 'win32':
     # LaTeX format.

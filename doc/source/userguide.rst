@@ -15,3 +15,5 @@ User's Guide
    scattering
    reflectivity
    phase_contrast_imaging
+   sources
+   optics

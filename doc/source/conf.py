@@ -42,9 +42,9 @@ copyright = '2008, Darren Dale'
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '0.4'
+version = '0.5'
 # The full version, including alpha/beta/rc tags.
-release = '0.4a1'
+release = '0.5a1'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -91,6 +91,10 @@ html_style = 'default.css'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+# If nonempty, this is the file name suffix for generated HTML files.  The
+# default is ``".html"``.
+html_file_suffix = '.xml'
+
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
 html_last_updated_fmt = '%b %d, %Y'
@@ -114,7 +118,7 @@ html_last_updated_fmt = '%b %d, %Y'
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.
-#html_use_opensearch = False
+html_use_opensearch = 'False'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'XPaXSdoc'

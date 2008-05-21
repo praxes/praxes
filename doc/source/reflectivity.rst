@@ -11,4 +11,4 @@ Matrix Method
 
 .. math::
 
-   \frac{1}{1+x^2}
+   \int_{-\infty}^{\infty}\frac{e^{i\phi}}{1+x^2\frac{e^{i\phi}}{1+x^2}}
