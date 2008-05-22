@@ -28,7 +28,7 @@ logger = logging.getLogger('XPaXS.spec.scanmotor')
 
 class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
 
-    """Establishes a Experimenbt controls    """
+    """Establishes a Experiment controls    """
 
     def __init__(self, parent, motor):
         QtGui.QWidget.__init__(self, parent)
@@ -36,13 +36,15 @@ class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
 
         self.setParent(parent)
         self.specRunner = parent.specRunner
-
+        logger.debug('getting motor')
         motors = self.specRunner.getMotorsMne()
         try:
             ind = motors.index(motor)
         except ValueError:
+            logger.error(ValueError)
             motor = motors[0]
             ind = 0
+        logger.debug('setting motor')
         self.setMotor(motor, self.specRunner.specVersion)
 
         self.motorComboBox.addItems(motors)

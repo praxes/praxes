@@ -29,7 +29,7 @@ from xpaxs.spec.client.scan import QtSpecScanA
 #---------------------------------------------------------------------------
 
 logger = logging.getLogger('XPaXS.spec.client.runner')
-DEBUG = False
+
 
 def getSpecMacro(filename):
     temp = os.path.split(os.path.split(__file__)[0])[0]
@@ -87,7 +87,7 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
 #########
 
     def __call__(self, command):
-        if DEBUG: print "SpecRunner(%s)"%command
+        logger.debug( "executing %s",command)
         self.cmd.executeCommand(command)
 
     def close(self):

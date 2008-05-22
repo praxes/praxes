@@ -61,6 +61,8 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
         QtGui.QDialog.accept(self)
 
     def connectionError(self):
+        logger.error('Unabel to connect to the "%s" spec instance at "%s".',
+                     tuple(self.getSpecVersion().split(':')))
         error = QtGui.QErrorMessage()
         error.showMessage('''\
         Unabel to connect to the "%s" spec instance at "%s". Please \
@@ -72,6 +74,7 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
         try:
             self.specRunner = self.getSpecRunner(self.getSpecVersion(),
                                 timeout=500, fileInterface=self.fileInterface)
+            logger.debug('Connected to spec, specrunner created')
         except SpecClientError.SpecClientTimeoutError:
             self.connectionError()
             self.specRunner = None
@@ -107,6 +110,7 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def startSSH(self):
         if not self.ssh:
+            logger.debug('Starting SSH')
             sshdlg = sshdialog.SshDialog(self.parent())
             self.ssh = sshdlg.exec_()
 
@@ -132,6 +136,7 @@ class SpecInterface(QtCore.QObject):
         self._configure()
 
     def _configure(self):
+        logger.debug('configuring Spec Interface')
         # This method should be redefined in subclasses of SpecInterface
         self.scanControls = ScanControls(self.specRunner)
         self.addDockWidget(self.scanControls, 'Scan Controls',

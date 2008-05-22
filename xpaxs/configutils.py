@@ -8,6 +8,7 @@
 import glob
 import logging
 import os
+import sys
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -58,5 +59,11 @@ def ui2py(dir):
         else:
             convert = True
         if convert:
-            os.system('/usr/bin/pyuic4 %s > %s'%(ui, py))
-            logger.debug('converted %s'%ui)
+            try:
+                if sys.platform=='win32':
+                    os.system('C:\PYTHON25\pyuic4 %s > %s'%(ui, py))
+                else:
+                    os.system('/usr/bin/pyuic4 %s > %s'%(ui, py))
+                logger.debug('converted %s'%ui)
+            finally:
+                    logger.error('could not find pyuic4')

@@ -1,5 +1,6 @@
 # BEFORE importing disutils, remove MANIFEST. distutils doesn't properly
 # update it when the contents of directories change.
+
 import os
 if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 

@@ -7,6 +7,7 @@
 
 import logging
 import sys
+import os
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -87,13 +88,21 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                                QtCore.Qt.BottomDockWidgetArea,
                                self.spectrumAnalysis, 'Spectrum Analysis')
 
-        self.logRead = QtGui.QTextEdit(self)
-        self.logRead.setReadOnly(True)
-        self.logRead.setWordWrapMode(QtGui.QTextOption.NoWrap)
-        self.logReadDock = self.__createDockWindow('LogDock')
-        self.__setupDockWindow(self.logReadDock,
-                               QtCore.Qt.RightDockWidgetArea,
-                               self.logRead, 'System Log')
+#        logFile = os.path.join(configutils.getUserConfigDir(), 'xpaxs.log')
+#        self.logRead = QtGui.QTextBrowser(self)
+#        self.logRead.setWordWrapMode(QtGui.QTextOption.NoWrap)
+#        self.logRead.setSource(QtCore.QUrl(logFile))
+#        self.logReadDock = self.__createDockWindow('LogDock')
+#        self.__setupDockWindow(self.logReadDock,
+#                               QtCore.Qt.RightDockWidgetArea,
+#                               self.logRead, 'System Log')
+#        
+#        self.logTimer = QtCore.QTimer(self)
+#        self.connect(self.logTimer,
+#                     QtCore.SIGNAL("timeout()"),
+#                     self.logRead.reload)
+#        self.logTimer.start(200)
+        
 
         self.ppJobStats = PPJobStats()
         self.ppJobStatsDock = self.__createDockWindow('PPJobStatsDock')

@@ -47,11 +47,13 @@ class ConfigDialog(ui_motordialog.Ui_Dialog, QtGui.QDialog):
         if warning == QtGui.QMessageBox.Cancel:
             pass
         elif warning == QtGui.QMessageBox.Yes:
+            logger.warning('Spec Configuration reset')
             self.settings.remove('')
             self.reject()
 
 
     def specConnect(self):
+        logger.debug('Getting Motors')
         motors = self.specRunner.getMotorsMne()
         progressbar=self.motorProgressBar
         progressbar.setMaximum(len(motors))
@@ -75,7 +77,12 @@ class MotorTab(ui_motorconfig.Ui_Widget, QtGui.QWidget):
         self.settings=parent.settings
         self.setupUi(self)
         self.specRunner=parent.specRunner
-        self.motor=self.specRunner.getMotor(motorname)
+        try:
+            self.motor=self.specRunner.getMotor(motorname)
+            logger.debug('aquired motor for tab')
+        except:
+            logger.error('Could not aquire motor')
+            self.__init(motorname.parent)
         self.name=motorname
         self.change={}
         self.ParamDict={'sign':self.signSpin,'offset':self.offsetSpin,'position':self.positionSpin,
@@ -92,6 +99,7 @@ class MotorTab(ui_motorconfig.Ui_Widget, QtGui.QWidget):
                          self.addToChageList)
 
     def getProperties(self):
+        logger.debug('getting %s Properties',self.name)
         for param in self.ParamDict.keys():
             self.ParamDict[param].setValue(self.motor.getParameter(param))
 
@@ -110,7 +118,7 @@ class MotorTab(ui_motorconfig.Ui_Widget, QtGui.QWidget):
             value=self.change[widget]
             self.settings.setValue('%s'%param, QtCore.QVariant(value))
             self.motor.setParameter("%s"%param,value)
-#            print "%s changed parameter %s to %s"%(self.name, param,value)
+            logger.debug( "%s changed parameter %s to %s",(self.name, param,value))
         self.settings.endGroup()
 
 if __name__ == "__main__":

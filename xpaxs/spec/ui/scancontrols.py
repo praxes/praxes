@@ -35,6 +35,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
     """Provides a GUI interface for positioning motors and running scans"""
 
     def __init__(self, specRunner, parent=None):
+        logger.debug('Initializing Scan Controls')
         QtGui.QWidget.__init__(self, parent)
 
         self.specRunner = specRunner
@@ -131,6 +132,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                             self.activityFinished)
 
     def startScan(self):
+        logger.debug('Call for starting a Scan')
         scandlg = ScanDialog(self)
         if scandlg.exec_():
             scantype = str(self.scanTypeComboBox.currentText())
@@ -148,22 +150,26 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
             getattr(self.specRunner.scan, scantype)(*scanArgs)
 
     def abort(self):
+        logger.info('Abort Command Given')
         self.specRunner.abort()
         self.scanFinished()
         self.activityFinished()
         self.specRunner.scan.scanAborted()
 
     def activityStarted(self):
+        logger.debug('Activity Started')
         self.axesTab.setEnabled(False)
         self.abortButton.setEnabled(True)
         self.scanButton.setEnabled(False)
 
     def activityFinished(self):
+        logger.debug('Activity Finished')
         self.axesTab.setEnabled(True)
         self.abortButton.setEnabled(False)
         self.scanButton.setEnabled(True)
 
     def scanStarted(self):
+        logger.debug('Scan Started')
         self.scanTypeComboBox.setEnabled(False)
         self.scanCountSpinBox.setEnabled(False)
         self.disconnectAxesSignals()
@@ -173,6 +179,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.statusBarWidget.show()
 
     def scanFinished(self):
+        logger.debug('Scan Finished')
         self.scanTypeComboBox.setEnabled(True)
         self.scanCountSpinBox.setEnabled(True)
         self.connectAxesSignals()
@@ -181,10 +188,12 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.statusBarWidget.hide()
 
     def scanPaused(self):
+        logger.debug('Scan Paused')
         self.specRunner.abort()
         self.scanStackedLayout.setCurrentWidget(self.resumeButton)
 
     def scanResumed(self):
+        logger.debug('Scan Resumed')
         self.specRunner.scan.resumeScan()
         self.scanStackedLayout.setCurrentWidget(self.pauseButton)
 
@@ -195,6 +204,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.setIndependentStepsEnabled(scanType in ('mesh', ))
 
     def setIndependentStepsEnabled(self, enabled=False):
+        logger.debug('Setting IndepdendentSteps')
         self.independentStepsEnabled = enabled
         if enabled:
             for m in self.axes:
@@ -214,6 +224,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
                                   QtCore.SLOT('setValue(int)'))
 
     def setAxes(self, scanType):
+        logger.debug('Setting Axes')
         self.disconnectAxesSignals()
 
         numAxes = utils.SCAN_NUM_AXES[scanType]
@@ -254,6 +265,7 @@ class ScanDialog(ui_scandialog.Ui_Dialog, QtGui.QDialog):
                      self.formatFileName)
 
     def enableSkipmode(self, val):
+        logger.debug('enableSkipmode %s',bool(val))
         isEnabled = bool(val)
         self.thresholdSpin.setEnabled(isEnabled)
         self.thresholdLabel.setEnabled(isEnabled)
@@ -300,16 +312,21 @@ class ScanDialog(ui_scandialog.Ui_Dialog, QtGui.QDialog):
 
     def setFile(self):
         fileName = str("%s"%self.fileNameEdit.text())
-
+        logger.debug('setting filename to %s',fileName)
+        
         if fileName.endswith('.h5'): fileName = fileName[:-3]
         elif fileName.endswith('.hdf5'): fileName = fileName[:-5]
         elif fileName.endswith('.nxs'): fileName = fileName[:-4]
+        
         self.specRunner('newfile %s'%fileName)
         specfile = self.specRunner.getVarVal('DATAFILE')
+        
         specCreated = os.path.split(specfile)[-1]
         if fileName == specCreated:
+            logger.debug("file %s created",fileName)
             return True
         else:
+            logger.error('%s given %s returned',(fileName,specfile))
             self.fileError(fileName, specfile)
 
     def getDefaults(self):

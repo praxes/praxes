@@ -27,7 +27,7 @@ from SpecClient import SpecMotor
 #---------------------------------------------------------------------------
 
 logger = logging.getLogger('XPaXS.spec.client.motor')
-DEBUG = 0
+
 
 
 class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):
@@ -45,33 +45,32 @@ class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):
         self.getPosition()
 
     def connected(self):
-        if DEBUG: print'Motor %s connected'%self.specName
+        logger.debug('Motor %s connected',self.specName)
 
     def disconnected(self):
-        if DEBUG: print 'Motor %s disconnected'%self.specName
+        logger.debug('Motor %s disconnected',self.specName)
 
     def motorLimitsChanged(self):
         limits = self.getLimits()
         self.emit(QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
                   limits)
-        if DEBUG:
-            limitString = "(" + str(limits[0])+", "+ str(limits[1]) + ")"
-            print "Motor %s limits changed to %s"%(self.specName,limitString)
+        logger.debug("Motor %s limits changed to (%s,%s)",(self.specName,
+                                                           limits[0],limits[1]))
 
     def motorPositionChanged(self, absolutePosition):
         self.emit(QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
                   absolutePosition)
-        if DEBUG: print "Motor %s position changed to %s"%(self.specName,
-                                                           absolutePosition)
+        logger.debug("Motor %s position changed to %s"(self.specName,
+                                                           absolutePosition))
 
     def syncQuestionAnswer(self, specSteps, controllerSteps):
-        if DEBUG: print "Motor %s syncing"%self.specName
+        logger.debug( "Motor %s syncing",self.specName)
 
     def motorStateChanged(self, state):
         state = self.__state_strings[state]
         self.emit(QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
                   state)
-        if DEBUG: print "Motor %s state changed to %s"%(self.specName, state)
+        logger.debug( "Motor %s state changed to %s",(self.specName, state))
 
     def getState(self):
         state = SpecMotor.SpecMotorA.getState(self)
