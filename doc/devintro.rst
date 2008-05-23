@@ -5,7 +5,7 @@ Introduction
 Getting Started
 ===============
 
-.. include:: ../DEVNOTES
+.. include:: DEVNOTES
 
 Organization
 ============

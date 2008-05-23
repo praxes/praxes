@@ -50,4 +50,4 @@ python. So in response to the question "Why Python?", my initial reaction is
 Getting Started
 ===============
 
-.. include:: ../INSTALL
+.. include:: INSTALL
