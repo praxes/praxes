@@ -59,11 +59,11 @@ def ui2py(dir):
         else:
             convert = True
         if convert:
-            try:
-                if sys.platform=='win32':
-                    os.system('C:\PYTHON25\pyuic4 %s > %s'%(ui, py))
-                else:
-                    os.system('/usr/bin/pyuic4 %s > %s'%(ui, py))
+            if sys.platform=='win32':
+                converted=os.system('C:\PYTHON25\pyuic4 %s > %s'%(ui, py))
+            else:
+                converted=os.system('/usr/bin/pyuic4 %s > %s'%(ui, py))
+            if converted == 0:
                 logger.debug('converted %s'%ui)
-            finally:
-                    logger.error('could not find pyuic4')
+            else:
+                logger.error('could not find pyuic4')
