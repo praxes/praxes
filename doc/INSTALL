@@ -22,6 +22,19 @@ In order to compile the documentation, you will also need:
 * Sphinx_ (version 0.3.1 or later, please install from svn for now)
 * LaTeX_ (TeX_Live_ recommended)
 
+
+Linux and OSX
+=============
+
+To install XPaXS on linux and OSX, download the XPaXS sourcecode_ and run
+"python setup.py install" in the xpaxs source directory.
+
+Windows
+=======
+
+On windows, download and run the windows installer_.
+
+
 .. _Python: http://www.python.org/
 .. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
 .. _NumPy: http://www.scipy.org
@@ -36,18 +49,5 @@ In order to compile the documentation, you will also need:
 .. _Sphinx: http://sphinx.pocoo.org/
 .. _LaTeX: http://www.latex-project.org/
 .. _TeX_Live: http://www.tug.org/texlive/
-
-Linux and OSX
-=============
-
-To install XPaXS on linux and OSX, download the XPaXS sourcecode_ and run
-"python setup.py install" in the xpaxs source directory.
-
-Windows
-=======
-
-On windows, download and run the windows installer_.
-
-
-.. _sourcecode: http://dale.chess.cornell.edu/chess-wiki/XPaXS?action=AttachFile&amp;do=get&amp;target=xpaxs-0.3a1.tar.gz
+.. _sourcecode: http://dale.chess.cornell.edu/chess-wiki/XPaXS?action=AttachFile&amp;do=get&amp;target=xpaxs-0.5a1.tar.gz
 .. _installer: http://dale.chess.cornell.edu/chess-wiki/XPaXS
