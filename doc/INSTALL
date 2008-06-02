@@ -2,14 +2,14 @@ XPaXS requires several packages in order to run:
 
 * Python_ (version 2.5 or later)
 * setuptools_ (version 0.6c8 or later)
-* NumPy_ (version 1.1 or later, please install from svn for now)
+* NumPy_ (version 1.1 or later)
 * PyQt4_ (preferrably version 4.3.3 or later)
 * PyQwt_ (version 5.0.1 or later)
 * PyMca_ (version 4.2.4 or later)
-* matplotlib_ (0.98pre or later, please install from svn for now)
-* PP_ (parallel python for concurrent data analysis, version 1.5.3 or later)
+* matplotlib_ (0.98 or later)
+* ParallelPython_ (version 1.5.3 or later)
 * PyTables_ (version 2.0.3 or later)
-* Pexpect_ (only required for the console module, version 2.3 or later)
+* Pexpect_ (version 2.3 or later)
 
 On several distributions, like Ubuntu, you may need to install the developer
 tools and devel libraries in order to use XPaXS.
