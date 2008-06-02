@@ -1,3 +1,6 @@
+Prerequisites
+=============
+
 XPaXS requires several packages in order to run:
 
 * Python_ (version 2.5 or later)
@@ -29,7 +32,22 @@ In order to compile the documentation, you will also need:
 .. _PyQwt: http://pyqwt.sourceforge.net/
 .. _ParallelPython: http://www.parallelpython.com
 .. _PyTables: http://www.pytables.org/moin
-.. http://www.noah.org/wiki/Pexpect
+.. _Pexpect: http://www.noah.org/wiki/Pexpect
 .. _Sphinx: http://sphinx.pocoo.org/
 .. _LaTeX: http://www.latex-project.org/
 .. _TeX_Live: http://www.tug.org/texlive/
+
+Linux and OSX
+=============
+
+To install XPaXS on linux and OSX, download the XPaXS sourcecode_ and run
+"python setup.py install" in the xpaxs source directory.
+
+Windows
+=======
+
+On windows, download and run the windows installer_.
+
+
+.. _sourcecode: http://dale.chess.cornell.edu/chess-wiki/XPaXS?action=AttachFile&amp;do=get&amp;target=xpaxs-0.3a1.tar.gz
+.. _installer: http://dale.chess.cornell.edu/chess-wiki/XPaXS

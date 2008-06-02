@@ -8,6 +8,7 @@ User's Guide
    :maxdepth: 3
 
    intro
+   installation
    constants
    matter
    absorption

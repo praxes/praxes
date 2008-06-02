@@ -46,8 +46,3 @@ out of your hardware, and in that case you can implement a specific algorithm in
 a compiled in something like C and then wrap the resulting library for use from
 python. So in response to the question "Why Python?", my initial reaction is
 "why would anyone want to use anything else?".
-
-Getting Started
-===============
-
-.. include:: ../INSTALL
