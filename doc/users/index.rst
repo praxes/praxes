@@ -7,7 +7,7 @@ User's Guide
 .. toctree::
    :maxdepth: 3
 
-   introduction
+   intro
    constants
    matter
    absorption

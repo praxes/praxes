@@ -19,4 +19,4 @@ and cannot be used as a free plugin for a non-free program.
 Please contact the Cornell High Energy Synchrotron Source (607-255-7163) if this
 license is a problem for you.
 
-.. include:: LICENSE
+.. include:: ../LICENSE

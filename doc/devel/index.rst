@@ -7,9 +7,5 @@ Developer's Guide
 .. toctree::
    :maxdepth: 3
 
-   devintro
-   xpaxs_api
-   fluorescence_api
-   matter_api
-
+   intro
    license

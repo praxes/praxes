@@ -6,7 +6,7 @@ import shutil
 import sys
 
 def check_build():
-    build_dirs = ['build', 'build/doctrees', 'build/html', 'build/latex', 
+    build_dirs = ['build', 'build/doctrees', 'build/html', 'build/latex',
                   '_static', '_templates']
     for d in build_dirs:
         try:
@@ -15,27 +15,30 @@ def check_build():
             pass
 
 def figs():
-    os.system('cd figures/ && python make.py')
+    os.system('cd users/figures/ && python make.py')
 
 def html():
     check_build()
+    figs()
     os.system('sphinx-build -b html -d build/doctrees . build/html')
 
 def latex():
+    check_build()
+    figs()
     if sys.platform != 'win32':
         # LaTeX format.
         os.system('sphinx-build -b latex -d build/doctrees . build/latex')
-    
+
         # Produce pdf.
         os.chdir('build/latex')
-    
+
         # Copying the makefile produced by sphinx...
-        os.system('pdflatex XPaXS_Users_Guide.tex')
-        os.system('pdflatex XPaXS_Users_Guide.tex')
-        os.system('makeindex -s python.ist XPaXS_Users_Guide.idx')
-        os.system('makeindex -s python.ist modXPaXS_Users_Guide.idx')
-        os.system('pdflatex XPaXS_Users_Guide.tex')
-    
+        os.system('pdflatex Matplotlib.tex')
+        os.system('pdflatex Matplotlib.tex')
+        os.system('makeindex -s python.ist Matplotlib.idx')
+        os.system('makeindex -s python.ist modMatplotlib.idx')
+        os.system('pdflatex Matplotlib.tex')
+
         os.chdir('../..')
     else:
         print 'latex build has not been tested on windows'

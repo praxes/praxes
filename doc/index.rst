@@ -10,5 +10,6 @@ XPaXS -- eXtensible Packages for X-ray Science
 .. toctree::
    :maxdepth: 4
 
-   userguide
-   developerguide
+   users/index.rst
+   devel/index.rst
+   api/index.rst
