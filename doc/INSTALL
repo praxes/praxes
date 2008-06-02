@@ -27,7 +27,7 @@ In order to compile the documentation, you will also need:
 .. _PyMca: http://pymca.sourceforge.net/
 .. _Pexpect: http://www.noah.org/wiki/Pexpect
 .. _PyQwt: http://pyqwt.sourceforge.net/
-.. _PP: http://www.parallelpython.com
+.. _ParallelPython: http://www.parallelpython.com
 .. _PyTables: http://www.pytables.org/moin
 .. http://www.noah.org/wiki/Pexpect
 .. _Sphinx: http://sphinx.pocoo.org/
