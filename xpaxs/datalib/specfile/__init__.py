@@ -46,7 +46,7 @@ def getScanInfo(commandList):
     scanAxes = []
     scanRange = {}
     scanShape = []
-    logger.debug('scanType is %s',scanType )
+    logger.debug('scanType is %s', scanType)
     if scanType in ('mesh', ):
         while len(args) > 4:
             (axis, start, stop, step), args = args[:4], args[4:]
@@ -54,7 +54,7 @@ def getScanInfo(commandList):
             scanRange[axis] = (float(start), float(stop))
             scanShape.append(int(step)+1)
     elif scanType in ('ascan', 'a2scan', 'a3scan',
-                         'dscan', 'd2scan', 'd3scan'):
+                      'dscan', 'd2scan', 'd3scan'):
         temp = []
         while len(args) > 3:
             (axis, start, stop), args = args[:3], args[3:]
@@ -62,6 +62,14 @@ def getScanInfo(commandList):
             scanRange[axis] = (float(start), float(stop))
         scanAxes.append(tuple(temp))
         scanShape.append(int(args[0])+1)
+    elif scanType in ('tseries', ):
+        numPts = int(args[0])
+        if numPts < 1: numPts = -1
+        try: ctime = float(args[1])
+        except IndexError: ctime = 1.0
+        scanAxes.append('time')
+        scanRange = (0, ctime*numPts)
+        scanShape.append(numPts)
     else:
         logger.error('Scan %s not recognized!', commandType)
         raise RuntimeError('Scan %s not recognized!'%commandType)
@@ -124,7 +132,7 @@ class ChessSpecfile(object):
         try:
             scan = self._specfile.select('%d.%d'%(scan_number, scan_order))
         except specfile.error:
-            logger.error('scan %d:%d not found',(scan_order, scan_number))
+            logger.error('scan %d:%d not found', scan_order, scan_number)
             raise specfile.error, 'scan %d:%d not found'% \
                 (scan_order, scan_number)
         return scan
@@ -322,12 +330,12 @@ class ChessScandata(object):
             a ChessSpecfile instance
         """
         self.scan_info = ChessScanInfo(scan, file)
-        logger.debug('scan info: %s',self.scan_info)
+        logger.debug('scan info: %s', self.scan_info)
         try:
             nb_mcas = self.scan_info.get_number_mcas()
         except specfile.error:
             nb_mcas = 0
-        logger.debug('number mcas = %s',nb_mcas)
+        logger.debug('number mcas = %s', nb_mcas)
 
         for i in xrange(nb_mcas):
             self._add_mc_device(i)
@@ -358,7 +366,7 @@ class ChessScandata(object):
         coeffs = [0, 1, 0]
         dev_name = 'MCA%d'% index
         logger.debug(dev_info)
-        logger.debug('Number MCAS: %s',nb_devices)
+        logger.debug('Number MCAS: %s', nb_devices)
 
         found = 0
         for line in dev_info:
@@ -406,7 +414,7 @@ def load(filename, *scans, **kwargs):
     stored in the scan header.
 
     '''
-    logger.debug('Loading File: %s',filename)
+    logger.debug('Loading File: %s', filename)
     sf = ChessSpecfile(datafile)
     if args:
         scans = [ChessScandata(sf.get_scan(arg), sf) for arg in args]
@@ -418,7 +426,7 @@ def load(filename, *scans, **kwargs):
                 scans.append(sf[index])
                 index += 1
             except IndexError:
-                logger.error('Index error at index %s',index)
+                logger.error('Index error at index %s', index)
                 break
     return scans
 
@@ -433,12 +441,12 @@ def convertScan(scan, sfile, h5file):
     # access a bunch of metadata before creating an hdf5 group
     # if specfile raises an error because the scan is empty,
     # we will skip it and move on to the next
-    
+
     fileName = scan.fileheader('F')[0].split()[1]
     scanNumber = '%dr%d'%(scan.number(), scan.order())
     scanNumber = scanNumber.replace('r1', '')
     scanName = 'scan'+scanNumber
-   
+
     scanLines = scan.lines()
     scanCommand = scan.command()
     epoch = sfile.epoch()
@@ -446,10 +454,10 @@ def convertScan(scan, sfile, h5file):
     numMca = int(scan.nbmca()/scan.lines())
     mcaInfo = scan.header('@')
     scanType, scanAxes, scanRange, scanShape = getScanInfo(scanCommand.split())
-    logger.info('Converting Spec File %s %s to h5',(fileName,scanName))
+    logger.info('Converting Spec File %s %s to h5', fileName, scanName)
 
     skipmode = scan.header('C SKIPMODE')
-    logger.debug('skipmode is %s',skipmode)
+    logger.debug('skipmode is %s', skipmode)
     if skipmode:
         skipmodeMonitor, skipmodeThresh = skipmode[0].split()[2:]
         skipmodeThresh = int(skipmodeThresh)
@@ -457,7 +465,7 @@ def convertScan(scan, sfile, h5file):
         skipmodeMonitor, skipmodeThresh = None, 0
 
     scanEntry = h5file.createGroup('/', scanName)
-    logger.debug('creating group %s',scanName)
+    logger.debug('creating group %s', scanName)
     attrs = scanEntry._v_attrs
     attrs.fileName = fileName
     attrs.scanNumber = scanNumber
@@ -544,27 +552,27 @@ def spec2hdf5(specFilename, hdf5Filename=None, force=False, returnH5File=False):
     if returnH5File is True, returns an open pytables file object,
         otherwise returns the h5 filename
     """
-    logger.info('Converting spec file %s to hdf5',specFilename)
+    logger.info('Converting spec file %s to hdf5', specFilename)
     if hdf5Filename is None:
         hdf5Filename = specFilename + '.h5'
     if os.path.exists(hdf5Filename) and force==False:
-        logger.error('%s already exists! Use force flag to overwrite',hdf5Filename)
+        logger.error('%s already exists! Use force flag to overwrite', hdf5Filename)
         raise IOError('%s already exists! Use force flag to overwrite'%hdf5Filename)
     try:
-        logger.debug('making file %s',hdf5Filename)
+        logger.debug('making file %s', hdf5Filename)
         h5file = tables.openFile(hdf5Filename, 'w')
         sfile = Specfile(specFilename)
         for scan in sfile:
-            try: 
-                logger.info('converting Scan %s',scan)
+            try:
+                logger.info('converting Scan %s', scan)
                 convertScan(scan, sfile, h5file)
-            except error: 
+            except error:
                 logger.error(error)
                 pass
             h5file.flush()
     finally:
         if returnH5File:
-            logger.info('h5file %s made',h5file)
+            logger.info('h5file %s made', h5file)
             return h5file
         else:
             h5file.close()
