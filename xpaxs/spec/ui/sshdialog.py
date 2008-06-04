@@ -60,7 +60,7 @@ class SshDialog(ui_sshdialog.Ui_Dialog, QtGui.QDialog):
         self.SSH = pxssh.pxssh()
 
         if self.SSH.login(server, user, pwd):
-            logger.info('connected to %s@%s',(user,server))
+            logger.info('connected to %s@%s',user,server)
             self.SSH.sendline(cmd)
             self.SSH.prompt()
             logger.debug(self.SSH.before)

@@ -118,7 +118,7 @@ class MotorTab(ui_motorconfig.Ui_Widget, QtGui.QWidget):
             value=self.change[widget]
             self.settings.setValue('%s'%param, QtCore.QVariant(value))
             self.motor.setParameter("%s"%param,value)
-            logger.debug( "%s changed parameter %s to %s",(self.name, param,value))
+            logger.debug( "%s changed parameter %s to %s",self.name, param,value)
         self.settings.endGroup()
 
 if __name__ == "__main__":

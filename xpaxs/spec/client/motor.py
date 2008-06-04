@@ -54,14 +54,14 @@ class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):
         limits = self.getLimits()
         self.emit(QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
                   limits)
-        logger.debug("Motor %s limits changed to (%s,%s)",(self.specName,
-                                                           limits[0],limits[1]))
+        logger.debug("Motor %s limits changed to (%s,%s)",self.specName,
+                                                           limits[0],limits[1])
 
     def motorPositionChanged(self, absolutePosition):
         self.emit(QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
                   absolutePosition)
-        logger.debug("Motor %s position changed to %s"(self.specName,
-                                                           absolutePosition))
+        logger.debug("Motor %s position changed to %s",self.specName,
+                                                           absolutePosition)
 
     def syncQuestionAnswer(self, specSteps, controllerSteps):
         logger.debug( "Motor %s syncing",self.specName)
@@ -70,7 +70,7 @@ class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):
         state = self.__state_strings[state]
         self.emit(QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
                   state)
-        logger.debug( "Motor %s state changed to %s",(self.specName, state))
+        logger.debug( "Motor %s state changed to %s",self.specName, state)
 
     def getState(self):
         state = SpecMotor.SpecMotorA.getState(self)
