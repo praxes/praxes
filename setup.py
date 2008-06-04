@@ -36,16 +36,21 @@ source (this also requires PyQwt-5 or later). See
 http://sourceforge.net/project/showfiles.php?group_id=164626
 """)
 
+qtReq = '4.3'
 try:
-    qtReq = '4.3'
-    from PyQt4 import pyqtconfig
-    qtVer = convert_qt_version(pyqtconfig.Configuration().qt_version)
-    pyqtVer = pyqtconfig.Configuration().pyqt_version_str
+    if sys.platform == "win32":
+        from PyQt4 import Qt
+        qtVer = Qt.qVersion()
+        pyqtVer = Qt.PYQT_VERSION_STR 
+    else:
+        from PyQt4 import pyqtconfig
+        qtVer = convert_qt_version(pyqtconfig.Configuration().qt_version)
+        pyqtVer = pyqtconfig.Configuration().pyqt_version_str
     if ( LooseVersion(qtVer) < LooseVersion(qtReq) ) |\
-            ( LooseVersion(pyqtVer) < LooseVersion(qtReq) ):
+        ( LooseVersion(pyqtVer) < LooseVersion(qtReq) ):
         raise ImportError(
         'found Qt-%s and PyQt-%s, version %s or later required'%(qtVer, pyqtVer,
-                                                                 qtReq))
+                                                             qtReq))
 except ImportError:
     raise RuntimeError(
 """You must have Qt and PyQt version %s or later installed. See
