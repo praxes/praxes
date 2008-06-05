@@ -5,7 +5,7 @@ import os, sys, shutil
 
 def mkshortcut(target,description,link_file,*args,**kw):
     """make a shortcut if it doesn't exist, and register its creation"""
-    
+
     create_shortcut(target, description, link_file,*args,**kw)
     file_created(link_file)
 
@@ -21,25 +21,21 @@ def install():
     ip_dir = get_special_folder_path('CSIDL_COMMON_PROGRAMS') + r'\XPAXS'
     lib_dir = prefix+'\Lib\site-packages\XPAXS'
     ip_filename="sxfm"
-    
-
 
     # Create entry ...
     if not os.path.isdir(ip_dir):
         os.mkdir(ip_dir)
         directory_created(ip_dir)
-    
+
     # Create program shortcuts ...
     name = 'sxfm'
-    
+
     script = '"'+lib_dir+r'\%s.py"'%name
     f = ip_dir + r'\%s.lnk'%name
-    shutil.copy(sys.prefix+r'\Scripts\sxfm',lib_dir+'\%s.py'%ip_filename)
+    shutil.copy(sys.prefix+r'\Scripts\sxfm',lib_dir+'\%s.pyw'%ip_filename)
     mkshortcut(python,name,f,script)
 
-
-
-    # Create documentation shortcuts ...    
+    # Create documentation shortcuts ...
 #    t = prefix + r'\share\doc\ipython-%s\manual.pdf' % version
 #    f = ip_dir + r'\Manual in PDF.lnk'
 #    mkshortcut(t,r'IPython Manual - PDF-Format',f)
@@ -47,7 +43,7 @@ def install():
 #    t = prefix + r'\share\doc\ipython-%s\manual\manual.html' % version
 #    f = ip_dir + r'\Manual in HTML.lnk'
 #    mkshortcut(t,'IPython Manual - HTML-Format',f)
-    
+
 def remove():
     """Routine to be run by the win32 installer with the -remove switch."""
     pass
