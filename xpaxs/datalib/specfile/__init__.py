@@ -28,7 +28,7 @@ from itertools import izip
 
 import numpy
 from PyMca.specfile import Specfile, Scandata, error
-from pychess.specfile.mcdata import McaData, McsData
+from xpaxs.datalib.specfile.mcdata import McaData, McsData
 try: import tables
 except ImportError: pass
 
