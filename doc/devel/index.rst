@@ -5,7 +5,7 @@ Developer's Guide
 .. _contents:
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    intro
    license

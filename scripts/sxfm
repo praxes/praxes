@@ -19,6 +19,4 @@ myapp.show()
 logger = logging.getLogger('XPaXS.sxfm')
 logger.debug('sxfm started')
 
-app.exec_()
-
-logger.debug('sxfm finished')
+sys.exit(app.exec_())

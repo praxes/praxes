@@ -41,7 +41,7 @@ try:
     if sys.platform == "win32":
         from PyQt4 import Qt
         qtVer = Qt.qVersion()
-        pyqtVer = Qt.PYQT_VERSION_STR 
+        pyqtVer = Qt.PYQT_VERSION_STR
     else:
         from PyQt4 import pyqtconfig
         qtVer = convert_qt_version(pyqtconfig.Configuration().qt_version)
@@ -71,8 +71,8 @@ else:
 
 def build_specfile(ext_modules):
     import numpy
-    sources = 'xpaxs/datalib/specfile/external/specfile/src/*.c'
-    headers = 'xpaxs/datalib/specfile/external/specfile/include'
+    sources = 'external/specfile/src/*.c'
+    headers = 'external/specfile/include'
     module  = Extension(name = 'specfile',
                         sources = glob.glob(sources),
                         define_macros = define_macros,

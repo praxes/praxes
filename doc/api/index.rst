@@ -5,7 +5,7 @@ Application Programming Interface
 .. _contents:
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    fluorescence_api.rst
    matter_api.rst
