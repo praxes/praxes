@@ -18,8 +18,8 @@ def install():
     prefix = sys.prefix
     python = prefix + r'\pythonw.exe'
     # Lookup path to common startmenu ...
-    ip_dir = get_special_folder_path('CSIDL_COMMON_PROGRAMS') + r'\XPAXS'
-    lib_dir = prefix+'\Lib\site-packages\XPaXS'
+    ip_dir = get_special_folder_path('CSIDL_COMMON_PROGRAMS') + r'\XPaXS'
+    lib_dir = prefix+'\Lib\site-packages\xpaxs'
     ip_filename="sxfm"
 
     # Create entry ...
