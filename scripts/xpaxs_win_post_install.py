@@ -16,7 +16,7 @@ def install():
 
     # Get some system constants
     prefix = sys.prefix
-    python = prefix + r'\python.exe'
+    python = prefix + r'\pythonw.exe'
     # Lookup path to common startmenu ...
     ip_dir = get_special_folder_path('CSIDL_COMMON_PROGRAMS') + r'\XPAXS'
     lib_dir = prefix+'\Lib\site-packages\XPAXS'
@@ -30,9 +30,9 @@ def install():
     # Create program shortcuts ...
     name = 'sxfm'
 
-    script = '"'+lib_dir+r'\%s.py"'%name
+    script = '"'+lib_dir+r'\%s.pyw"'%name
     f = ip_dir + r'\%s.lnk'%name
-    shutil.copy(sys.prefix+r'\Scripts\sxfm',lib_dir+'\%s.pyw'%ip_filename)
+    shutil.copy(sys.prefix+r'\Scripts\%s'%name,lib_dir+'\%s.pyw'%ip_filename)
     mkshortcut(python,name,f,script)
 
     # Create documentation shortcuts ...
