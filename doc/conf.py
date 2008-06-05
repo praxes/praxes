@@ -40,11 +40,15 @@ copyright = '2008, Darren Dale'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
-#
+
+import xpaxs
+from distutils import version
+v = version.LooseVersion(xpaxs.__version__)
+
 # The short X.Y version.
-version = '0.5'
+version = '.'.join([str(i) for i in v.version[:2]])
 # The full version, including alpha/beta/rc tags.
-release = '0.5a1'
+release = xpaxs.__version__
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -136,7 +140,7 @@ latex_font_size = '11pt'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'XPaXS_Users_Guide.tex', 'XPaXS Documentation', 'Darren Dale', 'manual'),
+  ('index', 'XPaXS.tex', 'XPaXS Documentation', 'Darren Dale', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

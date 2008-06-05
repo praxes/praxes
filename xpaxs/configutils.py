@@ -45,7 +45,7 @@ def qrc2py(dir):
         else:
             convert = True
         if convert:
-            os.system('/usr/bin/pyrcc4 -o %s %s'%(py, rc))
+            os.system('pyrcc4 -o %s %s'%(py, rc))
             logger.debug('converted %s'%rc)
 
 def ui2py(dir):
@@ -59,10 +59,7 @@ def ui2py(dir):
         else:
             convert = True
         if convert:
-            if sys.platform=='win32':
-                converted=os.system('C:\PYTHON25\pyuic4 %s > %s'%(ui, py))
-            else:
-                converted=os.system('/usr/bin/pyuic4 %s > %s'%(ui, py))
+            converted = os.system('pyuic4 -o %s %s'%(py, ui))
             if converted == 0:
                 logger.debug('converted %s'%ui)
             else:

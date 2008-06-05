@@ -8,4 +8,5 @@ Developer's Guide
    :maxdepth: 2
 
    intro
+   release
    license

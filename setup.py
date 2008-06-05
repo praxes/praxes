@@ -2,6 +2,7 @@
 # update it when the contents of directories change.
 
 import os
+import sys
 if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 
 try:
@@ -58,11 +59,28 @@ http://trolltech.com/downloads/opensource and
 http://www.riverbankcomputing.co.uk/pyqt/download.php
 """%qtReq)
 
-
 for line in file('xpaxs/__init__.py').readlines():
     if line[:11] == '__version__':
         exec(line)
         break
+
+def ui_cvt(arg, dirname, fnames):
+    for fname in fnames:
+        if fname.endswith('.ui'):
+            ui = '/'.join([dirname, fname])
+            py = os.path.splitext(ui)[0]+'.py'
+            os.system('pyuic4 -o %s %s'%(py, ui))
+        elif fname.endswith('.qrc'):
+            rc = '/'.join([dirname, fname])
+            py = os.path.splitext(rc)[0]+'.py'
+            os.system('pyrcc4 -o %s %s'%(py, rc))
+
+sys.stdout.write('creating qt resources... ')
+sys.stdout.flush()
+
+os.path.walk('xpaxs', ui_cvt, None)
+
+sys.stdout.write('Done!\n')
 
 if sys.platform == "win32":
     define_macros = [('WIN32',None)]

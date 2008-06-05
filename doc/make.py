@@ -33,11 +33,11 @@ def latex():
         os.chdir('build/latex')
 
         # Copying the makefile produced by sphinx...
-        os.system('pdflatex Matplotlib.tex')
-        os.system('pdflatex Matplotlib.tex')
-        os.system('makeindex -s python.ist Matplotlib.idx')
-        os.system('makeindex -s python.ist modMatplotlib.idx')
-        os.system('pdflatex Matplotlib.tex')
+        os.system('pdflatex XPaXS.tex')
+        os.system('pdflatex XPaXS.tex')
+        os.system('makeindex -s python.ist XPaXS.idx')
+        os.system('makeindex -s python.ist modXPaXS.idx')
+        os.system('pdflatex XPaXS.tex')
 
         os.chdir('../..')
     else:

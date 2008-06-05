@@ -17,12 +17,6 @@ XPaXS requires several packages in order to run:
 On several distributions, like Ubuntu, you may need to install the developer
 tools and devel libraries in order to use XPaXS.
 
-In order to compile the documentation, you will also need:
-
-* Sphinx_ (version 0.3.1 or later, please install from svn for now)
-* LaTeX_ (TeX_Live_ recommended)
-
-
 Linux and OSX
 =============
 
@@ -46,8 +40,5 @@ On windows, download and run the windows installer_.
 .. _ParallelPython: http://www.parallelpython.com
 .. _PyTables: http://www.pytables.org/moin
 .. _Pexpect: http://www.noah.org/wiki/Pexpect
-.. _Sphinx: http://sphinx.pocoo.org/
-.. _LaTeX: http://www.latex-project.org/
-.. _TeX_Live: http://www.tug.org/texlive/
 .. _sourcecode: http://dale.chess.cornell.edu/chess-wiki/XPaXS?action=AttachFile&amp;do=get&amp;target=xpaxs-0.5a1.tar.gz
 .. _installer: http://dale.chess.cornell.edu/chess-wiki/XPaXS
