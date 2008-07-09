@@ -26,13 +26,13 @@ import numpy
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.frontends.resources import icons, cursors
+from xpaxs.frontends.plotwdidgets.resources import icons, cursors
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #--------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.plotwidgets')
+logger = logging.getLogger('XPaXS.frontends.plotwidgets')
 
 mpl.rcdefaults()
 mpl.rcParams['axes.formatter.limits'] = [-4, 4]
