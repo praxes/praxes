@@ -28,7 +28,7 @@ numpy.seterr(all='ignore')
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-
+from xpaxs.core.dispatch.ppdispatcher import PPDispatcherThread
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -74,62 +74,7 @@ def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
     return {'index': index, 'result': result, 'advancedFit': advancedFit}
 
 
-class AdvancedFitThread(QtCore.QThread):
-
-    def __init__(self, scan, config, parent=None):
-        super(AdvancedFitThread, self).__init__(parent)
-
-        self.mutex = QtCore.QMutex()
-
-        self.scan = scan
-
-        self.config = config
-        self.advancedFit = ClassMcaTheory.McaTheory(config=config)
-        self.advancedFit.enableOptimizedLinearFit()
-        self.concentrationsTool = None
-        if 'concentrations' in config:
-            self.concentrationsTool = ConcentrationsTool(config)
-            self.tconf = self.concentrationsTool.configure()
-
-        settings = QtCore.QSettings()
-        settings.beginGroup('PPJobServers')
-        ncpus, ok = settings.value('LocalProcesses',
-                                 QtCore.QVariant(1)).toInt()
-        self.jobServer = pp.Server(ncpus, ('*',))
-        # TODO: make this configurable
-        self.jobServer.set_ncpus(ncpus)
-        self.numCpus = numpy.sum([i for i in
-                        self.jobServer.get_active_nodes().itervalues()])
-        self.numQueued = 0
-        self.numProcessed = 0
-        self.numSkipped = self.scan.getNumSkippedPoints() # skipped by skipmode
-        self.expectedLines = self.scan.getNumExpectedScanLines()
-
-        self.queue = Queue.Queue()
-        for i in self.scan.getValidDataPoints():
-            self.queue.put(i)
-
-        self.dirty = False
-        self.stopped = False
-        self.completed = False
-
-        self.timer = QtCore.QTimer(self)
-        self.connect(self.timer,
-                     QtCore.SIGNAL("timeout()"),
-                     self.report)
-        self.connect(self.timer,
-                     QtCore.SIGNAL("timeout()"),
-                     self.cleanup)
-        self.timer.start(1000)
-
-        self.time = time.time()
-
-#        self.connect(self,
-#                     QtCore.SIGNAL("processed"),
-#                     self.updateRecords)
-
-    def cleanup(self):
-        gc.collect()
+class XfsDispatcherThread(PPDispatcherThread):
 
     def findNextPoint(self):
         index = self.queue.get(False)
@@ -137,32 +82,9 @@ class AdvancedFitThread(QtCore.QThread):
         spectrum = self.scan.getMcaSpectrum(index)
         return index, spectrum
 
-    def getQueue(self):
-        return self.queue
-
-    def isStopped(self):
-        try:
-            self.mutex.lock()
-            return self.stopped
-        finally:
-            self.mutex.unlock()
-
-    def processData(self):
-        while 1:
-            if self.isStopped(): return
-
-            d0 = time.time()
-
-            self.queueNext()
-
-            self.jobServer.wait()
-
-            time.sleep(0.01)
-            self.expectedLines = self.scan.getNumExpectedScanLines()
-            self.numSkipped = self.scan.getNumSkippedPoints()
-            if self.expectedLines <= (self.numProcessed+self.numSkipped): return
-
     def queueNext(self):
+        self.numExpected = self.scan.getNumExpectedScanLines()
+        self.numSkipped = self.scan.getNumSkippedPoints()
         try:
             self.mutex.lock()
             while self.numQueued < self.numCpus*3:
@@ -178,17 +100,22 @@ class AdvancedFitThread(QtCore.QThread):
         finally:
             self.mutex.unlock()
 
-    def run(self):
-        self.processData()
-        self.stop()
-        self.emit(QtCore.SIGNAL('finished()'))
+    def setData(self, scan, config):
+        self.scan = scan
+        self.config = config
 
-    def stop(self):
-        try:
-            self.mutex.lock()
-            self.stopped = True
-        finally:
-            self.mutex.unlock()
+        self.advancedFit = ClassMcaTheory.McaTheory(config=config)
+        self.advancedFit.enableOptimizedLinearFit()
+        self.concentrationsTool = None
+        if 'concentrations' in config:
+            self.concentrationsTool = ConcentrationsTool(config)
+            self.tconf = self.concentrationsTool.configure()
+
+        self.numSkipped = self.scan.getNumSkippedPoints() # skipped by skipmode
+        self.expectedLines = self.scan.getNumExpectedScanLines()
+
+        for i in self.scan.getValidDataPoints():
+            self.queue.put(i)
 
     def updateRecords(self, data):
         try:
@@ -222,11 +149,6 @@ class AdvancedFitThread(QtCore.QThread):
                     k = key.replace(' ', '')
                     self.scan.updateElementMap('massFraction', k, index, val)
             self.dirty = True
-
-#        try:
-#            if not self.isStopped():
-#                self.queueNext()
-#        except Queue.Empty: pass
 
     def report(self):
         if DEBUG: print self

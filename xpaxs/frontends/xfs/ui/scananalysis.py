@@ -21,7 +21,7 @@ from PyMca.FitParam import FitParamDialog
 #---------------------------------------------------------------------------
 
 from xpaxs.frontends.xfs.ui import elementsview, mcaspectrum
-from xpaxs.frontends.xfs.advancedfitanalysis import AdvancedFitThread
+from xpaxs.frontends.xfs.dispatch import XfsDispatcherThread
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -202,8 +202,8 @@ class ScanAnalysis(QtGui.QWidget):
         self.resetPeaks()
 
         config = copy.deepcopy(self._pymcaConfig)
-        # TODO: get ncpus from QSettings
-        thread = AdvancedFitThread(self.scanData, config, parent=self)
+        thread = XfsDispatcherThread(parent=self)
+        thread.setData(self.scanData, config)
         self.scanData.setQueue(thread.getQueue())
 
         self.connect(thread,
