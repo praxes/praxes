@@ -26,7 +26,7 @@ import numpy
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.resources import icons, cursors
+from xpaxs.frontends.resources import icons, cursors
 
 #---------------------------------------------------------------------------
 # Normal code begins

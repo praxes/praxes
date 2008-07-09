@@ -17,15 +17,15 @@ from PyQt4 import QtCore, QtGui
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.datalib.hdf5.qth5filemodel import H5FileModel
-from xpaxs.datalib.hdf5.qth5fileview import H5FileView
-from xpaxs.datalib.hdf5.xpaxsdatainterface import XpaxsFile, XpaxsScan
+from xpaxs.core.datalib.hdf5.qth5filemodel import H5FileModel
+from xpaxs.core.datalib.hdf5.qth5fileview import H5FileView
+from xpaxs.core.datalib.hdf5.xpaxsdatainterface import XpaxsFile, XpaxsScan
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.datalib.hdf5')
+logger = logging.getLogger('XPaXS.core.datalib.hdf5')
 
 
 class H5FileInterface(QtCore.QObject):

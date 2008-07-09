@@ -29,7 +29,7 @@ import tables
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.datalib.hdf5.xpaxsdatainterface')
+logger = logging.getLogger('XPaXS.core.datalib.hdf5.xpaxsdatainterface')
 DEBUG = False
 
 filters = tables.Filters(complib='zlib', complevel=9)

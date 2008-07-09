@@ -23,7 +23,7 @@ from PyQt4 import QtCore, QtGui
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.datalib.hdf5.qth5fileview')
+logger = logging.getLogger('XPaXS.core.datalib.hdf5.qth5fileview')
 
 
 class H5FileView(QtGui.QTreeView):

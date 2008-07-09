@@ -27,16 +27,21 @@ from itertools import izip
 #---------------------------------------------------------------------------
 
 import numpy
-from PyMca.specfile import Specfile, Scandata, error
-from xpaxs.datalib.specfile.mcdata import McaData, McsData
-try: import tables
-except ImportError: pass
+import tables
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.datalib.specfile')
+# TODO: fix this import:
+from PyMca.specfile import Specfile, Scandata, error
+from xpaxs.core.datalib.specfile.mcdata import McaData, McsData
+
+#---------------------------------------------------------------------------
+# Normal code begins
+#---------------------------------------------------------------------------
+
+logger = logging.getLogger('XPaXS.core.datalib.specfile')
 
 __all__ = ['load']
 
