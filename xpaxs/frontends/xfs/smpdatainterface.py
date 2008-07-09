@@ -21,7 +21,7 @@ import tables
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.core.datalib.hdf5 import XpaxsFile, XpaxsScan
+from xpaxs.core.datalib.hdf5file import XpaxsFile, XpaxsScan
 
 #---------------------------------------------------------------------------
 # Normal code begins
