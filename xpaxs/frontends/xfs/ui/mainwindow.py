@@ -26,7 +26,7 @@ from xpaxs.frontends.xfs.ui import ui_mainwindow
 from xpaxs.core.datalib.hdf5 import H5FileModel, H5FileView, H5FileInterface
 from xpaxs.frontends.xfs.ui.mcaspectrum import McaSpectrum
 from xpaxs.frontends.xfs.ui.scananalysis import ScanAnalysis
-from xpaxs.frontends.xfs.ui.ppjobstats import PPJobStats
+from xpaxs.frontends.base.ui.ppjobstats import PPJobStats
 from xpaxs.frontends.xfs.smpdatainterface import SmpFile
 
 #---------------------------------------------------------------------------
