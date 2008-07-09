@@ -35,7 +35,7 @@ numpy.seterr(all='ignore')
 #---------------------------------------------------------------------------
 
 
-logger = logging.getLogger('XPaXS.spectromicroscopy.advancedfitanalysis')
+logger = logging.getLogger('XPaXS.frontends.xfs.advancedfitanalysis')
 DEBUG = False
 
 def flat_to_nd(index, shape):

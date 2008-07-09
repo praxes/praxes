@@ -18,14 +18,14 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from xpaxs import plotwidgets
-from xpaxs.spectromicroscopy.ui import ui_elementsimage, ui_elementsplot
+from xpaxs.frontends.base import plotwidgets
+from xpaxs.frontends.xfs.ui import ui_elementsimage, ui_elementsplot
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.spectromicroscopy.elementsview')
+logger = logging.getLogger('XPaXS.frontends.xfs.ui.elementsview')
 DEBUG = True
 
 def locateClosest(point, points):

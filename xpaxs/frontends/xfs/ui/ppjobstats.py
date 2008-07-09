@@ -19,13 +19,13 @@ from PyQt4 import QtCore, QtGui
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.spectromicroscopy.ui import ui_ppjobstats
+from xpaxs.frontends.xfs.ui import ui_ppjobstats
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.spectromicroscopy.ppjobstats')
+logger = logging.getLogger('XPaXS.frontends.xfs.ui.ppjobstats')
 
 
 class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):

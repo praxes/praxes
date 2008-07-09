@@ -21,14 +21,14 @@ from SpecClient import Spec, SpecEventsDispatcher, SpecCommand
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.spec.client.motor import QtSpecMotorA
-from xpaxs.spec.client.scan import QtSpecScanA
+from xpaxs.instrumentation.spec.client.motor import QtSpecMotorA
+from xpaxs.instrumentation.spec.client.scan import QtSpecScanA
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.spec.client.runner')
+logger = logging.getLogger('XPaXS.instrumentation.spec.client.runner')
 
 
 def getSpecMacro(filename):

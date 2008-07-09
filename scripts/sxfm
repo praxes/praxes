@@ -8,7 +8,7 @@ import sys
 
 from PyQt4 import QtGui
 
-from xpaxs.spectromicroscopy.ui import mainwindow
+from xpaxs.frontends.xfs.ui import mainwindow
 
 app = QtGui.QApplication(sys.argv)
 app.setOrganizationName('XPaXS')

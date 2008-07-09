@@ -26,7 +26,7 @@ from SpecClient import SpecMotor
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.spec.client.motor')
+logger = logging.getLogger('XPaXS.instrumentation.spec.client.motor')
 
 
 

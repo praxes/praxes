@@ -21,14 +21,15 @@ from PyQt4 import QtCore, QtGui
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs import plotwidgets
-from xpaxs.spectromicroscopy.ui import ui_mcaspectrum
+from xpaxs.frontends.base import plotwidgets
+from xpaxs.frontends.xfs.ui import ui_mcaspectrum
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.spectromicroscopy.mcaspectrum')
+logger = logging.getLogger('XPaXS.frontends.xfs.ui.mcaspectrum')
+
 
 class SpectrumAnalysisThread(QtCore.QThread):
 
@@ -45,8 +46,6 @@ class SpectrumAnalysisThread(QtCore.QThread):
 
     def run(self):
         self.exec_()
-
-
 
 
 class McaSpectrumFigure(plotwidgets.QtMplCanvas):

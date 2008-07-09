@@ -21,20 +21,19 @@ import numpy
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs import configutils
 from xpaxs import __version__
-from xpaxs.spectromicroscopy.ui import ui_mainwindow
-from xpaxs.datalib.hdf5 import H5FileModel, H5FileView, H5FileInterface
-from xpaxs.spectromicroscopy.ui.mcaspectrum import McaSpectrum
-from xpaxs.spectromicroscopy.ui.scananalysis import ScanAnalysis
-from xpaxs.spectromicroscopy.ui.ppjobstats import PPJobStats
-from xpaxs.spectromicroscopy.smpdatainterface import SmpFile
+from xpaxs.frontends.xfs.ui import ui_mainwindow
+from xpaxs.core.datalib.hdf5 import H5FileModel, H5FileView, H5FileInterface
+from xpaxs.frontends.xfs.ui.mcaspectrum import McaSpectrum
+from xpaxs.frontends.xfs.ui.scananalysis import ScanAnalysis
+from xpaxs.frontends.xfs.ui.ppjobstats import PPJobStats
+from xpaxs.frontends.xfs.smpdatainterface import SmpFile
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.spectromicroscopy.mainwindow')
+logger = logging.getLogger('XPaXS.frontends.xfs.ui.mainwindow')
 
 USE_PYMCA_ADVANCEDFIT = False
 McaAdvancedFit.USE_BOLD_FONT = False
@@ -87,22 +86,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.__setupDockWindow(self.spectrumAnalysisDock,
                                QtCore.Qt.BottomDockWidgetArea,
                                self.spectrumAnalysis, 'Spectrum Analysis')
-
-#        logFile = os.path.join(configutils.getUserConfigDir(), 'xpaxs.log')
-#        self.logRead = QtGui.QTextBrowser(self)
-#        self.logRead.setWordWrapMode(QtGui.QTextOption.NoWrap)
-#        self.logRead.setSource(QtCore.QUrl(logFile))
-#        self.logReadDock = self.__createDockWindow('LogDock')
-#        self.__setupDockWindow(self.logReadDock,
-#                               QtCore.Qt.RightDockWidgetArea,
-#                               self.logRead, 'System Log')
-#        
-#        self.logTimer = QtCore.QTimer(self)
-#        self.connect(self.logTimer,
-#                     QtCore.SIGNAL("timeout()"),
-#                     self.logRead.reload)
-#        self.logTimer.start(200)
-        
 
         self.ppJobStats = PPJobStats()
         self.ppJobStatsDock = self.__createDockWindow('PPJobStatsDock')
@@ -226,7 +209,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
     def connectToSpec(self, bool):
         if bool:
-            from xpaxs.spectromicroscopy.spec import SmpSpecConnect
+            from xpaxs.frontends.xfs.spec import SmpSpecConnect
 
             dlg = SmpSpecConnect(self.fileInterface, self)
             self.expInterface = dlg.exec_()
@@ -256,7 +239,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             h5filename = '%s'% QtGui.QFileDialog.getSaveFileName(self,
                     'Save HDF5 File', '.', 'HDF5 files (*.h5 *.hdf5)', f+'.h5')
             if h5filename:
-                from xpaxs.datalib import specfile
+                from xpaxs.core.datalib import specfile
                 specfile.spec2hdf5(f, hdf5Filename=h5filename, force=True)
                 self.openDatafile(h5filename)
 

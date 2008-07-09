@@ -21,17 +21,17 @@ from SpecClient import SpecScan, SpecCommand, SpecConnectionsManager, \
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.spec.client.scan import QtSpecScanA
-from xpaxs.spec.client.runner import SpecRunner
-from xpaxs.spec.ui.scancontrols import ScanControls
-from xpaxs.spec.ui.specconnect import SpecConnect, SpecInterface
+from xpaxs.instrumentation.spec.client.scan import QtSpecScanA
+from xpaxs.instrumentation.spec.client.runner import SpecRunner
+from xpaxs.instrumentation.spec.ui.scancontrols import ScanControls
+from xpaxs.instrumentation.spec.ui.specconnect import SpecConnect, SpecInterface
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 
-logger = logging.getLogger('XPaXS.spectromicroscopy.spec')
+logger = logging.getLogger('XPaXS.frontends.xfs.spec')
 DEBUG = False
 
 

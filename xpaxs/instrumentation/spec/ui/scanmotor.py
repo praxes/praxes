@@ -17,13 +17,13 @@ from PyQt4 import QtCore, QtGui
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.spec.ui import ui_scanmotor
+from xpaxs.instrumentation.spec.ui import ui_scanmotor
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.spec.scanmotor')
+logger = logging.getLogger('XPaXS.instrumentation.spec.scanmotor')
 
 
 class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):

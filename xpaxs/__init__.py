@@ -60,7 +60,7 @@ import os
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs import configutils
+from xpaxs import config
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -73,7 +73,7 @@ logLevel = DEBUG
 
 logger = logging.getLogger("XPaXS")
 logger.setLevel(logLevel)
-logFile = os.path.join(configutils.getUserConfigDir(), 'xpaxs.log')
+logFile = os.path.join(config.getUserConfigDir(), 'xpaxs.log')
 handler = logging.handlers.RotatingFileHandler(logFile, maxBytes=10000,
                                                backupCount=5)
 handler.setLevel(logLevel)

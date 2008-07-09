@@ -20,13 +20,13 @@ import pxssh
 # SMP imports
 #---------------------------------------------------------------------------
 
-from xpaxs.spec.ui import ui_sshdialog
+from xpaxs.instrumentation.spec.ui import ui_sshdialog
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #--------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.spec.sshdialog')
+logger = logging.getLogger('XPaXS.instrumentation.spec.sshdialog')
 
 
 class SshDialog(ui_sshdialog.Ui_Dialog, QtGui.QDialog):

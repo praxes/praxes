@@ -21,13 +21,13 @@ from SpecClient import SpecScan, SpecCommand, SpecConnectionsManager, \
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs import configutils
+
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.spec.client.scan')
+logger = logging.getLogger('XPaXS.instrumentation.spec.client.scan')
 
 
 

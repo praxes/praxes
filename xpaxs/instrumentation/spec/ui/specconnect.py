@@ -19,15 +19,15 @@ from SpecClient import SpecClientError
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.spec.client.runner import SpecRunner
-from xpaxs.spec.ui import ui_specconnect,  configdialog, sshdialog
-from xpaxs.spec.ui.scancontrols import ScanControls
+from xpaxs.instrumentation.spec.client.runner import SpecRunner
+from xpaxs.instrumentation.spec.ui import ui_specconnect,  configdialog, sshdialog
+from xpaxs.instrumentation.spec.ui.scancontrols import ScanControls
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.spec.specconnect')
+logger = logging.getLogger('XPaXS.instrumentation.spec.specconnect')
 
 USESSH = False
 

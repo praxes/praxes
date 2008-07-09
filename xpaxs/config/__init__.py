@@ -26,7 +26,7 @@ import sys
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.configutils')
+logger = logging.getLogger('XPaXS.config')
 
 def getUserConfigDir():
     '''return the path to the user's spectromicroscopy config directory'''

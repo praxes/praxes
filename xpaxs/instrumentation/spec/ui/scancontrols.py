@@ -20,14 +20,14 @@ from PyQt4 import QtCore, QtGui
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.spec.client import utils
-from xpaxs.spec.ui import scanmotor, ui_scancontrols,  ui_scandialog
+from xpaxs.instrumentation.spec.client import utils
+from xpaxs.instrumentation.spec.ui import scanmotor, ui_scancontrols,  ui_scandialog
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.spec.scancontrols')
+logger = logging.getLogger('XPaXS.instrumentation.spec.scancontrols')
 
 
 class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
@@ -313,14 +313,14 @@ class ScanDialog(ui_scandialog.Ui_Dialog, QtGui.QDialog):
     def setFile(self):
         fileName = str("%s"%self.fileNameEdit.text())
         logger.debug('setting filename to %s',fileName)
-        
+
         if fileName.endswith('.h5'): fileName = fileName[:-3]
         elif fileName.endswith('.hdf5'): fileName = fileName[:-5]
         elif fileName.endswith('.nxs'): fileName = fileName[:-4]
-        
+
         self.specRunner('newfile %s'%fileName)
         specfile = self.specRunner.getVarVal('DATAFILE')
-        
+
         specCreated = os.path.split(specfile)[-1]
         if fileName == specCreated:
             logger.debug("file %s created",fileName)

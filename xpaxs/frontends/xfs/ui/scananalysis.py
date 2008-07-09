@@ -20,14 +20,14 @@ from PyMca.FitParam import FitParamDialog
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.spectromicroscopy.ui import elementsview, mcaspectrum
-from xpaxs.spectromicroscopy.advancedfitanalysis import AdvancedFitThread
+from xpaxs.frontends.xfs.ui import elementsview, mcaspectrum
+from xpaxs.frontends.xfs.advancedfitanalysis import AdvancedFitThread
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.spectromicroscopy.scananalysis')
+logger = logging.getLogger('XPaXS.frontends.xfs.ui.scananalysis')
 
 
 class ScanAnalysis(QtGui.QWidget):

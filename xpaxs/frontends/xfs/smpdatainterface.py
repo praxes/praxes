@@ -21,14 +21,14 @@ import tables
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.datalib.hdf5 import XpaxsFile, XpaxsScan
+from xpaxs.core.datalib.hdf5 import XpaxsFile, XpaxsScan
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 
-logger = logging.getLogger('XPaXS.spectromicroscopy.smpdatainterface')
+logger = logging.getLogger('XPaXS.frontends.xfs.smpdatainterface')
 DEBUG = False
 
 filters = tables.Filters(complib='zlib', complevel=9)

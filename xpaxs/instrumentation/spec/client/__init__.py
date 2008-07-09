@@ -17,11 +17,11 @@ import SpecClient
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs import configutils
+from xpaxs import config
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logfile = os.path.join(configutils.getUserConfigDir(), 'specclient.log')
+logfile = os.path.join(config.getUserConfigDir(), 'specclient.log')
 SpecClient.setLogFile(logfile)

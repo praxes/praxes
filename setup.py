@@ -109,9 +109,9 @@ field of X-ray science.
 
 # TODO: add documentation
 scriptfiles = filter(os.path.isfile, glob.glob('scripts/*'))
-package_data = {'xpaxs': ['spec/macros/*',
-                          'resources/icons/*',
-                          'resources/cursors/*']}
+package_data = {'xpaxs': ['instrumentation/spec/macros/*',
+                          'frontends/base/plotwidgets/resources/icons/*',
+                          'frontends/base/plotwidgets/resources/cursors/*']}
 
 packages = find_packages()
 packages.extend(find_packages('external'))

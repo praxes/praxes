@@ -14,13 +14,13 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from xpaxs.spec.ui import ui_motordialog, ui_motorconfig
+from xpaxs.instrumentation.spec.ui import ui_motordialog, ui_motorconfig
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #--------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.spec.configdialog')
+logger = logging.getLogger('XPaXS.instrumentation.spec.configdialog')
 
 
 class ConfigDialog(ui_motordialog.Ui_Dialog, QtGui.QDialog):
