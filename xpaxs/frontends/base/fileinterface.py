@@ -20,13 +20,13 @@ import tables
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.core.datalib.hdf5file import XpaxsFile, XpaxsScan
+from xpaxs.io.hdf5file import XpaxsFile, XpaxsScan
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.frontends.base.ui.fileinterface')
+logger = logging.getLogger('XPaXS.frontends.base.fileinterface')
 
 
 class TreeItem:

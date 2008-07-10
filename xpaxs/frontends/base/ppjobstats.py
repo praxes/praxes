@@ -25,7 +25,7 @@ from xpaxs.frontends.base.ui import ui_ppjobstats
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.frontends.base.ui.ppjobstats')
+logger = logging.getLogger('XPaXS.frontends.base.ppjobstats')
 
 
 class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):

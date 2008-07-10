@@ -33,11 +33,11 @@ numpy.seterr(all='ignore')
 #---------------------------------------------------------------------------
 
 
-logger = logging.getLogger('XPaXS.core.dispatch.ppdispatcher')
+logger = logging.getLogger('XPaXS.dispatch.pptaskmanager')
 DEBUG = False
 
 
-class PPDispatcherThread(QtCore.QThread):
+class PPTaskManager(QtCore.QThread):
 
     def __init__(self, parent=None):
         super(PPDispatcherThread, self).__init__(parent)

@@ -27,7 +27,7 @@ from xpaxs.frontends.xfs.dispatch import XfsDispatcherThread
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.frontends.xfs.ui.scananalysis')
+logger = logging.getLogger('XPaXS.frontends.xfs.scananalysis')
 
 
 class ScanAnalysis(QtGui.QWidget):

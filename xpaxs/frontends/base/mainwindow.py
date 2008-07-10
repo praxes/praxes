@@ -33,7 +33,7 @@ from xpaxs.frontends.xfs.smpdatainterface import SmpFile
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.frontends.xfs.ui.mainwindow')
+logger = logging.getLogger('XPaXS.frontends.xfs.mainwindow')
 
 
 class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):

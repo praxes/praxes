@@ -28,14 +28,14 @@ numpy.seterr(all='ignore')
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.core.dispatch.ppdispatcher import PPDispatcherThread
+from xpaxs.core.dispatch.pptaskmanager import PPTaskManager
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 
-logger = logging.getLogger('XPaXS.frontends.xfs.advancedfitanalysis')
+logger = logging.getLogger('XPaXS.frontends.xfs.pptaskmanager')
 DEBUG = False
 
 def flat_to_nd(index, shape):
@@ -74,7 +74,7 @@ def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
     return {'index': index, 'result': result, 'advancedFit': advancedFit}
 
 
-class XfsDispatcherThread(PPDispatcherThread):
+class XfsPPTaskManager(PPTaskManager):
 
     def findNextPoint(self):
         index = self.queue.get(False)

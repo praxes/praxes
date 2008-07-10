@@ -28,7 +28,7 @@ from xpaxs.frontends.xfs.ui import ui_mcaspectrum
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.frontends.xfs.ui.mcaspectrum')
+logger = logging.getLogger('XPaXS.frontends.xfs.mcaspectrum')
 
 
 class SpectrumAnalysisThread(QtCore.QThread):

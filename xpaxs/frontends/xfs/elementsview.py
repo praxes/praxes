@@ -25,7 +25,7 @@ from xpaxs.frontends.xfs.ui import ui_elementsimage, ui_elementsplot
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.frontends.xfs.ui.elementsview')
+logger = logging.getLogger('XPaXS.frontends.xfs.elementsview')
 DEBUG = True
 
 def locateClosest(point, points):

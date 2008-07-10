@@ -21,10 +21,10 @@ from SpecClient import SpecScan, SpecCommand, SpecConnectionsManager, \
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.instrumentation.spec.client.scan import QtSpecScanA
-from xpaxs.instrumentation.spec.client.runner import SpecRunner
-from xpaxs.instrumentation.spec.ui.scancontrols import ScanControls
-from xpaxs.instrumentation.spec.ui.specconnect import SpecConnect, SpecInterface
+from xpaxs.instrumentation.spec.scan import QtSpecScanA
+from xpaxs.instrumentation.spec.runner import SpecRunner
+from xpaxs.instrumentation.spec.scancontrols import ScanControls
+from xpaxs.instrumentation.spec.specconnect import SpecConnect, SpecInterface
 
 #---------------------------------------------------------------------------
 # Normal code begins

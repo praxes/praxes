@@ -32,7 +32,7 @@ from xpaxs.frontends.base.resources import icons, cursors
 # Normal code begins
 #--------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.frontends.plotwidgets')
+logger = logging.getLogger('XPaXS.frontends.base.plotwidgets')
 
 mpl.rcdefaults()
 mpl.rcParams['axes.formatter.limits'] = [-4, 4]
