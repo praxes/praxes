@@ -21,7 +21,7 @@ from PyQt4 import QtCore, QtGui
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.frontends.base.ui import plotwidgets
+from xpaxs.frontends.base import plotwidgets
 from xpaxs.frontends.xfs.ui import ui_mcaspectrum
 
 #---------------------------------------------------------------------------

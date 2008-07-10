@@ -20,7 +20,7 @@ from PyMca.FitParam import FitParamDialog
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.frontends.xfs.ui import elementsview, mcaspectrum
+from xpaxs.frontends.xfs import elementsview, mcaspectrum
 from xpaxs.frontends.xfs.dispatch import XfsDispatcherThread
 
 #---------------------------------------------------------------------------

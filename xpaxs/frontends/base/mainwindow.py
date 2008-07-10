@@ -20,12 +20,13 @@ import numpy
 # xpaxs imports
 #---------------------------------------------------------------------------
 
+# TODO: clean out xfs code
 from xpaxs import __version__
 from xpaxs.frontends.base.ui import ui_mainwindow
-from xpaxs.frontends.base.ui.fileinterface import H5FileInterface
-from xpaxs.frontends.xfs.ui.mcaspectrum import McaSpectrum
-from xpaxs.frontends.xfs.ui.scananalysis import ScanAnalysis
-from xpaxs.frontends.base.ui.ppjobstats import PPJobStats
+from xpaxs.frontends.base.fileinterface import H5FileInterface
+from xpaxs.frontends.xfs.mcaspectrum import McaSpectrum
+from xpaxs.frontends.xfs.scananalysis import ScanAnalysis
+from xpaxs.frontends.base.ppjobstats import PPJobStats
 from xpaxs.frontends.xfs.smpdatainterface import SmpFile
 
 #---------------------------------------------------------------------------
