@@ -20,8 +20,8 @@ from PyQt4 import QtCore, QtGui
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.instrumentation.spec.client import utils
-from xpaxs.instrumentation.spec.ui import scanmotor, ui_scancontrols,  ui_scandialog
+from xpaxs.instrumentation.spec import scanmotor, utils
+from xpaxs.instrumentation.spec.ui import ui_scancontrols,  ui_scandialog
 
 #---------------------------------------------------------------------------
 # Normal code begins

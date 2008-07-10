@@ -19,9 +19,10 @@ from SpecClient import SpecClientError
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.instrumentation.spec.client.runner import SpecRunner
-from xpaxs.instrumentation.spec.ui import ui_specconnect,  configdialog, sshdialog
-from xpaxs.instrumentation.spec.ui.scancontrols import ScanControls
+from xpaxs.instrumentation.spec.ui import ui_specconnect
+from xpaxs.instrumentation.spec import configdialog, sshdialog
+from xpaxs.instrumentation.spec.scancontrols import ScanControls
+from xpaxs.instrumentation.spec.runner import SpecRunner
 
 #---------------------------------------------------------------------------
 # Normal code begins

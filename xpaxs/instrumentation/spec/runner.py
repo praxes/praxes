@@ -21,8 +21,8 @@ from SpecClient import Spec, SpecEventsDispatcher, SpecCommand
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.instrumentation.spec.client.motor import QtSpecMotorA
-from xpaxs.instrumentation.spec.client.scan import QtSpecScanA
+from xpaxs.instrumentation.spec.motor import QtSpecMotorA
+from xpaxs.instrumentation.spec.scan import QtSpecScanA
 
 #---------------------------------------------------------------------------
 # Normal code begins
