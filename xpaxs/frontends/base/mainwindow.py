@@ -20,7 +20,6 @@ import numpy
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-# TODO: clean out xfs code
 from xpaxs import __version__
 from xpaxs.frontends.base.ui import ui_mainwindow
 from xpaxs.frontends.base.fileinterface import H5FileInterface
