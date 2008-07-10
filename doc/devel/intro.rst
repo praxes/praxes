@@ -10,14 +10,4 @@ Getting Started
 Organization
 ============
 
-Data Management
----------------
 
-Data Acquisition
-----------------
-
-Concurrent Processing
----------------------
-
-Documentation
--------------

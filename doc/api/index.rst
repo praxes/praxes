@@ -2,11 +2,11 @@
 Application Programming Interface
 #################################
 
-.. _contents:
+.. _api-contents:
 
 .. toctree::
    :maxdepth: 2
 
-   fluorescence_api.rst
-   matter_api.rst
-   datalib/specfile_api.rst
+   intro.rst
+   core/index.rst
+   io/index.rst

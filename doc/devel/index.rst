@@ -2,11 +2,12 @@
 Developer's Guide
 #################
 
-.. _contents:
+.. _dev-contents:
 
 .. toctree::
    :maxdepth: 2
 
    intro
+   documenting_xpaxs.rst
    release
    license

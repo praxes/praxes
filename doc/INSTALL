@@ -8,7 +8,7 @@ XPaXS requires several packages in order to run:
 * NumPy_ (version 1.1 or later)
 * PyQt4_ (preferrably version 4.3.3 or later)
 * PyQwt_ (version 5.0.1 or later)
-* PyMca_ (version 4.2.4 or later)
+* PyMca_ (version 4.2.5 or later)
 * matplotlib_ (0.98 or later)
 * ParallelPython_ (version 1.5.3 or later)
 * PyTables_ (version 2.0.3 or later)
@@ -34,7 +34,7 @@ On windows, download and run the windows installer_.
 .. _NumPy: http://www.scipy.org
 .. _PyQt4: http://www.riverbankcomputing.com/software/pyqt/intro
 .. _matplotlib: http://matplotlib.sourceforge.net/
-.. _PyMca: http://pymca.sourceforge.net/
+.. _PyMca: http://dale.chess.cornell.edu/chess-wiki/XPaXS
 .. _Pexpect: http://www.noah.org/wiki/Pexpect
 .. _PyQwt: http://pyqwt.sourceforge.net/
 .. _ParallelPython: http://www.parallelpython.com

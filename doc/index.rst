@@ -2,6 +2,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. htmlonly::
+
+    :Release: |version|
+    :Date: |today|
+
+    Download `PDF <http://dale.chess.cornell.edu/~darren/XPaXS.pdf>`_
+
 .. _contents:
 
 XPaXS -- eXtensible Packages for X-ray Science
@@ -13,3 +20,10 @@ XPaXS -- eXtensible Packages for X-ray Science
    users/index.rst
    devel/index.rst
    api/index.rst
+   glossary/index.rst
+
+.. htmlonly::
+
+  * :ref:`genindex`
+  * :ref:`modindex`
+  * :ref:`search`

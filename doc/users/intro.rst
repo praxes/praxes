@@ -2,10 +2,36 @@
 Introduction
 ************
 
+
+
 About XPaXS
 ===========
 
-.. automodule:: xpaxs
+XPaXS is a collection of python packages and libraries for X-ray Science. XPaXS
+was developed with the hope that it many will find it useful, and many will
+contribute to --- and take credit for --- its development.
+
+This project began with the goal of providing useful real-time feedback and
+analysis of scanning X-ray fluorescence microscopy experiments, using several
+existing and very successful libraries such as PyMca, SpecClient, Matplotlib,
+PyQt4, NumPy, PyTables, and ParallelPython. It quickly became clear, however,
+that due to the object-oriented nature of the Python language, with a little
+abstraction XPaXS was poised to provide a framework for X-ray science in
+general.
+
+We had to make a few decisions up front. XPaXS is developed primarily in Python,
+but it relies heavily on libraries and extension code written in C and C++. It
+is often the case that we have to analyze massive datasets, which can place high
+demands physical memory, disk space, and read/write speed. We therefore decided
+to use hdf5 and pytables for data management and storage, and we inted to format
+our datafiles according to the NeXus standard, which is rapidly gaining
+acceptance in the synchrotron and neutron communities. Finally, we decided to
+use PyQt4 for event-based programming and developing graphical user interfaces.
+PyQt4 is a python binding to the modern and very actively developed Qt4 GUI
+toolkit, which is written in C++.
+
+XPaXS is open source software. XPaXS and all of its dependencies are compatible
+with the GNU Public License.
 
 Why Python?
 ===========
@@ -20,7 +46,7 @@ The expressiveness, flexibility, and elegance are, in the opinion of many
 programmers, the most compelling reasons to use Python.
 
 Scientific computing is currently undergoing something of a Renaissance in the
-python community. It is now possible to create a compelling alternative to
+Python community. It is now possible to create a compelling alternative to
 Matlab using NumPy, SciPy, IPython, Matplotlib, and a GUI toolkit like PyQt4.
 There are many really high-quality python libraries available, for example,
 PyTables manages extremely large datasets by interfacing with the standardized
@@ -33,9 +59,11 @@ especially in the pursuit of science funded by the public. This speaks more
 broadly to the current state of scientific publishing, where the public pays for
 grants for scientific research, and then pay again to get access to the results
 of that research in an academic publication. I think it is important to maintain
-a degree of independence, and to have a sense of ownership over the tools we
+a degree of independence, and to have a sense of familiarity with the tools we
 depend upon. And finally, it has been my experience that open-source software
-development is extremely efficient and successful.
+development is an extremely efficient and successful, and results in the
+highest quality code. Eric Raymond makes a good case for the open-source
+development model in his book "The Cathedral and the Bazaar".
 
 It takes much less time to develop and debug a program in Python than it would
 in a compiled language. It is true that some routines in Python are slow

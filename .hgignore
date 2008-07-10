@@ -11,3 +11,5 @@ MANIFEST
 *.e4*
 xpaxs.egg-info/*
 *.so
+doc/_static/*
+doc/math.*
