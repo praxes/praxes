@@ -21,7 +21,7 @@ from PyMca.FitParam import FitParamDialog
 #---------------------------------------------------------------------------
 
 from xpaxs.frontends.xfs import elementsview, mcaspectrum
-from xpaxs.frontends.xfs.dispatch import XfsDispatcherThread
+from xpaxs.frontends.xfs.pptaskmanager import XfsPPTaskManager
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -202,7 +202,7 @@ class ScanAnalysis(QtGui.QWidget):
         self.resetPeaks()
 
         config = copy.deepcopy(self._pymcaConfig)
-        thread = XfsDispatcherThread(parent=self)
+        thread = XfsPPTaskManager(parent=self)
         thread.setData(self.scanData, config)
         self.scanData.setQueue(thread.getQueue())
 

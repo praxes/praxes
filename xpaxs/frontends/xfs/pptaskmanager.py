@@ -28,7 +28,7 @@ numpy.seterr(all='ignore')
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.core.dispatch.pptaskmanager import PPTaskManager
+from xpaxs.dispatch.pptaskmanager import PPTaskManager
 
 #---------------------------------------------------------------------------
 # Normal code begins

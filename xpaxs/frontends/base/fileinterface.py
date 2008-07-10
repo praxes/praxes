@@ -7,20 +7,18 @@
 
 import logging
 import os
-import sys
 
 #---------------------------------------------------------------------------
 # Extlib imports
 #---------------------------------------------------------------------------
 
 from PyQt4 import QtCore, QtGui
-import tables
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.io.hdf5file import XpaxsFile, XpaxsScan
+from xpaxs.io.hdf5file import XpaxsH5File
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -111,20 +109,18 @@ class FileItem(TreeItem):
 
 
 class H5FileModel(QtCore.QAbstractItemModel):
+
     """
     """
 
-    def __init__(self, filename=None, fileClass=XpaxsFile, parent=None):
+    def __init__(self, parent=None):
         super(H5FileModel, self).__init__(parent)
-
-        self._openFile = fileClass
 
         rootData = []
         rootData.append(QtCore.QVariant('File/Entry #'))
         rootData.append(QtCore.QVariant('Command'))
         rootData.append(QtCore.QVariant('Points'))
         self.rootItem = TreeItem(rootData)
-        if filename: self.openFile(filename)
 
     def close(self):
         for item in self.rootItem.childItems:
@@ -203,11 +199,14 @@ class H5FileModel(QtCore.QAbstractItemModel):
             if item.getFileName() == filename:
                 return item
 
+    def _openFile(self, filename):
+        return XpaxsH5File(filename, 'r+', self)
+
     def openFile(self, filename):
         item = self.getFileItem(filename)
         if item: return item.getFileObject()
 
-        dataObject = self._openFile(filename, 'r+', self)
+        dataObject = self._openFile(filename)
         item = FileItem(dataObject, self.rootItem)
         self.rootItem.appendChild(item)
         row = self.rowCount(QtCore.QModelIndex())-1
@@ -241,23 +240,38 @@ class H5FileView(QtGui.QTreeView):
 
 class H5FileInterface(QtCore.QObject):
 
-    def __init__(self, fileClass=XpaxsFile, parent=None):
+    def __init__(self, parent=None):
         super(H5FileInterface, self).__init__(parent)
         self.dockWidgets = {}
         self.mainWindow = parent
 
-        self.fileModel = H5FileModel(fileClass=fileClass, parent=self)
-        self.fileView = H5FileView(self.fileModel)
-        self.connect(self.fileModel,
+        self._setFileModel()
+        self._setFileView()
+
+        self.connect(self._fileModel,
                      QtCore.SIGNAL('fileAppended'),
-                     self.fileView.appendItem)
-        self.connect(self.fileModel,
+                     self._fileView.appendItem)
+        self.connect(self._fileModel,
                      QtCore.SIGNAL('scanActivated'),
                      self.mainWindow.newScanWindow)
-        self.addDockWidget(self.fileView, 'File View',
+        self.addDockWidget(self._fileView, 'File View',
                            QtCore.Qt.AllDockWidgetAreas,
                            QtCore.Qt.LeftDockWidgetArea,
                            'FileViewDock')
+
+    @property
+    def fileModel(self):
+        return self._fileModel
+
+    @property
+    def fileView(self):
+        return self._fileView
+
+    def _setFileModel(self):
+        self._fileModel = H5FileModel(parent=self)
+
+    def _setFileView(self):
+        self._fileView = H5FileView(self.fileModel)
 
     def addDockWidget(self, widget, title, allowedAreas, defaultArea,
                       name = None):

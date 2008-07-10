@@ -21,14 +21,15 @@ import tables
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.io.hdf5file import XpaxsFile, XpaxsScan
+from xpaxs.io.hdf5file import XpaxsH5File, XpaxsH5Scan
+from xpaxs.frontends.base.fileinterface import H5FileInterface, H5FileModel
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 
-logger = logging.getLogger('XPaXS.frontends.xfs.smpdatainterface')
+logger = logging.getLogger('XPaXS.frontends.xfs.fileinterface')
 DEBUG = False
 
 filters = tables.Filters(complib='zlib', complevel=9)
@@ -61,7 +62,7 @@ def getSpecScanInfo(commandList):
     return (scanType, scanAxes, scanRange, scanShape)
 
 
-class SmpFile(XpaxsFile):
+class XfsH5File(XpaxsH5File):
 
     def createEntry(self, scanParams):
         scanParams = copy.deepcopy(scanParams)
@@ -133,7 +134,7 @@ class SmpFile(XpaxsFile):
         finally:
             self.mutex.unlock()
         self.flush()
-        scanEntry = SmpScan(self, h5Entry)
+        scanEntry = XfsH5Scan(self, h5Entry)
         self.emit(QtCore.SIGNAL('newEntry'), scanEntry)
         return scanEntry
 
@@ -142,13 +143,13 @@ class SmpFile(XpaxsFile):
         # TODO: these checks should eventually look for nexus classes
         # for now just use the pytables classes
         if isinstance(node, tables.Group):
-            return SmpScan(self, node)
+            return XfsH5Scan(self, node)
 
 
-class SmpScan(XpaxsScan):
+class XfsH5Scan(XpaxsH5Scan):
 
     def __init__(self, *args, **kwargs):
-        super(SmpScan, self).__init__(*args, **kwargs)
+        super(XfsH5Scan, self).__init__(*args, **kwargs)
         self._numSkippedPoints = len(self.getInvalidDataPoints())
 
     def appendDataPoint(self, data):
@@ -361,3 +362,18 @@ class SmpScan(XpaxsScan):
                 print index, node
         finally:
             self.mutex.unlock()
+
+
+class XfsH5FileModel(H5FileModel):
+
+    """
+    """
+
+    def _openFile(self, filename):
+        return XfsH5File(filename, 'r+', self)
+
+
+class XfsH5FileInterface(H5FileInterface):
+
+    def _setFileModel(self):
+        self._fileModel = XfsH5FileModel(parent=self)

@@ -40,7 +40,7 @@ DEBUG = False
 class PPTaskManager(QtCore.QThread):
 
     def __init__(self, parent=None):
-        super(PPDispatcherThread, self).__init__(parent)
+        super(PPTaskManager, self).__init__(parent)
 
         self.mutex = QtCore.QMutex()
 

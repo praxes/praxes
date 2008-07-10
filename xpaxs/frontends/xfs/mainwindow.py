@@ -23,11 +23,10 @@ import numpy
 
 from xpaxs import __version__
 from xpaxs.frontends.base.mainwindow import MainWindowBase
-from xpaxs.frontends.base.fileinterface import H5FileInterface
+from xpaxs.frontends.xfs.fileinterface import XfsH5FileInterface
 from xpaxs.frontends.xfs.mcaspectrum import McaSpectrum
 from xpaxs.frontends.xfs.scananalysis import ScanAnalysis
 from xpaxs.frontends.base.ppjobstats import PPJobStats
-from xpaxs.frontends.xfs.smpdatainterface import SmpFile
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -84,7 +83,7 @@ class MainWindow(MainWindowBase):
                                self.spectrumAnalysis, 'Spectrum Analysis')
 
     def _setFileInterface(self):
-        self.fileInterface = H5FileInterface(SmpFile, self)
+        self.fileInterface = XfsH5FileInterface(self)
         for key, (item, area, action) in \
                 self.fileInterface.dockWidgets.iteritems():
             self.menuView.addAction(action)

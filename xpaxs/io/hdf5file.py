@@ -35,10 +35,10 @@ DEBUG = False
 filters = tables.Filters(complib='zlib', complevel=9)
 
 
-class XpaxsFile(QtCore.QObject):
+class XpaxsH5File(QtCore.QObject):
 
     def __init__(self, filename, mode='r+', parent=None):
-        super(XpaxsFile, self).__init__(parent)
+        super(XpaxsH5File, self).__init__(parent)
 
         self.__mutex = QtCore.QMutex()
 
@@ -82,7 +82,7 @@ class XpaxsFile(QtCore.QObject):
             attrs.scanLines = scanParams['scanLines']
         finally:
             self.mutex.unlock()
-        scanEntry = XpaxsScan(self, h5Entry)
+        scanEntry = XpaxsH5Scan(self, h5Entry)
         self.emit(QtCore.SIGNAL('newEntry'), scanEntry)
         return scanEntry
 
@@ -105,16 +105,16 @@ class XpaxsFile(QtCore.QObject):
         # TODO: these checks should eventually look for nexus classes
         # for now just use the pytables classes
         if isinstance(node, tables.Group):
-            return XpaxsScan(self, node)
+            return XpaxsH5Scan(self, node)
 
     def getNodes(self, where='/'):
         return [self.getNode(child) for child in self.h5File.getNode(where)]
 
 
-class XpaxsNode(QtCore.QObject):
+class XpaxsH5Node(QtCore.QObject):
 
     def __init__(self, xpaxsFile, h5Node):
-        super(XpaxsNode, self).__init__(xpaxsFile)
+        super(XpaxsH5Node, self).__init__(xpaxsFile)
 
         self.__xpaxsFile = xpaxsFile
         self.__h5Node = h5Node
@@ -127,7 +127,7 @@ class XpaxsNode(QtCore.QObject):
     mutex = property(lambda self: self.__mutex)
 
 
-class XpaxsScan(XpaxsNode):
+class XpaxsH5Scan(XpaxsH5Node):
 
     """A thread-safe interface to the scan data"""
 

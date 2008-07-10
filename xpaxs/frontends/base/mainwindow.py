@@ -24,10 +24,7 @@ import numpy
 from xpaxs import __version__
 from xpaxs.frontends.base.ui import ui_mainwindow
 from xpaxs.frontends.base.fileinterface import H5FileInterface
-from xpaxs.frontends.xfs.mcaspectrum import McaSpectrum
-from xpaxs.frontends.xfs.scananalysis import ScanAnalysis
 from xpaxs.frontends.base.ppjobstats import PPJobStats
-from xpaxs.frontends.xfs.smpdatainterface import SmpFile
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -79,7 +76,7 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.restoreState(settings.value('State').toByteArray())
 
     def _setFileInterface(self):
-        self.fileInterface = H5FileInterface(SmpFile, self)
+        self.fileInterface = H5FileInterface(self)
         for key, (item, area, action) in \
                 self.fileInterface.dockWidgets.iteritems():
             self.menuView.addAction(action)
