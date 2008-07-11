@@ -2,7 +2,7 @@
 XPaXS Core API
 **************
 
-.. _contents:
+.. _core-contents:
 
 .. toctree::
    :maxdepth: 2

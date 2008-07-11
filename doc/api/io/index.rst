@@ -2,7 +2,7 @@
 XPaXS IO API
 ************
 
-.. _contents:
+.. _io-contents:
 
 .. toctree::
    :maxdepth: 0
