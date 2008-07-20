@@ -33,14 +33,12 @@ class NXattrs(QtCore.QObject):
     """
     """
 
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, attrs, *args, **kwargs):
         """
         """
         super(NXattrs, self).__init__(parent)
-
-        self.__mutex = parent.mutex
-
-        self.__h5Node = parent._v_attrs
+        self.__dict__['__mutex'] = parent.mutex
+        self.__dict__['__h5Node'] = attrs
 
     def __getattr__(self, name):
         try:

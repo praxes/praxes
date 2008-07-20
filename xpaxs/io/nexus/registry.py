@@ -35,6 +35,7 @@ def get_nxclass_by_name(class_name):
     if class_name not in class_name_dict:
         warnings.warn("there is no registered node class named `%s`, "
                       "defaulting to NXentry"% class_name)
+        return class_name_dict['NXentry']
 
     return class_name_dict[class_name]
 
@@ -46,5 +47,6 @@ def get_nxclass_from_h5_item(h5_item):
             warnings.warn('PyTables.Table object "%s" incompatible with '
             'NeXus API')
         if isinstance(h5_item, tables.leaf.Leaf):
-            class_name = 'NX_' + h5_item.__class__.__name__.lower()
+            class_name = 'NX' + h5_item.__class__.__name__.lower()
+
     return get_nxclass_by_name(class_name)

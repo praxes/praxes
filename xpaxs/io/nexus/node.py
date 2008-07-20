@@ -41,18 +41,19 @@ class NXnode(QtCore.QObject):
 
         self.__mutex = parent.mutex
 
-        self.__nxFile = parent.nxFile
+        self.__nxFile = parent.nx_file
 
         try:
-            self.__h5Node = parent[name]
-            self.__attrs = NXattrs(self)
+            self.__h5Node = self.nx_file.get_h5node(parent.path, name)
+            self.__attrs = NXattrs(self, self.__h5Node._v_attrs)
             for id, group in self.__h5Node._v_children.items():
                 nxclass = get_nxclass_from_h5_item(group)
-                nxclass(self, id)
-        except NoSuchNodeError:
+                setattr(self, 'nx_%s'%id, nxclass(self, id))
+        except tables.NoSuchNodeError:
             self._create_entry(where, name, *args, **kwargs)
-            self.__attrs = NXattrs(self)
+            self.__attrs = NXattrs(self, self.__h5Node._v_attrs)
             self.attrs.NX_class = self.__class__.__name__
+            setattr(parent, 'nx_%s'%name, self)
 
     def __getattr__(self, name):
         try:
@@ -77,11 +78,11 @@ class NXnode(QtCore.QObject):
     attrs = property(lambda self: self.__attrs)
 
     def flush(self):
-        self.nxFile.flush()
+        self.nx_file.flush()
 
     mutex = property(lambda self: self.__mutex)
 
-    nxFile = property(lambda self: self.__nxFile)
+    nx_file = property(lambda self: self.__nxFile)
 
     @property
     def path(self):

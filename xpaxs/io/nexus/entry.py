@@ -21,7 +21,7 @@ import tables
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.io.nexus.node import NXNode
+from xpaxs.io.nexus.node import NXnode
 from xpaxs.io.nexus.registry import class_name_dict
 
 #---------------------------------------------------------------------------
@@ -35,6 +35,6 @@ class NXentry(NXnode):
     """
 
     def _create_entry(self, where, name, *args, **kwargs):
-        self.nxFile.create_h5group(where, name, *args, **kwargs)
+        self.nx_file.create_h5group(where, name, *args, **kwargs)
 
 class_name_dict['NXentry'] = NXentry

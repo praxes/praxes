@@ -33,6 +33,6 @@ class NXcarray(NXarray):
     """
 
     def _create_entry(self, where, name, *args, **kwargs):
-        self.nxFile.create_h5carray(where, name, *args, **kwargs)
+        self.nx_file.create_h5carray(where, name, *args, **kwargs)
 
 class_name_dict['NXcarray'] = NXcarray
