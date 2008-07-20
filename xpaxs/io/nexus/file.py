@@ -33,19 +33,33 @@ def get_local_time():
     return time.localtime()
 
 
-class NXFile(QtCore.QObject):
+class NXfile(QtCore.QObject):
 
-    def __init__(self, filename, mode='r+', parent=None):
+    """
+    """
+
+    _readonly = ()
+
+    def __init__(self, file_name, mode='r+', parent=None):
         super(NXFile, self).__init__(parent)
 
         self.__mutex = QtCore.QMutex()
 
         try:
-            self.__h5file = tables.openFile(filename, mode)
+            self.mutex.lock()
+            self.__h5file = tables.openFile(file_name, mode)
         except IOError, err:
-            if mode == 'r+': self.__h5file = tables.openFile(filename, 'w')
+            if mode == 'r+': self.__h5file = tables.openFile(file_name, 'w')
             else: raise err
-            self.__initialize_file()
+
+            now = get_local_time
+            self.h5File._v_attrs.file_name = file_name
+            self.h5File._v_attrs.file_time = now
+            self.h5File._v_attrs.file_update_time = now
+            self.h5File._v_attrs.creator = sys.argv[0]
+            self.h5File._v_attrs.NeXus_version = ''
+        finally:
+            self.mutex.unlock()
 
     def __getattr__(self, name):
         try:
@@ -57,16 +71,11 @@ class NXFile(QtCore.QObject):
     def __setattr__(self, name, value):
         try:
             self.mutex.lock()
+            if name in self._readonly:
+                raise AttributeError("can't set attribute")
             return setattr(self.h5File._v_attrs, name, value)
         finally:
             self.mutex.unlock()
-
-    def __initialize_file(self):
-        now = get_local_time
-        self.h5File._v_attrs.file_time = now
-        self.h5File._v_attrs.file_update_time = now
-        self.h5File._v_attrs.creator = sys.argv[0]
-        self.h5File._v_attrs.NeXus_version = ''
 
     def __iter__(self):
         try:
@@ -82,36 +91,6 @@ class NXFile(QtCore.QObject):
         finally:
             self.mutex.unlock()
 
-    @property
-    def creator(self):
-        try:
-            self.mutex.lock()
-            return self.h5File._v_attrs.creator
-        except AttributeError:
-            return ''
-        finally:
-            self.mutex.unlock()
-
-    @property
-    def file_name(self):
-        try:
-            self.mutex.lock()
-            return self.h5File._v_attrs.file_name
-        except AttributeError:
-            return ''
-        finally:
-            self.mutex.unlock()
-
-    @property
-    def file_time(self):
-        try:
-            self.mutex.lock()
-            return self.h5File._v_attrs.file_time
-        except AttributeError:
-            return ''
-        finally:
-            self.mutex.unlock()
-
     def flush(self):
         try:
             self.mutex.lock()
@@ -119,43 +98,14 @@ class NXFile(QtCore.QObject):
         finally:
             self.mutex.unlock()
 
-    def get_file_update_time(self):
-        try:
-            self.mutex.lock()
-            return self.h5File._v_attrs.file_update_time
-        except AttributeError:
-            return ''
-        finally:
-            self.mutex.unlock()
-    def set_file_update_time(self):
-        try:
-            self.mutex.lock()
-            self.h5File._v_attrs.file_update_time = get_local_time()
-        finally:
-            self.mutex.unlock()
-    file_update_time = property(get_file_update_time,
-                                set_file_update_time)
-
-    @property
-    def HDF5_version(self):
-        try:
-            self.mutex.lock()
-            return self.h5File._v_attrs.HDF5_version
-        except AttributeError:
-            return ''
-        finally:
-            self.mutex.unlock()
+        self.file_update_time = get_local_time()
 
     h5File = property(lambda self: self.__h5file)
 
     mutex = property(lambda self: self.__mutex)
 
-    @property
-    def NeXus_version(self):
-        try:
-            self.mutex.lock()
-            return self.h5File._v_attrs.NeXus_version
-        except AttributeError:
-            return ''
-        finally:
-            self.mutex.unlock()
+    nxFile = property(lambda self: self)
+
+    nxNode = property(lambda self: self.h5File.root)
+
+    path = property(lambda self: '/')

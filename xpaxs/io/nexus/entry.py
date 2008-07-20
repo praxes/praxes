@@ -28,7 +28,7 @@ from xpaxs.io.nexus.node import NXNode
 #---------------------------------------------------------------------------
 
 
-class NXEntry(NXNode):
+class NXentry(NXnode):
 
     """
     """
