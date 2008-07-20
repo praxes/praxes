@@ -37,17 +37,17 @@ class NXattrs(QtCore.QObject):
         """
         """
         super(NXattrs, self).__init__(parent)
-        self.__dict__['__mutex'] = parent.mutex
-        self.__dict__['__h5Node'] = attrs
+        self.__mutex = parent.mutex
+        self.__h5Node = attrs
 
-    def __getattr__(self, name):
+    def __getitem__(self, name):
         try:
             self.mutex.lock()
             return getattr(self.__h5Node, name)
         finally:
             self.mutex.unlock()
 
-    def __setattr__(self, name, value):
+    def __setitem__(self, name, value):
         try:
             self.mutex.lock()
             return setattr(self.__h5Node, name, value)
@@ -57,8 +57,12 @@ class NXattrs(QtCore.QObject):
     def __iter__(self):
         try:
             self.mutex.lock()
+            print 1
             names = self.__h5Node._v_attrnames
+            print names
             for name in names:
+                print name
+                print gettattr(self.__h5Node, name)
                 yield gettattr(self.__h5Node, name)
         finally:
             self.mutex.unlock()

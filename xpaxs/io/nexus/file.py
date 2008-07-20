@@ -61,11 +61,11 @@ class NXfile(QtCore.QObject):
             else:
                 raise err
             now = get_local_time
-            self.attrs.file_name = file_name
-            self.attrs.file_time = now
-            self.attrs.file_update_time = now
-            self.attrs.creator = sys.argv[0]
-            self.attrs.NeXus_version = ''
+            self.nx_attrs.file_name = file_name
+            self.nx_attrs.file_time = now
+            self.nx_attrs.file_update_time = now
+            self.nx_attrs.creator = sys.argv[0]
+            self.nx_attrs.NeXus_version = ''
             setattr(parent, 'nx_%s'%name, self)
 
     def __getattr__(self, name):
@@ -134,6 +134,8 @@ class NXfile(QtCore.QObject):
             self.mutex.unlock()
 
     mutex = property(lambda self: self.__mutex)
+
+    nx_attrs = property(lambda self: self.__attrs)
 
     nx_file = property(lambda self: self)
 

@@ -83,12 +83,12 @@ class NXleaf(QtCore.QObject):
     def _initialize_entry(self):
         pass
 
-    attrs = property(lambda self: self.__attrs)
-
     def flush(self):
         self.nx_file.flush()
 
     mutex = property(lambda self: self.__mutex)
+
+    nx_attrs = property(lambda self: self.__attrs)
 
     nx_file = property(lambda self: self.__nxFile)
 

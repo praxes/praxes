@@ -52,7 +52,7 @@ class NXnode(QtCore.QObject):
         except tables.NoSuchNodeError:
             self._create_entry(where, name, *args, **kwargs)
             self.__attrs = NXattrs(self, self.__h5Node._v_attrs)
-            self.attrs.NX_class = self.__class__.__name__
+            self.nx_attrs.NX_class = self.__class__.__name__
             setattr(parent, 'nx_%s'%name, self)
 
     def __getattr__(self, name):
@@ -75,12 +75,12 @@ class NXnode(QtCore.QObject):
     def _initialize_entry(self):
         pass
 
-    attrs = property(lambda self: self.__attrs)
-
     def flush(self):
         self.nx_file.flush()
 
     mutex = property(lambda self: self.__mutex)
+
+    nx_attrs = property(lambda self: self.__attrs)
 
     nx_file = property(lambda self: self.__nxFile)
 
