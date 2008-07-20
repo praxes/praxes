@@ -29,7 +29,7 @@ from xpaxs.io.nexus.registry import class_name_dict
 #---------------------------------------------------------------------------
 
 
-class NXentry(NXnode):
+class NXsample(NXnode):
 
     """
     """
@@ -37,4 +37,4 @@ class NXentry(NXnode):
     def _create_entry(self, where, name, *args, **kwargs):
         self.nxFile.create_h5group(where, name, *args, **kwargs)
 
-class_name_dict['NXentry'] = NXentry
+class_name_dict['NXsample'] = NXsample

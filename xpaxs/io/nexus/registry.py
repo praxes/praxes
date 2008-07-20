@@ -26,8 +26,6 @@ import tables
 # Normal code begins
 #---------------------------------------------------------------------------
 
-arrays
-
 class_name_dict = {}
 
 def get_nxclass_by_name(class_name):
@@ -35,8 +33,8 @@ def get_nxclass_by_name(class_name):
     Get the node class matching the `class_name`.
     """
     if class_name not in class_name_dict:
-        raise TypeError( "there is no registered node class named ``%s``"
-                         % class_name )
+        warnings.warn("there is no registered node class named `%s`, "
+                      "defaulting to NXentry"% class_name)
 
     return class_name_dict[class_name]
 

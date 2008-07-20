@@ -43,15 +43,15 @@ class NXnode(QtCore.QObject):
 
         self.__nxFile = parent.nxFile
 
-        self.__attrs = NXattrs(self)
-
         try:
             self.__h5Node = parent[name]
+            self.__attrs = NXattrs(self)
             for id, group in self.__h5Node._v_children.items():
                 nxclass = get_nxclass_from_h5_item(group)
                 nxclass(self, id)
         except NoSuchNodeError:
-            self._create_entry()
+            self._create_entry(where, name, *args, **kwargs)
+            self.__attrs = NXattrs(self)
             self.attrs.NX_class = self.__class__.__name__
 
     def __getattr__(self, name):
@@ -68,7 +68,7 @@ class NXnode(QtCore.QObject):
         finally:
             self.mutex.unlock()
 
-    def _create_entry(self):
+    def _create_entry(self, where, name, *args, **kwargs):
         raise NotImplementedError
 
     def _initialize_entry(self):

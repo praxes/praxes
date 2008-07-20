@@ -7,20 +7,19 @@ Wrappers around the pytables interface to the hdf5 file.
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import sys
-import time
+
 
 #---------------------------------------------------------------------------
 # Extlib imports
 #---------------------------------------------------------------------------
 
 from PyQt4 import QtCore
-import tables
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
+from xpaxs.io.nexus.attrs import NXattrs
 from xpaxs.io.nexus.registry import get_nxclass_from_h5_item
 
 #---------------------------------------------------------------------------
@@ -45,23 +44,18 @@ class NXleaf(QtCore.QObject):
         try:
             self.__h5Node = parent[name]
         except NoSuchNodeError:
-            self._create_entry()
+            self._create_entry(parent.path, name, *args, **kwargs)
 
-    def __getattr__(self, name):
+        self.__attrs = NXattrs(self)
+
+    def __len__(self):
         try:
             self.mutex.lock()
-            return self.__h5Node._v_children[name]
-        finally:
+            self.__h5Node.__len__()
+        except:
             self.mutex.unlock()
 
-    def __iter__(self):
-        try:
-            self.mutex.lock()
-            return self.__h5Node._f_iterNodes()
-        finally:
-            self.mutex.unlock()
-
-    def _create_entry(self, *args, **kwargs):
+    def _create_entry(self, where, name):
         raise NotImplementedError
 
     def _initialize_entry(self):

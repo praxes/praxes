@@ -45,15 +45,15 @@ class NXfile(QtCore.QObject):
 
         self.__mutex = QtCore.QMutex()
 
-        self.__attrs = NXattrs(self)
-
         try:
             self.__h5file = tables.openFile(file_name, mode)
             self.__h5Node = self.__h5File.root
+            self.__attrs = NXattrs(self)
         except IOError, err:
             if mode == 'r+':
                 self.__h5file = tables.openFile(file_name, 'w')
                 self.__h5Node = self.__h5File.root
+                self.__attrs = NXattrs(self)
             else:
                 raise err
             now = get_local_time
@@ -77,28 +77,28 @@ class NXfile(QtCore.QObject):
         finally:
             self.mutex.unlock()
 
-    def create_array(self, where, name):
+    def create_h5array(self, where, name):
         try:
             self.mutex.lock()
             self.__h5File.createArray(where, name)
         finally:
             self.mutex.unlock()
 
-    def create_carray(self, where, name):
+    def create_h5carray(self, where, name):
         try:
             self.mutex.lock()
             self.__h5File.createCArray(where, name)
         finally:
             self.mutex.unlock()
 
-    def create_earray(self, where, name):
+    def create_h5earray(self, where, name):
         try:
             self.mutex.lock()
             self.__h5File.createEArray(where, name)
         finally:
             self.mutex.unlock()
 
-    def create_entry(self, where, name):
+    def create_h5group(self, where, name):
         try:
             self.mutex.lock()
             self.__h5File.createGroup(where, name)
