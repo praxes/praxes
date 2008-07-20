@@ -7,8 +7,7 @@ Wrappers around the pytables interface to the hdf5 file.
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import sys
-import time
+import warnings
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -21,20 +20,33 @@ import tables
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.io.nexus.node import NXNode
-from xpaxs.io.nexus.registry import class_name_dict
+
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
+arrays
 
-class NXentry(NXnode):
+class_name_dict = {}
 
+def get_nxclass_by_name(class_name):
     """
+    Get the node class matching the `class_name`.
     """
+    if class_name not in class_name_dict:
+        raise TypeError( "there is no registered node class named ``%s``"
+                         % class_name )
 
-    def _create_entry(self, where, name):
-        self.nxFile.create_entry(where, name)
+    return class_name_dict[class_name]
 
-class_name_dict['NXentry'] = NXentry
+def get_nxclass_from_h5_item(h5_item):
+    try:
+        class_name = h5_item._v_attrs.NX_class
+    except AttributeError:
+        if isinstance(h5_item, tables.table.Table):
+            warnings.warn('PyTables.Table object "%s" incompatible with '
+            'NeXus API')
+        if isinstance(h5_item, tables.leaf.Leaf):
+            class_name = 'NX_' + h5_item.__class__.__name__.lower()
+    return get_nxclass_by_name(class_name)

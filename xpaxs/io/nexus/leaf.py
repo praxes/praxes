@@ -21,7 +21,6 @@ import tables
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.io.nexus.attrs import NXattrs
 from xpaxs.io.nexus.registry import get_nxclass_from_h5_item
 
 #---------------------------------------------------------------------------
@@ -29,7 +28,7 @@ from xpaxs.io.nexus.registry import get_nxclass_from_h5_item
 #---------------------------------------------------------------------------
 
 
-class NXnode(QtCore.QObject):
+class NXleaf(QtCore.QObject):
 
     """
     """
@@ -37,22 +36,16 @@ class NXnode(QtCore.QObject):
     def __init__(self, parent, name, *args, **kwargs):
         """
         """
-        super(NXnode, self).__init__(parent)
+        super(NXleaf, self).__init__(parent)
 
         self.__mutex = parent.mutex
 
         self.__nxFile = parent.nxFile
 
-        self.__attrs = NXattrs(self)
-
         try:
             self.__h5Node = parent[name]
-            for id, group in self.__h5Node._v_children.items():
-                nxclass = get_nxclass_from_h5_item(group)
-                nxclass(self, id)
         except NoSuchNodeError:
             self._create_entry()
-            self.attrs.NX_class = self.__class__.__name__
 
     def __getattr__(self, name):
         try:
@@ -68,7 +61,7 @@ class NXnode(QtCore.QObject):
         finally:
             self.mutex.unlock()
 
-    def _create_entry(self):
+    def _create_entry(self, *args, **kwargs):
         raise NotImplementedError
 
     def _initialize_entry(self):

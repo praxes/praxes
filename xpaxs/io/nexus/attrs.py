@@ -21,72 +21,48 @@ import tables
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.io.nexus.attrs import NXattrs
-from xpaxs.io.nexus.registry import get_nxclass_from_h5_item
+
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 
-class NXnode(QtCore.QObject):
+class NXattrs(QtCore.QObject):
 
     """
     """
 
-    def __init__(self, parent, name, *args, **kwargs):
+    def __init__(self, parent, *args, **kwargs):
         """
         """
-        super(NXnode, self).__init__(parent)
+        super(NXattrs, self).__init__(parent)
 
         self.__mutex = parent.mutex
 
-        self.__nxFile = parent.nxFile
-
-        self.__attrs = NXattrs(self)
-
-        try:
-            self.__h5Node = parent[name]
-            for id, group in self.__h5Node._v_children.items():
-                nxclass = get_nxclass_from_h5_item(group)
-                nxclass(self, id)
-        except NoSuchNodeError:
-            self._create_entry()
-            self.attrs.NX_class = self.__class__.__name__
+        self.__h5Node = parent._v_attrs
 
     def __getattr__(self, name):
         try:
             self.mutex.lock()
-            return self.__h5Node._v_children[name]
+            return getattr(self.__h5Node, name)
+        finally:
+            self.mutex.unlock()
+
+    def __setattr__(self, name, value):
+        try:
+            self.mutex.lock()
+            return setattr(self.__h5Node, name, value)
         finally:
             self.mutex.unlock()
 
     def __iter__(self):
         try:
             self.mutex.lock()
-            return self.__h5Node._f_iterNodes()
+            names = self.__h5Node._v_attrnames
+            for name in names:
+                yield gettattr(self.__h5Node, name)
         finally:
             self.mutex.unlock()
-
-    def _create_entry(self):
-        raise NotImplementedError
-
-    def _initialize_entry(self):
-        pass
-
-    attrs = property(lambda self: self.__attrs)
-
-    def flush(self):
-        self.nxFile.flush()
 
     mutex = property(lambda self: self.__mutex)
-
-    nxFile = property(lambda self: self.__nxFile)
-
-    @property
-    def path(self):
-        try:
-            self.mutex.lock()
-            return self.__h5Node._v_pathname
-        finally:
-            self.mutex.unlock()
