@@ -3,26 +3,26 @@ Wrappers around the pytables interface to the hdf5 file.
 
 """
 
+from __future__ import absolute_import
+
 #---------------------------------------------------------------------------
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import sys
-import time
+
 
 #---------------------------------------------------------------------------
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from PyQt4 import QtCore
-import tables
+
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.io.nexus.node import NXnode
-from xpaxs.io.nexus.registry import class_name_dict
+from .node import NXnode
+from .registry import class_name_dict
 
 #---------------------------------------------------------------------------
 # Normal code begins

@@ -3,19 +3,19 @@ Wrappers around the pytables interface to the hdf5 file.
 
 """
 
+from __future__ import absolute_import, with_statement
+
 #---------------------------------------------------------------------------
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import sys
-import time
+
 
 #---------------------------------------------------------------------------
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from PyQt4 import QtCore
-import tables
+
 
 #---------------------------------------------------------------------------
 # xpaxs imports
@@ -28,7 +28,7 @@ import tables
 #---------------------------------------------------------------------------
 
 
-class NXattrs(QtCore.QObject):
+class NXattrs(object):
 
     """
     """
@@ -37,26 +37,19 @@ class NXattrs(QtCore.QObject):
         """
         """
         super(NXattrs, self).__init__(parent)
-        self.__mutex = parent.mutex
+        self.__lock = parent.lock
         self.__h5Node = attrs
 
     def __getitem__(self, name):
-        try:
-            self.mutex.lock()
+        with self.lock:
             return getattr(self.__h5Node, name)
-        finally:
-            self.mutex.unlock()
 
     def __setitem__(self, name, value):
-        try:
-            self.mutex.lock()
+        with self.lock:
             return setattr(self.__h5Node, name, value)
-        finally:
-            self.mutex.unlock()
 
     def __iter__(self):
-        try:
-            self.mutex.lock()
+        with self.lock:
             print 1
             names = self.__h5Node._v_attrnames
             print names
@@ -64,7 +57,5 @@ class NXattrs(QtCore.QObject):
                 print name
                 print gettattr(self.__h5Node, name)
                 yield gettattr(self.__h5Node, name)
-        finally:
-            self.mutex.unlock()
 
-    mutex = property(lambda self: self.__mutex)
+    lock = property(lambda self: self.__lock)

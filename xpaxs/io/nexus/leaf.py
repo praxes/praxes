@@ -3,6 +3,8 @@ Wrappers around the pytables interface to the hdf5 file.
 
 """
 
+from __future__ import absolute_import, with_statement
+
 #---------------------------------------------------------------------------
 # Stdlib imports
 #---------------------------------------------------------------------------
@@ -13,22 +15,21 @@ Wrappers around the pytables interface to the hdf5 file.
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from PyQt4 import QtCore
 import tables
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.io.nexus.attrs import NXattrs
-from xpaxs.io.nexus.registry import get_nxclass_from_h5_item
+from .attrs import NXattrs
+from .registry import get_nxclass_from_h5_item
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 
-class NXleaf(QtCore.QObject):
+class NXleaf(object):
 
     """
     """
@@ -38,7 +39,7 @@ class NXleaf(QtCore.QObject):
         """
         super(NXleaf, self).__init__(parent)
 
-        self.__mutex = parent.mutex
+        self.__lock = parent.lock
 
         self.__nxFile = parent.nx_file
 
@@ -50,32 +51,20 @@ class NXleaf(QtCore.QObject):
         self.__attrs = NXattrs(self, self.__h5Node._v_attrs)
 
     def __getitem__(self, key):
-        try:
-            self.mutex.lock()
+        with self.lock:
             return self.__h5Node.__getitem__(key)
-        finally:
-            self.mutex.unlock()
 
     def __iter__(self):
-        try:
-            self.mutex.lock()
+        with self.lock:
             return self.__h5Node.__iter__()
-        finally:
-            self.mutex.unlock()
 
     def __len__(self):
-        try:
-            self.mutex.lock()
+        with self.lock:
             self.__h5Node.__len__()
-        except:
-            self.mutex.unlock()
 
     def __setitem__(self, key, value):
-        try:
-            self.mutex.lock()
+        with self.lock:
             self.__h5Node.__getitem__(key, value)
-        finally:
-            self.mutex.unlock()
 
     def _create_entry(self, where, name):
         raise NotImplementedError
@@ -84,9 +73,10 @@ class NXleaf(QtCore.QObject):
         pass
 
     def flush(self):
-        self.nx_file.flush()
+        with self.lock:
+            self.nx_file.flush()
 
-    mutex = property(lambda self: self.__mutex)
+    lock = property(lambda self: self.__lock)
 
     nx_attrs = property(lambda self: self.__attrs)
 
@@ -94,8 +84,5 @@ class NXleaf(QtCore.QObject):
 
     @property
     def path(self):
-        try:
-            self.mutex.lock()
+        with self.lock:
             return self.__h5Node._v_pathname
-        finally:
-            self.mutex.unlock()

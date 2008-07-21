@@ -1,9 +1,11 @@
 """
 """
 
-from xpaxs.io.nexus.array import NXarray
-from xpaxs.io.nexus.carray import NXcarray
-from xpaxs.io.nexus.earray import NXearray
-from xpaxs.io.nexus.entry import NXentry
-from xpaxs.io.nexus.file import NXfile
-from xpaxs.io.nexus.sample import NXsample
+from __future__ import absolute_import
+
+from .array import NXarray
+from .carray import NXcarray
+from .earray import NXearray
+from .entry import NXentry
+from .file import NXfile
+from .sample import NXsample

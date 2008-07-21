@@ -3,6 +3,8 @@ Wrappers around the pytables interface to the hdf5 file.
 
 """
 
+from __future__ import absolute_import
+
 #---------------------------------------------------------------------------
 # Stdlib imports
 #---------------------------------------------------------------------------
@@ -19,8 +21,8 @@ Wrappers around the pytables interface to the hdf5 file.
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.io.nexus.leaf import NXleaf
-from xpaxs.io.nexus.registry import class_name_dict
+from .leaf import NXleaf
+from .registry import class_name_dict
 
 #---------------------------------------------------------------------------
 # Normal code begins
