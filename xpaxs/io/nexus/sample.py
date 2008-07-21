@@ -34,7 +34,6 @@ class NXsample(NXnode):
     """
     """
 
-    def _create_entry(self, where, name, *args, **kwargs):
-        self.nx_file.create_h5group(where, name, *args, **kwargs)
+
 
 class_name_dict['NXsample'] = NXsample

@@ -34,55 +34,53 @@ class NXleaf(object):
     """
     """
 
-    def __init__(self, parent, name, *args, **kwargs):
+    def __init__(self, parent, h5node, *args, **kwargs):
         """
         """
         super(NXleaf, self).__init__(parent)
 
-        self.__lock = parent.lock
+#        self.__lock = parent.lock
 
-        self.__nxFile = parent.nx_file
+        self.__nxFile = parent._v_file
 
-        try:
-            self.__h5Node = self.nx_file.get_h5node(parent.path, name)
-        except tables.NoSuchNodeError:
-            self._create_entry(parent.path, name, *args, **kwargs)
+        self.__h5Node = h5node
+
+        self.__pathname = self.__h5Node._v_pathname
 
         self.__attrs = NXattrs(self, self.__h5Node._v_attrs)
 
     def __getitem__(self, key):
-        with self.lock:
+        with self._v_lock:
             return self.__h5Node.__getitem__(key)
 
     def __iter__(self):
-        with self.lock:
+        with self._v_lock:
             return self.__h5Node.__iter__()
 
     def __len__(self):
-        with self.lock:
+        with self._v_lock:
             self.__h5Node.__len__()
 
+    def __repr__(self):
+        with self._v_lock:
+            return self.__h5Node.__repr__()
+
     def __setitem__(self, key, value):
-        with self.lock:
-            self.__h5Node.__getitem__(key, value)
+        with self._v_lock:
+            self.__h5Node.__setitem__(key, value)
 
-    def _create_entry(self, where, name):
-        raise NotImplementedError
+    def __str__(self):
+        with self._v_lock:
+            return self.__h5Node.__str__()
 
-    def _initialize_entry(self):
-        pass
-
-    def flush(self):
-        with self.lock:
+    def _v_flush(self):
+        with self._v_lock:
             self.nx_file.flush()
 
-    lock = property(lambda self: self.__lock)
+    _v_lock = property(lambda self: self._v_file.lock)
 
-    nx_attrs = property(lambda self: self.__attrs)
+    attrs = property(lambda self: self.__attrs)
 
-    nx_file = property(lambda self: self.__nxFile)
+    _v_file = property(lambda self: self.__nxFile)
 
-    @property
-    def path(self):
-        with self.lock:
-            return self.__h5Node._v_pathname
+    _v_pathname = property(lambda self: self.__pathname)

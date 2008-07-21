@@ -37,25 +37,38 @@ class NXattrs(object):
         """
         """
         super(NXattrs, self).__init__(parent)
-        self.__lock = parent.lock
+
+        self.__lock = parent._v_lock
+
         self.__h5Node = attrs
 
-    def __getitem__(self, name):
-        with self.lock:
+    def __contains__(self, name):
+        with self._v_lock:
+            return name in self.__h5Node
+
+    def __getattr__(self, name):
+        with self._v_lock:
             return getattr(self.__h5Node, name)
 
-    def __setitem__(self, name, value):
-        with self.lock:
-            return setattr(self.__h5Node, name, value)
+    def __setattr__(self, name, value):
+        if name.startswith('_'+self.__class__.__name__):
+            super(NXattrs, self).__setattr__(name, value)
+        else:
+            with self._v_lock:
+                setattr(self.__h5Node, name, value)
 
     def __iter__(self):
-        with self.lock:
-            print 1
+        with self._v_lock:
             names = self.__h5Node._v_attrnames
-            print names
             for name in names:
-                print name
-                print gettattr(self.__h5Node, name)
-                yield gettattr(self.__h5Node, name)
+                yield (name, getattr(self.__h5Node, name))
 
-    lock = property(lambda self: self.__lock)
+    def __repr__(self):
+        with self._v_lock:
+            return self.__h5Node.__repr__()
+
+    def __str__(self):
+        with self._v_lock:
+            return self.__h5Node.__str__()
+
+    _v_lock = property(lambda self: self.__lock)

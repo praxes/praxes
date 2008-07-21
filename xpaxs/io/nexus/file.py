@@ -24,7 +24,12 @@ import tables
 #---------------------------------------------------------------------------
 
 from .attrs import NXattrs
-from .registry import get_nxclass_from_h5_item
+from .root import NXroot
+from .array import NXarray
+from .carray import NXcarray
+from .earray import NXearray
+from .entry import NXentry
+from .sample import NXsample
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -51,49 +56,75 @@ class NXfile(object):
         with self.lock:
             try:
                 self.__h5File = tables.openFile(file_name, mode)
-                self.__h5Node = self.__h5File.root
-                self.__attrs = NXattrs(self, self.__h5Node._v_attrs)
-                for id, group in self.__h5Node._v_children.items():
-                    nxclass = get_nxclass_from_h5_item(group)
-                    setattr(self, id, nxclass(self, id))
+                self.__root = NXroot(self, self.__h5File.root)
             except IOError, err:
                 if mode == 'r+':
-                    self.__h5file = tables.openFile(file_name, 'w')
-                    self.__h5Node = self.__h5File.root
-                    self.__attrs = NXattrs(self, self.__h5Node._v_attrs)
+                    temp = tables.openFile(file_name, 'w')
+                    temp.close()
+
+                    self.__h5File = tables.openFile(file_name, mode)
+                    self.__root = NXroot(self)
+
                 else:
                     raise err
                 now = get_local_time
-                self.nx_attrs.file_name = file_name
-                self.nx_attrs.file_time = now
-                self.nx_attrs.file_update_time = now
-                self.nx_attrs.creator = sys.argv[0]
-                self.nx_attrs.NeXus_version = ''
-                setattr(parent, name, self)
-
-#    def __getattr__(self, name):
-#        with self.lock:
-#            return self.__h5Node._v_children[name]
+                self.root.attrs.file_time = now
+                self.root.attrs.file_update_time = now
+                self.root.attrs.file_name = file_name
+                self.root.attrs.creator = sys.argv[0]
+                self.root.attrs.NeXus_version = ''
 
     def __iter__(self):
         with self.lock:
             return self.__h5File.walkNodes('/')
 
-    def create_h5array(self, where, name):
-        with self.lock:
-            return self.__h5File.createArray(where, name)
+    def __repr__(self):
+        with self._v_lock:
+            return self.__h5Node.__repr__()
 
-    def create_h5carray(self, where, name):
-        with self.lock:
-            return self.__h5File.createCArray(where, name)
+    def __str__(self):
+        with self._v_lock:
+            return self.__h5Node.__str__()
 
-    def create_h5earray(self, where, name):
+    def create_NXarray(self, parent, name):
         with self.lock:
-            return self.__h5File.createEArray(where, name)
+            try:
+                h5node = self.__h5File.getNode(parent._v_pathname, where)
+            except tables.NoSuchNodeError:
+                h5node = self.__h5File.createArray(parent._v_pathname, name)
+            setattr(parent, name, NXarray(parent, h5node))
 
-    def create_h5group(self, where, name):
+    def create_NXcarray(self, parent, name):
         with self.lock:
-            return self.__h5File.createGroup(where, name)
+            try:
+                h5node = self.__h5File.getNode(parent._v_pathname, where)
+            except tables.NoSuchNodeError:
+                h5node = self.__h5File.createCArray(parent._v_pathname, name)
+            setattr(parent, name, NXcarray(parent, h5node))
+
+    def create_NXearray(self, parent, name):
+        with self.lock:
+            try:
+                h5node = self.__h5File.getNode(parent._v_pathname, where)
+            except tables.NoSuchNodeError:
+                h5node = self.__h5File.createEArray(parent._v_pathname, name)
+            setattr(parent, name, NXearray(parent, h5node))
+
+    def create_NXentry(self, parent, name):
+        with self.lock:
+            try:
+                h5node = self.__h5File.getNode(parent._v_pathname, where)
+            except tables.NoSuchNodeError:
+                h5node = self.__h5File.createGroup(parent._v_pathname, name)
+            setattr(parent, name, NXentry(parent, h5node))
+
+    def create_NXsample(self, parent, name):
+        with self.lock:
+            try:
+                h5node = self.__h5File.getNode(parent._v_pathname, where)
+            except tables.NoSuchNodeError:
+                h5node = self.__h5File.createGroup(parent._v_pathname, name)
+            setattr(parent, name, NXsample(parent, h5node))
 
     def close(self):
         with self.lock:
@@ -106,14 +137,12 @@ class NXfile(object):
 # TODO:
 #        self.file_update_time = get_local_time()
 
-    def get_h5node(self, where, name):
-        with self.lock:
-            return self.__h5File.getNode(where, name)
+#    def get_h5node(self, where, name=None):
+#        with self.lock:
+#            return self.__h5File.getNode(where, name)
 
     lock = property(lambda self: self.__lock)
 
-    nx_attrs = property(lambda self: self.__attrs)
+    root = property(lambda self: self.__root)
 
-    nx_file = property(lambda self: self)
-
-    path = property(lambda self: '/')
+    _v_file = property(lambda self: self)

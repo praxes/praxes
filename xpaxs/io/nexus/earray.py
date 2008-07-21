@@ -34,7 +34,6 @@ class NXearray(NXcarray):
     """
     """
 
-    def _create_entry(self, where, name, *args, **kwargs):
-        self.nxFile.create_h5earray(where, name, *args, **kwargs)
+
 
 class_name_dict['NXearray'] = NXearray
