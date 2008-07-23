@@ -30,5 +30,7 @@ from .entry import NXentry
 
 class NXroot(NXentry):
 
+    _protected = ('file_name', 'file_time', 'name', 'file_update_time')
+
     """
     """

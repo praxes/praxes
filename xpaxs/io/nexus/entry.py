@@ -35,12 +35,19 @@ class NXentry(NXnode):
     """
     """
 
-    def __init__(self, parent, h5node, *args, **kwargs):
-        super(NXentry, self).__init__(parent, h5node)
+    def __init__(self, parent, name, *args, **kwargs):
+        super(NXentry, self).__init__(parent, name, *args, **kwargs)
+
         with self._v_lock:
-            for id, group in h5node._v_children.items():
-                nxclass = get_nxclass_from_h5_item(group)
-                self.__dict__[id] = nxclass(self, group)
+            for id, node in self._v_h5Node._v_children.items():
+                nxclass = get_nxclass_from_h5_item(node)
+                self.__dict__[id] = nxclass(self, id, h5Node=node)
+
+    def _createH5Node(self):
+        return
+        with self._v_lock:
+            # how do I do this? I need access to the tables file.
+            print self.__class__.__name__
 
     def __repr__(self):
         with self._v_lock:

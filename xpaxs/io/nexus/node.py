@@ -33,27 +33,48 @@ class NXnode(object):
     """
     """
 
-    def __init__(self, parent, h5node, *args, **kwargs):
+    _protected = ('name',)
+
+    def __init__(self, parent, name, *args, **kwargs):
 
         """
         """
+        super(NXnode, self).__init__(parent)
+
         with parent._v_lock:
-            super(NXnode, self).__init__(parent)
 
             # __setattr__ assumes all attributes of the instance
             # are also hdf5 attributes, so we need to bypass it:
+            self.__dict__['_v_name'] = name
             self.__dict__['_v_parent'] = parent
             self.__dict__['_v_lock'] = parent._v_lock
             self.__dict__['_v_file'] = parent._v_file
 
-            self.__dict__['_v_h5Node'] = h5node
-            self.__dict__['_v_pathname'] = h5node._v_pathname
+            h5Node = kwargs.get('h5Node')
+            if h5Node:
+                self.__dict__['_v_h5Node'] = h5Node
+            else:
+                self._createH5Node()
 
-            self.name = h5node._v_name
+    def _createH5Node(self):
+        raise NotImplementedError
 
     def __contains__(self, name):
         with self._v_lock:
             return name in self.__members__ or name in self.__dict__
+
+    def __delattr__(self, name):
+        with self._v_lock:
+            if name in self._v_attrs:
+                if name in self._protected:
+                    raise AttributeError('%s can not be deleted'%name)
+                self._v_h5Node._v_attrs.__delattr__(name)
+            else:
+                child = self.__dict__[name]
+                if isinstance(child, NXnode):
+                    child._f_remove()
+                else:
+                    raise AttributeError('%s can not be deleted'%name)
 
     def __getattr__(self, name):
         with self._v_lock:
@@ -77,6 +98,9 @@ class NXnode(object):
                 raise AttributeError("can't set attribute")
             if isinstance(value, NXnode):
                 super(NXnode, self).__setattr__(name, value)
+            elif isinstance(value, tables.Node):
+                raise AttributeError("can't set an attribute to a value "
+                                     "of type %s" %type(value))
             else:
                 setattr(self._v_h5Node._v_attrs, name, value)
                 self.__members__.insert(0, name)
@@ -92,23 +116,24 @@ class NXnode(object):
             self._v_file.flush()
 
     def _f_move(self, newparent=None, newname=None, overwrite=False):
-        if newparent is None and newname is None:
-            return
-        if newname is None:
-            newname = self.name
-        if newparent is None:
-            newparent = self._v_parent
-        else:
-            assert isinstance(newparent, class_name_dict['NXentry'])
-        if newname in newparent and not overwrite:
-            raise AttributeError('%s already exists.'
-            'Set "overwrite=True" or choose another name.')
-        else:
-            self._v_h5Node._f_move(newparent._v_pathname, newname,
-                                   overwrite=True)
-            self._v_parent.__dict__.pop(self.name)
-            self.name = newname
-            setattr(newparent, newname, self)
+        with self._v_lock:
+            if newparent is None and newname is None:
+                return
+            if newname is None:
+                newname = self.name
+            if newparent is None:
+                newparent = self._v_parent
+            else:
+                assert isinstance(newparent, class_name_dict['NXentry'])
+            if newname in newparent and not overwrite:
+                raise AttributeError('%s already exists.'
+                'Set "overwrite=True" or choose another name.')
+            else:
+                self._v_h5Node._f_move(newparent._v_pathname, newname,
+                                       overwrite=True)
+                self._v_parent.__dict__.pop(self.name)
+                self.name = newname
+                setattr(newparent, newname, self)
 
     def _f_remove(self):
         with self._v_lock:
@@ -119,4 +144,9 @@ class NXnode(object):
     def _v_attrs(self):
         with self._v_lock:
             return self._v_h5Node._v_attrs._f_list()
+
+    @property
+    def _v_pathname(self):
+        with self._v_lock:
+            return self._v_h5Node._v_pathname
 

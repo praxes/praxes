@@ -59,7 +59,7 @@ class NXfile(object):
         with self._v_lock:
             try:
                 self.__h5File = tables.openFile(file_name, mode, **kwargs)
-                self.__root = NXroot(self, self.__h5File.root)
+                self.__root = NXroot(self, '/', h5Node=self.__h5File.root)
             except IOError, err:
                 if mode == 'r+':
                     temp = tables.openFile(file_name, 'w')
