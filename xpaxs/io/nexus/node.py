@@ -21,7 +21,7 @@ import tables
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-
+from .registry import class_name_dict
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -90,6 +90,25 @@ class NXnode(object):
     def _f_flush(self):
         with self._v_lock:
             self._v_file.flush()
+
+    def _f_move(self, newparent=None, newname=None, overwrite=False):
+        if newparent is None and newname is None:
+            return
+        if newname is None:
+            newname = self.name
+        if newparent is None:
+            newparent = self._v_parent
+        else:
+            assert isinstance(newparent, class_name_dict['NXentry'])
+        if newname in newparent and not overwrite:
+            raise AttributeError('%s already exists.'
+            'Set "overwrite=True" or choose another name.')
+        else:
+            self._v_h5Node._f_move(newparent._v_pathname, newname,
+                                   overwrite=True)
+            self._v_parent.__dict__.pop(self.name)
+            self.name = newname
+            setattr(newparent, newname, self)
 
     def _f_remove(self):
         with self._v_lock:
