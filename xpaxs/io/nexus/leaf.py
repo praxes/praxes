@@ -21,7 +21,6 @@ import tables
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from .attrs import NXattrs
 from .node import NXnode
 from .registry import get_nxclass_from_h5_item
 
@@ -46,6 +45,14 @@ class NXleaf(NXnode):
     def __len__(self):
         with self._v_lock:
             self._v_h5Node.__len__()
+
+    def __repr__(self):
+        with self._v_lock:
+            rep = ['%r (%s)' %
+                   (i, self._v_h5Node._v_attrs._g_getAttr(i).__class__.__name__)
+                   for i in self._v_attrs]
+            attrlist = '[%s]' % (', '.join(rep))
+            return "%s\n  attributes: %s" % (str(self), attrlist)
 
     def __setitem__(self, key, value):
         with self._v_lock:

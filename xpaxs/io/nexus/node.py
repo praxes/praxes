@@ -37,22 +37,23 @@ class NXnode(object):
 
         """
         """
-        # Adding the names of visible children nodes here
-        # allows readline-style completion to work on them
-        # although they are actually not attributes of this object.
-        # This must be the *very first* assignment and it must bypass
-        # ``__setattr()__`` to let the later work from this moment on.
         with parent._v_lock:
-            self.__dict__['__members__'] = []
             super(NXnode, self).__init__(parent)
 
+            # __setattr__ assumes all attributes of the instance
+            # are also hdf5 attributes, so we need to bypass it:
             self.__dict__['_v_parent'] = parent
             self.__dict__['_v_lock'] = parent._v_lock
             self.__dict__['_v_file'] = parent._v_file
 
             self.__dict__['_v_h5Node'] = h5node
             self.__dict__['_v_pathname'] = h5node._v_pathname
-            self.__members__.extend(h5node._v_attrs._v_attrnamesuser)
+
+            self.name = h5node._v_name
+
+    def __contains__(self, name):
+        with self._v_lock:
+            return name in self.__members__ or name in self.__dict__
 
     def __getattr__(self, name):
         with self._v_lock:
@@ -65,18 +66,15 @@ class NXnode(object):
         with self._v_lock:
             return self._v_h5Node._f_iterNodes()
 
-    def __repr__(self):
-        with self._v_lock:
-            return self._v_h5Node.__repr__()
+    # support readline-style tab completion, even for attributes
+    @property
+    def __members__(self):
+        return self._v_attrs
 
     def __setattr__(self, name, value):
-        if '__members__' in self.__dict__ and name in self.__members__:
-            warnings.warn(
-                "group ``%s`` already has a child node or "
-                "attribute named ``%s``; you will not be able"
-                " to use natural naming to access the child node"
-                % (self._v_pathname, name), tables.NaturalNameWarning)
         with self._v_lock:
+            if name in self.__dict__:
+                raise AttributeError("can't set attribute")
             if isinstance(value, NXnode):
                 super(NXnode, self).__setattr__(name, value)
             else:
@@ -85,8 +83,21 @@ class NXnode(object):
 
     def __str__(self):
         with self._v_lock:
-            return self._v_h5Node.__str__()
+            pathname = self._v_pathname
+            classname = self.__class__.__name__
+        return "%s (%s)" % (pathname, classname)
 
     def _f_flush(self):
         with self._v_lock:
             self._v_file.flush()
+
+    def _f_remove(self):
+        with self._v_lock:
+            self._v_parent.__dict__.pop(self.name)
+            self._v_h5Node._g_remove(True)
+
+    @property
+    def _v_attrs(self):
+        with self._v_lock:
+            return self._v_h5Node._v_attrs._f_list()
+
