@@ -34,3 +34,9 @@ class NXroot(NXentry):
 
     """
     """
+
+    def _createH5Node(self):
+        raise NotImplementedError
+
+    def _initializeNewData(self):
+        pass

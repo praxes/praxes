@@ -59,7 +59,7 @@ class NXfile(object):
         with self._v_lock:
             try:
                 self.__h5File = tables.openFile(file_name, mode, **kwargs)
-                self.__root = NXroot(self, '/', h5Node=self.__h5File.root)
+                self.__root = NXroot(self, '/')
             except IOError, err:
                 if mode == 'r+':
                     temp = tables.openFile(file_name, 'w')
@@ -150,6 +150,10 @@ class NXfile(object):
         with self._v_lock:
             self.__h5File.flush()
             self.root.file_update_time = getLocalTime()
+
+    def getH5Node(self, where, name=None):
+        with self._v_lock:
+            return self.__h5File.getNode(where, name)
 
     _v_lock = property(lambda self: self.__lock)
 

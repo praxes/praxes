@@ -34,6 +34,7 @@ class NXearray(NXcarray):
     """
     """
 
-
+    def _getOrCreateH5Node(self):
+        raise NotImplementedError
 
 class_name_dict['NXearray'] = NXearray

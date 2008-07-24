@@ -21,7 +21,7 @@ from __future__ import absolute_import
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from .node import NXnode
+from .entry import NXentry
 from .registry import class_name_dict
 
 #---------------------------------------------------------------------------
@@ -29,11 +29,12 @@ from .registry import class_name_dict
 #---------------------------------------------------------------------------
 
 
-class NXsample(NXnode):
+class NXsample(NXentry):
 
     """
     """
 
-
+    def _initializeNewData(self):
+        pass
 
 class_name_dict['NXsample'] = NXsample

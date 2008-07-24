@@ -34,6 +34,10 @@ class NXarray(NXleaf):
     """
     """
 
+    def _createH5Node(self):
+        raise NotImplementedError
 
+    def _initializeNewData(self):
+        pass
 
 class_name_dict['NXarray'] = NXarray

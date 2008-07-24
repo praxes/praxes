@@ -15,7 +15,7 @@ from __future__ import absolute_import, with_statement
 # Extlib imports
 #---------------------------------------------------------------------------
 
-
+from tables import Group
 
 #---------------------------------------------------------------------------
 # xpaxs imports
@@ -41,13 +41,15 @@ class NXentry(NXnode):
         with self._v_lock:
             for id, node in self._v_h5Node._v_children.items():
                 nxclass = get_nxclass_from_h5_item(node)
-                self.__dict__[id] = nxclass(self, id, h5Node=node)
+                self.__dict__[id] = nxclass(self, id)
 
     def _createH5Node(self):
-        return
         with self._v_lock:
-            # how do I do this? I need access to the tables file.
-            print self.__class__.__name__
+            assert '_v_h5Node' not in self.__dict__
+            return Group(self._v_parent._v_h5Node, self.name)
+
+    def _initializeNewData(self):
+        pass
 
     def __repr__(self):
         with self._v_lock:

@@ -50,14 +50,24 @@ class NXnode(object):
             self.__dict__['_v_lock'] = parent._v_lock
             self.__dict__['_v_file'] = parent._v_file
 
-            h5Node = kwargs.get('h5Node')
-            if h5Node:
-                self.__dict__['_v_h5Node'] = h5Node
-            else:
-                self._createH5Node()
+            try:
+                node = self._v_file.getH5Node(parent._v_pathname, name)
+                self.__dict__['_v_h5Node'] = node
+            except AttributeError:
+                node = self._v_file.getH5Node(name)
+                self.__dict__['_v_h5Node'] = node
+            except tables.NoSuchNodeError:
+                node = self._createH5Node()
+                self.__dict__['_v_h5Node'] = node
+                self.name = self._v_name
+                self.NX_class = self.__class__.__name__
+                self._initializeNewEntry()
 
     def _createH5Node(self):
         raise NotImplementedError
+
+    def _initializeNewData(self):
+        pass
 
     def __contains__(self, name):
         with self._v_lock:
@@ -133,6 +143,7 @@ class NXnode(object):
                                        overwrite=True)
                 self._v_parent.__dict__.pop(self.name)
                 self.name = newname
+                self.__dict__['_v_name'] = newname
                 setattr(newparent, newname, self)
 
     def _f_remove(self):
@@ -144,6 +155,14 @@ class NXnode(object):
     def _v_attrs(self):
         with self._v_lock:
             return self._v_h5Node._v_attrs._f_list()
+
+    @property
+    def name(self):
+        with self._v_lock:
+            try:
+                return self.name
+            except AttributeError:
+                return self._v_name
 
     @property
     def _v_pathname(self):
