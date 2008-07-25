@@ -15,7 +15,7 @@ import warnings
 # Extlib imports
 #---------------------------------------------------------------------------
 
-import tables
+import h5py.highlevel as h5py
 
 #---------------------------------------------------------------------------
 # xpaxs imports
@@ -42,12 +42,11 @@ def get_nxclass_by_name(class_name):
 
 def get_nxclass_from_h5_item(h5_item):
     try:
-        class_name = h5_item._v_attrs.NX_class
+        return get_nxclass_by_name(h5_item.attrs.NX_class)
     except AttributeError:
-        if isinstance(h5_item, tables.table.Table):
-            warnings.warn('PyTables.Table object "%s" incompatible with '
-            'NeXus API')
-        if isinstance(h5_item, tables.leaf.Leaf):
-            class_name = 'NX' + h5_item.__class__.__name__.lower()
-
-    return get_nxclass_by_name(class_name)
+        if isinstance(h5_item, h5py.Dataset):
+            return get_nxclass_by_name('NXdataset')
+        elif isinstance(h5_item, h5py.Group):
+            return get_nxclass_by_name('NXentry')
+        else:
+            raise AttributeError('Unrecognized "%s" object')

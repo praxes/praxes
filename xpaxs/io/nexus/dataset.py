@@ -15,13 +15,13 @@ from __future__ import absolute_import
 # Extlib imports
 #---------------------------------------------------------------------------
 
-
+from h5py.highlevel import Dataset
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from .array import NXarray
+#from .leaf import NXleaf
 from .registry import class_name_dict
 
 #---------------------------------------------------------------------------
@@ -29,15 +29,11 @@ from .registry import class_name_dict
 #---------------------------------------------------------------------------
 
 
-class NXcarray(NXarray):
+class NXdataset(Dataset):
 
     """
     """
 
-    def _createH5Node(self):
-        raise NotImplementedError
 
-    def _initializeNewData(self):
-        pass
 
-class_name_dict['NXcarray'] = NXcarray
+class_name_dict['NXdataset'] = NXdataset

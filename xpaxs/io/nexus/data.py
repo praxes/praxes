@@ -21,7 +21,7 @@ from __future__ import absolute_import
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from .entry import NXentry
+from .group import NXgroup
 from .registry import class_name_dict
 
 #---------------------------------------------------------------------------
@@ -29,7 +29,7 @@ from .registry import class_name_dict
 #---------------------------------------------------------------------------
 
 
-class NXdata(NXentry):
+class NXdata(NXgroup):
 
     """
     """

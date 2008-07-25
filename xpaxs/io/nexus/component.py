@@ -21,14 +21,17 @@ from __future__ import absolute_import
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from .entry import NXentry
+from .group import NXgroup
+from .registry import class_name_dict
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 
-class NXcomponent(NXentry):
+class NXcomponent(NXgroup):
 
     """
     """
+
+class_name_dict['NXcomponent'] = NXcomponent
