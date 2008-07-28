@@ -29,9 +29,33 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class NXsample(NXgroup):
+class NXgeometry(NXgroup):
 
     """
     """
 
-registry['NXsample'] = NXsample
+registry['NXgeometry'] = NXgeometry
+
+
+class NXtranslation(NXgroup):
+
+    """
+    """
+
+registry['NXtranslation'] = NXtranslation
+
+
+class NXshape(NXgroup):
+
+    """
+    """
+
+registry['NXshape'] = NXshape
+
+
+class NXorientation(NXgroup):
+
+    """
+    """
+
+registry['NXorientation'] = NXorientation

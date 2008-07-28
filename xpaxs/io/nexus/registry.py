@@ -3,12 +3,13 @@ Wrappers around the pytables interface to the hdf5 file.
 
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, with_statement
 
 #---------------------------------------------------------------------------
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+import threading
 import warnings
 
 #---------------------------------------------------------------------------
@@ -16,6 +17,7 @@ import warnings
 #---------------------------------------------------------------------------
 
 import h5py.highlevel as h5py
+from h5py import h5
 
 #---------------------------------------------------------------------------
 # xpaxs imports
@@ -27,26 +29,34 @@ import h5py.highlevel as h5py
 # Normal code begins
 #---------------------------------------------------------------------------
 
-class_name_dict = {}
 
-def get_nxclass_by_name(class_name):
-    """
-    Get the node class matching the `class_name`.
-    """
-    if class_name not in class_name_dict:
-        warnings.warn("there is no registered node class named `%s`, "
-                      "defaulting to NXentry"% class_name)
-        return class_name_dict['NXentry']
+class NXregistry(object):
 
-    return class_name_dict[class_name]
+    def __init__(self):
+        self.__lock = threading.Lock()
+        self.__data = {}
 
-def get_nxclass_from_h5_item(h5_item):
-    try:
-        return get_nxclass_by_name(h5_item.attrs.NX_class)
-    except AttributeError:
-        if isinstance(h5_item, h5py.Dataset):
-            return get_nxclass_by_name('NXdataset')
-        elif isinstance(h5_item, h5py.Group):
-            return get_nxclass_by_name('NXentry')
-        else:
-            raise AttributeError('Unrecognized "%s" object')
+    def __contains__(self, name):
+        with self.__lock:
+            return name in self.__data
+
+    def __getitem__(self, name):
+        with self.__lock:
+            try:
+                return self.__data[name]
+            except KeyError:
+                warnings.warn("there is no registered node class named `%s`, "
+                              "defaulting to NXentry"% class_name)
+                return self.__data['NXentry']
+
+            return class_name_dict[class_name]
+
+    def __iter__(self):
+        with self.__lock:
+            return self.__data.__iter__()
+
+    def __setitem__(self, name, value):
+        with self.__lock:
+            self.__data[name] = value
+
+registry = NXregistry()

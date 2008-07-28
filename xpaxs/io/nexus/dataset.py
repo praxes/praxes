@@ -15,14 +15,13 @@ from __future__ import absolute_import
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from h5py.highlevel import Dataset
+from h5py import Dataset
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-#from .leaf import NXleaf
-from .registry import class_name_dict
+
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -33,7 +32,3 @@ class NXdataset(Dataset):
 
     """
     """
-
-
-
-class_name_dict['NXdataset'] = NXdataset

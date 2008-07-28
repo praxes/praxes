@@ -21,9 +21,8 @@ from __future__ import absolute_import, with_statement
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-#from .leaf import NXleaf
 from .group import NXgroup
-from .registry import class_name_dict, get_nxclass_from_h5_item
+from .registry import registry
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -37,4 +36,4 @@ class NXentry(NXgroup):
 
 
 
-class_name_dict['NXentry'] = NXentry
+registry['NXentry'] = NXentry

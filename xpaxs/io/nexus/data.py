@@ -22,7 +22,7 @@ from __future__ import absolute_import
 #---------------------------------------------------------------------------
 
 from .group import NXgroup
-from .registry import class_name_dict
+from .registry import registry
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -34,4 +34,13 @@ class NXdata(NXgroup):
     """
     """
 
-class_name_dict['NXdata'] = NXdata
+registry['NXdata'] = NXdata
+
+
+class NXevent_data(NXgroup):
+
+    """
+    """
+
+registry['NXevent_data'] = NXevent_data
+

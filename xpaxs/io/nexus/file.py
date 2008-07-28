@@ -18,20 +18,14 @@ import time
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from h5py.highlevel import File
+from h5py import Dataset, File
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-#from .root import NXroot
-#from .array import NXarray
-#from .carray import NXcarray
-#from .earray import NXearray
 from .dataset import NXdataset
-from .entry import NXentry
-from .sample import NXsample
-from .registry import get_nxclass_from_h5_item
+from .registry import registry
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -39,7 +33,6 @@ from .registry import get_nxclass_from_h5_item
 
 
 def getLocalTime():
-    # TODO: format according to nexus
     res = list(time.localtime())[:6]
     g = time.gmtime()
     res.append(l[3]-g[3])
@@ -51,19 +44,13 @@ class NXfile(File):
     """
     """
 
-    @property
-    def __members__(self):
-        with self.lock:
-            return list(self)
-
-    def __getattr__(self, name):
-        with self.lock:
-            return self.__getitem__(name)
-
     def __getitem__(self, name):
         with self.lock:
             # a little hackish, for now:
             item = super(NXfile, self).__getitem__(name)
-            nxclass = get_nxclass_from_h5_item(item)
+            if isinstance(item, Dataset):
+                nxclass = NXdataset
+            else:
+                nxclass = registry[item.attrs['NX_class']]
             del item
             return nxclass(self, name)

@@ -29,9 +29,9 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class NXsample(NXgroup):
+class NXcharacterization(NXgroup):
 
     """
     """
 
-registry['NXsample'] = NXsample
+registry['NXcharacterization'] = NXcharacterization

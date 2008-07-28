@@ -29,9 +29,17 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class NXsample(NXgroup):
+class NXenvironment(NXgroup):
 
     """
     """
 
-registry['NXsample'] = NXsample
+registry['NXenvironment'] = NXenvironment
+
+
+class NXsensor(NXgroup):
+
+    """
+    """
+
+registry['NXsensor'] = NXsensor

@@ -3,7 +3,7 @@ Wrappers around the pytables interface to the hdf5 file.
 
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, with_statement
 
 #---------------------------------------------------------------------------
 # Stdlib imports
@@ -29,9 +29,11 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class NXsample(NXgroup):
+class NXinstrument(NXgroup):
 
     """
     """
 
-registry['NXsample'] = NXsample
+
+
+registry['NXinstrument'] = NXinstrument
