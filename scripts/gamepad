@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+
+#import signal
+#signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+import logging
+import sys
+
+from PyQt4 import QtGui
+
+from xpaxs.instrumentation.spec import gamepad
+
+app = QtGui.QApplication(sys.argv)
+app.setOrganizationName('XPaXS')
+app.setApplicationName('Gamepad')
+myapp = gamepad.Pad()
+myapp.show()
+
+logger = logging.getLogger('XPaXS.gamepad')
+logger.debug('gamepad started')
+
+sys.exit(app.exec_())
