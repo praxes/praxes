@@ -1,0 +1,654 @@
+<ui version="4.0" >
+ <class>Pad</class>
+ <widget class="QWidget" name="Pad" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>553</width>
+    <height>274</height>
+   </rect>
+  </property>
+  <property name="focusPolicy" >
+   <enum>Qt::StrongFocus</enum>
+  </property>
+  <property name="windowTitle" >
+   <string>GamePad Controler</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <layout class="QHBoxLayout" >
+     <item>
+      <widget class="QFrame" name="buttonFrame" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frameShape" >
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow" >
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QGridLayout" >
+        <item row="0" column="0" >
+         <widget class="QPushButton" name="ulButton" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>30</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>\</string>
+          </property>
+          <property name="shortcut" >
+           <string>7, Home</string>
+          </property>
+          <property name="autoRepeat" >
+           <bool>true</bool>
+          </property>
+          <property name="autoRepeatInterval" >
+           <number>400</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" >
+         <widget class="QPushButton" name="upButton" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>30</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>|</string>
+          </property>
+          <property name="shortcut" >
+           <string>8</string>
+          </property>
+          <property name="checkable" >
+           <bool>false</bool>
+          </property>
+          <property name="checked" >
+           <bool>false</bool>
+          </property>
+          <property name="autoRepeat" >
+           <bool>true</bool>
+          </property>
+          <property name="autoRepeatDelay" >
+           <number>300</number>
+          </property>
+          <property name="autoRepeatInterval" >
+           <number>400</number>
+          </property>
+          <property name="flat" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2" >
+         <widget class="QPushButton" name="urButton" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>30</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>/</string>
+          </property>
+          <property name="shortcut" >
+           <string>PgUp, 9</string>
+          </property>
+          <property name="autoRepeat" >
+           <bool>true</bool>
+          </property>
+          <property name="autoExclusive" >
+           <bool>true</bool>
+          </property>
+          <property name="autoRepeatInterval" >
+           <number>400</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QPushButton" name="leftButton" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>30</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>&lt;--</string>
+          </property>
+          <property name="shortcut" >
+           <string>4, Left</string>
+          </property>
+          <property name="autoRepeat" >
+           <bool>true</bool>
+          </property>
+          <property name="autoExclusive" >
+           <bool>true</bool>
+          </property>
+          <property name="autoRepeatInterval" >
+           <number>400</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QPushButton" name="centerButton" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>30</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>[]</string>
+          </property>
+          <property name="iconSize" >
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="shortcut" >
+           <string>5, Space</string>
+          </property>
+          <property name="checkable" >
+           <bool>false</bool>
+          </property>
+          <property name="autoRepeat" >
+           <bool>true</bool>
+          </property>
+          <property name="autoRepeatInterval" >
+           <number>400</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" >
+         <widget class="QPushButton" name="rightButton" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>30</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>--></string>
+          </property>
+          <property name="shortcut" >
+           <string>6, Right</string>
+          </property>
+          <property name="autoRepeat" >
+           <bool>true</bool>
+          </property>
+          <property name="autoRepeatDelay" >
+           <number>300</number>
+          </property>
+          <property name="autoRepeatInterval" >
+           <number>400</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" >
+         <widget class="QPushButton" name="dlButton" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>30</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>/</string>
+          </property>
+          <property name="iconSize" >
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="shortcut" >
+           <string>1, End</string>
+          </property>
+          <property name="autoRepeat" >
+           <bool>true</bool>
+          </property>
+          <property name="autoRepeatInterval" >
+           <number>400</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" >
+         <widget class="QPushButton" name="downButton" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>30</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>|</string>
+          </property>
+          <property name="shortcut" >
+           <string>2</string>
+          </property>
+          <property name="autoRepeat" >
+           <bool>true</bool>
+          </property>
+          <property name="autoRepeatDelay" >
+           <number>300</number>
+          </property>
+          <property name="autoRepeatInterval" >
+           <number>400</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2" >
+         <widget class="QPushButton" name="drButton" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>30</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>\</string>
+          </property>
+          <property name="iconSize" >
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="shortcut" >
+           <string>3, PgDown</string>
+          </property>
+          <property name="checkable" >
+           <bool>false</bool>
+          </property>
+          <property name="checked" >
+           <bool>false</bool>
+          </property>
+          <property name="autoRepeat" >
+           <bool>true</bool>
+          </property>
+          <property name="autoRepeatInterval" >
+           <number>400</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="motorFrame" >
+       <property name="enabled" >
+        <bool>true</bool>
+       </property>
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="frameShape" >
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow" >
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QVBoxLayout" >
+        <item>
+         <widget class="QGroupBox" name="lrGroupBox" >
+          <property name="title" >
+           <string>L/R Motor</string>
+          </property>
+          <layout class="QGridLayout" >
+           <property name="leftMargin" >
+            <number>0</number>
+           </property>
+           <property name="topMargin" >
+            <number>0</number>
+           </property>
+           <property name="rightMargin" >
+            <number>0</number>
+           </property>
+           <property name="bottomMargin" >
+            <number>0</number>
+           </property>
+           <property name="verticalSpacing" >
+            <number>0</number>
+           </property>
+           <item row="0" column="0" colspan="2" >
+            <widget class="QComboBox" name="lrNameBox" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>125</width>
+               <height>0</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2" >
+            <widget class="QDoubleSpinBox" name="lrSpin" >
+             <property name="minimumSize" >
+              <size>
+               <width>100</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="cursor" >
+              <cursorShape>IBeamCursor</cursorShape>
+             </property>
+             <property name="buttonSymbols" >
+              <enum>QAbstractSpinBox::PlusMinus</enum>
+             </property>
+             <property name="suffix" >
+              <string> mm</string>
+             </property>
+             <property name="minimum" >
+              <double>-9999999999999999827367757839185598317239782875580932278577147150336.000000000000000</double>
+             </property>
+             <property name="maximum" >
+              <double>9999999999999999827367757839185598317239782875580932278577147150336.000000000000000</double>
+             </property>
+             <property name="value" >
+              <double>0.100000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2" >
+            <widget class="QSlider" name="lrSlider" >
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2" >
+            <widget class="QDoubleSpinBox" name="lrPositionSpin" >
+             <property name="minimumSize" >
+              <size>
+               <width>100</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="buttonSymbols" >
+              <enum>QAbstractSpinBox::UpDownArrows</enum>
+             </property>
+             <property name="prefix" >
+              <string/>
+             </property>
+             <property name="minimum" >
+              <double>-2000000000.000000000000000</double>
+             </property>
+             <property name="maximum" >
+              <double>2000000000.000000000000000</double>
+             </property>
+             <property name="defaultValue" stdset="0" >
+              <double>0.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="udGroupBox" >
+          <property name="title" >
+           <string>U/D Motor</string>
+          </property>
+          <property name="flat" >
+           <bool>false</bool>
+          </property>
+          <property name="checkable" >
+           <bool>false</bool>
+          </property>
+          <layout class="QGridLayout" >
+           <property name="leftMargin" >
+            <number>0</number>
+           </property>
+           <property name="topMargin" >
+            <number>0</number>
+           </property>
+           <property name="rightMargin" >
+            <number>0</number>
+           </property>
+           <property name="bottomMargin" >
+            <number>0</number>
+           </property>
+           <property name="verticalSpacing" >
+            <number>0</number>
+           </property>
+           <item row="0" column="0" >
+            <widget class="QComboBox" name="udNameBox" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>125</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="cursor" >
+              <cursorShape>ArrowCursor</cursorShape>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" >
+            <widget class="QDoubleSpinBox" name="udSpin" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize" >
+              <size>
+               <width>100</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="cursor" >
+              <cursorShape>IBeamCursor</cursorShape>
+             </property>
+             <property name="buttonSymbols" >
+              <enum>QAbstractSpinBox::PlusMinus</enum>
+             </property>
+             <property name="suffix" >
+              <string> mm</string>
+             </property>
+             <property name="minimum" >
+              <double>-9999999999999999827367757839185598317239782875580932278577147150336.000000000000000</double>
+             </property>
+             <property name="maximum" >
+              <double>9999999999999999827367757839185598317239782875580932278577147150336.000000000000000</double>
+             </property>
+             <property name="value" >
+              <double>0.100000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" >
+            <widget class="QSlider" name="udSlider" >
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" >
+            <widget class="QDoubleSpinBox" name="udPositionSpin" >
+             <property name="minimumSize" >
+              <size>
+               <width>100</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="minimum" >
+              <double>-2000000000.000000000000000</double>
+             </property>
+             <property name="maximum" >
+              <double>2000000000.000000000000000</double>
+             </property>
+             <property name="defaultValue" stdset="0" >
+              <double>0.000000000000000</double>
+             </property>
+             <property name="returned" stdset="0" >
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QFrame" name="positionFrame" >
+     <property name="frameShape" >
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" >
+      <item>
+       <widget class="QLabel" name="label_4" >
+        <property name="text" >
+         <string>Position</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="positionBox" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize" >
+         <size>
+          <width>0</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="editable" >
+         <bool>true</bool>
+        </property>
+        <item>
+         <property name="text" >
+          <string/>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="saveButton" >
+        <property name="text" >
+         <string>Save</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="loadButton" >
+        <property name="text" >
+         <string>Go to</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="delButton" >
+        <property name="text" >
+         <string>Delete</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>lrNameBox</tabstop>
+  <tabstop>udNameBox</tabstop>
+  <tabstop>udSpin</tabstop>
+  <tabstop>positionBox</tabstop>
+  <tabstop>saveButton</tabstop>
+  <tabstop>loadButton</tabstop>
+  <tabstop>delButton</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
