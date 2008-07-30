@@ -40,22 +40,15 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
     returns a SpecRunner instance
     """
 
-    def __init__(self, fileInterface=None, parent=None):
+    def __init__(self, SpecRunner=SpecRunner, parent=None):
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
 
-        self.fileInterface = fileInterface
-        self.defineInterface()
-
+        self._SpecRunner = SpecRunner
         self.specRunner = None
         self.ssh=None
 
         self.restore()
-
-    def defineInterface(self):
-        # The following should be redefined in subclasses of SpecConnect:
-        self.getSpecRunner = SpecRunner
-        self.getSpecInterface = SpecInterface
 
     def accept(self):
         self.save()
@@ -73,9 +66,11 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
         error.exec_()
 
     def connectToSpec(self):
+        if USESSH and not self.ssh:
+            self.ssh = sshdialog.SshDialog(self.parent()).exec_()
+            if not self.ssh: return
         try:
-            self.specRunner = self.getSpecRunner(self.getSpecVersion(),
-                                timeout=500, fileInterface=self.fileInterface)
+            self._SpecRunner(self.getSpecVersion(), timeout=500)
             logger.debug('Connected to spec, specrunner created')
         except SpecClientError.SpecClientTimeoutError:
             self.connectionError()
@@ -83,17 +78,9 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def exec_(self):
         if QtGui.QDialog.exec_(self):
-            if USESSH:
-                self.startSSH()
-                if self.ssh: self.connectToSpec()
-            else:
-                self.connectToSpec()
+            self.connectToSpec()
             if self.specRunner is None: self.exec_()
-
-        if self.specRunner:
-            return self.getSpecInterface(self.specRunner, self.parent())
-        else:
-            return None
+        return self.specRunner
 
     def getSpecVersion(self):
         settings = QtCore.QSettings()
@@ -116,7 +103,6 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
             sshdlg = sshdialog.SshDialog(self.parent())
             self.ssh = sshdlg.exec_()
 
-
     def save(self):
         settings = QtCore.QSettings()
         settings.beginGroup('SpecConnect')
@@ -126,7 +112,12 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
 class SpecInterface(QtCore.QObject):
 
-    def __init__(self, specRunner=None, parent=None):
+    """
+    This is a container for all the spec related stuff, it creates the dock
+    widgets and keeps track of the specrunner
+    """
+
+    def __init__(self, parent=None):
         super(SpecInterface, self).__init__(parent)
 
         self.specRunner = specRunner
@@ -136,6 +127,9 @@ class SpecInterface(QtCore.QObject):
         self.name = "spec"
 
         self._configure()
+
+    def _connectToSpec(self):
+        self.specRunner = SpecConnect(SpecRunner, self.mainWindow)
 
     def _configure(self):
         logger.debug('configuring Spec Interface')
