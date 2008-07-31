@@ -19,22 +19,23 @@ from PyQt4 import QtCore, QtGui
 
 from xpaxs.instrumentation.spec.ui import ui_gamepad
 
+SPEC = False
+if SPEC:
+    try:
+        from xpaxs.instrumentation.spec.specconnect import SpecConnect
+    except ImportError:
+        from TestRunner import TestSpecRunner as runner
+        print 'Could not find SpecConnect'
+else:
+    from TestRunner import TestSpecRunner as runner
+
+
 #---------------------------------------------------------------------------
 # Normal code begins
 #--------------------------------------------------------------------------
 
 '''Needs CHESS macro mmv and mmvr'''
-SPEC = False
-if SPEC:
-    try:
-        from xpaxs.spec.client.runner import SpecRunner as runner
-    except ImportError:
-        import runner
-    finally:
-        from TestRunner import TestSpecRunner as runner
-        print 'Could not find XPaXS or Runner'
-else:
-    from TestRunner import TestSpecRunner as runner
+
 
 cmds = ('umvr %s %s','mmvr %s %s %s %s','mmv %s %s %s %s')
 
@@ -57,10 +58,10 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
         if parent:
             self.setParent(parent)
             self.specRunner = parent.specRunner
+        elif SPEC:
+            self.specRunner = SpecConnect().exec_()
         else:
-            specVersion =raw_input('\nspec version: ')
-            self.specRunner = runner(specVersion, 500)
-
+            self.specRunner = runner()
         self.motors = motors = self.specRunner.getMotorsMne()
         self.setLRMotor(motors[0], self.specRunner.specVersion)
         self.setUDMotor(motors[1], self.specRunner.specVersion)
