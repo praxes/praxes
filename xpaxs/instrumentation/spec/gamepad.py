@@ -51,8 +51,8 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
         self.setDefaultShortcuts()
         self.aborted = True
         self.positionDict = {}
-        self._LRmotor = None
-        self._UDmotor = None
+        self._lrMotorMne = None
+        self._udMotorMne = None
 
 
         if parent:
@@ -82,16 +82,16 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
 
         self.connect(self.leftButton,
                      QtCore.SIGNAL("pressed()"),
-                     lambda : self.move(0,self._LRmotor, -1*self.lrSpin.value() ) )
+                     lambda : self.move(0,self._lrMotorMne, -1*self.lrSpin.value() ) )
         self.connect(self.rightButton,
                      QtCore.SIGNAL("pressed()"),
-                     lambda : self.move(0,self._LRmotor, self.lrSpin.value() ) )
+                     lambda : self.move(0,self._lrMotorMne, self.lrSpin.value() ) )
         self.connect(self.upButton,
                      QtCore.SIGNAL("pressed()"),
-                     lambda : self.move(0,self._UDmotor, self.udSpin.value() ) )
+                     lambda : self.move(0,self._udMotorMne, self.udSpin.value() ) )
         self.connect(self.downButton,
                      QtCore.SIGNAL("pressed()"),
-                     lambda : self.move(0,self._UDmotor, -1*self.udSpin.value() ) )
+                     lambda : self.move(0,self._udMotorMne, -1*self.udSpin.value() ) )
 
 
         self.connect(self.ulButton,
@@ -186,13 +186,13 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
 ####MOTOR GUI INTERACTIONS######
 
     def getState(self):
-        if self._UDmotor:
-            self.udState = self.specRunner.getMotor(self._UDmotor).getState()
+        if self._udMotorMne:
+            self.udState = self.specRunner.getMotor(self._udMotorMne).getState()
         else:
             self.udState = 'NOTINITIALIZED'
             
-        if self._LRmotor:
-            self.lrState = self.specRunner.getMotor(self._LRmotor).getState()
+        if self._lrMotorMne:
+            self.lrState = self.specRunner.getMotor(self._lrMotorMne).getState()
         else:
             self.lrState = 'NOTINITIALIZED'
         return [self.udState, self.lrState]
@@ -206,33 +206,33 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
             self.setButtons(False)
 
     def setUDMotor(self, motor, hostport = None):
-        if self._UDmotor:
-            UD=self.specRunner.getMotor(self._UDmotor)
-            self.disconnect(UD,
+        if self._udMotorMne:
+            self._udMotor=self.specRunner.getMotor(self._udMotorMne)
+            self.disconnect(self._udMotor,
                          QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
                          self.setUDPosition)
-            self.disconnect(UD,
+            self.disconnect(self._udMotor,
                          QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
                          self.setUDLimits)
-            self.disconnect(UD,
+            self.disconnect(self._udMotor,
                          QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
                          self.udStateChanged)
-        self._UDmotor = motor
-        UD = self.specRunner.getMotor(self._UDmotor)
-        self.udState=UD.getState()
-        self.setUDLimits(UD.getLimits())
-        position = UD.getPosition()
+        self._udMotorMne = motor
+        self._udMotor = self.specRunner.getMotor(self._udMotorMne)
+        self.udState=self._udMotor.getState()
+        self.setUDLimits(self._udMotor.getLimits())
+        position = self._udMotor.getPosition()
         self.setUDPosition(position)
         self.udSlider.setValue(int(position*1000))
         self.udPositionSpin.setValue(position)
         self.motorStatesChanged(self.getState())
-        self.connect(UD,
+        self.connect(self._udMotor,
                      QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
                      self.setUDPosition)
-        self.connect(UD,
+        self.connect(self._udMotor,
                      QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
                      self.setUDLimits)
-        self.connect(UD,
+        self.connect(self._udMotor,
                      QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
                      self.udStateChanged)
 
@@ -267,33 +267,33 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
 #############################################################
 
     def setLRMotor(self, motor, hostport = None):
-        if self._LRmotor:
-            LR=self.specRunner.getMotor(self._LRmotor)
-            self.disconnect(LR,
+        if self._lrMotorMne:
+            self._lrMotor=self.specRunner.getMotor(self._lrMotorMne)
+            self.disconnect(self._lrMotor,
                          QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
                          self.setLRPosition)
-            self.disconnect(LR,
+            self.disconnect(self._lrMotor,
                          QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
                          self.setLRLimits)
-            self.disconnect(LR,
+            self.disconnect(self._lrMotor,
                          QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
                          self.lrStateChanged)
-        self._LRmotor = motor
-        LR = self.specRunner.getMotor(self._LRmotor)
-        self.lrState=LR.getState()
-        self.setLRLimits(LR.getLimits())
-        position = LR.getPosition()
+        self._lrMotorMne = motor
+        self._lrMotor = self.specRunner.getMotor(self._lrMotorMne)
+        self.lrState=self._lrMotor.getState()
+        self.setLRLimits(self._lrMotor.getLimits())
+        position = self._lrMotor.getPosition()
         self.setLRPosition(position)
         self.lrSlider.setValue(int(position*1000))
         self.lrPositionSpin.setValue(position)
         self.motorStatesChanged(self.getState())
-        self.connect(LR,
+        self.connect(self._lrMotor,
                      QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
                      self.setLRPosition)
-        self.connect(LR,
+        self.connect(self._lrMotor,
                      QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
                      self.setLRLimits)
-        self.connect(LR,
+        self.connect(self._lrMotor,
                      QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
                      self.lrStateChanged)
 
@@ -330,7 +330,7 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
         if orders == 0:
             cmd = cmds[orders]%(inputOne,inputTwo)
         elif orders in (1,2):
-            cmd = cmds[orders]%(self._UDmotor,inputOne,self._LRmotor,inputTwo)
+            cmd = cmds[orders]%(self._udMotorMne,inputOne,self._lrMotorMne,inputTwo)
         else:
             cmd = 'Unknown Command'
         self.specRunner(cmd)
@@ -344,9 +344,10 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
     def savePosition(self):
         ID = self.positionBox.currentText()
         if ID:
-            UD = self.specRunner.getMotor(self._UDmotor).getPosition()
-            LR = self.specRunner.getMotor(self._LRmotor).getPosition()
-            self.positionDict[ID] = (self._UDmotor,UD,self._LRmotor,LR)
+            self.positionDict[ID] = (self._udMotorMne,\
+                                     self._udMotor.getPosition(),\
+                                     self._lrMotorMne,\
+                                     self._lrMotor.getPosition())
             if self.positionBox.findText(ID) ==-1: self.positionBox.addItem(ID)
         self.positionBox.setCurrentIndex(0)
 
