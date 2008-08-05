@@ -1,0 +1,14 @@
+<RCC>
+  <qresource prefix="gamepad" >
+    <file>icons/Arrow_east.svg</file>
+    <file>icons/Arrow_north.svg</file>
+    <file>icons/Arrow_northeast.svg</file>
+    <file>icons/Arrow_northwest.svg</file>
+    <file>icons/Arrow_south.svg</file>
+    <file>icons/Arrow_southeast.svg</file>
+    <file>icons/Arrow_southwest.svg</file>
+    <file>icons/Arrow_west.svg</file>
+    <file>icons/Stop_hand_nuvola.svg</file>
+    <file>icons/Stop_x_nuvola.svg</file>
+  </qresource>
+</RCC>
