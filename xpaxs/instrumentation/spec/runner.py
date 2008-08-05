@@ -23,7 +23,7 @@ from SpecClient import Spec, SpecEventsDispatcher, SpecCommand
 
 from xpaxs.instrumentation.spec.motor import QtSpecMotorA
 from xpaxs.instrumentation.spec.scan import QtSpecScanA
-
+from xpaxs.instrumentation.spec.motor import TestQtSpecMotor
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
@@ -143,3 +143,65 @@ class SpecRunner(Spec.Spec, QtCore.QObject):
 
     def abort(self):
         self.connection.abort()
+
+
+class TestSpecRunner:
+
+    def __init__(self, specVersion='', timeout=None, **kwargs):
+        self.motordict = {'1':TestQtSpecMotor('1'), '2':TestQtSpecMotor('2'),\
+                     '3':TestQtSpecMotor('3'), '4':TestQtSpecMotor('4'),\
+                     '5':TestQtSpecMotor('5')}
+
+        self.specVersion = 'thiscomp:nospec'
+    def __call__(self, command):
+        logger.debug( "executing %s",command)
+        strings=QtCore.QString(command).split(' ')
+        if str(strings[0]) in ('mvr','umvr','mmvr'):
+            motorA = self.motordict[str(strings[1])]
+            motorB = self.motordict[str(strings[-2])]
+            APosition = motorA.getPosition()
+            BPosition = motorB.getPosition()
+            motorA.move(float(strings[2])+APosition)
+            motorB.move(float(strings[-1])+BPosition)
+        elif str(strings[0]) in ('mv','umv','mmv'):
+            motorA = self.motordict[str(strings[1])]
+            motorB = self.motordict[str(strings[-2])]
+            motorA.move(float(strings[2]))
+            motorB.move(float(strings[-1]))
+        print command
+
+    def abort(self):
+        for motor in self.motordict.values():
+            motor.end()
+        print "ABORT"
+
+    def getMotorsMne(self):
+        motors = self.motordict.keys()
+        motors.sort()
+        return  motors
+
+    def getCountersMne(self):
+        pass
+
+    def close(self):
+        pass
+    
+
+    def getMotor(self, name):
+        return self.motordict[name]
+
+    def getMotorMne(self, motorId):
+        return self.motorDict(motorId).specname
+
+    def getNumCounters(self):
+        pass
+
+    def getNumMotors(self):
+        pass
+
+    def runMacro(self, macro):
+        self.__call__(getSpecMacro(macro))
+
+    def getVarVal(self, var):
+        return 1
+

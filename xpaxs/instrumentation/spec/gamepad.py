@@ -21,13 +21,10 @@ from xpaxs.instrumentation.spec.ui import ui_gamepad
 
 SPEC = False
 if SPEC:
-    try:
-        from xpaxs.instrumentation.spec.specconnect import SpecConnect
-    except ImportError:
-        from TestRunner import TestSpecRunner as runner
-        print 'Could not find SpecConnect'
+    from xpaxs.instrumentation.spec.specconnect import SpecConnect
+
 else:
-    from TestRunner import TestSpecRunner as runner
+    from xpaxs.instrumentation.spec.runner import TestSpecRunner as runner
 
 
 #---------------------------------------------------------------------------
@@ -35,7 +32,6 @@ else:
 #--------------------------------------------------------------------------
 
 '''Needs CHESS macro mmv and mmvr'''
-
 
 cmds = ('umvr %s %s','mmvr %s %s %s %s','mmv %s %s %s %s')
 
@@ -51,9 +47,6 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
         self.setDefaultShortcuts()
         self.aborted = True
         self.positionDict = {}
-        self._lrMotorMne = None
-        self._udMotorMne = None
-
 
         if parent:
             self.setParent(parent)
@@ -63,36 +56,34 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
         else:
             self.specRunner = runner()
         self.motors = motors = self.specRunner.getMotorsMne()
-        self.setLRMotor(motors[0], self.specRunner.specVersion)
-        self.setUDMotor(motors[1], self.specRunner.specVersion)
-        self.lrNameBox.addItems(motors)
-        self.udNameBox.addItems(motors)
-        self.lrNameBox.setCurrentIndex(0)
-        self.udNameBox.setCurrentIndex(1)
+        
+        self.ud = MotorWidget(self.udSlider,self.udSpin,\
+                              self.udPositionSpin,self.udNameBox,\
+                              motors,self.specRunner,self)
+        self.lr = MotorWidget(self.lrSlider,self.lrSpin,\
+                              self.lrPositionSpin,self.lrNameBox,\
+                              motors,self.specRunner,self)
+        self.lr.setMotor(motors[0], self.specRunner.specVersion)
+        self.ud.setMotor(motors[1], self.specRunner.specVersion)
+        self.lr.NameBox.setCurrentIndex(0)
+        self.ud.NameBox.setCurrentIndex(1)
         self.motorStatesChanged(self.getState())
+        self.connectGui()
 
 
-        self.connect(self.lrNameBox,
-                     QtCore.SIGNAL('currentIndexChanged(int)'),
-                     lambda int : self.setLRMotor(motors[int]) )
-        self.connect(self.udNameBox,
-                     QtCore.SIGNAL('currentIndexChanged(int)'),
-                     lambda int : self.setUDMotor(motors[int]) )
-
-
+    def connectGui(self): 
         self.connect(self.leftButton,
                      QtCore.SIGNAL("pressed()"),
-                     lambda : self.move(0,self._lrMotorMne, -1*self.lrSpin.value() ) )
+                     lambda : self.move(0,self.lr._MotorMne, -1*self.lrSpin.value() ) )
         self.connect(self.rightButton,
                      QtCore.SIGNAL("pressed()"),
-                     lambda : self.move(0,self._lrMotorMne, self.lrSpin.value() ) )
+                     lambda : self.move(0,self.lr._MotorMne, self.lrSpin.value() ) )
         self.connect(self.upButton,
                      QtCore.SIGNAL("pressed()"),
-                     lambda : self.move(0,self._udMotorMne, self.udSpin.value() ) )
+                     lambda : self.move(0,self.ud._MotorMne, self.udSpin.value() ) )
         self.connect(self.downButton,
                      QtCore.SIGNAL("pressed()"),
-                     lambda : self.move(0,self._udMotorMne, -1*self.udSpin.value() ) )
-
+                     lambda : self.move(0,self.ud._MotorMne, -1*self.udSpin.value() ) )
 
         self.connect(self.ulButton,
                      QtCore.SIGNAL("pressed()"),
@@ -121,38 +112,6 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
         self.connect(self.positionBox, 
                      QtCore.SIGNAL('currentIndexChanged(int)'), 
                      self.loadPosition)
-
-#############################
-
-
-        self.connect(self.udSlider,
-                     QtCore.SIGNAL("sliderMoved(int)"),
-                     self.udSliderMoved)
-        self.connect(self.udPositionSpin,
-                     QtCore.SIGNAL("editingFinished()"),
-                     self.udPositionEdited)
-        self.connect(self.udSlider,
-                     QtCore.SIGNAL('sliderReleased()'),
-                     self.udSliderReleased)
-        self.connect(self.udSlider,
-                     QtCore.SIGNAL('sliderPressed()'),
-                     self.udSliderPressed)
-
-#############################
-        self.connect(self.lrSlider,
-                     QtCore.SIGNAL("sliderMoved(int)"),
-                     self.lrSliderMoved)
-        self.connect(self.lrPositionSpin,
-                     QtCore.SIGNAL("editingFinished()"),
-                     self.lrPositionEdited)
-        self.connect(self.lrSlider,
-                     QtCore.SIGNAL('sliderReleased()'),
-                     self.lrSliderReleased)
-        self.connect(self.lrSlider,
-                     QtCore.SIGNAL('sliderPressed()'),
-                     self.lrSliderPressed)
-
-
 
     def setDefaultShortcuts(self):
         self.leftButton.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Left))
@@ -186,13 +145,13 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
 ####MOTOR GUI INTERACTIONS######
 
     def getState(self):
-        if self._udMotorMne:
-            self.udState = self.specRunner.getMotor(self._udMotorMne).getState()
+        if self.ud._MotorMne:
+            self.udState = self.ud._Motor.getState()
         else:
             self.udState = 'NOTINITIALIZED'
             
-        if self._lrMotorMne:
-            self.lrState = self.specRunner.getMotor(self._lrMotorMne).getState()
+        if self.lr._MotorMne:
+            self.lrState = self.lr._Motor.getState()
         else:
             self.lrState = 'NOTINITIALIZED'
         return [self.udState, self.lrState]
@@ -205,124 +164,7 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
             self.emit(QtCore.SIGNAL("motorActive()"))
             self.setButtons(False)
 
-    def setUDMotor(self, motor, hostport = None):
-        if self._udMotorMne:
-            self._udMotor=self.specRunner.getMotor(self._udMotorMne)
-            self.disconnect(self._udMotor,
-                         QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
-                         self.setUDPosition)
-            self.disconnect(self._udMotor,
-                         QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
-                         self.setUDLimits)
-            self.disconnect(self._udMotor,
-                         QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
-                         self.udStateChanged)
-        self._udMotorMne = motor
-        self._udMotor = self.specRunner.getMotor(self._udMotorMne)
-        self.udState=self._udMotor.getState()
-        self.setUDLimits(self._udMotor.getLimits())
-        position = self._udMotor.getPosition()
-        self.setUDPosition(position)
-        self.udSlider.setValue(int(position*1000))
-        self.udPositionSpin.setValue(position)
-        self.motorStatesChanged(self.getState())
-        self.connect(self._udMotor,
-                     QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
-                     self.setUDPosition)
-        self.connect(self._udMotor,
-                     QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
-                     self.setUDLimits)
-        self.connect(self._udMotor,
-                     QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
-                     self.udStateChanged)
 
-    def setUDPosition(self, position):
-        self.udPositionSpin.setValue(position)
-        self.udPositionSpin.defaultValue=position
-
-    def setUDLimits(self, limits):
-        low, high = limits
-        self.udPositionSpin.setRange(low, high)
-        self.udSlider.setRange(low*1000,high*1000)
-
-    def udStateChanged(self, state):
-        self.udState = state
-        self.motorStatesChanged([self.udState, self.lrState])
-
-    def udSliderReleased(self):
-        self.udPositionSpin.setValue(self.udPositionSpin.defaultValue)
-    
-    def udSliderMoved(self, int):
-        self.udPositionSpin.setValue(int*0.001)
-        
-    def udSliderPressed(self):
-        self.udPositionSpin.setValue(self.udSlider.value()*0.001)
-        
-    def udPositionEdited(self):
-        if self.udPositionSpin.hasFocus():
-            self.udSlider.setValue(int(self.udPositionSpin.value()*1000))
-        self.udPositionSpin.setValue(self.udPositionSpin.defaultValue)
-        
-
-#############################################################
-
-    def setLRMotor(self, motor, hostport = None):
-        if self._lrMotorMne:
-            self._lrMotor=self.specRunner.getMotor(self._lrMotorMne)
-            self.disconnect(self._lrMotor,
-                         QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
-                         self.setLRPosition)
-            self.disconnect(self._lrMotor,
-                         QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
-                         self.setLRLimits)
-            self.disconnect(self._lrMotor,
-                         QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
-                         self.lrStateChanged)
-        self._lrMotorMne = motor
-        self._lrMotor = self.specRunner.getMotor(self._lrMotorMne)
-        self.lrState=self._lrMotor.getState()
-        self.setLRLimits(self._lrMotor.getLimits())
-        position = self._lrMotor.getPosition()
-        self.setLRPosition(position)
-        self.lrSlider.setValue(int(position*1000))
-        self.lrPositionSpin.setValue(position)
-        self.motorStatesChanged(self.getState())
-        self.connect(self._lrMotor,
-                     QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
-                     self.setLRPosition)
-        self.connect(self._lrMotor,
-                     QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
-                     self.setLRLimits)
-        self.connect(self._lrMotor,
-                     QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
-                     self.lrStateChanged)
-
-    def setLRPosition(self, position):
-        self.lrPositionSpin.setValue(position)
-        self.lrPositionSpin.defaultValue=position
-
-    def setLRLimits(self, limits):
-        low, high = limits
-        self.lrPositionSpin.setRange(low, high)
-        self.lrSlider.setRange(low*1000,high*1000)
-
-    def lrStateChanged(self, state):
-        self.lrState = state
-        self.motorStatesChanged(self.getState())
-
-    def lrSliderReleased(self):
-        self.lrPositionSpin.setValue(self.lrPositionSpin.defaultValue)
-    
-    def lrSliderMoved(self, int):
-        self.lrPositionSpin.setValue(int*0.001)
-        
-    def lrSliderPressed(self):
-        self.lrPositionSpin.setValue(self.lrSlider.value()*0.001)
-        
-    def lrPositionEdited(self):
-        if self.lrPositionSpin.hasFocus():
-            self.lrSlider.setValue(int(self.lrPositionSpin.value()*1000))
-        self.lrPositionSpin.setValue(self.lrPositionSpin.defaultValue)
 
 ####MOTOR ACTIONS#####
 
@@ -330,7 +172,7 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
         if orders == 0:
             cmd = cmds[orders]%(inputOne,inputTwo)
         elif orders in (1,2):
-            cmd = cmds[orders]%(self._udMotorMne,inputOne,self._lrMotorMne,inputTwo)
+            cmd = cmds[orders]%(self.ud._MotorMne,inputOne,self.lr._MotorMne,inputTwo)
         else:
             cmd = 'Unknown Command'
         self.specRunner(cmd)
@@ -344,10 +186,10 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
     def savePosition(self):
         ID = self.positionBox.currentText()
         if ID:
-            self.positionDict[ID] = (self._udMotorMne,\
-                                     self._udMotor.getPosition(),\
-                                     self._lrMotorMne,\
-                                     self._lrMotor.getPosition())
+            self.positionDict[ID] = (self.ud._MotorMne,\
+                                     self.ud._Motor.getPosition(),\
+                                     self.lr._MotorMne,\
+                                     self.lr._Motor.getPosition())
             if self.positionBox.findText(ID) ==-1: self.positionBox.addItem(ID)
         self.positionBox.setCurrentIndex(0)
 
@@ -355,10 +197,10 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
         ID = self.positionBox.currentText()
         if ID:
             UDmotor,UDposition,LRmotor,LRposition = self.positionDict[ID]
-            self.setUDMotor(UDmotor)
-            self.setLRMotor(LRmotor)
-            self.udNameBox.setCurrentIndex(self.udNameBox.findText(UDmotor))
-            self.lrNameBox.setCurrentIndex(self.lrNameBox.findText(LRmotor))
+            self.ud.setMotor(UDmotor)
+            self.lr.setMotor(LRmotor)
+            self.ud.NameBox.setCurrentIndex(self.ud.NameBox.findText(UDmotor))
+            self.lr.NameBox.setCurrentIndex(self.lr.NameBox.findText(LRmotor))
             
             
 
@@ -376,12 +218,105 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
             self.move(2,udPosition,lrPosition)
         self.aborted = False
         
-    def  delPosition(self):
+    def delPosition(self):
         if self.positionBox.currentText():
             self.positionBox.removeItem(self.positionBox.currentIndex())
 
     def positionBoxReturned(self):
         self.positionBox.setCurrentIndex(0)
+
+
+class MotorWidget(QtGui.QWidget):
+    
+    def __init__(self,Slider,Spin,PositionSpin,NameBox,motors,specRunner,parent):
+        QtGui.QWidget.__init__(self,parent)
+        self.parent=parent
+        self.specRunner=specRunner
+        self._MotorMne = None
+        self.Slider=Slider
+        self.Spin=Spin
+        self.PositionSpin=PositionSpin
+        self.NameBox=NameBox
+        self.NameBox.addItems(motors)
+        self.connect(self.NameBox,
+                     QtCore.SIGNAL('currentIndexChanged(int)'),
+                     lambda int : self.setMotor(motors[int]) )
+        
+        self.connect(self.Slider,
+                     QtCore.SIGNAL("sliderMoved(int)"),
+                     self.SliderMoved)
+        self.connect(self.PositionSpin,
+                     QtCore.SIGNAL("editingFinished()"),
+                     self.PositionEdited)
+        self.connect(self.Slider,
+                     QtCore.SIGNAL('sliderReleased()'),
+                     self.SliderReleased)
+        self.connect(self.Slider,
+                     QtCore.SIGNAL('sliderPressed()'),
+                     self.SliderPressed)
+
+
+
+    def setMotor(self, motor, hostport = None):
+        if self._MotorMne:
+            self._Motor=self.specRunner.getMotor(self._MotorMne)
+            self.disconnect(self._Motor,
+                         QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
+                         self.setPosition)
+            self.disconnect(self._Motor,
+                         QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
+                         self.setLimits)
+            self.disconnect(self._Motor,
+                         QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
+                         self.StateChanged)
+        self._MotorMne = motor
+        self._Motor = self.specRunner.getMotor(self._MotorMne)
+        self.State=self._Motor.getState()
+        self.setLimits(self._Motor.getLimits())
+        position = self._Motor.getPosition()
+        self.setPosition(position)
+        self.Slider.setValue(int(position*1000))
+        self.PositionSpin.setValue(position)
+        self.parent.motorStatesChanged(self.parent.getState())
+
+        self.connect(self._Motor,
+                     QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
+                     self.setPosition)
+        self.connect(self._Motor,
+                     QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
+                     self.setLimits)
+        self.connect(self._Motor,
+                     QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
+                     self.StateChanged)
+
+    def setPosition(self, position):
+        self.PositionSpin.setValue(position)
+        self.PositionSpin.defaultValue=position
+
+    def setLimits(self, limits):
+        low, high = limits
+        self.PositionSpin.setRange(low, high)
+        self.Slider.setRange(low*1000,high*1000)
+
+    def StateChanged(self, state):
+        self.State = state
+        self.parent.motorStatesChanged(self.parent.getState())
+
+    def SliderReleased(self):
+        self.PositionSpin.setValue(self.PositionSpin.defaultValue)
+    
+    def SliderMoved(self, int):
+        self.PositionSpin.setValue(int*0.001)
+        
+    def SliderPressed(self):
+        self.PositionSpin.setValue(self.Slider.value()*0.001)
+        
+    def PositionEdited(self):
+        if self.PositionSpin.hasFocus():
+            self.Slider.setValue(int(self.PositionSpin.value()*1000))
+        self.PositionSpin.setValue(self.PositionSpin.defaultValue)
+
+
 
 
 

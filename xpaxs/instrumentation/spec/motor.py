@@ -28,7 +28,7 @@ from SpecClient import SpecMotor
 
 logger = logging.getLogger('XPaXS.instrumentation.spec.client.motor')
 
-
+[NOTINITIALIZED,UNUSABLE,READY,MOVESTARTED,MOVING,ONLIMIT]=[0,1,2,3,4,5]
 
 class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):
 
@@ -75,6 +75,76 @@ class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):
     def getState(self):
         state = SpecMotor.SpecMotorA.getState(self)
         return self.__state_strings[state]
+
+
+
+
+
+
+
+class TestQtSpecMotor(QtSpecMotorA):
+    
+    __state_strings = ['NOTINITIALIZED',
+                       'UNUSABLE',
+                       'READY',
+                       'MOVESTARTED',
+                       'MOVING',
+                       'ONLIMIT']
+    def __init__(self,mne,specVersion = None):
+        
+        QtCore.QObject.__init__(self)
+        self.specName = mne
+        self.position = int(mne)*10
+        self.toGoTo=0
+        self.limits=(int(mne),int(mne)*1000)
+        self.paramdict = {'step_size':int(mne)*1000,
+                                'slew_rate':int(mne)*1000,
+                                'acceleration':int(mne)*10}
+
+
+        self.state = READY
+        self.Timer = QtCore.QTimer()
+        self.time =int(mne)*1000
+
+        self.connect(self.Timer, QtCore.SIGNAL('timeout()'), self.end)
+        logger.debug("Motor %s is in Test Mode",self.specName)
+    def getPosition(self):
+        return self.position
+
+    def getParameter(self,parameter):
+        return self.paramdict[parameter]
+
+    def getState(self):
+        return self.__state_strings[self.state]
+
+    def getLimits(self):
+        return self.limits
+
+    def move(self,amount=0):
+        if self.state in (READY,ONLIMIT):
+            self.Timer.start(self.time)
+            self.state = MOVING
+            self.toGoTo=amount
+            self.motorStateChanged(self.state)
+
+    def end(self):
+        self.Timer.stop()
+        self.state = READY
+        self.motorStateChanged(self.state)
+        self.position=self.toGoTo
+        self.motorPositionChanged(self.getPosition())
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 if __name__ == "__main__":
