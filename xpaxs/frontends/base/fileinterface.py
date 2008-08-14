@@ -287,7 +287,17 @@ class H5FileInterface(QtCore.QObject):
         self.fileModel.close()
 
     def openFile(self, filename):
-        return self.fileModel.openFile(filename)
+        if os.path.isfile(filename):
+            return self.fileModel.openFile(filename)
+        else:
+            newfilename = QtGui.QFileDialog.getSaveFileName(self.mainWindow,
+                    "Save File", filename, "hdf5 files (*.h5 *.hdf5 *.nxs)")
+            if newfilename:
+                newfilename = unicode(newfilename)
+                if '.'.split(newfilename)[-1] not in ('h5', 'hdf5', 'nxs'):
+                    newfilename = newfilename + '.h5'
+                return self.fileModel.openFile(newfilename)
+            else: self.openFile(filename)
 
     def createEntry(self, filename, scanParams):
         fileObject = self.openFile(filename)

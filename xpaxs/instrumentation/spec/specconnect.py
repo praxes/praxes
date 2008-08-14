@@ -155,10 +155,16 @@ class SpecInterface(QtCore.QObject):
         elif self._specRunner is None:
             raise ConnectionAborted(dlg.getSpecVersion())
 
+    def getDatafile(self):
+        return self.specRunner.datafile.getValue()
+
+    def _configureScanControls(self):
+        self.scanControls = ScanControls(self.specRunner)
+
     def _configure(self):
         logger.debug('configuring Spec Interface')
         # This method should be redefined in subclasses of SpecInterface
-        self.scanControls = ScanControls(self.specRunner)
+        self._configureScanControls()
         self.addDockWidget(self.scanControls, 'Scan Controls',
                            QtCore.Qt.LeftDockWidgetArea|
                            QtCore.Qt.RightDockWidgetArea,
@@ -172,6 +178,8 @@ class SpecInterface(QtCore.QObject):
                      self.mainWindow.statusBar.addPermanentWidget)
         self.connect(self.scanControls, QtCore.SIGNAL("removeStatusBarWidget"),
                      self.mainWindow.statusBar.removeWidget)
+        self.connect(self.specRunner.datafile, QtCore.SIGNAL("datafileChanged"),
+                     self, QtCore.SIGNAL("datafileChanged"))
 
     def addDockWidget(self, widget, title, allowedAreas, defaultArea,
                       name = None):

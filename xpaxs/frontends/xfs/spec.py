@@ -131,21 +131,11 @@ class SmpSpecInterface(SpecInterface):
     def _connectToSpec(self):
         return SmpSpecConnect(self.mainWindow)
 
-    def _configure(self):
+    def _configureScanControls(self):
         self.scanControls = SmpScanControls(self.specRunner)
-        self.addDockWidget(self.scanControls, 'Scan Controls',
-                           QtCore.Qt.LeftDockWidgetArea|
-                           QtCore.Qt.RightDockWidgetArea,
-                           QtCore.Qt.LeftDockWidgetArea,
-                           'SpecScanControlsWidget')
-        self.connect(self.mainWindow.actionConfigure,
-                     QtCore.SIGNAL("triggered()"),
-                     lambda : configdialog.ConfigDialog(self.specRunner,
-                                                        self.mainWindow))
-        self.connect(self.scanControls, QtCore.SIGNAL("addStatusBarWidget"),
-                     self.mainWindow.statusBar.addPermanentWidget)
-        self.connect(self.scanControls, QtCore.SIGNAL("removeStatusBarWidget"),
-                     self.mainWindow.statusBar.removeWidget)
+
+    def _configure(self):
+        SpecInterface._configure(self)
 
         self.connect(self.specRunner.scan,
                      QtCore.SIGNAL("newSmpScan"),

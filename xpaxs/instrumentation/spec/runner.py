@@ -75,7 +75,8 @@ class SpecDatafile(SpecVariable.SpecVariableA, QtCore.QObject):
             self.fileError(fileName, specfile)
 
     def update(self, value):
-        self.emit(QtCore.SIGNAL("datafileChanged"), value)
+        if not value == '/dev/null':
+            self.emit(QtCore.SIGNAL("datafileChanged"), value)
 
 
 class SpecRunner(Spec.Spec, QtCore.QObject):
