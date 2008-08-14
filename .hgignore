@@ -13,3 +13,4 @@ xpaxs.egg-info/*
 *.so
 doc/_static/*
 doc/math.*
+*/resources/*.py

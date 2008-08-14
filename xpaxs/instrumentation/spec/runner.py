@@ -149,10 +149,11 @@ class TestSpecRunner:
 
     def __init__(self, specVersion='', timeout=None, **kwargs):
         self.motordict = {'1':TestQtSpecMotor('1'), '2':TestQtSpecMotor('2'),\
-                     '3':TestQtSpecMotor('3'), '4':TestQtSpecMotor('4'),\
-                     '5':TestQtSpecMotor('5')}
+                          '3':TestQtSpecMotor('3'), '4':TestQtSpecMotor('4'),\
+                          '5':TestQtSpecMotor('5')}
 
         self.specVersion = 'thiscomp:nospec'
+
     def __call__(self, command):
         logger.debug( "executing %s",command)
         strings=QtCore.QString(command).split(' ')
@@ -185,7 +186,7 @@ class TestSpecRunner:
 
     def close(self):
         pass
-    
+
 
     def getMotor(self, name):
         return self.motordict[name]

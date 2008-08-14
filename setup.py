@@ -75,12 +75,11 @@ def ui_cvt(arg, dirname, fnames):
             py = os.path.splitext(rc)[0]+'.py'
             os.system('pyrcc4 -o %s %s'%(py, rc))
 
-sys.stdout.write('creating qt resources... ')
-sys.stdout.flush()
-
-os.path.walk('xpaxs', ui_cvt, None)
-
-sys.stdout.write('Done!\n')
+if 'build' in sys.argv or 'install' in sys.argv:
+    sys.stdout.write('creating qt resources... ')
+    sys.stdout.flush()
+    os.path.walk('xpaxs', ui_cvt, None)
+    sys.stdout.write('Done!\n')
 
 if sys.platform == "win32":
     define_macros = [('WIN32',None)]
@@ -130,6 +129,7 @@ setup(name = 'xpaxs',
       ext_modules = ext_modules,
       package_data = package_data,
       scripts = scriptfiles,
+      test_suite = 'nose.collector',
       install_requires = ['numpy>=1.0.99',
                           'matplotlib>=0.98pre',
                           'PyMca>=4.2.4',

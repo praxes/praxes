@@ -83,7 +83,7 @@ class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):
 
 
 class TestQtSpecMotor(QtSpecMotorA):
-    
+
     __state_strings = ['NOTINITIALIZED',
                        'UNUSABLE',
                        'READY',
@@ -91,16 +91,15 @@ class TestQtSpecMotor(QtSpecMotorA):
                        'MOVING',
                        'ONLIMIT']
     def __init__(self,mne,specVersion = None):
-        
+
         QtCore.QObject.__init__(self)
         self.specName = mne
         self.position = int(mne)*10
         self.toGoTo=0
         self.limits=(int(mne),int(mne)*1000)
         self.paramdict = {'step_size':int(mne)*1000,
-                                'slew_rate':int(mne)*1000,
-                                'acceleration':int(mne)*10}
-
+                          'slew_rate':int(mne)*1000,
+                          'acceleration':int(mne)*10}
 
         self.state = READY
         self.Timer = QtCore.QTimer()
@@ -133,18 +132,6 @@ class TestQtSpecMotor(QtSpecMotorA):
         self.motorStateChanged(self.state)
         self.position=self.toGoTo
         self.motorPositionChanged(self.getPosition())
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 from PyQt4 import QtCore
- 
+
 class TestQtSpecMotor(QtCore.QObject):
 
     def __init__(self,mne, parent = None):
@@ -9,8 +9,8 @@ class TestQtSpecMotor(QtCore.QObject):
         self.toGoTo=0
         self.limits=(int(mne),int(mne)*1000)
         self.paramdict = {'step_size':int(mne)*1000,
-                                'slew_rate':int(mne)*1000,
-                                'acceleration':int(mne)*10}
+                          'slew_rate':int(mne)*1000,
+                          'acceleration':int(mne)*10}
 
         self.__state_strings = ['NOTINITIALIZED',
                        'UNUSABLE',
