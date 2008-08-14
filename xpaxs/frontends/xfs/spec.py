@@ -128,6 +128,9 @@ class SmpScanControls(ScanControls):
 
 class SmpSpecInterface(SpecInterface):
 
+    def _connectToSpec(self):
+        return SmpSpecConnect(self.mainWindow)
+
     def _configure(self):
         self.scanControls = SmpScanControls(self.specRunner)
         self.addDockWidget(self.scanControls, 'Scan Controls',
@@ -150,6 +153,9 @@ class SmpSpecInterface(SpecInterface):
 
 
 class SmpSpecConnect(SpecConnect):
+
+    def _connectToSpec(self):
+        self.specRunner = SmpSpecRunner(self.getSpecVersion(), timeout=500)
 
     def defineInterface(self):
         self.getSpecRunner = SmpSpecRunner

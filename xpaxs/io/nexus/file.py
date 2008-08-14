@@ -45,7 +45,7 @@ class NXfile(File):
     """
 
     def __getitem__(self, name):
-        with self.lock:
+        with self._lock:
             # a little hackish, for now:
             item = super(NXfile, self).__getitem__(name)
             if isinstance(item, Dataset):

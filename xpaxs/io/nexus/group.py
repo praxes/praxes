@@ -35,7 +35,7 @@ class NXgroup(Group):
     """
 
     def __getitem__(self, name):
-        with self.lock:
+        with self._lock:
             # a little hackish, for now:
             item = super(NXgroup, self).__getitem__(name)
             if isinstance(item, Dataset):

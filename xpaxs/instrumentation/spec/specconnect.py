@@ -33,6 +33,18 @@ logger = logging.getLogger('XPaXS.instrumentation.spec.specconnect')
 USESSH = False
 
 
+class ConnectionAborted(Exception):
+
+    def __init__(self, specVersion):
+        self.label = specVersion
+        return
+
+    def __str__(self):
+        str = "Connection to '%s' aborted." % \
+              (self.label)
+        return str
+
+
 class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     """This dialog allows the user to identify the spec server and port
@@ -40,13 +52,12 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
     returns a SpecRunner instance
     """
 
-    def __init__(self, SpecRunner=SpecRunner, parent=None):
+    def __init__(self, parent=None):
         QtGui.QDialog.__init__(self, parent)
         self.setupUi(self)
 
-        self._SpecRunner = SpecRunner
         self.specRunner = None
-        self.ssh=None
+        self.ssh = None
 
         self.restore()
 
@@ -65,21 +76,21 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
         -S").'''%(port,host))
         error.exec_()
 
+    def _connectToSpec(self):
+        self.specRunner = SpecRunner(self.getSpecVersion(), timeout=500)
+
     def connectToSpec(self):
         if USESSH and not self.ssh:
             self.ssh = sshdialog.SshDialog(self.parent()).exec_()
             if not self.ssh: return
         try:
-            self._SpecRunner(self.getSpecVersion(), timeout=500)
+            self._connectToSpec()
             logger.debug('Connected to spec, specrunner created')
         except SpecClientError.SpecClientTimeoutError:
             self.connectionError()
-            self.specRunner = None
 
-    def exec_(self):
-        if QtGui.QDialog.exec_(self):
-            self.connectToSpec()
-            if self.specRunner is None: self.exec_()
+    def getSpecRunner(self):
+        self.connectToSpec()
         return self.specRunner
 
     def getSpecVersion(self):
@@ -120,16 +131,29 @@ class SpecInterface(QtCore.QObject):
     def __init__(self, parent=None):
         super(SpecInterface, self).__init__(parent)
 
-        self.specRunner = specRunner
+        self._specRunner = None
         self.dockWidgets = {}
 
         self.mainWindow = parent
         self.name = "spec"
 
+        self.connectToSpec()
         self._configure()
 
+    @property
+    def specRunner(self):
+        return self._specRunner
+
     def _connectToSpec(self):
-        self.specRunner = SpecConnect(SpecRunner, self.mainWindow)
+        return SpecConnect(self.mainWindow)
+
+    def connectToSpec(self):
+        dlg = self._connectToSpec()
+        if dlg.exec_():
+            self._specRunner = dlg.getSpecRunner()
+            if self._specRunner is None: self.connectToSpec()
+        elif self._specRunner is None:
+            raise ConnectionAborted(dlg.getSpecVersion())
 
     def _configure(self):
         logger.debug('configuring Spec Interface')
@@ -163,7 +187,7 @@ class SpecInterface(QtCore.QObject):
         self.scanControls = None
         self.dockWidgets = {}
         self.specRunner.close()
-        self.specRunner = None
+        self._specRunner = None
 
 
 if __name__ == "__main__":

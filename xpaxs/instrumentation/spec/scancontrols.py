@@ -39,7 +39,6 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
 
         self.specRunner = specRunner
-        self.specScan = specRunner.specScan
         self.setupUi(self)
 
         self.axes = []
@@ -318,6 +317,7 @@ class ScanDialog(ui_scandialog.Ui_Dialog, QtGui.QDialog):
         elif fileName.endswith('.hdf5'): fileName = fileName[:-5]
         elif fileName.endswith('.nxs'): fileName = fileName[:-4]
 
+        # TODO: this is all now contained in specrunner.datafile:
         self.specRunner('newfile %s'%fileName)
         specfile = self.specRunner.getVarVal('DATAFILE')
 

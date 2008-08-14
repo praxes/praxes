@@ -101,10 +101,8 @@ class MainWindow(MainWindowBase):
                     "X-ray fluorescence spectra"%__version__))
 
     def _connectToSpec(self):
-        from xpaxs.frontends.xfs.spec import SmpSpecConnect
-
-        dlg = SmpSpecConnect(self.fileInterface, self)
-        return dlg.exec_()
+        from xpaxs.frontends.xfs.spec import SmpSpecInterface
+        self.expInterface = SmpSpecInterface(self)
 
     def getScanView(self, scan, **kwargs):
         scanView = ScanAnalysis(scan, self.spectrumAnalysis)

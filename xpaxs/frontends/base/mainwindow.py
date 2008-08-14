@@ -175,14 +175,16 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         return event.accept()
 
     def _connectToSpec(self):
-        from xpaxs.frontends.xfs.spec import SmpSpecConnect
-
-        dlg = SmpSpecConnect(self.fileInterface, self)
-        return dlg.exec_()
+        from xpaxs.instrumentation.spec.specconnect import SpecConnect
+        self.expInterface = SpecConnect(self)
 
     def connectToSpec(self, bool):
         if bool:
-            self.expInterface = self._connectToSpec()
+            from xpaxs.instrumentation.spec.specconnect import ConnectionAborted
+            try:
+                self._connectToSpec()
+            except ConnectionAborted:
+                return
             if self.expInterface:
                 self.actionConfigure.setEnabled(True)
                 for key, (item, area, action) in \

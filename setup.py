@@ -64,23 +64,6 @@ for line in file('xpaxs/__init__.py').readlines():
         exec(line)
         break
 
-def ui_cvt(arg, dirname, fnames):
-    for fname in fnames:
-        if fname.endswith('.ui'):
-            ui = '/'.join([dirname, fname])
-            py = os.path.splitext(ui)[0]+'.py'
-            os.system('pyuic4 -o %s %s'%(py, ui))
-        elif fname.endswith('.qrc'):
-            rc = '/'.join([dirname, fname])
-            py = os.path.splitext(rc)[0]+'.py'
-            os.system('pyrcc4 -o %s %s'%(py, rc))
-
-if 'build' in sys.argv or 'install' in sys.argv:
-    sys.stdout.write('creating qt resources... ')
-    sys.stdout.flush()
-    os.path.walk('xpaxs', ui_cvt, None)
-    sys.stdout.write('Done!\n')
-
 if sys.platform == "win32":
     define_macros = [('WIN32',None)]
 else:
@@ -98,7 +81,26 @@ def build_specfile(ext_modules):
     ext_modules.append(module)
 
 ext_modules = []
-build_specfile(ext_modules)
+
+def ui_cvt(arg, dirname, fnames):
+    for fname in fnames:
+        if fname.endswith('.ui'):
+            ui = '/'.join([dirname, fname])
+            py = os.path.splitext(ui)[0]+'.py'
+            os.system('pyuic4 -o %s %s'%(py, ui))
+        elif fname.endswith('.qrc'):
+            rc = '/'.join([dirname, fname])
+            py = os.path.splitext(rc)[0]+'.py'
+            os.system('pyrcc4 -o %s %s'%(py, rc))
+
+if 'build' in sys.argv or 'install' in sys.argv:
+
+    build_specfile(ext_modules)
+
+    sys.stdout.write('creating qt resources... ')
+    sys.stdout.flush()
+    os.path.walk('xpaxs', ui_cvt, None)
+    sys.stdout.write('Done!\n')
 
 description = 'Extensible Packages for X-ray Science'
 long_description = \
@@ -109,8 +111,9 @@ field of X-ray science.
 # TODO: add documentation
 scriptfiles = filter(os.path.isfile, glob.glob('scripts/*'))
 package_data = {'xpaxs': ['instrumentation/spec/macros/*',
-                          'frontends/base/plotwidgets/resources/icons/*',
-                          'frontends/base/plotwidgets/resources/cursors/*']}
+                          'instrumentation/spec/ui/icons/*',
+                          'frontends/base/ui/resources/icons/*',
+                          'frontends/base/ui/resources/cursors/*']}
 
 packages = find_packages()
 packages.extend(find_packages('external'))

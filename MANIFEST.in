@@ -1,6 +1,6 @@
 include external/specfile/src/*
 include external/specfile/include/*
 include external/SpecClient/*
-include xpaxs/frontends/base/resources/*
-include xpaxs/frontends/base/resources/icons/*
-include xpaxs/frontends/base/resources/cursors/*
+include xpaxs/instrumentation/spec/ui/resources/*
+include xpaxs/frontends/base/ui/resources/icons/*
+include xpaxs/frontends/base/ui/resources/cursors/*
