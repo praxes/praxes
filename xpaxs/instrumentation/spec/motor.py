@@ -20,7 +20,7 @@ from SpecClient import SpecMotor
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-
+from xpaxs.instrumentation.spec import TEST_SPEC
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -30,7 +30,12 @@ logger = logging.getLogger('XPaXS.instrumentation.spec.client.motor')
 
 [NOTINITIALIZED,UNUSABLE,READY,MOVESTARTED,MOVING,ONLIMIT]=[0,1,2,3,4,5]
 
-class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):
+
+
+
+
+
+class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
 
     __state_strings = ['NOTINITIALIZED',
                        'UNUSABLE',
@@ -82,8 +87,8 @@ class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):
 
 
 
-class TestQtSpecMotor(QtSpecMotorA):
-
+class TestQtSpecMotor(QtSpecMotorBase):
+    
     __state_strings = ['NOTINITIALIZED',
                        'UNUSABLE',
                        'READY',
@@ -91,19 +96,20 @@ class TestQtSpecMotor(QtSpecMotorA):
                        'MOVING',
                        'ONLIMIT']
     def __init__(self,mne,specVersion = None):
-
+        
         QtCore.QObject.__init__(self)
         self.specName = mne
-        self.position = int(mne)*10
+        self.position = len(mne)*10
         self.toGoTo=0
-        self.limits=(int(mne),int(mne)*1000)
-        self.paramdict = {'step_size':int(mne)*1000,
-                          'slew_rate':int(mne)*1000,
-                          'acceleration':int(mne)*10}
+        self.limits=(len(mne),len(mne)*1000)
+        self.paramdict = {'step_size':len(mne)*1000,
+                                'slew_rate':len(mne)*1000,
+                                'acceleration':len(mne)*10}
+
 
         self.state = READY
         self.Timer = QtCore.QTimer()
-        self.time =int(mne)*1000
+        self.time =len(mne)*1000
 
         self.connect(self.Timer, QtCore.SIGNAL('timeout()'), self.end)
         logger.debug("Motor %s is in Test Mode",self.specName)
@@ -132,6 +138,23 @@ class TestQtSpecMotor(QtSpecMotorA):
         self.motorStateChanged(self.state)
         self.position=self.toGoTo
         self.motorPositionChanged(self.getPosition())
+
+
+
+if TEST_SPEC:
+    class QtSpecMotorA(QtSpecMotorBase):
+        pass
+else:
+    class QtSpecMotorA(TestQtSpecMotor):
+        pass
+
+
+
+
+
+
+
+
 
 
 if __name__ == "__main__":
