@@ -17,8 +17,8 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 # GUI imports
 #---------------------------------------------------------------------------
-from xpaxs.frontends.base.ui import ui_emailDlg
-#from ui import ui_emailDlg
+#from xpaxs.frontends.base.ui import ui_emailDlg
+from ui import ui_emailDlg
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -36,7 +36,20 @@ class EmailDialog(ui_emailDlg.Ui_emailDialog, QtGui.QDialog):
         self.allEdit.setFocus()
         self.settings = QtCore.QSettings()
         self.getValues()
+        self.connect(self.importantBox, QtCore.SIGNAL('toggled(bool)'), self.importantWarn)
 
+    def importantWarn(self, bool):
+        if bool:
+            response = QtGui.QMessageBox.warning(self, 
+                            'Editing Important Emails',
+                            'Only edit these addresses if you are the system administrator', QtGui.QMessageBox.Ok| QtGui.QMessageBox.Cancel)
+            if response == QtGui.QMessageBox.Ok:
+                self.importantEdit.setEnabled(True)
+            else:
+                self.importantEdit.setEnabled(False)
+                self.importantBox.setChecked(False)
+            
+        
     def exec_(self):
         if QtGui.QDialog.exec_(self):
             self.setValues()
