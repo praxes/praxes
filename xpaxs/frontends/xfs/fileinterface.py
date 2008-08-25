@@ -191,8 +191,11 @@ class XfsH5Scan(XpaxsH5Scan):
                 for index in indices:
                     result = self.h5Node.data[index][id]
                     if normalization is not None:
-                        result /= getattr(self.h5Node.data.cols,
-                                          normalization)[index]
+                        norm = getattr(self.h5Node.data.cols,
+                                       normalization)[index]
+                        if normalization == 'Dead':
+                            norm = (100-norm)/100
+                        result /= numpy.where(norm==0, numpy.inf, norm)
                     spectrum += result
                 return spectrum / len(indices)
             finally:
@@ -213,6 +216,8 @@ class XfsH5Scan(XpaxsH5Scan):
             try:
                 self.mutex.lock()
                 norm = getattr(self.h5Node.data.cols, normalization)[:]
+                if normalization == 'Dead':
+                    norm = (100-norm)/100
             finally:
                 self.mutex.unlock()
             elementMap.flat[:len(norm)] /= numpy.where(norm==0, numpy.inf, norm)

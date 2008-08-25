@@ -218,7 +218,7 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             h5filename = '%s'% QtGui.QFileDialog.getSaveFileName(self,
                     'Save HDF5 File', '.', 'HDF5 files (*.h5 *.hdf5)', f+'.h5')
             if h5filename:
-                from xpaxs.core.datalib import specfile
+                from xpaxs.io import specfile
                 specfile.spec2hdf5(f, hdf5Filename=h5filename, force=True)
                 self.openDatafile(h5filename)
 
