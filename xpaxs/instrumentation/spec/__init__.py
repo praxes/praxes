@@ -27,7 +27,7 @@ from xpaxs import config
 logfile = os.path.join(config.getUserConfigDir(), 'specclient.log')
 SpecClient.setLogFile(logfile)
 
-TEST_SPEC=False
+TEST_SPEC = False
 
 def setSPEC(bool):
     TEST_SPEC=bool

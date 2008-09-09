@@ -138,7 +138,9 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
 class TestQtSpecScanA(QtSpecScanBase):
 
     def __init__(self, specVersion, parent=None):
-        QtCore.QObject.__init__(self, parent)
+        pass
+        #QtCore.QObject.__init__(self, parent)
+        #SpecScan.SpecScanA.__init__(self)#, specVersion)
 
     def newScan(self, scanParameters):
         pass
@@ -170,6 +172,7 @@ class TestQtSpecScanA(QtSpecScanBase):
             return False
 
     def __newScanPoint(self, scanData):
+        return
         if DEBUG: print "SpecScanA.__newScanPoint", scanData
         if self.__scanning and scanData:
             scanData = dict([i.split("=", 1)
@@ -197,6 +200,7 @@ class TestQtSpecScanA(QtSpecScanBase):
               self.newScanPoint(i, x, y)
 
     def connectToSpec(self, specVersion):
+        return
         self.connection = SpecConnectionsManager().getConnection(specVersion)
 
         SpecEventsDispatcher.connect(self.connection, 'connected',
@@ -217,6 +221,7 @@ class TestQtSpecScanA(QtSpecScanBase):
             self.connected()
 
     def isConnected(self):
+        return QtCore.QObject() and True
         return self.connection and self.connection.isSpecConnected()
 
     def connected(self):
@@ -233,6 +238,8 @@ class TestQtSpecScanA(QtSpecScanBase):
         pass
 
     def __newScan(self, scanParams):
+        return
+
         if DEBUG: print "SpecScanA.__newScan", scanParams
         if not scanParams:
             if self.__scanning:
@@ -261,6 +268,7 @@ class TestQtSpecScanA(QtSpecScanBase):
         self.scanStarted() # A.B
 
     def getScanType(self):
+        return 'mesh'
         try:
             return self.scanParams['scantype']
         except:
@@ -272,6 +280,7 @@ class TestQtSpecScanA(QtSpecScanBase):
 
     def __newScanData(self, scanData):
         if DEBUG: print "SpecScanA.__newScanData", scanData
+        return
         if self.__scanning and scanData:
             scanData = dict([i.split("=", 1)
                              for i in scanData.rstrip("\t").split("\t")])
@@ -294,11 +303,9 @@ class TestQtSpecScanA(QtSpecScanBase):
 
 
 if TEST_SPEC:
-    class QtSpecScanA(QtSpecScanBase):
-        pass
-else:
     class QtSpecScanA(TestQtSpecScanA):
         pass
-
-
+else:
+    class QtSpecScanA(QtSpecScanBase):
+        pass
 

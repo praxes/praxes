@@ -88,7 +88,7 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
 
 
 class TestQtSpecMotor(QtSpecMotorBase):
-    
+
     __state_strings = ['NOTINITIALIZED',
                        'UNUSABLE',
                        'READY',
@@ -96,7 +96,7 @@ class TestQtSpecMotor(QtSpecMotorBase):
                        'MOVING',
                        'ONLIMIT']
     def __init__(self,mne,specVersion = None):
-        
+
         QtCore.QObject.__init__(self)
         self.specName = mne
         self.position = len(mne)*10
@@ -142,10 +142,10 @@ class TestQtSpecMotor(QtSpecMotorBase):
 
 
 if TEST_SPEC:
-    class QtSpecMotorA(QtSpecMotorBase):
+    class QtSpecMotorA(TestQtSpecMotor):
         pass
 else:
-    class QtSpecMotorA(TestQtSpecMotor):
+    class QtSpecMotorA(QtSpecMotorBase):
         pass
 
 

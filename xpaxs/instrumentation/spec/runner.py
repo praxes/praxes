@@ -15,7 +15,7 @@ import time
 #---------------------------------------------------------------------------
 
 from PyQt4 import QtCore
-from SpecClient import Spec, SpecEventsDispatcher, SpecCommand
+from SpecClient import Spec, SpecEventsDispatcher, SpecCommand, SpecVariable
 
 #---------------------------------------------------------------------------
 # xpaxs imports
@@ -23,17 +23,16 @@ from SpecClient import Spec, SpecEventsDispatcher, SpecCommand
 
 from xpaxs.instrumentation.spec.motor import QtSpecMotorA
 from xpaxs.instrumentation.spec.scan import QtSpecScanA
-#from xpaxs.instrumentation.spec.motor import TestQtSpecMotor
 from xpaxs.instrumentation.spec import TEST_SPEC
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.instrumentation.spec.client.runner')
+logger = logging.getLogger('XPaXS.instrumentation.spec.runner')
 
 
 def getSpecMacro(filename):
-    temp = os.path.split(os.path.split(__file__)[0])[0]
+    temp = os.path.split(__file__)[0]
     filename = os.path.join(temp, 'macros', filename)
     return open(filename).read()
 
@@ -56,17 +55,42 @@ class Dispatcher(QtCore.QThread):
         SpecEventsDispatcher.dispatch()
 
 
+class SpecDatafile(SpecVariable.SpecVariableA, QtCore.QObject):
+
+    def __init__(self, varName=None, specVersion=None, specRunner=None):
+        QtCore.QObject.__init__(self, specRunner)
+        SpecVariable.SpecVariableA.__init__(self, varName, specVersion)
+
+        self._specRunner = specRunner
+
+    def setValue(self, fileName):
+        self._specRunner('newfile %s'%fileName)
+        specfile = self.getValue()
+
+        specCreated = os.path.split(specfile)[-1]
+        if fileName == specCreated:
+            logger.debug("file %s created",fileName)
+        else:
+            logger.error('%s given %s returned',(fileName,specfile))
+            self.fileError(fileName, specfile)
+
+    def update(self, value):
+        if not value == '/dev/null':
+            self.emit(QtCore.SIGNAL("datafileChanged"), value)
+
+
 class SpecRunnerBase(Spec.Spec, QtCore.QObject):
     """SpecRunner is our primary interface to Spec. Some caching is added,
     to improve performance.
     """
 
-    def __init__(self, specVersion=None, timeout=None, **kwargs):
+    def __init__(self, specVersion=None, timeout=None, parent=None):
         """specVersion is a string like 'foo.bar:spec' or '127.0.0.1:fourc'
         """
-        QtCore.QObject.__init__(self)
+        QtCore.QObject.__init__(self, parent)
         Spec.Spec.__init__(self, specVersion, timeout)
         self.cmd = SpecCommand.SpecCommand('', specVersion, None)
+        self._datafile = SpecDatafile('DATAFILE', specVersion, self)
 
         self._motors = {}
         self._motorNames = []
@@ -86,6 +110,10 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
     def update(self):
         SpecEventsDispatcher.dispatch()
 #########
+
+    @property
+    def datafile(self):
+        return self._datafile
 
     def __call__(self, command):
         logger.debug( "executing %s",command)
@@ -149,11 +177,12 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
 class TestSpecRunner(SpecRunnerBase):
 
     def __init__(self, specVersion='', timeout=None, **kwargs):
-        self.motordict = {'one':QtSpecMotorA('one'), 'two':QtSpecMotorA('two'),\
-                     'three':QtSpecMotorA('three'), 'four':QtSpecMotorA('four'),\
-                     'five':QtSpecMotorA('five')}
+        self.motordict = {'1':TestQtSpecMotor('1'), '2':TestQtSpecMotor('2'),\
+                          '3':TestQtSpecMotor('3'), '4':TestQtSpecMotor('4'),\
+                          '5':TestQtSpecMotor('5')}
 
         self.specVersion = 'thiscomp:nospec'
+
     def __call__(self, command):
         logger.debug( "executing %s",command)
         strings=QtCore.QString(command).split(' ')
@@ -186,7 +215,7 @@ class TestSpecRunner(SpecRunnerBase):
 
     def close(self):
         pass
-    
+
 
     def getMotor(self, name):
         return self.motordict[name]
@@ -209,11 +238,9 @@ class TestSpecRunner(SpecRunnerBase):
 
 
 if TEST_SPEC:
-    class SpecRunner(SpecRunnerBase):
-        pass
-else:
     class SpecRunner(TestSpecRunner):
         pass
+else:
+    class SpecRunner(SpecRunnerBase):
+        pass
 
-if __name__ == "__main__":
-    SpecRunner('test:nospec')
