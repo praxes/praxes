@@ -18,13 +18,8 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 
 from xpaxs.instrumentation.spec.ui import ui_gamepad
+from xpaxs.instrumentation.spec import TEST_SPEC
 
-SPEC = False
-if SPEC:
-    from xpaxs.instrumentation.spec.specconnect import SpecConnect
-
-else:
-    from xpaxs.instrumentation.spec.runner import TestSpecRunner as runner
 
 
 #---------------------------------------------------------------------------
@@ -41,22 +36,23 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
 
     """Establishes motor pad"""
 
-    def __init__(self, parent = None):
+    def __init__(self, specRunner=None, parent = None):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
         self.setDefaultShortcuts()
         self.aborted = True
         self.positionDict = {}
 
-        if parent:
-            self.setParent(parent)
-            self.specRunner = parent.specRunner
-        elif SPEC:
-            self.specRunner = SpecConnect().exec_()
+        if specRunner:
+            self.specRunner = specRunner
+        elif not TEST_SPEC:
+            from xpaxs.instrumentation.spec.specconnect import SpecConnect
+            self.specRunner = SpecConnect()#.exec_()
         else:
+            from xpaxs.instrumentation.spec.runner import TestSpecRunner as runner
             self.specRunner = runner()
         self.motors = motors = self.specRunner.getMotorsMne()
-        
+
         self.ud = MotorWidget(self.udSlider,self.udSpin,\
                               self.udPositionSpin,self.udNameBox,\
                               motors,self.specRunner,self)
@@ -71,7 +67,7 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
         self.connectGui()
 
 
-    def connectGui(self): 
+    def connectGui(self):
         self.connect(self.leftButton,
                      QtCore.SIGNAL("pressed()"),
                      lambda : self.move(0,self.lr._MotorMne, -1*self.lrSpin.value() ) )
@@ -99,18 +95,18 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
                      lambda :  self.move(1,-1*self.udSpin.value(),self.lrSpin.value() ) )
 
         self.connect(self.centerButton, QtCore.SIGNAL("pressed()"), self.stop)
-        
+
         self.connect(self.saveButton,QtCore.SIGNAL("pressed()"),self.savePosition)
-        
+
         self.connect(self.loadButton,QtCore.SIGNAL("pressed()"),self.moveToPosition)
-        
+
         self.connect(self.delButton,QtCore.SIGNAL("pressed()"),self.delPosition)
- 
+
         self.connect(self.positionBox.lineEdit(),
                      QtCore.SIGNAL("returnPressed()"),
                      self.positionBoxReturned)
-        self.connect(self.positionBox, 
-                     QtCore.SIGNAL('currentIndexChanged(int)'), 
+        self.connect(self.positionBox,
+                     QtCore.SIGNAL('currentIndexChanged(int)'),
                      self.loadPosition)
 
     def setDefaultShortcuts(self):
@@ -149,7 +145,7 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
             self.udState = self.ud._Motor.getState()
         else:
             self.udState = 'NOTINITIALIZED'
-            
+
         if self.lr._MotorMne:
             self.lrState = self.lr._Motor.getState()
         else:
@@ -201,8 +197,8 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
             self.lr.setMotor(LRmotor)
             self.ud.NameBox.setCurrentIndex(self.ud.NameBox.findText(UDmotor))
             self.lr.NameBox.setCurrentIndex(self.lr.NameBox.findText(LRmotor))
-            
-            
+
+
 
 
     def moveToPosition(self):
@@ -217,7 +213,7 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
             lrPosition = self.lrSlider.value()*0.001
             self.move(2,udPosition,lrPosition)
         self.aborted = False
-        
+
     def delPosition(self):
         if self.positionBox.currentText():
             self.positionBox.removeItem(self.positionBox.currentIndex())
@@ -227,7 +223,7 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
 
 
 class MotorWidget(QtGui.QWidget):
-    
+
     def __init__(self,Slider,Spin,PositionSpin,NameBox,motors,specRunner,parent):
         QtGui.QWidget.__init__(self,parent)
         self.parent=parent
@@ -241,7 +237,7 @@ class MotorWidget(QtGui.QWidget):
         self.connect(self.NameBox,
                      QtCore.SIGNAL('currentIndexChanged(int)'),
                      lambda int : self.setMotor(motors[int]) )
-        
+
         self.connect(self.Slider,
                      QtCore.SIGNAL("sliderMoved(int)"),
                      self.SliderMoved)
@@ -304,13 +300,13 @@ class MotorWidget(QtGui.QWidget):
 
     def SliderReleased(self):
         self.PositionSpin.setValue(self.PositionSpin.defaultValue)
-    
+
     def SliderMoved(self, int):
         self.PositionSpin.setValue(int*0.001)
-        
+
     def SliderPressed(self):
         self.PositionSpin.setValue(self.Slider.value()*0.001)
-        
+
     def PositionEdited(self):
         if self.PositionSpin.hasFocus():
             self.Slider.setValue(int(self.PositionSpin.value()*1000))

@@ -17,8 +17,8 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 # GUI imports
 #---------------------------------------------------------------------------
-#from xpaxs.frontends.base.ui import ui_emailDlg
-from ui import ui_emailDlg
+from xpaxs.frontends.base.ui import ui_emailDlg
+#from ui import ui_emailDlg
 
 #---------------------------------------------------------------------------
 # Normal code begins

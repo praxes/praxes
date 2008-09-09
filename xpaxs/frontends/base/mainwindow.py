@@ -24,6 +24,8 @@ from xpaxs import __version__
 from xpaxs.frontends.base.ui import ui_mainwindow
 from xpaxs.frontends.base.fileinterface import H5FileInterface
 from xpaxs.frontends.base.ppjobstats import PPJobStats
+from xpaxs.frontends.base.emailDlg import EmailDialog
+
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -51,7 +53,7 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.mdi = QtGui.QMdiArea()
         self.setCentralWidget(self.mdi)
 
-        self._setFileInterface()
+        
         self.expInterface = None
         self.openScans = []
 
@@ -62,17 +64,16 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self._restoreSettings()
 
     def _setupDockWindows(self):
+        self._setupPPJobStats()
+        self._setFileInterface()
+        self._setupEmailDlg()
+
+    def _setupPPJobStats(self):
         self.ppJobStats = PPJobStats()
         self.ppJobStatsDock = self._createDockWindow('PPJobStatsDock')
         self._setupDockWindow(self.ppJobStatsDock,
                                QtCore.Qt.RightDockWidgetArea,
                                self.ppJobStats, 'Analysis Server Stats')
-
-    def _restoreSettings(self):
-        settings = QtCore.QSettings()
-        settings.beginGroup('MainWindow')
-        self.restoreGeometry(settings.value('Geometry').toByteArray())
-        self.restoreState(settings.value('State').toByteArray())
 
     def _setFileInterface(self):
         self.fileInterface = H5FileInterface(self)
@@ -80,6 +81,21 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                 self.fileInterface.dockWidgets.iteritems():
             self.menuView.addAction(action)
             self.addDockWidget(area, item)
+
+
+    def _setupEmailDlg(self):
+        self.menuSettings.addAction("Email Settings",self._startEmailDlg )
+        
+    def _startEmailDlg(self):
+        email = EmailDialog(self).show()
+
+    def _restoreSettings(self):
+        settings = QtCore.QSettings()
+        settings.beginGroup('MainWindow')
+        self.restoreGeometry(settings.value('Geometry').toByteArray())
+        self.restoreState(settings.value('State').toByteArray())
+
+
 
     def _configureDockArea(self):
         """
@@ -290,7 +306,7 @@ def main():
     import sys
     app = QtGui.QApplication(sys.argv)
     app.setOrganizationName('XPaXS')
-    form = SmpMainWindow()
+    form = MainWindowBase()
     form.show()
     sys.exit(app.exec_())
 

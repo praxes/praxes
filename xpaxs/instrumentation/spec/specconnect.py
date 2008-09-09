@@ -24,13 +24,14 @@ from xpaxs.instrumentation.spec import configdialog, sshdialog
 from xpaxs.instrumentation.spec.scancontrols import ScanControls
 from xpaxs.instrumentation.spec.runner import SpecRunner
 
+from xpaxs.instrumentation.spec import USESSH
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 logger = logging.getLogger('XPaXS.instrumentation.spec.specconnect')
 
-USESSH = False
+
 
 
 class ConnectionAborted(Exception):
@@ -160,26 +161,40 @@ class SpecInterface(QtCore.QObject):
 
     def _configureScanControls(self):
         self.scanControls = ScanControls(self.specRunner)
-
-    def _configure(self):
-        logger.debug('configuring Spec Interface')
-        # This method should be redefined in subclasses of SpecInterface
-        self._configureScanControls()
         self.addDockWidget(self.scanControls, 'Scan Controls',
                            QtCore.Qt.LeftDockWidgetArea|
                            QtCore.Qt.RightDockWidgetArea,
                            QtCore.Qt.LeftDockWidgetArea,
                            'SpecScanControlsWidget')
-        self.connect(self.mainWindow.actionConfigure,
-                     QtCore.SIGNAL("triggered()"),
-                     lambda : configdialog.ConfigDialog(self.specRunner,
-                                                        self.mainWindow))
         self.connect(self.scanControls, QtCore.SIGNAL("addStatusBarWidget"),
                      self.mainWindow.statusBar.addPermanentWidget)
         self.connect(self.scanControls, QtCore.SIGNAL("removeStatusBarWidget"),
                      self.mainWindow.statusBar.removeWidget)
+
+    def _configureGamepad(self):
+        from xpaxs.instrumentation.spec.gamepad import Pad as GamePad
+        self.gamepad=GamePad(self.specRunner)
+        self.addDockWidget(self.gamepad, 'Game Pad',
+                   QtCore.Qt.LeftDockWidgetArea|
+                   QtCore.Qt.RightDockWidgetArea|
+                   QtCore.Qt.TopDockWidgetArea|
+                   QtCore.Qt.BottomDockWidgetArea,
+                   QtCore.Qt.BottomDockWidgetArea,
+                   'GamePadWidget')
+
+    def _configure(self):
+        logger.debug('configuring Spec Interface')
+        # This method should be redefined in subclasses of SpecInterface
+        self._configureScanControls()
+
+        self.connect(self.mainWindow.actionConfigure,
+                     QtCore.SIGNAL("triggered()"),
+                     lambda : configdialog.ConfigDialog(self.specRunner,
+                                                        self.mainWindow))
         self.connect(self.specRunner.datafile, QtCore.SIGNAL("datafileChanged"),
                      self, QtCore.SIGNAL("datafileChanged"))
+
+        self._configureGamepad()
 
     def addDockWidget(self, widget, title, allowedAreas, defaultArea,
                       name = None):

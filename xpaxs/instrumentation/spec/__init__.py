@@ -28,6 +28,10 @@ logfile = os.path.join(config.getUserConfigDir(), 'specclient.log')
 SpecClient.setLogFile(logfile)
 
 TEST_SPEC = False
+USESSH = False
 
 def setSPEC(bool):
-    TEST_SPEC=bool
+    TEST_SPEC = bool
+
+def setSSH(bool):
+    USESSH = bool
