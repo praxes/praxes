@@ -1,0 +1,17 @@
+# use glob syntax.
+syntax: glob
+
+*.pyc
+ui_*.py
+*~
+.ropeproject/
+build/
+dist/
+MANIFEST
+*.e4*
+xpaxs.egg-info/
+*.so
+doc/_static/
+doc/_templates/
+doc/math.*
+xpaxs/frontends/base/ui/resources/*.py
