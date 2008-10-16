@@ -1,5 +1,5 @@
 <RCC>
-  <qresource prefix="gamepad" >
+  <qresource prefix="resources/gamepad" >
     <file>icons/Arrow_east.svg</file>
     <file>icons/Arrow_north.svg</file>
     <file>icons/Arrow_northeast.svg</file>
