@@ -90,6 +90,7 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
         QtCore.QObject.__init__(self, parent)
         Spec.Spec.__init__(self, specVersion, timeout)
         self.cmd = SpecCommand.SpecCommand('', specVersion, None)
+        self.acmd = SpecCommand.SpecCommandA('', specVersion)
         self._datafile = SpecDatafile('DATAFILE', specVersion, self)
 
         self._motors = {}
@@ -117,7 +118,7 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
 
     def __call__(self, command):
         logger.debug( "executing %s",command)
-        self.cmd.executeCommand(command)
+        self.acmd.executeCommand(command)
 
     def close(self):
         try:

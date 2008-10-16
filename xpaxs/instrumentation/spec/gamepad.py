@@ -59,15 +59,23 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
         self.lr = MotorWidget(self.lrSlider,self.lrSpin,\
                               self.lrPositionSpin,self.lrNameBox,\
                               motors,self.specRunner,self)
+
+        self.connectGui()
+
         self.lr.setMotor(motors[0], self.specRunner.specVersion)
         self.ud.setMotor(motors[1], self.specRunner.specVersion)
+        #delete next three lines
         self.lr.NameBox.setCurrentIndex(0)
         self.ud.NameBox.setCurrentIndex(1)
-        self.motorStatesChanged(self.getState())
-        self.connectGui()
+#        self.motorStatesChanged(self.getState())
+#        self.connectGui()
 
 
     def connectGui(self):
+        self.connect(self.ud, QtCore.SIGNAL('motorChanged()'), self.motorStatesChanged)
+        self.connect(self.lr, QtCore.SIGNAL('motorChanged()'), self.motorStatesChanged)
+        self.connect(self.ud, QtCore.SIGNAL('motorStateChanged()'), self.motorStatesChanged)
+        self.connect(self.lr, QtCore.SIGNAL('motorStateChanged()'), self.motorStatesChanged)
         self.connect(self.leftButton,
                      QtCore.SIGNAL("pressed()"),
                      lambda : self.move(0,self.lr._MotorMne, -1*self.lrSpin.value() ) )
@@ -125,8 +133,9 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
         button.setShortcut(QtGui.QKeySequence(key))
 
     def setButtons(self, Bool):
-        self.positionFrame.setEnabled(Bool)
-        self.motorFrame.setEnabled(Bool)
+        print "Buttons set to  %s"%Bool
+#        self.positionFrame.setEnabled(Bool)
+#        self.motorFrame.setEnabled(Bool)
         self.rightButton.setEnabled(Bool)
         self.leftButton.setEnabled(Bool)
         self.upButton.setEnabled(Bool)
@@ -135,28 +144,33 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
         self.urButton.setEnabled(Bool)
         self.dlButton.setEnabled(Bool)
         self.drButton.setEnabled(Bool)
-        self.centerButton.setDisabled(Bool)
+        self.centerButton.setEnabled(not Bool)
+        QtGui.qApp.processEvents()
 
 
 ####MOTOR GUI INTERACTIONS######
 
     def getState(self):
         if self.ud._MotorMne:
-            self.udState = self.ud._Motor.getState()
+            udState = self.ud.getState()
         else:
-            self.udState = 'NOTINITIALIZED'
+            udState = 'NOTINITIALIZED'
 
         if self.lr._MotorMne:
-            self.lrState = self.lr._Motor.getState()
+            lrState = self.lr.getState()
         else:
-            self.lrState = 'NOTINITIALIZED'
-        return [self.udState, self.lrState]
+            lrState = 'NOTINITIALIZED'
+        return [udState, lrState]
 
-    def motorStatesChanged(self, states):
-        if states[0] in ('READY', 'ONLIMIT') and states[1] in ('READY', 'ONLIMIT'):
+    def motorStatesChanged(self):
+        states = self.getState()
+        if (states[0] in ('READY', 'ONLIMIT') )and (states[1] in ('READY', 'ONLIMIT')):
+            print 'Both are READY'
             self.emit(QtCore.SIGNAL("motorReady()"))
             self.setButtons(True)
         else:
+            print states
+            print 'One or more are not READY'
             self.emit(QtCore.SIGNAL("motorActive()"))
             self.setButtons(False)
 
@@ -172,12 +186,15 @@ class Pad(ui_gamepad.Ui_Pad, QtGui.QWidget):
         else:
             cmd = 'Unknown Command'
         self.specRunner(cmd)
+        print "Running"
         self.aborted = False
 
     def stop(self):
+        print 'aborting'
         if not self.aborted :
             self.specRunner.abort()
             self.aborted = True
+            print 'aborted'
 
     def savePosition(self):
         ID = self.positionBox.currentText()
@@ -251,11 +268,12 @@ class MotorWidget(QtGui.QWidget):
                      QtCore.SIGNAL('sliderPressed()'),
                      self.SliderPressed)
 
-
+    def __getattr__(self, attr):
+        return getattr(self._Motor, attr)
 
     def setMotor(self, motor, hostport = None):
         if self._MotorMne:
-            self._Motor=self.specRunner.getMotor(self._MotorMne)
+            print "%s currently set"%self._MotorMne
             self.disconnect(self._Motor,
                          QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
                          self.setPosition)
@@ -265,15 +283,15 @@ class MotorWidget(QtGui.QWidget):
             self.disconnect(self._Motor,
                          QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
                          self.StateChanged)
+        print "Defining %s as new motor"%motor
         self._MotorMne = motor
         self._Motor = self.specRunner.getMotor(self._MotorMne)
-        self.State=self._Motor.getState()
         self.setLimits(self._Motor.getLimits())
         position = self._Motor.getPosition()
         self.setPosition(position)
         self.Slider.setValue(int(position*1000))
         self.PositionSpin.setValue(position)
-        self.parent.motorStatesChanged(self.parent.getState())
+
 
         self.connect(self._Motor,
                      QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
@@ -285,6 +303,8 @@ class MotorWidget(QtGui.QWidget):
                      QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
                      self.StateChanged)
 
+        self.emit(QtCore.SIGNAL("motorChanged()"))
+
     def setPosition(self, position):
         self.PositionSpin.setValue(position)
         self.PositionSpin.defaultValue=position
@@ -295,8 +315,9 @@ class MotorWidget(QtGui.QWidget):
         self.Slider.setRange(low*1000,high*1000)
 
     def StateChanged(self, state):
-        self.State = state
-        self.parent.motorStatesChanged(self.parent.getState())
+        print "**************************Motor %s State Changed to %s*********************"%(self._MotorMne, state)
+        self.emit(QtCore.SIGNAL("motorStateChanged()"))
+#        self.parent.motorStatesChanged(self.parent.getState())
 
     def SliderReleased(self):
         self.PositionSpin.setValue(self.PositionSpin.defaultValue)
