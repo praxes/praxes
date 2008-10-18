@@ -52,7 +52,7 @@
           </property>
           <property name="icon" >
            <iconset resource="resources/gamepad.qrc" >
-            <normaloff>:/gamepad/icons/Arrow_northwest.svg</normaloff>:/gamepad/icons/Arrow_northwest.svg</iconset>
+            <normaloff>:/resources/gamepad/icons/Arrow_northwest.svg</normaloff>:/resources/gamepad/icons/Arrow_northwest.svg</iconset>
           </property>
           <property name="iconSize" >
            <size>
@@ -90,7 +90,7 @@
           </property>
           <property name="icon" >
            <iconset resource="resources/gamepad.qrc" >
-            <normaloff>:/gamepad/icons/Arrow_north.svg</normaloff>:/gamepad/icons/Arrow_north.svg</iconset>
+            <normaloff>:/resources/gamepad/icons/Arrow_north.svg</normaloff>:/resources/gamepad/icons/Arrow_north.svg</iconset>
           </property>
           <property name="iconSize" >
            <size>
@@ -140,7 +140,7 @@
           </property>
           <property name="icon" >
            <iconset resource="resources/gamepad.qrc" >
-            <normaloff>:/gamepad/icons/Arrow_northeast.svg</normaloff>:/gamepad/icons/Arrow_northeast.svg</iconset>
+            <normaloff>:/resources/gamepad/icons/Arrow_northeast.svg</normaloff>:/resources/gamepad/icons/Arrow_northeast.svg</iconset>
           </property>
           <property name="iconSize" >
            <size>
@@ -181,7 +181,7 @@
           </property>
           <property name="icon" >
            <iconset resource="resources/gamepad.qrc" >
-            <normaloff>:/gamepad/icons/Arrow_west.svg</normaloff>:/gamepad/icons/Arrow_west.svg</iconset>
+            <normaloff>:/resources/gamepad/icons/Arrow_west.svg</normaloff>:/resources/gamepad/icons/Arrow_west.svg</iconset>
           </property>
           <property name="iconSize" >
            <size>
@@ -222,7 +222,7 @@
           </property>
           <property name="icon" >
            <iconset resource="resources/gamepad.qrc" >
-            <normaloff>:/gamepad/icons/Stop_hand_nuvola.svg</normaloff>:/gamepad/icons/Stop_hand_nuvola.svg</iconset>
+            <normaloff>:/resources/gamepad/icons/Stop_hand_nuvola.svg</normaloff>:/resources/gamepad/icons/Stop_hand_nuvola.svg</iconset>
           </property>
           <property name="iconSize" >
            <size>
@@ -263,7 +263,7 @@
           </property>
           <property name="icon" >
            <iconset resource="resources/gamepad.qrc" >
-            <normaloff>:/gamepad/icons/Arrow_east.svg</normaloff>:/gamepad/icons/Arrow_east.svg</iconset>
+            <normaloff>:/resources/gamepad/icons/Arrow_east.svg</normaloff>:/resources/gamepad/icons/Arrow_east.svg</iconset>
           </property>
           <property name="iconSize" >
            <size>
@@ -304,7 +304,7 @@
           </property>
           <property name="icon" >
            <iconset resource="resources/gamepad.qrc" >
-            <normaloff>:/gamepad/icons/Arrow_southwest.svg</normaloff>:/gamepad/icons/Arrow_southwest.svg</iconset>
+            <normaloff>:/resources/gamepad/icons/Arrow_southwest.svg</normaloff>:/resources/gamepad/icons/Arrow_southwest.svg</iconset>
           </property>
           <property name="iconSize" >
            <size>
@@ -342,7 +342,7 @@
           </property>
           <property name="icon" >
            <iconset resource="resources/gamepad.qrc" >
-            <normaloff>:/gamepad/icons/Arrow_south.svg</normaloff>:/gamepad/icons/Arrow_south.svg</iconset>
+            <normaloff>:/resources/gamepad/icons/Arrow_south.svg</normaloff>:/resources/gamepad/icons/Arrow_south.svg</iconset>
           </property>
           <property name="iconSize" >
            <size>
@@ -383,7 +383,7 @@
           </property>
           <property name="icon" >
            <iconset resource="resources/gamepad.qrc" >
-            <normaloff>:/gamepad/icons/Arrow_southeast.svg</normaloff>:/gamepad/icons/Arrow_southeast.svg</iconset>
+            <normaloff>:/resources/gamepad/icons/Arrow_southeast.svg</normaloff>:/resources/gamepad/icons/Arrow_southeast.svg</iconset>
           </property>
           <property name="iconSize" >
            <size>

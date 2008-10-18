@@ -88,10 +88,12 @@ def ui_cvt(arg, dirname, fnames):
             ui = '/'.join([dirname, fname])
             py = os.path.splitext(ui)[0]+'.py'
             os.system('pyuic4 -o %s %s'%(py, ui))
+            print 'converted %s'%fname
         elif fname.endswith('.qrc'):
             rc = '/'.join([dirname, fname])
-            py = os.path.splitext(rc)[0]+'.py'
+            py = os.path.splitext(rc)[0]+'_rc.py'
             os.system('pyrcc4 -o %s %s'%(py, rc))
+            print 'converted %s'%fname
 
 if 'build' in sys.argv or 'install' in sys.argv:
 

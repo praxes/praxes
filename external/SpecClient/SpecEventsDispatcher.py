@@ -69,14 +69,6 @@ class EventsQueue(Queue.Queue):
 
     def get(self):
         """Remove and return an item from the queue."""
-#        self.mutex.acquire()
-#
-#        try:
-#            event = self._get()
-#        finally:
-#            self.mutex.release()
-#
-#        return event
         try:
             return Queue.Queue.get(self, False)
         except Queue.Empty:
@@ -102,9 +94,7 @@ class EventsQueue(Queue.Queue):
 
                 self._put( (r, event.args) )
         finally:
-            print 10
             self.mutex.release()
-            print 11
 
 
 class BoundMethodWeakRef(object):

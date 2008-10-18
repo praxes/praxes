@@ -81,7 +81,6 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
         self.specRunner = SpecRunner(self.getSpecVersion(), timeout=500)
 
     def connectToSpec(self):
-        print USESSH, self.ssh
         if USESSH and not self.ssh:
             self.ssh = sshdialog.SshDialog(self.parent()).exec_()
             if not self.ssh: return
