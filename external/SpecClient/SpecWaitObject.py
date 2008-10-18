@@ -26,15 +26,15 @@ import SpecConnectionsManager
 
 def waitFunc(timeout):
   """Waiting function
-  
+
   Arguments:
   timeout -- waiting time in milliseconds
   """
   time.sleep(timeout/1000.0)
-    
-  
+
+
 class SpecWaitObject:
-    """Helper class for waiting specific events from Spec"""       
+    """Helper class for waiting specific events from Spec"""
     def __init__(self, connection):
         """Constructor
 
@@ -45,14 +45,14 @@ class SpecWaitObject:
         self.isdisconnected = True
         self.channelWasUnregistered = False
         self.value = None
-    
+
         SpecEventsDispatcher.connect(connection, 'connected', self.connected)
         SpecEventsDispatcher.connect(connection, 'disconnected', self.disconnected)
-        
+
         if connection.isSpecConnected():
             self.connected()
-            
-         
+
+
     def connected(self):
         """Callback triggered by a 'connected' event."""
         self.isdisconnected = False
@@ -61,7 +61,7 @@ class SpecWaitObject:
     def disconnected(self):
         """Callback triggered by a 'disconnected' event."""
         self.isdisconnected = True
-    
+
 
     def waitReply(self, command, argsTuple, timeout = None):
         """Wait for a reply from Spec
@@ -83,7 +83,7 @@ class SpecWaitObject:
                     func(*argsTuple)
 
                 self.wait(timeout = timeout)
-                               
+
 
     def waitChannelUpdate(self, chanName, waitValue = None, timeout = None):
         """Wait for a channel update
@@ -106,10 +106,10 @@ class SpecWaitObject:
                 SpecEventsDispatcher.connect(channel, 'valueChanged', self.channelUpdated)
 
             self.wait(waitValue = waitValue, timeout = timeout)
-            
+
             if self.channelWasUnregistered:
                 connection.unregisterChannel(chanName) #channel.unregister()
-                            
+
 
     def waitConnection(self, timeout = None):
         """Wait for the connection to Spec being established
@@ -127,14 +127,13 @@ class SpecWaitObject:
 
             while self.isdisconnected:
                 SpecEventsDispatcher.dispatch()
-                
+
                 t0 = time.time()
                 waitFunc(10)
-                t += (time.time() - t0)*1000                    
+                t += (time.time() - t0)*1000
 
                 if timeout is not None and t >= timeout:
                     raise SpecClientTimeoutError
-                                    
 
     def wait(self, waitValue = None, timeout = None):
         """Block until the object's internal value gets updated
@@ -149,7 +148,7 @@ class SpecWaitObject:
         t = 0
         while not self.isdisconnected:
             SpecEventsDispatcher.dispatch()
-                    
+
             if self.value is not None:
                 if waitValue is None:
                     return
@@ -159,13 +158,13 @@ class SpecWaitObject:
                 else:
                     self.value = None
 
-            if self.value is None:               
-                t0 = time.time() 
+            if self.value is None:
+                t0 = time.time()
                 waitFunc(10) # 10 ms.
                 t += (time.time() - t0)*1000
 
                 if timeout is not None and t >= timeout:
-                    raise SpecClientTimeoutError 
+                    raise SpecClientTimeoutError
 
             try:
               P = getattr(SpecConnectionsManager.SpecConnectionsManager(), "poll")
@@ -173,12 +172,12 @@ class SpecWaitObject:
               pass
             else:
               P()
-                
-                    
+
+
     def replyArrived(self, reply):
         """Callback triggered by a reply from Spec."""
         self.value = reply.getValue()
-        
+
         if reply.error:
             raise SpecClientError('Server request did not complete: %s' % self.value, reply.error_code)
 
@@ -208,12 +207,12 @@ def waitConnection(connection, timeout = None):
     if type(connection) in (types.UnicodeType, types.StringType):
       from SpecClient.SpecConnectionsManager import SpecConnectionsManager
       connection = SpecConnectionsManager().getConnection(str(connection))
-      
+
     w = SpecWaitObject(connection)
 
     w.waitConnection(timeout = timeout)
 
-    
+
 def waitChannelUpdate(chanName, connection, waitValue = None, timeout = None):
     """Wait for a channel to be updated
 

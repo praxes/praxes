@@ -11,7 +11,7 @@ import time
 class SpecClientDispatcherError(exceptions.Exception):
     def __init__(self, args=None):
         self.args = args
-        
+
 
 def robustApply(slot, arguments = ()):
     """Call slot with appropriate number of arguments"""
@@ -29,25 +29,25 @@ def robustApply(slot, arguments = ()):
             n_args = slot.func_code.co_argcount
         except:
             raise SpecClientDispatcherError, 'Unknown slot type %s %s' % (repr(slot), type(slot))
-            
+
     if len(arguments) < n_args:
         raise SpecClientDispatcherError, 'Not enough arguments for calling slot %s (need: %d, given: %d)' % (repr(slot), n_args, len(arguments))
     else:
         return slot(*arguments[0:n_args])
-          
-    
+
+
 class Receiver:
     def __init__(self, weakReceiver, dispatchMode):
         self.weakReceiver = weakReceiver
         self.dispatchMode = dispatchMode
 
-        
+
     def __call__(self, arguments):
         slot = self.weakReceiver() #get the strong reference
 
         if slot is not None:
             return robustApply(slot, arguments)
-        
+
 
 class Event:
     def __init__(self, sender, signal, arguments):
@@ -55,12 +55,12 @@ class Event:
         senderId = id(sender)
         signal = str(signal)
         self.args = arguments
-                
+
         try:
             self.receivers = connections[senderId][signal]
         except:
             pass
-                   
+
 
 class EventsQueue(Queue.Queue):
     def __init__(self):
@@ -69,23 +69,27 @@ class EventsQueue(Queue.Queue):
 
     def get(self):
         """Remove and return an item from the queue."""
-        self.mutex.acquire()
-        
+#        self.mutex.acquire()
+#
+#        try:
+#            event = self._get()
+#        finally:
+#            self.mutex.release()
+#
+#        return event
         try:
-            event = self._get()
-        finally:
-            self.mutex.release()
+            return Queue.Queue.get(self, False)
+        except Queue.Empty:
+            raise IndexError
 
-        return event
-    
-        
+
     def put(self, event):
         """Put an event into the queue."""
         receiversList = event.receivers
 
-        self.mutex.acquire() 
+        self.mutex.acquire()
         try:
-            was_empty = self._empty()
+            was_empty = not len(self.queue)
 
             for r in receiversList:
                 if not was_empty:
@@ -95,10 +99,12 @@ class EventsQueue(Queue.Queue):
                             if r == _r:
                                 del self.queue[i]
                                 break
-                            
-                self._put( (r, event.args) ) 
+
+                self._put( (r, event.args) )
         finally:
+            print 10
             self.mutex.release()
+            print 11
 
 
 class BoundMethodWeakRef(object):
@@ -132,7 +138,7 @@ class BoundMethodWeakRef(object):
                         short-circuit creation so that multiple references
                         to the same (object, function) pair produce the
                         same BoundMethodWeakref instance.
-                
+
         """
         _allInstances = weakref.WeakValueDictionary()
         def __new__( cls, target, onDelete=None, *arguments,**named ):
@@ -179,7 +185,7 @@ class BoundMethodWeakRef(object):
                         del self.__class__._allInstances[ self.key ]
                     except KeyError:
                         pass
-                    
+
                     for function in methods:
                         try:
                             if callable( function ):
@@ -252,7 +258,7 @@ def callableObjectRef(object):
 
 def connect(sender, signal, slot, dispatchMode = UPDATEVALUE):
     if sender is None or signal is None:
-        return 
+        return
 
     if not callable(slot):
         return
@@ -260,7 +266,7 @@ def connect(sender, signal, slot, dispatchMode = UPDATEVALUE):
     senderId = id(sender)
     signal = str(signal)
     signals = {}
-    
+
     if senderId in connections:
         signals = connections[senderId]
     else:
@@ -268,7 +274,7 @@ def connect(sender, signal, slot, dispatchMode = UPDATEVALUE):
 
     def remove(object, senderId=senderId):
         _removeSender(senderId)
-        
+
     try:
         weakSender = weakref.ref(sender, remove)
         senders[senderId] = weakSender
@@ -276,7 +282,7 @@ def connect(sender, signal, slot, dispatchMode = UPDATEVALUE):
         pass
 
     receivers = []
-        
+
     if signal in signals:
         receivers = signals[signal]
     else:
@@ -288,9 +294,9 @@ def connect(sender, signal, slot, dispatchMode = UPDATEVALUE):
         if r.weakReceiver == weakReceiver:
             r.dispatchMode = dispatchMode
             return
-        
+
     receivers.append(Receiver(weakReceiver, dispatchMode))
-    
+
 
 def disconnect(sender, signal, slot):
     if sender is None or signal is None:
@@ -301,7 +307,7 @@ def disconnect(sender, signal, slot):
 
     senderId = id(sender)
     signal = str(signal)
-    
+
     try:
         signals = connections[senderId]
     except KeyError:
@@ -323,8 +329,8 @@ def disconnect(sender, signal, slot):
                 receivers.remove(toDel)
 
                 _cleanupConnections(senderId, signal)
-                
-            
+
+
 def emit(sender, signal, arguments = ()):
     eventsToDispatch.put(Event(sender, signal, arguments))
 
@@ -340,15 +346,15 @@ def dispatch():
             receiver(args)
             if (time.time()-t0) >= 1:
               break
-            
-        
+
+
 def _removeSender(senderId):
     try:
         del connections[senderId]
         del senders[senderId]
     except KeyError:
          pass
-     
+
 
 def _removeReceiver(weakReceiver):
     """Remove receiver from connections"""
@@ -361,7 +367,7 @@ def _removeReceiver(weakReceiver):
                     receivers.remove(r)
                     break
 
-            _cleanupConnections(senderId, signal)                
+            _cleanupConnections(senderId, signal)
 
 
 def _cleanupConnections(senderId, signal):

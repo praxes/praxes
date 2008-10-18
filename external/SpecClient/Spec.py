@@ -40,29 +40,29 @@ class Spec:
         timeout -- optional connection timeout (defaults to None)
         """
         self.specVersion = specVersion
-        
+
         self.connection = SpecConnectionsManager.SpecConnectionsManager().getConnection(specVersion)
 
         w = SpecWaitObject.SpecWaitObject(self.connection)
         w.waitConnection(timeout)
-        
-     
+
+
     def __getattr__(self, attr):
         if attr.startswith('__'):
             raise AttributeError
-        
+
         return SpecCommand.SpecCommand(attr, self.connection)
-  
-        
+
+
     def getMotorsMne(self):
         """Return motors mnemonics list."""
         if self.connection is not None and self.connection.isSpecConnected():
             get_motor_mnemonics = SpecCommand.SpecCommand('local md[]; for (i=0; i<MOTORS; i++) { md[i][motor_mne(i)]=motor_name(i) }; return md', self.connection)
-            
+
             return get_motor_mnemonics()
         else:
             return {}
-        
+
 
     def getVersion(self):
         if self.connection is not None:
@@ -76,7 +76,7 @@ class Spec:
             nameChannel = self.connection.getChannel('var/SPEC')
 
             return nameChannel.read()
-        
+
 
 
 
