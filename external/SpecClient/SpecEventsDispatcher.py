@@ -81,7 +81,7 @@ class EventsQueue(Queue.Queue):
 
         self.mutex.acquire()
         try:
-            was_empty = not len(self.queue)
+            was_empty = not self._qsize()
 
             for r in receiversList:
                 if not was_empty:
