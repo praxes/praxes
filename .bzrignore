@@ -4,6 +4,8 @@ syntax: glob
 *.pyc
 ui_*.py
 *~
+.coverage
+.eric4project/
 .ropeproject/
 build/
 dist/
@@ -15,3 +17,5 @@ doc/_static/
 doc/_templates/
 doc/math.*
 xpaxs/frontends/base/ui/resources/*.py
+xpaxs/instrumentation/spec/ui/resources/*.py
+xpaxs/instrumentation/spec/ui/gamepad_rc.py
