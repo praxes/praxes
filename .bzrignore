@@ -15,3 +15,4 @@ doc/_static/
 doc/_templates/
 doc/math.*
 xpaxs/frontends/base/ui/resources/*.py
+xpaxs/instrumentation/spec/ui/gamepad_rc.py

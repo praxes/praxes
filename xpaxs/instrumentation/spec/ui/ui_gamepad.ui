@@ -1,12 +1,12 @@
 <ui version="4.0" >
- <class>Pad</class>
- <widget class="QWidget" name="Pad" >
+ <class>GamePad</class>
+ <widget class="QWidget" name="GamePad" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>553</width>
-    <height>274</height>
+    <width>744</width>
+    <height>396</height>
    </rect>
   </property>
   <property name="focusPolicy" >
@@ -34,7 +34,7 @@
        </property>
        <layout class="QGridLayout" >
         <item row="0" column="2" >
-         <widget class="QPushButton" name="urButton" >
+         <widget class="QPushButton" name="northeastButton" >
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -75,7 +75,7 @@
          </widget>
         </item>
         <item row="1" column="0" >
-         <widget class="QPushButton" name="leftButton" >
+         <widget class="QPushButton" name="westButton" >
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -116,7 +116,7 @@
          </widget>
         </item>
         <item row="1" column="1" >
-         <widget class="QPushButton" name="centerButton" >
+         <widget class="QPushButton" name="stopButton" >
           <property name="enabled" >
            <bool>true</bool>
           </property>
@@ -163,7 +163,7 @@
          </widget>
         </item>
         <item row="1" column="2" >
-         <widget class="QPushButton" name="rightButton" >
+         <widget class="QPushButton" name="eastButton" >
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -207,7 +207,7 @@
          </widget>
         </item>
         <item row="2" column="0" >
-         <widget class="QPushButton" name="dlButton" >
+         <widget class="QPushButton" name="southwestButton" >
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -248,7 +248,7 @@
          </widget>
         </item>
         <item row="2" column="1" >
-         <widget class="QPushButton" name="downButton" >
+         <widget class="QPushButton" name="southButton" >
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -292,7 +292,7 @@
          </widget>
         </item>
         <item row="2" column="2" >
-         <widget class="QPushButton" name="drButton" >
+         <widget class="QPushButton" name="southeastButton" >
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -339,7 +339,7 @@
          </widget>
         </item>
         <item row="0" column="0" >
-         <widget class="QPushButton" name="ulButton" >
+         <widget class="QPushButton" name="northwestButton" >
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -380,7 +380,7 @@
          </widget>
         </item>
         <item row="0" column="1" >
-         <widget class="QPushButton" name="upButton" >
+         <widget class="QPushButton" name="northButton" >
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -433,15 +433,15 @@
          </widget>
         </item>
        </layout>
-       <zorder>urButton</zorder>
-       <zorder>leftButton</zorder>
-       <zorder>centerButton</zorder>
-       <zorder>rightButton</zorder>
-       <zorder>dlButton</zorder>
-       <zorder>downButton</zorder>
-       <zorder>drButton</zorder>
-       <zorder>upButton</zorder>
-       <zorder>ulButton</zorder>
+       <zorder>northeastButton</zorder>
+       <zorder>westButton</zorder>
+       <zorder>stopButton</zorder>
+       <zorder>eastButton</zorder>
+       <zorder>southwestButton</zorder>
+       <zorder>southButton</zorder>
+       <zorder>southeastButton</zorder>
+       <zorder>northButton</zorder>
+       <zorder>northwestButton</zorder>
       </widget>
      </item>
      <item>
@@ -462,198 +462,30 @@
         <enum>QFrame::Raised</enum>
        </property>
        <layout class="QVBoxLayout" >
+        <property name="spacing" >
+         <number>0</number>
+        </property>
+        <property name="margin" >
+         <number>0</number>
+        </property>
         <item>
-         <widget class="QGroupBox" name="lrGroupBox" >
-          <property name="title" >
-           <string>L/R Motor</string>
+         <spacer name="verticalSpacer_2" >
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
           </property>
-          <layout class="QGridLayout" >
-           <property name="verticalSpacing" >
-            <number>0</number>
-           </property>
-           <property name="margin" >
-            <number>0</number>
-           </property>
-           <item row="0" column="0" colspan="2" >
-            <widget class="QComboBox" name="lrNameBox" >
-             <property name="sizePolicy" >
-              <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize" >
-              <size>
-               <width>125</width>
-               <height>0</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2" >
-            <widget class="QDoubleSpinBox" name="lrSpin" >
-             <property name="minimumSize" >
-              <size>
-               <width>100</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="cursor" >
-              <cursorShape>IBeamCursor</cursorShape>
-             </property>
-             <property name="buttonSymbols" >
-              <enum>QAbstractSpinBox::PlusMinus</enum>
-             </property>
-             <property name="suffix" >
-              <string> mm</string>
-             </property>
-             <property name="minimum" >
-              <double>-9999999999999999827367757839185598317239782875580932278577147150336.000000000000000</double>
-             </property>
-             <property name="maximum" >
-              <double>9999999999999999827367757839185598317239782875580932278577147150336.000000000000000</double>
-             </property>
-             <property name="value" >
-              <double>0.100000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="2" >
-            <widget class="QSlider" name="lrSlider" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2" >
-            <widget class="QDoubleSpinBox" name="lrPositionSpin" >
-             <property name="minimumSize" >
-              <size>
-               <width>100</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="buttonSymbols" >
-              <enum>QAbstractSpinBox::UpDownArrows</enum>
-             </property>
-             <property name="prefix" >
-              <string/>
-             </property>
-             <property name="minimum" >
-              <double>-2000000000.000000000000000</double>
-             </property>
-             <property name="maximum" >
-              <double>2000000000.000000000000000</double>
-             </property>
-             <property name="defaultValue" stdset="0" >
-              <double>0.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
+          <property name="sizeHint" stdset="0" >
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
         <item>
-         <widget class="QGroupBox" name="udGroupBox" >
-          <property name="title" >
-           <string>U/D Motor</string>
+         <widget class="QPushButton" name="moveButton" >
+          <property name="text" >
+           <string>Move</string>
           </property>
-          <property name="flat" >
-           <bool>false</bool>
-          </property>
-          <property name="checkable" >
-           <bool>false</bool>
-          </property>
-          <layout class="QGridLayout" >
-           <property name="verticalSpacing" >
-            <number>0</number>
-           </property>
-           <property name="margin" >
-            <number>0</number>
-           </property>
-           <item row="0" column="0" >
-            <widget class="QComboBox" name="udNameBox" >
-             <property name="sizePolicy" >
-              <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize" >
-              <size>
-               <width>125</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="cursor" >
-              <cursorShape>ArrowCursor</cursorShape>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1" >
-            <widget class="QDoubleSpinBox" name="udSpin" >
-             <property name="sizePolicy" >
-              <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize" >
-              <size>
-               <width>100</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="cursor" >
-              <cursorShape>IBeamCursor</cursorShape>
-             </property>
-             <property name="buttonSymbols" >
-              <enum>QAbstractSpinBox::PlusMinus</enum>
-             </property>
-             <property name="suffix" >
-              <string> mm</string>
-             </property>
-             <property name="minimum" >
-              <double>-9999999999999999827367757839185598317239782875580932278577147150336.000000000000000</double>
-             </property>
-             <property name="maximum" >
-              <double>9999999999999999827367757839185598317239782875580932278577147150336.000000000000000</double>
-             </property>
-             <property name="value" >
-              <double>0.100000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" >
-            <widget class="QSlider" name="udSlider" >
-             <property name="orientation" >
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1" >
-            <widget class="QDoubleSpinBox" name="udPositionSpin" >
-             <property name="minimumSize" >
-              <size>
-               <width>100</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="minimum" >
-              <double>-2000000000.000000000000000</double>
-             </property>
-             <property name="maximum" >
-              <double>2000000000.000000000000000</double>
-             </property>
-             <property name="defaultValue" stdset="0" >
-              <double>0.000000000000000</double>
-             </property>
-             <property name="returned" stdset="0" >
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
          </widget>
         </item>
        </layout>
@@ -678,7 +510,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="positionBox" >
+       <widget class="QComboBox" name="savedPosComboBox" >
         <property name="sizePolicy" >
          <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
           <horstretch>0</horstretch>
@@ -692,26 +524,29 @@
          </size>
         </property>
         <property name="editable" >
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <item>
          <property name="text" >
-          <string/>
+          <string>Home</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>Start</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>End</string>
          </property>
         </item>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="saveButton" >
+       <widget class="QPushButton" name="savePosButton" >
         <property name="text" >
          <string>Save</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="loadButton" >
-        <property name="text" >
-         <string>Go to</string>
         </property>
        </widget>
       </item>
@@ -728,12 +563,8 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>lrNameBox</tabstop>
-  <tabstop>udNameBox</tabstop>
-  <tabstop>udSpin</tabstop>
-  <tabstop>positionBox</tabstop>
-  <tabstop>saveButton</tabstop>
-  <tabstop>loadButton</tabstop>
+  <tabstop>savedPosComboBox</tabstop>
+  <tabstop>savePosButton</tabstop>
   <tabstop>delButton</tabstop>
  </tabstops>
  <resources>

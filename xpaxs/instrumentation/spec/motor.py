@@ -57,13 +57,13 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
 
     def motorLimitsChanged(self):
         limits = self.getLimits()
-        self.emit(QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
+        self.emit(QtCore.SIGNAL("limitsChanged(PyQt_PyObject)"),
                   limits)
         logger.debug("Motor %s limits changed to (%s,%s)",self.specName,
                                                            limits[0],limits[1])
 
     def motorPositionChanged(self, absolutePosition):
-        self.emit(QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
+        self.emit(QtCore.SIGNAL("positionChanged(PyQt_PyObject)"),
                   absolutePosition)
         logger.debug("Motor %s position changed to %s",self.specName,
                                                            absolutePosition)
@@ -73,7 +73,7 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
 
     def motorStateChanged(self, state):
         state = self.__state_strings[state]
-        self.emit(QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
+        self.emit(QtCore.SIGNAL("stateChanged(PyQt_PyObject)"),
                   state)
         logger.debug( "Motor %s state changed to %s",self.specName, state)
 
