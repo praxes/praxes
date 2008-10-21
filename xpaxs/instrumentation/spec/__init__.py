@@ -24,8 +24,8 @@ from xpaxs import config
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logfile = os.path.join(config.getUserConfigDir(), 'specclient.log')
-SpecClient.setLogFile(logfile)
+#logfile = os.path.join(config.getUserConfigDir(), 'specclient.log')
+#SpecClient.setLogFile(logfile)
 
 TEST_SPEC = False
 USESSH = False

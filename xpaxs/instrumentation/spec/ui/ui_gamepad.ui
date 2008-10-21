@@ -105,7 +105,7 @@
            <string>4, Left</string>
           </property>
           <property name="autoRepeat" >
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="autoExclusive" >
            <bool>false</bool>
@@ -338,47 +338,6 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="0" >
-         <widget class="QPushButton" name="northwestButton" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize" >
-           <size>
-            <width>30</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="text" >
-           <string/>
-          </property>
-          <property name="icon" >
-           <iconset resource="gamepad.qrc" >
-            <normaloff>:/resources/gamepad/icons/Arrow_northwest.svg</normaloff>:/resources/gamepad/icons/Arrow_northwest.svg</iconset>
-          </property>
-          <property name="iconSize" >
-           <size>
-            <width>40</width>
-            <height>40</height>
-           </size>
-          </property>
-          <property name="shortcut" >
-           <string>7, Home</string>
-          </property>
-          <property name="autoRepeat" >
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive" >
-           <bool>false</bool>
-          </property>
-          <property name="autoRepeatInterval" >
-           <number>400</number>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="1" >
          <widget class="QPushButton" name="northButton" >
           <property name="sizePolicy" >
@@ -429,6 +388,47 @@
           </property>
           <property name="flat" >
            <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" >
+         <widget class="QPushButton" name="northwestButton" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>30</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string/>
+          </property>
+          <property name="icon" >
+           <iconset resource="gamepad.qrc" >
+            <normaloff>:/resources/gamepad/icons/Arrow_northwest.svg</normaloff>:/resources/gamepad/icons/Arrow_northwest.svg</iconset>
+          </property>
+          <property name="iconSize" >
+           <size>
+            <width>40</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="shortcut" >
+           <string>7, Home</string>
+          </property>
+          <property name="autoRepeat" >
+           <bool>true</bool>
+          </property>
+          <property name="autoExclusive" >
+           <bool>false</bool>
+          </property>
+          <property name="autoRepeatInterval" >
+           <number>400</number>
           </property>
          </widget>
         </item>

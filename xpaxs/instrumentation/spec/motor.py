@@ -46,7 +46,7 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
 
     def __init__(self, specName=None, specVersion=None):
         QtCore.QObject.__init__(self)
-        SpecMotor.SpecMotorA.__init__(self, specName, specVersion)
+        SpecMotor.SpecMotorA.__init__(self, str(specName), str(specVersion))
         self.getPosition()
 
     def connected(self):

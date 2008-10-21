@@ -117,7 +117,7 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
         return self._datafile
 
     def __call__(self, command):
-        logger.debug( "executing %s",command)
+        logger.debug("executing %s",command)
         self.acmd.executeCommand(command)
 
     def close(self):

@@ -53,7 +53,7 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.mdi = QtGui.QMdiArea()
         self.setCentralWidget(self.mdi)
 
-        
+
         self.expInterface = None
         self.openScans = []
 
@@ -85,7 +85,7 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
     def _setupEmailDlg(self):
         self.menuSettings.addAction("Email Settings",self._startEmailDlg )
-        
+
     def _startEmailDlg(self):
         email = EmailDialog(self).show()
 

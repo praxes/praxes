@@ -172,7 +172,7 @@ class SpecInterface(QtCore.QObject):
                      self.mainWindow.statusBar.removeWidget)
 
     def _configureGamepad(self):
-        from xpaxs.instrumentation.spec.gamepad import Pad as GamePad
+        from xpaxs.instrumentation.spec.gamepad import GamePad
         self.gamepad=GamePad(self.specRunner)
         self.addDockWidget(self.gamepad, 'Game Pad',
                    QtCore.Qt.LeftDockWidgetArea|
