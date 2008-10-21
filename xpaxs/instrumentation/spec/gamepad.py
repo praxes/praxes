@@ -2,16 +2,13 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import os
-import sys
-import time
-from math import ceil
+
+
 #---------------------------------------------------------------------------
 # Extlib imports
 #---------------------------------------------------------------------------
 
 from PyQt4 import QtCore, QtGui
-
 
 #---------------------------------------------------------------------------
 # GUI imports
@@ -25,11 +22,6 @@ from xpaxs.instrumentation.spec.motorwidget import MotorWidget
 # Normal code begins
 #--------------------------------------------------------------------------
 
-'''Needs CHESS macro mmv and mmvr'''
-
-cmds = ('umvr %s %s','mmvr %s %s %s %s','mmv %s %s %s %s')
-
-
 
 class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
 
@@ -40,23 +32,26 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
         self.setupUi(self)
 
         self.setDefaultShortcuts()
-        self.positionDict = {}
+        self.locationDict = {}
+        self.nsEnabled = False
+        self.ewEnabled = False
 
         if specRunner:
             self.specRunner = specRunner
+
         elif not TEST_SPEC:
             from xpaxs.instrumentation.spec.specconnect import SpecConnect
             self.specRunner = SpecConnect()#.exec_()
+
         else:
             from xpaxs.instrumentation.spec.runner import TestSpecRunner
             self.specRunner = TestSpecRunner()
 
-        motorsMne = self.specRunner.getMotorsMne()
-        self.northSouthMotorWidget = MotorWidget(
-            'N/S Motor', motorsMne[0], specRunner, self
+        self._northSouthMotorWidget = MotorWidget(
+            'N/S Motor', specRunner, self
         )
-        self.eastWestMotorWidget = MotorWidget(
-            'E/W Motor', motorsMne[1], specRunner, self
+        self._eastWestMotorWidget = MotorWidget(
+            'E/W Motor', specRunner, self
         )
 
         self.vboxlayout1.insertWidget(0, self.eastWestMotorWidget)
@@ -65,13 +60,21 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
         self.connect(
             self.eastWestMotorWidget,
             QtCore.SIGNAL("stateChanged(PyQt_PyObject)"),
-            self.eastWestMotorStateChanged
+            self._eastWestMotorStateChanged
         )
         self.connect(
             self.northSouthMotorWidget,
             QtCore.SIGNAL("stateChanged(PyQt_PyObject)"),
-            self.northSouthMotorStateChanged
+            self._northSouthMotorStateChanged
         )
+
+    @property
+    def northSouthMotorWidget(self):
+        return self._northSouthMotorWidget
+
+    @property
+    def eastWestMotorWidget(self):
+        return self._eastWestMotorWidget
 
     def relativeMove(self, *args):
         self.specRunner( 'mvr ' + ' '.join( str(arg) for arg in args ) )
@@ -145,27 +148,20 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
         self.stopButton.setEnabled(False)
         self.specRunner.abort()
 
-#        self.connect(
-#            self.saveButton,
-#            QtCore.SIGNAL("pressed()"),
-#            self.savePosition
-#        )
-#        self.connect(
-#            self.moveButton,
-#            QtCore.SIGNAL("pressed()"),
-#            self.moveToPosition
-#        )
-#        self.connect(
-#            self.delButton,
-#            QtCore.SIGNAL("pressed()"),
-#            self.delPosition
-#        )
-#        self.connect(
-#            self.savedPosComboBox,
-#            QtCore.SIGNAL('currentIndexChanged(int)'),
-#            self.loadPosition
-#        )
-#
+    @QtCore.pyqtSignature("")
+    def on_moveButton_clicked(self):
+        args = []
+
+        if self.northSouthMotorWidget.motorMne:
+            args.append(self.northSouthMotorWidget.motorMne)
+            args.append(self.northSouthMotorWidget.nextPosition)
+
+        if self.eastWestMotorWidget.motorMne:
+            args.append(self.eastWestMotorWidget.motorMne)
+            args.append(self.eastWestMotorWidget.nextPosition)
+
+        self.specRunner( 'mv ' + ' '.join( str(arg) for arg in args ) )
+
     def setDefaultShortcuts(self):
         self.westButton.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Left))
         self.eastButton.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Right))
@@ -176,116 +172,73 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
         self.southwestButton.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_End))
         self.southeastButton.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_PageDown))
         self.stopButton.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space))
-#
-##    def setButtonShortcut(self,button,key):
-##        #I still need to implement Its use for customization
-##        button.setShortcut(QtGui.QKeySequence(key))
-#
 
-    def setButtonsEnabled(self, val):
-#        self.positionFrame.setEnabled(val)
-#        self.motorFrame.setEnabled(val)
-        self.eastButton.setEnabled(val)
-        self.westButton.setEnabled(val)
-        self.northButton.setEnabled(val)
-        self.southButton.setEnabled(val)
-        self.northwestButton.setEnabled(val)
-        self.northeastButton.setEnabled(val)
-        self.southwestButton.setEnabled(val)
-        self.southeastButton.setEnabled(val)
-        self.stopButton.setEnabled(not val)
-        # TODO: is this next line necessary? Yes, in Qt-4.4.1:
+    def _stateChanged(self, state):
+        self.stopButton.setEnabled(state == 'MOVING')
+        self.moveButton.setEnabled('READY' in state)
+
+        enabled = state in ('EWREADY', 'READY')
+        self.eastButton.setEnabled(enabled)
+        self.westButton.setEnabled(enabled)
+
+        enabled = state in ('NSREADY', 'READY')
+        self.northButton.setEnabled(enabled)
+        self.southButton.setEnabled(enabled)
+
+        enabled = state == 'READY'
+        self.northwestButton.setEnabled(enabled)
+        self.northeastButton.setEnabled(enabled)
+        self.southwestButton.setEnabled(enabled)
+        self.southeastButton.setEnabled(enabled)
+
+        # TODO: is this next line necessary? Not with Qt-4.4.2:
         QtGui.qApp.processEvents()
 
-#####MOTOR GUI INTERACTIONS######
+    def _northSouthMotorStateChanged(self, state):
 
-    def northSouthMotorStateChanged(self, state):
-        if state in ('READY', 'ONLIMIT'):
-            if self.eastWestMotorWidget.state in ('READY', 'ONLIMIT'):
-                self.setButtonsEnabled(True)
-                return
+        if state in ('NOTINITIALIZED', 'UNUSABLE') and \
+            self.eastWestMotorWidget.state in ('NOTINITIALIZED', 'UNUSABLE'):
+            self._stateChanged('UNUSABLE')
 
-        self.setButtonsEnabled(False)
+        elif state in ('MOVESTARTED', 'MOVING') or \
+            self.eastWestMotorWidget.state in ('MOVESTARTED', 'MOVING'):
+            self._stateChanged('MOVING')
 
-    @QtCore.pyqtSignature("PyQt_PyObject")
-    def eastWestMotorStateChanged(self, state):
-        if state in ('READY', 'ONLIMIT'):
-            if self.northSouthMotorWidget.state in ('READY', 'ONLIMIT'):
-                self.setButtonsEnabled(True)
-                return
+        elif state in ('READY', 'ONLIMIT') and \
+            self.eastWestMotorWidget.state in ('READY', 'ONLIMIT'):
+            self._stateChanged('READY')
 
-        self.setButtonsEnabled(False)
+        else:
+            self._stateChanged('NSREADY')
 
-#    def getState(self):
-#        if self.northSouthMotorWidget._MotorMne:
-#            udState = self.northSouthMotorWidget.getState()
-#        else:
-#            udState = 'NOTINITIALIZED'
-#
-#        if self.eastWestMotorWidget._MotorMne:
-#            lrState = self.eastWestMotorWidget.getState()
-#        else:
-#            lrState = 'NOTINITIALIZED'
-#        return [udState, lrState]
-#
-#    def motorStatesChanged(self, state):
-#        if (
-#            states[0] in ('READY', 'ONLIMIT') ) \
-#            and \
-#            (states[1] in ('READY', 'ONLIMIT') \
-#        ):
-#            print 'Both are READY'
-#            self.emit(QtCore.SIGNAL("motorReady()"))
-#            self.setButtons(True)
-#        else:
-#            print 'One or more are not READY'
-#            self.emit(QtCore.SIGNAL("motorActive()"))
-#            self.setButtons(False)
-#
-#####MOTOR ACTIONS#####
-#
+    def _eastWestMotorStateChanged(self, state):
 
+        if state in ('NOTINITIALIZED', 'UNUSABLE') and \
+            self.northSouthMotorWidget.state in ('NOTINITIALIZED', 'UNUSABLE'):
+            self._stateChanged('UNUSABLE')
 
+        elif state in ('MOVESTARTED', 'MOVING') or \
+            self.northSouthMotorWidget.state in ('MOVESTARTED', 'MOVING'):
+            self._stateChanged('MOVING')
 
+        elif state in ('READY', 'ONLIMIT') and \
+            self.northSouthMotorWidget.state in ('READY', 'ONLIMIT'):
+            self._stateChanged('READY')
+
+        else:
+            self._stateChanged('EWREADY')
+
+#    @QtCore.pyqtSignature("")
+#    def on_saveLocationButton_clicked(self):
+#        pass
 #
-#    def savePosition(self):
-#        ID = self.positionBox.currentText()
-#        if ID:
-#            self.positionDict[ID] = (
-#                self.northSouthMotorWidget._MotorMne,
-#                self.northSouthMotorWidget._Motor.getPosition(),
-#                self.eastWestMotorWidget._MotorMne,
-#                self.eastWestMotorWidget._Motor.getPosition()
-#            )
-#            if self.positionBox.findText(ID) == -1:
-#                self.positionBox.addItem(ID)
-#        self.positionBox.setCurrentIndex(0)
+#    @QtCore.pyqtSignature("QString")
+#    def on_savedLocationComboBox_currentIndexChanged(self, pos):
+#        pass
 #
-#    def loadPosition(self, index):
-#        ID = self.positionBox.currentText()
-#        if ID:
-#            UDmotor, UDposition, LRmotor, LRposition = self.positionDict[ID]
-#            self.northSouthMotorWidget.setMotor(UDmotor)
-#            self.eastWestMotorWidget.setMotor(LRmotor)
-#            self.northSouthMotorWidget.NameBox.setCurrentIndex(self.northSouthMotorWidget.NameBox.findText(UDmotor))
-#            self.eastWestMotorWidget.NameBox.setCurrentIndex(self.eastWestMotorWidget.NameBox.findText(LRmotor))
-#
-#    def moveToPosition(self):
-#        ID = self.positionBox.currentText()
-#        if ID:
-#            UDmotor, UD, LRmotor, LR = self.positionDict.get(ID)
-#            cmd = cmds[2]%(UDmotor,UD,LRmotor,LR)
-#            self.specRunner(cmd)
-#            self.positionBox.setCurrentIndex(0)
-#        else:
-#            udPosition = self.udSlider.value()*0.001
-#            lrPosition = self.lrSlider.value()*0.001
-#            self.move(2,udPosition,lrPosition)
-#        self.aborted = False
-#
-#    def delPosition(self):
-#        if self.positionBox.currentText():
-#            self.positionBox.removeItem(self.positionBox.currentIndex())
+#    @QtCore.pyqtSignature("")
+#    def on_deleteLocationButton_clicked(self):
+#        pass
 
 
 if __name__ == "__main__":

@@ -35,6 +35,9 @@
        <layout class="QGridLayout" >
         <item row="0" column="2" >
          <widget class="QPushButton" name="northeastButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -76,6 +79,9 @@
         </item>
         <item row="1" column="0" >
          <widget class="QPushButton" name="westButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -118,7 +124,7 @@
         <item row="1" column="1" >
          <widget class="QPushButton" name="stopButton" >
           <property name="enabled" >
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
@@ -164,6 +170,9 @@
         </item>
         <item row="1" column="2" >
          <widget class="QPushButton" name="eastButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -208,6 +217,9 @@
         </item>
         <item row="2" column="0" >
          <widget class="QPushButton" name="southwestButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -249,6 +261,9 @@
         </item>
         <item row="2" column="1" >
          <widget class="QPushButton" name="southButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -293,6 +308,9 @@
         </item>
         <item row="2" column="2" >
          <widget class="QPushButton" name="southeastButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -340,6 +358,9 @@
         </item>
         <item row="0" column="1" >
          <widget class="QPushButton" name="northButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -393,6 +414,9 @@
         </item>
         <item row="0" column="0" >
          <widget class="QPushButton" name="northwestButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
             <horstretch>0</horstretch>
@@ -433,15 +457,6 @@
          </widget>
         </item>
        </layout>
-       <zorder>northeastButton</zorder>
-       <zorder>westButton</zorder>
-       <zorder>stopButton</zorder>
-       <zorder>eastButton</zorder>
-       <zorder>southwestButton</zorder>
-       <zorder>southButton</zorder>
-       <zorder>southeastButton</zorder>
-       <zorder>northButton</zorder>
-       <zorder>northwestButton</zorder>
       </widget>
      </item>
      <item>
@@ -483,6 +498,9 @@
         </item>
         <item>
          <widget class="QPushButton" name="moveButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
           <property name="text" >
            <string>Move</string>
           </property>
