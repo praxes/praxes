@@ -167,10 +167,6 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
     def on_stopButton_clicked(self):
         self._stopMove()
 
-    @QtCore.pyqtSignature("")
-    def on_startScanButton_clicked(self):
-        pass
-
     # GUI state
 
     def _eastWestMotorStateChanged(self, state):

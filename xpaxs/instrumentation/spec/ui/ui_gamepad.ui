@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>297</width>
+    <width>212</width>
     <height>174</height>
    </rect>
   </property>
@@ -550,6 +550,16 @@
          </widget>
         </item>
        </layout>
+       <zorder>northwestButton</zorder>
+       <zorder>northButton</zorder>
+       <zorder>northeastButton</zorder>
+       <zorder>westButton</zorder>
+       <zorder>startStopButtonFrame</zorder>
+       <zorder>eastButton</zorder>
+       <zorder>southwestButton</zorder>
+       <zorder>southButton</zorder>
+       <zorder>southeastButton</zorder>
+       <zorder>startScanButton</zorder>
       </widget>
      </item>
      <item>
@@ -589,14 +599,11 @@
           </property>
          </spacer>
         </item>
-        <item>
-         <widget class="QPushButton" name="startScanButton" >
-          <property name="text" >
-           <string>Start Scan</string>
-          </property>
-         </widget>
-        </item>
        </layout>
+       <zorder>positionFrame</zorder>
+       <zorder>horizontalLayoutWidget</zorder>
+       <zorder>startScanButton</zorder>
+       <zorder>verticalSpacer</zorder>
       </widget>
      </item>
     </layout>
