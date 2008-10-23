@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>744</width>
-    <height>396</height>
+    <width>297</width>
+    <height>174</height>
    </rect>
   </property>
   <property name="focusPolicy" >
@@ -30,24 +30,30 @@
         <enum>QFrame::StyledPanel</enum>
        </property>
        <property name="frameShadow" >
-        <enum>QFrame::Raised</enum>
+        <enum>QFrame::Sunken</enum>
        </property>
-       <layout class="QGridLayout" >
-        <item row="0" column="2" >
-         <widget class="QPushButton" name="northeastButton" >
+       <layout class="QGridLayout" name="gridLayout" >
+        <property name="margin" >
+         <number>4</number>
+        </property>
+        <property name="spacing" >
+         <number>0</number>
+        </property>
+        <item row="0" column="0" >
+         <widget class="QPushButton" name="northwestButton" >
           <property name="enabled" >
            <bool>false</bool>
           </property>
           <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <property name="minimumSize" >
            <size>
-            <width>30</width>
-            <height>25</height>
+            <width>50</width>
+            <height>50</height>
            </size>
           </property>
           <property name="text" >
@@ -55,7 +61,7 @@
           </property>
           <property name="icon" >
            <iconset resource="gamepad.qrc" >
-            <normaloff>:/resources/gamepad/icons/Arrow_northeast.svg</normaloff>:/resources/gamepad/icons/Arrow_northeast.svg</iconset>
+            <normaloff>:/resources/gamepad/icons/Arrow_northwest.svg</normaloff>:/resources/gamepad/icons/Arrow_northwest.svg</iconset>
           </property>
           <property name="iconSize" >
            <size>
@@ -64,289 +70,13 @@
            </size>
           </property>
           <property name="shortcut" >
-           <string>PgUp, 9</string>
-          </property>
-          <property name="autoRepeat" >
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive" >
-           <bool>false</bool>
-          </property>
-          <property name="autoRepeatInterval" >
-           <number>400</number>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" >
-         <widget class="QPushButton" name="westButton" >
-          <property name="enabled" >
-           <bool>false</bool>
-          </property>
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize" >
-           <size>
-            <width>30</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="text" >
-           <string/>
-          </property>
-          <property name="icon" >
-           <iconset resource="gamepad.qrc" >
-            <normaloff>:/resources/gamepad/icons/Arrow_west.svg</normaloff>:/resources/gamepad/icons/Arrow_west.svg</iconset>
-          </property>
-          <property name="iconSize" >
-           <size>
-            <width>40</width>
-            <height>40</height>
-           </size>
-          </property>
-          <property name="shortcut" >
-           <string>4, Left</string>
-          </property>
-          <property name="autoRepeat" >
-           <bool>false</bool>
-          </property>
-          <property name="autoExclusive" >
-           <bool>false</bool>
-          </property>
-          <property name="autoRepeatInterval" >
-           <number>400</number>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1" >
-         <widget class="QPushButton" name="stopButton" >
-          <property name="enabled" >
-           <bool>false</bool>
-          </property>
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize" >
-           <size>
-            <width>30</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="text" >
-           <string/>
-          </property>
-          <property name="icon" >
-           <iconset resource="gamepad.qrc" >
-            <normaloff>:/resources/gamepad/icons/Stop_hand_nuvola.svg</normaloff>:/resources/gamepad/icons/Stop_hand_nuvola.svg</iconset>
-          </property>
-          <property name="iconSize" >
-           <size>
-            <width>40</width>
-            <height>40</height>
-           </size>
-          </property>
-          <property name="shortcut" >
-           <string>5, Space</string>
+           <string>7, Home</string>
           </property>
           <property name="checkable" >
-           <bool>false</bool>
-          </property>
-          <property name="autoRepeat" >
            <bool>true</bool>
           </property>
-          <property name="autoExclusive" >
-           <bool>false</bool>
-          </property>
-          <property name="autoRepeatInterval" >
-           <number>400</number>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2" >
-         <widget class="QPushButton" name="eastButton" >
-          <property name="enabled" >
-           <bool>false</bool>
-          </property>
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize" >
-           <size>
-            <width>30</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="text" >
-           <string/>
-          </property>
-          <property name="icon" >
-           <iconset resource="gamepad.qrc" >
-            <normaloff>:/resources/gamepad/icons/Arrow_east.svg</normaloff>:/resources/gamepad/icons/Arrow_east.svg</iconset>
-          </property>
-          <property name="iconSize" >
-           <size>
-            <width>40</width>
-            <height>40</height>
-           </size>
-          </property>
-          <property name="shortcut" >
-           <string>6, Right</string>
-          </property>
           <property name="autoRepeat" >
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive" >
            <bool>false</bool>
-          </property>
-          <property name="autoRepeatDelay" >
-           <number>300</number>
-          </property>
-          <property name="autoRepeatInterval" >
-           <number>400</number>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" >
-         <widget class="QPushButton" name="southwestButton" >
-          <property name="enabled" >
-           <bool>false</bool>
-          </property>
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize" >
-           <size>
-            <width>30</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="text" >
-           <string/>
-          </property>
-          <property name="icon" >
-           <iconset resource="gamepad.qrc" >
-            <normaloff>:/resources/gamepad/icons/Arrow_southwest.svg</normaloff>:/resources/gamepad/icons/Arrow_southwest.svg</iconset>
-          </property>
-          <property name="iconSize" >
-           <size>
-            <width>40</width>
-            <height>40</height>
-           </size>
-          </property>
-          <property name="shortcut" >
-           <string>1, End</string>
-          </property>
-          <property name="autoRepeat" >
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive" >
-           <bool>false</bool>
-          </property>
-          <property name="autoRepeatInterval" >
-           <number>400</number>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1" >
-         <widget class="QPushButton" name="southButton" >
-          <property name="enabled" >
-           <bool>false</bool>
-          </property>
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize" >
-           <size>
-            <width>30</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="text" >
-           <string/>
-          </property>
-          <property name="icon" >
-           <iconset resource="gamepad.qrc" >
-            <normaloff>:/resources/gamepad/icons/Arrow_south.svg</normaloff>:/resources/gamepad/icons/Arrow_south.svg</iconset>
-          </property>
-          <property name="iconSize" >
-           <size>
-            <width>40</width>
-            <height>40</height>
-           </size>
-          </property>
-          <property name="shortcut" >
-           <string>2</string>
-          </property>
-          <property name="autoRepeat" >
-           <bool>true</bool>
-          </property>
-          <property name="autoExclusive" >
-           <bool>false</bool>
-          </property>
-          <property name="autoRepeatDelay" >
-           <number>300</number>
-          </property>
-          <property name="autoRepeatInterval" >
-           <number>400</number>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2" >
-         <widget class="QPushButton" name="southeastButton" >
-          <property name="enabled" >
-           <bool>false</bool>
-          </property>
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize" >
-           <size>
-            <width>30</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="text" >
-           <string/>
-          </property>
-          <property name="icon" >
-           <iconset resource="gamepad.qrc" >
-            <normaloff>:/resources/gamepad/icons/Arrow_southeast.svg</normaloff>:/resources/gamepad/icons/Arrow_southeast.svg</iconset>
-          </property>
-          <property name="iconSize" >
-           <size>
-            <width>40</width>
-            <height>40</height>
-           </size>
-          </property>
-          <property name="shortcut" >
-           <string>3, PgDown</string>
-          </property>
-          <property name="checkable" >
-           <bool>false</bool>
-          </property>
-          <property name="checked" >
-           <bool>false</bool>
-          </property>
-          <property name="autoRepeat" >
-           <bool>true</bool>
           </property>
           <property name="autoExclusive" >
            <bool>false</bool>
@@ -362,15 +92,15 @@
            <bool>false</bool>
           </property>
           <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <property name="minimumSize" >
            <size>
-            <width>30</width>
-            <height>25</height>
+            <width>50</width>
+            <height>50</height>
            </size>
           </property>
           <property name="text" >
@@ -390,13 +120,13 @@
            <string>8</string>
           </property>
           <property name="checkable" >
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="checked" >
            <bool>false</bool>
           </property>
           <property name="autoRepeat" >
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="autoExclusive" >
            <bool>false</bool>
@@ -412,21 +142,21 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="0" >
-         <widget class="QPushButton" name="northwestButton" >
+        <item row="0" column="2" >
+         <widget class="QPushButton" name="northeastButton" >
           <property name="enabled" >
            <bool>false</bool>
           </property>
           <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <property name="minimumSize" >
            <size>
-            <width>30</width>
-            <height>25</height>
+            <width>50</width>
+            <height>50</height>
            </size>
           </property>
           <property name="text" >
@@ -434,7 +164,7 @@
           </property>
           <property name="icon" >
            <iconset resource="gamepad.qrc" >
-            <normaloff>:/resources/gamepad/icons/Arrow_northwest.svg</normaloff>:/resources/gamepad/icons/Arrow_northwest.svg</iconset>
+            <normaloff>:/resources/gamepad/icons/Arrow_northeast.svg</normaloff>:/resources/gamepad/icons/Arrow_northeast.svg</iconset>
           </property>
           <property name="iconSize" >
            <size>
@@ -443,10 +173,370 @@
            </size>
           </property>
           <property name="shortcut" >
-           <string>7, Home</string>
+           <string>PgUp, 9</string>
+          </property>
+          <property name="checkable" >
+           <bool>true</bool>
           </property>
           <property name="autoRepeat" >
+           <bool>false</bool>
+          </property>
+          <property name="autoExclusive" >
+           <bool>false</bool>
+          </property>
+          <property name="autoRepeatInterval" >
+           <number>400</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QPushButton" name="westButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>50</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string/>
+          </property>
+          <property name="icon" >
+           <iconset resource="gamepad.qrc" >
+            <normaloff>:/resources/gamepad/icons/Arrow_west.svg</normaloff>:/resources/gamepad/icons/Arrow_west.svg</iconset>
+          </property>
+          <property name="iconSize" >
+           <size>
+            <width>40</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="shortcut" >
+           <string>4, Left</string>
+          </property>
+          <property name="checkable" >
            <bool>true</bool>
+          </property>
+          <property name="autoRepeat" >
+           <bool>false</bool>
+          </property>
+          <property name="autoExclusive" >
+           <bool>false</bool>
+          </property>
+          <property name="autoRepeatInterval" >
+           <number>400</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QFrame" name="startStopButtonFrame" >
+          <property name="enabled" >
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape" >
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow" >
+           <enum>QFrame::Plain</enum>
+          </property>
+          <widget class="QPushButton" name="startButton" >
+           <property name="enabled" >
+            <bool>false</bool>
+           </property>
+           <property name="geometry" >
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>51</width>
+             <height>50</height>
+            </rect>
+           </property>
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize" >
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="baseSize" >
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+           <property name="icon" >
+            <iconset resource="gamepad.qrc" >
+             <normaloff>:/resources/gamepad/icons/Start.svg</normaloff>:/resources/gamepad/icons/Start.svg</iconset>
+           </property>
+           <property name="iconSize" >
+            <size>
+             <width>40</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="shortcut" >
+            <string>5, Space</string>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="stopButton" >
+           <property name="enabled" >
+            <bool>false</bool>
+           </property>
+           <property name="geometry" >
+            <rect>
+             <x>0</x>
+             <y>25</y>
+             <width>51</width>
+             <height>50</height>
+            </rect>
+           </property>
+           <property name="sizePolicy" >
+            <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize" >
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="text" >
+            <string/>
+           </property>
+           <property name="icon" >
+            <iconset resource="gamepad.qrc" >
+             <normaloff>:/resources/gamepad/icons/Stop.svg</normaloff>:/resources/gamepad/icons/Stop.svg</iconset>
+           </property>
+           <property name="iconSize" >
+            <size>
+             <width>40</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="shortcut" >
+            <string>5, Space</string>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item row="1" column="2" >
+         <widget class="QPushButton" name="eastButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>50</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="baseSize" >
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string/>
+          </property>
+          <property name="icon" >
+           <iconset resource="gamepad.qrc" >
+            <normaloff>:/resources/gamepad/icons/Arrow_east.svg</normaloff>:/resources/gamepad/icons/Arrow_east.svg</iconset>
+          </property>
+          <property name="iconSize" >
+           <size>
+            <width>40</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="shortcut" >
+           <string>6, Right</string>
+          </property>
+          <property name="checkable" >
+           <bool>true</bool>
+          </property>
+          <property name="autoRepeat" >
+           <bool>false</bool>
+          </property>
+          <property name="autoExclusive" >
+           <bool>false</bool>
+          </property>
+          <property name="autoRepeatDelay" >
+           <number>300</number>
+          </property>
+          <property name="autoRepeatInterval" >
+           <number>400</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" >
+         <widget class="QPushButton" name="southwestButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>50</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string/>
+          </property>
+          <property name="icon" >
+           <iconset resource="gamepad.qrc" >
+            <normaloff>:/resources/gamepad/icons/Arrow_southwest.svg</normaloff>:/resources/gamepad/icons/Arrow_southwest.svg</iconset>
+          </property>
+          <property name="iconSize" >
+           <size>
+            <width>40</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="shortcut" >
+           <string>1, End</string>
+          </property>
+          <property name="checkable" >
+           <bool>true</bool>
+          </property>
+          <property name="autoRepeat" >
+           <bool>false</bool>
+          </property>
+          <property name="autoExclusive" >
+           <bool>false</bool>
+          </property>
+          <property name="autoRepeatInterval" >
+           <number>400</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" >
+         <widget class="QPushButton" name="southButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>50</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string/>
+          </property>
+          <property name="icon" >
+           <iconset resource="gamepad.qrc" >
+            <normaloff>:/resources/gamepad/icons/Arrow_south.svg</normaloff>:/resources/gamepad/icons/Arrow_south.svg</iconset>
+          </property>
+          <property name="iconSize" >
+           <size>
+            <width>40</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="shortcut" >
+           <string>2</string>
+          </property>
+          <property name="checkable" >
+           <bool>true</bool>
+          </property>
+          <property name="autoRepeat" >
+           <bool>false</bool>
+          </property>
+          <property name="autoExclusive" >
+           <bool>false</bool>
+          </property>
+          <property name="autoRepeatDelay" >
+           <number>300</number>
+          </property>
+          <property name="autoRepeatInterval" >
+           <number>400</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2" >
+         <widget class="QPushButton" name="southeastButton" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize" >
+           <size>
+            <width>50</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string/>
+          </property>
+          <property name="icon" >
+           <iconset resource="gamepad.qrc" >
+            <normaloff>:/resources/gamepad/icons/Arrow_southeast.svg</normaloff>:/resources/gamepad/icons/Arrow_southeast.svg</iconset>
+          </property>
+          <property name="iconSize" >
+           <size>
+            <width>40</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="shortcut" >
+           <string>3, PgDown</string>
+          </property>
+          <property name="checkable" >
+           <bool>true</bool>
+          </property>
+          <property name="checked" >
+           <bool>false</bool>
+          </property>
+          <property name="autoRepeat" >
+           <bool>false</bool>
           </property>
           <property name="autoExclusive" >
            <bool>false</bool>
@@ -474,14 +564,14 @@
         <enum>QFrame::StyledPanel</enum>
        </property>
        <property name="frameShadow" >
-        <enum>QFrame::Raised</enum>
+        <enum>QFrame::Sunken</enum>
        </property>
        <layout class="QVBoxLayout" >
         <property name="spacing" >
-         <number>0</number>
+         <number>4</number>
         </property>
         <property name="margin" >
-         <number>0</number>
+         <number>4</number>
         </property>
         <item>
          <spacer name="verticalSpacer_2" >
@@ -497,12 +587,9 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="moveButton" >
-          <property name="enabled" >
-           <bool>false</bool>
-          </property>
+         <widget class="QPushButton" name="pushButton" >
           <property name="text" >
-           <string>Move</string>
+           <string>Start Scan</string>
           </property>
          </widget>
         </item>
@@ -511,80 +598,8 @@
      </item>
     </layout>
    </item>
-   <item>
-    <widget class="QFrame" name="positionFrame" >
-     <property name="frameShape" >
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow" >
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QHBoxLayout" >
-      <item>
-       <widget class="QLabel" name="label_4" >
-        <property name="text" >
-         <string>Position</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="savedPosComboBox" >
-        <property name="sizePolicy" >
-         <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize" >
-         <size>
-          <width>0</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="editable" >
-         <bool>false</bool>
-        </property>
-        <item>
-         <property name="text" >
-          <string>Home</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>Start</string>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>End</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="savePosButton" >
-        <property name="text" >
-         <string>Save</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="delButton" >
-        <property name="text" >
-         <string>Delete</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>savedPosComboBox</tabstop>
-  <tabstop>savePosButton</tabstop>
-  <tabstop>delButton</tabstop>
- </tabstops>
  <resources>
   <include location="gamepad.qrc" />
  </resources>

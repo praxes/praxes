@@ -5,14 +5,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>237</width>
-    <height>175</height>
+    <width>229</width>
+    <height>177</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3" >
+   <property name="margin" >
+    <number>0</number>
+   </property>
+   <property name="horizontalSpacing" >
+    <number>4</number>
+   </property>
    <item row="0" column="0" >
     <widget class="QGroupBox" name="groupBox" >
      <property name="title" >
@@ -21,7 +27,7 @@
      <property name="alignment" >
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2" >
+     <layout class="QGridLayout" name="gridLayout" >
       <item row="0" column="0" >
        <widget class="QLabel" name="directionLabel" >
         <property name="text" >
@@ -39,7 +45,7 @@
         </property>
         <property name="minimumSize" >
          <size>
-          <width>125</width>
+          <width>100</width>
           <height>0</height>
          </size>
         </property>
@@ -48,12 +54,28 @@
       <item row="1" column="0" >
        <widget class="QLabel" name="curPosLabel" >
         <property name="text" >
-         <string>Current Pos:</string>
+         <string>Current Position:</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1" >
-       <widget class="QLineEdit" name="posLineEdit" />
+       <widget class="QDoubleSpinBox" name="posSpinBox" >
+        <property name="minimumSize" >
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="wrapping" >
+         <bool>false</bool>
+        </property>
+        <property name="buttonSymbols" >
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="decimals" >
+         <number>2</number>
+        </property>
+       </widget>
       </item>
       <item row="2" column="0" >
        <widget class="QLabel" name="stepSizeLabel" >
@@ -67,7 +89,7 @@
         <property name="minimumSize" >
          <size>
           <width>100</width>
-          <height>25</height>
+          <height>0</height>
          </size>
         </property>
         <property name="cursor" >
@@ -77,13 +99,16 @@
          <enum>QAbstractSpinBox::PlusMinus</enum>
         </property>
         <property name="suffix" >
-         <string> mm/°</string>
+         <string/>
+        </property>
+        <property name="decimals" >
+         <number>2</number>
         </property>
         <property name="minimum" >
-         <double>-9999999999999999827367757839185598317239782875580932278577147150336.000000000000000</double>
+         <double>-100.000000000000000</double>
         </property>
         <property name="maximum" >
-         <double>9999999999999999827367757839185598317239782875580932278577147150336.000000000000000</double>
+         <double>100.000000000000000</double>
         </property>
         <property name="value" >
          <double>1.000000000000000</double>
@@ -91,54 +116,87 @@
        </widget>
       </item>
       <item row="3" column="0" colspan="2" >
-       <layout class="QGridLayout" name="gridLayout" >
-        <item row="0" column="0" >
+       <widget class="Line" name="line" >
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" >
+       <widget class="QLabel" name="curPosLabel_2" >
+        <property name="text" >
+         <string>Next Position:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" >
+       <widget class="QDoubleSpinBox" name="nextPosSpinBox" >
+        <property name="minimumSize" >
+         <size>
+          <width>100</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="buttonSymbols" >
+         <enum>QAbstractSpinBox::UpDownArrows</enum>
+        </property>
+        <property name="prefix" >
+         <string/>
+        </property>
+        <property name="decimals" >
+         <number>2</number>
+        </property>
+        <property name="minimum" >
+         <double>-2000000000.000000000000000</double>
+        </property>
+        <property name="maximum" >
+         <double>2000000000.000000000000000</double>
+        </property>
+        <property name="defaultValue" stdset="0" >
+         <double>0.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="2" >
+       <layout class="QHBoxLayout" name="horizontalLayout" >
+        <property name="sizeConstraint" >
+         <enum>QLayout::SetDefaultConstraint</enum>
+        </property>
+        <item>
          <widget class="QLabel" name="lowLimitLabel" >
           <property name="text" >
            <string>0</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1" >
-         <widget class="QSlider" name="posSlider" >
+        <item>
+         <widget class="QSlider" name="nextPosSlider" >
           <property name="orientation" >
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
-        <item row="0" column="2" >
+        <item>
          <widget class="QLabel" name="highLimitLabel" >
           <property name="text" >
            <string>100</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1" >
-         <widget class="QDoubleSpinBox" name="posSpinBox" >
-          <property name="minimumSize" >
-           <size>
-            <width>100</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="buttonSymbols" >
-           <enum>QAbstractSpinBox::UpDownArrows</enum>
-          </property>
-          <property name="prefix" >
-           <string/>
-          </property>
-          <property name="minimum" >
-           <double>-2000000000.000000000000000</double>
-          </property>
-          <property name="maximum" >
-           <double>2000000000.000000000000000</double>
-          </property>
-          <property name="defaultValue" stdset="0" >
-           <double>0.000000000000000</double>
-          </property>
-         </widget>
-        </item>
        </layout>
+      </item>
+      <item row="6" column="0" colspan="2" >
+       <spacer name="verticalSpacer" >
+        <property name="orientation" >
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0" >
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>

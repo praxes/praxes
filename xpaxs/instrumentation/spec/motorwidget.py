@@ -30,6 +30,7 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
         self.directionLabel.setText(direction)
         self.specRunner = specRunner
         self._motor = None
+        self._precision = 2
         self.mneComboBox.addItems( [''] + self.specRunner.getMotorsMne() )
 
     @property
@@ -47,6 +48,10 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
             return 0
 
     @property
+    def precision(self):
+        return self._precision
+
+    @property
     def limits(self):
         try:
             return self._motor.getLimits()
@@ -55,7 +60,7 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
 
     @property
     def nextPosition(self):
-        return self.posSpinBox.value()
+        return self.nextPosSpinBox.value()
 
     @property
     def stepSize(self):
@@ -87,24 +92,32 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
             )
 
     def _positionChanged(self, position):
-        self.posLineEdit.setText("%g"%position)
+        self.posSpinBox.setValue(position)
+        self._isNextPositionCurrentPosition()
+
+    def _setPrecision(self, precision):
+        self.posSpinBox.setDecimals(precision)
+        self.stepSpinBox.setDecimals(precision)
+        self.nextPosSpinBox.setDecimals(precision)
 
     def _limitsChanged(self, limits):
         low, high = limits
+
         self.lowLimitLabel.setText('%g'%low)
         self.highLimitLabel.setText('%g'%high)
         self.posSpinBox.setRange(low, high)
-        self.posSlider.setRange(low*1000, high*1000)
+        self.nextPosSpinBox.setRange(low, high)
+        self.nextPosSlider.setRange(low*1000, high*1000)
 
     def _setMotorMoving(self, state):
         self.groupBox.setDisabled(state in ('MOVESTARTED', 'MOVING'))
 
     def _setMotorUsable(self, state):
         usable = state not in ('NOTINITIALIZED', 'UNUSABLE')
-        self.posLineEdit.setEnabled(usable)
-        self.stepSpinBox.setEnabled(usable)
-        self.posSlider.setEnabled(usable)
         self.posSpinBox.setEnabled(usable)
+        self.stepSpinBox.setEnabled(usable)
+        self.nextPosSlider.setEnabled(usable)
+        self.nextPosSpinBox.setEnabled(usable)
 
     def _stateChanged(self, state):
         self._setMotorMoving(state)
@@ -112,8 +125,15 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
         self.emit(QtCore.SIGNAL("stateChanged(PyQt_PyObject)"), state)
 
     def _nextPositionChanged(self, position):
-        self.posSpinBox.setValue(position)
-        self.posSlider.setValue(int(position*1000))
+        self.nextPosSpinBox.setValue(position)
+        self.nextPosSlider.setValue(int(position*1000))
+
+    def _isNextPositionCurrentPosition(self):
+        fmt = '%.' + str(self.precision) + 'f'
+        self.emit(
+            QtCore.SIGNAL("nextPositionIsCurrent(PyQt_PyObject)"),
+            fmt%self.nextPosition == fmt%self.position
+        )
 
     @QtCore.pyqtSignature("QString")
     def on_mneComboBox_currentIndexChanged(self, motorMne):
@@ -125,19 +145,23 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
             self._motor = None
             self._stateChanged(self.state)
 
+        # TODO: Is there a way to get the precision from Spec?
+        self._setPrecision(5)
         self._limitsChanged(self.limits)
         self._positionChanged(self.position)
         self._nextPositionChanged(self.position)
         self._stateChanged(self.state)
 
     @QtCore.pyqtSignature("")
-    def on_posLineEdit_returnPressed(self):
-        self._motor.move(float(self.posLineEdit.text()))
+    def on_posSpinBox_editingFinished(self):
+        self._motor.move(self.posSpinBox.value())
 
     @QtCore.pyqtSignature("int")
-    def on_posSlider_sliderMoved(self, val):
-        self.posSpinBox.setValue(val*0.001)
+    def on_nextPosSlider_sliderMoved(self, val):
+        self.nextPosSpinBox.setValue(val*0.001)
+        self._isNextPositionCurrentPosition()
 
     @QtCore.pyqtSignature("double")
-    def on_posSpinBox_valueChanged(self, val):
-        self.posSlider.setValue(int(val*1000))
+    def on_nextPosSpinBox_valueChanged(self, val):
+        self.nextPosSlider.setValue(int(val*1000))
+        self._isNextPositionCurrentPosition()

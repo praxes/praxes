@@ -31,10 +31,6 @@ logger = logging.getLogger('XPaXS.instrumentation.spec.client.motor')
 [NOTINITIALIZED,UNUSABLE,READY,MOVESTARTED,MOVING,ONLIMIT]=[0,1,2,3,4,5]
 
 
-
-
-
-
 class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
 
     __state_strings = ['NOTINITIALIZED',
@@ -80,11 +76,6 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
     def getState(self):
         state = SpecMotor.SpecMotorA.getState(self)
         return self.__state_strings[state]
-
-
-
-
-
 
 
 class TestQtSpecMotor(QtSpecMotorBase):
@@ -140,21 +131,12 @@ class TestQtSpecMotor(QtSpecMotorBase):
         self.motorPositionChanged(self.getPosition())
 
 
-
 if TEST_SPEC:
     class QtSpecMotorA(TestQtSpecMotor):
         pass
 else:
     class QtSpecMotorA(QtSpecMotorBase):
         pass
-
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@
     <file>icons/Arrow_southeast.svg</file>
     <file>icons/Arrow_southwest.svg</file>
     <file>icons/Arrow_west.svg</file>
-    <file>icons/Stop_hand_nuvola.svg</file>
-    <file>icons/Stop_x_nuvola.svg</file>
+    <file>icons/Start.svg</file>
+    <file>icons/Stop.svg</file>
   </qresource>
 </RCC>

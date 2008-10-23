@@ -31,10 +31,14 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
 
-        self.setDefaultShortcuts()
-        self.locationDict = {}
-        self.nsEnabled = False
-        self.ewEnabled = False
+        # TODO: isnt there a way to do a stacked layout in Designer?
+        self.startStopStackedLayout = QtGui.QStackedLayout(self.startStopButtonFrame)
+        self.startStopStackedLayout.setContentsMargins(0, 0, 0, 0)
+        self.startStopStackedLayout.addWidget(self.startButton)
+        self.startStopStackedLayout.addWidget(self.stopButton)
+
+#        self._setDefaultShortcuts()
+        self._locationDict = {}
 
         if specRunner:
             self.specRunner = specRunner
@@ -66,6 +70,16 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
             self.northSouthMotorWidget,
             QtCore.SIGNAL("stateChanged(PyQt_PyObject)"),
             self._northSouthMotorStateChanged
+        )
+        self.connect(
+            self.eastWestMotorWidget,
+            QtCore.SIGNAL("nextPositionIsCurrent(PyQt_PyObject)"),
+            self.startButton.setDisabled
+        )
+        self.connect(
+            self.northSouthMotorWidget,
+            QtCore.SIGNAL("nextPositionIsCurrent(PyQt_PyObject)"),
+            self.startButton.setDisabled
         )
 
     @property
@@ -144,12 +158,7 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
         )
 
     @QtCore.pyqtSignature("")
-    def on_stopButton_clicked(self):
-        self.stopButton.setEnabled(False)
-        self.specRunner.abort()
-
-    @QtCore.pyqtSignature("")
-    def on_moveButton_clicked(self):
+    def on_startButton_clicked(self):
         args = []
 
         if self.northSouthMotorWidget.motorMne:
@@ -162,20 +171,75 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
 
         self.specRunner( 'mv ' + ' '.join( str(arg) for arg in args ) )
 
-    def setDefaultShortcuts(self):
-        self.westButton.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Left))
-        self.eastButton.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Right))
-        self.northButton.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Up))
-        self.southButton.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Down))
-        self.northwestButton.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Home))
-        self.northeastButton.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_PageUp))
-        self.southwestButton.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_End))
-        self.southeastButton.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_PageDown))
-        self.stopButton.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space))
+    @QtCore.pyqtSignature("")
+    def on_stopButton_clicked(self):
+        self.stopButton.setDisabled(True)
+        self.specRunner.abort()
+
+#    def _setDefaultShortcuts(self):
+#        self.westButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_Left)
+#        )
+#        self.eastButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_Right)
+#        )
+#        self.northButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_Up)
+#        )
+#        self.southButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_Down)
+#        )
+#        self.northwestButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_Home)
+#        )
+#        self.northeastButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_PageUp)
+#        )
+#        self.southwestButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_End)
+#        )
+#        self.southeastButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_PageDown)
+#        )
+#
+#        # and the number pad:
+#        self.westButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_4)
+#        )
+#        self.eastButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_6)
+#        )
+#        self.northButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_8)
+#        )
+#        self.southButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_2)
+#        )
+#        self.northwestButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_7)
+#        )
+#        self.northeastButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_9)
+#        )
+#        self.southwestButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_1)
+#        )
+#        self.southeastButton.setShortcut(
+#            QtGui.QKeySequence(QtCore.Qt.Key_3)
+#        )
 
     def _stateChanged(self, state):
-        self.stopButton.setEnabled(state == 'MOVING')
-        self.moveButton.setEnabled('READY' in state)
+        self.startStopButtonFrame.setDisabled(state == 'UNUSABLE')
+
+        if state == 'MOVING':
+            self.startStopStackedLayout.setCurrentWidget(self.stopButton)
+            self.stopButton.setEnabled(True)
+            self.startButton.setEnabled(False)
+
+        elif 'READY' in state:
+            self.startStopStackedLayout.setCurrentWidget(self.startButton)
+#            self.startButton.setEnabled(True)
+            self.stopButton.setEnabled(False)
 
         enabled = state in ('EWREADY', 'READY')
         self.eastButton.setEnabled(enabled)
@@ -200,6 +264,10 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
             self.eastWestMotorWidget.state in ('NOTINITIALIZED', 'UNUSABLE'):
             self._stateChanged('UNUSABLE')
 
+        elif state in ('NOTINITIALIZED', 'UNUSABLE') and \
+            self.eastWestMotorWidget.state in ('READY', 'ONLIMIT'):
+            self._stateChanged('EWREADY')
+
         elif state in ('MOVESTARTED', 'MOVING') or \
             self.eastWestMotorWidget.state in ('MOVESTARTED', 'MOVING'):
             self._stateChanged('MOVING')
@@ -217,6 +285,10 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
             self.northSouthMotorWidget.state in ('NOTINITIALIZED', 'UNUSABLE'):
             self._stateChanged('UNUSABLE')
 
+        elif state in ('NOTINITIALIZED', 'UNUSABLE') and \
+            self.northSouthMotorWidget.state in ('READY', 'ONLIMIT'):
+            self._stateChanged('NSREADY')
+
         elif state in ('MOVESTARTED', 'MOVING') or \
             self.northSouthMotorWidget.state in ('MOVESTARTED', 'MOVING'):
             self._stateChanged('MOVING')
@@ -227,18 +299,6 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
 
         else:
             self._stateChanged('EWREADY')
-
-#    @QtCore.pyqtSignature("")
-#    def on_saveLocationButton_clicked(self):
-#        pass
-#
-#    @QtCore.pyqtSignature("QString")
-#    def on_savedLocationComboBox_currentIndexChanged(self, pos):
-#        pass
-#
-#    @QtCore.pyqtSignature("")
-#    def on_deleteLocationButton_clicked(self):
-#        pass
 
 
 if __name__ == "__main__":
