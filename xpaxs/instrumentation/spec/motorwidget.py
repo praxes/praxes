@@ -34,11 +34,22 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
         self.mneComboBox.addItems( [''] + self.specRunner.getMotorsMne() )
 
     @property
+    def limits(self):
+        try:
+            return self._motor.getLimits()
+        except AttributeError:
+            return [-1, 1]
+
+    @property
     def motorMne(self):
         try:
             return self._motor.specName
         except AttributeError:
             return ''
+
+    @property
+    def nextPosition(self):
+        return self.nextPosSpinBox.value()
 
     @property
     def position(self):
@@ -52,26 +63,15 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
         return self._precision
 
     @property
-    def limits(self):
-        try:
-            return self._motor.getLimits()
-        except AttributeError:
-            return [-1, 1]
-
-    @property
-    def nextPosition(self):
-        return self.nextPosSpinBox.value()
-
-    @property
-    def stepSize(self):
-        return self.stepSpinBox.value()
-
-    @property
     def state(self):
         try:
             return self._motor.getState()
         except AttributeError:
             return 'NOTINITIALIZED'
+
+    @property
+    def stepSize(self):
+        return self.stepSpinBox.value()
 
     def _connectMotor(self):
         if self._motor:
@@ -91,14 +91,12 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
                 self._stateChanged
             )
 
-    def _positionChanged(self, position):
-        self.posSpinBox.setValue(position)
-        self._isNextPositionCurrentPosition()
-
-    def _setPrecision(self, precision):
-        self.posSpinBox.setDecimals(precision)
-        self.stepSpinBox.setDecimals(precision)
-        self.nextPosSpinBox.setDecimals(precision)
+    def _isNextPositionCurrentPosition(self):
+        fmt = '%.' + str(self.precision) + 'f'
+        self.emit(
+            QtCore.SIGNAL("nextPositionIsCurrent(PyQt_PyObject)"),
+            fmt%self.nextPosition == fmt%self.position
+        )
 
     def _limitsChanged(self, limits):
         low, high = limits
@@ -108,6 +106,14 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
         self.posSpinBox.setRange(low, high)
         self.nextPosSpinBox.setRange(low, high)
         self.nextPosSlider.setRange(low*1000, high*1000)
+
+    def _nextPositionChanged(self, position):
+        self.nextPosSpinBox.setValue(position)
+        self.nextPosSlider.setValue(int(position*1000))
+
+    def _positionChanged(self, position):
+        self.posSpinBox.setValue(position)
+        self._isNextPositionCurrentPosition()
 
     def _setMotorMoving(self, state):
         self.groupBox.setDisabled(state in ('MOVESTARTED', 'MOVING'))
@@ -119,21 +125,15 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
         self.nextPosSlider.setEnabled(usable)
         self.nextPosSpinBox.setEnabled(usable)
 
+    def _setPrecision(self, precision):
+        self.posSpinBox.setDecimals(precision)
+        self.stepSpinBox.setDecimals(precision)
+        self.nextPosSpinBox.setDecimals(precision)
+
     def _stateChanged(self, state):
         self._setMotorMoving(state)
         self._setMotorUsable(state)
         self.emit(QtCore.SIGNAL("stateChanged(PyQt_PyObject)"), state)
-
-    def _nextPositionChanged(self, position):
-        self.nextPosSpinBox.setValue(position)
-        self.nextPosSlider.setValue(int(position*1000))
-
-    def _isNextPositionCurrentPosition(self):
-        fmt = '%.' + str(self.precision) + 'f'
-        self.emit(
-            QtCore.SIGNAL("nextPositionIsCurrent(PyQt_PyObject)"),
-            fmt%self.nextPosition == fmt%self.position
-        )
 
     @QtCore.pyqtSignature("QString")
     def on_mneComboBox_currentIndexChanged(self, motorMne):

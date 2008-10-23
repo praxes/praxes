@@ -2,7 +2,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-
+from functools import partial
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -36,9 +36,6 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
         self.startStopStackedLayout.setContentsMargins(0, 0, 0, 0)
         self.startStopStackedLayout.addWidget(self.startButton)
         self.startStopStackedLayout.addWidget(self.stopButton)
-
-#        self._setDefaultShortcuts()
-        self._locationDict = {}
 
         if specRunner:
             self.specRunner = specRunner
@@ -90,75 +87,7 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
     def eastWestMotorWidget(self):
         return self._eastWestMotorWidget
 
-    def relativeMove(self, *args):
-        self.specRunner( 'mvr ' + ' '.join( str(arg) for arg in args ) )
-
-    @QtCore.pyqtSignature("")
-    def on_westButton_clicked(self):
-        self.relativeMove(
-            self.eastWestMotorWidget.motorMne,
-            -self.eastWestMotorWidget.stepSize
-        )
-
-    @QtCore.pyqtSignature("")
-    def on_eastButton_clicked(self):
-        self.relativeMove(
-            self.eastWestMotorWidget.motorMne,
-            self.eastWestMotorWidget.stepSize
-        )
-
-    @QtCore.pyqtSignature("")
-    def on_northButton_clicked(self):
-        self.relativeMove(
-            self.northSouthMotorWidget.motorMne,
-            self.northSouthMotorWidget.stepSize
-        )
-
-    @QtCore.pyqtSignature("")
-    def on_southButton_clicked(self):
-        self.relativeMove(
-            self.northSouthMotorWidget.motorMne,
-            -self.northSouthMotorWidget.stepSize
-        )
-
-    @QtCore.pyqtSignature("")
-    def on_northwestButton_clicked(self):
-        self.relativeMove(
-            self.northSouthMotorWidget.motorMne,
-            self.northSouthMotorWidget.stepSize,
-            self.eastWestMotorWidget.motorMne,
-            -self.eastWestMotorWidget.stepSize
-        )
-
-    @QtCore.pyqtSignature("")
-    def on_northeastButton_clicked(self):
-        self.relativeMove(
-            self.northSouthMotorWidget.motorMne,
-            self.northSouthMotorWidget.stepSize,
-            self.eastWestMotorWidget.motorMne,
-            self.eastWestMotorWidget.stepSize
-        )
-
-    @QtCore.pyqtSignature("")
-    def on_southwestButton_clicked(self):
-        self.relativeMove(
-            self.northSouthMotorWidget.motorMne,
-            -self.northSouthMotorWidget.stepSize,
-            self.eastWestMotorWidget.motorMne,
-            -self.eastWestMotorWidget.stepSize
-        )
-
-    @QtCore.pyqtSignature("")
-    def on_southeastButton_clicked(self):
-        self.relativeMove(
-            self.northSouthMotorWidget.motorMne,
-            -self.northSouthMotorWidget.stepSize,
-            self.eastWestMotorWidget.motorMne,
-            self.eastWestMotorWidget.stepSize
-        )
-
-    @QtCore.pyqtSignature("")
-    def on_startButton_clicked(self):
+    def _absoluteMove(self):
         args = []
 
         if self.northSouthMotorWidget.motorMne:
@@ -171,134 +100,132 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
 
         self.specRunner( 'mv ' + ' '.join( str(arg) for arg in args ) )
 
-    @QtCore.pyqtSignature("")
-    def on_stopButton_clicked(self):
+    def _relativeMove(self, *args):
+        self.specRunner( 'mvr ' + ' '.join( str(arg) for arg in args ) )
+
+    def _stopMove(self):
         self.stopButton.setDisabled(True)
         self.specRunner.abort()
 
-#    def _setDefaultShortcuts(self):
-#        self.westButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_Left)
-#        )
-#        self.eastButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_Right)
-#        )
-#        self.northButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_Up)
-#        )
-#        self.southButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_Down)
-#        )
-#        self.northwestButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_Home)
-#        )
-#        self.northeastButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_PageUp)
-#        )
-#        self.southwestButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_End)
-#        )
-#        self.southeastButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_PageDown)
-#        )
-#
-#        # and the number pad:
-#        self.westButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_4)
-#        )
-#        self.eastButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_6)
-#        )
-#        self.northButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_8)
-#        )
-#        self.southButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_2)
-#        )
-#        self.northwestButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_7)
-#        )
-#        self.northeastButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_9)
-#        )
-#        self.southwestButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_1)
-#        )
-#        self.southeastButton.setShortcut(
-#            QtGui.QKeySequence(QtCore.Qt.Key_3)
-#        )
+    # navigation pad
 
-    def _stateChanged(self, state):
-        self.startStopButtonFrame.setDisabled(state == 'UNUSABLE')
+    def _gamepadButtonClicked(self, nsDir=None, ewDir=None):
+        cmdArgs = []
+        if nsDir:
+            cmdArgs.extend(
+                [self.northSouthMotorWidget.motorMne,
+                 nsDir*self.northSouthMotorWidget.stepSize
+                ]
+            )
 
-        if state == 'MOVING':
+        if ewDir:
+            cmdArgs.extend(
+                [self.eastWestMotorWidget.motorMne,
+                 ewDir*self.eastWestMotorWidget.stepSize
+                ]
+            )
+
+        self._relativeMove(*cmdArgs)
+
+    @QtCore.pyqtSignature("")
+    def on_eastButton_clicked(self):
+        self._gamepadButtonClicked(ewDir=1)
+
+    @QtCore.pyqtSignature("")
+    def on_northButton_clicked(self):
+        self._gamepadButtonClicked(nsDir=1)
+
+    @QtCore.pyqtSignature("")
+    def on_northeastButton_clicked(self):
+        self._gamepadButtonClicked(nsDir=1, ewDir=1)
+
+    @QtCore.pyqtSignature("")
+    def on_northwestButton_clicked(self):
+        self._gamepadButtonClicked(nsDir=1, ewDir=-1)
+
+    @QtCore.pyqtSignature("")
+    def on_southButton_clicked(self):
+        self._gamepadButtonClicked(nsDir=-1)
+
+    @QtCore.pyqtSignature("")
+    def on_southeastButton_clicked(self):
+        self._gamepadButtonClicked(nsDir=-1, ewDir=1)
+
+    @QtCore.pyqtSignature("")
+    def on_southwestButton_clicked(self):
+        self._gamepadButtonClicked(nsDir=-1, ewDir=-1)
+
+    @QtCore.pyqtSignature("")
+    def on_westButton_clicked(self):
+        self._gamepadButtonClicked(ewDir=-1)
+
+    @QtCore.pyqtSignature("")
+    def on_startButton_clicked(self):
+        self._absoluteMove()
+
+    @QtCore.pyqtSignature("")
+    def on_stopButton_clicked(self):
+        self._stopMove()
+
+    @QtCore.pyqtSignature("")
+    def on_startScanButton_clicked(self):
+        pass
+
+    # GUI state
+
+    def _eastWestMotorStateChanged(self, state):
+        self._stateChanged(ewState=state)
+
+    def _northSouthMotorStateChanged(self, state):
+        self._stateChanged(nsState=state)
+
+    def _stateChanged(self, nsState=None, ewState=None):
+
+        if nsState is None:
+            nsState = self.northSouthMotorWidget.state
+
+        if ewState is None:
+            ewState = self.eastWestMotorWidget.state
+
+        nsEnabled = nsState not in ('NOTINITIALIZED', 'UNUSABLE')
+        ewEnabled = ewState not in ('NOTINITIALIZED', 'UNUSABLE')
+        bothEnabled = nsEnabled and ewEnabled
+        eitherEnabled = nsEnabled or ewEnabled
+
+        nsReady = nsState in ('READY', 'ONLIMIT')
+        ewReady = ewState in ('READY', 'ONLIMIT')
+        bothReady = nsReady and ewReady
+
+        nsMoving = nsState in ('MOVESTARTED', 'MOVING')
+        ewMoving = ewState in ('MOVESTARTED', 'MOVING')
+        eitherMoving = nsMoving or ewMoving
+
+        self.buttonFrame.setEnabled(eitherEnabled)
+
+        if eitherMoving:
             self.startStopStackedLayout.setCurrentWidget(self.stopButton)
             self.stopButton.setEnabled(True)
-            self.startButton.setEnabled(False)
+            self.startScanButton.setEnabled(False)
+            nsEnabled = ewEnabled = bothEnabled = False
 
-        elif 'READY' in state:
-            self.startStopStackedLayout.setCurrentWidget(self.startButton)
-#            self.startButton.setEnabled(True)
+        else:
             self.stopButton.setEnabled(False)
+            self.startStopStackedLayout.setCurrentWidget(self.startButton)
+            self.startScanButton.setEnabled(eitherEnabled)
 
-        enabled = state in ('EWREADY', 'READY')
-        self.eastButton.setEnabled(enabled)
-        self.westButton.setEnabled(enabled)
+        self.northButton.setEnabled(nsEnabled)
+        self.southButton.setEnabled(nsEnabled)
 
-        enabled = state in ('NSREADY', 'READY')
-        self.northButton.setEnabled(enabled)
-        self.southButton.setEnabled(enabled)
+        self.eastButton.setEnabled(ewEnabled)
+        self.westButton.setEnabled(ewEnabled)
 
-        enabled = state == 'READY'
-        self.northwestButton.setEnabled(enabled)
-        self.northeastButton.setEnabled(enabled)
-        self.southwestButton.setEnabled(enabled)
-        self.southeastButton.setEnabled(enabled)
+        self.northwestButton.setEnabled(bothEnabled)
+        self.northeastButton.setEnabled(bothEnabled)
+        self.southwestButton.setEnabled(bothEnabled)
+        self.southeastButton.setEnabled(bothEnabled)
 
         # TODO: is this next line necessary? Not with Qt-4.4.2:
         QtGui.qApp.processEvents()
-
-    def _northSouthMotorStateChanged(self, state):
-
-        if state in ('NOTINITIALIZED', 'UNUSABLE') and \
-            self.eastWestMotorWidget.state in ('NOTINITIALIZED', 'UNUSABLE'):
-            self._stateChanged('UNUSABLE')
-
-        elif state in ('NOTINITIALIZED', 'UNUSABLE') and \
-            self.eastWestMotorWidget.state in ('READY', 'ONLIMIT'):
-            self._stateChanged('EWREADY')
-
-        elif state in ('MOVESTARTED', 'MOVING') or \
-            self.eastWestMotorWidget.state in ('MOVESTARTED', 'MOVING'):
-            self._stateChanged('MOVING')
-
-        elif state in ('READY', 'ONLIMIT') and \
-            self.eastWestMotorWidget.state in ('READY', 'ONLIMIT'):
-            self._stateChanged('READY')
-
-        else:
-            self._stateChanged('NSREADY')
-
-    def _eastWestMotorStateChanged(self, state):
-
-        if state in ('NOTINITIALIZED', 'UNUSABLE') and \
-            self.northSouthMotorWidget.state in ('NOTINITIALIZED', 'UNUSABLE'):
-            self._stateChanged('UNUSABLE')
-
-        elif state in ('NOTINITIALIZED', 'UNUSABLE') and \
-            self.northSouthMotorWidget.state in ('READY', 'ONLIMIT'):
-            self._stateChanged('NSREADY')
-
-        elif state in ('MOVESTARTED', 'MOVING') or \
-            self.northSouthMotorWidget.state in ('MOVESTARTED', 'MOVING'):
-            self._stateChanged('MOVING')
-
-        elif state in ('READY', 'ONLIMIT') and \
-            self.northSouthMotorWidget.state in ('READY', 'ONLIMIT'):
-            self._stateChanged('READY')
-
-        else:
-            self._stateChanged('EWREADY')
 
 
 if __name__ == "__main__":
