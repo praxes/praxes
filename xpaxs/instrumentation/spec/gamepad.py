@@ -2,7 +2,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-from functools import partial
+
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -20,7 +20,7 @@ from xpaxs.instrumentation.spec.motorwidget import MotorWidget
 
 #---------------------------------------------------------------------------
 # Normal code begins
-#--------------------------------------------------------------------------
+#---------------------------------------------------------------------------
 
 
 class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
@@ -32,7 +32,9 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
         self.setupUi(self)
 
         # TODO: isnt there a way to do a stacked layout in Designer?
-        self.startStopStackedLayout = QtGui.QStackedLayout(self.startStopButtonFrame)
+        self.startStopStackedLayout = QtGui.QStackedLayout(
+            self.startStopButtonFrame
+        )
         self.startStopStackedLayout.setContentsMargins(0, 0, 0, 0)
         self.startStopStackedLayout.addWidget(self.startButton)
         self.startStopStackedLayout.addWidget(self.stopButton)
@@ -201,13 +203,13 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
         if eitherMoving:
             self.startStopStackedLayout.setCurrentWidget(self.stopButton)
             self.stopButton.setEnabled(True)
-            self.startScanButton.setEnabled(False)
+#            self.startScanButton.setEnabled(False)
             nsEnabled = ewEnabled = bothEnabled = False
 
         else:
             self.stopButton.setEnabled(False)
             self.startStopStackedLayout.setCurrentWidget(self.startButton)
-            self.startScanButton.setEnabled(eitherEnabled)
+#            self.startScanButton.setEnabled(eitherEnabled)
 
         self.northButton.setEnabled(nsEnabled)
         self.southButton.setEnabled(nsEnabled)
@@ -219,9 +221,6 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
         self.northeastButton.setEnabled(bothEnabled)
         self.southwestButton.setEnabled(bothEnabled)
         self.southeastButton.setEnabled(bothEnabled)
-
-        # TODO: is this next line necessary? Not with Qt-4.4.2:
-        QtGui.qApp.processEvents()
 
 
 if __name__ == "__main__":
