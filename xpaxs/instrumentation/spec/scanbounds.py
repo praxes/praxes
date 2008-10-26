@@ -23,3 +23,12 @@ from xpaxs.instrumentation.spec.motorwidget import MotorWidget
 #---------------------------------------------------------------------------
 
 
+class ScanBounds(object):
+
+    @property
+    def test(self):
+        return 1
+
+sb = ScanBounds()
+
+print sb.test

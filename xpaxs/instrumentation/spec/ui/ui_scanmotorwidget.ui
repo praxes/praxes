@@ -1,12 +1,12 @@
 <ui version="4.0" >
- <class>GroupBox</class>
- <widget class="QGroupBox" name="GroupBox" >
+ <class>ScanMotorWidget</class>
+ <widget class="QGroupBox" name="ScanMotorWidget" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>449</width>
-    <height>70</height>
+    <width>465</width>
+    <height>74</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -30,7 +30,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="comboBox" >
+    <widget class="QComboBox" name="motorComboBox" >
      <property name="modelColumn" >
       <number>0</number>
      </property>
@@ -44,17 +44,17 @@
     </widget>
    </item>
    <item>
-    <widget class="QDoubleSpinBox" name="doubleSpinBox" />
+    <widget class="QDoubleSpinBox" name="startSpinBox" />
    </item>
    <item>
     <widget class="QLabel" name="label_3" >
      <property name="text" >
-      <string>End</string>
+      <string>Stop</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QDoubleSpinBox" name="doubleSpinBox_2" />
+    <widget class="QDoubleSpinBox" name="stopSpinBox" />
    </item>
    <item>
     <widget class="QLabel" name="label_4" >
@@ -64,7 +64,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QSpinBox" name="spinBox" />
+    <widget class="QSpinBox" name="stepSpinBox" />
    </item>
   </layout>
  </widget>
