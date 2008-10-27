@@ -7,6 +7,7 @@
 #---------------------------------------------------------------------------
 
 import exceptions
+import os
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -18,7 +19,9 @@ from PyQt4 import QtCore, QtGui
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.instrumentation.spec.ui import ui_scanwidget
+from xpaxs.instrumentation.spec.ui import ui_scanparameterswidget
+from xpaxs.instrumentation.spec.scanbounds import ScanBoundsDict
+from xpaxs.instrumentation.spec import scanmotorwidget
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -38,6 +41,7 @@ class SpecfileError(exceptions.Exception):
         return str
 
 
+# TODO: default to previous motors using QSettings
 class ScanParameters(QtGui.QWidget):
 
     _cmd = ''
@@ -45,7 +49,7 @@ class ScanParameters(QtGui.QWidget):
 
     def __init__(self, specRunner, scanBounds=None, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.setWindowFlags(QtCore.Qt.WA_DeleteOnClose)
+#        self.setWindowFlags(QtCore.Qt.WA_DeleteOnClose)
 
         self._specRunner = specRunner
 
@@ -66,23 +70,34 @@ class ScanParameters(QtGui.QWidget):
     def getCommand(self):
         raise NotImplementedError
 
+    def getDefaultAxes(self):
+        raise NotImplementedError
+
 
 class AScanParameters(ScanParameters):
 
     _cmd = 'ascan'
-    _AxisWidget = AScanMotorWidget
+    _AxisWidget = scanmotorwidget.AScanMotorWidget
 
     def __init__(self, specRunner, scanBounds=None, parent=None):
         ScanParameters.__init__(self, specRunner, scanBounds, parent)
 
+        axis1 = self.getDefaultAxes()[0]
         layout = self.layout()
-        self._axis = self.AxisWidget(specRunner, '', scanBounds[0], self)
-        self.layout.addWidget(self._axis)
+        self._axis = self.AxisWidget(specRunner, '', axis1, scanBounds, self)
+        layout.addWidget(self._axis)
 
     def getCommand(self):
         cmdList = [self.cmd]
         cmdList.extend([self._axis.start, self._axis.stop, self._axis.steps])
         return ' '.join(cmdList)
+
+    def getDefaultAxes(self):
+        settings = QtCore.QSettings()
+        settings.beginGroup("AScanParameters")
+
+        axis = settings.value('axis').toString()
+        return [axis]
 
 
 class A2ScanParameters(AScanParameters):
@@ -92,11 +107,16 @@ class A2ScanParameters(AScanParameters):
     def __init__(self, specRunner, scanBounds=None, parent=None):
         ScanParameters.__init__(self, specRunner, scanBounds, parent)
 
+        axis1, axis2 = self.getDefaultAxes()
         layout = self.layout()
-        self._axis1 = self.AxisWidget(specRunner, 'Axis 1', scanBounds[0], self)
-        self.layout.addWidget(self._axis1)
-        self._axis2 = self.AxisWidget(specRunner, 'Axis 2', scanBounds[1], self)
-        self.layout.addWidget(self._axis2)
+        self._axis1 = self.AxisWidget(
+            specRunner, 'Axis 1', axis1, scanBounds, self
+        )
+        layout.addWidget(self._axis1)
+        self._axis2 = self.AxisWidget(
+            specRunner, 'Axis 2', axis2, scanBounds, self
+        )
+        layout.addWidget(self._axis2)
 
         self._axes = [self._axis1, self._axis2]
 
@@ -116,9 +136,17 @@ class A2ScanParameters(AScanParameters):
         cmdList.extend([self._axis2.start, self._axis2.stop, self._axis2.steps])
         return ' '.join(cmdList)
 
-    def syncSteps(self, val):
+    def _syncSteps(self, val):
         for axis in self._axes:
             axis1.steps = val
+
+    def getDefaultAxes(self):
+        settings = QtCore.QSettings()
+        settings.beginGroup("A2ScanParameters")
+
+        axis1 = settings.value('axis1').toString()
+        axis2 = settings.value('axis2').toString()
+        return [axis1, axis2]
 
 
 class A3ScanParameters(A2ScanParameters):
@@ -128,13 +156,20 @@ class A3ScanParameters(A2ScanParameters):
     def __init__(self, specRunner, scanBounds=None, parent=None):
         ScanParameters.__init__(self, specRunner, scanBounds, parent)
 
+        axis1, axis2, axis3 = self.getDefaultAxes()
         layout = self.layout()
-        self._axis1 = self.AxisWidget(specRunner, 'Axis 1', scanBounds[0], self)
-        self.layout.addWidget(self._axis1)
-        self._axis2 = self.AxisWidget(specRunner, 'Axis 2', scanBounds[1], self)
-        self.layout.addWidget(self._axis2)
-        self._axis3 = self.AxisWidget(specRunner, 'Axis 3', scanBounds[2], self)
-        self.layout.addWidget(self._axis3)
+        self._axis1 = self.AxisWidget(
+            specRunner, 'Axis 1', axis1, scanBounds, self
+        )
+        layout.addWidget(self._axis1)
+        self._axis2 = self.AxisWidget(
+            specRunner, 'Axis 2', axis2, scanBounds, self
+        )
+        layout.addWidget(self._axis2)
+        self._axis3 = self.AxisWidget(
+            specRunner, 'Axis 3', axis3, scanBounds, self
+        )
+        layout.addWidget(self._axis3)
 
         self._axes = [self._axis1, self._axis2, self._axis3]
 
@@ -147,42 +182,52 @@ class A3ScanParameters(A2ScanParameters):
         cmdList.extend([self._axis3.start, self._axis3.stop, self._axis3.steps])
         return ' '.join(cmdList)
 
+    def getDefaultAxes(self):
+        settings = QtCore.QSettings()
+        settings.beginGroup("A3ScanParameters")
+
+        axis1 = settings.value('axis1').toString()
+        axis2 = settings.value('axis2').toString()
+        axis3 = settings.value('axis3').toString()
+        return [axis1, axis2, axis3]
+
 
 class DScanParameters(AScanParameters):
 
     _cmd = 'dscan'
-    _AxisWidget = DScanMotorWidget
+    _AxisWidget = scanmotorwidget.DScanMotorWidget
 
 
 class D2ScanParameters(A2ScanParameters):
 
     _cmd = 'd2scan'
-    _AxisWidget = DScanMotorWidget
+    _AxisWidget = scanmotorwidget.DScanMotorWidget
 
 
 class D3ScanParameters(A3ScanParameters):
 
     _cmd = 'd3scan'
-    _AxisWidget = DScanMotorWidget
+    _AxisWidget = scanmotorwidget.DScanMotorWidget
 
 
 class MeshParameters(ScanParameters):
 
     _cmd = 'mesh'
-    _AxisWidget = AScanMotorWidget
+    _AxisWidget = scanmotorwidget.AScanMotorWidget
 
     def __init__(self, specRunner, scanBounds=None, parent=None):
         ScanParameters.__init__(self, specRunner, scanBounds, parent)
 
+        fastAxis, slowAxis = self.getDefaultAxes()
         layout = self.layout()
-        self._fastAxis = ScanMotorWidget(
-            specRunner, 'fastAxis', scanBounds[0], self
+        self._fastAxis = self.AxisWidget(
+            specRunner, 'fastAxis', fastAxis, scanBounds, self
         )
-        self.layout.addWidget(self._fastAxis)
-        self._slowAxis = ScanMotorWidget(
-            specRunner, 'slowAxis', scanBounds[1], self
+        layout.addWidget(self._fastAxis)
+        self._slowAxis = self.AxisWidget(
+            specRunner, 'slowAxis', slowAxis, scanBounds, self
         )
-        self.layout.addWidget(self._slowAxis)
+        layout.addWidget(self._slowAxis)
 
     def getCommand(self):
         cmdList = [self.cmd]
@@ -194,6 +239,14 @@ class MeshParameters(ScanParameters):
         )
         return ' '.join(cmdList)
 
+    def getDefaultAxes(self):
+        settings = QtCore.QSettings()
+        settings.beginGroup("MeshParameters")
+
+        slowAxis = settings.value('slowAxis').toString()
+        fastAxis = settings.value('fastAxis').toString()
+        return [fastAxis, slowAxis]
+
 
 class EScanParameters(ScanParameters):
     pass
@@ -203,11 +256,14 @@ class TSeriesParameters(ScanParameters):
     pass
 
 
-class ScanWidget(ui_scanwidget.Ui_Dialog, QtGui.QWidget):
+class ScanParametersWidget(
+    ui_scanparameterswidget.Ui_ScanParametersWidget,
+    QtGui.QWidget
+):
 
     """Dialog for setting spec scan options"""
 
-    _scanParameterClasses = {}
+    _scanParametersClasses = {}
     _scanParametersClasses['ascan'] = AScanParameters
     _scanParametersClasses['a2scan'] = A2ScanParameters
     _scanParametersClasses['a3scan'] = A3ScanParameters
@@ -215,36 +271,63 @@ class ScanWidget(ui_scanwidget.Ui_Dialog, QtGui.QWidget):
     _scanParametersClasses['d2scan'] = D2ScanParameters
     _scanParametersClasses['d3scan'] = D3ScanParameters
     _scanParametersClasses['mesh'] = MeshParameters
-    _scanParametersClasses['Escan'] = EScanParameters
-    _scanParametersClasses['tseries'] = TSeriesParameters
+#    _scanParametersClasses['Escan'] = EScanParameters
+#    _scanParametersClasses['tseries'] = TSeriesParameters
 
-    def __init__(self, specRunner, scanBounds=None, parent=None):
+    def __init__(self, specRunner, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
 
         self.specRunner = specRunner
-        if scanBounds:
-            self._scanBounds = scanBounds
-        else:
-            raise NotImplementedError
+        self._scanBounds = ScanBoundsDict()
 
-        settings = QtCore.QSettings()
-        settings.beginGroup("SpecScanOptions")
+        self.scanTypeComboBox.addItems(sorted(self._scanParametersClasses))
+        self.scanProgressBar.addActions(
+            [self.actionPause, self.actionResume, self.actionAbort]
+        )
+
+        self.stackedLayout = QtGui.QStackedLayout(self.scanProgressFrame)
+        self.stackedLayout.setContentsMargins(0, 0, 0, 0)
+        self.stackedLayout.addWidget(self.scanButton)
+        self.stackedLayout.addWidget(self.scanProgressBar)
 
         val = os.path.split(self.specRunner.getVarVal('DATAFILE'))[-1]
-        self.fileNameEdit.setText(val)
+        self.specFileNameEdit.setText(val)
+
+    @property
+    def scanBounds(self):
+        return self._scanBounds
+
+    @QtCore.pyqtSignature("")
+    def on_pauseButton_clicked(self):
+        self.stackedLayout.setCurrentWidget(self.resumeButton)
+
+    @QtCore.pyqtSignature("")
+    def on_resumeButton_clicked(self):
+        self.stackedLayout.setCurrentWidget(self.pauseButton)
 
     @QtCore.pyqtSignature("")
     def on_specFileNameEdit_editingFinished(self):
-        fullname = str(self.fileNameEdit.text()).rstrip('.h5').rstrip('.hdf5')
-        self.fileNameEdit.setText(os.path.split(fullname)[-1])
+        fullname = str(self.specFileNameEdit.text()).rstrip('.h5').rstrip('.hdf5')
+        truncated = os.path.split(fullname)[-1]
+        self.specFileNameEdit.setText(truncated)
+
+        self._setSpecFileName(truncated)
+
+    @QtCore.pyqtSignature("")
+    def on_scanButton_clicked(self):
+        print 'Need to implement scan starting'
+        self.scanStarted()
 
     @QtCore.pyqtSignature("QString")
     def on_scanTypeComboBox_currentIndexChanged(self, val):
-        self._scanParameters.close()
-        ScanParameters = self._scanParametersClasses[val]
+        try:
+            self._scanParameters.close()
+        except AttributeError:
+            pass
+        ScanParameters = self._scanParametersClasses[str(val)]
         self._scanParameters = ScanParameters(
-            self.specRunner, self.scanBounds, self
+            self.specRunner, self._scanBounds, self
         )
         self.scanParametersLayout.addWidget(self._scanParameters)
 
@@ -257,9 +340,7 @@ class ScanWidget(ui_scanwidget.Ui_Dialog, QtGui.QWidget):
 
         raise exception
 
-    def _setSpecFileName(self):
-        fileName = str(self.fileNameEdit.text())
-
+    def _setSpecFileName(self, filename):
         self.specRunner('newfile %s'%fileName)
         specfile = self.specRunner.getVarVal('DATAFILE')
 
@@ -267,8 +348,31 @@ class ScanWidget(ui_scanwidget.Ui_Dialog, QtGui.QWidget):
         if fileName != specCreated:
             self._specFileError(fileName, specfile)
 
-    def startScan(self):
-        self._setSpecFileName()
+    def scanStarted(self):
+        self.scanProgressBar.setValue(0)
+        self.stackedLayout.setCurrentWidget(self.scanProgressBar)
+        self.actionPause.setVisible(True)
+        self.actionResume.setVisible(False)
+
+    def scanFinished(self):
+        self.stackedLayout.setCurrentWidget(self.scanButton)
+
+    @QtCore.pyqtSignature("bool")
+    def on_actionPause_triggered(self):
+        print 'paused'
+        self.actionPause.setVisible(False)
+        self.actionResume.setVisible(True)
+
+    @QtCore.pyqtSignature("bool")
+    def on_actionResume_triggered(self):
+        print 'resumed'
+        self.actionPause.setVisible(True)
+        self.actionResume.setVisible(False)
+
+    @QtCore.pyqtSignature("bool")
+    def on_actionAbort_triggered(self):
+        print 'aborted'
+        self.stackedLayout.setCurrentWidget(self.scanButton)
 
 
 if __name__ == "__main__":

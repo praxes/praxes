@@ -191,8 +191,8 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         return event.accept()
 
     def _connectToSpec(self):
-        from xpaxs.instrumentation.spec.specconnect import SpecConnect
-        self.expInterface = SpecConnect(self)
+        from xpaxs.instrumentation.spec.specinterface import SpecInterface
+        self.expInterface = SpecInterface(self)
 
     def connectToSpec(self, bool):
         if bool:

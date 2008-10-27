@@ -18,14 +18,14 @@ from PyQt4 import QtCore, QtGui
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.instrumentation.spec.ui import ui_scancontrols,  ui_scandialog
+from xpaxs.instrumentation.spec.ui import ui_skipmode
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
 
 
-class SkipMode(ui_skipmode.Ui_SkipMode, QtGui.QWidget):
+class SkipModeWidget(ui_skipmode.Ui_SkipModeWidget, QtGui.QWidget):
 
     """Dialog for setting spec scan options"""
 
@@ -42,13 +42,13 @@ class SkipMode(ui_skipmode.Ui_SkipMode, QtGui.QWidget):
         self.thresholdSpinBox.setValue(val)
 
         val = settings.value('precount', QtCore.QVariant(0)).toDouble()[0]
-        self.precountSpin.setValue(val)
+        self.precountSpinBox.setValue(val)
 
         counters = [''] + self.specRunner.getCountersMne()
-        self.counterBox.addItems(counters)
+        self.counterComboBox.addItems(counters)
         try:
             i = counters.index(settings.value('counter').toString())
-            self.counterBox.setCurrentIndex(i)
+            self.counterComboBox.setCurrentIndex(i)
         except ValueError:
             pass
 
@@ -59,6 +59,16 @@ class SkipMode(ui_skipmode.Ui_SkipMode, QtGui.QWidget):
         self.thresholdLabel.setEnabled(isEnabled)
         self.precountSpinBox.setEnabled(isEnabled)
         self.precountLabel.setEnabled(isEnabled)
+
+        self.configure(channel=val)
+
+    @QtCore.pyqtSignature("double")
+    def on_precountSpinBox_valueChanged(self, val):
+        self.configure(precount=val)
+
+    @QtCore.pyqtSignature("double")
+    def on_thresholdSpinBox_valueChanged(self, val):
+        self.configure(threshold=val)
 
     def closeEvent(self, event):
         settings = QtCore.QSettings()
@@ -78,14 +88,19 @@ class SkipMode(ui_skipmode.Ui_SkipMode, QtGui.QWidget):
 
         event.accept()
 
-    def configure(self):
-        sm_counter = str(self.counterComboBox.currentText())
-        sm_threshold = self.thresholdSpinBox.value()
-        sm_precount = self.precountSpinBox.value()
+    def configure(self, channel=None, precount=None, threshold=None):
+        if channel is None:
+            channel = str(self.counterComboBox.currentText())
 
-        if bool(sm_precount) and bool(sm_counter):
+        if threshold is None:
+            threshold = self.thresholdSpinBox.value()
+
+        if precount is None:
+            precount = self.precountSpinBox.value()
+
+        if bool(precount) and bool(channel):
             self.specRunner(
-                str("skipmode %s %s %s"%(sm_precount, sm_counter, sm_threshold))
+                str("skipmode %s %s %s"%(precount, channel, threshold))
             )
 
         else:

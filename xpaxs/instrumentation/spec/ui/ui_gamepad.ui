@@ -556,16 +556,6 @@
          </widget>
         </item>
        </layout>
-       <zorder>northwestButton</zorder>
-       <zorder>northButton</zorder>
-       <zorder>northeastButton</zorder>
-       <zorder>westButton</zorder>
-       <zorder>startStopButtonFrame</zorder>
-       <zorder>eastButton</zorder>
-       <zorder>southwestButton</zorder>
-       <zorder>southButton</zorder>
-       <zorder>southeastButton</zorder>
-       <zorder>startScanButton</zorder>
       </widget>
      </item>
      <item>
@@ -606,10 +596,6 @@
          </spacer>
         </item>
        </layout>
-       <zorder>positionFrame</zorder>
-       <zorder>horizontalLayoutWidget</zorder>
-       <zorder>startScanButton</zorder>
-       <zorder>verticalSpacer</zorder>
       </widget>
      </item>
     </layout>

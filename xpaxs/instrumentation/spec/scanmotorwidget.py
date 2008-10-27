@@ -27,7 +27,10 @@ from xpaxs.instrumentation.spec.ui import ui_scanmotorwidget
 
 class ScanMotorWidget(ui_scanmotorwidget.Ui_ScanMotorWidget, QtGui.QGroupBox):
 
-    def __init__(self, specRunner, title="", scanBounds=None, parent=None):
+    def __init__(
+        self, specRunner, title="", motorName=None, scanBounds=None,
+        parent=None
+    ):
         QtGui.QGroupBox.__init__(self, parent)
         self.setupUi(self)
 
@@ -35,6 +38,10 @@ class ScanMotorWidget(ui_scanmotorwidget.Ui_ScanMotorWidget, QtGui.QGroupBox):
 
         self.specRunner = specRunner
         self._scanBounds = scanBounds
+
+    @property
+    def scanBounds(self):
+        return self._scanBounds
 
     def _setBounds(self):
         # TODO: use scanBounds to determine the defaults

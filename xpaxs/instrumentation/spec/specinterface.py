@@ -32,8 +32,6 @@ from xpaxs.instrumentation.spec import USESSH
 logger = logging.getLogger('XPaXS.instrumentation.spec.specconnect')
 
 
-
-
 class ConnectionAborted(Exception):
 
     def __init__(self, specVersion):
@@ -171,33 +169,38 @@ class SpecInterface(QtCore.QObject):
         self.connect(self.scanControls, QtCore.SIGNAL("removeStatusBarWidget"),
                      self.mainWindow.statusBar.removeWidget)
 
-    def _configureGamepad(self):
-        from xpaxs.instrumentation.spec.gamepad import GamePad
-        self.gamepad=GamePad(self.specRunner)
-        self.addDockWidget(self.gamepad, 'Game Pad',
+    def _configureInterfaceWidget(self):
+        self.interfaceWidget = SpecInterfaceWidget(self.specRunner)
+        self.addDockWidget(self.interfaceWidget, 'Spec Interface',
                    QtCore.Qt.LeftDockWidgetArea|
                    QtCore.Qt.RightDockWidgetArea|
                    QtCore.Qt.TopDockWidgetArea|
                    QtCore.Qt.BottomDockWidgetArea,
                    QtCore.Qt.BottomDockWidgetArea,
-                   'GamePadWidget')
+                   'SpecInterfaceWidget')
 
     def _configure(self):
         logger.debug('configuring Spec Interface')
         # This method should be redefined in subclasses of SpecInterface
         self._configureScanControls()
 
-        self.connect(self.mainWindow.actionConfigure,
-                     QtCore.SIGNAL("triggered()"),
-                     lambda : configdialog.ConfigDialog(self.specRunner,
-                                                        self.mainWindow))
-        self.connect(self.specRunner.datafile, QtCore.SIGNAL("datafileChanged"),
-                     self, QtCore.SIGNAL("datafileChanged"))
+        self.connect(
+            self.mainWindow.actionConfigure,
+            QtCore.SIGNAL("triggered()"),
+            lambda : configdialog.ConfigDialog(self.specRunner, self.mainWindow)
+        )
+        self.connect(
+            self.specRunner.datafile,
+            QtCore.SIGNAL("datafileChanged"),
+            self,
+            QtCore.SIGNAL("datafileChanged")
+        )
 
-        self._configureGamepad()
+        self._configureInterfaceWidget()
 
-    def addDockWidget(self, widget, title, allowedAreas, defaultArea,
-                      name = None):
+    def addDockWidget(
+        self, widget, title, allowedAreas, defaultArea, name = None
+    ):
         dock = QtGui.QDockWidget(title)
         if name: dock.setObjectName(name)
         dock.setAllowedAreas(allowedAreas)
@@ -211,6 +214,22 @@ class SpecInterface(QtCore.QObject):
         self.dockWidgets = {}
         self.specRunner.close()
         self._specRunner = None
+
+
+class SpecInterfaceWidget(QtGui.QTabWidget):
+
+    def __init__(self, specRunner, parent=None):
+        QtGui.QTabWidget.__init__(self, parent)
+
+        from xpaxs.instrumentation.spec.gamepad import GamePad
+        from xpaxs.instrumentation.spec.scancontrolsinterface import \
+            ScanControlsInterface
+
+        self.gamepad = GamePad(specRunner, self)
+        self.addTab(self.gamepad, 'Gamepad')
+
+        self.scanControls = ScanControlsInterface(specRunner, self)
+        self.addTab(self.scanControls, 'Scan Controls')
 
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@ from SpecClient import SpecScan, SpecCommand, SpecConnectionsManager, \
 from xpaxs.instrumentation.spec.scan import QtSpecScanA
 from xpaxs.instrumentation.spec.runner import SpecRunner
 from xpaxs.instrumentation.spec.scancontrols import ScanControls
-from xpaxs.instrumentation.spec.specconnect import SpecConnect, SpecInterface
+from xpaxs.instrumentation.spec.specinterface import SpecConnect, SpecInterface
 
 #---------------------------------------------------------------------------
 # Normal code begins

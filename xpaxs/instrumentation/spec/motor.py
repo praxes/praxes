@@ -73,6 +73,22 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
                   state)
         logger.debug( "Motor %s state changed to %s",self.specName, state)
 
+    def getPrecision(self):
+        try:
+            stepsPerUnit = self.getParameter('step_size')
+            stepSize = 1. / stepsPerUnit
+            stepRes = len( str(stepSize).split('.')[-1] )
+            resOrderMagniture = len( str(stepsPerUnit).split('.')[0] ) - 1
+
+            if stepRes > resOrderMagniture:
+                return resOrderMagniture + 1
+
+            else:
+                return resOrderMagniture
+
+        except IndexError:
+            return 0
+
     def getState(self):
         state = SpecMotor.SpecMotorA.getState(self)
         return self.__state_strings[state]
@@ -104,6 +120,7 @@ class TestQtSpecMotor(QtSpecMotorBase):
 
         self.connect(self.Timer, QtCore.SIGNAL('timeout()'), self.end)
         logger.debug("Motor %s is in Test Mode",self.specName)
+
     def getPosition(self):
         return self.position
 

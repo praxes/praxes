@@ -30,7 +30,6 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
         self.directionLabel.setText(direction)
         self.specRunner = specRunner
         self._motor = None
-        self._precision = 2
         self.mneComboBox.addItems( [''] + self.specRunner.getMotorsMne() )
 
     @property
@@ -60,7 +59,10 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
 
     @property
     def precision(self):
-        return self._precision
+        try:
+            return self._motor.getPrecision()
+        except AttributeError:
+            return 0
 
     @property
     def state(self):
@@ -145,12 +147,11 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
             self._motor = None
             self._stateChanged(self.state)
 
-        # TODO: Is there a way to get the precision from Spec?
-        self._setPrecision(5)
         self._limitsChanged(self.limits)
         self._positionChanged(self.position)
         self._nextPositionChanged(self.position)
         self._stateChanged(self.state)
+        self._setPrecision(self.precision)
 
     @QtCore.pyqtSignature("")
     def on_posSpinBox_editingFinished(self):

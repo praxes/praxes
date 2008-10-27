@@ -25,10 +25,20 @@ from xpaxs.instrumentation.spec.motorwidget import MotorWidget
 
 class ScanBounds(object):
 
-    @property
-    def test(self):
-        return 1
+    def __init__(self, start=None, stop=None):
+        self.start = start
+        self.stop = stop
 
-sb = ScanBounds()
 
-print sb.test
+class ScanBoundsDict(dict):
+
+    def __getitem__(self, item):
+        if not item in self:
+            self[item] = ScanBounds()
+        return super(ScanBoundsDict, self).__getitem__(item)
+
+    def __setitem__(self, item, val):
+        assert isinstance(val, ScanBounds)
+
+        super(ScanBoundsDict, self).__setitem__(item, val)
+
