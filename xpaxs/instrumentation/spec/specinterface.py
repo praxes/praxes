@@ -231,6 +231,17 @@ class SpecInterfaceWidget(QtGui.QTabWidget):
         self.scanControls = ScanControlsInterface(specRunner, self)
         self.addTab(self.scanControls, 'Scan Controls')
 
+        self.connect(
+            self.scanControls,
+            QtCore.SIGNAL("specBusy"),
+            self.gamepad.setBusy
+        )
+        self.connect(
+            self.gamepad,
+            QtCore.SIGNAL("specBusy"),
+            self.scanControls.setBusy
+        )
+
 
 if __name__ == "__main__":
     import sys

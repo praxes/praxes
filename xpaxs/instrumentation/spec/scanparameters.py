@@ -294,6 +294,20 @@ class ScanParametersWidget(
         val = os.path.split(self.specRunner.getVarVal('DATAFILE'))[-1]
         self.specFileNameEdit.setText(val)
 
+        self._connectSignals()
+
+    def _connectSignals(self):
+        self.connect(
+            self.specRunner.scan,
+            QtCore.SIGNAL("scanStarted()"),
+            self.scanStarted
+        )
+        self.connect(
+            self.specRunner.scan,
+            QtCore.SIGNAL("scanFinished()"),
+            self.scanFinished
+        )
+
     @property
     def scanBounds(self):
         return self._scanBounds
@@ -317,7 +331,8 @@ class ScanParametersWidget(
     @QtCore.pyqtSignature("")
     def on_scanButton_clicked(self):
         print 'Need to implement scan starting'
-        self.scanStarted()
+        # just for testing:
+        self.specRunner.scan.scanStarted()
 
     @QtCore.pyqtSignature("QString")
     def on_scanTypeComboBox_currentIndexChanged(self, val):
@@ -353,26 +368,37 @@ class ScanParametersWidget(
         self.stackedLayout.setCurrentWidget(self.scanProgressBar)
         self.actionPause.setVisible(True)
         self.actionResume.setVisible(False)
+        self.emit(QtCore.SIGNAL("specBusy"), True)
+
+    def setBusy(self, busy):
+        self.scanParamsWidget.setDisabled(busy)
+        self.scanButton.setDisabled(busy)
 
     def scanFinished(self):
+        print 'finished'
         self.stackedLayout.setCurrentWidget(self.scanButton)
+        self.emit(QtCore.SIGNAL("specBusy"), False)
 
     @QtCore.pyqtSignature("bool")
     def on_actionPause_triggered(self):
         print 'paused'
         self.actionPause.setVisible(False)
         self.actionResume.setVisible(True)
+        self.specRunner.abort()
 
     @QtCore.pyqtSignature("bool")
     def on_actionResume_triggered(self):
         print 'resumed'
         self.actionPause.setVisible(True)
         self.actionResume.setVisible(False)
+        self.specRunner.scan.resumeScan()
 
     @QtCore.pyqtSignature("bool")
     def on_actionAbort_triggered(self):
         print 'aborted'
         self.stackedLayout.setCurrentWidget(self.scanButton)
+        self.specRunner.abort()
+        self.specRunner.scan.scanAborted()
 
 
 if __name__ == "__main__":

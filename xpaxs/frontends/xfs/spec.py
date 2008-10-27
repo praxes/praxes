@@ -95,18 +95,12 @@ class SmpSpecScanA(QtSpecScanA):
         self._resumeScan()
 
     def scanAborted(self):
-        self.smpEntry.setNumExpectedScanLines(self.smpEntry.getNumScanLines())
-        self.emit(QtCore.SIGNAL("scanAborted()"))
-
-    def scanFinished(self):
-        if DEBUG: print 'scan finished'
-        # TODO: save data!
-        self.emit(QtCore.SIGNAL("scanFinished()"))
-
-    def scanStarted(self):
-        if DEBUG: print 'scan started'
-        self.emit(QtCore.SIGNAL("scanStarted()"))
-
+        try:
+            self.smpEntry.setNumExpectedScanLines(self.smpEntry.getNumScanLines())
+        except AttributeError:
+            # for testing purposes, shouldnt need this try
+            pass
+        QtSpecScanA.scanAborted(self)
 
 
 class SmpScanControls(ScanControls):

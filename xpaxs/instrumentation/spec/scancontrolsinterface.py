@@ -41,6 +41,22 @@ class ScanControlsInterface(QtGui.QTabWidget):
         self.skipMode = SkipModeWidget(specRunner, self)
         self.addTab(self.skipMode, 'Skip Mode')
 
+        self.connect(
+            self.scanWidget,
+            QtCore.SIGNAL("specBusy"),
+            self,
+            QtCore.SIGNAL("specBusy")
+        )
+        self.connect(
+            self.scanWidget,
+            QtCore.SIGNAL("specBusy"),
+            self.setBusy
+        )
+
+    def setBusy(self, busy):
+        self.skipMode.setBusy(busy)
+        self.scanWidget.setBusy(busy)
+
 
 if __name__ == "__main__":
     import sys

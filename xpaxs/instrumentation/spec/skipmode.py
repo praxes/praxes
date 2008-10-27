@@ -106,6 +106,9 @@ class SkipModeWidget(ui_skipmode.Ui_SkipModeWidget, QtGui.QWidget):
         else:
             self.specRunner('skipmode 0')
 
+    def setBusy(self, busy):
+        self.setDisabled(busy)
+
 
 if __name__ == "__main__":
     import sys

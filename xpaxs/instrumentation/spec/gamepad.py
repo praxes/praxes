@@ -129,6 +129,9 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
 
         self._relativeMove(*cmdArgs)
 
+    def setBusy(self, busy):
+        self.setDisabled(busy)
+
     @QtCore.pyqtSignature("")
     def on_eastButton_clicked(self):
         self._gamepadButtonClicked(ewDir=1)
@@ -203,13 +206,13 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
         if eitherMoving:
             self.startStopStackedLayout.setCurrentWidget(self.stopButton)
             self.stopButton.setEnabled(True)
-#            self.startScanButton.setEnabled(False)
             nsEnabled = ewEnabled = bothEnabled = False
+            self.emit(QtCore.SIGNAL("specBusy"), True)
 
         else:
             self.stopButton.setEnabled(False)
             self.startStopStackedLayout.setCurrentWidget(self.startButton)
-#            self.startScanButton.setEnabled(eitherEnabled)
+            self.emit(QtCore.SIGNAL("specBusy"), False)
 
         self.northButton.setEnabled(nsEnabled)
         self.southButton.setEnabled(nsEnabled)

@@ -81,9 +81,11 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
     def scanAborted(self):
         logger.info('Scan Aborted')
         self.emit(QtCore.SIGNAL("scanAborted()"))
+        self.scanFinished()
 
     def scanFinished(self):
         logger.info( 'scan finished')
+        print 'scan fin'
         # TODO: save data!
         self.emit(QtCore.SIGNAL("scanFinished()"))
 
