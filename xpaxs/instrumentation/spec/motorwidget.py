@@ -79,7 +79,7 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
     @property
     def precision(self):
         try:
-            return self._motor.precision
+            return self._motor.getPrecision()
         except AttributeError:
             return 0
 
@@ -167,10 +167,10 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
     @QtCore.pyqtSignature("bool")
     def on_actionSaveStopLocation_triggered(self):
         if self.posSpinBox.hasFocus():
-            self._motor.setScanBoundStop(pos, self.posSpinBox.value())
+            self._motor.setScanBoundStop(self.posSpinBox.value())
 
         elif self.nextPosSpinBox.hasFocus():
-            self._motor.setScanBoundStop(pos, self.nextPosSpinBox.value())
+            self._motor.setScanBoundStop(self.nextPosSpinBox.value())
 
     @QtCore.pyqtSignature("QString")
     def on_mneComboBox_currentIndexChanged(self, motorMne):
@@ -180,8 +180,9 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
         else:
             self._motor = None
 
-        self._limitsChanged(self.limits)
+        self._limitsChanged([-1e6, 1e6])
         self._positionChanged(self.position)
+        self._limitsChanged(self.limits)
         self._nextPositionChanged(self.position)
         self._stateChanged(self.state)
         self._setPrecision(self.precision)
@@ -195,8 +196,10 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
             )
 
     @QtCore.pyqtSignature("")
-    def on_posSpinBox_valueChanged(self):
-        self._motor.move(self.posSpinBox.value())
+    def on_posSpinBox_editingFinished(self):
+        val = self.posSpinBox.value()
+        if val != self.position and self._motor:
+                self._motor.move(val)
 
     @QtCore.pyqtSignature("int")
     def on_nextPosSlider_sliderMoved(self, val):

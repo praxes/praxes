@@ -72,7 +72,7 @@ class ScanMotorWidget(ui_scanmotorwidget.Ui_ScanMotorWidget, QtGui.QGroupBox):
     @property
     def precision(self):
         try:
-            return self._motor.precision
+            return self._motor.getPrecision()
         except AttributeError:
             return 0
 
@@ -125,8 +125,8 @@ class ScanMotorWidget(ui_scanmotorwidget.Ui_ScanMotorWidget, QtGui.QGroupBox):
         self._setPrecision(self.precision)
 
         if motorMne:
-            self._setStartPosition(self._motor.scanBoundStart)
-            self._setStopPosition(self._motor.scanBoundStop)
+            self._setStartPosition(self._motor.getScanBoundStart())
+            self._setStopPosition(self._motor.getScanBoundStop())
 
             settings = QtCore.QSettings()
             settings.beginGroup("%s/%s"%(self.__class__, self._direction))

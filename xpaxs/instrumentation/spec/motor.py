@@ -46,10 +46,9 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
 
         self._scanBoundStart = None
         self._scanBoundStop = None
-        self.getPosition()
+        self._precision = self._getPrecision()
 
-    @property
-    def precision(self):
+    def _getPrecision(self):
         try:
             stepsPerUnit = self.getParameter('step_size')
             stepSize = 1. / stepsPerUnit
@@ -65,16 +64,17 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
         except IndexError:
             return 0
 
-    @property
-    def scanBoundStart(self):
+    def getPrecision(self):
+        return self._precision
+
+    def getScanBoundStart(self):
         if self._scanBoundStart is None:
             return self.getPosition()
 
         else:
             return self._scanBoundStart
 
-    @property
-    def scanBoundStop(self):
+    def getScanBoundStop(self):
         if self._scanBoundStop is None:
             return self.getPosition() + 1
 

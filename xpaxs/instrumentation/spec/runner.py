@@ -137,11 +137,14 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
             self._counterNames = [countersMne[str(i)] for i in keys]
         return self._counterNames
 
-    def getMotor(self, motorName):
-        return self._motors.setdefault(
-            motorName,
-            QtSpecMotorA(motorName, self.specVersion)
-        )
+    def getMotor(self, motorMne):
+        if motorMne in self._motors:
+            return self._motors[motorMne]
+
+        else:
+            motor = QtSpecMotorA(motorMne, self.specVersion)
+            self._motors[motorMne] = motor
+            return motor
 
     def getMotorMne(self, motorId):
         motorMne = self.motor_mne(motorId, function = True)
