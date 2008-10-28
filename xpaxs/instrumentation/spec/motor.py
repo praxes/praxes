@@ -43,7 +43,43 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
     def __init__(self, specName=None, specVersion=None):
         QtCore.QObject.__init__(self)
         SpecMotor.SpecMotorA.__init__(self, str(specName), str(specVersion))
+
+        self._scanBoundStart = None
+        self._scanBoundStop = None
         self.getPosition()
+
+    @property
+    def precision(self):
+        try:
+            stepsPerUnit = self.getParameter('step_size')
+            stepSize = 1. / stepsPerUnit
+            stepRes = len( str(stepSize).split('.')[-1] )
+            resOrderMagniture = len( str(stepsPerUnit).split('.')[0] ) - 1
+
+            if stepRes > resOrderMagniture:
+                return resOrderMagniture + 1
+
+            else:
+                return resOrderMagniture
+
+        except IndexError:
+            return 0
+
+    @property
+    def scanBoundStart(self):
+        if self._scanBoundStart is None:
+            return self.getPosition()
+
+        else:
+            return self._scanBoundStart
+
+    @property
+    def scanBoundStop(self):
+        if self._scanBoundStop is None:
+            return self.getPosition() + 1
+
+        else:
+            return self._scanBoundStop
 
     def connected(self):
         logger.debug('Motor %s connected',self.specName)
@@ -73,25 +109,17 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
                   state)
         logger.debug( "Motor %s state changed to %s",self.specName, state)
 
-    def getPrecision(self):
-        try:
-            stepsPerUnit = self.getParameter('step_size')
-            stepSize = 1. / stepsPerUnit
-            stepRes = len( str(stepSize).split('.')[-1] )
-            resOrderMagniture = len( str(stepsPerUnit).split('.')[0] ) - 1
-
-            if stepRes > resOrderMagniture:
-                return resOrderMagniture + 1
-
-            else:
-                return resOrderMagniture
-
-        except IndexError:
-            return 0
-
     def getState(self):
         state = SpecMotor.SpecMotorA.getState(self)
         return self.__state_strings[state]
+
+    def setScanBoundStart(self, val):
+        self._scanBoundStart = val
+        self.emit(QtCore.SIGNAL("scanBoundStartChanged(PyQt_PyObject)"), val)
+
+    def setScanBoundStop(self, val):
+        self._scanBoundStop = val
+        self.emit(QtCore.SIGNAL("scanBoundStopChanged(PyQt_PyObject)"), val)
 
 
 class TestQtSpecMotor(QtSpecMotorBase):

@@ -56,6 +56,10 @@ class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
         self._eastWestMotorWidget = MotorWidget(
             'E/W Motor', specRunner, self
         )
+        self._stateChanged(
+            nsState=self.northSouthMotorWidget.state,
+            ewState=self.eastWestMotorWidget.state
+        )
 
         self.vboxlayout1.insertWidget(0, self.eastWestMotorWidget)
         self.vboxlayout1.insertWidget(0, self.northSouthMotorWidget)

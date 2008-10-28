@@ -75,7 +75,7 @@ class SkipModeWidget(ui_skipmode.Ui_SkipModeWidget, QtGui.QWidget):
         settings.beginGroup("SkipModeOptions")
         settings.setValue(
             'counter',
-            QtCore.QVariant( str(self.counterComboBox.currentText()) )
+            QtCore.QVariant(self.counterComboBox.currentText())
         )
         settings.setValue(
             'threshold',

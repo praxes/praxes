@@ -18,7 +18,7 @@ from xpaxs.instrumentation.spec.ui import ui_motorwidget
 
 #---------------------------------------------------------------------------
 # Normal code begins
-#--------------------------------------------------------------------------
+#---------------------------------------------------------------------------
 
 
 class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
@@ -28,9 +28,28 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
         self.setupUi(self)
 
         self.directionLabel.setText(direction)
+        self._direction = direction.replace('/', '').replace(' ', '')
         self.specRunner = specRunner
         self._motor = None
+
         self.mneComboBox.addItems( [''] + self.specRunner.getMotorsMne() )
+        settings = QtCore.QSettings()
+        settings.beginGroup("MotorWidget/%s"%self._direction)
+        mne = settings.value('motorMne').toString()
+        i = self.mneComboBox.findText(mne)
+        if i != -1:
+            self.mneComboBox.setCurrentIndex(i)
+
+        self.posSpinBox.addActions(
+            [self.actionSaveStartLocation,
+             self.actionSaveStopLocation
+            ]
+        )
+        self.nextPosSpinBox.addActions(
+            [self.actionSaveStartLocation,
+             self.actionSaveStopLocation
+            ]
+        )
 
     @property
     def limits(self):
@@ -60,7 +79,7 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
     @property
     def precision(self):
         try:
-            return self._motor.getPrecision()
+            return self._motor.precision
         except AttributeError:
             return 0
 
@@ -137,15 +156,29 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
         self._setMotorUsable(state)
         self.emit(QtCore.SIGNAL("stateChanged(PyQt_PyObject)"), state)
 
+    @QtCore.pyqtSignature("bool")
+    def on_actionSaveStartLocation_triggered(self):
+        if self.posSpinBox.hasFocus():
+            self._motor.setScanBoundStart(self.posSpinBox.value())
+
+        elif self.nextPosSpinBox.hasFocus():
+            self._motor.setScanBoundStart(self.nextPosSpinBox.value())
+
+    @QtCore.pyqtSignature("bool")
+    def on_actionSaveStopLocation_triggered(self):
+        if self.posSpinBox.hasFocus():
+            self._motor.setScanBoundStop(pos, self.posSpinBox.value())
+
+        elif self.nextPosSpinBox.hasFocus():
+            self._motor.setScanBoundStop(pos, self.nextPosSpinBox.value())
+
     @QtCore.pyqtSignature("QString")
     def on_mneComboBox_currentIndexChanged(self, motorMne):
-        motorMne = str(motorMne)
         if motorMne:
-            self._motor = self.specRunner.getMotor("%s"%motorMne)
+            self._motor = self.specRunner.getMotor(str(motorMne))
             self._connectMotor()
         else:
             self._motor = None
-            self._stateChanged(self.state)
 
         self._limitsChanged(self.limits)
         self._positionChanged(self.position)
@@ -153,8 +186,16 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
         self._stateChanged(self.state)
         self._setPrecision(self.precision)
 
+        if motorMne:
+            settings = QtCore.QSettings()
+            settings.beginGroup("MotorWidget/%s"%self._direction)
+            settings.setValue(
+                'motorMne',
+                QtCore.QVariant(motorMne)
+            )
+
     @QtCore.pyqtSignature("")
-    def on_posSpinBox_editingFinished(self):
+    def on_posSpinBox_valueChanged(self):
         self._motor.move(self.posSpinBox.value())
 
     @QtCore.pyqtSignature("int")

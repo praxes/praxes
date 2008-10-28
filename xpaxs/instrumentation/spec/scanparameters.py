@@ -49,12 +49,13 @@ class ScanParameters(QtGui.QWidget):
 
     def __init__(self, specRunner, scanBounds=None, parent=None):
         QtGui.QWidget.__init__(self, parent)
-#        self.setWindowFlags(QtCore.Qt.WA_DeleteOnClose)
 
         self._specRunner = specRunner
 
         layout = QtGui.QVBoxLayout()
         self.setLayout(layout)
+
+        self._axes = []
 
     @property
     def cmd(self):
@@ -64,6 +65,14 @@ class ScanParameters(QtGui.QWidget):
     def AxisWidget(self):
         return self._AxisWidget
 
+    def _connectSignals(self):
+        for axis in self._axes:
+            self.connect(
+                axis,
+                QtCore.SIGNAL("motorReady(PyQt_PyObject)"),
+                self.scanReady
+            )
+
     def _getAxisWidget(self):
         raise NotImplementedError
 
@@ -72,6 +81,13 @@ class ScanParameters(QtGui.QWidget):
 
     def getDefaultAxes(self):
         raise NotImplementedError
+
+    def scanReady(self):
+        for axis in self._axes:
+            if not axis.motorReady:
+                self.emit(QtCore.SIGNAL("scanReady(PyQt_PyObject)"), False)
+                return
+        self.emit(QtCore.SIGNAL("scanReady(PyQt_PyObject)"), True)
 
 
 class AScanParameters(ScanParameters):
@@ -86,6 +102,10 @@ class AScanParameters(ScanParameters):
         layout = self.layout()
         self._axis = self.AxisWidget(specRunner, '', axis1, scanBounds, self)
         layout.addWidget(self._axis)
+
+        self._axes = [axis1]
+
+        self._connectSignals()
 
     def getCommand(self):
         cmdList = [self.cmd]
@@ -123,6 +143,7 @@ class A2ScanParameters(AScanParameters):
         self._connectSignals()
 
     def _connectSignals(self):
+        AScanParameters._connectSignals(self)
         for axis in self._axes:
             self.connect(
                 axis.stepSpinBox,
@@ -213,7 +234,7 @@ class D3ScanParameters(A3ScanParameters):
 class MeshParameters(ScanParameters):
 
     _cmd = 'mesh'
-    _AxisWidget = scanmotorwidget.AScanMotorWidget
+    _AxisWidget = scanmotorwidget.MeshMotorWidget
 
     def __init__(self, specRunner, scanBounds=None, parent=None):
         ScanParameters.__init__(self, specRunner, scanBounds, parent)
@@ -228,6 +249,8 @@ class MeshParameters(ScanParameters):
             specRunner, 'slowAxis', slowAxis, scanBounds, self
         )
         layout.addWidget(self._slowAxis)
+
+        self._connectSignals()
 
     def getCommand(self):
         cmdList = [self.cmd]
@@ -264,6 +287,7 @@ class ScanParametersWidget(
     """Dialog for setting spec scan options"""
 
     _scanParametersClasses = {}
+    _scanParametersClasses[''] = None
     _scanParametersClasses['ascan'] = AScanParameters
     _scanParametersClasses['a2scan'] = A2ScanParameters
     _scanParametersClasses['a3scan'] = A3ScanParameters
@@ -282,6 +306,14 @@ class ScanParametersWidget(
         self._scanBounds = ScanBoundsDict()
 
         self.scanTypeComboBox.addItems(sorted(self._scanParametersClasses))
+
+        settings = QtCore.QSettings()
+        settings.beginGroup("ScanParameters")
+        scantype = settings.value('ScanType').toString()
+        i = self.scanTypeComboBox.findText(scantype)
+        if i != -1:
+            self.scanTypeComboBox.setCurrentIndex(i)
+
         self.scanProgressBar.addActions(
             [self.actionPause, self.actionResume, self.actionAbort]
         )
@@ -307,18 +339,11 @@ class ScanParametersWidget(
             QtCore.SIGNAL("scanFinished()"),
             self.scanFinished
         )
-
-    @property
-    def scanBounds(self):
-        return self._scanBounds
-
-    @QtCore.pyqtSignature("")
-    def on_pauseButton_clicked(self):
-        self.stackedLayout.setCurrentWidget(self.resumeButton)
-
-    @QtCore.pyqtSignature("")
-    def on_resumeButton_clicked(self):
-        self.stackedLayout.setCurrentWidget(self.pauseButton)
+        self.connect(
+            self._scanParameters,
+            QtCore.SIGNAL("scanReady(PyQt_PyObject)"),
+            self.scanButton.setEnabled
+        )
 
     @QtCore.pyqtSignature("")
     def on_specFileNameEdit_editingFinished(self):
@@ -341,10 +366,22 @@ class ScanParametersWidget(
         except AttributeError:
             pass
         ScanParameters = self._scanParametersClasses[str(val)]
-        self._scanParameters = ScanParameters(
-            self.specRunner, self._scanBounds, self
-        )
-        self.scanParametersLayout.addWidget(self._scanParameters)
+        if ScanParameters:
+            self._scanParameters = ScanParameters(
+                self.specRunner, self._scanBounds, self
+            )
+            self.scanParametersLayout.addWidget(self._scanParameters)
+
+            self.scanButton.setEnabled(True)
+
+            settings = QtCore.QSettings()
+            settings.beginGroup("ScanParameters")
+            settings.setValue(
+                'ScanType',
+                QtCore.QVariant(self.scanTypeComboBox.currentText())
+            )
+        else:
+            self.scanButton.setEnabled(False)
 
     def _specFileError(self, requested, current):
         exception = SpecfileError(requested, current)

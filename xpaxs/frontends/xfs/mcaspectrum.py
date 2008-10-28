@@ -67,6 +67,9 @@ class McaSpectrumFigure(plotwidgets.QtMplCanvas):
     def updateFigure(self, results):
         xdata = results['energy'][:]
 
+#        import pickle
+#        pickle.dump(results, open('dendro.p', 'w'))
+
         self.spectrumAxes.clear()
         self.residualsAxes.clear()
 
@@ -110,7 +113,7 @@ class McaSpectrumFigure(plotwidgets.QtMplCanvas):
 
         if self.useLogScale:
             self.spectrumAxes.set_yscale('log')
-            ylim = self.spectrumAxes.get_ylim()
+            ylim = list(self.spectrumAxes.get_ylim())
             if ylim[0] < 0.001:
                 ylim[0] = 0.001
                 self.spectrumAxes.set_ylim(ylim)

@@ -217,6 +217,22 @@
     </widget>
    </item>
   </layout>
+  <action name="actionSaveStartLocation" >
+   <property name="text" >
+    <string>Save Start Location</string>
+   </property>
+   <property name="autoRepeat" >
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionSaveStopLocation" >
+   <property name="text" >
+    <string>Save Stop Location</string>
+   </property>
+   <property name="autoRepeat" >
+    <bool>false</bool>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

@@ -33,7 +33,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="motorComboBox" >
+    <widget class="QComboBox" name="mneComboBox" >
      <property name="sizePolicy" >
       <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
        <horstretch>0</horstretch>
@@ -102,6 +102,12 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="minimum" >
+      <number>1</number>
+     </property>
+     <property name="maximum" >
+      <number>99999</number>
      </property>
     </widget>
    </item>

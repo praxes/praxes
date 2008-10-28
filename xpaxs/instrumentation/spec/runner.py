@@ -138,7 +138,10 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
         return self._counterNames
 
     def getMotor(self, motorName):
-        return QtSpecMotorA(motorName, self.specVersion)
+        return self._motors.setdefault(
+            motorName,
+            QtSpecMotorA(motorName, self.specVersion)
+        )
 
     def getMotorMne(self, motorId):
         motorMne = self.motor_mne(motorId, function = True)
