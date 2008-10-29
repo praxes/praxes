@@ -85,7 +85,6 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
 
     def scanFinished(self):
         logger.info( 'scan finished')
-        print 'scan fin'
         # TODO: save data!
         self.emit(QtCore.SIGNAL("scanFinished()"))
 

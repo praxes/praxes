@@ -27,10 +27,7 @@ from xpaxs.instrumentation.spec.ui import ui_scanmotorwidget
 
 class ScanMotorWidget(ui_scanmotorwidget.Ui_ScanMotorWidget, QtGui.QGroupBox):
 
-    def __init__(
-        self, specRunner, title="", motorName=None, scanBounds=None,
-        parent=None
-    ):
+    def __init__(self, specRunner, title="", motorName=None, parent=None):
         QtGui.QGroupBox.__init__(self, parent)
         self.setupUi(self)
 
@@ -55,6 +52,10 @@ class ScanMotorWidget(ui_scanmotorwidget.Ui_ScanMotorWidget, QtGui.QGroupBox):
             return [-1, 1]
 
     @property
+    def motorMne(self):
+        return self.mneComboBox.currentText()
+
+    @property
     def motorReady(self):
         if self._motor is None:
             return False
@@ -75,6 +76,18 @@ class ScanMotorWidget(ui_scanmotorwidget.Ui_ScanMotorWidget, QtGui.QGroupBox):
             return self._motor.getPrecision()
         except AttributeError:
             return 0
+
+    @property
+    def start(self):
+        return self.startSpinBox.value()
+
+    @property
+    def stop(self):
+        return self.stopSpinBox.value()
+
+    @property
+    def steps(self):
+        return self.stepSpinBox.value()
 
     def _connectMotor(self):
         if self._motor:
@@ -143,6 +156,13 @@ class ScanMotorWidget(ui_scanmotorwidget.Ui_ScanMotorWidget, QtGui.QGroupBox):
 
     def _setStopPosition(self, val):
         self.stopSpinBox.setValue(val)
+
+    def getScanArgs(self, steps=True):
+        args = [self.motorMne, self.start, self.stop]
+        if steps:
+            args.append(self.steps)
+
+        return args
 
 
 class AScanMotorWidget(ScanMotorWidget):

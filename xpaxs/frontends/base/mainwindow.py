@@ -239,6 +239,7 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                 self.openDatafile(h5filename)
 
     def newScanWindow(self, scan, beginProcessing=False, **kwargs):
+        print scan, self.openScans
         if scan in self.openScans:
             return
 
