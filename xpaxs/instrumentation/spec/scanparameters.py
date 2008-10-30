@@ -46,10 +46,8 @@ class ScanParameters(QtGui.QWidget):
     _cmd = ''
     _AxisWidget = None
 
-    def __init__(self, specRunner, parent=None):
+    def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
-
-        self._specRunner = specRunner
 
         layout = QtGui.QVBoxLayout()
         self.setLayout(layout)
@@ -57,12 +55,12 @@ class ScanParameters(QtGui.QWidget):
         self._axes = []
 
     @property
-    def cmd(self):
-        return self._command
-
-    @property
     def AxisWidget(self):
         return self._AxisWidget
+
+    @property
+    def cmd(self):
+        return self._command
 
     def _connectSignals(self):
         for axis in self._axes:
@@ -95,7 +93,7 @@ class AScanParameters(ScanParameters):
     _AxisWidget = scanmotorwidget.AScanMotorWidget
 
     def __init__(self, specRunner, parent=None):
-        ScanParameters.__init__(self, specRunner, parent)
+        ScanParameters.__init__(self, parent)
 
         axis = self.getDefaultAxes()[0]
         layout = self.layout()
@@ -124,7 +122,7 @@ class A2ScanParameters(AScanParameters):
     _cmd = 'a2scan'
 
     def __init__(self, specRunner, parent=None):
-        ScanParameters.__init__(self, specRunner, parent)
+        ScanParameters.__init__(self, parent)
 
         axis1, axis2 = self.getDefaultAxes()
         layout = self.layout()
@@ -170,7 +168,7 @@ class A3ScanParameters(A2ScanParameters):
     _cmd = 'a3scan'
 
     def __init__(self, specRunner, parent=None):
-        ScanParameters.__init__(self, specRunner, parent)
+        ScanParameters.__init__(self, parent)
 
         axis1, axis2, axis3 = self.getDefaultAxes()
         layout = self.layout()
@@ -226,7 +224,7 @@ class MeshParameters(ScanParameters):
     _AxisWidget = scanmotorwidget.MeshMotorWidget
 
     def __init__(self, specRunner, parent=None):
-        ScanParameters.__init__(self, specRunner, parent)
+        ScanParameters.__init__(self, parent)
 
         fastAxis, slowAxis = self.getDefaultAxes()
         layout = self.layout()
@@ -290,7 +288,8 @@ class ScanParametersWidget(
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
 
-        self.specRunner = specRunner
+        self._specRunner = specRunner
+        self._scan = None
 
         self.scanTypeComboBox.addItems(self._scanTypes)
 
@@ -313,56 +312,70 @@ class ScanParametersWidget(
         val = os.path.split(self.specRunner.getVarVal('DATAFILE'))[-1]
         self.specFileNameEdit.setText(val)
 
-        self.connect(
-            self.specRunner.scan,
-            QtCore.SIGNAL("scanStarted()"),
-            self.scanStarted
-        )
-        self.connect(
-            self.specRunner.scan,
-            QtCore.SIGNAL("scanFinished()"),
-            self.scanFinished
-        )
+    @property
+    def scan(self):
+        return self._scan
+
+    @property
+    def specRunner(self):
+        return self._specRunner
 
     @QtCore.pyqtSignature("bool")
     def on_actionPause_triggered(self):
-        print 'paused'
         self.actionPause.setVisible(False)
         self.actionResume.setVisible(True)
-#        self.specRunner.abort()
+#        self.scan.pause()
 
     @QtCore.pyqtSignature("bool")
     def on_actionResume_triggered(self):
-        print 'resumed'
         self.actionPause.setVisible(True)
         self.actionResume.setVisible(False)
-#        self.specRunner.scan.resumeScan()
+#        self.scan.resume()
 
     @QtCore.pyqtSignature("bool")
     def on_actionAbort_triggered(self):
-        print 'aborted'
         self.stackedLayout.setCurrentWidget(self.scanButton)
-#        self.specRunner.abort()
-        self.specRunner.scan.scanAborted()
+        self.scan.abortScan()
 
     @QtCore.pyqtSignature("")
     def on_specFileNameEdit_editingFinished(self):
         fullname = str(self.specFileNameEdit.text()).rstrip('.h5').rstrip('.hdf5')
-        truncated = os.path.split(fullname)[-1]
-        self.specFileNameEdit.setText(truncated)
+        newFile = os.path.split(fullname)[-1]
 
-        self._setSpecFileName(truncated)
+        oldFile = self.specRunner.getVarVal('DATAFILE')
+        if oldFile != newFile:
+            if ChangeSpecFileDialog(oldFile, newFile).exec_():
+                self._setSpecFileName(newFile)
 
     @QtCore.pyqtSignature("")
     def on_scanButton_clicked(self):
         print 'Need to implement scan starting'
-        # just for testing:
+
+        self.specRunner.clientdataon()
+        # TODO: is this line needed?
+        self.specRunner.clientploton()
+
         args = self._scanParameters.getScanArgs()
         args.append(self.integrationTimeSpinBox.value())
         cmd = ' '.join(str(i) for i in args)
-        print cmd
-#        self.specRunner(cmd)
-#        self.specRunner.scan.scanStarted()
+
+        from xpaxs.instrumentation.spec.scan import QtSpecScanA
+        self._scan = QtSpecScanA(specVersion, parent=self)
+
+        self.connect(
+            self._scan,
+            QtCore.SIGNAL("scanStarted()"),
+            self.scanStarted
+        )
+        self.connect(
+            self._scan,
+            QtCore.SIGNAL("scanFinished()"),
+            self.scanFinished
+        )
+        self.scan(cmd)
+
+        # for testing:
+        self.scan.scanStarted()
 
     @QtCore.pyqtSignature("QString")
     def on_scanTypeComboBox_currentIndexChanged(self, val):
@@ -402,11 +415,12 @@ class ScanParametersWidget(
 
     def _setSpecFileName(self, filename):
         self.specRunner('newfile %s'%fileName)
-        specfile = self.specRunner.getVarVal('DATAFILE')
+        specCreated = self.specRunner.getVarVal('DATAFILE')
 
-        specCreated = os.path.split(specfile)[-1]
         if fileName != specCreated:
-            self._specFileError(fileName, specfile)
+            self._specFileError(fileName, specCreated)
+
+        self.specFileNameEdit.setText(specCreated)
 
     def scanStarted(self):
         self.scanProgressBar.setValue(0)
@@ -423,6 +437,44 @@ class ScanParametersWidget(
         print 'finished'
         self.stackedLayout.setCurrentWidget(self.scanButton)
         self.emit(QtCore.SIGNAL("specBusy"), False)
+
+        self.specRunner.clientdataoff()
+        # TODO: is this needed?
+        self.specRunner.clientplotoff()
+
+
+class ChangeSpecFileDialog(QtGui.QDialog):
+
+    def __init__(self, old, new, parent=None):
+        QtGui.QDialog.__init__(self, parent)
+
+        self.setWindowTitle("Spec Data File")
+
+        layout = QtGui.QVBoxLayout()
+        msg = """Change spec datafile from "%s" to "%s"?
+
+        (the new file will be created in spec's current working directory)
+        """%(old, new)
+        label = QtGui.QLabel(msg)
+        layout.addWidget(label)
+
+        buttonBox = QtGui.QDialogButtonBox(
+            QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel
+        )
+        layout.addWidget(buttonBox)
+
+        self.connect(
+            buttonBox,
+            QtCore.SIGNAL("accepted()"),
+            self,
+            QtCore.SLOT("accept()")
+        )
+        self.connect(
+            buttonBox,
+            QtCore.SIGNAL("rejected()"),
+            self,
+            QtCore.SLOT("rejected()")
+        )
 
 
 if __name__ == "__main__":

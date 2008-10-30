@@ -190,25 +190,27 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         if self.expInterface: self.expInterface.close()
         return event.accept()
 
-    def _connectToSpec(self):
-        from xpaxs.instrumentation.spec.specinterface import SpecInterface
-        self.expInterface = SpecInterface(self)
-
     def connectToSpec(self, bool):
         if bool:
             from xpaxs.instrumentation.spec.specconnect import ConnectionAborted
-            try: self._connectToSpec()
-            except ConnectionAborted: return
+
+            try:
+                from xpaxs.instrumentation.spec.specinterface import SpecInterface
+                self.expInterface = SpecInterface(macros, self)
+
+            except ConnectionAborted:
+                return
+
             if self.expInterface:
                 self.actionConfigure.setEnabled(True)
                 for key, (item, area, action) in \
                         self.expInterface.dockWidgets.iteritems():
                     self.menuView.addAction(action)
                     self.addDockWidget(area, item)
-                self.connect(self.expInterface,
-                             QtCore.SIGNAL("datafileChanged"),
-                             self.fileInterface.openFile)
-                self.fileInterface.openFile(self.expInterface.getDatafile())
+#                self.connect(self.expInterface,
+#                             QtCore.SIGNAL("datafileChanged"),
+#                             self.fileInterface.openFile)
+#                self.fileInterface.openFile(self.expInterface.getDatafile())
             else:
                 self.actionOffline.setChecked(True)
         else:
@@ -219,9 +221,9 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                     self.removeDockWidget(item)
                     self.menuView.removeAction(action)
                     self.expInterface.close()
-                self.disconnect(self.expInterface,
-                                QtCore.SIGNAL("datafileChanged"),
-                                self.fileInterface.openFile)
+#                self.disconnect(self.expInterface,
+#                                QtCore.SIGNAL("datafileChanged"),
+#                                self.fileInterface.openFile)
                 self.expInterface = None
 
     def getScanView(self, *args, **kwargs):

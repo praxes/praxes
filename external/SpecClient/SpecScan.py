@@ -56,6 +56,9 @@ class SpecScanA:
     def connected(self):
         pass
 
+    def isScanning(self):
+        return self.__scanning
+
     def __disconnected(self):
         self.scanCounterMne = None
         self.__scanning = False

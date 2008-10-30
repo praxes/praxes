@@ -100,10 +100,6 @@ class MainWindow(MainWindowBase):
                     "    PyMca: a set of programs and libraries for analyzing "
                     "X-ray fluorescence spectra"%__version__))
 
-    def _connectToSpec(self):
-        from xpaxs.frontends.xfs.spec import SmpSpecInterface
-        self.expInterface = SmpSpecInterface(self)
-
     def getScanView(self, scan, **kwargs):
         scanView = ScanAnalysis(scan, self.spectrumAnalysis)
         title = '%s: Scan %s'%(scan.getDataFileName(),

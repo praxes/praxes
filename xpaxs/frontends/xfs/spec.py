@@ -23,7 +23,7 @@ from SpecClient import SpecScan, SpecCommand, SpecConnectionsManager, \
 
 from xpaxs.instrumentation.spec.scan import QtSpecScanA
 from xpaxs.instrumentation.spec.runner import SpecRunner
-from xpaxs.instrumentation.spec.scancontrols import ScanControls
+#from xpaxs.instrumentation.spec.scancontrols import ScanControls
 from xpaxs.instrumentation.spec.specinterface import SpecConnect, SpecInterface
 
 #---------------------------------------------------------------------------
@@ -37,15 +37,15 @@ DEBUG = False
 
 class SmpSpecRunner(SpecRunner):
 
-    def __init__(self, specVersion=None, timeout=None, fileInterface=None):
-        super(SmpSpecRunner, self).__init__(specVersion, timeout)
+    def __init__(self, specVersion=None, timeout=None, parent=None):
+        super(SmpSpecRunner, self).__init__(specVersion, timeout, parent)
 
         # load the clientutils macros before creating the scan:
         self.runMacro('clientutils_sxfm.mac')
         self.clientdataon()
         self.clientploton()
         self.runMacro('skipmode.mac')
-        self.scan = SmpSpecScanA(specVersion, fileInterface, parent=self)
+#        self.scan = SmpSpecScanA(specVersion, parent=self)
 
     def close(self):
         self.clientdataoff()
@@ -55,18 +55,12 @@ class SmpSpecRunner(SpecRunner):
 
 class SmpSpecScanA(QtSpecScanA):
 
-    def __init__(self, specVersion, fileInterface=None, parent=None):
+    def __init__(self, specVersion, parent=None):
         super(SmpSpecScanA, self).__init__(specVersion, parent)
 
-        self.fileInterface = fileInterface
+        self.fileInterface = None
         self.smpEntry = None
         # TODO: wire events to the file interface and the data objects
-
-    def connected(self):
-        pass
-
-    def disconnected(self):
-        pass
 
     def newScan(self, scanParams):
         QtSpecScanA.newScan(self, scanParams)
@@ -84,16 +78,6 @@ class SmpSpecScanA(QtSpecScanA):
         self.smpEntry.appendDataPoint(scanData)
         self.emit(QtCore.SIGNAL("newScanIndex(int)"), scanData['i'])
 
-    def newScanPoint(self, i, x, y, scanData):
-        scanData['i'] = i
-        scanData['x'] = x
-        scanData['y'] = y
-#        if DEBUG: print "newScanPoint:", scanData
-        self.emit(QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"), scanData)
-
-    def resumeScan(self):
-        self._resumeScan()
-
     def scanAborted(self):
         try:
             self.smpEntry.setNumExpectedScanLines(self.smpEntry.getNumScanLines())
@@ -103,37 +87,10 @@ class SmpSpecScanA(QtSpecScanA):
         QtSpecScanA.scanAborted(self)
 
 
-class SmpScanControls(ScanControls):
-
-    def __init__(self, specRunner, parent=None):
-        super(SmpScanControls, self).__init__(specRunner, parent)
-
-    def connectSignals(self):
-        ScanControls.connectSignals(self)
-
-    def startScan(self):
-        # Do the dialog here
-        ScanControls.startScan(self)
-
-    def abort(self):
-        ScanControls.abort(self)
-        # do cleanup of file here
-
-
 class SmpSpecInterface(SpecInterface):
 
     def _connectToSpec(self):
         return SmpSpecConnect(self.mainWindow)
-
-    def _configureScanControls(self):
-        self.scanControls = SmpScanControls(self.specRunner)
-
-    def _configure(self):
-        SpecInterface._configure(self)
-
-        self.connect(self.specRunner.scan,
-                     QtCore.SIGNAL("newSmpScan"),
-                     self.parent().newScanWindow)
 
 
 class SmpSpecConnect(SpecConnect):

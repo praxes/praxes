@@ -157,17 +157,17 @@ class SpecInterface(QtCore.QObject):
     def getDatafile(self):
         return self.specRunner.datafile.getValue()
 
-    def _configureScanControls(self):
-        self.scanControls = ScanControls(self.specRunner)
-        self.addDockWidget(self.scanControls, 'Scan Controls',
-                           QtCore.Qt.LeftDockWidgetArea|
-                           QtCore.Qt.RightDockWidgetArea,
-                           QtCore.Qt.LeftDockWidgetArea,
-                           'SpecScanControlsWidget')
-        self.connect(self.scanControls, QtCore.SIGNAL("addStatusBarWidget"),
-                     self.mainWindow.statusBar.addPermanentWidget)
-        self.connect(self.scanControls, QtCore.SIGNAL("removeStatusBarWidget"),
-                     self.mainWindow.statusBar.removeWidget)
+#    def _configureScanControls(self):
+#        self.scanControls = ScanControls(self.specRunner)
+#        self.addDockWidget(self.scanControls, 'Scan Controls',
+#                           QtCore.Qt.LeftDockWidgetArea|
+#                           QtCore.Qt.RightDockWidgetArea,
+#                           QtCore.Qt.LeftDockWidgetArea,
+#                           'SpecScanControlsWidget')
+#        self.connect(self.scanControls, QtCore.SIGNAL("addStatusBarWidget"),
+#                     self.mainWindow.statusBar.addPermanentWidget)
+#        self.connect(self.scanControls, QtCore.SIGNAL("removeStatusBarWidget"),
+#                     self.mainWindow.statusBar.removeWidget)
 
     def _configureInterfaceWidget(self):
         self.interfaceWidget = SpecInterfaceWidget(self.specRunner)
@@ -182,7 +182,7 @@ class SpecInterface(QtCore.QObject):
     def _configure(self):
         logger.debug('configuring Spec Interface')
         # This method should be redefined in subclasses of SpecInterface
-        self._configureScanControls()
+#        self._configureScanControls()
 
         self.connect(
             self.mainWindow.actionConfigure,

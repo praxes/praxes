@@ -36,7 +36,20 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
     def __init__(self, specVersion, parent=None):
         QtCore.QObject.__init__(self, parent)
         SpecScan.SpecScanA.__init__(self, specVersion)
-        self._resumeScan = SpecCommand.SpecCommandA('scan_on', specVersion)
+
+        self._resume = SpecCommand.SpecCommandA('scan_on', specVersion)
+
+    def __call__(self, cmd):
+        if self.connection.isSpecConnected():
+            self.connection.send_msg_cmd(cmd)
+            return True
+        else:
+            return False
+
+    def abort(self):
+        if self.isScanning():
+            self.connection.abort()
+            self.scanAborted()
 
     def connected(self):
         pass
@@ -61,6 +74,7 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
                 except ValueError:
                     pass
             scanParameters[key] = value
+            print scanParameters
         logger.debug('newScan: %s', scanParameters)
 
     def newScanData(self, scanData):
@@ -74,9 +88,13 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
         logger.debug( "newScanPoint: %s", scanData)
         self.emit(QtCore.SIGNAL("newScanPoint(PyQt_PyObject)"), scanData)
 
-    def resumeScan(self):
+    def pause(self):
+        logger.info('Scan Paused')
+        self.connection.abort()
+
+    def resume(self):
         logger.info('Scan Resumed')
-        self._resumeScan()
+        self._resume()
 
     def scanAborted(self):
         logger.info('Scan Aborted')
@@ -92,18 +110,11 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
         logger.info( 'scan started')
         self.emit(QtCore.SIGNAL("scanStarted()"))
 
-    def _startScan(self, cmd):
-        if self.connection.isSpecConnected():
-            self.connection.send_msg_cmd(cmd)
-            return True
-        else:
-            return False
-
     def ascan(self, *args):
         cmd = "ascan %s %f %f %d %f"%args
         logger.debug(cmd)
         self.emit(QtCore.SIGNAL("newAscan(PyQt_PyObject)"), args[:-1])
-        self._startScan(cmd)
+        self(cmd)
 
     def a2scan(self, *args):
         cmd = "a2scan %s %f %f \
@@ -111,7 +122,7 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
                       %d %f"%args
         logger.debug(cmd)
         self.emit(QtCore.SIGNAL("newA2scan(PyQt_PyObject)"), args[:-1])
-        self._startScan(cmd)
+        self(cmd)
 
     def a3scan(self, *args):
         cmd = "a3scan %s %f %f \
@@ -120,7 +131,7 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
                       %d %f"%args
         logger.debug(cmd)
         self.emit(QtCore.SIGNAL("newA3scan(PyQt_PyObject)"), args[:-1])
-        self._startScan(cmd)
+        self(cmd)
 
     def mesh(self, *args):
         cmd = "mesh %s %f %f %d \
@@ -132,7 +143,7 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
         self.emit(QtCore.SIGNAL("xAxisLims(PyQt_PyObject)"), args[1:3])
         self.emit(QtCore.SIGNAL("yAxisLabel(PyQt_PyObject)"), args[4])
         self.emit(QtCore.SIGNAL("yAxisLims(PyQt_PyObject)"), args[5:7])
-        self._startScan(cmd)
+        self(cmd)
 
 
 
