@@ -73,8 +73,8 @@ class SpecScanA:
         if DEBUG: print "SpecScanA.__newScan", scanParams
         if not scanParams:
             if self.__scanning:
-                self.scanFinished()
                 self.__scanning = False
+                self.scanFinished()
             return
 
         self.__scanning = False

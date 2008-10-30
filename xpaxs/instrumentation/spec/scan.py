@@ -42,9 +42,6 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
     def __call__(self, cmd):
         if self.connection.isSpecConnected():
             self.connection.send_msg_cmd(cmd)
-            return True
-        else:
-            return False
 
     def abort(self):
         if self.isScanning():
@@ -74,12 +71,12 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
                 except ValueError:
                     pass
             scanParameters[key] = value
-            print scanParameters
+        print scanParameters
         logger.debug('newScan: %s', scanParameters)
 
     def newScanData(self, scanData):
         logger.debug( 'scanData: %s', scanData)
-        self.emit(QtCore.SIGNAL("newScanIndex(int)"), i)
+#        self.emit(QtCore.SIGNAL("newScanIndex(int)"), i)
 
     def newScanPoint(self, i, x, y, scanData):
         scanData['i'] = i
@@ -103,6 +100,7 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
 
     def scanFinished(self):
         logger.info( 'scan finished')
+        print "OK"
         # TODO: save data!
         self.emit(QtCore.SIGNAL("scanFinished()"))
 

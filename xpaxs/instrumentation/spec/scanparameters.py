@@ -340,7 +340,7 @@ class ScanParametersWidget(
     @QtCore.pyqtSignature("")
     def on_specFileNameEdit_editingFinished(self):
         fullname = str(self.specFileNameEdit.text()).rstrip('.h5').rstrip('.hdf5')
-        newFile = os.path.split(fullname)[-1]
+        newFile = fullname.split(os.path.sep)[-1]
 
         oldFile = self.specRunner.getVarVal('DATAFILE')
         if oldFile != newFile:
@@ -360,7 +360,7 @@ class ScanParametersWidget(
         cmd = ' '.join(str(i) for i in args)
 
         from xpaxs.instrumentation.spec.scan import QtSpecScanA
-        self._scan = QtSpecScanA(specVersion, parent=self)
+        self._scan = QtSpecScanA(self.specRunner.specVersion, parent=self)
 
         self.connect(
             self._scan,
@@ -373,9 +373,6 @@ class ScanParametersWidget(
             self.scanFinished
         )
         self.scan(cmd)
-
-        # for testing:
-        self.scan.scanStarted()
 
     @QtCore.pyqtSignature("QString")
     def on_scanTypeComboBox_currentIndexChanged(self, val):
@@ -413,8 +410,8 @@ class ScanParametersWidget(
 
         raise exception
 
-    def _setSpecFileName(self, filename):
-        self.specRunner('newfile %s'%fileName)
+    def _setSpecFileName(self, fileName):
+        self.specRunner('newfile %s'%fileName, asynchronous=False)
         specCreated = self.specRunner.getVarVal('DATAFILE')
 
         if fileName != specCreated:
@@ -438,6 +435,8 @@ class ScanParametersWidget(
         self.stackedLayout.setCurrentWidget(self.scanButton)
         self.emit(QtCore.SIGNAL("specBusy"), False)
 
+        self._scan = None
+
         self.specRunner.clientdataoff()
         # TODO: is this needed?
         self.specRunner.clientplotoff()
@@ -451,10 +450,9 @@ class ChangeSpecFileDialog(QtGui.QDialog):
         self.setWindowTitle("Spec Data File")
 
         layout = QtGui.QVBoxLayout()
+        self.setLayout(layout)
         msg = """Change spec datafile from "%s" to "%s"?
-
-        (the new file will be created in spec's current working directory)
-        """%(old, new)
+(the new file will be created in spec's current working directory)"""%(old, new)
         label = QtGui.QLabel(msg)
         layout.addWidget(label)
 
@@ -473,7 +471,7 @@ class ChangeSpecFileDialog(QtGui.QDialog):
             buttonBox,
             QtCore.SIGNAL("rejected()"),
             self,
-            QtCore.SLOT("rejected()")
+            QtCore.SIGNAL("reject()")
         )
 
 

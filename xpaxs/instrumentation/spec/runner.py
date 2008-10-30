@@ -119,9 +119,14 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
     def datafile(self):
         return self._datafile
 
-    def __call__(self, command):
+    def __call__(self, command, asynchronous=True):
         logger.debug("executing %s",command)
-        self.acmd.executeCommand(command)
+
+        if asynchronous:
+            return self._acmd.executeCommand(command)
+
+        else:
+            return self._cmd.executeCommand(command)
 
     def close(self):
         try:
@@ -133,8 +138,10 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
 
     def getCountersMne(self):
         if len(self._counterNames) != self.getNumCounters():
-            countersMne = self.cmd.executeCommand("local md; for (i=0; "
-                        "i<COUNTERS; i++) { md[i]=cnt_mne(i); }; return md")
+            countersMne = self(
+                "local md; for (i=0; i<COUNTERS; i++) { md[i]=cnt_mne(i); }; "
+                "return md", asynchronous=False
+            )
             keys = [int(i) for i in countersMne.keys()]
             keys.sort()
             self._counterNames = [countersMne[str(i)] for i in keys]
@@ -157,9 +164,10 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
 
     def getMotorsMne(self):
         if len(self._motorNames) != self.getNumMotors():
-            motorsMne = self.cmd.executeCommand("local md; for (i=0; i<MOTORS;"
-                                                "i++) { md[i]=motor_mne(i); };"
-                                                "return md")
+            motorsMne = self(
+                "local md; for (i=0; i<MOTORS; i++) { md[i]=motor_mne(i); }; "
+                "return md", asynchronous=False
+            )
             keys = [int(i) for i in motorsMne.keys()]
             keys.sort()
             self._motorNames = [motorsMne[str(i)] for i in keys]
@@ -174,7 +182,7 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
             return self.connection.getChannel('var/MOTORS').read()
 
     def runMacro(self, macro):
-        self.cmd.executeCommand(getSpecMacro(macro))
+        self(getSpecMacro(macro), asynchronous=False)
 
     def getVarVal(self, var):
         if self.connection is not None:

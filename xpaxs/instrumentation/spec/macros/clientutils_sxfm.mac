@@ -36,7 +36,7 @@ def _client_setscanenv '{
     scan_env = sprintf("%scounter=%s\t", scan_env, cnt_mne(DET))
 
     # define additional parameters for data storage:
-    scan_env = sprintf("%sfileName=%s\t", scan_env, DATAFILE)
+    scan_env = sprintf("%sfileName=%s/%s\t", scan_env, CWD, DATAFILE)
     scan_env = sprintf("%sscanCommand=%s\t", scan_env, HEADING)
     scan_env = sprintf("%sscanNumber=%d\t", scan_env, SCAN_N+1)
     scan_env = sprintf("%sscanLines=%d\t", scan_env, (_stype&8? _n1*_n2:_n1))

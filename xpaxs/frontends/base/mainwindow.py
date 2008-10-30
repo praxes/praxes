@@ -196,7 +196,7 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
             try:
                 from xpaxs.instrumentation.spec.specinterface import SpecInterface
-                self.expInterface = SpecInterface(macros, self)
+                self.expInterface = SpecInterface(self)
 
             except ConnectionAborted:
                 return
