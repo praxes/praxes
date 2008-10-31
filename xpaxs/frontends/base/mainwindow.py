@@ -63,6 +63,9 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self._connectSignals()
         self._restoreSettings()
 
+        import xpaxs
+        xpaxs.application.registerService('ScanView', self.newScanWindow)
+
     def _setupDockWindows(self):
         self._setupPPJobStats()
         self._setFileInterface()
@@ -207,10 +210,6 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                         self.expInterface.dockWidgets.iteritems():
                     self.menuView.addAction(action)
                     self.addDockWidget(area, item)
-#                self.connect(self.expInterface,
-#                             QtCore.SIGNAL("datafileChanged"),
-#                             self.fileInterface.openFile)
-#                self.fileInterface.openFile(self.expInterface.getDatafile())
             else:
                 self.actionOffline.setChecked(True)
         else:
@@ -221,9 +220,6 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                     self.removeDockWidget(item)
                     self.menuView.removeAction(action)
                     self.expInterface.close()
-#                self.disconnect(self.expInterface,
-#                                QtCore.SIGNAL("datafileChanged"),
-#                                self.fileInterface.openFile)
                 self.expInterface = None
 
     def getScanView(self, *args, **kwargs):

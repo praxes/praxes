@@ -7,6 +7,7 @@
 #---------------------------------------------------------------------------
 
 import exceptions
+import gc
 import os
 
 #---------------------------------------------------------------------------
@@ -352,8 +353,6 @@ class ScanParametersWidget(
         print 'Need to implement scan starting'
 
         self.specRunner.clientdataon()
-        # TODO: is this line needed?
-        self.specRunner.clientploton()
 
         args = self._scanParameters.getScanArgs()
         args.append(self.integrationTimeSpinBox.value())
@@ -362,6 +361,16 @@ class ScanParametersWidget(
         from xpaxs.instrumentation.spec.scan import QtSpecScanA
         self._scan = QtSpecScanA(self.specRunner.specVersion, parent=self)
 
+        self.connect(
+            self._scan,
+            QtCore.SIGNAL("newScanLength"),
+            self._newScanLength
+        )
+        self.connect(
+            self._scan,
+            QtCore.SIGNAL("newScanPoint"),
+            self._newScanPoint
+        )
         self.connect(
             self._scan,
             QtCore.SIGNAL("scanStarted()"),
@@ -401,6 +410,13 @@ class ScanParametersWidget(
         else:
             self.scanButton.setEnabled(False)
 
+    def _newScanLength(self, length):
+        self.scanProgressBar.setValue(0)
+        self.scanProgressBar.setMaximum(int(length)-1)
+
+    def _newScanPoint(self, i):
+        self.scanProgressBar.setValue(i+1)
+
     def _specFileError(self, requested, current):
         exception = SpecfileError(requested, current)
 
@@ -420,26 +436,25 @@ class ScanParametersWidget(
         self.specFileNameEdit.setText(specCreated)
 
     def scanStarted(self):
-        self.scanProgressBar.setValue(0)
         self.stackedLayout.setCurrentWidget(self.scanProgressBar)
         self.actionPause.setVisible(True)
         self.actionResume.setVisible(False)
+        self.scanParamsWidget.setDisabled(True)
         self.emit(QtCore.SIGNAL("specBusy"), True)
 
     def setBusy(self, busy):
-        self.scanParamsWidget.setDisabled(busy)
-        self.scanButton.setDisabled(busy)
+        if self._scan is None:
+            self.scanParamsWidget.setDisabled(busy)
+            self.scanButton.setDisabled(busy)
 
     def scanFinished(self):
-        print 'finished'
         self.stackedLayout.setCurrentWidget(self.scanButton)
+        self.scanParamsWidget.setEnabled(True)
         self.emit(QtCore.SIGNAL("specBusy"), False)
 
         self._scan = None
 
         self.specRunner.clientdataoff()
-        # TODO: is this needed?
-        self.specRunner.clientplotoff()
 
 
 class ChangeSpecFileDialog(QtGui.QDialog):

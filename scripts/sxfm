@@ -10,7 +10,10 @@ from PyQt4 import QtGui
 
 from xpaxs.frontends.xfs import mainwindow
 
-app = QtGui.QApplication(sys.argv)
+# TODO: this would be handled differently through the envisage framework:
+from xpaxs.frontends.base.application import XpaxsApplication
+
+app = XpaxsApplication(sys.argv)
 app.setOrganizationName('XPaXS')
 app.setApplicationName('SFXM')
 myapp = mainwindow.MainWindow()

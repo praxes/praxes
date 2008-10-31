@@ -71,12 +71,27 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
                 except ValueError:
                     pass
             scanParameters[key] = value
-        print scanParameters
         logger.debug('newScan: %s', scanParameters)
+
+        import xpaxs
+        fileInterface = xpaxs.application.getService('FileInterface')
+
+        if fileInterface:
+            specFile = scanParameters['fileName']
+            h5File = fileInterface.getH5FileFromKey(specFile)
+            scanData = fileInterface.createEntry(h5File, scanParameters)
+
+            if scanData:
+                ScanView = xpaxs.application.getService('ScanView')
+                if ScanView:
+                    ScanView(scanData, beginProcessing=True)
+
+        self.emit(QtCore.SIGNAL("newScanLength"), scanParameters['scanLines'])
 
     def newScanData(self, scanData):
         logger.debug( 'scanData: %s', scanData)
-#        self.emit(QtCore.SIGNAL("newScanIndex(int)"), i)
+        i = int(scanData['i'])
+        self.emit(QtCore.SIGNAL("newScanPoint"), i)
 
     def newScanPoint(self, i, x, y, scanData):
         scanData['i'] = i
@@ -100,7 +115,6 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
 
     def scanFinished(self):
         logger.info( 'scan finished')
-        print "OK"
         # TODO: save data!
         self.emit(QtCore.SIGNAL("scanFinished()"))
 
@@ -174,7 +188,6 @@ class TestQtSpecScanA(QtSpecScanBase):
 
 
     def _startScan(self, cmd):
-        return True
         if self.connection.isSpecConnected():
             self.connection.send_msg_cmd(cmd)
             return True

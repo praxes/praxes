@@ -248,6 +248,8 @@ class H5FileInterface(QtCore.QObject):
         self._setFileModel()
         self._setFileView()
 
+        self._fileRegistry = {}
+
         self.connect(self._fileModel,
                      QtCore.SIGNAL('fileAppended'),
                      self._fileView.appendItem)
@@ -258,6 +260,12 @@ class H5FileInterface(QtCore.QObject):
                            QtCore.Qt.AllDockWidgetAreas,
                            QtCore.Qt.LeftDockWidgetArea,
                            'FileViewDock')
+
+        self._registerService()
+
+    def _registerService(self):
+        import xpaxs
+        xpaxs.application.registerService('FileInterface', self)
 
     @property
     def fileModel(self):
@@ -286,6 +294,16 @@ class H5FileInterface(QtCore.QObject):
     def close(self):
         self.fileModel.close()
 
+    def getH5FileFromKey(self, key):
+        h5File = self._fileRegistry.get(key, None)
+
+        if not h5File:
+            default = key.split(os.path.sep)[-1] + '.h5'
+            h5File = self.openFile(default)
+            self._fileRegistry[key] = h5File
+
+        return h5File
+
     def openFile(self, filename):
         if os.path.isfile(filename):
             return self.fileModel.openFile(filename)
@@ -299,8 +317,12 @@ class H5FileInterface(QtCore.QObject):
                 return self.fileModel.openFile(newfilename)
             else: self.openFile(filename)
 
-    def createEntry(self, filename, scanParams):
-        fileObject = self.openFile(filename)
+    def createEntry(self, f, scanParams):
+        if isinstance(f, str):
+            fileObject = self.openFile(f)
+        else:
+            fileObject = f
+
         entry = fileObject.createEntry(scanParams)
         self.fileView.doItemsLayout()
         return entry
