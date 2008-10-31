@@ -163,7 +163,9 @@ class XfsH5Scan(XpaxsH5Scan):
                 row[key] = val
             row.append()
             self.h5Node.data.flush()
-            if data[mon] > thresh:
+            if not mon:
+                self.queue.put(int(data['i']))
+            elif data[mon] > thresh:
                 self.queue.put(int(data['i']))
             else:
                 self._numSkippedPoints += 1
@@ -263,6 +265,7 @@ class XfsH5Scan(XpaxsH5Scan):
                         if not i in self.h5Node._v_attrs]
             # TODO: This is a wart, to be fixed with better structuring of
             # files via nexus standard:
+            print channels
             channels.remove('MCA')
         finally:
             self.mutex.unlock()

@@ -64,7 +64,7 @@ class SpecDatafile(SpecVariable.SpecVariableA, QtCore.QObject):
         self._specRunner = specRunner
 
     def setValue(self, fileName):
-        self._specRunner('newfile %s'%fileName)
+        self._specRunner('newfile %s'%fileName, asynchronous=False)
         specfile = self.getValue()
 
         specCreated = os.path.split(specfile)[-1]
@@ -89,8 +89,8 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
         """
         QtCore.QObject.__init__(self, parent)
         Spec.Spec.__init__(self, specVersion, timeout)
-        self.cmd = SpecCommand.SpecCommand('', specVersion, None)
-        self.acmd = SpecCommand.SpecCommandA('', specVersion)
+        self._cmd = SpecCommand.SpecCommand('', specVersion, None)
+        self._acmd = SpecCommand.SpecCommandA('', specVersion)
         self._datafile = SpecDatafile('DATAFILE', specVersion, self)
 
         self._motors = {}

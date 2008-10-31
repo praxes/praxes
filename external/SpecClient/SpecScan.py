@@ -123,7 +123,7 @@ class SpecScanA:
                     value = float(value)
                 scanData[key] = value
 
-            self.newScanData(copy.deepcopy(scanData))
+            self.newScanData(scanData)
 
     def newScanData(self, scanData):
         if DEBUG: print "SpecScanA.newScanData", scanData

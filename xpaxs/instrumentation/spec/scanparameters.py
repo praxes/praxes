@@ -352,7 +352,8 @@ class ScanParametersWidget(
     def on_scanButton_clicked(self):
         print 'Need to implement scan starting'
 
-        self.specRunner.clientdataon()
+        self.specRunner('clientploton', asynchronous=False)
+        self.specRunner('clientdataon', asynchronous=False)
 
         args = self._scanParameters.getScanArgs()
         args.append(self.integrationTimeSpinBox.value())
@@ -454,7 +455,8 @@ class ScanParametersWidget(
 
         self._scan = None
 
-        self.specRunner.clientdataoff()
+        self.specRunner('clientplotoff', asynchronous=False)
+        self.specRunner('clientdataoff', asynchronous=False)
 
 
 class ChangeSpecFileDialog(QtGui.QDialog):
