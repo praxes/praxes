@@ -23,7 +23,7 @@ import numpy
 from xpaxs import __version__
 from xpaxs.frontends.base.ui import ui_mainwindow
 from xpaxs.frontends.base.fileinterface import H5FileInterface
-from xpaxs.frontends.base.ppjobstats import PPJobStats
+#from xpaxs.frontends.base.ppjobstats import PPJobStats
 from xpaxs.frontends.base.emailDlg import EmailDialog
 
 
@@ -31,10 +31,94 @@ from xpaxs.frontends.base.emailDlg import EmailDialog
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.frontends.xfs.mainwindow')
+logger = logging.getLogger(__file__)
 
 
-class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
+class MainWindowBase(QtGui.QMainWindow):
+
+    """
+    """
+
+    def __init__(self, scanData, parent=None):
+        super(MainWindowBase, self).__init__(parent)
+
+    def _setupDockWindows(self):
+        pass
+
+    def _restoreSettings(self):
+        settings = QtCore.QSettings()
+        settings.beginGroup(str(self.__class__))
+        self.restoreGeometry(settings.value('Geometry').toByteArray())
+        self.restoreState(settings.value('State').toByteArray())
+
+    def _configureDockArea(self):
+        """
+        Private method to configure the usage of the dockarea corners.
+        """
+        self.setCorner(QtCore.Qt.TopLeftCorner, QtCore.Qt.LeftDockWidgetArea)
+        self.setCorner(QtCore.Qt.BottomLeftCorner, QtCore.Qt.LeftDockWidgetArea)
+        self.setCorner(QtCore.Qt.TopRightCorner, QtCore.Qt.RightDockWidgetArea)
+        self.setCorner(QtCore.Qt.BottomRightCorner, QtCore.Qt.BottomDockWidgetArea)
+        self.setDockNestingEnabled(True)
+
+    def _createDockWindow(self, name):
+        """
+        Private method to create a dock window with common properties.
+
+        @param name object name of the new dock window (string or QString)
+        @return the generated dock window (QDockWindow)
+        """
+        dock = QtGui.QDockWidget()
+        dock.setObjectName(name)
+        dock.setFeatures(QtGui.QDockWidget.DockWidgetFeatures(\
+                                    QtGui.QDockWidget.AllDockWidgetFeatures))
+        return dock
+
+    def _setupDockWindow(self, dock, where, widget, caption):
+        """
+        Private method to configure the dock window created with _createDockWindow().
+
+        @param dock the dock window (QDockWindow)
+        @param where dock area to be docked to (Qt.DockWidgetArea)
+        @param widget widget to be shown in the dock window (QWidget)
+        @param caption caption of the dock window (string or QString)
+        """
+        if caption is None:
+            caption = QtCore.QString()
+        self.addDockWidget(where, dock)
+        dock.setWidget(widget)
+        dock.setWindowTitle(caption)
+        action = dock.toggleViewAction()
+        action.setText(caption)
+        self.menuView.addAction(action)
+        dock.show()
+
+    @QtCore.pyqtSignature("")
+    def on_actionAboutQt_triggered(self):
+        QtGui.qApp.aboutQt()
+
+    @QtCore.pyqtSignature("")
+    def on_actionAboutXpaxs_triggered(self):
+        from xpaxs import __version__
+        QtGui.QMessageBox.about(self, self.tr("About XPaXS"),
+            self.tr("XPaXS Application, version %s\n\n"
+                    "XPaXS is a user interface for controlling synchrotron "
+                    "experiments and analyzing data.\n\n"
+                    "XPaXS depends on several programs and libraries:\n\n"
+                    "    spec: for controlling hardware and data acquisition\n"
+                    "    SpecClient: a python interface to the spec server\n"
+                    "    PyMca: a set of programs and libraries for analyzing "
+                    "X-ray fluorescence spectra"%__version__))
+
+    def closeEvent(self, event):
+        settings = QtCore.QSettings()
+        settings.beginGroup(str(self.__class__))
+        settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
+        settings.setValue('State', QtCore.QVariant(self.saveState()))
+        return event.accept()
+
+
+class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
     """Establishes a Experiment controls
 
     1) establishes week connection to specrunner
@@ -64,19 +148,20 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self._restoreSettings()
 
         import xpaxs
+        # TODO: this should be a factory function, not a method of the main win:
         xpaxs.application.registerService('ScanView', self.newScanWindow)
 
     def _setupDockWindows(self):
-        self._setupPPJobStats()
+#        self._setupPPJobStats()
         self._setFileInterface()
         self._setupEmailDlg()
 
-    def _setupPPJobStats(self):
-        self.ppJobStats = PPJobStats()
-        self.ppJobStatsDock = self._createDockWindow('PPJobStatsDock')
-        self._setupDockWindow(self.ppJobStatsDock,
-                               QtCore.Qt.RightDockWidgetArea,
-                               self.ppJobStats, 'Analysis Server Stats')
+#    def _setupPPJobStats(self):
+#        self.ppJobStats = PPJobStats()
+#        self.ppJobStatsDock = self._createDockWindow('PPJobStatsDock')
+#        self._setupDockWindow(self.ppJobStatsDock,
+#                               QtCore.Qt.RightDockWidgetArea,
+#                               self.ppJobStats, 'Analysis Server Stats')
 
     def _setFileInterface(self):
         self.fileInterface = H5FileInterface(self)
@@ -219,10 +304,12 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                         self.expInterface.dockWidgets.iteritems():
                     self.removeDockWidget(item)
                     self.menuView.removeAction(action)
-                    self.expInterface.close()
+                self.expInterface.close()
                 self.expInterface = None
+        import gc
+        gc.collect()
 
-    def getScanView(self, *args, **kwargs):
+    def getScanView(self, *args):
         raise NotImplementedError
 
     def importSpecFile(self, force=False):
@@ -236,28 +323,32 @@ class MainWindowBase(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                 specfile.spec2hdf5(f, hdf5Filename=h5filename, force=True)
                 self.openDatafile(h5filename)
 
-    def newScanWindow(self, scan, beginProcessing=False, **kwargs):
-        print scan, self.openScans
+    def newScanWindow(self, scan, beginProcessing=False):
+        # TODO: this belongs in the file interface, not here:
         if scan in self.openScans:
             return
 
-        scanView, title = self.getScanView(scan, **kwargs)
+        self.statusBar.showMessage('Configuring New Analysis Window ...')
+        scanView = self.getScanView(scan)
 
         self.connect(scanView, QtCore.SIGNAL("scanClosed"), self.scanClosed)
-        self.connect(scanView, QtCore.SIGNAL("addStatusBarWidget"),
-                     self.statusBar.addPermanentWidget)
-        self.connect(scanView, QtCore.SIGNAL("removeStatusBarWidget"),
-                     self.statusBar.removeWidget)
-        self.connect(scanView, QtCore.SIGNAL("ppJobStats"),
-                     self.ppJobStats.updateTable)
+#        self.connect(scanView, QtCore.SIGNAL("addStatusBarWidget"),
+#                     self.statusBar.addPermanentWidget)
+#        self.connect(scanView, QtCore.SIGNAL("removeStatusBarWidget"),
+#                     self.statusBar.removeWidget)
+#        self.connect(scanView, QtCore.SIGNAL("ppJobStats"),
+#                     self.ppJobStats.updateTable)
 
-        subWindow = self.mdi.addSubWindow(scanView)
-        subWindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        subWindow.setWindowTitle(title)
-        subWindow.showMaximized()
+#        subWindow = self.mdi.addSubWindow(scanView)
+#        subWindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+#        subWindow.setWindowTitle(title)
+#        subWindow.showMaximized()
         self.openScans.append(scan)
 
-        self.menuTools.setEnabled(True)
+        scanView.show()
+        self.statusBar.clearMessage()
+
+#        self.menuTools.setEnabled(True)
         if beginProcessing: scanView.processData()
 
     def openDatafile(self, filename=None):

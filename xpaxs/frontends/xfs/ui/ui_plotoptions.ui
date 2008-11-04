@@ -1,0 +1,271 @@
+<ui version="4.0" >
+ <class>PlotOptions</class>
+ <widget class="QWidget" name="PlotOptions" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>307</width>
+    <height>351</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <item>
+    <layout class="QGridLayout" name="gridLayout_2" >
+     <item row="0" column="0" >
+      <widget class="QLabel" name="maxLabel" >
+       <property name="text" >
+        <string>Max</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" >
+      <widget class="QDoubleSpinBox" name="maxSpinBox" >
+       <property name="enabled" >
+        <bool>false</bool>
+       </property>
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="decimals" >
+        <number>6</number>
+       </property>
+       <property name="minimum" >
+        <double>0.000000000000000</double>
+       </property>
+       <property name="maximum" >
+        <double>10000000000.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" >
+      <widget class="QLabel" name="minLabel" >
+       <property name="text" >
+        <string>Min</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" >
+      <widget class="QDoubleSpinBox" name="minSpinBox" >
+       <property name="enabled" >
+        <bool>false</bool>
+       </property>
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="decimals" >
+        <number>6</number>
+       </property>
+       <property name="maximum" >
+        <double>10000000000.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" >
+      <widget class="QCheckBox" name="dataAutoscaleButton" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="layoutDirection" >
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text" >
+        <string>Auto scale</string>
+       </property>
+       <property name="checked" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QWidget" native="1" name="imageSettingsWidget" >
+     <layout class="QGridLayout" name="gridLayout" >
+      <property name="margin" >
+       <number>0</number>
+      </property>
+      <item row="2" column="0" >
+       <widget class="QLabel" name="label_2" >
+        <property name="maximumSize" >
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text" >
+         <string>Interpolation</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" >
+       <widget class="QLabel" name="label_3" >
+        <property name="text" >
+         <string>Origin</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" >
+       <widget class="QComboBox" name="interpolationComboBox" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize" >
+         <size>
+          <width>170</width>
+          <height>0</height>
+         </size>
+        </property>
+        <item>
+         <property name="text" >
+          <string>nearest</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>bilinear</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>bicubic</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>spline16</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>spline36</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>hanning</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>hamming</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>hermite</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>kaiser</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>quadric</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>catrom</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>gaussian</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>bessel</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>mitchell</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>sinc</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>lanczos</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>blackman</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="3" column="1" >
+       <widget class="QComboBox" name="imageOriginComboBox" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="currentIndex" >
+         <number>1</number>
+        </property>
+        <item>
+         <property name="text" >
+          <string>upper</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>lower</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2" >
+       <widget class="Line" name="line_2" >
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer" >
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0" >
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

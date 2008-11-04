@@ -149,23 +149,12 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
         return getattr(self.figure, attr)
 
     def configure(self, configDict):
-        msg = QtGui.QDialog(self, QtCore.Qt.FramelessWindowHint)
-        msg.setModal(0)
-        msg.setWindowTitle("Please Wait")
-        layout = QtGui.QHBoxLayout(msg)
-        label = QtGui.QLabel(msg)
-        layout.addWidget(label)
-        label.setText("Configuring, please wait...")
-        label.show()
-        msg.show()
-        QtGui.qApp.processEvents()
         newDict = self.mcafit.configure(configDict)
         try:
             self.concentrationsWidget.setParameters(newDict['concentrations'],
                                                     signal=False)
         except KeyError:
             pass
-        msg.close()
         return newDict
 
     def enableInteraction(self):
@@ -184,25 +173,11 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
             msg.exec_()
             return
 
-        msg = QtGui.QDialog(self, QtCore.Qt.FramelessWindowHint)
-        msg.setModal(0)
-        msg.setWindowTitle("Please Wait")
-        layout = QtGui.QHBoxLayout(msg)
-        label = QtGui.QLabel(msg)
-        layout.addWidget(label)
-        label.setText("Calculating fit...")
-        label.show()
-        msg.show()
-        QtGui.qApp.processEvents()
-
         self.mcafit.estimate()
         fitresult, self.fitData = self.mcafit.startfit(digest=1)
         self.peaksSpectrum()
         self.updateFigure()
-        msg.close()
-        QtGui.qApp.processEvents()
 
-        # handle concentrations:
         config = self.mcafit.config
         if 'concentrations' in self.mcafit.config:
             fitresult = {'fitresult': fitresult,

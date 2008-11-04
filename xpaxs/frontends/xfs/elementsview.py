@@ -20,6 +20,7 @@ from PyQt4 import QtCore, QtGui
 
 from xpaxs.frontends.base import plotwidgets
 from xpaxs.frontends.xfs.ui import ui_elementsimage, ui_elementsplot
+from xpaxs.frontends.xfs.plotoptions import PlotOptions
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -155,8 +156,8 @@ class ElementImageFigure(ElementBaseFigure):
         if self.autoscale:
             self.image.autoscale()
             self._clim = list(self.image.get_clim())
-            self.emit(QtCore.SIGNAL("dataMin"), self._clim[0])
-            self.emit(QtCore.SIGNAL("dataMax"), self._clim[1])
+            self.emit(QtCore.SIGNAL("minValueChanged"), self._clim[0])
+            self.emit(QtCore.SIGNAL("maxValueChanged"), self._clim[1])
         else:
             self.image.set_clim(self._clim)
 
@@ -210,111 +211,49 @@ class ElementPlotFigure(ElementBaseFigure):
 
         if self.axes.get_autoscale_on():
             self._ylims = list(self.axes.get_ylim())
-            self.emit(QtCore.SIGNAL("dataMin"), self._ylims[0])
-            self.emit(QtCore.SIGNAL("dataMax"), self._ylims[1])
+            self.emit(QtCore.SIGNAL("minValueChanged"), self._ylims[0])
+            self.emit(QtCore.SIGNAL("maxValueChanged"), self._ylims[1])
         else:
             self.axes.set_ylim(self._ylims)
 
         self.draw()
 
 
-class ElementWidget(QtGui.QWidget):
-
-    """
-    """
+class ElementsView(QtGui.QWidget):
 
     def __init__(self, scanData, parent=None):
-        super(ElementWidget, self).__init__(parent)
-        self.scanData = scanData
+        super(ElementsView, self).__init__(parent)
+
+        layout = QtGui.QVBoxLayout()
+
+        if scanData.getNumScanDimensions() == 2:
+            self.figure = ElementImageFigure(scanData, self)
+
+        else:
+            self.figure = ElementPlotFigure(scanData, self)
+
+        self.toolbar = plotwidgets.Toolbar(self.figure, self)
+        layout.addWidget(self.toolbar)
+        layout.addWidget(self.figure)
+        self.setLayout(layout)
+
+        self._plotOptions = PlotOptions(scanData, self.figure)
+
+        self.connect(
+            self.toolbar,
+            QtCore.SIGNAL("pickEvent"),
+            self.figure.onPick
+        )
+        self.connect(
+            self.figure,
+            QtCore.SIGNAL("pickEvent"),
+            self,
+            QtCore.SIGNAL("pickEvent")
+        )
+
+    @property
+    def plotOptions(self):
+        return self._plotOptions
 
     def __getattr__(self, attr):
         return getattr(self.figure, attr)
-
-    def connectSignals(self):
-        self.connect(self.figure,
-                     QtCore.SIGNAL("dataMax"),
-                     self.maxSpinBox.setValue)
-        self.connect(self.figure,
-                     QtCore.SIGNAL("dataMin"),
-                     self.minSpinBox.setValue)
-        self.connect(self.maxSpinBox,
-                     QtCore.SIGNAL("valueChanged(double)"),
-                     self.figure.setDataMax)
-        self.connect(self.minSpinBox,
-                     QtCore.SIGNAL("valueChanged(double)"),
-                     self.figure.setDataMin)
-        self.connect(self.dataAutoscaleButton,
-                     QtCore.SIGNAL("clicked(bool)"),
-                     self.figure.enableAutoscale)
-        self.connect(self.dataTypeBox,
-                     QtCore.SIGNAL("currentIndexChanged(QString)"),
-                     self.window().setCurrentMapType)
-        self.connect(self.window(),
-                     QtCore.SIGNAL("elementDataChanged"),
-                     self.updateFigure)
-        self.connect(self.xrfbandComboBox,
-                     QtCore.SIGNAL("currentIndexChanged(const QString&)"),
-                     self.window().setCurrentElement)
-        self.connect(self.toolbar,
-                     QtCore.SIGNAL("pickEvent"),
-                     self.figure.onPick)
-        self.connect(self.figure,
-                     QtCore.SIGNAL("pickEvent"),
-                     self, QtCore.SIGNAL("pickEvent"))
-
-    def setAvailablePeaks(self, peaks):
-        self.xrfbandComboBox.clear()
-        self.xrfbandComboBox.addItems(peaks)
-
-    def enableInteraction(self):
-        pass
-
-
-class ElementImage(ui_elementsimage.Ui_ElementsImage, ElementWidget):
-
-    """
-    """
-
-    def __init__(self, scanData, parent=None):
-        super(ElementImage, self).__init__(scanData, parent)
-        self.setupUi(self)
-
-        self.xrfbandComboBox.addItems(self.window().getPeaks())
-        self.normalizationComboBox.addItems(scanData.getNormalizationChannels())
-
-        self.figure = ElementImageFigure(scanData, self)
-        self.toolbar = plotwidgets.Toolbar(self.figure, self)
-        self.gridlayout1.addWidget(self.toolbar, 0, 0, 1, 1)
-        self.gridlayout1.addWidget(self.figure, 1, 0, 1, 1)
-
-        self.connectSignals()
-        self.updateFigure()
-
-    def connectSignals(self):
-        ElementWidget.connectSignals(self)
-        self.connect(self.interpolationComboBox,
-                     QtCore.SIGNAL("currentIndexChanged(QString)"),
-                     self.figure.setInterpolation)
-        self.connect(self.imageOriginComboBox,
-                     QtCore.SIGNAL("currentIndexChanged(QString)"),
-                     self.figure.setImageOrigin)
-        self.connect(self.normalizationComboBox,
-                     QtCore.SIGNAL("currentIndexChanged(QString)"),
-                     self.window().setNormalizationChannel)
-
-
-class ElementPlot(ui_elementsplot.Ui_ElementsPlot, ElementWidget):
-    """Establishes a Experiment controls    """
-    def __init__(self, scanData, parent=None):
-        super(ElementPlot, self).__init__(scanData, parent)
-        self.setupUi(self)
-
-        self.xrfbandComboBox.addItems(self.window().getPeaks())
-
-        self.figure = ElementPlotFigure(scanData, self)
-        self.toolbar = plotwidgets.Toolbar(self.figure, self)
-        self.gridlayout1.addWidget(self.toolbar, 0, 0, 1, 1)
-        self.gridlayout1.addWidget(self.figure, 1, 0, 1, 1)
-
-        self.connectSignals()
-        self.updateFigure()

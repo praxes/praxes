@@ -192,7 +192,7 @@ class XfsH5Scan(XpaxsH5Scan):
                 numIndices = len(indices)
                 for index in indices:
                     result = self.h5Node.data[index][id]
-                    if normalization is not None:
+                    if normalization:
                         norm = getattr(self.h5Node.data.cols,
                                        normalization)[index]
                         if normalization == 'Dead':
@@ -265,8 +265,10 @@ class XfsH5Scan(XpaxsH5Scan):
                         if not i in self.h5Node._v_attrs]
             # TODO: This is a wart, to be fixed with better structuring of
             # files via nexus standard:
-            print channels
-            channels.remove('MCA')
+            try:
+                channels.remove('MCA')
+            except ValueError:
+                pass
         finally:
             self.mutex.unlock()
         return channels

@@ -179,7 +179,13 @@ class Toolbar(MplToolbar):
             self._idRelease = self.canvas.mpl_connect(
                 'button_press_event', self.selectPoint)
             self.draw_rubberband(event, 0, 0, 0, 0)
-            self.emit(QtCore.SIGNAL('pickEvent'), self.xdatastart, self.ydatastart, event.xdata, event.ydata)
+            self.emit(
+                QtCore.SIGNAL('pickEvent'),
+                self.xdatastart,
+                self.ydatastart,
+                event.xdata,
+                event.ydata
+            )
 
 
     def drawband(self, event):
