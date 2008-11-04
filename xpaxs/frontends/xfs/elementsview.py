@@ -19,7 +19,6 @@ from PyQt4 import QtCore, QtGui
 #---------------------------------------------------------------------------
 
 from xpaxs.frontends.base import plotwidgets
-from xpaxs.frontends.xfs.ui import ui_elementsimage, ui_elementsplot
 from xpaxs.frontends.xfs.plotoptions import PlotOptions
 
 #---------------------------------------------------------------------------

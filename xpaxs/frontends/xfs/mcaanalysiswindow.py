@@ -31,37 +31,22 @@ from xpaxs.frontends.xfs.elementsview import ElementsView
 logger = logging.getLogger(__file__)
 
 
-class AnalysisProgressWidget(QtGui.QWidget):
-
-    __pyqtSignals__ = ('abort()', )
+class AnalysisProgressWidget(QtGui.QProgressBar):
 
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        # make it fit in the status bar without resizing the status bar
-        self.setMaximumHeight(17)
-        self.setSizePolicy(QtGui.QSizePolicy.Minimum,
-                                           QtGui.QSizePolicy.Minimum)
-        self.progressBar = QtGui.QProgressBar(self)
-        self.abortButton = QtGui.QPushButton("Abort")
-        label = QtGui.QLabel('analysis in progress:')
-        layout = QtGui.QHBoxLayout()
-        layout.setMargin(0)
-        layout.setSpacing(0)
-        layout.addWidget(label)
-        layout.addWidget(self.progressBar)
-        layout.addWidget(self.abortButton)
-        self.setLayout(layout)
+        QtGui.QProgressBar.__init__(self, parent)
 
-    @QtCore.pyqtSignature('')
-    def on_abortButton_clicked(self):
-        self.emit(QtCore.SIGNAL("abort()"))
+        self.actionAbort = QtGui.QAction('Abort', self)
+        self.addAction(self.actionAbort)
 
-    def reset(self):
-        self.progressBar.reset()
+        self.connect(
+            self.actionAbort,
+            QtCore.SIGNAL("triggered(bool)"),
+            self,
+            QtCore.SIGNAL("abort()")
+        )
 
-    def setValue(self, val):
-        self.progressBar.setValue(val)
-
+        self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 
 
 class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
@@ -271,6 +256,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.progressWidget.hide()
         self.progressWidget.reset()
         self.statusBar.removeWidget(self.progressWidget)
+        self.statusBar.clearMessage()
 
         self.analysisThread = None
         self.setMenuToolsActionsEnabled(True)
@@ -319,6 +305,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             thread.stop
         )
 
+        self.statusBar.showMessage('Analyzing spectra ...')
         self.statusBar.addPermanentWidget(self.progressWidget)
         self.progressWidget.show()
 
