@@ -146,15 +146,61 @@ class XfsH5File(XpaxsH5File):
             return XfsH5Scan(self, node)
 
 
+class McaSpectraIterator(object):
+
+    def __init__(self, scanData):
+        self._currentIndex = 0
+        self._scanData = scanData
+
+    def __iter__(self):
+        return self
+
+    @property
+    def currentIndex(self):
+        return self._currentIndex
+
+    @property
+    def numExpectedPoints(self):
+        return self._scanData.numExpectedPoints
+
+    def next(self):
+        if self._currentIndex >= self.numExpectedPoints:
+            raise StopIteration
+
+        else:
+            if self._scanData.isValidDataPoint(self._currentIndex):
+                i = self._currentIndex
+                spectrum = self._scanData.getMcaSpectrum(i)
+                self._currentIndex += 1
+
+                return i, spectrum
+
+            else:
+                self._currentIndex += 1
+                return self.next()
+
+
 class XfsH5Scan(XpaxsH5Scan):
 
     def __init__(self, *args, **kwargs):
         super(XfsH5Scan, self).__init__(*args, **kwargs)
         self._numSkippedPoints = len(self.getInvalidDataPoints())
 
+    @property
+    def iterMcaSpectra(self):
+        return McaSpectraIterator(self)
+
+    @property
+    def numExpectedPoints(self):
+        try:
+            self.mutex.lock()
+            return copy.copy(self.h5Node._v_attrs.scanLines)
+
+        finally:
+            self.mutex.unlock()
+
     def appendDataPoint(self, data):
         data = copy.deepcopy(data)
-        mon, thresh = self.getSkipmode()
         if DEBUG: print "appending data point:", data['i']
         try:
             self.mutex.lock()
@@ -163,15 +209,8 @@ class XfsH5Scan(XpaxsH5Scan):
                 row[key] = val
             row.append()
             self.h5Node.data.flush()
-            if not mon:
-                self.queue.put(int(data['i']))
-            elif data[mon] > thresh:
-                self.queue.put(int(data['i']))
-            else:
-                self._numSkippedPoints += 1
         finally:
             self.mutex.unlock()
-#        self.flush()
 
     def getAvailableElements(self):
         try:
@@ -273,13 +312,6 @@ class XfsH5Scan(XpaxsH5Scan):
             self.mutex.unlock()
         return channels
 
-    def getNumSkippedPoints(self):
-        try:
-            self.mutex.lock()
-            return copy.copy(self._numSkippedPoints)
-        finally:
-            self.mutex.unlock()
-
     def getPymcaConfig(self):
         try:
             self.mutex.lock()
@@ -305,6 +337,18 @@ class XfsH5Scan(XpaxsH5Scan):
         if indices is None: return valid
         if len(indices): return [i for i in indices if i in valid]
         else: return valid
+
+    def isValidDataPoint(self, index):
+        mon, thresh = self.getSkipmode()
+        try:
+            self.mutex.lock()
+            if mon and thresh:
+                temp = self.h5Node.data[index][mon]
+                return self.h5Node.data[index][mon] > thresh
+            else:
+                return True
+        finally:
+            self.mutex.unlock()
 
     def initializeElementMaps(self, elements):
         elements = copy.deepcopy(elements)

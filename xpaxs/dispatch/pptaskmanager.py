@@ -6,7 +6,6 @@
 #---------------------------------------------------------------------------
 
 import logging
-import Queue
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -48,23 +47,14 @@ class PPTaskManager(QtCore.QThread):
         self.jobServer.set_ncpus(ncpus)
         self.numCpus = numpy.sum([i for i in
                             self.jobServer.get_active_nodes().itervalues()])
-        self.numQueued = 0
-        self.numProcessed = 0
-        self.numSkipped = 0
-        self.numExpected = 0
-        self.queue = Queue.Queue()
 
         self.dirty = False
         self.stopped = False
-        self.completed = False
 
         self.timer = QtCore.QTimer(self)
         self.connect(self.timer,
                      QtCore.SIGNAL("timeout()"),
                      self.report)
-
-    def findNextPoint(self):
-        raise NotImplementedError
 
     def isStopped(self):
         try:
@@ -77,12 +67,14 @@ class PPTaskManager(QtCore.QThread):
         while 1:
             if self.isStopped(): return
 
-            self.queueNext()
-            self.jobServer.wait()
+            try:
+                self._submitJobs(self.numCpus*3)
+                self.jobServer.wait()
+            except StopIteration:
+                self.jobServer.wait()
+                return
 
-            if self.numExpected <= (self.numProcessed+self.numSkipped): return
-
-    def queueNext(self):
+    def _submitJobs(self):
         raise NotImplementedError
 
     def report(self):

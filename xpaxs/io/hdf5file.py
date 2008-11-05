@@ -244,11 +244,15 @@ class XpaxsH5Scan(XpaxsH5Node):
         print "use flush instead of saveData"
         self.flush()
 
-    def setNumExpectedScanLines(self, val):
+    def setNumExpectedScanLines(self, val=None):
         val = copy.copy(val)
         try:
             self.mutex.lock()
+            if val is None:
+                val = len(self.h5Node.data)
+
             self.h5Node._v_attrs.scanLines = val
+
         finally:
             self.mutex.unlock()
 

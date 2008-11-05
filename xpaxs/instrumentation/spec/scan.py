@@ -48,6 +48,7 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
     def abort(self):
         if self.isScanning():
             self.connection.abort()
+            self._scanData.setNumExpectedScanLines()
             self.scanAborted()
 
     def connected(self):

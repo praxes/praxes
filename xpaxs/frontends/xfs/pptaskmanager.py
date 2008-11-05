@@ -6,7 +6,6 @@
 #---------------------------------------------------------------------------
 
 import logging
-import Queue
 import time
 
 #---------------------------------------------------------------------------
@@ -44,10 +43,12 @@ def flat_to_nd(index, shape):
     return tuple(res)
 
 def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
+    start = time.time()
     advancedFit.config['fit']['use_limit'] = 1
     # TODO: get the channels from the controller
     advancedFit.setdata(y=spectrum)
     advancedFit.estimate()
+    estimate = time.time()
     if ('concentrations' in advancedFit.config) and \
             (advancedFit._fluoRates is None):
         fitresult, result = advancedFit.startfit(digest=1)
@@ -55,6 +56,7 @@ def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
         fitresult = advancedFit.startfit(digest=0)
         result = advancedFit.imagingDigestResult()
     result['index'] = index
+    fit = time.time()
 
     if mfTool:
         temp = {}
@@ -66,67 +68,61 @@ def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
                                        elementsfrommatrix=False,
                                        fluorates=advancedFit._fluoRates)
         result['concentrations'] = conc
+    fitconc = time.time()
+    report = {'estimate':estimate-start,
+              'fit': fit-estimate,
+              'fitconc': fitconc-fit}
 
-    return {'index': index, 'result': result, 'advancedFit': advancedFit}
+    return {'index': index, 'result': result, 'advancedFit': advancedFit, 'report': report}
 
 
 class XfsPPTaskManager(PPTaskManager):
 
-    def findNextPoint(self):
-        index = self.queue.get(False)
-        # TODO: need to be able to select which mca
-        spectrum = self.scan.getMcaSpectrum(index)
-        return index, spectrum
-
-    def queueNext(self):
-        self.numExpected = self.scan.getNumExpectedScanLines()
-        self.numSkipped = self.scan.getNumSkippedPoints()
+    def _submitJobs(self, numJobs):
         try:
             self.mutex.lock()
-            while self.numQueued < self.numCpus*3:
+            for i in range(numJobs):
                 try:
-                    index, spectrum = self.findNextPoint()
-                    args = (index, spectrum, self.tconf, self.advancedFit,
-                            self.concentrationsTool)
-                    self.jobServer.submit(analyzeSpectrum, args,
-                                          callback=self.updateRecords)
-                    self.numQueued += 1
-                except Queue.Empty:
+                    index, data = self.iterData.next()
+                    args = (index, data, self.tconf, self.advancedFit, self.mfTool)
+                    self.jobServer.submit(
+                        analyzeSpectrum,
+                        args,
+                        modules=("time", ),
+                        callback=self.updateRecords
+                    )
+                except IndexError:
                     break
         finally:
             self.mutex.unlock()
 
     def setData(self, scan, config):
         self.scan = scan
-        self.scan.setQueue(self.queue)
+        self.iterData = scan.iterMcaSpectra
 
         self.config = config
 
         self.advancedFit = ClassMcaTheory.McaTheory(config=config)
         self.advancedFit.enableOptimizedLinearFit()
-        self.concentrationsTool = None
+        self.mfTool = None
         if 'concentrations' in config:
-            self.concentrationsTool = ConcentrationsTool(config)
-            self.tconf = self.concentrationsTool.configure()
-
-        self.numSkipped = self.scan.getNumSkippedPoints() # skipped by skipmode
-        self.expectedLines = self.scan.getNumExpectedScanLines()
-
-        for i in self.scan.getValidDataPoints():
-            self.queue.put(i)
+            self.mfTool = ConcentrationsTool(config)
+            self.tconf = self.mfTool.configure()
 
     def updateRecords(self, data):
         try:
             self.mutex.lock()
-            self.numQueued -= 1
-            self.numProcessed += 1
-            self.emit(QtCore.SIGNAL('percentComplete'),
-                      100*(self.numProcessed+self.numSkipped)/self.expectedLines)
+            self.emit(
+                QtCore.SIGNAL('percentComplete'),
+                (100.0 * self.iterData.currentIndex) / \
+                    self.iterData.numExpectedPoints
+            )
             if data: self.advancedFit = data['advancedFit']
         finally:
             self.mutex.unlock()
 
         if data:
+            print data['report']
             shape = self.scan.getScanShape()
             index = flat_to_nd(data['index'], shape)
 
