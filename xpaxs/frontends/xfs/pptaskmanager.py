@@ -5,12 +5,8 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import gc
-import hashlib
 import logging
-import os
 import Queue
-import tempfile
 import time
 
 #---------------------------------------------------------------------------
@@ -18,7 +14,7 @@ import time
 #---------------------------------------------------------------------------
 
 import pp
-from PyMca import ClassMcaTheory, EdfFile
+from PyMca import ClassMcaTheory
 from PyMca.ConcentrationsTool import ConcentrationsTool
 from PyQt4 import QtCore
 import numpy
@@ -35,7 +31,7 @@ from xpaxs.dispatch.pptaskmanager import PPTaskManager
 #---------------------------------------------------------------------------
 
 
-logger = logging.getLogger('XPaXS.frontends.xfs.pptaskmanager')
+logger = logging.getLogger(__file__)
 DEBUG = False
 
 def flat_to_nd(index, shape):
@@ -102,6 +98,8 @@ class XfsPPTaskManager(PPTaskManager):
 
     def setData(self, scan, config):
         self.scan = scan
+        self.scan.setQueue(self.queue)
+
         self.config = config
 
         self.advancedFit = ClassMcaTheory.McaTheory(config=config)

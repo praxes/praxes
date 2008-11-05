@@ -213,6 +213,17 @@
    <property name="text" >
     <string>Calibration</string>
    </property>
+   <property name="toolTip" >
+    <string>Fit the average spectrum of all valid datapoints</string>
+   </property>
+  </action>
+  <action name="actionAbort" >
+   <property name="text" >
+    <string>Abort</string>
+   </property>
+   <property name="toolTip" >
+    <string>Abort the current process</string>
+   </property>
   </action>
  </widget>
  <resources/>

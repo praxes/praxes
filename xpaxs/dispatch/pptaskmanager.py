@@ -5,13 +5,8 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-import gc
-import hashlib
 import logging
-import os
 import Queue
-import tempfile
-import time
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -33,7 +28,7 @@ numpy.seterr(all='ignore')
 #---------------------------------------------------------------------------
 
 
-logger = logging.getLogger('XPaXS.dispatch.pptaskmanager')
+logger = logging.getLogger(__file__)
 DEBUG = False
 
 
@@ -67,18 +62,9 @@ class PPTaskManager(QtCore.QThread):
         self.connect(self.timer,
                      QtCore.SIGNAL("timeout()"),
                      self.report)
-        self.connect(self.timer,
-                     QtCore.SIGNAL("timeout()"),
-                     self.cleanup)
-
-    def cleanup(self):
-        gc.collect()
 
     def findNextPoint(self):
         raise NotImplementedError
-
-    def getQueue(self):
-        return self.queue
 
     def isStopped(self):
         try:

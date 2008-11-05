@@ -31,24 +31,6 @@ from xpaxs.frontends.xfs.elementsview import ElementsView
 logger = logging.getLogger(__file__)
 
 
-class AnalysisProgressWidget(QtGui.QProgressBar):
-
-    def __init__(self, parent=None):
-        QtGui.QProgressBar.__init__(self, parent)
-
-        self.actionAbort = QtGui.QAction('Abort', self)
-        self.addAction(self.actionAbort)
-
-        self.connect(
-            self.actionAbort,
-            QtCore.SIGNAL("triggered(bool)"),
-            self,
-            QtCore.SIGNAL("abort()")
-        )
-
-        self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-
-
 class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
     """
@@ -98,8 +80,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         else:
             self.configurePymca()
 
-        self.progressWidget = AnalysisProgressWidget(self)
-        self.progressWidget.hide()
+        self.progressBar = QtGui.QProgressBar(self)
+        self.progressBar.hide()
+        self.progressBar.addAction(self.actionAbort)
+        self.progressBar.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 
         self.analysisThread = None
 
@@ -253,9 +237,9 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.setMenuToolsActionsEnabled(True)
 
     def processComplete(self):
-        self.progressWidget.hide()
-        self.progressWidget.reset()
-        self.statusBar.removeWidget(self.progressWidget)
+        self.progressBar.hide()
+        self.progressBar.reset()
+        self.statusBar.removeWidget(self.progressBar)
         self.statusBar.clearMessage()
 
         self.analysisThread = None
@@ -272,7 +256,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
         thread = XfsPPTaskManager(parent=self)
         thread.setData(self.scanData, config)
-        self.scanData.setQueue(thread.getQueue())
 
         self.connect(
             thread,
@@ -297,17 +280,17 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.connect(
             thread,
             QtCore.SIGNAL('percentComplete'),
-            self.progressWidget.setValue
+            self.progressBar.setValue
         )
         self.connect(
-            self.progressWidget,
-            QtCore.SIGNAL('abort()'),
+            self.actionAbort,
+            QtCore.SIGNAL('triggered(bool)'),
             thread.stop
         )
 
         self.statusBar.showMessage('Analyzing spectra ...')
-        self.statusBar.addPermanentWidget(self.progressWidget)
-        self.progressWidget.show()
+        self.statusBar.addPermanentWidget(self.progressBar)
+        self.progressBar.show()
 
         self.analysisThread = thread
 
