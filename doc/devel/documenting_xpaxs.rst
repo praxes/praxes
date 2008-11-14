@@ -8,30 +8,28 @@ Getting started
 ===============
 
 The documentation for XPaXS is generated from ReStructured Text
-using the Sphinx_ documentation generation tool. Sphinx-0.4 or later
-is required. Currently this means we need to install from the svn
+using the Sphinx_ documentation generation tool. Sphinx-0.5 or later
+is required. Currently this means we need to install from the hg
 repository by doing::
 
-  svn co http://svn.python.org/projects/doctools/trunk sphinx
+  hg clone http://bitbucket.org/birkenfeld/sphinx sphinx
   cd sphinx
   python setup.py install
 
 .. _Sphinx: http://sphinx.pocoo.org/
 
 The documentation sources are found in the :file:`doc/` directory in the trunk.
-To build the users guide in html format, cd into :file:`doc/` and do::
-
-  python make.py html
-
-or::
-
-  ./make.py html
-
-you can also pass a ``latex`` flag to make.py to build a pdf, or pass no
-arguments to build everything.
-
 The output produced by Sphinx can be configured by editing the :file:`conf.py`
-file located in the :file:`doc/`.
+file located in the :file:`doc/` directory. To build the users guide in html 
+format, run from the main xpaxs directory::
+
+  python setup.py build_sphinx
+
+and the html will be produced in `build/sphinx/html`. To build the pdf file::
+
+  python setup.py build_sphinx -b latex
+  cd build/sphinx/latex
+  make all-pdf
 
 
 Organization of XPaXS's documentation
@@ -292,30 +290,6 @@ Section names, etc
 For everything but top level chapters, please use ``Upper lower`` for
 section titles, eg ``Possible hangups`` rather than ``Possible
 Hangups``
-
-Inheritance diagrams
-====================
-
-Class inheritance diagrams can be generated with the
-``inheritance-diagram`` directive.  To use it, you provide the
-directive with a number of class or module names (separated by
-whitespace).  If a module name is provided, all classes in that module
-will be used.  All of the ancestors of these classes will be included
-in the inheritance diagram.
-
-A single option is available: *parts* controls how many of parts in the path to
-the class are shown.  For example, if *parts* == 1, the class
-``xpaxs.frontends.xfs.fileinterface.XfsH5FileModel`` is shown as
-``XfsH5FileModel``.  If *parts* == 2, it is shown as
-``fileinterface.XfsH5FileModel``.  If *parts* == 0, the full path is shown.
-
-Example::
-
-    .. inheritance-diagram:: xpaxs.frontends.xfs.fileinterface.XfsH5FileModel
-       :parts: 2
-
-.. inheritance-diagram:: xpaxs.frontends.xfs.fileinterface.XfsH5FileModel
-   :parts: 2
 
 
 .. _emacs-helpers:

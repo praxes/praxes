@@ -16,7 +16,7 @@ import sys, os
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
-sys.path.append(os.path.abspath('sphinxext'))
+sys.path.append(os.path.abspath('ext'))
 
 # General configuration
 # ---------------------
@@ -24,8 +24,7 @@ sys.path.append(os.path.abspath('sphinxext'))
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.pngmath', 'sphinx.ext.autodoc', 'only_directives', 
-              'ipython_console_highlighting', 'plot_directive',
-              'inheritance_diagram']
+              'ipython_console_highlighting', 'plot_directive']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -34,7 +33,7 @@ templates_path = ['_templates']
 source_suffix = '.rst'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'contents'
 
 # General substitutions.
 project = 'XPaXS'
@@ -73,7 +72,7 @@ today_fmt = '%B %d, %Y'
 #show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'friendly'
 
 
 # Options for HTML output
@@ -82,24 +81,12 @@ pygments_style = 'sphinx'
 # The style sheet to use for HTML and HTML Help pages. A file of that name
 # must exist either in Sphinx' static/ path, or in one of the custom paths
 # given in html_static_path.
-html_style = 'default.css'
-
-# The name for this set of Sphinx documents.  If None, it defaults to
-# "<project> v<release> documentation".
-#html_title = None
-
-# The name of an image file (within the static path) to place at the top of
-# the sidebar.
-#html_logo = None
+html_style = 'sphinxdoc.css'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
-
-# If nonempty, this is the file name suffix for generated HTML files.  The
-# default is ``".html"``.
-#html_file_suffix = '.xhtml'
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -107,20 +94,14 @@ html_last_updated_fmt = '%b %d, %Y'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
-#html_use_smartypants = True
+html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+html_sidebars = {'index': 'indexsidebar.html'}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
-#html_additional_pages = {}
-
-# If false, no module index is generated.
-#html_use_modindex = True
-
-# If true, the reST sources are included in the HTML build as _sources/<name>.
-#html_copy_source = True
+html_additional_pages = {'index': 'index.html'}
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.
@@ -142,15 +123,15 @@ latex_font_size = '11pt'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'XPaXS.tex', 'XPaXS Documentation', 'Darren Dale', 'manual'),
+  ('contents', 'XPaXS.tex', 'XPaXS Documentation', 'Darren Dale', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-latex_logo = None
+#latex_logo = '_static/sphinx.png'
 
 # Additional stuff for the LaTeX preamble.
-latex_preamble = ''
+latex_elements = {'fontpkg': '\\usepackage{pslatex}'}
 
 # Documents to append as an appendix to all manuals.
 latex_appendices = []

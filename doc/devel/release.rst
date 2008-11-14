@@ -46,13 +46,18 @@ Building XPaXS documentation
 
 When publishing a new release, the XPaXS doumentation needs to be generated and
 published as well. Sphinx_, LaTeX_ (preferably TeX-Live_), and dvipng_ are
-required to build the documentation. Once these are installed, cd into the
-`doc/` directory and do::
+required to build the documentation. Once these are installed, do::
 
-  python make.py
+  python setup.py build_sphinx
 
-Then copy the `build/html/` directory and `build/latex/XPaXS.pdf` to the
-webserver.
+which will produce the html output and save it in build/sphinx/html. Then run::
+
+  python setup.py build_sphinx -b latex
+  cd build/sphinx/latex
+  make all-pdf
+
+which will generate a pdf file in the latex directory. Finally, copy the `html/` 
+directory and the `latex/XPaXS.pdf` file to the webserver.
 
 .. _Sphinx: http://sphinx.pocoo.org/
 .. _LaTeX: http://www.latex-project.org/

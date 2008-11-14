@@ -332,23 +332,14 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
         scanView = self.getScanView(scan)
 
         self.connect(scanView, QtCore.SIGNAL("scanClosed"), self.scanClosed)
-#        self.connect(scanView, QtCore.SIGNAL("addStatusBarWidget"),
-#                     self.statusBar.addPermanentWidget)
-#        self.connect(scanView, QtCore.SIGNAL("removeStatusBarWidget"),
-#                     self.statusBar.removeWidget)
 #        self.connect(scanView, QtCore.SIGNAL("ppJobStats"),
 #                     self.ppJobStats.updateTable)
 
-#        subWindow = self.mdi.addSubWindow(scanView)
-#        subWindow.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-#        subWindow.setWindowTitle(title)
-#        subWindow.showMaximized()
         self.openScans.append(scan)
 
         scanView.show()
         self.statusBar.clearMessage()
 
-#        self.menuTools.setEnabled(True)
         if beginProcessing: scanView.processData()
 
     def openDatafile(self, filename=None):

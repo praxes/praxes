@@ -21,9 +21,3 @@ XPaXS -- eXtensible Packages for X-ray Science
    devel/index.rst
    api/index.rst
    glossary/index.rst
-
-.. htmlonly::
-
-  * :ref:`genindex`
-  * :ref:`modindex`
-  * :ref:`search`
