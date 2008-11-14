@@ -1,0 +1,16 @@
+2007-10-20 Fixed a bad memory leak due to repeated plotting. Fixed by 
+           updating lines in place, redrawing the plot window - DSD
+
+2007-08-03 XPGui code cleanup:
+           - dont use matplotlib.numerix. Use numpy instead
+           - dont use numpy.oldnumeric. Use numpy instead
+           - dont import pylab
+
+2007-08-03 directory cleanup:
+           - remove pexpect, it is an external dependency
+           - create "external" package to collect external packages
+             provided by spectromicroscopy (those that are not easily
+             installed)
+           - Move configobj, SpecClient into external package 
+
+2007-08-03 cleanup KonsoleGui, remove windows code - DSD

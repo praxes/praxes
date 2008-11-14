@@ -112,6 +112,24 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
                 self._stateChanged
             )
 
+    def _disconnectMotor(self):
+        if self._motor:
+            self.disconnect(
+                self._motor,
+                QtCore.SIGNAL("positionChanged(PyQt_PyObject)"),
+                self._positionChanged
+            )
+            self.disconnect(
+                self._motor,
+                QtCore.SIGNAL("limitsChanged(PyQt_PyObject)"),
+                self._limitsChanged
+            )
+            self.disconnect(
+                self._motor,
+                QtCore.SIGNAL("stateChanged(PyQt_PyObject)"),
+                self._stateChanged
+            )
+
     def _isNextPositionCurrentPosition(self):
         fmt = '%.' + str(self.precision) + 'f'
         self.emit(
@@ -175,6 +193,7 @@ class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
     @QtCore.pyqtSignature("QString")
     def on_mneComboBox_currentIndexChanged(self, motorMne):
         if motorMne:
+            self._disconnectMotor()
             self._motor = self.specRunner.getMotor(str(motorMne))
             self._connectMotor()
         else:

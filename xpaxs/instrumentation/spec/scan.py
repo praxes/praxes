@@ -30,6 +30,22 @@ from xpaxs.instrumentation.spec import TEST_SPEC
 logger = logging.getLogger('XPaXS.instrumentation.spec.client.scan')
 
 
+def convertValue(value):
+    if ',' in value:
+        if '.' in value:
+            temp = numpy.fromstring(value, sep=',', dtype='f')
+        else:
+            temp = numpy.fromstring(value, sep=',', dtype='i')
+        if len(temp) == value.count(','): value = temp
+    else:
+        try:
+            if ('e' in value) or ('.' in value):
+                value = float(value)
+            else:
+                value = int(value)
+        except ValueError:
+            pass
+
 
 class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
 
@@ -48,7 +64,10 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
     def abort(self):
         if self.isScanning():
             self.connection.abort()
-            self._scanData.setNumExpectedScanLines()
+            try:
+                self._scanData.setNumExpectedScanLines()
+            except AttributeError:
+                pass
             self.scanAborted()
 
     def connected(self):
@@ -58,29 +77,13 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
         pass
 
     def newScan(self, scanParameters):
-        for key, value in scanParameters.iteritems():
-            if ',' in value:
-                if '.' in value:
-                    temp = numpy.fromstring(value, sep=',', dtype='f')
-                else:
-                    temp = numpy.fromstring(value, sep=',', dtype='i')
-                if len(temp) == value.count(','): value = temp
-            else:
-                try:
-                    if ('e' in value) or ('.' in value):
-                        value = float(value)
-                    else:
-                        value = int(value)
-                except ValueError:
-                    pass
-            scanParameters[key] = value
         logger.debug('newScan: %s', scanParameters)
 
         import xpaxs
         fileInterface = xpaxs.application.getService('FileInterface')
 
         if fileInterface:
-            specFile = scanParameters['fileName']
+            specFile = scanParameters['scan_desc']['filename']
             h5File = fileInterface.getH5FileFromKey(specFile)
             self._scanData = fileInterface.createEntry(h5File, scanParameters)
 
@@ -89,7 +92,10 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
                 if ScanView:
                     ScanView(self._scanData, beginProcessing=True)
 
-        self.emit(QtCore.SIGNAL("newScanLength"), scanParameters['scanLines'])
+        self.emit(
+            QtCore.SIGNAL("newScanLength"),
+            scanParameters['scan_desc']['scan points']
+        )
 
     def newScanData(self, scanData):
         logger.debug( 'scanData: %s', scanData)

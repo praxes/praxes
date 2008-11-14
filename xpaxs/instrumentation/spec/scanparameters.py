@@ -350,8 +350,6 @@ class ScanParametersWidget(
 
     @QtCore.pyqtSignature("")
     def on_scanButton_clicked(self):
-        print 'Need to implement scan starting'
-
         self.specRunner('clientploton', asynchronous=False)
         self.specRunner('clientdataon', asynchronous=False)
 
