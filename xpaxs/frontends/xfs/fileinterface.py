@@ -82,51 +82,58 @@ class XfsH5File(XpaxsH5File):
             h5Entry = self.h5File.createGroup('/', scanName, title=scanName,
                                               filters=filters)
             attrs = h5Entry._v_attrs
-            attrs.scanNumber = scanParams['scanNumber']
-            attrs.scanCommand = scanParams['scanCommand']
-            attrs.scanLines = scanParams['scanLines']
-            attrs.fileName = scanParams['fileName'].split('/')[-1]
-            scanInfo = getSpecScanInfo(scanParams['scanCommand'].split())
+            attrs.scanNumber = scanParams['scan_desc']['scan number']
+            attrs.scanCommand = scanParams['scan_desc']['command']
+            attrs.scanLines = scanParams['scan_desc']['scan points']
+            attrs.fileName = scanParams['scan_desc']['filename'].split('/')[-1]
+            scanInfo = getSpecScanInfo(scanParams['scan_desc']['command'].split())
             attrs.scanType = scanInfo[0]
             attrs.scanAxes = scanInfo[1]
             attrs.scanRange = scanInfo[2]
             attrs.scanShape = scanInfo[3]
 
             skipmode = scanParams.get('skipmode', None)
-            if skipmode:
-                mon, thresh = skipmode.split()
-                attrs.skipmodeMonitor = mon
-                attrs.skipmodeThresh = float(thresh)
+            try:
+                attrs.skipmodeMonitor = scanParams['skipmode']['monitor']
+                attrs.skipmodeThresh = scanParams['skipmode']['threshold']
+            except KeyError:
+                pass
 
-            for entry in scanParams['motorPositions'].split():
-                key, val = entry.split('=')
-                setattr(attrs, key, float(val))
+            for key, val in scanParams['motor_positions'].iteritems():
+                setattr(attrs, key, val)
 
             Data = {}
-            for label in scanParams['columnNames'].split():
+            for label in scanParams['scan_desc']['column names']:
                 if label == 'epoch': Data[label] = tables.Float64Col()
                 else: Data[label] = tables.Float32Col()
 
-            mcas = scanParams.get('mcas', '').split()
-            for mca in mcas:
-                mcaEntry = self.h5File.createGroup(h5Entry, mca, title=mca,
-                                                   filters=filters)
+            for key, val in scanParams.iteritems():
+                try:
+                    if val['type'] == 'MCA':
+                        # yuck, we'll use the key as the entry name when we
+                        # move to the new file format, instead of defaulting
+                        # to "MCA"
+                        mcaEntry = self.h5File.createGroup(
+                            h5Entry, 'MCA', title='MCA', filters=filters
+                        )
 
-                channels = scanParams['mcaChannels_%s'%mca]
-                channelsEntry = self.h5File.createCArray(mcaEntry, 'channels',
-                                                         tables.UInt16Atom(),
-                                                         channels.shape,
-                                                         filters=filters)
-                channelsEntry[:] = channels
+                        channels = val['channels']
+                        channelsEntry = self.h5File.createCArray(
+                            mcaEntry, 'channels', tables.UInt16Atom(),
+                            channels.shape, filters=filters
+                        )
+                        channelsEntry[:] = channels
 
-                energy = scanParams['mcaEnergy_%s'%mca]
-                energyEntry = self.h5File.createCArray(mcaEntry, 'energy',
-                                                         tables.UInt16Atom(),
-                                                         energy.shape,
-                                                         filters=filters)
-                energyEntry[:] = energy
+                        energy = val['energy']
+                        energyEntry = self.h5File.createCArray(
+                            mcaEntry, 'energy', tables.Float32Atom(),
+                            energy.shape, filters=filters
+                        )
+                        energyEntry[:] = energy
 
-                Data[mca] = tables.Float32Col(shape=channels.shape)
+                        Data['MCA'] = tables.Float32Col(shape=channels.shape)
+                except (KeyError, TypeError):
+                    pass
 
             dataTable = self.h5File.createTable(h5Entry, 'data', Data,
                                                 filters=filters,
@@ -205,8 +212,24 @@ class XfsH5Scan(XpaxsH5Scan):
         try:
             self.mutex.lock()
             row = self.h5Node.data.row
-            for key, val in data.iteritems():
+
+            row['i'] = data['i']
+
+            for key, val in data['positions'].iteritems():
                 row[key] = val
+
+            for key, val in data['scalars'].iteritems():
+                row[key] = val
+
+            # YUCK
+            try:
+                for key, val in data['vortex'].iteritems():
+                    if key == 'dtn': key = 'vtxdtn'
+                    if key == 'counts': key = 'MCA'
+                    row[key] = val
+            except KeyError:
+                pass
+
             row.append()
             self.h5Node.data.flush()
         finally:
@@ -249,7 +272,6 @@ class XfsH5Scan(XpaxsH5Scan):
             try:
                 elementMap = self.h5Node._v_file.getNode(self.h5Node, dataPath)[:]
             except tables.NoSuchNodeError:
-                print dataPath
                 return numpy.zeros(self.getScanShape())
         finally:
             self.mutex.unlock()

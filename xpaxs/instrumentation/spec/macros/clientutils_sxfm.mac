@@ -25,56 +25,126 @@ def _clientutils_off '{
 def _client_setscanenv '{
     local scan_env column_names
 
-    scan_env = ""
-    # define reserved parameters for plotting:
-    scan_env = sprintf("%stype=%s\t", scan_env, _stype)
-    scan_env = sprintf("%stitle=Scan %d\t", scan_env, SCAN_N+1)
-    scan_env = sprintf("%sxlabel=%s\t", scan_env, X_L)
-    scan_env = sprintf("%sylabel=%s\t", scan_env, cnt_mne(DET))
-    scan_env = sprintf("%snb_motors=%d\t", scan_env, PLOT_MOTS)
-    scan_env = sprintf("%smotor=%s\t", scan_env, motor_mne(_m[0]))
-    scan_env = sprintf("%scounter=%s\t", scan_env, cnt_mne(DET))
+    local plot_desc[] scan_desc[] mode_desc[] positions detectors[]
 
-    # define additional parameters for data storage:
-    scan_env = sprintf("%sfileName=%s/%s\t", scan_env, CWD, DATAFILE)
-    scan_env = sprintf("%sscanCommand=%s\t", scan_env, HEADING)
-    scan_env = sprintf("%sscanNumber=%d\t", scan_env, SCAN_N+1)
-    scan_env = sprintf("%sscanLines=%d\t", scan_env, (_stype&8? _n1*_n2:_n1))
-    scan_env = sprintf("%smonitor=%s\t", scan_env, cnt_mne(MON))
-    column_names = "i"
+    scan_env = ""
+
+    # Define the original variables for plotting
+    plot_desc["type"] = sprintf("\'%s\'", _stype)
+    plot_desc["title"] = sprintf("\'Scan %d\'", SCAN_N+1)
+    plot_desc["xlabel"] = sprintf("\'%s\'", X_L)
+    plot_desc["ylabel"] = sprintf("\'%s\'", cnt_mne(DET))
+    plot_desc["nb_motors"] = sprintf("\'%d\'", PLOT_MOTS)
+    plot_desc["motor"] = sprintf("\'%s\'", motor_mne(_m[0]))
+    plot_desc["counter"] = sprintf("\'%s\'", cnt_mne(DET))
+
+    plot_dict = ""
+    for (i in plot_desc) {
+        plot_dict = sprintf("%s\'%s\':%s, ", plot_dict, i, plot_desc[i])
+    }
+    # for backwards compatibility:
+    scan_env = sprintf("%s%s", scan_env, plot_dict)
+    # and looking forward:
+    scan_env = sprintf("%s\'plot_desc\':{%s}, ", scan_env, plot_dict)
+
+    # collect the scan metadata:
+    scan_desc["filename"] = sprintf("\'%s/%s\'", CWD, DATAFILE)
+    scan_desc["command"] = sprintf("\'%s\'", HEADING)
+    scan_desc["scan number"] = sprintf("%d", SCAN_N+1)
+    scan_desc["scan points"] = sprintf("%d", (_stype&8? _n1*_n2:_n1))
+    scan_desc["monitor"] = sprintf("\'%s\'", cnt_mne(MON))
+
+    column_names = "\'i\', "
     for (i=0;i<_nm;i++) {
-        column_names = sprintf("%s %s", column_names, motor_mne(_m[i]))
+        column_names = sprintf("%s\'%s\', ", column_names, motor_mne(_m[i]))
     }
-    column_names = sprintf("%s epoch", column_names)
+    column_names = sprintf("%s\'epoch\', ", column_names)
     for (i=0;i<COUNTERS;i++) {
-        column_names = sprintf("%s %s", column_names, cnt_mne(i))
+        column_names = sprintf("%s\'%s\', ", column_names, cnt_mne(i))
     }
-    scan_env = sprintf("%scolumnNames=%s\t", scan_env, column_names)
+    scan_desc["column names"] = sprintf("[%s]", column_names)
+
+    scan_dict = ""
+    for (i in scan_desc) {
+        scan_dict = sprintf("%s\'%s\':%s, ", scan_dict, i, scan_desc[i])
+    }
+    scan_env = sprintf("%s\'scan_desc\':{%s}, ", scan_env, scan_dict)
+
     if (SKIPMODE_COUNTER) {
-        scan_env = sprintf("%sskipmode=%s %g\t", scan_env, \
-                           cnt_mne(SKIPMODE_COUNTER), SKIPMODE_THRESHOLD)
+        mode_desc["skipmode"] = sprintf("\'channel\':\'%s\', \'threshold\': %g", \
+            cnt_mne(SKIPMODE_COUNTER), SKIPMODE_THRESHOLD)
     }
-    motor_positions = ""
-    for (i=0;i<MOTORS;i++){
-        motor_positions = sprintf("%s%s=%g ", motor_positions, motor_mne(i), \
-                                  A[i])
+
+    modes_dict = ""
+    for (i in mode_desc) {
+        modes_dict = sprintf("%s\'%s\':{%s}, ", modes_dict, i, mode_desc[i])
     }
-    scan_env = sprintf("%smotorPositions=%s\t", scan_env, motor_positions)
+    scan_env = sprintf("%s%s", scan_env, modes_dict)
+
+    positions = ""
+    for (i=0;i<MOTORS;i++) {
+        positions = sprintf("%s\'%s\':%g, ", positions, motor_mne(i), A[i])
+    }
+    scan_env = sprintf("%s\'motor_positions\':{%s}, ", scan_env, positions)
+
     if (MCA_CHAN > 0) {
-        local mca_channels
+        local mca_desc mca_channels mca_energy
+
+        mca_desc = "\'class\':\'detector\', \'type\':\'MCA\', "
+        mca_desc = sprintf("%s\'description\':\'%s\', ", mca_desc, MCA_NAME)
+
         mca_channels = ""
         mca_energy = ""
         for(i = 0; i < MCA_CHAN; i++){
             mca_channels = sprintf("%s%g,", mca_channels, MCA_DATA[i][0])
             mca_energy = sprintf("%s%g,", mca_energy, MCA_DATA_FL[i][0])
         }
-        # This could be extended to support muliple MCAs
-        scan_env = sprintf("%smcas=%s\t", scan_env, "MCA")
-        scan_env = sprintf("%smcaChannels_MCA=%s\t", scan_env, mca_channels)
-        scan_env = sprintf("%smcaEnergy_MCA=%s\t", scan_env, mca_energy)
+        mca_desc = sprintf("%s\'channels\':array([%s], dtype=\'i\'), ", \
+            mca_desc, mca_channels)
+        mca_desc = sprintf("%s\'energy\':array([%s], dtype=\'f\'), ", \
+            mca_desc, mca_energy)
+        mca_desc = sprintf("%s\'calibration\':array([%g,%g,%g], dtype=\'f\'), ", \
+            mca_desc, MCA_DATA_PARAM[0], MCA_DATA_PARAM[1], MCA_DATA_PARAM[2])
+
+        detectors[MCA_NAME] = mca_desc
+    }
+    if (EPICS_MCAS > 0) {
+        local uch mca_desc mca_channels mca_energy _oo _ss _qq
+
+        for (mne in mca_pv) {
+            mca_desc = "\'class\':\'detector\', \'type\':\'MCA\', "
+            mca_desc = sprintf("%s\'description\':\'%s\', ", mca_desc, mca_pv[mne])
+
+            mca_energy = ""
+            mca_channels = ""
+
+            uch = epics_get(sprintf("%s.NUSE", mca_pv[mne]))
+            _oo = epics_get(sprintf("%s.CALO", mca_pv[mne]))
+            _ss = epics_get(sprintf("%s.CALS", mca_pv[mne]))
+            _qq = epics_get(sprintf("%s.CALQ", mca_pv[mne]))
+
+            for (i = 0; i < uch; i++) {
+                mca_channels = sprintf("%s%g,", mca_channels, i)
+                mca_energy = sprintf("%s%g,", mca_energy, _ss*i+_qq*i*i)
+            }
+
+            mca_desc = sprintf("%s\'channels\':array([%s], dtype=\'i\'), ", \
+                mca_desc, mca_channels)
+            mca_desc = sprintf("%s\'energy\':array([%s], dtype=\'f\'), ", \
+                mca_desc, mca_energy)
+            mca_desc = sprintf("%s\'calibration\':array([%g,%g,%g], dtype=\'f\'), ", \
+                mca_desc, MCA_DATA_PARAM[0], MCA_DATA_PARAM[1], MCA_DATA_PARAM[2])
+
+            detectors[mne] = mca_desc
+        }
+
     }
 
-    _SC_NEWSCAN = scan_env
+    for (i in detectors) {
+        scan_env = sprintf("%s\'%s\':{%s}, ", scan_env, i, detectors[i])
+    }
+
+    _SC_NEWSCAN = sprintf("{%s}", scan_env)
 }'
 
 
@@ -120,16 +190,16 @@ def _client_updateplotdata '{
         _SC_OLDX = x
 
         plot_data = ""
-        plot_data = sprintf("%si=%d\t", plot_data, NPTS)
-        plot_data = sprintf("%sx=%g\t", plot_data, x)
+        plot_data = sprintf("%s\'i\':%d, ", plot_data, NPTS)
+        plot_data = sprintf("%s\'x\':%g, ", plot_data, x)
 
         n = _stype&8? _g1:NPTS
         for (i=PLOT_MOTS; i<(PLOT_CNTRS+PLOT_MOTS); i++) {
-            plot_data = sprintf("%s%s=%g\t", plot_data, PLOT_MNE[i], \
+            plot_data = sprintf("%s\'%s\':%g, ", plot_data, PLOT_MNE[i], \
                                 SCAN_D[n][i])
         }
 
-        _SC_NEWPLOTDATA = plot_data
+        _SC_NEWPLOTDATA = sprintf("{%s}", plot_data)
     }
 }'
 
@@ -153,29 +223,98 @@ def clientdataoff '{
 
 
 def _client_updatescandata '{
-    local i scan_data
+    local i scan_data scalars[] positions[] detectors[]
 
-    scan_data = ""
-    scan_data = sprintf("%si=%d\t", scan_data, NPTS)
+    scan_data = sprintf("\'i\':%d, ", NPTS)
 
     for (i=0;i<_nm;i++) {
-        scan_data = sprintf("%s%s=%g\t", scan_data, motor_mne(_m[i]), A[_m[i]])
+        positions[motor_mne(_m[i])] = sprintf("%g", A[_m[i]])
     }
 
-    scan_data = sprintf("%sepoch=%f\t", scan_data, time())
+    pos_dict = ""
+    for (i in positions) {
+        pos_dict = sprintf("%s\'%s\':%g, ", pos_dict, i, positions[i])
+    }
+    scan_data = sprintf("%s\'positions\':{%s}, ", scan_data, pos_dict)
 
+    scalars["epoch"] = sprintf("%f", time())
     for (i=0;i<COUNTERS;i++) {
-        scan_data = sprintf("%s%s=%g\t", scan_data, cnt_mne(i), S[i])
+        scalars[cnt_mne(i)] = sprintf("%g", S[i])
     }
+
+    scalars_dict = ""
+    for (i in scalars) {
+        scalars_dict = sprintf("%s\'%s\':%g, ", scalars_dict, i, scalars[i])
+    }
+    scan_data = sprintf("%s\'scalars\':{%s}, ", scan_data, scalars_dict)
 
     if (MCA_CHAN > 0) {
-        local mca_counts
+        local mca_counts detector
+
+        detector = ""
+
+        if (MCA_NAME == "vortex") {
+            detector = sprintf("%s\'icr\':%g, ", detector, S[icr])
+            detector = sprintf("%s\'ocr\':%g, ", detector, S[ocr])
+            detector = sprintf("%s\'real\':%g, ", detector, S[real])
+            detector = sprintf("%s\'live\':%g, ", detector, S[live])
+            detector = sprintf("%s\'dtn\':%g, ", detector, S[vtxdtn])
+        }
+
         mca_counts = ""
         for(i = 0; i < MCA_CHAN; i++){
             mca_counts = sprintf("%s%g,", mca_counts, MCA_DATA[i][1])
         }
-        scan_data = sprintf("%sMCA=%s\t", scan_data, mca_counts)
+        detector = sprintf("%s\'counts\':array([%s],dtype=\'i\'), ", \
+            detector, mca_counts)
+
+        detectors[MCA_NAME] = detector
+    }
+    if (EPICS_MCAS > 0) {
+        local mca_counts uch detector
+
+        for (mne in mca_pv) {
+            detector = ""
+
+            if (USE_DXP) {
+                dxpICR = epics_get(sprintf("%s.ICR", dxp_pv[mne]))
+                dxpOCR = epics_get(sprintf("%s.OCR", dxp_pv[mne]))
+            } else {
+                dxpICR = 1
+                dxpOCR = 1
+            }
+            mcaRtime = epics_get(sprintf("%s.ERTM", mca_pv[mne]))
+            mcaLtime = epics_get(sprintf("%s.ELTM", mca_pv[mne]))
+
+            mcadtc = dxpICR * mcaRtime
+            if (mcadtc != 0) {
+                mcadtc = dxpOCR*mcaLtime/mcadtc
+            }
+
+            detector = sprintf("%s\'icr\':%g, ", detector, dxpICR)
+            detector = sprintf("%s\'ocr\':%g, ", detector, dxpOCR)
+            detector = sprintf("%s\'real\':%g, ", detector, mcaRtime)
+            detector = sprintf("%s\'live\':%g, ", detector, mcaLtime)
+            detector = sprintf("%s\'dtn\':%g, ", detector, mcadtc)
+
+            uch = epics_get(sprintf("%s.NUSE", mca_pv[mne]))
+            A_name = sprintf("mcadat_%s",mne)
+            mca_counts = ""
+            for(i = 0; i < uch; i++){
+                mca_counts = sprintf("%s%g,", mca_counts, @A_name[1][i])
+            }
+            detector = sprintf("%s\'counts\':array([%s],dtype=\'i\'), ", \
+                detector, mca_counts)
+
+            detectors[mne] = detector
+        }
     }
 
-    _SC_NEWSCANDATA = scan_data
+    dets_dict = ""
+    for (mne in detectors) {
+        dets_dict = sprintf("%s\'%s\':{%s}, ", dets_dict, mne, detectors[mne])
+    }
+    scan_data = sprintf("%s%s", scan_data, dets_dict)
+
+    _SC_NEWSCANDATA = sprintf("{%s}", scan_data)
 }'

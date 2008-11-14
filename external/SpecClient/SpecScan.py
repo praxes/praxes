@@ -79,8 +79,7 @@ class SpecScanA:
 
         self.__scanning = False
 
-        self.scanParams = dict([i.split("=", 1)
-                                for i in scanParams.rstrip("\t").split("\t")])
+        self.scanParams = eval(scanParams, {'array':numpy.array})
 
         if type(self.scanParams) != types.DictType:
             return
@@ -110,18 +109,7 @@ class SpecScanA:
     def __newScanData(self, scanData):
         if DEBUG: print "SpecScanA.__newScanData", scanData
         if self.__scanning and scanData:
-            scanData = dict([i.split("=", 1)
-                             for i in scanData.rstrip("\t").split("\t")])
-
-            for key, value in scanData.iteritems():
-                if ',' in value:
-                    if '.' in value:
-                        value = numpy.fromstring(value, sep=',', dtype='f')
-                    else:
-                        value = numpy.fromstring(value, sep=',', dtype='i')
-                else:
-                    value = float(value)
-                scanData[key] = value
+            scanData = eval(scanData, {'array':numpy.array})
 
             self.newScanData(scanData)
 
@@ -132,22 +120,11 @@ class SpecScanA:
     def __newScanPoint(self, scanData):
         if DEBUG: print "SpecScanA.__newScanPoint", scanData
         if self.__scanning and scanData:
-            scanData = dict([i.split("=", 1)
-                             for i in scanData.rstrip("\t").split("\t")])
+            scanData = eval(scanData, {'array':numpy.array})
 
-            for key, value in scanData.iteritems():
-                if ',' in value:
-                    if '.' in value:
-                        value = numpy.fromstring(value, sep=',', dtype='f')
-                    else:
-                        value = numpy.fromstring(value, sep=',', dtype='i')
-                else:
-                    value = float(value)
-                scanData[key] = value
-
-                if key == "i": i = value
-                elif key == "x": x = value
-                elif key == self.scanCounterMne: y = value
+            i = scanData['i']
+            x = scanData['x']
+            y = scanData[self.scanCounterMne]
 
             # hack to know if we should call newScanPoint with
             # scanData or not (for backward compatiblity)

@@ -312,7 +312,7 @@ class H5FileInterface(QtCore.QObject):
                     "Save File", filename, "hdf5 files (*.h5 *.hdf5 *.nxs)")
             if newfilename:
                 newfilename = unicode(newfilename)
-                if '.'.split(newfilename)[-1] not in ('h5', 'hdf5', 'nxs'):
+                if newfilename.split('.')[-1] not in ('h5', 'hdf5', 'nxs'):
                     newfilename = newfilename + '.h5'
                 return self.fileModel.openFile(newfilename)
             else: self.openFile(filename)

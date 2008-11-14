@@ -40,7 +40,7 @@ class XpaxsH5File(QtCore.QObject):
     def __init__(self, filename, mode='r+', parent=None):
         super(XpaxsH5File, self).__init__(parent)
 
-        self.__mutex = QtCore.QMutex()
+        self.__mutex = QtCore.QMutex(QtCore.QMutex.Recursive)
 
         try:
             self.__h5file = tables.openFile(filename, mode)
