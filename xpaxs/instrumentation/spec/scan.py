@@ -16,6 +16,7 @@ import numpy
 from PyQt4 import QtCore
 from SpecClient import SpecScan, SpecCommand, SpecConnectionsManager, \
     SpecEventsDispatcher, SpecWaitObject
+import h5py
 
 #---------------------------------------------------------------------------
 # xpaxs imports
@@ -54,6 +55,7 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
         SpecScan.SpecScanA.__init__(self, specVersion)
 
         self._resume = SpecCommand.SpecCommandA('scan_on', specVersion)
+        self._scan_aborted = SpecCommand.SpecCommandA('_SC_NEWSCAN = 0', specVersion)
 
         self._scanData = None
 
@@ -64,9 +66,10 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
     def abort(self):
         if self.isScanning():
             self.connection.abort()
+            self._scan_aborted()
             try:
-                self._scanData.setNumExpectedScanLines()
-            except AttributeError:
+                self._scanData.setNumExpectedPoints()
+            except (AttributeError, h5py.h5.H5Error):
                 pass
             self.scanAborted()
 
@@ -100,7 +103,8 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
     def newScanData(self, scanData):
         logger.debug( 'scanData: %s', scanData)
 
-        self._scanData.appendDataPoint(scanData)
+        if self._scanData:
+            self._scanData.appendDataPoint(scanData)
 
         i = int(scanData['i'])
         self.emit(QtCore.SIGNAL("newScanData"), i)
@@ -124,11 +128,10 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
     def scanAborted(self):
         logger.info('Scan Aborted')
         self.emit(QtCore.SIGNAL("scanAborted()"))
-        self.scanFinished()
 
     def scanFinished(self):
         logger.info( 'scan finished')
-        # TODO: save data!
+        self._scanData = None
         self.emit(QtCore.SIGNAL("scanFinished()"))
 
     def scanStarted(self):

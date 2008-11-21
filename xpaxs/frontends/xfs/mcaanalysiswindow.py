@@ -41,8 +41,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.setupUi(self)
 
         title = '%s: Scan %s'%(
-            scanData.getDataFileName(),
-            scanData.getScanNumber()
+            scanData.dataFileName,
+            scanData.scanNumber
         )
         self.setWindowTitle(title)
 
@@ -52,7 +52,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
         self.xrfBandComboBox.addItems(self.peaks)
         self.normalizationComboBox.addItems(
-            [''] + scanData.getNormalizationChannels()
+            [''] + scanData.normalizationChannels
         )
 
         self._setupMcaDockWindows()
@@ -214,7 +214,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         if mapType and element:
             return self.scanData.getElementMap(mapType, element, normalization)
         else:
-            return numpy.zeros(self.scanData.getScanShape(), dtype='f')
+            return numpy.zeros(self.scanData.scanShape, dtype='f')
 
     def processAverageSpectrum(self, indices=None):
         self.statusBar.showMessage('Validating data points ...')
@@ -231,7 +231,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             self.spectrumAnalysis.setData(x=channels, y=counts)
 
             self.statusBar.showMessage('Performing Fit ...')
-            self.spectrumAnalysis.fit()
+            fitresult = self.spectrumAnalysis.fit()
+
+            self.fitParamDlg.setFitResult(fitresult['result'])
+
             self.statusBar.clearMessage()
 
         self.setMenuToolsActionsEnabled(True)

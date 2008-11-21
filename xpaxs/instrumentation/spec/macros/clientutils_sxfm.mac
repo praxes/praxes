@@ -6,7 +6,7 @@
 # could read them.
 
 def _clientutils_on '{
-    global _SC_NEWSCAN
+    global _SC_NEWSCAN _SC_NEWSCANDATA _SC_NEWPLOTDATA _SC_DATA_ACTIVE _SC_PLOT_ACTIVE
     _SC_NEWSCAN = 0
 
     cdef("user_prescan_head", "_client_setscanenv;", "_clientutils_")
@@ -16,7 +16,7 @@ def _clientutils_on '{
 
 def _clientutils_off '{
     if (_SC_PLOT_ACTIVE == 0 && _SC_DATA_ACTIVE == 0){
-        unglobal _SC_NEWSCAN
+        unglobal _SC_NEWSCAN _SC_NEWSCANDATA _SC_DATA_ACTIVE _SC_PLOT_ACTIVE
         cdef("", "", "_clientutils_", "delete")
     }
 }'
@@ -151,7 +151,7 @@ def _client_setscanenv '{
 def clientploton '{
     _clientutils_on
 
-    global _SC_OLDX _SC_NEWPLOTDATA _SC_PLOT_ACTIVE
+    global _SC_OLDX
     _SC_PLOT_ACTIVE = 1
 
     _SC_OLDX=0
@@ -167,7 +167,7 @@ def clientploton '{
 
 
 def clientplotoff '{
-    unglobal _SC_OLDX _SC_NEWPLOTDATA _SC_PLOT_ACTIVE
+    unglobal _SC_OLDX
     _clientutils_off
 
     cdef("", "", "_client_plot_", "delete")
@@ -178,7 +178,9 @@ def _client_updateplotdata '{
     local x d i n plot_data
     global _SC_OLDX
 
-    x = SCAN_D[NPTS][0]
+    n = _stype&8? _g1:NPTS
+
+    x = SCAN_D[n][0]
 
     if (_stype >= 257) {
         d = 1
@@ -193,7 +195,6 @@ def _client_updateplotdata '{
         plot_data = sprintf("%s\'i\':%d, ", plot_data, NPTS)
         plot_data = sprintf("%s\'x\':%g, ", plot_data, x)
 
-        n = _stype&8? _g1:NPTS
         for (i=PLOT_MOTS; i<(PLOT_CNTRS+PLOT_MOTS); i++) {
             plot_data = sprintf("%s\'%s\':%g, ", plot_data, PLOT_MNE[i], \
                                 SCAN_D[n][i])
@@ -205,7 +206,6 @@ def _client_updateplotdata '{
 
 
 def clientdataon '{
-    global _SC_NEWSCANDATA _SC_DATA_ACTIVE
     _clientutils_on
 
     _SC_DATA_ACTIVE = 1
@@ -215,7 +215,6 @@ def clientdataon '{
 
 
 def clientdataoff '{
-    unglobal _SC_NEWSCANDATA _SC_DATA_ACTIVE
     _clientutils_off
 
     cdef("", "", "_client_data_", "delete")
@@ -258,6 +257,7 @@ def _client_updatescandata '{
             detector = sprintf("%s\'ocr\':%g, ", detector, S[ocr])
             detector = sprintf("%s\'real\':%g, ", detector, S[real])
             detector = sprintf("%s\'live\':%g, ", detector, S[live])
+            detector = sprintf("%s\'dead\':%g, ", detector, S[dead])
             detector = sprintf("%s\'dtn\':%g, ", detector, S[vtxdtn])
         }
 
@@ -290,11 +290,13 @@ def _client_updatescandata '{
             if (mcadtc != 0) {
                 mcadtc = dxpOCR*mcaLtime/mcadtc
             }
+            mcaDtime = 100*(1-mcadtc)
 
             detector = sprintf("%s\'icr\':%g, ", detector, dxpICR)
             detector = sprintf("%s\'ocr\':%g, ", detector, dxpOCR)
             detector = sprintf("%s\'real\':%g, ", detector, mcaRtime)
             detector = sprintf("%s\'live\':%g, ", detector, mcaLtime)
+            detector = sprintf("%s\'dead\':%g, ", detector, mcaDtime)
             detector = sprintf("%s\'dtn\':%g, ", detector, mcadtc)
 
             uch = epics_get(sprintf("%s.NUSE", mca_pv[mne]))

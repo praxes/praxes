@@ -32,7 +32,7 @@ class PlotOptions(Ui_PlotOptions, QtGui.QWidget):
 
         self._figure = figure
 
-        if scanData.getNumScanDimensions() != 2:
+        if scanData.numScanDimensions != 2:
             self.imageSettingsWidget.setVisible(False)
 
         self.connect(

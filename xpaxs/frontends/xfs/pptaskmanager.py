@@ -122,9 +122,10 @@ class XfsPPTaskManager(PPTaskManager):
             self.mutex.unlock()
 
         if data:
-            print data['report']
-            shape = self.scan.getScanShape()
+#            print data['report']
+            shape = self.scan.scanShape
             index = flat_to_nd(data['index'], shape)
+#            print index
 
             result = data['result']
             for group in result['groups']:

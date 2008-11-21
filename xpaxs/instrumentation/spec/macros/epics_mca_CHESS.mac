@@ -414,11 +414,11 @@ def mca_on '{
     cdef("user_precount","
 	if(COUNT_TIME!=0) {
 	    if(COUNT_TIME>0) {
-		for( i in mca_pv) epics_put(sprintf(\"%s.PRTM\",mca_pv[i]),COUNT_TIME) 
+		for (i in mca_pv) epics_put(sprintf(\"%s.PRTM\",mca_pv[i]),COUNT_TIME)
             } else {
-		for( i in mca_pv) epics_put(sprintf(\"%s.PRTM\",mca_pv[i]),0)
+		for (i in mca_pv) epics_put(sprintf(\"%s.PRTM\",mca_pv[i]),0)
             }
-            for(i in mca_pv)  epics_put(sprintf(\"%s.ERST\",mca_pv[i]),1)
+	    for (i in mca_pv)  epics_put(sprintf(\"%s.ERST\", mca_pv[i]), 1)
          }   
     ","mca","0x20")
    
@@ -429,10 +429,13 @@ def mca_on '{
          ","mca","0x10")
 
    cdef("user_getcounts","
-             if(COUNT_TIME<0) {
-                 for(i in mca_pv) epics_put(sprintf(\"%s.STOP\",mca_pv[i]),1);
-                 wait_mca;             
-		 getcounts;  }
+	    # this was necessary when dxp params read rate is passive:
+            for (i in dxp_pv) epics_put(sprintf(\"%s.READ_PARAMS\", dxp_pv[i]), 1);
+	    if(COUNT_TIME<0) {
+		for(i in mca_pv) epics_put(sprintf(\"%s.STOP\",mca_pv[i]),1);
+		wait_mca;             
+		getcounts;
+	    }
          ","mca","0x10")
    cdef("user_Fheader", "mca_specfile_Fheader; mca_Fheader;", "mca", "0x10")
 
@@ -447,13 +450,13 @@ def mca_off '{
 
 global MCAOVERHEAD
 
-MCAOVERHEAD = 0.5 # user can adjust to optimize overhead
+MCAOVERHEAD = 0.1 # user can adjust to optimize overhead
 def wait_mca '{
-    sleep(MCAOVERHEAD) # wait MCA to finsih erase and start 
+    sleep(MCAOVERHEAD) # wait MCA to finish erase and start 
     for( i in mca_pv) {
 	while(epics_get(sprintf("%s.ACQG",mca_pv[i]),"short")) sleep(0.1)
     }
-    sleep(0.1) #wait ROIs to be computed
+    #sleep(0.1) #wait ROIs to be computed
 }'
 
 
@@ -630,9 +633,9 @@ def onmcad(mne) '{
    
     if(MCAFILE != "") {
 	if( !index(DATAFILE,"/") && file_info(DATA_DIR,"-d")) {
-	    MCAFILE = sprintf("%s%s.scan%i.%s",DATA_DIR,DATAFILE,SCAN_N,mne)
+	    MCAFILE = sprintf("%s%s.scan%i.%s.mca",DATA_DIR,DATAFILE,SCAN_N,mne)
 	} else { 
-	    MCAFILE=sprintf("%s.scan%i.%s",DATAFILE,SCAN_N,mne) 
+	    MCAFILE=sprintf("%s.scan%i.%s.mca",DATAFILE,SCAN_N,mne) 
 	}
 	on(MCAFILE)
     }

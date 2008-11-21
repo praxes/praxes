@@ -23,7 +23,7 @@ import numpy
 
 from xpaxs import __version__
 from xpaxs.frontends.base.mainwindow import MainWindow as MainWindowBase
-from xpaxs.frontends.xfs.fileinterface import XfsH5FileInterface
+from xpaxs.frontends.xfs.fileinterface2 import XfsH5FileInterface
 
 #---------------------------------------------------------------------------
 # Normal code begins
