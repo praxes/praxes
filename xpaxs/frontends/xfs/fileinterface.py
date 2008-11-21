@@ -221,6 +221,7 @@ class XfsH5Scan(XpaxsH5Scan):
             for key, val in data['scalars'].iteritems():
                 row[key] = val
 
+            print 1,
             # YUCK
             try:
                 for key, val in data['vortex'].iteritems():
@@ -230,8 +231,10 @@ class XfsH5Scan(XpaxsH5Scan):
             except KeyError:
                 pass
 
+            print 2,
             row.append()
             self.h5Node.data.flush()
+            print 3
         finally:
             self.mutex.unlock()
 

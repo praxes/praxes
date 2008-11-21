@@ -148,7 +148,8 @@ class XpaxsH5Scan(XpaxsH5Node):
     def flush(self):
         self.xpaxsFile.flush()
 
-    def getDataFileName(self):
+    @property
+    def dataFileName(self):
         try:
             self.mutex.lock()
             return self.h5Node._v_attrs.fileName[:]
@@ -162,31 +163,36 @@ class XpaxsH5Scan(XpaxsH5Node):
         finally:
             self.mutex.unlock()
 
-    def getNormalizationChannels(self):
+    @property
+    def normalizationChannels(self):
         raise NotImplementedError
 
-    def getNumExpectedScanLines(self):
+    @property
+    def getNumExpectedPoints(self):
         try:
             self.mutex.lock()
             return copy.copy(self.h5Node._v_attrs.scanLines)
         finally:
             self.mutex.unlock()
 
-    def getNumScanDimensions(self):
+    @property
+    def numScanDimensions(self):
         try:
             self.mutex.lock()
             return len(self.h5Node._v_attrs.scanAxes)
         finally:
             self.mutex.unlock()
 
-    def getNumScanLines(self):
+    @property
+    def numScanLines(self):
         try:
             self.mutex.lock()
             return len(self.h5Node.data)
         finally:
             self.mutex.unlock()
 
-    def getScanAxes(self):
+    @property
+    def scanAxes(self):
         try:
             self.mutex.lock()
             return copy.deepcopy(self.h5Node._v_attrs.scanAxes)
@@ -205,14 +211,16 @@ class XpaxsH5Scan(XpaxsH5Node):
         finally:
             self.mutex.unlock()
 
-    def getScanCommand(self):
+    @property
+    def scanCommand(self):
         try:
             self.mutex.lock()
             return self.h5Node._v_attrs.scanCommand[:]
         finally:
             self.mutex.unlock()
 
-    def getScanNumber(self):
+    @property
+    def scanNumber(self):
         try:
             self.mutex.lock()
             return copy.copy(self.h5Node._v_attrs.scanNumber)
@@ -226,14 +234,16 @@ class XpaxsH5Scan(XpaxsH5Node):
         finally:
             self.mutex.unlock()
 
-    def getScanShape(self):
+    @property
+    def scanShape(self):
         try:
             self.mutex.lock()
             return copy.deepcopy(self.h5Node._v_attrs.scanShape)
         finally:
             self.mutex.unlock()
 
-    def getScanType(self):
+    @property
+    def scanType(self):
         try:
             self.mutex.lock()
             return self.h5Node._v_attrs.scanType[:]

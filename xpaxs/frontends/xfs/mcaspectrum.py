@@ -197,6 +197,8 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
                 msg.setText("Error processing fit result: %s" % (sys.exc_info()[1]))
                 msg.exec_()
 
+        return fitresult
+
     def peaksSpectrum(self):
         fitresult = self.fitData
         config = self.mcafit.configure()

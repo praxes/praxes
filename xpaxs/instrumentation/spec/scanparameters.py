@@ -290,7 +290,32 @@ class ScanParametersWidget(
         self.setupUi(self)
 
         self._specRunner = specRunner
-        self._scan = None
+        self.specRunner('clientploton', asynchronous=False)
+        self.specRunner('clientdataon', asynchronous=False)
+
+        from xpaxs.instrumentation.spec.scan import QtSpecScanA
+        self._scan = QtSpecScanA(self.specRunner.specVersion, parent=self)
+
+        self.connect(
+            self._scan,
+            QtCore.SIGNAL("newScanLength"),
+            self._newScanLength
+        )
+        self.connect(
+            self._scan,
+            QtCore.SIGNAL("newScanPoint"),
+            self._newScanPoint
+        )
+        self.connect(
+            self._scan,
+            QtCore.SIGNAL("scanStarted()"),
+            self.scanStarted
+        )
+        self.connect(
+            self._scan,
+            QtCore.SIGNAL("scanFinished()"),
+            self.scanFinished
+        )
 
         self.scanTypeComboBox.addItems(self._scanTypes)
 
@@ -325,18 +350,18 @@ class ScanParametersWidget(
     def on_actionPause_triggered(self):
         self.actionPause.setVisible(False)
         self.actionResume.setVisible(True)
-#        self.scan.pause()
+        self.scan.pause()
 
     @QtCore.pyqtSignature("bool")
     def on_actionResume_triggered(self):
         self.actionPause.setVisible(True)
         self.actionResume.setVisible(False)
-#        self.scan.resume()
+        self.scan.resume()
 
     @QtCore.pyqtSignature("bool")
     def on_actionAbort_triggered(self):
         self.stackedLayout.setCurrentWidget(self.scanButton)
-        self.scan.abortScan()
+        self.scan.abort()
 
     @QtCore.pyqtSignature("")
     def on_specFileNameEdit_editingFinished(self):
@@ -350,36 +375,10 @@ class ScanParametersWidget(
 
     @QtCore.pyqtSignature("")
     def on_scanButton_clicked(self):
-        self.specRunner('clientploton', asynchronous=False)
-        self.specRunner('clientdataon', asynchronous=False)
-
         args = self._scanParameters.getScanArgs()
         args.append(self.integrationTimeSpinBox.value())
         cmd = ' '.join(str(i) for i in args)
 
-        from xpaxs.instrumentation.spec.scan import QtSpecScanA
-        self._scan = QtSpecScanA(self.specRunner.specVersion, parent=self)
-
-        self.connect(
-            self._scan,
-            QtCore.SIGNAL("newScanLength"),
-            self._newScanLength
-        )
-        self.connect(
-            self._scan,
-            QtCore.SIGNAL("newScanPoint"),
-            self._newScanPoint
-        )
-        self.connect(
-            self._scan,
-            QtCore.SIGNAL("scanStarted()"),
-            self.scanStarted
-        )
-        self.connect(
-            self._scan,
-            QtCore.SIGNAL("scanFinished()"),
-            self.scanFinished
-        )
         self.scan(cmd)
 
     @QtCore.pyqtSignature("QString")
@@ -442,7 +441,7 @@ class ScanParametersWidget(
         self.emit(QtCore.SIGNAL("specBusy"), True)
 
     def setBusy(self, busy):
-        if self._scan is None:
+        if not self._scan.isScanning():
             self.scanParamsWidget.setDisabled(busy)
             self.scanButton.setDisabled(busy)
 
@@ -451,10 +450,11 @@ class ScanParametersWidget(
         self.scanParamsWidget.setEnabled(True)
         self.emit(QtCore.SIGNAL("specBusy"), False)
 
-        self._scan = None
-
+    def closeEvent(self, event):
         self.specRunner('clientplotoff', asynchronous=False)
         self.specRunner('clientdataoff', asynchronous=False)
+
+        return event.accept()
 
 
 class ChangeSpecFileDialog(QtGui.QDialog):

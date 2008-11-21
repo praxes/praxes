@@ -18,7 +18,7 @@ from PyQt4 import QtCore, QtGui
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.io.hdf5file import XpaxsH5File
+from xpaxs.io.h5file import XpaxsH5File
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -68,9 +68,9 @@ class H5EntryItem(TreeItem):
         self.parentItem = parent
         self.childItems = []
 
-        scannum = '%s'%self.scanData.getScanNumber()
-        cmd = self.scanData.getScanCommand()
-        numpoints = '%d'%self.scanData.getNumExpectedScanLines()
+        scannum = '%s'%self.scanData.scanNumber
+        cmd = self.scanData.scanCommand
+        numpoints = '%d'%self.scanData.numExpectedPoints
         self.itemData = [scannum, cmd, numpoints]
 
     def itemActivated(self):
@@ -83,7 +83,7 @@ class FileItem(TreeItem):
         self.xpaxsFile = datafile
 
         self.parentItem = parent
-        self.filename = datafile.getFileName()
+        self.filename = datafile.name
         self.itemData = [os.path.split(self.filename)[-1], '', '']
         self.childItems = []
 

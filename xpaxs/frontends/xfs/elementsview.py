@@ -225,7 +225,7 @@ class ElementsView(QtGui.QWidget):
 
         layout = QtGui.QVBoxLayout()
 
-        if scanData.getNumScanDimensions() == 2:
+        if scanData.numScanDimensions == 2:
             self.figure = ElementImageFigure(scanData, self)
 
         else:
