@@ -110,44 +110,37 @@ class XfsPPTaskManager(PPTaskManager):
             self.tconf = self.mfTool.configure()
 
     def updateRecords(self, data):
-        try:
-            self.mutex.lock()
-            self.emit(
-                QtCore.SIGNAL('percentComplete'),
-                (100.0 * self.iterData.currentIndex) / \
-                    self.iterData.numExpectedPoints
-            )
-            if data: self.advancedFit = data['advancedFit']
-        finally:
-            self.mutex.unlock()
-
         if data:
-#            print data['report']
-            shape = self.scan.scanShape
-            index = flat_to_nd(data['index'], shape)
-#            print index
+            try:
+                self.mutex.lock()
+                if DEBUG: print 'Updating records'
 
-            result = data['result']
-            for group in result['groups']:
-                g = group.replace(' ', '')
+                self.advancedFit = data['advancedFit']
+                shape = self.scan.scanShape
+                index = flat_to_nd(data['index'], shape)
 
-                fitArea = result[group]['fitarea']
-                if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
-                else: sigmaArea = numpy.nan
+                result = data['result']
+                for group in result['groups']:
+                    g = group.replace(' ', '')
 
-                self.scan.updateElementMap('fitArea', g, index, fitArea)
-                self.scan.updateElementMap('sigmaArea', g, index, sigmaArea)
+                    fitArea = result[group]['fitarea']
+                    if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
+                    else: sigmaArea = numpy.nan
 
-            if 'concentrations' in result:
-                massFractions = result['concentrations']['mass fraction']
-                for key, val in massFractions.iteritems():
-                    k = key.replace(' ', '')
-                    self.scan.updateElementMap('massFraction', k, index, val)
-            self.dirty = True
+                    self.scan.updateElementMap('fitArea', g, index, fitArea)
+                    self.scan.updateElementMap('sigmaArea', g, index, sigmaArea)
 
-    def report(self):
-        if DEBUG: print self
-        if self.dirty:
-            self.emit(QtCore.SIGNAL("dataProcessed"))
-            self.emit(QtCore.SIGNAL("ppJobStats"), self.jobServer.get_stats())
-            self.dirty = False
+                if 'concentrations' in result:
+                    massFractions = result['concentrations']['mass fraction']
+                    for key, val in massFractions.iteritems():
+                        k = key.replace(' ', '')
+                        self.scan.updateElementMap('massFraction', k, index, val)
+                self.dirty = True
+                self.emit(
+                    QtCore.SIGNAL('percentComplete'),
+                    (100.0 * self.iterData.currentIndex) / \
+                        self.iterData.numExpectedPoints
+                )
+                if DEBUG: print 'records updated'
+            finally:
+                self.mutex.unlock()

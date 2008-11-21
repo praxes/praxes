@@ -39,7 +39,7 @@ class MainWindowBase(QtGui.QMainWindow):
     """
     """
 
-    def __init__(self, scanData, parent=None):
+    def __init__(self, parent=None):
         super(MainWindowBase, self).__init__(parent)
 
     def _setupDockWindows(self):
@@ -266,6 +266,17 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                     "X-ray fluorescence spectra"%__version__))
 
     def closeEvent(self, event):
+        if self.openScans:
+            warning = '''Are you sure you want to close all your open scans?'''
+            res = QtGui.QMessageBox.question(self, 'closing...', warning,
+                                             QtGui.QMessageBox.Yes,
+                                             QtGui.QMessageBox.No)
+            if res == QtGui.QMessageBox.Yes:
+                for i in self.openScans:
+                    if not i.close():
+                        return event.ignore()
+            else:
+                return event.ignore()
         self.mdi.closeAllSubWindows()
         if len(self.mdi.subWindowList()) > 0:
             return event.ignore()
@@ -306,8 +317,8 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                     self.menuView.removeAction(action)
                 self.expInterface.close()
                 self.expInterface = None
-        import gc
-        gc.collect()
+#        import gc
+#        gc.collect()
 
     def getScanView(self, *args):
         raise NotImplementedError
@@ -335,7 +346,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
 #        self.connect(scanView, QtCore.SIGNAL("ppJobStats"),
 #                     self.ppJobStats.updateTable)
 
-        self.openScans.append(scan)
+        self.openScans.append(scanView)
 
         scanView.show()
         self.statusBar.clearMessage()

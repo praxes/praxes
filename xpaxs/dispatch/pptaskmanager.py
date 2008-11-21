@@ -5,6 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+import gc
 import logging
 
 #---------------------------------------------------------------------------
@@ -88,7 +89,7 @@ class PPTaskManager(QtCore.QThread):
         self.timer.start(1000)
         self.processData()
         self.stop()
-        self.emit(QtCore.SIGNAL('finished()'))
+        self.jobServer.destroy()
 
     def setData(self, *args, **kwargs):
         raise NotImplementedError
@@ -99,6 +100,7 @@ class PPTaskManager(QtCore.QThread):
             self.stopped = True
         finally:
             self.mutex.unlock()
+        self.timer.stop()
 
     def updateRecords(self, data):
         raise NotImplementedError

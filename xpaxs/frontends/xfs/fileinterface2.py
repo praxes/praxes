@@ -94,37 +94,49 @@ class McaSpectraIterator(object):
     def __init__(self, scanData):
         self._currentIndex = 0
         self._scanData = scanData
+        self._mutex = QtCore.QMutex(QtCore.QMutex.Recursive)
 
     def __iter__(self):
         return self
 
     @property
     def currentIndex(self):
-        return self._currentIndex
+        try:
+            self.mutex.lock()
+            return copy.copy(self._currentIndex)
+        finally:
+            self.mutex.unlock()
+
+    @property
+    def mutex(self):
+        return self._mutex
 
     @property
     def numExpectedPoints(self):
         return self._scanData.numExpectedPoints
 
     def next(self):
-        if self._currentIndex >= self.numExpectedPoints:
-            raise StopIteration
+        try:
+            self.mutex.lock()
+            if self._currentIndex >= self.numExpectedPoints:
+                raise StopIteration
 
-        else:
-            try:
-                if self._scanData.isValidDataPoint(self._currentIndex):
-                    i = self._currentIndex
-                    spectrum = self._scanData.getMcaSpectrum(i)
-                    self._currentIndex += 1
+            else:
+                try:
+                    if self._scanData.isValidDataPoint(self._currentIndex):
+                        i = self._currentIndex
+                        spectrum = self._scanData.getMcaSpectrum(i)
+                        self._currentIndex += 1
 
-#                    print i, numpy.sum(spectrum)
-                    return i, spectrum
+                        return i, spectrum
 
-                else:
-                    self._currentIndex += 1
-                    return self.next()
-            except h5py.h5.ArgsError:
-                raise IndexError
+                    else:
+                        self._currentIndex += 1
+                        return self.next()
+                except h5py.h5.ArgsError:
+                    raise IndexError
+        finally:
+            self.mutex.unlock()
 
 
 class XfsH5Scan(XpaxsH5Scan):
@@ -211,9 +223,10 @@ class XfsH5Scan(XpaxsH5Scan):
 
             self.h5Node['data'].create_dataset(key, data=val, maxshape=maxshape)
 
+            self.flush()
+
         finally:
             self.mutex.unlock()
-        self.flush()
 
     def _updateDataset(self, key, i, val):
         try:
@@ -275,12 +288,12 @@ class XfsH5Scan(XpaxsH5Scan):
         try:
             self.mutex.lock()
             elements = self.h5Node['elementMaps']['fitArea'].listnames()
-        except h5py.h5.ArgsError:
+            elements.sort()
+            return elements
+        except h5py.h5.H5Error:
             return []
         finally:
             self.mutex.unlock()
-        elements.sort()
-        return elements
 
     def getAverageMcaSpectrum(self, indices=[], id='MCA', normalization=None):
         if len(indices) > 0:
@@ -304,21 +317,19 @@ class XfsH5Scan(XpaxsH5Scan):
         try:
             self.mutex.lock()
             try:
-                elementMap = self.h5Node['elementMaps'][mapType][element][:]
-            except h5py.h5.ArgsError:
+                elementMap = self.h5Node['elementMaps'][mapType][element].value
+            except h5py.h5.H5Error:
                 return numpy.zeros(self.scanShape)
-        finally:
-            self.mutex.unlock()
-        if normalization:
-            try:
-                self.mutex.lock()
-                norm = self.h5Node['data'][normalization][:]
+
+            if normalization:
+                norm = self.h5Node['data'][normalization].value
                 if normalization == 'Dead':
                     norm = (100-norm)/100
-            finally:
-                self.mutex.unlock()
-            elementMap.flat[:len(norm)] /= numpy.where(norm==0, numpy.inf, norm)
-        return elementMap
+
+                elementMap.flat[:len(norm)] /= numpy.where(norm==0, numpy.inf, norm)
+            return elementMap
+        finally:
+            self.mutex.unlock()
 
     def getInvalidDataPoints(self, indices=None):
         mon, thresh = self.getSkipmode()
@@ -329,12 +340,12 @@ class XfsH5Scan(XpaxsH5Scan):
                 invalid = numpy.nonzero(temp < thresh)[0]
             else:
                 invalid = []
+
+            if indices is None: return invalid
+            if len(indices): return [i for i in indices if i in invalid]
+            else: return invalid
         finally:
             self.mutex.unlock()
-
-        if indices is None: return invalid
-        if len(indices): return [i for i in indices if i in invalid]
-        else: return invalid
 
     def getMcaSpectrum(self, index, id='MCA', normalization=None):
         try:
@@ -349,7 +360,7 @@ class XfsH5Scan(XpaxsH5Scan):
     def getMcaChannels(self, id='MCA'):
         try:
             self.mutex.lock()
-            return self.h5Node[id]['channels'][:]
+            return self.h5Node[id]['channels'].value
         finally:
             self.mutex.unlock()
 
@@ -363,9 +374,10 @@ class XfsH5Scan(XpaxsH5Scan):
                 channels.remove('MCA')
             except ValueError:
                 pass
+
+            return channels
         finally:
             self.mutex.unlock()
-        return channels
 
     def getPymcaConfig(self):
         try:
@@ -386,12 +398,12 @@ class XfsH5Scan(XpaxsH5Scan):
                 valid = numpy.nonzero(temp > thresh)[0]
             else:
                 valid = range(len(self.h5Node['data']['i']))
+
+            if indices is None: return valid
+            if len(indices): return [i for i in indices if i in valid]
+            else: return valid
         finally:
             self.mutex.unlock()
-
-        if indices is None: return valid
-        if len(indices): return [i for i in indices if i in valid]
-        else: return valid
 
     def isValidDataPoint(self, index):
         try:
@@ -418,9 +430,10 @@ class XfsH5Scan(XpaxsH5Scan):
                         element.replace(' ', ''),
                         data=numpy.zeros(self.scanShape, 'f')
                     )
+
+            self.flush()
         finally:
             self.mutex.unlock()
-#        self.flush()
 
     def setPymcaConfig(self, config):
         try:
@@ -454,7 +467,7 @@ class XfsH5Scan(XpaxsH5Scan):
         try:
             self.mutex.lock()
             try:
-                self.h5Node['elementMaps'][mapType][element][index] = val
+                self.h5Node['elementMaps'][mapType][element][index[0], index[1]] = val
             except ValueError:
                 print index, node
         finally:

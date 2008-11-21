@@ -6,6 +6,7 @@
 #---------------------------------------------------------------------------
 
 import copy
+import gc
 import logging
 
 #---------------------------------------------------------------------------
@@ -37,7 +38,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     """
 
     def __init__(self, scanData, parent=None):
-        super(McaAnalysisWindow, self).__init__(scanData, parent)
+        super(McaAnalysisWindow, self).__init__(parent)
         self.setupUi(self)
 
         title = '%s: Scan %s'%(
@@ -50,7 +51,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
         self.elementsView = ElementsView(scanData, self)
 
-        self.xrfBandComboBox.addItems(self.peaks)
+        self.xrfBandComboBox.addItems(self.scanData.getAvailableElements())
         self.normalizationComboBox.addItems(
             [''] + scanData.normalizationChannels
         )
@@ -81,6 +82,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             self.configurePymca()
 
         self.progressBar = QtGui.QProgressBar(self)
+        self.progressBar.setMaximumHeight(17)
         self.progressBar.hide()
         self.progressBar.addAction(self.actionAbort)
         self.progressBar.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
@@ -104,9 +106,9 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     def xrfBand(self):
         return str(self.xrfBandComboBox.currentText()).replace(' ', '')
 
-    @property
-    def peaks(self):
-        return self.scanData.getAvailableElements()
+#    @property
+#    def peaks(self):
+#        return self.scanData.getAvailableElements()
 
     @property
     def pymcaConfig(self):
@@ -144,6 +146,13 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self._setupDockWindow(self.ppJobStatsDock,
                                QtCore.Qt.RightDockWidgetArea,
                                self.ppJobStats, 'Analysis Server Stats')
+
+    @QtCore.pyqtSignature("bool")
+    def on_actionAbort_triggered(self):
+        try:
+            self.analysisThread.stop()
+        except AttributeError:
+            pass
 
     @QtCore.pyqtSignature("bool")
     def on_actionAnalyzeSpectra_triggered(self):
@@ -187,7 +196,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.scanData.flush()
 
         # TODO: improve this to close scans in the file interface
-        self.emit(QtCore.SIGNAL("scanClosed"), self.scanData)
+        self.emit(QtCore.SIGNAL("scanClosed"), self)
 
         if MainWindowBase.closeEvent(self, event):
             return event.accept()
@@ -246,6 +255,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.statusBar.clearMessage()
 
         self.analysisThread = None
+
         self.setMenuToolsActionsEnabled(True)
 
     def processData(self):
@@ -285,11 +295,11 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             QtCore.SIGNAL('percentComplete'),
             self.progressBar.setValue
         )
-        self.connect(
-            self.actionAbort,
-            QtCore.SIGNAL('triggered(bool)'),
-            thread.stop
-        )
+#        self.connect(
+#            self.actionAbort,
+#            QtCore.SIGNAL('triggered(bool)'),
+#            thread.stop
+#        )
 
         self.statusBar.showMessage('Analyzing spectra ...')
         self.statusBar.addPermanentWidget(self.progressBar)
@@ -308,10 +318,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
                 peaks.append(name)
 
         peaks.sort()
+        self.scanData.initializeElementMaps(peaks)
+
         self.xrfBandComboBox.clear()
         self.xrfBandComboBox.addItems(peaks)
-
-        self.scanData.initializeElementMaps(peaks)
 
     def setMenuToolsActionsEnabled(self, enabled=True):
         self.actionAnalyzeSpectra.setEnabled(enabled)
