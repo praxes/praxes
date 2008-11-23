@@ -7,6 +7,7 @@
 
 import gc
 import logging
+import time
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -74,6 +75,8 @@ class PPTaskManager(QtCore.QThread):
             except StopIteration:
                 self.jobServer.wait()
                 return
+
+            time.sleep(0.1)
 
     def _submitJobs(self):
         raise NotImplementedError

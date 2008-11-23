@@ -225,6 +225,10 @@ class XfsH5Scan(XpaxsH5Scan):
 
             self.flush()
 
+            # TODO: Is this the best way to get this information?
+            if key == 'i':
+                self.emit(QtCore.SIGNAL('dataInitialized'))
+
         finally:
             self.mutex.unlock()
 
@@ -264,22 +268,35 @@ class XfsH5Scan(XpaxsH5Scan):
 
             i = data['i']
 
-            self._updateDataset('i', i, i)
-
             for key, val in data['positions'].iteritems():
                 self._updateDataset(key, i, val)
 
             for key, val in data['scalars'].iteritems():
+                # TODO: YUCK
+                if key not in self.h5Node['data']:
+                    if key not in ('epoch', 'i'):
+                        self.appendNormalizationChannel(key)
                 self._updateDataset(key, i, val)
 
-            # YUCK
+            # TODO: YUCK
             try:
                 for key, val in data['vortex'].iteritems():
-                    if key == 'dtn': key = 'vtxdtn'
-                    if key == 'counts': key = 'MCA'
+                    if key == 'dtn':
+                        key = 'vtxdtn'
+                        if not key in self.h5Node['data']:
+                            self.appendNormalizationChannel(key)
+                    elif key == 'counts':
+                        key = 'MCA'
+                    else:
+                        if not key in self.h5Node['data']:
+                            self.appendNormalizationChannel(key)
                     self._updateDataset(key, i, val)
             except KeyError:
                 pass
+
+            # we do this last so we can emit a signal if this is the first point
+            # TODO: YUCK
+            self._updateDataset('i', i, i)
 
         finally:
             self.mutex.unlock()

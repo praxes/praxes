@@ -48,13 +48,16 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.setWindowTitle(title)
 
         self.scanData = scanData
+        self.connect(
+            self.scanData,
+            QtCore.SIGNAL("dataInitialized"),
+            self.updateNormalizationChannels
+        )
 
         self.elementsView = ElementsView(scanData, self)
 
         self.xrfBandComboBox.addItems(self.scanData.getAvailableElements())
-        self.normalizationComboBox.addItems(
-            [''] + scanData.normalizationChannels
-        )
+        self.updateNormalizationChannels()
 
         self._setupMcaDockWindows()
         self._setupPPJobStats()
@@ -327,6 +330,12 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.actionAnalyzeSpectra.setEnabled(enabled)
         self.actionConfigurePymca.setEnabled(enabled)
         self.actionCalibration.setEnabled(enabled)
+
+    def updateNormalizationChannels(self):
+        self.normalizationComboBox.clear()
+        self.normalizationComboBox.addItems(
+            [''] + self.scanData.normalizationChannels
+        )
 
 
 if __name__ == "__main__":
