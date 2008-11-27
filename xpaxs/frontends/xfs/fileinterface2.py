@@ -35,7 +35,6 @@ DEBUG = False
 
 #filters = tables.Filters(complib='zlib', complevel=9)
 
-
 def getSpecScanInfo(commandList):
     scanType, args = commandList[0], commandList[1:]
     scanAxes = []
