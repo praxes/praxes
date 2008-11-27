@@ -21,6 +21,18 @@ Creating Source Releases
 XPaXS is distributed as a source release for Linux and OS-X. To create a source
 release, just do::
 
+  python setup.py register sdist upload --sign
+
+This will create the tgz source file and upload it to the Python Package Index. 
+Uploading to PyPi requires a .pypirc file in your home directory, something 
+like::
+
+  [server-login]
+  username: <username>
+  password: <password>
+
+You can create a source distribution without uploading by doing::
+
   python setup.py sdist
 
 This creates a source distribution in the `dist/` directory.
