@@ -132,6 +132,7 @@ class XpaxsH5Scan(QtCore.QObject):
         self.__mutex = xpaxsFile.mutex
 
         self._columnNames = []
+        self._normalizationChannels = []
 
         if isinstance(scanParams, h5py.Group):
             self.__h5Node = scanParams
@@ -179,7 +180,12 @@ class XpaxsH5Scan(QtCore.QObject):
 
     @property
     def normalizationChannels(self):
-        return self._getNormalizationChannels()
+        if self._normalizationChannels:
+
+            return sorted(self._normalizationChannels)
+        else:
+            return self._getNormalizationChannels()
+
 
     @property
     def numExpectedPoints(self):
@@ -283,6 +289,9 @@ class XpaxsH5Scan(QtCore.QObject):
             self.h5Node[item] = val
         finally:
             self.mutex.unlock()
+
+    def appendNormalizationChannel(self, channel):
+        self._normalizationChannels.append(channel)
 
     def appendDataPoint(self, data):
         if DEBUG: print "appending data point:", data['i']
