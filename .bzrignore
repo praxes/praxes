@@ -13,8 +13,6 @@ MANIFEST
 *.e4*
 xpaxs.egg-info/
 *.so
-doc/_static/
-doc/_templates/
 doc/math.*
 xpaxs/frontends/base/ui/resources/*.py
 xpaxs/instrumentation/spec/ui/resources/*.py
