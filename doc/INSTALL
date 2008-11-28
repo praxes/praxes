@@ -11,22 +11,38 @@ XPaXS requires several packages in order to run:
 * PyMca_ (version 4.2.5 or later)
 * matplotlib_ (0.98 or later)
 * ParallelPython_ (version 1.5.3 or later)
+* h5py_ (1.0.0 or later, use svn checkout if necessary)
 * PyTables_ (version 2.0.3 or later)
 * Pexpect_ (version 2.3 or later)
 
 On several distributions, like Ubuntu, you may need to install the developer
-tools and devel libraries in order to use XPaXS.
+tools and -dev libraries in order to use XPaXS.
 
 Linux and OSX
 =============
 
-To install XPaXS on linux and OSX, download the XPaXS sourcecode_ and run
-"python setup.py install" in the xpaxs source directory.
+To install XPaXS on linux and OSX, download the XPaXS sourcecode from PyPi_
+and run "python setup.py install" in the xpaxs source directory.
 
 Windows
 =======
 
-On windows, download and run the windows installer_.
+On windows, download and run the windows installer from PyPi_.
+
+Development Branch
+==================
+
+You can follow and contribute to XPaXS' development by obtaining a bzr version
+control branch. Just install bzr and type::
+
+  bzr branch lp:xpaxs
+
+and then periodically bring your branch up to date::
+
+  bzr pull
+
+Bugs, feature requests, and questions can be directed to the launchpad_
+website.
 
 
 .. _Python: http://www.python.org/
@@ -38,7 +54,8 @@ On windows, download and run the windows installer_.
 .. _Pexpect: http://www.noah.org/wiki/Pexpect
 .. _PyQwt: http://pyqwt.sourceforge.net/
 .. _ParallelPython: http://www.parallelpython.com
+.. _h5py: http://code.google.com/p/h5py/
 .. _PyTables: http://www.pytables.org/moin
 .. _Pexpect: http://www.noah.org/wiki/Pexpect
-.. _sourcecode: http://dale.chess.cornell.edu/chess-wiki/XPaXS
-.. _installer: http://dale.chess.cornell.edu/chess-wiki/XPaXS
+.. _PyPi: http://pypi.python.org/pypi/xpaxs
+.. _launchpad: https://launchpad.net/xpaxs
