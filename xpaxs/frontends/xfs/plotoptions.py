@@ -60,16 +60,19 @@ class PlotOptions(Ui_PlotOptions, QtGui.QWidget):
             QtCore.SIGNAL("clicked(bool)"),
             self._figure.enableAutoscale
         )
-        self.connect(
-            self.imageOriginComboBox,
-            QtCore.SIGNAL("currentIndexChanged(QString)"),
-            self._figure.setImageOrigin
-        )
-        self.connect(
-            self.interpolationComboBox,
-            QtCore.SIGNAL("currentIndexChanged(QString)"),
-            self._figure.setInterpolation
-        )
+        try:
+            self.connect(
+                self.imageOriginComboBox,
+                QtCore.SIGNAL("currentIndexChanged(QString)"),
+                self._figure.setImageOrigin
+            )
+            self.connect(
+                self.interpolationComboBox,
+                QtCore.SIGNAL("currentIndexChanged(QString)"),
+                self._figure.setInterpolation
+            )
+        except AttributeError:
+            pass
 
     @QtCore.pyqtSignature("bool")
     def on_dataAutoscaleButton_toggled(self, toggled):

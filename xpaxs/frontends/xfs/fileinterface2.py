@@ -483,7 +483,7 @@ class XfsH5Scan(XpaxsH5Scan):
         try:
             self.mutex.lock()
             try:
-                self.h5Node['elementMaps'][mapType][element][index[0], index[1]] = val
+                self.h5Node['elementMaps'][mapType][element][tuple(index)] = val
             except ValueError:
                 print index, node
         finally:
