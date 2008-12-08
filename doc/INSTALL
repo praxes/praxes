@@ -11,7 +11,7 @@ XPaXS requires several packages in order to run:
 * PyMca_ (version 4.2.5 or later)
 * matplotlib_ (0.98 or later)
 * ParallelPython_ (version 1.5.3 or later)
-* h5py_ (1.0.0 or later, use svn checkout if necessary)
+* h5py_ (1.0.0 or later)
 * PyTables_ (version 2.0.3 or later)
 * Pexpect_ (version 2.3 or later)
 
@@ -27,7 +27,10 @@ and run "python setup.py install" in the xpaxs source directory.
 Windows
 =======
 
-On windows, download and run the windows installer from PyPi_.
+A 32-bit windows installer is expected to be available at PyPi_ in 
+January 2009. This will require the 32-bit python installation, even on 
+a 64-bit machine, since most 3rd-party modules are compiled for the 
+32-bit platform. 
 
 Development Branch
 ==================
