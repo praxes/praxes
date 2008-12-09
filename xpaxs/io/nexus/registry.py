@@ -45,11 +45,11 @@ class NXregistry(object):
             try:
                 return self.__data[name]
             except KeyError:
-                warnings.warn("there is no registered node class named `%s`, "
-                              "defaulting to NXentry"% class_name)
-                return self.__data['NXentry']
+                warnings.warn("there is no registered NeXus class named `%s`, "
+                              "defaulting to NXgroup"% name)
+                return self.__data['NXgroup']
 
-            return class_name_dict[class_name]
+            return class_name_dict[name]
 
     def __iter__(self):
         with self.__lock:

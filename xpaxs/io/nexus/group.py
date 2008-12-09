@@ -15,7 +15,7 @@ from __future__ import absolute_import, with_statement
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from h5py import Group
+from h5py import Dataset, Group
 
 #---------------------------------------------------------------------------
 # xpaxs imports
@@ -33,6 +33,8 @@ from .registry import registry
 class NXgroup(Group):
 
     """
+    NXgroup is not a valid NeXus class, we use it as a base class and default
+    group when the NeXus class cannot be determined.
     """
 
     def __init__(self, parent_object, name, data=None):
@@ -47,15 +49,19 @@ class NXgroup(Group):
         """
         with parent_object._lock:
             if name in parent_object:
-                Group(self, parent_object, name, create=False)
+                super(NXgroup, self).__init__(parent_object, name, create=False)
+                if self.__class__.__name__ != 'NXgroup':
+                    # NXgroup is not a valid nexus class
+                    self.attrs['NX_class'] = self.__class__.__name__
             else:
-                Group(self, parent_object, name, create=True)
+                super(NXgroup, self).__init__(parent_object, name, create=True)
 
-            self.update(data)
+            if data:
+                self.update(data)
 
     def update(self, data):
         with self._lock:
-            for attr, val in kwargs.pop(attrs, {}):
+            for attr, val in data.pop(attrs, {}):
                 self.attrs[attr] = val
 
             for key, val in data:
@@ -68,16 +74,29 @@ class NXgroup(Group):
 
     def __getitem__(self, name):
         with self._lock:
-            # would be better to check the attribute without creating the
-            # Group:
-            item = super(NXfile, self).__getitem__(name)
+            # lets allow integer and floats as keys:
+            if isinstance(name, (int, float)): name = str(name)
+
+            # TODO: would be better to check the attribute without having to
+            # create create the group twice. This might be possible with the
+            # 1.8 API.
+            item = super(NXgroup, self).__getitem__(name)
             if isinstance(item, Dataset):
                 nxclass = NXdataset
             else:
-                nxclass = registry[item.attrs['NX_class']]
+                if 'NX_class' in item.attrs:
+                    nxclass = registry[item.attrs['NX_class']]
+                else:
+                    nxclass = NXgroup
             del item
 
             return nxclass(self, name)
+
+    def __setitem__(self, name, value):
+        with self._lock:
+            # lets allow integer and floats as keys:
+            if isinstance(name, (int, float)): name = str(name)
+            super(NXgroup, self).__setitem__(name, value)
 
     def create_log(self, name, data=None):
         return registry['NXlog'](self, name, data)
@@ -148,3 +167,5 @@ class NXgroup(Group):
             if data:
                 item.update(data)
             return item
+
+registry['NXgroup'] = NXgroup

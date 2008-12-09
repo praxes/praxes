@@ -3,6 +3,7 @@
 
 from __future__ import absolute_import
 
+from .beam import NXbeam
 from .characterization import NXcharacterization
 from .component import (NXaperture, NXattenuator, NXbeam_stop, NXbending_magnet,
                         NXcollimator, NXcrystal, NXdetector, NXdisk_chopper,

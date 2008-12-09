@@ -44,7 +44,7 @@ def getLocalTime():
 
 class NXfile(NXgroup, File):
 
-    def __init__(self, name, mode, lock=None):
+    def __init__(self, name, mode='a', lock=None):
         """
         Create a new file object.
 
@@ -66,7 +66,7 @@ class NXfile(NXgroup, File):
             assert hasattr(lock, __exit__)
             self._lock = lock
 
-        File.__init__(self, self, name, mode)
+        File.__init__(self, name, mode)
 
     def create_entry(self, name, data=None):
         return NXentry(self, name, data)
