@@ -61,16 +61,12 @@ class NXgroup(Group):
 
     def update(self, data):
         with self._lock:
-            for attr, val in data.pop(attrs, {}):
+            for attr, val in data.pop('attrs', {}).iteritems():
                 self.attrs[attr] = val
 
-            for key, val in data:
-                nxclassName, nxdata = val
-                if nxclassName == 'Dataset':
-                    NXdataset(self, key, nxdata)
-                else:
-                    nxclass = registry[nxclassName]
-                    nxclass(self, key, nxdata)
+            for name, val in data.iteritems():
+                nxtype, data = val
+                registry[nxtype](self, name, data)
 
     def __getitem__(self, name):
         with self._lock:
