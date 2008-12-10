@@ -96,26 +96,6 @@ class NXdetector(_Component):
     """
     """
 
-    def create_characterization(self, name, **data):
-        return registry['NXcharacterization'](self, name, **data)
-
-    def require_characterization(self, name, **data):
-        if not name in self:
-            return self.create_characterization(name, **data)
-        else:
-            item = self[name]
-            if not isinstance(item, registry['NXcharacterization']):
-                raise NameError(
-                    "Incompatible object (%s) already exists" % \
-                    item.__class__.__name__
-                )
-            if data:
-                raise RuntimeError(
-                    "Can not define data for existing %s object" % \
-                    item.__class__.__name__
-                )
-            return item
-
 registry['NXdetector'] = NXdetector
 
 

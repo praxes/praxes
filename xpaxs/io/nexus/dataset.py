@@ -33,9 +33,9 @@ class NXdataset(Dataset):
     """
     """
 
-    def __init__(self, parent_object, name, **kwargs):
+    def __init__(self, parent_object, name, *args, **kwargs):
         attrs = kwargs.pop('attrs', {})
-        super(NXdataset, self).__init__(parent_object, name, **kwargs)
+        super(NXdataset, self).__init__(parent_object, name, *args, **kwargs)
 
         for key, val in attrs:
             self.attrs[key] = val

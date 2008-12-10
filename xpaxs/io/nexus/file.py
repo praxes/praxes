@@ -24,10 +24,7 @@ from h5py import Dataset, File
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from .dataset import NXdataset
-from .entry import NXentry
-from .group import _BaseGroup
-from .registry import registry
+from .group import NXgroup
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -42,7 +39,7 @@ def getLocalTime():
     return '%d-%02d-%02dT%02d:%02d:%02d%+02d:00'%tuple(res)
 
 
-class NXfile(_BaseGroup, File):
+class NXfile(NXgroup, File):
 
     def __init__(self, name, mode='a', lock=None):
         """
@@ -67,6 +64,3 @@ class NXfile(_BaseGroup, File):
             self._lock = lock
 
         File.__init__(self, name, mode)
-
-    def create_entry(self, name, **data):
-        return NXentry(self, name, **data)
