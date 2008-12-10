@@ -43,9 +43,15 @@ class NXgeometry(NXgroup):
         else:
             item = self[name]
             if not isinstance(item, NXtranslation):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
             if data:
-                item.update(data)
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
             return item
 
     def create_shape(self, name, **data):
@@ -57,9 +63,15 @@ class NXgeometry(NXgroup):
         else:
             item = self[name]
             if not isinstance(item, NXshape):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
             if data:
-                item.update(data)
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
             return item
 
     def create_orientation(self, name, **data):
@@ -71,9 +83,15 @@ class NXgeometry(NXgroup):
         else:
             item = self[name]
             if not isinstance(item, NXorientation):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
             if data:
-                item.update(data)
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
             return item
 
 registry['NXgeometry'] = NXgeometry

@@ -87,9 +87,15 @@ class _BaseGroup(Group):
         else:
             item = self[name]
             if not isinstance(item, registry['NXlog']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
             if data:
-                item.update(data)
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
             return item
 
     def create_note(self, name, **data):
@@ -101,9 +107,15 @@ class _BaseGroup(Group):
         else:
             item = self[name]
             if not isinstance(item, registry['NXnote']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
             if data:
-                item.update(data)
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
             return item
 
 
@@ -144,9 +156,35 @@ class NXgroup(_BaseGroup):
         else:
             item = self[name]
             if not isinstance(item, registry['NXbeam']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
             if data:
-                item.update(data)
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
+            return item
+
+    def create_data(self, name, **data):
+        return registry['NXdata'](self, name, **data)
+
+    def require_data(self, name, **data):
+        if not name in self:
+            return self.create_data(name, **data)
+        else:
+            item = self[name]
+            if not isinstance(item, registry['NXdata']):
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
+            if data:
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
             return item
 
     def create_environment(self, name, **data):
@@ -158,9 +196,15 @@ class NXgroup(_BaseGroup):
         else:
             item = self[name]
             if not isinstance(item, registry['NXenvironment']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
             if data:
-                item.update(data)
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
             return item
 
     def create_geometry(self, name, **data):
@@ -172,9 +216,15 @@ class NXgroup(_BaseGroup):
         else:
             item = self[name]
             if not isinstance(item, registry['NXgeometry']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
             if data:
-                item.update(data)
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
             return item
 
 registry['NXgroup'] = NXgroup

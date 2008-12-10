@@ -44,23 +44,15 @@ class NXentry(NXgroup):
         else:
             item = self[name]
             if not isinstance(item, registry['NXcharacterization']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
             if data:
-                item.update(data)
-            return item
-
-    def create_data(self, name, **data):
-        return registry['NXdata'](self, name, **data)
-
-    def require_data(self, name, **data):
-        if not name in self:
-            return self.create_data(name, **data)
-        else:
-            item = self[name]
-            if not isinstance(item, registry['NXdata']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
-            if data:
-                item.update(data)
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
             return item
 
     def create_event_data(self, name, **data):
@@ -72,9 +64,15 @@ class NXentry(NXgroup):
         else:
             item = self[name]
             if not isinstance(item, registry['NXevent_data']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
             if data:
-                item.update(data)
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
             return item
 
     def create_instrument(self, name, **data):
@@ -86,9 +84,15 @@ class NXentry(NXgroup):
         else:
             item = self[name]
             if not isinstance(item, registry['NXinstrument']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
             if data:
-                item.update(data)
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
             return item
 
     def create_monitor(self, name, **data):
@@ -100,9 +104,15 @@ class NXentry(NXgroup):
         else:
             item = self[name]
             if not isinstance(item, registry['NXmonitor']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
             if data:
-                item.update(data)
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
             return item
 
     def create_process(self, name, **data):
@@ -114,9 +124,15 @@ class NXentry(NXgroup):
         else:
             item = self[name]
             if not isinstance(item, registry['NXprocess']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
             if data:
-                item.update(data)
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
             return item
 
     def create_sample(self, name, **data):
@@ -128,9 +144,15 @@ class NXentry(NXgroup):
         else:
             item = self[name]
             if not isinstance(item, registry['NXsample']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
             if data:
-                item.update(data)
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
             return item
 
     def create_user(self, name, **data):
@@ -142,9 +164,15 @@ class NXentry(NXgroup):
         else:
             item = self[name]
             if not isinstance(item, registry['NXuser']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
             if data:
-                item.update(data)
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
             return item
 
 registry['NXentry'] = NXentry

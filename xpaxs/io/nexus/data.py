@@ -44,3 +44,10 @@ class NXevent_data(NXgroup):
 
 registry['NXevent_data'] = NXevent_data
 
+
+class NXmonitor(NXgroup):
+
+    """
+    """
+
+registry['NXmonitor'] = NXmonitor

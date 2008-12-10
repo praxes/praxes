@@ -29,21 +29,13 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class NXcomponent(NXgroup):
+class _Component(NXgroup):
 
     """
     """
 
 
-class NXaperture(NXcomponent):
-
-    """
-    """
-
-registry['NXaperture'] = NXaperture
-
-
-class NXaperture(NXcomponent):
+class NXaperture(_Component):
 
     """
     """
@@ -51,7 +43,15 @@ class NXaperture(NXcomponent):
 registry['NXaperture'] = NXaperture
 
 
-class NXattenuator(NXcomponent):
+class NXaperture(_Component):
+
+    """
+    """
+
+registry['NXaperture'] = NXaperture
+
+
+class NXattenuator(_Component):
 
     """
     """
@@ -59,7 +59,7 @@ class NXattenuator(NXcomponent):
 registry['NXattenuator'] = NXattenuator
 
 
-class NXbeam_stop(NXcomponent):
+class NXbeam_stop(_Component):
 
     """
     """
@@ -67,7 +67,7 @@ class NXbeam_stop(NXcomponent):
 registry['NXbeam_stop'] = NXbeam_stop
 
 
-class NXbending_magnet(NXcomponent):
+class NXbending_magnet(_Component):
 
     """
     """
@@ -75,7 +75,7 @@ class NXbending_magnet(NXcomponent):
 registry['NXbending_magnet'] = NXbending_magnet
 
 
-class NXcollimator(NXcomponent):
+class NXcollimator(_Component):
 
     """
     """
@@ -83,7 +83,7 @@ class NXcollimator(NXcomponent):
 registry['NXcollimator'] = NXcollimator
 
 
-class NXcrystal(NXcomponent):
+class NXcrystal(_Component):
 
     """
     """
@@ -91,15 +91,35 @@ class NXcrystal(NXcomponent):
 registry['NXcrystal'] = NXcrystal
 
 
-class NXdetector(NXcomponent):
+class NXdetector(_Component):
 
     """
     """
+
+    def create_characterization(self, name, **data):
+        return registry['NXcharacterization'](self, name, **data)
+
+    def require_characterization(self, name, **data):
+        if not name in self:
+            return self.create_characterization(name, **data)
+        else:
+            item = self[name]
+            if not isinstance(item, registry['NXcharacterization']):
+                raise NameError(
+                    "Incompatible object (%s) already exists" % \
+                    item.__class__.__name__
+                )
+            if data:
+                raise RuntimeError(
+                    "Can not define data for existing %s object" % \
+                    item.__class__.__name__
+                )
+            return item
 
 registry['NXdetector'] = NXdetector
 
 
-class NXdisk_chopper(NXcomponent):
+class NXdisk_chopper(_Component):
 
     """
     """
@@ -107,7 +127,7 @@ class NXdisk_chopper(NXcomponent):
 registry['NXdisk_chopper'] = NXdisk_chopper
 
 
-class NXfermi_chopper(NXcomponent):
+class NXfermi_chopper(_Component):
 
     """
     """
@@ -115,7 +135,7 @@ class NXfermi_chopper(NXcomponent):
 registry['NXfermi_chopper'] = NXfermi_chopper
 
 
-class NXfilter(NXcomponent):
+class NXfilter(_Component):
 
     """
     """
@@ -123,7 +143,7 @@ class NXfilter(NXcomponent):
 registry['NXfilter'] = NXfilter
 
 
-class NXflipper(NXcomponent):
+class NXflipper(_Component):
 
     """
     """
@@ -131,7 +151,7 @@ class NXflipper(NXcomponent):
 registry['NXflipper'] = NXflipper
 
 
-class NXguide(NXcomponent):
+class NXguide(_Component):
 
     """
     """
@@ -139,7 +159,7 @@ class NXguide(NXcomponent):
 registry['NXguide'] = NXguide
 
 
-class NXinsertion_device(NXcomponent):
+class NXinsertion_device(_Component):
 
     """
     """
@@ -147,7 +167,7 @@ class NXinsertion_device(NXcomponent):
 registry['NXinsertion_device'] = NXinsertion_device
 
 
-class NXmirror(NXcomponent):
+class NXmirror(_Component):
 
     """
     """
@@ -155,7 +175,7 @@ class NXmirror(NXcomponent):
 registry['NXmirror'] = NXmirror
 
 
-class NXmoderator(NXcomponent):
+class NXmoderator(_Component):
 
     """
     """
@@ -163,15 +183,7 @@ class NXmoderator(NXcomponent):
 registry['NXmoderator'] = NXmoderator
 
 
-class NXmonitor(NXcomponent):
-
-    """
-    """
-
-registry['NXmonitor'] = NXmonitor
-
-
-class NXmonochromator(NXcomponent):
+class NXmonochromator(_Component):
 
     """
     """
@@ -179,7 +191,7 @@ class NXmonochromator(NXcomponent):
 registry['NXmonochromator'] = NXmonochromator
 
 
-class NXpolarizer(NXcomponent):
+class NXpolarizer(_Component):
 
     """
     """
@@ -187,7 +199,7 @@ class NXpolarizer(NXcomponent):
 registry['NXpolarizer'] = NXpolarizer
 
 
-class NXpositioner(NXcomponent):
+class NXpositioner(_Component):
 
     """
     """
@@ -195,7 +207,7 @@ class NXpositioner(NXcomponent):
 registry['NXpositioner'] = NXpositioner
 
 
-class NXsource(NXcomponent):
+class NXsource(_Component):
 
     """
     """
@@ -203,7 +215,7 @@ class NXsource(NXcomponent):
 registry['NXsource'] = NXsource
 
 
-class NXvelocity_selector(NXcomponent):
+class NXvelocity_selector(_Component):
 
     """
     """
