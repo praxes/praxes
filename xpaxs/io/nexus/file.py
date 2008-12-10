@@ -68,5 +68,5 @@ class NXfile(_BaseGroup, File):
 
         File.__init__(self, name, mode)
 
-    def create_entry(self, name, data=None):
-        return NXentry(self, name, data)
+    def create_entry(self, name, **data):
+        return NXentry(self, name, **data)

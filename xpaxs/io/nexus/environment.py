@@ -34,12 +34,12 @@ class NXenvironment(NXgroup):
     """
     """
 
-    def create_sensor(self, name, data=None):
-        return NXsensor(self, name, data)
+    def create_sensor(self, name, **data):
+        return NXsensor(self, name, **data)
 
-    def require_log(self, name, data=None):
+    def require_log(self, name, **data):
         if not name in self:
-            return self.create_sensor(name, data)
+            return self.create_sensor(name, **data)
         else:
             item = self[name]
             if not isinstance(item, NXsensor):

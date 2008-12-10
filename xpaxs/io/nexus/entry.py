@@ -35,12 +35,12 @@ class NXentry(NXgroup):
     """
     """
 
-    def create_characterization(self, name, data=None):
-        return registry['NXcharacterization'](self, name, data)
+    def create_characterization(self, name, **data):
+        return registry['NXcharacterization'](self, name, **data)
 
-    def require_characterization(self, name, data=None):
+    def require_characterization(self, name, **data):
         if not name in self:
-            return self.create_characterization(name, data)
+            return self.create_characterization(name, **data)
         else:
             item = self[name]
             if not isinstance(item, registry['NXcharacterization']):
@@ -49,12 +49,12 @@ class NXentry(NXgroup):
                 item.update(data)
             return item
 
-    def create_data(self, name, data=None):
-        return registry['NXdata'](self, name, data)
+    def create_data(self, name, **data):
+        return registry['NXdata'](self, name, **data)
 
-    def require_data(self, name, data=None):
+    def require_data(self, name, **data):
         if not name in self:
-            return self.create_data(name, data)
+            return self.create_data(name, **data)
         else:
             item = self[name]
             if not isinstance(item, registry['NXdata']):
@@ -63,12 +63,12 @@ class NXentry(NXgroup):
                 item.update(data)
             return item
 
-    def create_event_data(self, name, data=None):
-        return registry['NXevent_data'](self, name, data)
+    def create_event_data(self, name, **data):
+        return registry['NXevent_data'](self, name, **data)
 
-    def require_event_data(self, name, data=None):
+    def require_event_data(self, name, **data):
         if not name in self:
-            return self.create_event_data(name, data)
+            return self.create_event_data(name, **data)
         else:
             item = self[name]
             if not isinstance(item, registry['NXevent_data']):
@@ -77,12 +77,12 @@ class NXentry(NXgroup):
                 item.update(data)
             return item
 
-    def create_instrument(self, name, data=None):
-        return registry['NXinstrument'](self, name, data)
+    def create_instrument(self, name, **data):
+        return registry['NXinstrument'](self, name, **data)
 
-    def require_instrument(self, name, data=None):
+    def require_instrument(self, name, **data):
         if not name in self:
-            return self.create_instrument(name, data)
+            return self.create_instrument(name, **data)
         else:
             item = self[name]
             if not isinstance(item, registry['NXinstrument']):
@@ -91,12 +91,12 @@ class NXentry(NXgroup):
                 item.update(data)
             return item
 
-    def create_monitor(self, name, data=None):
-        return registry['NXmonitor'](self, name, data)
+    def create_monitor(self, name, **data):
+        return registry['NXmonitor'](self, name, **data)
 
-    def require_monitor(self, name, data=None):
+    def require_monitor(self, name, **data):
         if not name in self:
-            return self.create_monitor(name, data)
+            return self.create_monitor(name, **data)
         else:
             item = self[name]
             if not isinstance(item, registry['NXmonitor']):
@@ -105,12 +105,12 @@ class NXentry(NXgroup):
                 item.update(data)
             return item
 
-    def create_process(self, name, data=None):
-        return registry['NXprocess'](self, name, data)
+    def create_process(self, name, **data):
+        return registry['NXprocess'](self, name, **data)
 
-    def require_process(self, name, data=None):
+    def require_process(self, name, **data):
         if not name in self:
-            return self.create_process(name, data)
+            return self.create_process(name, **data)
         else:
             item = self[name]
             if not isinstance(item, registry['NXprocess']):
@@ -119,12 +119,12 @@ class NXentry(NXgroup):
                 item.update(data)
             return item
 
-    def create_sample(self, name, data=None):
-        return registry['NXsample'](self, name, data)
+    def create_sample(self, name, **data):
+        return registry['NXsample'](self, name, **data)
 
-    def require_sample(self, name, data=None):
+    def require_sample(self, name, **data):
         if not name in self:
-            return self.create_sample(name, data)
+            return self.create_sample(name, **data)
         else:
             item = self[name]
             if not isinstance(item, registry['NXsample']):
@@ -133,12 +133,12 @@ class NXentry(NXgroup):
                 item.update(data)
             return item
 
-    def create_user(self, name, data=None):
-        return registry['NXuser'](self, name, data)
+    def create_user(self, name, **data):
+        return registry['NXuser'](self, name, **data)
 
-    def require_user(self, name, data=None):
+    def require_user(self, name, **data):
         if not name in self:
-            return self.create_user(name, data)
+            return self.create_user(name, **data)
         else:
             item = self[name]
             if not isinstance(item, registry['NXuser']):

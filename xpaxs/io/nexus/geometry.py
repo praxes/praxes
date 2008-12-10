@@ -34,12 +34,12 @@ class NXgeometry(NXgroup):
     """
     """
 
-    def create_translation(self, name, data=None):
-        return NXtranslation(self, name, data)
+    def create_translation(self, name, **data):
+        return NXtranslation(self, name, **data)
 
-    def require_translation(self, name, data=None):
+    def require_translation(self, name, **data):
         if not name in self:
-            return self.create_translation(name, data)
+            return self.create_translation(name, **data)
         else:
             item = self[name]
             if not isinstance(item, NXtranslation):
@@ -48,12 +48,12 @@ class NXgeometry(NXgroup):
                 item.update(data)
             return item
 
-    def create_shape(self, name, data=None):
-        return NXshape(self, name, data)
+    def create_shape(self, name, **data):
+        return NXshape(self, name, **data)
 
-    def require_shape(self, name, data=None):
+    def require_shape(self, name, **data):
         if not name in self:
-            return self.create_shape(name, data)
+            return self.create_shape(name, **data)
         else:
             item = self[name]
             if not isinstance(item, NXshape):
@@ -62,12 +62,12 @@ class NXgeometry(NXgroup):
                 item.update(data)
             return item
 
-    def create_orientation(self, name, data=None):
-        return NXorientation(self, name, data)
+    def create_orientation(self, name, **data):
+        return NXorientation(self, name, **data)
 
-    def require_orientation(self, name, data=None):
+    def require_orientation(self, name, **data):
         if not name in self:
-            return self.create_orientation(name, data)
+            return self.create_orientation(name, **data)
         else:
             item = self[name]
             if not isinstance(item, NXorientation):
