@@ -26,7 +26,7 @@ from h5py import Dataset, File
 
 from .dataset import NXdataset
 from .entry import NXentry
-from .group import NXgroup
+from .group import _BaseGroup
 from .registry import registry
 
 #---------------------------------------------------------------------------
@@ -42,7 +42,7 @@ def getLocalTime():
     return '%d-%02d-%02dT%02d:%02d:%02d%+02d:00'%tuple(res)
 
 
-class NXfile(NXgroup, File):
+class NXfile(_BaseGroup, File):
 
     def __init__(self, name, mode='a', lock=None):
         """
