@@ -82,21 +82,60 @@ class NXgroup(Group):
             # 1.8 API.
             item = super(NXgroup, self).__getitem__(name)
             if isinstance(item, Dataset):
-                nxclass = NXdataset
+                return NXdataset(self, name)
             else:
                 if 'NX_class' in item.attrs:
-                    nxclass = registry[item.attrs['NX_class']]
+                    return registry[item.attrs['NX_class']](self, name)
                 else:
-                    nxclass = NXgroup
-            del item
-
-            return nxclass(self, name)
+                    return NXgroup(self, name)
 
     def __setitem__(self, name, value):
         with self._lock:
             # lets allow integer and floats as keys:
             if isinstance(name, (int, float)): name = str(name)
             super(NXgroup, self).__setitem__(name, value)
+
+    def create_beam(self, name, data=None):
+        return registry['NXbeam'](self, name, data)
+
+    def require_beam(self, name, data=None):
+        if not name in self:
+            return self.create_beam(name, data)
+        else:
+            item = self[name]
+            if not isinstance(item, registry['NXbeam']):
+                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+            if data:
+                item.update(data)
+            return item
+
+    def create_environment(self, name, data=None):
+        return registry['NXenvironment'](self, name, data)
+
+    def require_environment(self, name, data=None):
+        if not name in self:
+            return self.create_environment(name, data)
+        else:
+            item = self[name]
+            if not isinstance(item, registry['NXenvironment']):
+                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+            if data:
+                item.update(data)
+            return item
+
+    def create_geometry(self, name, data=None):
+        return registry['NXgeometry'](self, name, data)
+
+    def require_geometry(self, name, data=None):
+        if not name in self:
+            return self.create_geometry(name, data)
+        else:
+            item = self[name]
+            if not isinstance(item, registry['NXgeometry']):
+                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
+            if data:
+                item.update(data)
+            return item
 
     def create_log(self, name, data=None):
         return registry['NXlog'](self, name, data)
@@ -121,48 +160,6 @@ class NXgroup(Group):
         else:
             item = self[name]
             if not isinstance(item, registry['NXnote']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
-            if data:
-                item.update(data)
-            return item
-
-    def create_beam(self, name, data=None):
-        return registry['NXbeam'](self, name, data)
-
-    def require_beam(self, name, data=None):
-        if not name in self:
-            return self.create_beam(name, data)
-        else:
-            item = self[name]
-            if not isinstance(item, registry['NXbeam']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
-            if data:
-                item.update(data)
-            return item
-
-    def create_geometry(self, name, data=None):
-        return registry['NXgeometry'](self, name, data)
-
-    def require_geometry(self, name, data=None):
-        if not name in self:
-            return self.create_geometry(name, data)
-        else:
-            item = self[name]
-            if not isinstance(item, registry['NXgeometry']):
-                raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
-            if data:
-                item.update(data)
-            return item
-
-    def create_environment(self, name, data=None):
-        return registry['NXenvironment'](self, name, data)
-
-    def require_environment(self, name, data=None):
-        if not name in self:
-            return self.create_environment(name, data)
-        else:
-            item = self[name]
-            if not isinstance(item, registry['NXenvironment']):
                 raise NameError("Incompatible object (%s) already exists" % item.__class__.__name__)
             if data:
                 item.update(data)
