@@ -3,7 +3,7 @@ Wrappers around the pytables interface to the hdf5 file.
 
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, with_statement
 
 #---------------------------------------------------------------------------
 # Stdlib imports
@@ -34,10 +34,11 @@ class NXdataset(Dataset):
     """
 
     def __init__(self, parent_object, name, *args, **kwargs):
-        attrs = kwargs.pop('attrs', {})
-        super(NXdataset, self).__init__(parent_object, name, *args, **kwargs)
+        with parent_object._lock:
+            attrs = kwargs.pop('attrs', {})
+            super(NXdataset, self).__init__(parent_object, name, *args, **kwargs)
 
-        for key, val in attrs:
-            self.attrs[key] = val
+            for key, val in attrs:
+                self.attrs[key] = val
 
 registry['NXdataset'] = NXdataset
