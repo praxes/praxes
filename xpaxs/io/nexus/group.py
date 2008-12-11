@@ -86,42 +86,38 @@ class NXgroup(Group):
             if isinstance(name, (int, float)): name = str(name)
             super(NXgroup, self).__setitem__(name, value)
 
-    def create_dataset(self, name, **data):
-        with self._lock:
-            return self.create_nx(name, 'NXdataset', **data)
+    def create_dataset(self, name, *args, **kwargs):
+        return NXdataset(self, name, *args, **kwargs)
 
     def require_dataset(self, name, *args, **kwargs):
         with self._lock:
-            return self.require_nx(name, 'NXdataset', **data)
+            attrs = kwargs.pop('attrs', {})
+            dset = super(NXgroup, self).require_dataset(name, *args, **kwargs)
+            for key, val in attrs:
+                dset.attrs[key] = val
+            return dset
 
-    def create_group(self, name, **data):
-        with self._lock:
-            return self.create_nx(name, 'NXgroup', **data)
-
-    def require_group(self, name, **data):
-        with self._lock:
-            return self.require_nx(name, 'NXgroup', **data)
-
-    def create_nx(self, name, nxtype, **data):
+    def create_group(self, name, nxtype='NXgroup', **data):
         if not nxtype.startswith('NX'): nxtype = 'NX'+nxtype
         return registry[nxtype](self, name, **data)
 
-    def require_nx(self, name, nxtype, **data):
-        if not name in self:
-            return self.create(name, nxtype, **data)
-        else:
+    def require_group(self, name, nxtype='NXgroup', **data):
+        with self._lock:
             if not nxtype.startswith('NX'): nxtype = 'NX'+nxtype
-            item = self[name]
-            if not isinstance(item, registry[nxtype]):
-                raise NameError(
-                    "Incompatible object (%s) already exists" % \
-                    item.__class__.__name__
-                )
-            if data:
-                raise RuntimeError(
-                    "Can not define data for existing %s object" % \
-                    item.__class__.__name__
-                )
-            return item
+            if not name in self:
+                return self.create_group(name, nxtype, **data)
+            else:
+                item = self[name]
+                if not isinstance(item, registry[nxtype]):
+                    raise NameError(
+                        "Incompatible object (%s) already exists" % \
+                        item.__class__.__name__
+                    )
+                if data:
+                    raise RuntimeError(
+                        "Can not define data for existing %s object" % \
+                        item.__class__.__name__
+                    )
+                return item
 
 registry['NXgroup'] = NXgroup
