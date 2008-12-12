@@ -28,7 +28,6 @@ from .registry import registry
 # Normal code begins
 #---------------------------------------------------------------------------
 
-# sample user
 
 class NXentry(NXgroup):
 
