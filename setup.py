@@ -71,8 +71,8 @@ else:
 
 def build_specfile(ext_modules):
     import numpy
-    sources = 'external/specfile/src/*.c'
-    headers = 'external/specfile/include'
+    sources = 'specfile/src/*.c'
+    headers = 'specfile/include'
     module  = Extension(name = 'specfile',
                         sources = glob.glob(sources),
                         define_macros = define_macros,
@@ -118,8 +118,9 @@ package_data = {'xpaxs': ['instrumentation/spec/macros/*',
                           'frontends/base/ui/resources/cursors/*']}
 
 packages = find_packages()
-packages.extend(find_packages('external'))
-package_dir = {'SpecClient': 'external/SpecClient'}
+#packages.extend(find_packages('external'))
+#package_dir = {'SpecClient': 'external/SpecClient'}
+print packages
 
 setup(name = 'xpaxs',
       version = __version__,
@@ -132,7 +133,7 @@ setup(name = 'xpaxs',
       long_description = long_description,
       platforms = ['any'],
       packages = packages,
-      package_dir = package_dir,
+#      package_dir = package_dir,
       ext_modules = ext_modules,
       package_data = package_data,
       scripts = scriptfiles,
