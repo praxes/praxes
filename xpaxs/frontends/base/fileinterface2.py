@@ -156,8 +156,7 @@ class H5FileModel(QtCore.QAbstractItemModel):
         return QtCore.QVariant()
 
     def index(self, row, column, parent):
-        if row < 0 or column < 0 or row >= self.rowCount(parent) \
-                or column >= self.columnCount(parent):
+        if not self.hasIndex(row, column, parent):
             return QtCore.QModelIndex()
 
         if not parent.isValid():
