@@ -74,20 +74,6 @@ class XpaxsH5File(QtCore.QObject):
         for group in self.h5File.iterobjects():
             yield XpaxsH5Scan(self, group)
 
-#    def flush(self):
-#        try:
-#            self.mutex.lock()
-#            self.h5File.flush()
-#        finally:
-#            self.mutex.unlock()
-
-#    def getFileName(self):
-#        try:
-#            self.mutex.lock()
-#            return self.h5File.name
-#        finally:
-#            self.mutex.unlock()
-
     def __getattr__(self, attr):
         try:
             self.mutex.lock()
@@ -111,16 +97,6 @@ class XpaxsH5File(QtCore.QObject):
 
     def __contains__(self, item):
         return item in self.h5File
-
-#    def getNode(self, where, name=None):
-#        node = self.h5File.getNode(where, name)
-#        # TODO: these checks should eventually look for nexus classes
-#        # for now just use the pytables classes
-#        if isinstance(node, tables.Group):
-#            return XpaxsH5Scan(self, node)
-#
-#    def getNodes(self, where='/'):
-#        return [self.getNode(child) for child in self.h5File.getNode(where)]
 
 
 class XpaxsH5Scan(QtCore.QObject):
@@ -356,10 +332,3 @@ class XpaxsH5Scan(QtCore.QObject):
 
         finally:
             self.mutex.unlock()
-
-#    def setQueue(self, queue):
-#        try:
-#            self.mutex.lock()
-#            self.queue = queue
-#        finally:
-#            self.mutex.unlock()
