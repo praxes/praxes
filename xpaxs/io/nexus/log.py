@@ -21,7 +21,7 @@ from __future__ import absolute_import
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from .group import NXgroup
+from .group import Group
 from .registry import registry
 
 #---------------------------------------------------------------------------
@@ -29,9 +29,9 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class NXlog(NXgroup):
+class Log(Group):
 
     """
     """
 
-registry['NXlog'] = NXlog
+registry.register(Log, 'NXlog')

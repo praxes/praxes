@@ -16,8 +16,7 @@ import warnings
 # Extlib imports
 #---------------------------------------------------------------------------
 
-import h5py.highlevel as h5py
-from h5py import h5
+
 
 #---------------------------------------------------------------------------
 # xpaxs imports
@@ -30,7 +29,7 @@ from h5py import h5
 #---------------------------------------------------------------------------
 
 
-class NXregistry(object):
+class _Registry(object):
 
     def __init__(self):
         self.__lock = threading.Lock()
@@ -45,11 +44,9 @@ class NXregistry(object):
             try:
                 return self.__data[name]
             except KeyError:
-                warnings.warn("there is no registered NeXus class named `%s`, "
-                              "defaulting to NXgroup"% name)
-                return self.__data['NXgroup']
-
-            return class_name_dict[name]
+                warnings.warn("there is no registered class named `%s`, "
+                              "defaulting to Group"% name)
+                return self.__data['Group']
 
     def __iter__(self):
         with self.__lock:
@@ -59,4 +56,10 @@ class NXregistry(object):
         with self.__lock:
             self.__data[name] = value
 
-registry = NXregistry()
+    def register(self, value, *altkeys):
+        with self.__lock:
+            self.__data[value.__name__] = value
+            for key in altkeys:
+                self.__data[key] = value
+
+registry = _Registry()

@@ -21,7 +21,7 @@ from __future__ import absolute_import
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from .group import NXgroup
+from .group import Group
 from .registry import registry
 
 #---------------------------------------------------------------------------
@@ -29,33 +29,33 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class NXgeometry(NXgroup):
+class Geometry(Group):
 
     """
     """
 
-registry['NXgeometry'] = NXgeometry
+registry.register(Geometry, 'NXgeometry')
 
 
-class NXtranslation(NXgroup):
-
-    """
-    """
-
-registry['NXtranslation'] = NXtranslation
-
-
-class NXshape(NXgroup):
+class Translation(Group):
 
     """
     """
 
-registry['NXshape'] = NXshape
+registry.register(Translation, 'NXtranslation')
 
 
-class NXorientation(NXgroup):
+class Shape(Group):
 
     """
     """
 
-registry['NXorientation'] = NXorientation
+registry.register(Shape, 'NXshape')
+
+
+class Orientation(Group):
+
+    """
+    """
+
+registry.register(Orientation, 'NXorientation')

@@ -21,7 +21,7 @@ from __future__ import absolute_import
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from .group import NXgroup
+from .group import Group
 from .registry import registry
 
 #---------------------------------------------------------------------------
@@ -29,25 +29,25 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class NXdata(NXgroup):
+class Data(Group):
 
     """
     """
 
-registry['NXdata'] = NXdata
+registry.register(Data, 'NXdata')
 
 
-class NXevent_data(NXgroup):
-
-    """
-    """
-
-registry['NXevent_data'] = NXevent_data
-
-
-class NXmonitor(NXgroup):
+class Event_data(Group):
 
     """
     """
 
-registry['NXmonitor'] = NXmonitor
+registry.register(Event_data, 'NXevent_data')
+
+
+class Monitor(Group):
+
+    """
+    """
+
+registry.register(Monitor, 'NXmonitor')

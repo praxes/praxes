@@ -21,7 +21,7 @@ from __future__ import absolute_import
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from .group import NXgroup
+from .group import Group
 from .registry import registry
 
 #---------------------------------------------------------------------------
@@ -29,17 +29,17 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class NXenvironment(NXgroup):
+class Environment(Group):
 
     """
     """
 
-registry['NXenvironment'] = NXenvironment
+registry.register(Environment, 'NXenvironment')
 
 
-class NXsensor(NXgroup):
+class Sensor(Group):
 
     """
     """
 
-registry['NXsensor'] = NXsensor
+registry.register(Sensor, 'NXsensor')

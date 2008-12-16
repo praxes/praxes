@@ -21,7 +21,7 @@ from __future__ import absolute_import
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from .group import NXgroup
+from .group import Group
 from .registry import registry
 
 #---------------------------------------------------------------------------
@@ -29,175 +29,167 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class _Component(NXgroup):
+class _Component(Group):
 
     """
     """
 
 
-class NXaperture(_Component):
+class Aperture(_Component):
 
     """
     """
 
-registry['NXaperture'] = NXaperture
+registry.register(Aperture, 'NXaperture')
 
 
-class NXaperture(_Component):
-
-    """
-    """
-
-registry['NXaperture'] = NXaperture
-
-
-class NXattenuator(_Component):
+class Attenuator(_Component):
 
     """
     """
 
-registry['NXattenuator'] = NXattenuator
+registry.register(Attenuator, 'NXattenuator')
 
 
-class NXbeam_stop(_Component):
-
-    """
-    """
-
-registry['NXbeam_stop'] = NXbeam_stop
-
-
-class NXbending_magnet(_Component):
+class Beam_stop(_Component):
 
     """
     """
 
-registry['NXbending_magnet'] = NXbending_magnet
+registry.register(Beam_stop, 'NXbeam_stop')
 
 
-class NXcollimator(_Component):
-
-    """
-    """
-
-registry['NXcollimator'] = NXcollimator
-
-
-class NXcrystal(_Component):
+class Bending_magnet(_Component):
 
     """
     """
 
-registry['NXcrystal'] = NXcrystal
+registry.register(Bending_magnet, 'NXbeanding_magnet')
 
 
-class NXdetector(_Component):
-
-    """
-    """
-
-registry['NXdetector'] = NXdetector
-
-
-class NXdisk_chopper(_Component):
+class Collimator(_Component):
 
     """
     """
 
-registry['NXdisk_chopper'] = NXdisk_chopper
+registry.register(Collimator, 'NXcollimator')
 
 
-class NXfermi_chopper(_Component):
-
-    """
-    """
-
-registry['NXfermi_chopper'] = NXfermi_chopper
-
-
-class NXfilter(_Component):
+class Crystal(_Component):
 
     """
     """
 
-registry['NXfilter'] = NXfilter
+registry.register(Crystal, 'NX_crystal')
 
 
-class NXflipper(_Component):
-
-    """
-    """
-
-registry['NXflipper'] = NXflipper
-
-
-class NXguide(_Component):
+class Detector(_Component):
 
     """
     """
 
-registry['NXguide'] = NXguide
+registry.register(Detector, 'NXdetector')
 
 
-class NXinsertion_device(_Component):
-
-    """
-    """
-
-registry['NXinsertion_device'] = NXinsertion_device
-
-
-class NXmirror(_Component):
+class Disk_chopper(_Component):
 
     """
     """
 
-registry['NXmirror'] = NXmirror
+registry.register(Disk_chopper, 'NXdisk_chopper')
 
 
-class NXmoderator(_Component):
-
-    """
-    """
-
-registry['NXmoderator'] = NXmoderator
-
-
-class NXmonochromator(_Component):
+class Fermi_chopper(_Component):
 
     """
     """
 
-registry['NXmonochromator'] = NXmonochromator
+registry.register(Fermi_chopper, 'NXfermi_chopper')
 
 
-class NXpolarizer(_Component):
-
-    """
-    """
-
-registry['NXpolarizer'] = NXpolarizer
-
-
-class NXpositioner(_Component):
+class Filter(_Component):
 
     """
     """
 
-registry['NXpositioner'] = NXpositioner
+registry.register(Filter, 'NXfilter')
 
 
-class NXsource(_Component):
-
-    """
-    """
-
-registry['NXsource'] = NXsource
-
-
-class NXvelocity_selector(_Component):
+class Flipper(_Component):
 
     """
     """
 
-registry['NXvelocity_selector'] = NXvelocity_selector
+registry.register(Flipper, 'NXflipper')
+
+
+class Guide(_Component):
+
+    """
+    """
+
+registry.register(Guide, 'NXguide')
+
+
+class Insertion_device(_Component):
+
+    """
+    """
+
+registry.register(Insertion_device, 'NXinsertion_device')
+
+
+class Mirror(_Component):
+
+    """
+    """
+
+registry.register(Mirror, 'NXmirror')
+
+
+class Moderator(_Component):
+
+    """
+    """
+
+registry.register(Moderator, 'NXmoderator')
+
+
+class Monochromator(_Component):
+
+    """
+    """
+
+registry.register(Monochromator, 'NXmonochromator')
+
+
+class Polarizer(_Component):
+
+    """
+    """
+
+registry.register(Polarizer, 'NXpolarizer')
+
+
+class Positioner(_Component):
+
+    """
+    """
+
+registry.register(Positioner, 'NXpositioner')
+
+
+class Source(_Component):
+
+    """
+    """
+
+registry.register(Source, 'NXsource')
+
+
+class Velocity_selector(_Component):
+
+    """
+    """
+
+registry.register(Velocity_selector, 'NXvelocity_selector')

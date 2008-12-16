@@ -18,13 +18,13 @@ import time
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from h5py import Dataset, File
+import h5py
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from .group import NXgroup
+from .group import Group
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -39,7 +39,7 @@ def getLocalTime():
     return '%d-%02d-%02dT%02d:%02d:%02d%+02d:00'%tuple(res)
 
 
-class NXfile(NXgroup, File):
+class File(Group, h5py.File):
 
     def __init__(self, name, mode='a', lock=None):
         """
@@ -63,4 +63,4 @@ class NXfile(NXgroup, File):
             assert hasattr(lock, __exit__)
             self._lock = lock
 
-        File.__init__(self, name, mode)
+        h5py.File.__init__(self, name, mode)

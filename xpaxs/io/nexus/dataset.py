@@ -15,7 +15,7 @@ from __future__ import absolute_import, with_statement
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from h5py import Dataset
+import h5py
 
 #---------------------------------------------------------------------------
 # xpaxs imports
@@ -28,7 +28,7 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class NXdataset(Dataset):
+class Dataset(h5py.Dataset):
 
     """
     """
@@ -36,9 +36,9 @@ class NXdataset(Dataset):
     def __init__(self, parent_object, name, *args, **kwargs):
         with parent_object._lock:
             attrs = kwargs.pop('attrs', {})
-            super(NXdataset, self).__init__(parent_object, name, *args, **kwargs)
+            super(Dataset, self).__init__(parent_object, name, *args, **kwargs)
 
             for key, val in attrs:
                 self.attrs[key] = val
 
-registry['NXdataset'] = NXdataset
+registry.register(Dataset)

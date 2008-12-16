@@ -15,13 +15,13 @@ from __future__ import absolute_import, with_statement
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from h5py import Dataset, Group
+import h5py
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from .dataset import NXdataset
+from .dataset import Dataset
 from .registry import registry
 
 
@@ -30,7 +30,7 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class NXgroup(Group):
+class Group(h5py.Group):
 
     def __init__(self, parent_object, name, **data):
         """
@@ -44,24 +44,22 @@ class NXgroup(Group):
         """
         with parent_object._lock:
             if name in parent_object:
-                super(NXgroup, self).__init__(
+                super(Group, self).__init__(
                     parent_object, name, create=False
                 )
-                if self.__class__.__name__ != 'NXgroup':
-                    # NXgroup is not a valid nexus class
-                    self.attrs['NX_class'] = self.__class__.__name__
             else:
-                super(NXgroup, self).__init__(
+                super(Group, self).__init__(
                     parent_object, name, create=True
                 )
+                self.attrs['class'] = self.__class__.__name__
 
             if data:
                 for attr, val in data.pop('attrs', {}).iteritems():
                     self.attrs[attr] = val
 
                 for name, val in data.iteritems():
-                    nxtype, val = val
-                    registry[nxtype](self, name, **val)
+                    gtype, val = val
+                    registry[gtype](self, name, **val)
 
     def __getitem__(self, name):
         with self._lock:
@@ -71,44 +69,44 @@ class NXgroup(Group):
             # TODO: would be better to check the attribute without having to
             # create create the group twice. This might be possible with the
             # 1.8 API.
-            item = super(NXgroup, self).__getitem__(name)
-            if isinstance(item, Dataset):
-                return NXdataset(self, name)
+            item = super(Group, self).__getitem__(name)
+            if isinstance(item, h5py.Dataset):
+                return Dataset(self, name)
             else:
-                if 'NX_class' in item.attrs:
+                if 'class' in item.attrs:
+                    return registry[item.attrs['class']](self, name)
+                elif 'NX_class' in item.attrs:
                     return registry[item.attrs['NX_class']](self, name)
                 else:
-                    return NXgroup(self, name)
+                    return Group(self, name)
 
     def __setitem__(self, name, value):
         with self._lock:
             # lets allow integer and floats as keys:
             if isinstance(name, (int, float)): name = str(name)
-            super(NXgroup, self).__setitem__(name, value)
+            super(Group, self).__setitem__(name, value)
 
     def create_dataset(self, name, *args, **kwargs):
-        return NXdataset(self, name, *args, **kwargs)
+        return Dataset(self, name, *args, **kwargs)
 
     def require_dataset(self, name, *args, **kwargs):
         with self._lock:
             attrs = kwargs.pop('attrs', {})
-            dset = super(NXgroup, self).require_dataset(name, *args, **kwargs)
+            dset = super(Group, self).require_dataset(name, *args, **kwargs)
             for key, val in attrs:
                 dset.attrs[key] = val
             return dset
 
-    def create_group(self, name, nxtype='NXgroup', **data):
-        if not nxtype.startswith('NX'): nxtype = 'NX'+nxtype
-        return registry[nxtype](self, name, **data)
+    def create_group(self, name, type='Group', **data):
+        return registry[type](self, name, **data)
 
-    def require_group(self, name, nxtype='NXgroup', **data):
+    def require_group(self, name, type='Group', **data):
         with self._lock:
-            if not nxtype.startswith('NX'): nxtype = 'NX'+nxtype
             if not name in self:
-                return self.create_group(name, nxtype, **data)
+                return self.create_group(name, type, **data)
             else:
                 item = self[name]
-                if not isinstance(item, registry[nxtype]):
+                if not isinstance(item, registry[type]):
                     raise NameError(
                         "Incompatible object (%s) already exists" % \
                         item.__class__.__name__
@@ -120,4 +118,4 @@ class NXgroup(Group):
                     )
                 return item
 
-registry['NXgroup'] = NXgroup
+registry.register(Group)
