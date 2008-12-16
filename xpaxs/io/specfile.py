@@ -28,7 +28,6 @@ import tempfile
 #---------------------------------------------------------------------------
 
 import numpy
-import tables
 
 #---------------------------------------------------------------------------
 # xpaxs imports
@@ -45,42 +44,67 @@ logger = logging.getLogger('XPaXS.io.specfile')
 
 __all__ = ['load']
 
-
 def getScanInfo(commandList):
-    scanType, args = commandList[0], commandList[1:]
-    scanAxes = []
-    scanRange = {}
-    scanShape = []
-    logger.debug('scanType is %s', scanType)
-    if scanType in ('mesh', ):
+    scan_type, args = commandList[0], commandList[1:]
+    scan_info = {}
+    scan_info['scan_type'] = scan_type
+    scan_info['axes'] = []
+    scan_info['axis_info'] = {}
+    scan_info['scan_shape'] = []
+    if scan_type in ('mesh', ):
+        i = 0
         while len(args) > 4:
             (axis, start, stop, step), args = args[:4], args[4:]
-            scanAxes.append((axis, ))
-            scanRange[axis] = (float(start), float(stop))
-            scanShape.append(int(step)+1)
-    elif scanType in ('ascan', 'a2scan', 'a3scan',
-                      'dscan', 'd2scan', 'd3scan'):
+            start, stop, step = float(start), float(stop), int(step)+1
+            i += 1
+            scan_info['axes'].append((axis, ))
+            axis_info = {}
+            axis_info['range'] = numpy.array([start, stop])
+            axis_info['axis'] = i
+            scan_info['axis_info'][axis] = axis_info
+            scan_info['scan_shape'].append(step)
+    elif scan_type in (
+            'ascan', 'a2scan', 'a3scan', 'dscan', 'd2scan', 'd3scan'
+        ):
         temp = []
+        i = 0
         while len(args) > 3:
             (axis, start, stop), args = args[:3], args[3:]
+            start, stop = float(start), float(stop)
+            i += 1
             temp.append(axis)
-            scanRange[axis] = (float(start), float(stop))
-        scanAxes.append(tuple(temp))
-        scanShape.append(int(args[0])+1)
-    elif scanType in ('tseries', ):
+            axis_info = {}
+            axis_info['axis'] = 1
+            axis_info['priority'] = i
+            axis_info['range'] = numpy.array([start, stop])
+            scan_info['axis_info'][axis] = axis_info
+        scan_info['axes'].append(tuple(temp))
+        scan_info['scan_shape'].append(int(args[0])+1)
+    elif scan_type in ('tseries', ):
         numPts = int(args[0])
         if numPts < 1: numPts = -1
         try: ctime = float(args[1])
         except IndexError: ctime = 1.0
-        scanAxes.append('time')
-        scanRange = (0, ctime*numPts)
-        scanShape.append(numPts)
+        scan_info['axes'].append('time')
+        axis_info = {}
+        axis_info['axis'] = 1
+        axis_info['range'] = numpy.array([0, ctime*numPts])
+        scan_info['axis_info']['time'] = axis_info
+        scan_info['scan_shape'].append(numPts)
+    elif scan_type in ('Escan', ):
+        start, stop, steps = args[:3]
+        start, stop, steps = float(start), float(stop), int(steps)+1
+        scan_info['axes'].append('energy')
+        axis_info = {}
+        axis_info['axis'] = 1
+        axis_info['range'] = numpy.array([start, stop])
+        scan_info['axis_info']['energy'] = axis_info
+        scan_info['scan_shape'].append(steps)
     else:
-        logger.error('Scan %s not recognized!', commandType)
         raise RuntimeError('Scan %s not recognized!'%commandType)
-    scanShape = tuple(scanShape[::-1])
+    scan_info['scan_shape'] = numpy.array(scan_info['scan_shape'][::-1])
 
-    return (scanType, scanAxes, scanRange, scanShape)
+    return scan_info
 
 
 class ChessSpecfile(object):
@@ -556,151 +580,3 @@ def load(filename, *scans, **kwargs):
                 logger.error('Index error at index %s', index)
                 break
     return scans
-
-# and here is some code for converting to hdf5:
-
-filters = tables.Filters(complib='zlib', complevel=9)
-
-# A dict that will be populated to create our tables
-Data = {}
-
-def convertScan(scan, sfile, h5file):
-    # access a bunch of metadata before creating an hdf5 group
-    # if specfile raises an error because the scan is empty,
-    # we will skip it and move on to the next
-
-    fileName = scan.fileheader('F')[0].split()[1]
-    scanNumber = '%dr%d'%(scan.number(), scan.order())
-    scanNumber = scanNumber.replace('r1', '')
-    scanName = 'scan'+scanNumber
-
-    scanLines = scan.lines()
-    scanCommand = scan.command()
-    epoch = sfile.epoch()
-    labels = scan.alllabels()
-    numMca = int(scan.nbmca()/scan.lines())
-    mcaInfo = scan.header('@')
-    scanType, scanAxes, scanRange, scanShape = getScanInfo(scanCommand.split())
-    logger.info('Converting Spec File %s %s to h5', fileName, scanName)
-
-    skipmode = scan.header('C SKIPMODE')
-    logger.debug('skipmode is %s', skipmode)
-    if skipmode:
-        skipmodeMonitor, skipmodeThresh = skipmode[0].split()[2:]
-        skipmodeThresh = int(skipmodeThresh)
-    else:
-        skipmodeMonitor, skipmodeThresh = None, 0
-
-    scanEntry = h5file.createGroup('/', scanName)
-    logger.debug('creating group %s', scanName)
-    attrs = scanEntry._v_attrs
-    attrs.fileName = fileName
-    attrs.scanNumber = scanNumber
-    attrs.scanLines = scanLines
-    attrs.scanCommand = scanCommand
-    attrs.scanType = scanType
-    attrs.scanAxes = scanAxes
-    attrs.scanRange = scanRange
-    if scanShape is None: scanShape = (attrs.scanLines, )
-    attrs.scanShape = scanShape
-    for motor, pos in zip(sfile.allmotors(), scan.allmotorpos()):
-        setattr(attrs, motor, pos)
-    if skipmodeMonitor:
-        attrs.skipmodeMonitor = skipmodeMonitor
-        attrs.skipmodeThresh = skipmodeThresh
-
-    for label in labels:
-        Data[label] = tables.Float32Col()
-
-    # try to get MCA metadata:
-    logger.debug('Getting MCA Metadata')
-    mcaNames = []
-    if len(mcaInfo)/3 == numMca:
-        for i in xrange(numMca):
-            itemInfo, mcaInfo = mcaInfo[:3], mcaInfo[3:]
-            mcaName = itemInfo[0].split()[0][2:]
-            mcaNames.append(mcaName)
-            start, stop, step = [int(i) for i in itemInfo[1].split()[2:]]
-            channels = numpy.arange(start,  stop+1, step)
-            energy = numpy.polyval([float(i) for i in itemInfo[2].split()[1:]],
-                                   channels)
-
-            Data[mcaName] = tables.Float32Col(shape=channels.shape)
-
-            mcaEntry = h5file.createGroup(scanEntry, mcaName)
-            channelsEntry = h5file.createCArray(mcaEntry, 'channels',
-                                                tables.UInt16Atom(),
-                                                channels.shape, filters=filters)
-            channelsEntry[:] = channels
-            energyEntry = h5file.createCArray(mcaEntry, 'energy',
-                                              tables.Float32Atom(),
-                                              energy.shape, filters=filters)
-            energyEntry[:] = energy
-    else:
-        logger.error('mca metadata in specfile is incomplete!')
-        print 'mca metadata in specfile is incomplete!'
-        for i in xrange(numMca):
-            mcaName = 'MCA%d'%i
-            mcaNames.append(mcaName)
-            temp = scan.mca(1)
-
-            channels = numpy.arange(len(temp))
-            energy = channels
-
-            Data[mcaName] = tables.Float32Col(shape=channels.shape)
-
-            mcaEntry = h5file.createGroup(scanEntry, mcaName)
-            channelsEntry = h5file.createCArray(mcaEntry, 'channels',
-                                                tables.UInt16Atom(),
-                                                channels.shape, filters=filters)
-            channelsEntry[:] = channels
-            energyEntry = h5file.createCArray(mcaEntry, 'energy',
-                                              tables.Float32Atom(),
-                                              energy.shape, filters=filters)
-            energyEntry[:] = energy
-
-    # create the table:
-    logger.debug('Creating tables')
-    dataTable = h5file.createTable(scanEntry, 'data', Data, filters=filters,
-                                   expectedrows=attrs.scanLines)
-
-    for i in xrange(scanLines):
-        row = dataTable.row
-        for label, val in zip(labels, scan.dataline(i+1)):
-            if label.lower() == 'epoch': val += epoch
-            row[label] = val
-        for j, label in enumerate(mcaNames):
-            row[label] = scan.mca((numMca*i+1)+j)
-        row.append()
-
-def spec2hdf5(specFilename, hdf5Filename=None, force=False, returnH5File=False):
-    """convert a spec data file to hdf5
-
-    if returnH5File is True, returns an open pytables file object,
-        otherwise returns the h5 filename
-    """
-    logger.info('Converting spec file %s to hdf5', specFilename)
-    if hdf5Filename is None:
-        hdf5Filename = specFilename + '.h5'
-    if os.path.exists(hdf5Filename) and force==False:
-        logger.error('%s already exists! Use force flag to overwrite', hdf5Filename)
-        raise IOError('%s already exists! Use force flag to overwrite'%hdf5Filename)
-    try:
-        logger.debug('making file %s', hdf5Filename)
-        h5file = tables.openFile(hdf5Filename, 'w')
-        sfile = Specfile(specFilename)
-        for scan in sfile:
-            try:
-                logger.info('converting Scan %s', scan)
-                convertScan(scan, sfile, h5file)
-            except error:
-                logger.error(error)
-                pass
-            h5file.flush()
-    finally:
-        if returnH5File:
-            logger.info('h5file %s made', h5file)
-            return h5file
-        else:
-            h5file.close()
-            return hdf5Filename

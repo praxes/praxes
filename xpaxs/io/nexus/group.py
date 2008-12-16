@@ -52,6 +52,11 @@ class Group(h5py.Group):
                     parent_object, name, create=True
                 )
                 self.attrs['class'] = self.__class__.__name__
+                for attr in ['entry_shape', 'file_name', 'scan_number']:
+                    try:
+                        self.attrs[attr] = parent_object.attrs[attr]
+                    except h5py.H5Error:
+                        pass
 
             if data:
                 for attr, val in data.pop('attrs', {}).iteritems():

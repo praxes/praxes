@@ -35,7 +35,7 @@ def getLocalTime():
     """return a string representation of the local time"""
     res = list(time.localtime())[:6]
     g = time.gmtime()
-    res.append(l[3]-g[3])
+    res.append(res[3]-g[3])
     return '%d-%02d-%02dT%02d:%02d:%02d%+02d:00'%tuple(res)
 
 
@@ -64,3 +64,17 @@ class File(Group, h5py.File):
             self._lock = lock
 
         h5py.File.__init__(self, name, mode)
+
+        with self._lock:
+            if not 'file_name' in self.attrs:
+                self.attrs['file_name'] = name
+            if not 'file_time' in self.attrs:
+                self.attrs['file_time'] = getLocalTime()
+            if not 'HDF5_version' in self.attrs:
+                self.attrs['HDF5_version'] = h5py.version.hdf5_version
+            if not 'HDF5_API_version' in self.attrs:
+                self.attrs['HDF5_API_version'] = h5py.version.api_version
+            if not 'HDF5_version' in self.attrs:
+                self.attrs['h5py_version'] = h5py.version.version
+#            if not 'creator' in self.attrs:
+#                self.attrs['creator'] = 'XPaXS'

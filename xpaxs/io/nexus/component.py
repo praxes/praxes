@@ -83,14 +83,6 @@ class Crystal(_Component):
 registry.register(Crystal, 'NX_crystal')
 
 
-class Detector(_Component):
-
-    """
-    """
-
-registry.register(Detector, 'NXdetector')
-
-
 class Disk_chopper(_Component):
 
     """

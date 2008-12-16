@@ -3,7 +3,7 @@ Wrappers around the pytables interface to the hdf5 file.
 
 """
 
-from __future__ import absolute_import, with_statement
+from __future__ import absolute_import
 
 #---------------------------------------------------------------------------
 # Stdlib imports
@@ -15,12 +15,13 @@ from __future__ import absolute_import, with_statement
 # Extlib imports
 #---------------------------------------------------------------------------
 
-import h5py
+
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
+from .group import Group
 from .registry import registry
 
 #---------------------------------------------------------------------------
@@ -28,17 +29,9 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class Dataset(h5py.Dataset):
+class Detector(Group):
 
     """
     """
 
-    def __init__(self, parent_object, name, *args, **kwargs):
-        with parent_object._lock:
-            attrs = kwargs.pop('attrs', {})
-            super(Dataset, self).__init__(parent_object, name, *args, **kwargs)
-
-            for key, val in attrs.iteritems():
-                self.attrs[key] = val
-
-registry.register(Dataset)
+registry.register(Detector, 'NXdetector')
