@@ -97,6 +97,11 @@ def get_spec_scan_info(commandList):
         axis_info['range'] = numpy.array([start, stop])
         scan_info['axis_info']['energy'] = axis_info
         scan_info['scan_shape'].append(steps)
+    elif scan_type in ('chess_escan', ):
+        scan_info['axes'].append('energy')
+        axis_info = {}
+        axis_info['axis'] = 1
+        scan_info['axis_info']['energy'] = axis_info
     else:
         raise RuntimeError('Scan %s not recognized!'%scan_type)
     scan_info['scan_shape'] = numpy.array(scan_info['scan_shape'][::-1])
@@ -120,12 +125,15 @@ def convert_scan(scan, sfile, h5file):
     if scan_info['scan_type'] == 'tseries':
         scan_info['scan_shape'] = numpy.array([scan.lines()])
         # ugh;
-        try:
-            index = scan.alllabels().index('Time')+1
-            t = scan.datacol(index)
-            scan_info['axis_info']['time']['range'] = array([t.min(), t.max()])
-        except:
-            print 'Boo!'
+        index = scan.alllabels().index('Time')+1
+        t = scan.datacol(index)
+        scan_info['axis_info']['time']['range'] = array([t.min(), t.max()])
+    if scan_info['scan_type'] == 'chess_escan':
+        scan_info['scan_shape'] = numpy.array([scan.lines()])
+        # ugh
+        index = scan.alllabels().index('Energy')+1
+        t = scan.datacol(index)
+        scan_info['axis_info']['energy']['range'] = array([t.min(), t.max()])
 
     attrs = {}
     attrs['scan_number'] = scan_number
