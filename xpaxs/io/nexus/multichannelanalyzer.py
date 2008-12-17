@@ -11,7 +11,6 @@ from __future__ import absolute_import, with_statement
 
 
 
-# TODO: fix this import:
 #---------------------------------------------------------------------------
 # Extlib imports
 #---------------------------------------------------------------------------
@@ -77,6 +76,6 @@ class MultiChannelAnalyzer(Detector):
     @property
     def energy(self):
         with self._lock:
-            return numpy.polyval(self.calibration, self.channels)
+            return numpy.polyval(self.calibration[::-1], self.channels)
 
 registry.register(MultiChannelAnalyzer)
