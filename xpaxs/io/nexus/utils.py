@@ -198,34 +198,37 @@ def convert_scan(scan, sfile, h5file):
     for i, label in enumerate(scan.alllabels()):
         if label in ('icr', 'ocr', 'real', 'live', 'dtn', 'vtxdtn'):
             # vortex detector, assume single mca
+            kwargs = {'attrs': {'class':'Signal', 'signal':0}}
+            kwargs.update(compression)
             try:
                 dset = mca.create_dataset(
                     label, data=scan.datacol(i+1), dtype='float32',
-                    **compression
+                    **kwargs
                 )
                 if label in ('dtn', 'vtxdtn'):
                     mca.attrs['deadtime_correction'] = label
             except UnboundLocalError:
                 dset = measurement.create_dataset(
                     label, data=scan.datacol(i+1), dtype='float32',
-                    **compression
+                    **kwargs
                 )
-        elif label in allmotors:
-            kwargs = {'attrs': {'axis':0}}
+        elif (label in allmotors) \
+            or (label.lower() in ('energy', 'time', 'h', 'k', 'l', 'q')):
+            kwargs = {'attrs': {'class':'Axis', 'axis':0}}
             kwargs['attrs'].update(scan_info['axis_info'].get(label, {}))
             kwargs.update(compression)
             dset = measurement.create_dataset(
                 label, data=scan.datacol(i+1), dtype='float32', **kwargs
             )
         elif label.lower() == 'epoch':
-            kwargs = {'attrs': {'axis':0}}
+            kwargs = {'attrs': {'class':'Axis', 'axis':0}}
             kwargs.update(compression)
             dset = measurement.create_dataset(
                 label, data=scan.datacol(i+1)+sfile.epoch(), dtype='float32',
                 **kwargs
             )
         else:
-            kwargs = {'attrs': {'signal':0}}
+            kwargs = {'attrs': {'class':'Signal', 'signal':0}}
             kwargs.update(compression)
             dset = measurement.create_dataset(
                 label, data=scan.datacol(i+1), dtype='float32', **kwargs

@@ -75,21 +75,28 @@ class Group(h5py.Group):
             # create create the group twice. This might be possible with the
             # 1.8 API.
             item = super(Group, self).__getitem__(name)
-            if isinstance(item, h5py.Dataset):
+            if 'class' in item.attrs:
+                return registry[item.attrs['class']](self, name)
+            elif 'NX_class' in item.attrs:
+                return registry[item.attrs['NX_class']](self, name)
+            elif isinstance(item, h5py.Dataset):
                 return Dataset(self, name)
             else:
-                if 'class' in item.attrs:
-                    return registry[item.attrs['class']](self, name)
-                elif 'NX_class' in item.attrs:
-                    return registry[item.attrs['NX_class']](self, name)
-                else:
-                    return Group(self, name)
+                return Group(self, name)
 
     def __setitem__(self, name, value):
         with self._lock:
             # lets allow integer and floats as keys:
             if isinstance(name, (int, float)): name = str(name)
             super(Group, self).__setitem__(name, value)
+
+    @property
+    def name(self):
+        return super(Dataset, self).name.split('/')[-1]
+
+    @property
+    def path(self):
+        return super(Dataset, self).name
 
     def create_dataset(self, name, *args, **kwargs):
         return Dataset(self, name, *args, **kwargs)
