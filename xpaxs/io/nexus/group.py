@@ -127,15 +127,27 @@ class Group(h5py.Group):
             return [a for a in self.axes if a.axis==direction]
 
     def create_dataset(self, name, *args, **kwargs):
-        return Dataset(self, name, *args, **kwargs)
+        type = kwargs.pop('type', 'Dataset')
+        return registry[type](self, name, *args, **kwargs)
 
     def require_dataset(self, name, *args, **kwargs):
         with self._lock:
-            attrs = kwargs.pop('attrs', {})
-            dset = super(Group, self).require_dataset(name, *args, **kwargs)
-            for key, val in attrs:
-                dset.attrs[key] = val
-            return dset
+            type = kwargs.setdefault('type', 'Dataset')
+            if not name in self:
+                return self.create_dataset(name, *args, **kwargs)
+            else:
+                item = self[name]
+                if not isinstance(item, registry[type]):
+                    raise NameError(
+                        "Incompatible object (%s) already exists" % \
+                        item.__class__.__name__
+                    )
+                if args or kwargs:
+                    raise RuntimeError(
+                        "Can not define data for existing %s object" % \
+                        item.__class__.__name__
+                    )
+                return item
 
     def create_group(self, name, type='Group', **data):
         return registry[type](self, name, **data)

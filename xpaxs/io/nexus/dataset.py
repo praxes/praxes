@@ -36,10 +36,23 @@ class Dataset(h5py.Dataset):
     def __init__(self, parent_object, name, *args, **kwargs):
         with parent_object._lock:
             attrs = kwargs.pop('attrs', {})
-            super(Dataset, self).__init__(parent_object, name, *args, **kwargs)
+            if name in parent_object:
+                super(Dataset, self).__init__(
+                    parent_object, name, *args, **kwargs
+                )
+            else:
+                super(Dataset, self).__init__(
+                    parent_object, name, *args, **kwargs
+                )
+                self.attrs['class'] = self.__class__.__name__
+                for attr in ['entry_shape', 'file_name', 'scan_number']:
+                    try:
+                        self.attrs[attr] = parent_object.attrs[attr]
+                    except h5py.H5Error:
+                        pass
 
-            for key, val in attrs.iteritems():
-                self.attrs[key] = val
+                for key, val in attrs.iteritems():
+                    self.attrs[key] = val
 
     @property
     def name(self):

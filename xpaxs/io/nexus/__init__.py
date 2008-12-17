@@ -11,7 +11,7 @@ from .component import (Aperture, Attenuator, Beam_stop, Bending_magnet,
                         Moderator, Monochromator, Polarizer, Positioner, Source,
                         Velocity_selector)
 from .data import Data, Event_data, Monitor
-from .dataset import Dataset
+from .dataset import Axis, Dataset, Signal
 from .detector import Detector
 from .entry import Entry
 from .environment import Environment
