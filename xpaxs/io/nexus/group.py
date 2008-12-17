@@ -98,6 +98,38 @@ class Group(h5py.Group):
     def path(self):
         return super(Dataset, self).name
 
+    @property
+    def signals(self):
+        with self._lock:
+            return sorted(
+                [s for s in self.iterobjects() if isinstance(s, Signal)]
+            )
+
+    @property
+    def signal_names(self):
+        with self._lock:
+            return sorted(
+                [s.name for s in self.iterobjects() if isinstance(s, Signal)]
+            )
+
+    @property
+    def axes(self):
+        with self._lock:
+            return sorted(
+                [a for a in self.iterobjects() if isinstance(a, Axis)]
+            )
+
+    @property
+    def axes_names(self):
+        with self._lock:
+            return sorted(
+                [a.name for a in self.iterobjects() if isinstance(a, Axis)]
+            )
+
+    def get_axes(self, direction=1):
+        with self._lock:
+            return [a for a in self.axes if a.axis==direction]
+
     def create_dataset(self, name, *args, **kwargs):
         return Dataset(self, name, *args, **kwargs)
 
