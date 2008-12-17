@@ -3,7 +3,7 @@ Wrappers around the pytables interface to the hdf5 file.
 
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, with_statement
 
 #---------------------------------------------------------------------------
 # Stdlib imports
@@ -11,6 +11,7 @@ from __future__ import absolute_import
 
 
 
+# TODO: fix this import:
 #---------------------------------------------------------------------------
 # Extlib imports
 #---------------------------------------------------------------------------
@@ -51,14 +52,11 @@ class MultiChannelAnalyzer(Detector):
                 self.attrs['calibration'] = new
             else:
                 try:
-                    assert iterable(cal)
+                    assert len(cal) > 1
                 except AssertionError:
                     raise AssertionError(
                         'Expecting a numerical sequence, received %s'%str(cal))
                 self.attrs['calibration'] = cal
-
-        if offset is not None:
-            self._calibration
 
     @property
     def calibration(self):

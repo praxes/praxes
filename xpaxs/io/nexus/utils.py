@@ -1,16 +1,4 @@
 """
-specfile is an interface to datafiles created by Certified
-Scientific's spec program, which is commonly used in synchrotron labs.
-pychess.specfile extends an established esrf library called SpecFile, which
-is written in C, so it is very fast.
-
-Use:
-
-    >>> scanList = load('example.dat')
-
-Each scan contains the data and a scan_info attribute for accessing information
-stored in the scan header, like motor positions, scan parameters, etc.
-
 """
 
 #---------------------------------------------------------------------------
@@ -127,13 +115,15 @@ def convert_scan(scan, sfile, h5file):
         # ugh;
         index = scan.alllabels().index('Time')+1
         t = scan.datacol(index)
-        scan_info['axis_info']['time']['range'] = array([t.min(), t.max()])
+        scan_info['axis_info']['time']['range'] = \
+            numpy.array([t.min(), t.max()])
     if scan_info['scan_type'] == 'chess_escan':
         scan_info['scan_shape'] = numpy.array([scan.lines()])
         # ugh
         index = scan.alllabels().index('Energy')+1
         t = scan.datacol(index)
-        scan_info['axis_info']['energy']['range'] = array([t.min(), t.max()])
+        scan_info['axis_info']['energy']['range'] = \
+            numpy.array([t.min(), t.max()])
 
     attrs = {}
     attrs['scan_number'] = scan_number
