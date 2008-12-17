@@ -70,26 +70,26 @@ def get_spec_scan_info(commandList):
         if numPts < 1: numPts = -1
         try: ctime = float(args[1])
         except IndexError: ctime = 1.0
-        scan_info['axes'].append('time')
+        scan_info['axes'].append('Time')
         axis_info = {}
         axis_info['axis'] = 1
         axis_info['range'] = numpy.array([0, ctime*numPts])
-        scan_info['axis_info']['time'] = axis_info
+        scan_info['axis_info']['Time'] = axis_info
         scan_info['scan_shape'].append(numPts)
     elif scan_type in ('Escan', ):
         start, stop, steps = args[:3]
         start, stop, steps = float(start), float(stop), int(steps)+1
-        scan_info['axes'].append('energy')
+        scan_info['axes'].append('Energy')
         axis_info = {}
         axis_info['axis'] = 1
         axis_info['range'] = numpy.array([start, stop])
-        scan_info['axis_info']['energy'] = axis_info
+        scan_info['axis_info']['Energy'] = axis_info
         scan_info['scan_shape'].append(steps)
     elif scan_type in ('chess_escan', ):
-        scan_info['axes'].append('energy')
+        scan_info['axes'].append('Energy')
         axis_info = {}
         axis_info['axis'] = 1
-        scan_info['axis_info']['energy'] = axis_info
+        scan_info['axis_info']['Energy'] = axis_info
     else:
         raise RuntimeError('Scan %s not recognized!'%scan_type)
     scan_info['scan_shape'] = numpy.array(scan_info['scan_shape'][::-1])
@@ -115,14 +115,14 @@ def convert_scan(scan, sfile, h5file):
         # ugh;
         index = scan.alllabels().index('Time')+1
         t = scan.datacol(index)
-        scan_info['axis_info']['time']['range'] = \
+        scan_info['axis_info']['Time']['range'] = \
             numpy.array([t.min(), t.max()])
     if scan_info['scan_type'] == 'chess_escan':
         scan_info['scan_shape'] = numpy.array([scan.lines()])
         # ugh
         index = scan.alllabels().index('Energy')+1
         t = scan.datacol(index)
-        scan_info['axis_info']['energy']['range'] = \
+        scan_info['axis_info']['Energy']['range'] = \
             numpy.array([t.min(), t.max()])
 
     attrs = {}
@@ -214,21 +214,21 @@ def convert_scan(scan, sfile, h5file):
                 )
         elif (label in allmotors) \
             or (label.lower() in ('energy', 'time', 'h', 'k', 'l', 'q')):
-            kwargs = {'attrs': {'class':'Axis', 'axis':0}}
+            kwargs = {'attrs': {'class':'Axis'}}
             kwargs['attrs'].update(scan_info['axis_info'].get(label, {}))
             kwargs.update(compression)
             dset = measurement.create_dataset(
                 label, data=scan.datacol(i+1), dtype='float32', **kwargs
             )
         elif label.lower() == 'epoch':
-            kwargs = {'attrs': {'class':'Axis', 'axis':0}}
+            kwargs = {'attrs': {'class':'Axis'}}
             kwargs.update(compression)
             dset = measurement.create_dataset(
                 label, data=scan.datacol(i+1)+sfile.epoch(), dtype='float32',
                 **kwargs
             )
         else:
-            kwargs = {'attrs': {'class':'Signal', 'signal':0}}
+            kwargs = {'attrs': {'class':'Signal'}}
             kwargs.update(compression)
             dset = measurement.create_dataset(
                 label, data=scan.datacol(i+1), dtype='float32', **kwargs

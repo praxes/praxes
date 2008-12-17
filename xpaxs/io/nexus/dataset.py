@@ -58,14 +58,13 @@ class Axis(Dataset):
 
     def __cmp__(self, other):
         with self._lock:
-            res = cmp(self.priority, other.priority)
-            if res == 0:
-                return res
-            else:
-                if self.priority:
-                    return res
-                else:
-                    return 1
+            try:
+                assert isinstance(other, Axis)
+                return cmp(self.priority, other.priority)
+            except AssertionError:
+                raise AssertionError(
+                    'Cannot compare Axis and %s'%other.__class__.__name__
+                )
 
     @property
     def axis(self):
@@ -73,7 +72,7 @@ class Axis(Dataset):
             try:
                 return self.attrs['axis']
             except h5py.H5Error:
-                return 0
+                return 999
 
     @property
     def priority(self):
@@ -81,7 +80,7 @@ class Axis(Dataset):
             try:
                 return self.attrs['priority']
             except h5py.H5Error:
-                return 0
+                return 999
 
 registry.register(Axis)
 
@@ -92,14 +91,13 @@ class Signal(Dataset):
 
     def __cmp__(self, other):
         with self._lock:
-            res = cmp(self.signal, other.signal)
-            if res == 0:
-                return res
-            else:
-                if self.signal:
-                    return res
-                else:
-                    return 1
+            try:
+                assert isinstance(other, Signal)
+                return cmp(self.signal, other.signal)
+            except AssertionError:
+                raise AssertionError(
+                    'Cannot compare Signal and %s'%other.__class__.__name__
+                )
 
     @property
     def signal(self):
@@ -107,6 +105,6 @@ class Signal(Dataset):
             try:
                 return self.attrs['signal']
             except h5py.H5Error:
-                return 0
+                return 999
 
 registry.register(Signal)

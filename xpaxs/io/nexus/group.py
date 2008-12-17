@@ -21,7 +21,7 @@ import h5py
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from .dataset import Dataset
+from .dataset import Axis, Dataset, Signal
 from .registry import registry
 
 
@@ -108,9 +108,7 @@ class Group(h5py.Group):
     @property
     def signal_names(self):
         with self._lock:
-            return sorted(
-                [s.name for s in self.iterobjects() if isinstance(s, Signal)]
-            )
+            return [s.name for s in self.signals]
 
     @property
     def axes(self):
@@ -122,9 +120,7 @@ class Group(h5py.Group):
     @property
     def axes_names(self):
         with self._lock:
-            return sorted(
-                [a.name for a in self.iterobjects() if isinstance(a, Axis)]
-            )
+            return [a.name for a in self.axes]
 
     def get_axes(self, direction=1):
         with self._lock:

@@ -21,7 +21,6 @@ import h5py
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from .dataset import Axis, Signal
 from .group import Group
 from .registry import registry
 
