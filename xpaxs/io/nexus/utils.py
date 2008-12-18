@@ -60,7 +60,7 @@ def get_spec_scan_info(commandList):
             temp.append(axis)
             axis_info = {}
             axis_info['axis'] = 1
-            axis_info['priority'] = i
+            axis_info['primary'] = i
             axis_info['range'] = numpy.array([start, stop])
             scan_info['axis_info'][axis] = axis_info
         scan_info['axes'].append(tuple(temp))

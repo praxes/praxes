@@ -54,6 +54,14 @@ class Dataset(h5py.Dataset):
                 for key, val in attrs.iteritems():
                     self.attrs[key] = val
 
+    def __repr__(self):
+        with self._lock:
+            try:
+                return '<HDF5 dataset "%s": shape %s, type "%s">' % \
+                    (self.name, self.shape, self.dtype.str)
+            except Exception:
+                return "<Closed HDF5 dataset>"
+
     @property
     def name(self):
         return super(Dataset, self).name.split('/')[-1]
@@ -88,10 +96,10 @@ class Axis(Dataset):
                 return 999
 
     @property
-    def priority(self):
+    def primary(self):
         with self._lock:
             try:
-                return self.attrs['priority']
+                return self.attrs['primary']
             except h5py.H5Error:
                 return 999
 
