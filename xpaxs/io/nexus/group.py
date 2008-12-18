@@ -72,6 +72,14 @@ class Group(h5py.Group):
                     gtype, val = val
                     registry[gtype](self, name, **val)
 
+    def __repr__(self):
+        with self._lock:
+            try:
+                return '<HDF5 group "%s" (%d members, %d attributes)>' % \
+                (self.name, len(self), len(self.attrs))
+            except Exception:
+                return "<Closed HDF5 group>"
+
     def __getitem__(self, name):
         with self._lock:
             # lets allow integer and floats as keys:
@@ -98,11 +106,11 @@ class Group(h5py.Group):
 
     @property
     def name(self):
-        return super(Dataset, self).name.split('/')[-1]
+        return super(Group, self).name.split('/')[-1]
 
     @property
     def path(self):
-        return super(Dataset, self).name
+        return super(Group, self).name
 
     @property
     def signals(self):
