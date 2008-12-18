@@ -9,7 +9,7 @@ from __future__ import absolute_import, with_statement
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-
+from posixpath import basename
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -54,17 +54,9 @@ class Dataset(h5py.Dataset):
                 for key, val in attrs.iteritems():
                     self.attrs[key] = val
 
-    def __repr__(self):
-        with self._lock:
-            try:
-                return '<HDF5 dataset "%s": shape %s, type "%s">' % \
-                    (self.name, self.shape, self.dtype.str)
-            except Exception:
-                return "<Closed HDF5 dataset>"
-
     @property
     def name(self):
-        return super(Dataset, self).name.split('/')[-1]
+        return basename(super(Dataset, self).name)
 
     @property
     def path(self):
