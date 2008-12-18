@@ -34,4 +34,8 @@ class Note(Group):
     """
     """
 
-registry.register(Note, 'NXnote')
+    @property
+    def nx_class(self):
+        return 'NXnote'
+
+registry.register(Note)

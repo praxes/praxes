@@ -34,4 +34,8 @@ class Characterization(Group):
     """
     """
 
-registry.register(Characterization, 'NXcharacterization')
+    @property
+    def nx_class(self):
+        return 'NXcharacterization'
+
+registry.register(Characterization)

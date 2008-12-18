@@ -34,7 +34,11 @@ class Data(Group):
     """
     """
 
-registry.register(Data, 'NXdata')
+    @property
+    def nx_class(self):
+        return 'NXdata'
+
+registry.register(Data)
 
 
 class Event_data(Group):
@@ -42,7 +46,11 @@ class Event_data(Group):
     """
     """
 
-registry.register(Event_data, 'NXevent_data')
+    @property
+    def nx_class(self):
+        return 'NXevent_data'
+
+registry.register(Event_data)
 
 
 class Monitor(Group):
@@ -50,4 +58,8 @@ class Monitor(Group):
     """
     """
 
-registry.register(Monitor, 'NXmonitor')
+    @property
+    def nx_class(self):
+        return 'NXmonitor'
+
+registry.register(Monitor)

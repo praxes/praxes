@@ -51,7 +51,13 @@ class Group(h5py.Group):
                 super(Group, self).__init__(
                     parent_object, name, create=True
                 )
+
                 self.attrs['class'] = self.__class__.__name__
+                try:
+                    self.attrs['NX_class'] = self.nx_class
+                except AttributeError:
+                    pass
+
                 for attr in ['entry_shape', 'file_name', 'scan_number']:
                     try:
                         self.attrs[attr] = parent_object.attrs[attr]

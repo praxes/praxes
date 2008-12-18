@@ -34,4 +34,8 @@ class Entry(Group):
     """
     """
 
-registry.register(Entry, 'NXentry')
+    @property
+    def nx_class(self):
+        return 'NXentry'
+
+registry.register(Entry)

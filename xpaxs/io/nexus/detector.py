@@ -34,4 +34,8 @@ class Detector(Group):
     """
     """
 
-registry.register(Detector, 'NXdetector')
+    @property
+    def nx_class(self):
+        return 'NXdetector'
+
+registry.register(Detector)

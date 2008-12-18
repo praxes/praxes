@@ -56,10 +56,12 @@ class _Registry(object):
         with self.__lock:
             self.__data[name] = value
 
-    def register(self, value, *altkeys):
+    def register(self, value):
         with self.__lock:
             self.__data[value.__name__] = value
-            for key in altkeys:
-                self.__data[key] = value
+            try:
+                self.__data[value.nx_class] = value
+            except AttributeError:
+                pass
 
 registry = _Registry()

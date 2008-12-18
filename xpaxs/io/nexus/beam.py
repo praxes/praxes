@@ -34,4 +34,8 @@ class Beam(Group):
     """
     """
 
-registry.register(Beam, 'NXbeam')
+    @property
+    def nx_class(self):
+        return 'NXbeam'
+
+registry.register(Beam)

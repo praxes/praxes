@@ -34,4 +34,8 @@ class Instrument(Group):
     """
     """
 
-registry.register(Instrument, 'NXinstrument')
+    @property
+    def nx_class(self):
+        return 'NXinstrument'
+
+registry.register(Instrument)

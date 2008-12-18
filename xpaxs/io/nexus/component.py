@@ -40,7 +40,11 @@ class Aperture(_Component):
     """
     """
 
-registry.register(Aperture, 'NXaperture')
+    @property
+    def nx_class(self):
+        return 'NXaperture'
+
+registry.register(Aperture)
 
 
 class Attenuator(_Component):
@@ -48,7 +52,11 @@ class Attenuator(_Component):
     """
     """
 
-registry.register(Attenuator, 'NXattenuator')
+    @property
+    def nx_class(self):
+        return 'NXattenuator'
+
+registry.register(Attenuator)
 
 
 class Beam_stop(_Component):
@@ -56,7 +64,11 @@ class Beam_stop(_Component):
     """
     """
 
-registry.register(Beam_stop, 'NXbeam_stop')
+    @property
+    def nx_class(self):
+        return 'NXbeam_stop'
+
+registry.register(Beam_stop)
 
 
 class Bending_magnet(_Component):
@@ -64,7 +76,11 @@ class Bending_magnet(_Component):
     """
     """
 
-registry.register(Bending_magnet, 'NXbeanding_magnet')
+    @property
+    def nx_class(self):
+        return 'NXbending_magnet'
+
+registry.register(Bending_magnet)
 
 
 class Collimator(_Component):
@@ -72,7 +88,11 @@ class Collimator(_Component):
     """
     """
 
-registry.register(Collimator, 'NXcollimator')
+    @property
+    def nx_class(self):
+        return 'NXcollimator'
+
+registry.register(Collimator)
 
 
 class Crystal(_Component):
@@ -80,7 +100,11 @@ class Crystal(_Component):
     """
     """
 
-registry.register(Crystal, 'NX_crystal')
+    @property
+    def nx_class(self):
+        return 'NXcrystal'
+
+registry.register(Crystal)
 
 
 class Disk_chopper(_Component):
@@ -88,7 +112,11 @@ class Disk_chopper(_Component):
     """
     """
 
-registry.register(Disk_chopper, 'NXdisk_chopper')
+    @property
+    def nx_class(self):
+        return 'NXdisk_chopper'
+
+registry.register(Disk_chopper)
 
 
 class Fermi_chopper(_Component):
@@ -96,7 +124,11 @@ class Fermi_chopper(_Component):
     """
     """
 
-registry.register(Fermi_chopper, 'NXfermi_chopper')
+    @property
+    def nx_class(self):
+        return 'NXfermi_chopper'
+
+registry.register(Fermi_chopper)
 
 
 class Filter(_Component):
@@ -104,7 +136,11 @@ class Filter(_Component):
     """
     """
 
-registry.register(Filter, 'NXfilter')
+    @property
+    def nx_class(self):
+        return 'NXfilter'
+
+registry.register(Filter)
 
 
 class Flipper(_Component):
@@ -112,7 +148,11 @@ class Flipper(_Component):
     """
     """
 
-registry.register(Flipper, 'NXflipper')
+    @property
+    def nx_class(self):
+        return 'NXflipper'
+
+registry.register(Flipper)
 
 
 class Guide(_Component):
@@ -120,7 +160,11 @@ class Guide(_Component):
     """
     """
 
-registry.register(Guide, 'NXguide')
+    @property
+    def nx_class(self):
+        return 'NXguide'
+
+registry.register(Guide)
 
 
 class Insertion_device(_Component):
@@ -128,7 +172,11 @@ class Insertion_device(_Component):
     """
     """
 
-registry.register(Insertion_device, 'NXinsertion_device')
+    @property
+    def nx_class(self):
+        return 'NXinsertion_device'
+
+registry.register(Insertion_device)
 
 
 class Mirror(_Component):
@@ -136,7 +184,11 @@ class Mirror(_Component):
     """
     """
 
-registry.register(Mirror, 'NXmirror')
+    @property
+    def nx_class(self):
+        return 'NXmirror'
+
+registry.register(Mirror)
 
 
 class Moderator(_Component):
@@ -144,7 +196,11 @@ class Moderator(_Component):
     """
     """
 
-registry.register(Moderator, 'NXmoderator')
+    @property
+    def nx_class(self):
+        return 'NXmoderator'
+
+registry.register(Moderator)
 
 
 class Monochromator(_Component):
@@ -152,7 +208,11 @@ class Monochromator(_Component):
     """
     """
 
-registry.register(Monochromator, 'NXmonochromator')
+    @property
+    def nx_class(self):
+        return 'NXmonochromator'
+
+registry.register(Monochromator)
 
 
 class Polarizer(_Component):
@@ -160,7 +220,11 @@ class Polarizer(_Component):
     """
     """
 
-registry.register(Polarizer, 'NXpolarizer')
+    @property
+    def nx_class(self):
+        return 'NXpolarizer'
+
+registry.register(Polarizer)
 
 
 class Positioner(_Component):
@@ -168,7 +232,11 @@ class Positioner(_Component):
     """
     """
 
-registry.register(Positioner, 'NXpositioner')
+    @property
+    def nx_class(self):
+        return 'NXpositioner'
+
+registry.register(Positioner)
 
 
 class Source(_Component):
@@ -176,7 +244,11 @@ class Source(_Component):
     """
     """
 
-registry.register(Source, 'NXsource')
+    @property
+    def nx_class(self):
+        return 'NXsource'
+
+registry.register(Source)
 
 
 class Velocity_selector(_Component):
@@ -184,4 +256,8 @@ class Velocity_selector(_Component):
     """
     """
 
-registry.register(Velocity_selector, 'NXvelocity_selector')
+    @property
+    def nx_class(self):
+        return 'NXvelocity_selector'
+
+registry.register(Velocity_selector)

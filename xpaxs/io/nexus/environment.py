@@ -34,7 +34,11 @@ class Environment(Group):
     """
     """
 
-registry.register(Environment, 'NXenvironment')
+    @property
+    def nx_class(self):
+        return 'NXenvironment'
+
+registry.register(Environment)
 
 
 class Sensor(Group):
@@ -42,4 +46,8 @@ class Sensor(Group):
     """
     """
 
-registry.register(Sensor, 'NXsensor')
+    @property
+    def nx_class(self):
+        return 'NXsensor'
+
+registry.register(Sensor)

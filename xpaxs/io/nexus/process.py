@@ -34,4 +34,8 @@ class Process(Group):
     """
     """
 
-registry.register(Process, 'NXprocess')
+    @property
+    def nx_class(self):
+        return 'NXprocess'
+
+registry.register(Process)

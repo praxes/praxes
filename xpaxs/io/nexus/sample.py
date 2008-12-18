@@ -34,4 +34,8 @@ class Sample(Group):
     """
     """
 
-registry.register(Sample, 'NXsample')
+    @property
+    def nx_class(self):
+        return 'NXsample'
+
+registry.register(Sample)
