@@ -145,18 +145,7 @@ def convert_scan(scan, sfile, h5file):
     for motor, pos in zip(sfile.allmotors(), scan.allmotorpos()):
         motors[motor] = pos
 
-    measurement = entry.create_group('measurement', type='Data')
-
-#    skipmode = scan.header('C SKIPMODE')
-#    if skipmode:
-#        skipmodeMonitor, skipmodeThresh = skipmode[0].split()[2:]
-#        skipmodeThresh = int(skipmodeThresh)
-#    else:
-#        skipmodeMonitor, skipmodeThresh = None, 0
-
-#    if skipmodeMonitor:
-#        attrs.skipmodeMonitor = skipmodeMonitor
-#        attrs.skipmodeThresh = skipmodeThresh
+    measurement = entry.create_group('measurement', type='Measurement')
 
     # try to get MCA metadata:
     print 'Getting MCA Metadata'
@@ -235,6 +224,18 @@ def convert_scan(scan, sfile, h5file):
             )
     # the last column should always be the primary counter
     dset.attrs['signal'] = 1
+
+    skipmode = scan.header('C SKIPMODE')
+    if skipmode:
+        mon, thresh = skipmode[0].split()[2:]
+        thresh = int(thresh)
+        index = scan.alllabels().index(mon)+1
+        skipped = scan.datacol(index) < thresh
+        kwargs = {'attrs':{'class':'Signal', 'monitor':mon, 'threshold':thresh}}
+        kwargs.update(compression)
+        dset = measurement.create_dataset(
+            'skipped', data=skipped, **kwargs
+        )
 
 def convert_spec(spec_filename, h5_filename=None, force=False):
     """convert a spec data file to hdf5 and return the file object"""
