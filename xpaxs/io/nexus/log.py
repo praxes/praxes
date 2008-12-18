@@ -34,8 +34,6 @@ class Log(Group):
     """
     """
 
-    @property
-    def nx_class(self):
-        return 'NXlog'
+    nx_class = 'NXlog'
 
 registry.register(Log)

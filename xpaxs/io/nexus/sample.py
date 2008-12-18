@@ -34,8 +34,6 @@ class Sample(Group):
     """
     """
 
-    @property
-    def nx_class(self):
-        return 'NXsample'
+    nx_class = 'NXsample'
 
 registry.register(Sample)

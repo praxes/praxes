@@ -34,8 +34,6 @@ class Process(Group):
     """
     """
 
-    @property
-    def nx_class(self):
-        return 'NXprocess'
+    nx_class = 'NXprocess'
 
 registry.register(Process)

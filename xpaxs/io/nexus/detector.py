@@ -34,8 +34,6 @@ class Detector(Group):
     """
     """
 
-    @property
-    def nx_class(self):
-        return 'NXdetector'
+    nx_class = 'NXdetector'
 
 registry.register(Detector)

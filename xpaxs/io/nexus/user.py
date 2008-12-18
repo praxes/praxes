@@ -34,8 +34,6 @@ class User(Group):
     """
     """
 
-    @property
-    def nx_class(self):
-        return 'NXuser'
+    nx_class = 'NXuser'
 
 registry.register(User)

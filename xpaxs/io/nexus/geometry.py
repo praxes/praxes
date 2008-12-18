@@ -34,9 +34,7 @@ class Geometry(Group):
     """
     """
 
-    @property
-    def nx_class(self):
-        return 'NXgeometry'
+    nx_class = 'NXgeometry'
 
 registry.register(Geometry)
 
@@ -46,9 +44,7 @@ class Translation(Group):
     """
     """
 
-    @property
-    def nx_class(self):
-        return 'NXtranslation'
+    nx_class = 'NXtranslation'
 
 registry.register(Translation)
 
@@ -58,9 +54,7 @@ class Shape(Group):
     """
     """
 
-    @property
-    def nx_class(self):
-        return 'NXshape'
+    nx_class = 'NXshape'
 
 registry.register(Shape)
 
@@ -70,8 +64,6 @@ class Orientation(Group):
     """
     """
 
-    @property
-    def nx_class(self):
-        return 'NXorientation'
+    nx_class = 'NXorientation'
 
 registry.register(Orientation)
