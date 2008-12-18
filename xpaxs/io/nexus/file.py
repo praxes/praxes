@@ -66,15 +66,16 @@ class File(Group, h5py.File):
         h5py.File.__init__(self, name, mode)
 
         with self._lock:
-            if not 'file_name' in self.attrs:
-                self.attrs['file_name'] = name
-            if not 'file_time' in self.attrs:
-                self.attrs['file_time'] = getLocalTime()
-            if not 'HDF5_version' in self.attrs:
-                self.attrs['HDF5_version'] = h5py.version.hdf5_version
-            if not 'HDF5_API_version' in self.attrs:
-                self.attrs['HDF5_API_version'] = h5py.version.api_version
-            if not 'HDF5_version' in self.attrs:
-                self.attrs['h5py_version'] = h5py.version.version
-#            if not 'creator' in self.attrs:
-#                self.attrs['creator'] = 'XPaXS'
+            if self.mode != 'r':
+                if not 'file_name' in self.attrs:
+                    self.attrs['file_name'] = name
+                if not 'file_time' in self.attrs:
+                    self.attrs['file_time'] = getLocalTime()
+                if not 'HDF5_version' in self.attrs:
+                    self.attrs['HDF5_version'] = h5py.version.hdf5_version
+                if not 'HDF5_API_version' in self.attrs:
+                    self.attrs['HDF5_API_version'] = h5py.version.api_version
+                if not 'HDF5_version' in self.attrs:
+                    self.attrs['h5py_version'] = h5py.version.version
+#                if not 'creator' in self.attrs:
+#                    self.attrs['creator'] = 'XPaXS'
