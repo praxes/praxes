@@ -29,37 +29,9 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class Data(Group):
+class Measurement(Group):
 
     """
     """
 
-    @property
-    def nx_class(self):
-        return 'NXdata'
-
-registry.register(Data)
-
-
-class Event_data(Group):
-
-    """
-    """
-
-    @property
-    def nx_class(self):
-        return 'NXevent_data'
-
-registry.register(Event_data)
-
-
-class Monitor(Group):
-
-    """
-    """
-
-    @property
-    def nx_class(self):
-        return 'NXmonitor'
-
-registry.register(Monitor)
+registry.register(Measurement)

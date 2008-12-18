@@ -19,6 +19,7 @@ from .file import File
 from .geometry import Geometry, Translation, Shape, Orientation
 from .instrument import Instrument
 from .log import Log
+from .measurement import Measurement
 from .multichannelanalyzer import MultiChannelAnalyzer
 from .note import Note
 from .process import Process
