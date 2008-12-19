@@ -43,7 +43,9 @@ class Dataset(h5py.Dataset):
                     parent_object, name, *args, **kwargs
                 )
                 self.attrs['class'] = self.__class__.__name__
-                for attr in ['entry_shape', 'file_name', 'scan_number']:
+                for attr in [
+                    'entry_shape', 'file_name', 'entry_name', 'npoints'
+                ]:
                     try:
                         self.attrs[attr] = parent_object.attrs[attr]
                     except h5py.H5Error:
@@ -51,6 +53,19 @@ class Dataset(h5py.Dataset):
 
                 for key, val in attrs.iteritems():
                     self.attrs[key] = val
+
+    def __repr__(self):
+        with self._lock:
+            try:
+                return '<%s dataset "%s": shape %s, type "%s" (%d attrs)>'%(
+                    self.__class__.__name__,
+                    self.name,
+                    self.shape,
+                    self.dtype.str,
+                    len(self.attrs)
+                )
+            except Exception:
+                return "<Closed %s dataset>" % self.__class__.__name__
 
     @property
     def name(self):
@@ -71,7 +86,7 @@ class Axis(Dataset):
         with self._lock:
             try:
                 assert isinstance(other, Axis)
-                return cmp(self.priority, other.priority)
+                return cmp(self.primary, other.primary)
             except AssertionError:
                 raise AssertionError(
                     'Cannot compare Axis and %s'%other.__class__.__name__
@@ -83,7 +98,7 @@ class Axis(Dataset):
             try:
                 return self.attrs['axis']
             except h5py.H5Error:
-                return 999
+                return 0
 
     @property
     def primary(self):
@@ -91,7 +106,7 @@ class Axis(Dataset):
             try:
                 return self.attrs['primary']
             except h5py.H5Error:
-                return 999
+                return 0
 
 registry.register(Axis)
 
@@ -104,7 +119,9 @@ class Signal(Dataset):
         with self._lock:
             try:
                 assert isinstance(other, Signal)
-                return cmp(self.signal, other.signal)
+                ss = self.signal if self.signal else 999
+                os = other.signal if other.signal else 999
+                return cmp(ss, os)
             except AssertionError:
                 raise AssertionError(
                     'Cannot compare Signal and %s'%other.__class__.__name__
@@ -116,6 +133,6 @@ class Signal(Dataset):
             try:
                 return self.attrs['signal']
             except h5py.H5Error:
-                return 999
+                return 0
 
 registry.register(Signal)

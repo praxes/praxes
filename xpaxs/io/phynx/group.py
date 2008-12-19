@@ -56,7 +56,9 @@ class Group(h5py.Group):
                 except AttributeError:
                     pass
 
-                for attr in ['entry_shape', 'file_name', 'scan_number']:
+                for attr in [
+                    'entry_shape', 'file_name', 'entry_name', 'npoints'
+                ]:
                     try:
                         self.attrs[attr] = parent_object.attrs[attr]
                     except h5py.H5Error:
@@ -69,6 +71,18 @@ class Group(h5py.Group):
                 for name, val in data.iteritems():
                     gtype, val = val
                     registry[gtype](self, name, **val)
+
+    def __repr__(self):
+        with self._lock:
+            try:
+                return '<%s group "%s" (%d members, %d attrs)>' % (
+                    self.__class__.__name__,
+                    self.name,
+                    len(self),
+                    len(self.attrs)
+                )
+            except Exception:
+                return "<Closed %s group>" % self.__class__.__name__
 
     def __getitem__(self, name):
         with self._lock:
@@ -122,7 +136,7 @@ class Group(h5py.Group):
             )
 
     @property
-    def axes_names(self):
+    def axis_names(self):
         with self._lock:
             return [a.name for a in self.axes]
 

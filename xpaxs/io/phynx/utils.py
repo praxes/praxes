@@ -17,14 +17,14 @@ import numpy
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-# TODO: fix this import:
-from PyMca.specfile import Specfile, Scandata, error
+try:
+    from specfile import Specfile
+except ImportError:
+    from PyMca.specfile import Specfile
 
 #---------------------------------------------------------------------------
 # Normal code begins
 #---------------------------------------------------------------------------
-
-__all__ = ['load']
 
 # and here is some code for converting to hdf5:
 compression = {'compression':9, 'shuffle':True, 'fletcher32':True}
@@ -70,26 +70,26 @@ def get_spec_scan_info(commandList):
         if numPts < 1: numPts = -1
         try: ctime = float(args[1])
         except IndexError: ctime = 1.0
-        scan_info['axes'].append('Time')
+        scan_info['axes'].append('time')
         axis_info = {}
         axis_info['axis'] = 1
         axis_info['range'] = numpy.array([0, ctime*numPts])
-        scan_info['axis_info']['Time'] = axis_info
+        scan_info['axis_info']['time'] = axis_info
         scan_info['scan_shape'].append(numPts)
     elif scan_type in ('Escan', ):
         start, stop, steps = args[:3]
         start, stop, steps = float(start), float(stop), int(steps)+1
-        scan_info['axes'].append('Energy')
+        scan_info['axes'].append('energy')
         axis_info = {}
         axis_info['axis'] = 1
         axis_info['range'] = numpy.array([start, stop])
-        scan_info['axis_info']['Energy'] = axis_info
+        scan_info['axis_info']['energy'] = axis_info
         scan_info['scan_shape'].append(steps)
     elif scan_type in ('chess_escan', ):
-        scan_info['axes'].append('Energy')
+        scan_info['axes'].append('energy')
         axis_info = {}
         axis_info['axis'] = 1
-        scan_info['axis_info']['Energy'] = axis_info
+        scan_info['axis_info']['energy'] = axis_info
     else:
         raise RuntimeError('Scan %s not recognized!'%scan_type)
     scan_info['scan_shape'] = numpy.array(scan_info['scan_shape'][::-1])
@@ -104,33 +104,36 @@ def convert_scan(scan, sfile, h5file):
     file_name = scan.fileheader('F')[0].split()[1]
     scan_number = '%d.%d'%(scan.number(), scan.order())
     scan_number = scan_number.replace('.1', '')
-    scan_name = 'entry'+scan_number
+    scan_name = 'entry_'+scan_number
 
     print 'Converting Spec File %s %s to h5'% (file_name, scan_name)
 
     scan_info = get_spec_scan_info(scan.command().split())
+    labels = [label.lower() for label in scan.alllabels()]
     # We need to update time metadata if it was a tseries:
     if scan_info['scan_type'] == 'tseries':
         scan_info['scan_shape'] = numpy.array([scan.lines()])
         # ugh;
-        index = scan.alllabels().index('Time')+1
+        index = labels.index('time')+1
         t = scan.datacol(index)
-        scan_info['axis_info']['Time']['range'] = \
+        scan_info['axis_info']['time']['range'] = \
             numpy.array([t.min(), t.max()])
+    # We need to update time metadata if it was a chess_escan:
     if scan_info['scan_type'] == 'chess_escan':
         scan_info['scan_shape'] = numpy.array([scan.lines()])
         # ugh
-        index = scan.alllabels().index('Energy')+1
+        index = labels.index('energy')+1
         t = scan.datacol(index)
-        scan_info['axis_info']['Energy']['range'] = \
+        scan_info['axis_info']['energy']['range'] = \
             numpy.array([t.min(), t.max()])
 
     attrs = {}
-    attrs['scan_number'] = scan_number
-    attrs['scan_lines'] = scan.lines()
-    attrs['scan_command'] = scan.command()
+    attrs['entry_name'] = scan_name
+    attrs['entry_number'] = scan_number
+    attrs['npoints'] = scan.lines()
+    attrs['command'] = scan.command()
 #    attrs['scan_type'] = scanType
-    attrs['scan_axes'] = scan_info['axes']
+#    attrs['scan_axes'] = scan_info['axes']
 #    attrs['scanRange'] = scanRange
 
     if scan_info['scan_shape'] < 1:
@@ -140,12 +143,11 @@ def convert_scan(scan, sfile, h5file):
     entry = h5file.create_group(scan_name, type='Entry', attrs=attrs)
     print 'creating group %s'% scan_name
 
-    instrument = entry.create_group('instrument', type='Instrument')
-    motors = instrument.create_group('motors', type='Group')
-    for motor, pos in zip(sfile.allmotors(), scan.allmotorpos()):
-        motors[motor] = pos
-
     measurement = entry.create_group('measurement', type='Measurement')
+
+    positioners = measurement.create_group('positioners', type='Positioners')
+    for motor, pos in zip(sfile.allmotors(), scan.allmotorpos()):
+        positioners[motor] = pos
 
     # try to get MCA metadata:
     print 'Getting MCA Metadata'
@@ -166,7 +168,7 @@ def convert_scan(scan, sfile, h5file):
         else:
             print 'mca metadata in specfile is incomplete!'
 
-            attrs['id'] = 'MCA%d'%mca_index
+            attrs['id'] = 'mca_%d'%mca_index
             channels = numpy.arange(len(scan.mca(1)))
 
         mca_names.append(attrs['id'])
@@ -182,6 +184,8 @@ def convert_scan(scan, sfile, h5file):
 
         for line in xrange(scan.lines()):
             mca['counts'][line] = scan.mca((num_mca*line+1)+mca_index)
+
+    scalar_data = measurement.create_group('scalar_data', type='ScalarData')
 
     allmotors = sfile.allmotors()
     for i, label in enumerate(scan.alllabels()):
@@ -204,22 +208,22 @@ def convert_scan(scan, sfile, h5file):
         elif (label in allmotors) \
             or (label.lower() in ('energy', 'time', 'h', 'k', 'l', 'q')):
             kwargs = {'attrs': {'class':'Axis'}}
-            kwargs['attrs'].update(scan_info['axis_info'].get(label, {}))
+            kwargs['attrs'].update(scan_info['axis_info'].get(label.lower(), {}))
             kwargs.update(compression)
-            dset = measurement.create_dataset(
+            dset = scalar_data.create_dataset(
                 label, data=scan.datacol(i+1), dtype='float32', **kwargs
             )
         elif label.lower() == 'epoch':
             kwargs = {'attrs': {'class':'Axis'}}
             kwargs.update(compression)
-            dset = measurement.create_dataset(
+            dset = scalar_data.create_dataset(
                 label, data=scan.datacol(i+1)+sfile.epoch(), dtype='float32',
                 **kwargs
             )
         else:
             kwargs = {'attrs': {'class':'Signal'}}
             kwargs.update(compression)
-            dset = measurement.create_dataset(
+            dset = scalar_data.create_dataset(
                 label, data=scan.datacol(i+1), dtype='float32', **kwargs
             )
     # the last column should always be the primary counter
@@ -233,7 +237,7 @@ def convert_scan(scan, sfile, h5file):
         skipped = scan.datacol(index) < thresh
         kwargs = {'attrs':{'class':'Signal', 'monitor':mon, 'threshold':thresh}}
         kwargs.update(compression)
-        dset = measurement.create_dataset(
+        dset = scalar_data.create_dataset(
             'skipped', data=skipped, **kwargs
         )
 
