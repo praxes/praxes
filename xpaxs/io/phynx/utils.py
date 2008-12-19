@@ -18,9 +18,9 @@ import numpy
 #---------------------------------------------------------------------------
 
 try:
-    from specfile import Specfile
+    import specfile
 except ImportError:
-    from PyMca.specfile import Specfile
+    from PyMca import specfile
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -136,8 +136,10 @@ def convert_scan(scan, sfile, h5file):
 #    attrs['scan_axes'] = scan_info['axes']
 #    attrs['scanRange'] = scanRange
 
-    if scan_info['scan_shape'] < 1:
-        scan_info['scan_shape'] = numpy.array([scan.lines()])
+    if len(scan_info['scan_shape']) < 2:
+        if scan_info['scan_shape'] < 1:
+            # an open-ended scan
+            scan_info['scan_shape'] = numpy.array([scan.lines()])
     attrs['entry_shape'] = scan_info['scan_shape']
 
     entry = h5file.create_group(scan_name, type='Entry', attrs=attrs)
@@ -146,8 +148,11 @@ def convert_scan(scan, sfile, h5file):
     measurement = entry.create_group('measurement', type='Measurement')
 
     positioners = measurement.create_group('positioners', type='Positioners')
-    for motor, pos in zip(sfile.allmotors(), scan.allmotorpos()):
-        positioners[motor] = pos
+    try:
+        for motor, pos in zip(sfile.allmotors(), scan.allmotorpos()):
+            positioners[motor] = pos
+    except specfile.error:
+        pass
 
     # try to get MCA metadata:
     print 'Getting MCA Metadata'
@@ -183,11 +188,14 @@ def convert_scan(scan, sfile, h5file):
         )
 
         for line in xrange(scan.lines()):
-            mca['counts'][line] = scan.mca((num_mca*line+1)+mca_index)
+            mca['counts'][line] = scan.mca((num_mca*line+1)+mca_index)[:len(channels)]
 
     scalar_data = measurement.create_group('scalar_data', type='ScalarData')
 
-    allmotors = sfile.allmotors()
+    try:
+        allmotors = sfile.allmotors()
+    except specfile.error:
+        allmotors = []
     for i, label in enumerate(scan.alllabels()):
         if label in ('icr', 'ocr', 'real', 'live', 'dtn', 'vtxdtn'):
             # vortex detector, assume single mca
@@ -253,7 +261,7 @@ def convert_spec(spec_filename, h5_filename=None, force=False):
 
     print 'making file %s'% h5_filename
     h5_file = H5File(h5_filename, 'w')
-    spec_file = Specfile(spec_filename)
+    spec_file = specfile.Specfile(spec_filename)
     for scan in spec_file:
         'converting Scan %s'% scan
         convert_scan(scan, spec_file, h5_file)
