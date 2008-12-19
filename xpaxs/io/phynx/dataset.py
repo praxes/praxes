@@ -77,6 +77,7 @@ class Dataset(h5py.Dataset):
 
 registry.register(Dataset)
 
+
 class Axis(Dataset):
 
     """
@@ -109,6 +110,7 @@ class Axis(Dataset):
                 return 0
 
 registry.register(Axis)
+
 
 class Signal(Dataset):
 

@@ -32,10 +32,10 @@ class Group(h5py.Group):
 
     def __init__(self, parent_object, name, **data):
         """
-        If data is None, return an existing group or raise an error.
+        If data is not specified, return an existing group or raise an error.
 
-        Otherwise, data must be a python dictionary. hdf5 attributes
-        can be identified by::
+        Otherwise, data must be a python dictionary. hdf5 attributes can be
+        identified by::
 
             data={'attrs': {'foo':1, 'bar':2}}
 
