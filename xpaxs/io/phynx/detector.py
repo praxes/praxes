@@ -1,6 +1,4 @@
 """
-Wrappers around the pytables interface to the hdf5 file.
-
 """
 
 from __future__ import absolute_import
