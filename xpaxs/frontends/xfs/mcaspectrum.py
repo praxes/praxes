@@ -5,6 +5,8 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+from __future__ import absolute_import
+
 import logging
 
 #---------------------------------------------------------------------------
@@ -21,8 +23,8 @@ from PyQt4 import QtCore, QtGui
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.frontends.base import plotwidgets
-from xpaxs.frontends.xfs.ui import ui_mcaspectrum
+from ..base import plotwidgets
+from .ui import ui_mcaspectrum
 
 #---------------------------------------------------------------------------
 # Normal code begins

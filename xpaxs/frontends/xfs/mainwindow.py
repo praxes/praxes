@@ -5,6 +5,8 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+from __future__ import absolute_import
+
 import logging
 import sys
 import os
@@ -22,8 +24,8 @@ import numpy
 #---------------------------------------------------------------------------
 
 from xpaxs import __version__
-from xpaxs.frontends.base.mainwindow import MainWindow as MainWindowBase
-from xpaxs.frontends.xfs.fileinterface2 import XfsH5FileInterface
+from ..mainwindow import MainWindow as MainWindowBase
+from .fileinterface2 import XfsH5FileInterface
 
 #---------------------------------------------------------------------------
 # Normal code begins

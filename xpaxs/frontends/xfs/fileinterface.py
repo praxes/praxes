@@ -5,6 +5,8 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+from __future__ import absolute_import
+
 import copy
 import logging
 import Queue
@@ -22,7 +24,7 @@ import tables
 #---------------------------------------------------------------------------
 
 from xpaxs.io.hdf5file import XpaxsH5File, XpaxsH5Scan
-from xpaxs.frontends.base.fileinterface import H5FileInterface, H5FileModel
+from ..fileinterface import H5FileInterface, H5FileModel
 
 #---------------------------------------------------------------------------
 # Normal code begins

@@ -5,6 +5,8 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+from __future__ import absolute_import
+
 import logging
 import os
 
@@ -26,7 +28,7 @@ import numpy
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.frontends.base.ui.resources import icons, cursors
+from .ui.resources import icons, cursors
 
 #---------------------------------------------------------------------------
 # Normal code begins

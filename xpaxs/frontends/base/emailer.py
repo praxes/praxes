@@ -1,27 +1,37 @@
 #---------------------------------------------------------------------------
 # Stdlib imports
 #---------------------------------------------------------------------------
+
+from __future__ import absolute_import
+
 import smtplib
 import os
 import sys
 import socket
 from getpass import getpass
+
 #---------------------------------------------------------------------------
 # Extlib imports
 #---------------------------------------------------------------------------
+
 from PyQt4 import QtCore,  QtGui
+
 #---------------------------------------------------------------------------
 # GUI imports
 #---------------------------------------------------------------------------
 
+
+
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
-from xpaxs.frontends.base.emailDlg import EmailDialog
-#from emailDlg import EmailDialog
+
+from .emailDlg import EmailDialog
+
 #---------------------------------------------------------------------------
 # Normal code begins
 #--------------------------------------------------------------------------
+
 
 class mailer(QtGui.QWidget):
 
@@ -29,7 +39,7 @@ class mailer(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.settings = QtCore.QSettings()
         server,port,user,pwd,mailFrom,mailTo,sendTo,tls,secure = self.getSavedInfo()
-        
+
         try:
             mailer = smtplib.SMTP(server,port)
         except socket.gaierror:
@@ -75,7 +85,7 @@ Subject: %s"""%(mailFrom,mailTo,subject)
     def warn(self, title, message):
         QtGui.QMessageBox.warning(self, title, message)
         EmailDialog().exec_()
-        
+
 
 
 ##########################################################
@@ -114,28 +124,28 @@ Subject: %s"""%(mailFrom,mailTo,subject)
         mailFrom = str(self.settings.value('Email/mailFrom').toString())
         tls = self.settings.value('Email/tls').toBool()
         secure = self.settings.value('Email/secure').toBool()
-        
+
         mailTo=self.getTo()
         sendTo= mailTo.split(';')
         return [server,port,user,pwd,mailFrom,mailTo,sendTo,tls,secure]
 
-        
+
     def getTo(self):
 #        importantAddresses = self.settings.value('Email/importantAddresses').toString()
 #        regualrAddresses = self.settings.value('Email/regularAddresses').toString()
         return str(self.settings.value('Email/mailFrom').toString())
-        
 
-    
+
+
 
 class notice(mailer):
     def __init__(self,subject,message=None):
         subject='Notice: '+subject
         mailer.__init__(self,subject,message)
-    
+
     def getTo(self):
         return';'.join(str(self.settings.value('Email/regularAddresses').toString()).splitlines())
-        
+
 
 
 

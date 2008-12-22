@@ -5,6 +5,8 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+from __future__ import absolute_import
+
 import logging
 import sys
 import os
@@ -21,10 +23,10 @@ import numpy
 #---------------------------------------------------------------------------
 
 from xpaxs import __version__
-from xpaxs.frontends.base.ui import ui_mainwindow
-from xpaxs.frontends.base.fileinterface import H5FileInterface
+from .ui import ui_mainwindow
+from .fileinterface import H5FileInterface
 #from xpaxs.frontends.base.ppjobstats import PPJobStats
-from xpaxs.frontends.base.emailDlg import EmailDialog
+from .emailDlg import EmailDialog
 
 
 #---------------------------------------------------------------------------

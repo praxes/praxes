@@ -5,6 +5,8 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+from __future__ import absolute_import
+
 import copy
 import gc
 import logging
@@ -21,9 +23,9 @@ import numpy
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.frontends.base.mainwindow import MainWindowBase
-from xpaxs.frontends.xfs.ui.ui_mcaanalysiswindow import Ui_McaAnalysisWindow
-from xpaxs.frontends.xfs.elementsview import ElementsView
+from ..mainwindow import MainWindowBase
+from .ui.ui_mcaanalysiswindow import Ui_McaAnalysisWindow
+from .elementsview import ElementsView
 
 #---------------------------------------------------------------------------
 # Normal code begins

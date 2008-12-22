@@ -5,7 +5,7 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-
+from __future__ import absolute_import
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -17,7 +17,7 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from xpaxs.frontends.xfs.ui.ui_plotoptions import Ui_PlotOptions
+from .ui.ui_plotoptions import Ui_PlotOptions
 
 #---------------------------------------------------------------------------
 # Normal code begins

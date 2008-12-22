@@ -5,6 +5,8 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+from __future__ import absolute_import
+
 import logging
 
 #---------------------------------------------------------------------------
@@ -19,7 +21,7 @@ from PyQt4 import QtCore, QtGui
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from xpaxs.frontends.base.ui import ui_ppjobstats
+from .ui import ui_ppjobstats
 
 #---------------------------------------------------------------------------
 # Normal code begins

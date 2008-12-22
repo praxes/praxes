@@ -1,6 +1,9 @@
 #---------------------------------------------------------------------------
 # Stdlib imports
 #---------------------------------------------------------------------------
+
+from __future__ import absolute_import
+
 import logging
 import os
 import sys
@@ -8,17 +11,14 @@ import sys
 #---------------------------------------------------------------------------
 # Extlib imports
 #---------------------------------------------------------------------------
+
 from PyQt4 import QtCore, QtGui
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-#---------------------------------------------------------------------------
-# GUI imports
-#---------------------------------------------------------------------------
-from xpaxs.frontends.base.ui import ui_emailDlg
-#from ui import ui_emailDlg
+from .ui import ui_emailDlg
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -40,7 +40,7 @@ class EmailDialog(ui_emailDlg.Ui_emailDialog, QtGui.QDialog):
 
     def importantWarn(self, bool):
         if bool:
-            response = QtGui.QMessageBox.warning(self, 
+            response = QtGui.QMessageBox.warning(self,
                             'Editing Important Emails',
                             'Only edit these addresses if you are the system administrator', QtGui.QMessageBox.Ok| QtGui.QMessageBox.Cancel)
             if response == QtGui.QMessageBox.Ok:
@@ -48,8 +48,8 @@ class EmailDialog(ui_emailDlg.Ui_emailDialog, QtGui.QDialog):
             else:
                 self.importantEdit.setEnabled(False)
                 self.importantBox.setChecked(False)
-            
-        
+
+
     def exec_(self):
         if QtGui.QDialog.exec_(self):
             self.setValues()
@@ -79,7 +79,7 @@ class EmailDialog(ui_emailDlg.Ui_emailDialog, QtGui.QDialog):
                           QtCore.QVariant(self.tlsCheck.isChecked()))
             self.settings.setValue('Email/secure',
                           QtCore.QVariant(self.secureCheck.isChecked()))
-    
+
     def getValues(self):
         self.restoreGeometry(self.settings.value('Email/emailDlgGeometry').toByteArray())
         self.serverEdit.setText(self.settings.value('Email/server').toString())
@@ -91,7 +91,7 @@ class EmailDialog(ui_emailDlg.Ui_emailDialog, QtGui.QDialog):
         self.allEdit.setText(self.settings.value('Email/regularAddresses').toString())
         self.tlsCheck.setChecked(self.settings.value('Email/tls').toBool())
         self.secureCheck.setChecked(self.settings.value('Email/secure').toBool())
-        
+
 
 
 if __name__ == "__main__":

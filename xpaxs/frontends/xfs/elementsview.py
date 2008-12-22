@@ -5,6 +5,8 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+from __future__ import absolute_import
+
 import logging
 
 #---------------------------------------------------------------------------
@@ -18,8 +20,8 @@ from PyQt4 import QtCore, QtGui
 # SMP imports
 #---------------------------------------------------------------------------
 
-from xpaxs.frontends.base import plotwidgets
-from xpaxs.frontends.xfs.plotoptions import PlotOptions
+from ..base import plotwidgets
+from .plotoptions import PlotOptions
 
 #---------------------------------------------------------------------------
 # Normal code begins
