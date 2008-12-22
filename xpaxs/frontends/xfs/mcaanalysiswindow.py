@@ -23,7 +23,7 @@ import numpy
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from ..mainwindow import MainWindowBase
+from ..base.mainwindow import MainWindowBase
 from .ui.ui_mcaanalysiswindow import Ui_McaAnalysisWindow
 from .elementsview import ElementsView
 

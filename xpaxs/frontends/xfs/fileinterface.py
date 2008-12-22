@@ -24,7 +24,7 @@ import tables
 #---------------------------------------------------------------------------
 
 from xpaxs.io.hdf5file import XpaxsH5File, XpaxsH5Scan
-from ..fileinterface import H5FileInterface, H5FileModel
+from ..base.fileinterface import H5FileInterface, H5FileModel
 
 #---------------------------------------------------------------------------
 # Normal code begins

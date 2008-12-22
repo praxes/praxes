@@ -24,7 +24,7 @@ import numpy
 #---------------------------------------------------------------------------
 
 from xpaxs import __version__
-from ..mainwindow import MainWindow as MainWindowBase
+from ..base.mainwindow import MainWindow as MainWindowBase
 from .fileinterface2 import XfsH5FileInterface
 
 #---------------------------------------------------------------------------
