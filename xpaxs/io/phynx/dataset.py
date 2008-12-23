@@ -13,7 +13,11 @@ from posixpath import basename
 # Extlib imports
 #---------------------------------------------------------------------------
 
-from enthought.traits.api import HasTraits
+try:
+    from enthought.traits.api import HasTraits
+except ImportError:
+    class HasTraits(object):
+        pass
 import h5py
 
 #---------------------------------------------------------------------------
