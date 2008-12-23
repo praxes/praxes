@@ -17,6 +17,7 @@ from .entry import Entry
 from .environment import Environment
 from .file import File
 from .geometry import Geometry, Translation, Shape, Orientation
+from .group import Group
 from .instrument import Instrument
 from .log import Log
 from .measurement import Measurement, Positioners, ScalarData

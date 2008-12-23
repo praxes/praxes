@@ -13,6 +13,7 @@ from posixpath import basename
 # Extlib imports
 #---------------------------------------------------------------------------
 
+from enthought.traits.api import HasTraits
 import h5py
 
 #---------------------------------------------------------------------------
@@ -28,7 +29,7 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class Group(h5py.Group):
+class Group(h5py.Group, HasTraits):
 
     def __init__(self, parent_object, name, **data):
         """
@@ -107,6 +108,10 @@ class Group(h5py.Group):
             # lets allow integer and floats as keys:
             if isinstance(name, (int, float)): name = str(name)
             super(Group, self).__setitem__(name, value)
+
+    @property
+    def children(self):
+        return self.listobjects()
 
     @property
     def name(self):

@@ -145,7 +145,7 @@ setup(name = 'xpaxs',
                           'tables>=2.0.2',
 #                          'pexpect>=2.3',
                           'h5py>=1.0',
-#                          'TraitsBackendQt>=3.0',
-#                          'EnvisageCore>=3.0',
+                          'TraitsBackendQt>=3.0',
+                          'EnvisagePlugins>=3.0',
                           ])
 

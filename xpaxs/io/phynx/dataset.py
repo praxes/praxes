@@ -13,6 +13,7 @@ from posixpath import basename
 # Extlib imports
 #---------------------------------------------------------------------------
 
+from enthought.traits.api import HasTraits
 import h5py
 
 #---------------------------------------------------------------------------
@@ -26,7 +27,7 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class Dataset(h5py.Dataset):
+class Dataset(h5py.Dataset, HasTraits):
 
     """
     """
