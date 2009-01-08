@@ -188,7 +188,8 @@ def convert_scan(scan, sfile, h5file):
         )
 
         for line in xrange(scan.lines()):
-            mca['counts'][line] = scan.mca((num_mca*line+1)+mca_index)[:len(channels)]
+            mca['counts'][line] = scan.mca((num_mca*line+1) \
+                + mca_index)[:len(channels)]
 
     scalar_data = measurement.create_group('scalar_data', type='ScalarData')
 
@@ -216,7 +217,9 @@ def convert_scan(scan, sfile, h5file):
         elif (label in allmotors) \
             or (label.lower() in ('energy', 'time', 'h', 'k', 'l', 'q')):
             kwargs = {'attrs': {'class':'Axis'}}
-            kwargs['attrs'].update(scan_info['axis_info'].get(label.lower(), {}))
+            kwargs['attrs'].update(
+                scan_info['axis_info'].get(label.lower(), {})
+            )
             kwargs.update(compression)
             dset = scalar_data.create_dataset(
                 label, data=scan.datacol(i+1), dtype='float32', **kwargs
@@ -255,7 +258,9 @@ def convert_spec(spec_filename, h5_filename=None, force=False):
     if h5_filename is None:
         h5_filename = spec_filename + '.h5'
     if os.path.exists(h5_filename) and force==False:
-        raise IOError('%s already exists! Use force flag to overwrite'%h5_filename)
+        raise IOError(
+            '%s already exists! Use "force" flag to overwrite'%h5_filename
+        )
 
     from .file import File as H5File
 
