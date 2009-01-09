@@ -121,9 +121,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     def _get_normalization(self):
         return str(self.normalizationComboBox.currentText())
     def _set_normalization(self, norm):
-        print 'norm:', norm
         i = self.normalizationComboBox.findText(norm)
-        print 'i:', i
         self.normalizationComboBox.setCurrentIndex(i)
     normalization = property(_get_normalization, _set_normalization)
 
@@ -198,31 +196,14 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     @QtCore.pyqtSignature("QString")
     def on_mapTypeComboBox_currentIndexChanged(self):
         self.elementsView.updateFigure(self.getElementMap())
-        self.normalization = \
-            self.scanData['measurement'].mcas[0].normalization_channel
 
     @QtCore.pyqtSignature("QString")
     def on_normalizationComboBox_currentIndexChanged(self):
-        old = self.scanData['measurement'].mcas[0].normalization
-        print old, self.normalization
-        if self.normalization:
-            self.scanData['measurement'].mcas[0].normalization_channel = \
-                self.normalization
-            new = self.scanData['measurement'].mcas[0].normalization
-        else:
-            new = 1
-        print new
-        norm = numpy.array(old/new)
-        if numpy.all(norm!=1):
-            temp = numpy.ones(self.scanData.acquisition_shape, 'f')
-            temp.flat[:] = norm.flat[:]
-            self.elementsView.updateFigure(self.getElementMap()/temp)
+        self.elementsView.updateFigure(self.getElementMap())
 
     @QtCore.pyqtSignature("QString")
     def on_xrfBandComboBox_currentIndexChanged(self):
         self.elementsView.updateFigure(self.getElementMap())
-        self.normalization = \
-            self.scanData['measurement'].mcas[0].normalization_channel
 
     def closeEvent(self, event):
         if self.analysisThread:
@@ -269,10 +250,25 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             try:
                 measurement = self.scanData['measurement']
                 elementMap = measurement['element_maps'][mapType][element].map
+
+                old = self.scanData['measurement'].mcas[0].normalization
+                if not self.normalization in ('', 'None'):
+                    new = self.scanData['measurement'].mcas[0]\
+                        [self.normalization]
+                else:
+                    new = 1
+                temp = numpy.array(new/old, 'f')
+                if numpy.all(temp!=1):
+                    norm = numpy.ones(self.scanData.acquisition_shape, 'f')
+                    print norm, temp
+                    norm.flat[:] = temp.flat[:]
+                    return elementMap / norm
+                else:
+                    return elementMap
+
             except H5Error:
                 return numpy.zeros(self.scanData.acquisition_shape)
 
-            return elementMap
         else:
             return numpy.zeros(self.scanData.acquisition_shape, dtype='f')
 

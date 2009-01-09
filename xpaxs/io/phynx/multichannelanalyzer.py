@@ -100,11 +100,10 @@ class MultiChannelAnalyzer(Detector):
 
     def _get_normalization_channel(self):
         try:
-            return self['normalization']
+            return self.attrs['normalization']
         except h5py.H5Error:
             return ''
     def _set_normalization_channel(self, norm):
-        print 'ok!:',  norm
         self.attrs['normalization'] = norm
     normalization_channel = property(
         _get_normalization_channel, _set_normalization_channel
