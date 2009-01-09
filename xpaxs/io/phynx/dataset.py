@@ -19,6 +19,7 @@ except ImportError:
     class HasTraits(object):
         pass
 import h5py
+import numpy
 
 #---------------------------------------------------------------------------
 # xpaxs imports
@@ -69,6 +70,12 @@ class Dataset(h5py.Dataset, _PhynxProperties, HasTraits):
                 return "<Closed %s dataset>" % self.__class__.__name__
 
     @property
+    def map(self):
+        res = numpy.zeros(self.acquisition_shape, 'f')
+        res.flat[:len(self)] = self.value.flat[:]
+        return res
+
+    @property
     def name(self):
         return basename(super(Dataset, self).name)
 
@@ -116,8 +123,8 @@ class Axis(Dataset):
             try:
                 temp = self.attrs['range'].lstrip('(').rstrip(')')
             except h5py.H5Error:
-                temp = ''
-            return tuple(temp.split(',')) if temp else tuple()
+                temp = '0, 1'
+            return tuple(float(i) for i in temp.split(','))
 
 registry.register(Axis)
 

@@ -97,7 +97,56 @@ def get_spec_scan_info(commandList):
 
     return scan_info
 
-def convert_scan(scan, sfile, h5file):
+def process_mca(scan, measurement, process_scalars=False):
+    num_mca = int(scan.nbmca()/scan.lines())
+    mca_info = scan.header('@')
+    mca_names = []
+    for mca_index in xrange(num_mca):
+        attrs = {}
+        if len(mca_info)/3 == num_mca:
+            item_info, mca_info = mca_info[:3], mca_info[3:]
+            attrs['id'] = item_info[0].split()[0][2:]
+            start, stop, step = [int(i) for i in item_info[1].split()[2:]]
+            channels = numpy.arange(start,  stop+1, step)
+            attrs['calibration'] = numpy.array(
+                [float(i) for i in item_info[2].split()[1:]]
+            )
+        else:
+            print 'mca metadata in specfile is incomplete!'
+
+            attrs['id'] = 'mca_%d'%mca_index
+            channels = numpy.arange(len(scan.mca(1)))
+
+        mca_names.append(attrs['id'])
+
+        mca = measurement.create_group(
+            attrs['id'], type='MultiChannelAnalyzer', attrs=attrs
+        )
+        mca['channels'] = channels
+        mca.create_dataset(
+            'counts', dtype='float32', shape=(scan.lines(), len(channels)),
+            **compression
+        )
+
+        for line in xrange(scan.lines()):
+            mca['counts'][line] = scan.mca((num_mca*line+1) \
+                + mca_index)[:len(channels)]
+
+        if process_scalars:
+            # assume all scalars to be signals
+            for i, label in enumerate(scan.alllabels()):
+                kwargs = {'attrs': {'class':'Signal'}}
+                kwargs.update(compression)
+                dset = mca.create_dataset(
+                    label, data=scan.datacol(i+1), dtype='float32', **kwargs
+                )
+
+    try:
+        return mca
+    except UnboundLocalError:
+        pass
+
+def convert_scan(scan, sfile, h5file, spec_filename):
     # access a bunch of metadata before creating an hdf5 group
     # if specfile raises an error because the scan is empty,
     # we will skip it and move on to the next
@@ -156,39 +205,7 @@ def convert_scan(scan, sfile, h5file):
     # try to get MCA metadata:
     print 'Getting MCA Metadata'
 
-    num_mca = int(scan.nbmca()/scan.lines())
-    mca_info = scan.header('@')
-    mca_names = []
-    for mca_index in xrange(num_mca):
-        attrs = {}
-        if len(mca_info)/3 == num_mca:
-            item_info, mca_info = mca_info[:3], mca_info[3:]
-            attrs['id'] = item_info[0].split()[0][2:]
-            start, stop, step = [int(i) for i in item_info[1].split()[2:]]
-            channels = numpy.arange(start,  stop+1, step)
-            attrs['calibration'] = numpy.array(
-                [float(i) for i in item_info[2].split()[1:]]
-            )
-        else:
-            print 'mca metadata in specfile is incomplete!'
-
-            attrs['id'] = 'mca_%d'%mca_index
-            channels = numpy.arange(len(scan.mca(1)))
-
-        mca_names.append(attrs['id'])
-
-        mca = measurement.create_group(
-            attrs['id'], type='MultiChannelAnalyzer', attrs=attrs
-        )
-        mca['channels'] = channels
-        mca.create_dataset(
-            'counts', dtype='float32', shape=(scan.lines(), len(channels)),
-            **compression
-        )
-
-        for line in xrange(scan.lines()):
-            mca['counts'][line] = scan.mca((num_mca*line+1) \
-                + mca_index)[:len(channels)]
+    mca = process_mca(scan, measurement)
 
     scalar_data = measurement.create_group('scalar_data', type='ScalarData')
 
@@ -197,7 +214,8 @@ def convert_scan(scan, sfile, h5file):
     except specfile.error:
         allmotors = []
     for i, label in enumerate(scan.alllabels()):
-        if label in ('icr', 'ocr', 'real', 'live', 'dtn', 'vtxdtn'):
+        if mca is not None and \
+            label in ('icr', 'ocr', 'real', 'live', 'dtn', 'vtxdtn'):
             # vortex detector, assume single mca
             kwargs = {'attrs': {'class':'Signal', 'signal':0}}
             kwargs.update(compression)
@@ -258,6 +276,12 @@ def convert_scan(scan, sfile, h5file):
             'skipped', data=skipped, **kwargs
         )
 
+    for f in os.listdir(os.curdir):
+        print f, spec_filename+'.scan%s'%scan_number
+        if f.startswith(spec_filename+'.scan%s'%scan_number) and \
+            f.endswith('.mca'):
+            process_mca(specfile.Specfile(f)[0], measurement, True)
+
 def convert_spec(spec_filename, h5_filename=None, force=False):
     """convert a spec data file to hdf5 and return the file object"""
     print 'Converting spec file %s to hdf5'% spec_filename
@@ -273,6 +297,6 @@ def convert_spec(spec_filename, h5_filename=None, force=False):
     spec_file = specfile.Specfile(spec_filename)
     for scan in spec_file:
         'converting Scan %s'% scan
-        convert_scan(scan, spec_file, h5_file)
+        convert_scan(scan, spec_file, h5_file, spec_filename)
     print 'h5file %s complete'% h5_file
     return h5_file

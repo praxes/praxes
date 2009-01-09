@@ -28,3 +28,5 @@ from .sample import Sample
 from .user import User
 
 from .registry import registry
+
+from h5py import H5Error

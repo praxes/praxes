@@ -26,6 +26,7 @@ import numpy
 from ..base.mainwindow import MainWindowBase
 from .ui.ui_mcaanalysiswindow import Ui_McaAnalysisWindow
 from .elementsview import ElementsView
+from xpaxs.io.phynx import H5Error
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -42,6 +43,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     # TODO: this should eventually take an MCA entry
     def __init__(self, scanData, parent=None):
         super(McaAnalysisWindow, self).__init__(parent)
+        self.scanData = scanData
         self.setupUi(self)
 
         title = '%s: %s'%(
@@ -50,7 +52,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         )
         self.setWindowTitle(title)
 
-        self.scanData = scanData
+#        self.scanData = scanData
 #        self.connect(
 #            self.scanData,
 #            QtCore.SIGNAL("dataInitialized"),
@@ -59,7 +61,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
         self.elementsView = ElementsView(scanData, self)
 
-        self.xrfBandComboBox.addItems(self.scanData.getAvailableElements())
+        self.xrfBandComboBox.addItems(self.availableElements)
         self.updateNormalizationChannels()
 
         self._setupMcaDockWindows()
@@ -79,7 +81,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.verticalLayout.addWidget(self.elementsView)
 
         self.fitParamDlg = FitParamDialog(parent=self)
-        pymcaConfig = self.scanData.getPymcaConfig()
+        pymcaConfig = self.scanData['measurement'].mcas[0].pymca_config
 
         if pymcaConfig:
             self.fitParamDlg.setParameters(pymcaConfig)
@@ -106,7 +108,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             elements = maps['fitArea'].listnames()
             elements.sort()
             return elements
-        except h5py.h5.H5Error:
+        except (phynx.H5Error, AttributeError):
             return []
 
     @property
@@ -122,9 +124,13 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     def xrfBand(self):
         return str(self.xrfBandComboBox.currentText()).replace(' ', '')
 
-#    @property
-#    def peaks(self):
-#        return self.scanData.getAvailableElements()
+    @property
+    def availableElements(self):
+        try:
+            return self.scanData['measurement']['element_maps']\
+                ['fit_area'].listnames()
+        except H5Error:
+            return []
 
     @property
     def pymcaConfig(self):
@@ -209,7 +215,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             else:
                 return event.ignore()
 
-        self.scanData.flush()
+#        self.scanData.flush()
 
         # TODO: improve this to close scans in the file interface
         self.emit(QtCore.SIGNAL("scanClosed"), self)
@@ -225,7 +231,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             self.statusBar.showMessage('Reconfiguring PyMca ...')
             configDict = self.fitParamDlg.getParameters()
             self.spectrumAnalysis.configure(configDict)
-            self.scanData.setPymcaConfig(configDict)
+            self.scanData['measurement'].mcas[0].pymca_config = configDict
             self.statusBar.clearMessage()
 
     def elementMapUpdated(self):
@@ -356,7 +362,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
                 peaks.append(name)
 
         peaks.sort()
-        self.scanData.initializeElementMaps(peaks)
+        self.initializeElementMaps(peaks)
 
         self.xrfBandComboBox.clear()
         self.xrfBandComboBox.addItems(peaks)
@@ -369,7 +375,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     def updateNormalizationChannels(self):
         self.normalizationComboBox.clear()
         self.normalizationComboBox.addItems(
-            [''] + self.scanData['measurement'].mcas[0].signals
+            [''] + self.scanData['measurement'].mcas[0].signal_names
         )
 
 
