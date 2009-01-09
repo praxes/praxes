@@ -21,6 +21,7 @@ import numpy
 #---------------------------------------------------------------------------
 
 from .detector import Detector
+from .group import AcquisitionIterator
 from .registry import registry
 
 #---------------------------------------------------------------------------
@@ -40,28 +41,31 @@ class MultiChannelAnalyzer(Detector):
                     assert isinstance(order, int)
                 except AssertionError:
                     raise AssertionError('order must be an integer value')
-                old = self.attrs['calibration']
-                new = self.attrs['calibration']
+                old = self.calibration
+                new = self.calibration
                 if len(old) < order:
                     new = numpy.zeros(order+1)
                     new[:len(old)] = old
                 new[order] = cal
-                self.attrs['calibration'] = new
+                self.attrs['calibration'] = str(tuple(new))
             else:
                 try:
                     assert len(cal) > 1
                 except AssertionError:
                     raise AssertionError(
-                        'Expecting a numerical sequence, received %s'%str(cal))
-                self.attrs['calibration'] = cal
+                        'Expecting a numerical sequence, received %s'%str(cal)
+                    )
+                self.attrs['calibration'] = str(tuple(cal))
 
     @property
     def calibration(self):
         with self._lock:
+            # TODO: use h5py get() when available
             try:
-                return self.attrs['calibration']
+                temp = self.attrs['calibration'].lstrip('(').rstrip(')')
             except h5py.H5Error:
-                return numpy.array([0, 1], 'f')
+                temp = '0,1'
+            return array(temp.split(','), 'f')
 
     @property
     def channels(self):
@@ -75,5 +79,44 @@ class MultiChannelAnalyzer(Detector):
     def energy(self):
         with self._lock:
             return numpy.polyval(self.calibration[::-1], self.channels)
+
+    @property
+    def device_id(self):
+        with self._lock:
+            try:
+                return self.attrs['id']
+            except h5py.H5Error:
+                return self.name
+
+    @property
+    def iter_mca_counts(self):
+        return AcquisitionIterator(self, self['counts'], self.normalization)
+
+    def get_averaged_counts(self, indices=[]):
+        with self._lock:
+            if len(indices) > 0:
+                spectrum = self['counts'][indices[0], :]*0
+                numIndices = len(indices)
+                for index in indices:
+                    if not self.is_valid_index(index):
+                        continue
+                    result = self['counts'][index, :]
+                    if self.normalization is not None:
+                        norm = self.normalization[index]
+                        result /= numpy.where(norm==0, numpy.inf, norm)
+                    spectrum += result
+                return spectrum / len(indices)
+
+    def _get_pymca_config(self):
+        with self._lock:
+            try:
+                from PyMca.ConfigDict import ConfigDict
+                return ConfigDict(eval(self.attrs['pymca_config']))
+            except h5py.h5.AttrError:
+                return None
+    def _set_pymca_config(self, config):
+        with self._lock:
+            self.attrs['pymca_config'] = str(config)
+    pymca_config = property(_get_pymca_config, _set_pymca_config)
 
 registry.register(MultiChannelAnalyzer)

@@ -1,5 +1,5 @@
 """
-Wrappers around the pytables interface to the hdf5 file.
+Wrappers around the h5py interface to the hdf5 file.
 
 The current interface is closely based on the tabular format of the native spec
 ascii files. A new interface will be developed based on the NeXus standard.

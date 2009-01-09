@@ -19,11 +19,13 @@ except ImportError:
     class HasTraits(object):
         pass
 import h5py
+import numpy
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
+from .base import _PhynxProperties
 from .dataset import Axis, Dataset, Signal
 from .registry import registry
 
@@ -33,7 +35,50 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class Group(h5py.Group, HasTraits):
+class AcquisitionIterator(object):
+
+    def __init__(self, parent, dataset, normalization=None):
+        self._currentIndex = 0
+        self._parent = parent
+        self._dataset = dataset
+        self._lock = parent._lock
+        assert skipped is None or isinstance(skipped, Dataset)
+
+    def __iter__(self):
+        return self
+
+    @property
+    def currentIndex(self):
+        with self._lock:
+            return self._currentIndex
+
+    def next(self):
+        with self._lock:
+            if self._currentIndex >= self.npoints:
+                raise StopIteration
+
+            else:
+                try:
+                    if self.parent.is_valid_index(self._currentIndex):
+                        i = self._currentIndex
+                        data = self._dataset[i]
+                        try:
+                            data /= self._parent.normalization[i]
+                        except TypeError:
+                            pass
+                        self._currentIndex += 1
+
+                        return i, data
+
+                    else:
+                        self._currentIndex += 1
+                        return self.next()
+
+                except h5py.H5Error:
+                    raise IndexError
+
+
+class Group(h5py.Group, _PhynxProperties, HasTraits):
 
     def __init__(self, parent_object, name, **data):
         """
@@ -61,13 +106,7 @@ class Group(h5py.Group, HasTraits):
                 except AttributeError:
                     pass
 
-                for attr in [
-                    'entry_shape', 'file_name', 'entry_name', 'npoints'
-                ]:
-                    try:
-                        self.attrs[attr] = parent_object.attrs[attr]
-                    except h5py.H5Error:
-                        pass
+                _PhynxProperties.__init__(self, parent_object)
 
             if data:
                 for attr, val in data.pop('attrs', {}).iteritems():
@@ -138,6 +177,15 @@ class Group(h5py.Group, HasTraits):
             return [s.name for s in self.signals]
 
     @property
+    def normalization(self):
+        with self._lock:
+            try:
+                norm = self.attrs['normalization']
+                return self[norm]
+            except h5py.H5Error:
+                return None
+
+    @property
     def axes(self):
         with self._lock:
             return sorted(
@@ -148,6 +196,15 @@ class Group(h5py.Group, HasTraits):
     def axis_names(self):
         with self._lock:
             return [a.name for a in self.axes]
+
+    @property
+    def valid_indices(self):
+        with self._lock:
+            indices = numpy.arange(len(self.axes[0]))
+            try:
+                return indices[self['skipped'].value]
+            except h5py.H5Error:
+                return indices
 
     def get_axes(self, direction=1):
         with self._lock:
@@ -196,5 +253,11 @@ class Group(h5py.Group, HasTraits):
                         item.__class__.__name__
                     )
                 return item
+
+    def is_valid_index(self, index):
+        if 'skipped' in self:
+            return not self['skipped'][index]
+        else:
+            return True
 
 registry.register(Group)

@@ -115,17 +115,18 @@ class ElementImageFigure(ElementBaseFigure):
 
     def _createInitialFigure(self):
         extent = []
-        xlim = self.scanData.getScanRange(self.scanData.getScanAxis(0, 0))
-        extent.extend(xlim)
-        ylim = self.scanData.getScanRange(self.scanData.getScanAxis(1, 0))
-        extent.extend(ylim)
+        sd = self.scanData['measurement']['scalar_data']
+        x_axis = sd.get_axes(1)[0]
+        y_axis = sd.get_axes(2)[0]
+        extent.extend(x_axis.range)
+        extent.extend(y_axis.range)
         self.image = self.axes.imshow(self._elementData, extent=extent,
                                        interpolation='nearest',
                                        origin='lower')
         self._colorbar = self.figure.colorbar(self.image)
 
-        self.axes.set_xlabel(self.scanData.getScanAxis(0, 0))
-        try: self.axes.set_ylabel(self.scanData.getScanAxis(1, 0))
+        self.axes.set_xlabel(x_axis.name)
+        try: self.axes.set_ylabel(y_axis.name)
         except IndexError: pass
 
     def enableAutoscale(self, val):
@@ -175,9 +176,8 @@ class ElementPlotFigure(ElementBaseFigure):
     def _createInitialFigure(self):
         self._elementPlot, = self.axes.plot(self._elementData, 'b')
 
-        self.axes.set_xlabel(self.scanData.getScanAxis(0, 0))
-        try: self.axes.set_ylabel(self.scanData.getScanAxis(1, 0))
-        except IndexError: pass
+        x_axis = self.scanData['measurement']['scalar_data'].get_axes(1)[0]
+        self.axes.set_xlabel(x_axis.name)
 
     def _updatePixelMap(self):
         xmin, xmax = self.axes.get_xlim()
@@ -195,11 +195,11 @@ class ElementPlotFigure(ElementBaseFigure):
         self.updateFigure()
 
     def setDataMax(self, val):
-        self._ylims[1]=val
+        self._ylims[1] = val
         self.updateFigure()
 
     def setDataMin(self, val):
-        self._ylims[0]=val
+        self._ylims[0] = val
         self.updateFigure()
 
     def updateFigure(self, elementData=None):
@@ -227,7 +227,7 @@ class ElementsView(QtGui.QWidget):
 
         layout = QtGui.QVBoxLayout()
 
-        if scanData.numScanDimensions == 2:
+        if len(scanData.acquisition_shape) == 2:
             self.figure = ElementImageFigure(scanData, self)
 
         else:

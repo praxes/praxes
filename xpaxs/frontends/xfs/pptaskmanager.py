@@ -116,7 +116,7 @@ class XfsPPTaskManager(PPTaskManager):
                 if DEBUG: print 'Updating records'
 
                 self.advancedFit = data['advancedFit']
-                shape = self.scan.scanShape
+                shape = self.scan.acquisition_shape
                 index = flat_to_nd(data['index'], shape)
 
                 result = data['result']
@@ -139,7 +139,7 @@ class XfsPPTaskManager(PPTaskManager):
                 self.emit(
                     QtCore.SIGNAL('percentComplete'),
                     (100.0 * self.iterData.currentIndex) / \
-                        self.iterData.numExpectedPoints
+                        self.iterData.npoints
                 )
                 if DEBUG: print 'records updated'
             finally:

@@ -24,7 +24,7 @@ import numpy
 
 from xpaxs import __version__
 from .ui import ui_mainwindow
-from .fileinterface import H5FileInterface
+from xpaxs.io.phynxfile import FileInterface
 #from xpaxs.frontends.base.ppjobstats import PPJobStats
 from .emailDlg import EmailDialog
 
@@ -166,12 +166,11 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
 #                               self.ppJobStats, 'Analysis Server Stats')
 
     def _setFileInterface(self):
-        self.fileInterface = H5FileInterface(self)
+        self.fileInterface = FileInterface(self)
         for key, (item, area, action) in \
                 self.fileInterface.dockWidgets.iteritems():
             self.menuView.addAction(action)
             self.addDockWidget(area, item)
-
 
     def _setupEmailDlg(self):
         self.menuSettings.addAction("Email Settings",self._startEmailDlg )
@@ -184,8 +183,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
         settings.beginGroup('MainWindow')
         self.restoreGeometry(settings.value('Geometry').toByteArray())
         self.restoreState(settings.value('State').toByteArray())
-
-
 
     def _configureDockArea(self):
         """

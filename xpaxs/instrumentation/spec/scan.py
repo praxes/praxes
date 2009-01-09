@@ -58,6 +58,7 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
         self._scan_aborted = SpecCommand.SpecCommandA('_SC_NEWSCAN = 0', specVersion)
 
         self._scanData = None
+        self._lastPoint = None
 
     def __call__(self, cmd):
         if self.connection.isSpecConnected():
@@ -68,7 +69,7 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
             self.connection.abort()
             self._scan_aborted()
             try:
-                self._scanData.setNumExpectedPoints()
+                self._scanData.npoints = self._lastPoint
             except (AttributeError, h5py.h5.H5Error):
                 pass
             self.scanAborted()
@@ -107,6 +108,7 @@ class QtSpecScanBase(SpecScan.SpecScanA, QtCore.QObject):
             self._scanData.appendDataPoint(scanData)
 
         i = int(scanData['i'])
+        self._lastPoint = i
         self.emit(QtCore.SIGNAL("newScanData"), i)
 
 

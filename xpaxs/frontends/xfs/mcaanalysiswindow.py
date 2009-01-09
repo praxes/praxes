@@ -39,22 +39,23 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     """
     """
 
+    # TODO: this should eventually take an MCA entry
     def __init__(self, scanData, parent=None):
         super(McaAnalysisWindow, self).__init__(parent)
         self.setupUi(self)
 
-        title = '%s: Scan %s'%(
-            scanData.dataFileName,
-            scanData.scanNumber
+        title = '%s: %s'%(
+            scanData.file_name,
+            scanData.name
         )
         self.setWindowTitle(title)
 
         self.scanData = scanData
-        self.connect(
-            self.scanData,
-            QtCore.SIGNAL("dataInitialized"),
-            self.updateNormalizationChannels
-        )
+#        self.connect(
+#            self.scanData,
+#            QtCore.SIGNAL("dataInitialized"),
+#            self.updateNormalizationChannels
+#        )
 
         self.elementsView = ElementsView(scanData, self)
 
@@ -97,6 +98,16 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.elementsView.updateFigure()
 
         self._restoreSettings()
+
+    @property
+    def availableElements(self):
+        try:
+            maps = self.scanData['measurement']['element_maps']
+            elements = maps['fitArea'].listnames()
+            elements.sort()
+            return elements
+        except h5py.h5.H5Error:
+            return []
 
     @property
     def mapType(self):
@@ -223,24 +234,46 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     def getElementMap(self, mapType=None, element=None, normalization=None):
         if element is None: element = self.xrfBand
         if mapType is None: mapType = self.mapType
-        if normalization is None: normalization = self.normalization
 
         if mapType and element:
-            return self.scanData.getElementMap(mapType, element, normalization)
+            try:
+                measurement = self.scanData['measurement']
+                elementMap = measurement['element_maps'][mapType][element].value
+            except h5py.h5.H5Error:
+                return numpy.zeros(self.scanData.acquisition_shape)
+
+            return elementMap
         else:
-            return numpy.zeros(self.scanData.scanShape, dtype='f')
+            return numpy.zeros(self.scanData.acquisition_shape, dtype='f')
+
+    def initializeElementMaps(self, elements):
+        if 'element_maps' in self.scanData['measurement']:
+            del self.scanData['measurement']['element_maps']
+
+        elementMaps = self.h5Node.create_group('element_maps')
+        for mapType in ['fit_area', 'mass_fraction', 'sigma_area']:
+            mapGroup = elementMaps.create_group(mapType)
+            for element in elements:
+                mapGroup.create_dataset(
+                    element.replace(' ', '_'),
+                    data=numpy.zeros(self.scanData.acquisition_shape, 'f')
+                )
+
+    def updateElementMap(self, mapType, element, index, val):
+        try:
+            maps = self.scanData['measurement']['elementMaps']
+            maps[mapType][element][tuple(index)] = val
+        except ValueError:
+            print index, node
 
     def processAverageSpectrum(self, indices=None):
         self.statusBar.showMessage('Validating data points ...')
-        indices = self.scanData.getValidDataPoints(indices)
-
         if len(indices):
             self.statusBar.showMessage('Averaging spectra ...')
-            counts = self.scanData.getAverageMcaSpectrum(
-                indices,
-                normalization=self.normalization
+            counts = self.scanData['measurement'].mcas[0].get_averaged_counts(
+                indices
             )
-            channels = self.scanData.getMcaChannels()
+            channels = self.scanData['measurement'].mcas[0].channels
 
             self.spectrumAnalysis.setData(x=channels, y=counts)
 
@@ -336,7 +369,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     def updateNormalizationChannels(self):
         self.normalizationComboBox.clear()
         self.normalizationComboBox.addItems(
-            [''] + self.scanData.normalizationChannels
+            [''] + self.scanData['measurement'].mcas[0].signals
         )
 
 

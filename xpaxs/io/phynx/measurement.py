@@ -36,12 +36,12 @@ class Measurement(Group):
     """
 
     @property
-    def version(self):
-        # TODO: use attrs.get() with h5py-1.1
-        if 'version' in self.attrs:
-            return self.attrs['version']
-        else:
-            return 0
+    def mcas(self):
+        with self._lock:
+            return [
+                a for a in self.iterobjects()
+                if isinstance(a, registry['MultiChannelAnalyzer'])
+            ]
 
 registry.register(Measurement)
 

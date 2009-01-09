@@ -24,6 +24,7 @@ import h5py
 # xpaxs imports
 #---------------------------------------------------------------------------
 
+from .base import _PhynxProperties
 from .registry import registry
 
 #---------------------------------------------------------------------------
@@ -31,7 +32,7 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class Dataset(h5py.Dataset, HasTraits):
+class Dataset(h5py.Dataset, _PhynxProperties, HasTraits):
 
     """
     """
@@ -48,13 +49,8 @@ class Dataset(h5py.Dataset, HasTraits):
                     parent_object, name, *args, **kwargs
                 )
                 self.attrs['class'] = self.__class__.__name__
-                for attr in [
-                    'entry_shape', 'file_name', 'entry_name', 'npoints'
-                ]:
-                    try:
-                        self.attrs[attr] = parent_object.attrs[attr]
-                    except h5py.H5Error:
-                        pass
+
+                _PhynxProperties.__init__(self, parent_object)
 
                 for key, val in attrs.iteritems():
                     self.attrs[key] = val
@@ -113,6 +109,15 @@ class Axis(Dataset):
                 return self.attrs['primary']
             except h5py.H5Error:
                 return 0
+
+    @property
+    def range(self):
+        with self._lock:
+            try:
+                temp = self.attrs['range'].lstrip('(').rstrip(')')
+            except h5py.H5Error:
+                temp = ''
+            return tuple(temp.split(',')) if temp else tuple()
 
 registry.register(Axis)
 

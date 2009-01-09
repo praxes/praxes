@@ -12,17 +12,16 @@ import os
 #---------------------------------------------------------------------------
 
 import numpy
-#try:
-#    import specfile
-#except ImportError:
-#    from PyMca import specfile
-from PyMca import specfile
+try:
+    import specfile
+except ImportError:
+    from PyMca import specfile
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from ..file import File
+
 
 #---------------------------------------------------------------------------
 # Normal code begins
@@ -45,7 +44,7 @@ def get_spec_scan_info(commandList):
             i += 1
             scan_info['axes'].append((axis, ))
             axis_info = {}
-            axis_info['range'] = str((start, stop))
+            axis_info['range'] = numpy.array([start, stop])
             axis_info['axis'] = i
             scan_info['axis_info'][axis] = axis_info
             scan_info['scan_shape'].append(step)
@@ -62,7 +61,7 @@ def get_spec_scan_info(commandList):
             axis_info = {}
             axis_info['axis'] = 1
             axis_info['primary'] = i
-            axis_info['range'] = str((start, stop))
+            axis_info['range'] = numpy.array([start, stop])
             scan_info['axis_info'][axis] = axis_info
         scan_info['axes'].append(tuple(temp))
         scan_info['scan_shape'].append(int(args[0])+1)
@@ -74,7 +73,7 @@ def get_spec_scan_info(commandList):
         scan_info['axes'].append('time')
         axis_info = {}
         axis_info['axis'] = 1
-        axis_info['range'] = str((0, ctime*numPts))
+        axis_info['range'] = numpy.array([0, ctime*numPts])
         scan_info['axis_info']['time'] = axis_info
         scan_info['scan_shape'].append(numPts)
     elif scan_type in ('Escan', ):
@@ -83,7 +82,7 @@ def get_spec_scan_info(commandList):
         scan_info['axes'].append('energy')
         axis_info = {}
         axis_info['axis'] = 1
-        axis_info['range'] = str((start, stop))
+        axis_info['range'] = numpy.array([start, stop])
         scan_info['axis_info']['energy'] = axis_info
         scan_info['scan_shape'].append(steps)
     elif scan_type in ('chess_escan', ):
@@ -117,20 +116,22 @@ def convert_scan(scan, sfile, h5file):
         # ugh;
         index = labels.index('time')+1
         t = scan.datacol(index)
-        scan_info['axis_info']['time']['range'] = str((t.min(), t.max()))
+        scan_info['axis_info']['time']['range'] = \
+            numpy.array([t.min(), t.max()])
     # We need to update time metadata if it was a chess_escan:
     if scan_info['scan_type'] == 'chess_escan':
         scan_info['scan_shape'] = numpy.array([scan.lines()])
         # ugh
         index = labels.index('energy')+1
         t = scan.datacol(index)
-        scan_info['axis_info']['energy']['range'] = str((t.min(), t.max()))
+        scan_info['axis_info']['energy']['range'] = \
+            numpy.array([t.min(), t.max()])
 
     attrs = {}
-    attrs['acquisition_name'] = scan_name
-    attrs['acquisition_id'] = scan_number
+    attrs['entry_name'] = scan_name
+    attrs['entry_number'] = scan_number
     attrs['npoints'] = scan.lines()
-    attrs['acquisition_command'] = scan.command()
+    attrs['command'] = scan.command()
 #    attrs['scan_type'] = scanType
 #    attrs['scan_axes'] = scan_info['axes']
 #    attrs['scanRange'] = scanRange
@@ -139,7 +140,7 @@ def convert_scan(scan, sfile, h5file):
         if scan_info['scan_shape'] < 1:
             # an open-ended scan
             scan_info['scan_shape'] = numpy.array([scan.lines()])
-    attrs['acquisition_shape'] = str(tuple(scan_info['scan_shape']))
+    attrs['entry_shape'] = scan_info['scan_shape']
 
     entry = h5file.create_group(scan_name, type='Entry', attrs=attrs)
     print 'creating group %s'% scan_name
@@ -239,13 +240,6 @@ def convert_scan(scan, sfile, h5file):
     # the last column should always be the primary counter
     dset.attrs['signal'] = 1
 
-    # and dont forget to include the index
-    kwargs = {'attrs': {'class':'Axis'}}
-    kwargs.update(compression)
-    dset = scalar_data.create_dataset(
-        'i', data=numpy.arange(len(dset)), dtype='i', **kwargs
-    )
-
     skipmode = scan.header('C SKIPMODE')
     if skipmode:
         mon, thresh = skipmode[0].split()[2:]
@@ -268,8 +262,10 @@ def convert_spec(spec_filename, h5_filename=None, force=False):
             '%s already exists! Use "force" flag to overwrite'%h5_filename
         )
 
+    from .file import File as H5File
+
     print 'making file %s'% h5_filename
-    h5_file = File(h5_filename, 'w')
+    h5_file = H5File(h5_filename, 'w')
     spec_file = specfile.Specfile(spec_filename)
     for scan in spec_file:
         'converting Scan %s'% scan
