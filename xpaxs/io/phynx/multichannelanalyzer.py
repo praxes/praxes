@@ -93,10 +93,10 @@ class MultiChannelAnalyzer(Detector):
         try:
             norm = self.attrs['normalization']
             if norm in ('', 'None'):
-                return 1
-            return self[norm].value
+                return None
+            return self[norm]
         except h5py.H5Error:
-            return 1
+            return None
 
     def _get_normalization_channel(self):
         try:
@@ -111,12 +111,12 @@ class MultiChannelAnalyzer(Detector):
 
     def get_averaged_counts(self, indices=[]):
         if len(indices) > 0:
-            spectrum = self['counts'][indices[0], :]*0
+            spectrum = numpy.zeros(len(self['counts'][indices[0]]), 'f')
             numIndices = len(indices)
             for index in indices:
                 if not self.is_valid_index(index):
                     continue
-                result = self['counts'][index, :]
+                result = self['counts'][index]
                 if self.normalization is not None:
                     norm = self.normalization[index]
                     result /= numpy.where(norm==0, numpy.inf, norm)

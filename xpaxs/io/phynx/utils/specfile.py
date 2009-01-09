@@ -108,9 +108,9 @@ def process_mca(scan, measurement, process_scalars=False):
             attrs['id'] = item_info[0].split()[0][2:]
             start, stop, step = [int(i) for i in item_info[1].split()[2:]]
             channels = numpy.arange(start,  stop+1, step)
-            attrs['calibration'] = numpy.array(
+            attrs['calibration'] = str(tuple(numpy.array(
                 [float(i) for i in item_info[2].split()[1:]]
-            )
+            )))
         else:
             print 'mca metadata in specfile is incomplete!'
 

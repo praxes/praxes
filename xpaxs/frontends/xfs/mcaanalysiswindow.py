@@ -63,8 +63,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
         self.xrfBandComboBox.addItems(self.availableElements)
         self.updateNormalizationChannels()
-#        self.normalization = \
-#            self.scanData['measurement'].mcas[0].normalization_channel
 
         self._setupMcaDockWindows()
         self._setupPPJobStats()
@@ -118,12 +116,9 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         temp = str(self.mapTypeComboBox.currentText()).lower()
         return temp.replace(' ', '_')
 
-    def _get_normalization(self):
+    @property
+    def normalization(self):
         return str(self.normalizationComboBox.currentText())
-    def _set_normalization(self, norm):
-        i = self.normalizationComboBox.findText(norm)
-        self.normalizationComboBox.setCurrentIndex(i)
-    normalization = property(_get_normalization, _set_normalization)
 
     @property
     def xrfBand(self):
@@ -199,7 +194,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
     @QtCore.pyqtSignature("QString")
     def on_normalizationComboBox_currentIndexChanged(self):
-        self.elementsView.updateFigure(self.getElementMap())
+        self.scanData['measurement'].mcas[0].normalization_channel = \
+            self.normalization
 
     @QtCore.pyqtSignature("QString")
     def on_xrfBandComboBox_currentIndexChanged(self):
@@ -248,19 +244,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
         if mapType and element:
             try:
-                measurement = self.scanData['measurement']
-                elementMap = measurement['element_maps'][mapType][element].map
-
-                old = self.scanData['measurement'].mcas[0].normalization
-                if not self.normalization in ('', 'None'):
-                    new = self.scanData['measurement'].mcas[0]\
-                        [self.normalization]
-                else:
-                    new = 1
-                temp = numpy.array(new/old, 'f')
-                norm = numpy.ones(self.scanData.acquisition_shape, 'f')
-                norm.flat[:] = temp.flat[:]
-                return elementMap / norm
+                return self.scanData['measurement']['element_maps'][mapType]\
+                    [element].map
 
             except H5Error:
                 return numpy.zeros(self.scanData.acquisition_shape)
@@ -390,12 +375,12 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
     def updateNormalizationChannels(self):
         norm = self.scanData['measurement'].mcas[0].normalization_channel
-        print norm
         self.normalizationComboBox.clear()
         self.normalizationComboBox.addItems(
             ['', 'None'] + self.scanData['measurement'].mcas[0].signal_names
         )
-        self.normalization = norm
+        i = self.normalizationComboBox.findText(norm)
+        self.normalizationComboBox.setCurrentIndex(i)
 
 
 if __name__ == "__main__":
