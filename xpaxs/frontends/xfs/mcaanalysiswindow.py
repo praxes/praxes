@@ -275,6 +275,11 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
     def processAverageSpectrum(self, indices=None):
         self.statusBar.showMessage('Validating data points ...')
+        valid = self.scanData['measurement']['scalar_data'].valid_indices
+        if indices is None:
+            indices = valid
+        else:
+            indices = valid[indices]
         if len(indices):
             self.statusBar.showMessage('Averaging spectra ...')
             counts = self.scanData['measurement'].mcas[0].get_averaged_counts(
