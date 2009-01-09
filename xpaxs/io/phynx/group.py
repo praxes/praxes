@@ -177,15 +177,6 @@ class Group(h5py.Group, _PhynxProperties, HasTraits):
             return [s.name for s in self.signals]
 
     @property
-    def normalization(self):
-        with self._lock:
-            try:
-                norm = self.attrs['normalization']
-                return self[norm]
-            except h5py.H5Error:
-                return None
-
-    @property
     def axes(self):
         with self._lock:
             return sorted(

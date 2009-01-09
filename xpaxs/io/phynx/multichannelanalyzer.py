@@ -59,64 +59,79 @@ class MultiChannelAnalyzer(Detector):
 
     @property
     def calibration(self):
-        with self._lock:
-            # TODO: use h5py get() when available
-            try:
-                temp = self.attrs['calibration'].lstrip('(').rstrip(')')
-            except h5py.H5Error:
-                temp = '0,1'
-            return array(temp.split(','), 'f')
+        # TODO: use h5py get() when available
+        try:
+            temp = self.attrs['calibration'].lstrip('(').rstrip(')')
+        except h5py.H5Error:
+            temp = '0,1'
+        return array(temp.split(','), 'f')
 
     @property
     def channels(self):
-        with self._lock:
-            try:
-                return self['channels']
-            except h5py.H5Error:
-                return arange(self['counts'].shape[-1])
+        try:
+            return self['channels']
+        except h5py.H5Error:
+            return arange(self['counts'].shape[-1])
 
     @property
     def energy(self):
-        with self._lock:
-            return numpy.polyval(self.calibration[::-1], self.channels)
+        return numpy.polyval(self.calibration[::-1], self.channels)
 
     @property
     def device_id(self):
-        with self._lock:
-            try:
-                return self.attrs['id']
-            except h5py.H5Error:
-                return self.name
+        try:
+            return self.attrs['id']
+        except h5py.H5Error:
+            return self.name
 
     @property
     def iter_mca_counts(self):
         return AcquisitionIterator(self, self['counts'], self.normalization)
 
+    @property
+    def normalization(self):
+        try:
+            norm = self.attrs['normalization']
+            if norm in ('', 'None'):
+                return 1
+            return self[norm].value
+        except h5py.H5Error:
+            return 1
+
+    def _get_normalization_channel(self):
+        try:
+            return self['normalization']
+        except h5py.H5Error:
+            return ''
+    def _set_normalization_channel(self, norm):
+        print 'ok!:',  norm
+        self.attrs['normalization'] = norm
+    normalization_channel = property(
+        _get_normalization_channel, _set_normalization_channel
+    )
+
     def get_averaged_counts(self, indices=[]):
-        with self._lock:
-            if len(indices) > 0:
-                spectrum = self['counts'][indices[0], :]*0
-                numIndices = len(indices)
-                for index in indices:
-                    if not self.is_valid_index(index):
-                        continue
-                    result = self['counts'][index, :]
-                    if self.normalization is not None:
-                        norm = self.normalization[index]
-                        result /= numpy.where(norm==0, numpy.inf, norm)
-                    spectrum += result
-                return spectrum / len(indices)
+        if len(indices) > 0:
+            spectrum = self['counts'][indices[0], :]*0
+            numIndices = len(indices)
+            for index in indices:
+                if not self.is_valid_index(index):
+                    continue
+                result = self['counts'][index, :]
+                if self.normalization is not None:
+                    norm = self.normalization[index]
+                    result /= numpy.where(norm==0, numpy.inf, norm)
+                spectrum += result
+            return spectrum / len(indices)
 
     def _get_pymca_config(self):
-        with self._lock:
-            try:
-                from PyMca.ConfigDict import ConfigDict
-                return ConfigDict(eval(self.attrs['pymca_config']))
-            except h5py.h5.AttrError:
-                return None
+        try:
+            from PyMca.ConfigDict import ConfigDict
+            return ConfigDict(eval(self.attrs['pymca_config']))
+        except h5py.H5Error:
+            return None
     def _set_pymca_config(self, config):
-        with self._lock:
-            self.attrs['pymca_config'] = str(config)
+        self.attrs['pymca_config'] = str(config)
     pymca_config = property(_get_pymca_config, _set_pymca_config)
 
 registry.register(MultiChannelAnalyzer)
