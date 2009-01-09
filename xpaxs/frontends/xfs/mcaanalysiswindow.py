@@ -258,13 +258,9 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
                 else:
                     new = 1
                 temp = numpy.array(new/old, 'f')
-                if numpy.all(temp!=1):
-                    norm = numpy.ones(self.scanData.acquisition_shape, 'f')
-                    print norm, temp
-                    norm.flat[:] = temp.flat[:]
-                    return elementMap / norm
-                else:
-                    return elementMap
+                norm = numpy.ones(self.scanData.acquisition_shape, 'f')
+                norm.flat[:] = temp.flat[:]
+                return elementMap / norm
 
             except H5Error:
                 return numpy.zeros(self.scanData.acquisition_shape)
