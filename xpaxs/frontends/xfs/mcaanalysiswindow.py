@@ -43,7 +43,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     # TODO: this should eventually take an MCA entry
     def __init__(self, scanData, parent=None):
         super(McaAnalysisWindow, self).__init__(parent)
-        self.scanData = scanData
+        self.scanData = scanData['measurement']
         self.setupUi(self)
 
         title = '%s: %s'%(
@@ -81,7 +81,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.verticalLayout.addWidget(self.elementsView)
 
         self.fitParamDlg = FitParamDialog(parent=self)
-        pymcaConfig = self.scanData['measurement'].mcas[0].pymca_config
+        pymcaConfig = self.scanData.mcas[0].pymca_config
 
         if pymcaConfig:
             self.fitParamDlg.setParameters(pymcaConfig)
@@ -104,7 +104,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     @property
     def availableElements(self):
         try:
-            maps = self.scanData['measurement']['element_maps']
+            maps = self.scanData['element_maps']
             elements = maps['fitArea'].listnames()
             elements.sort()
             return elements
@@ -127,7 +127,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     @property
     def availableElements(self):
         try:
-            return self.scanData['measurement']['element_maps']\
+            return self.scanData['element_maps']\
                 ['fit_area'].listnames()
         except H5Error:
             return []
@@ -194,7 +194,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
     @QtCore.pyqtSignature("QString")
     def on_normalizationComboBox_currentIndexChanged(self):
-        self.scanData['measurement'].mcas[0].normalization_channel = \
+        self.scanData.mcas[0].normalization_channel = \
             self.normalization
 
     @QtCore.pyqtSignature("QString")
@@ -232,7 +232,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             self.statusBar.showMessage('Reconfiguring PyMca ...')
             configDict = self.fitParamDlg.getParameters()
             self.spectrumAnalysis.configure(configDict)
-            self.scanData['measurement'].mcas[0].pymca_config = configDict
+            self.scanData.mcas[0].pymca_config = configDict
             self.statusBar.clearMessage()
 
     def elementMapUpdated(self):
@@ -244,7 +244,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
         if mapType and element:
             try:
-                return self.scanData['measurement']['element_maps'][mapType]\
+                return self.scanData['element_maps'][mapType]\
                     [element].map
 
             except H5Error:
@@ -254,10 +254,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             return numpy.zeros(self.scanData.acquisition_shape, dtype='f')
 
     def initializeElementMaps(self, elements):
-        if 'element_maps' in self.scanData['measurement']:
-            del self.scanData['measurement']['element_maps']
+        if 'element_maps' in self.scanData:
+            del self.scanData['element_maps']
 
-        elementMaps = self.scanData['measurement'].create_group('element_maps')
+        elementMaps = self.scanData.create_group('element_maps')
         for mapType in ['fit_area', 'mass_fraction', 'sigma_area']:
             mapGroup = elementMaps.create_group(mapType)
             for element in elements:
@@ -268,24 +268,24 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
     def updateElementMap(self, mapType, element, index, val):
         try:
-            maps = self.scanData['measurement']['element_maps']
+            maps = self.scanData['element_maps']
             maps[mapType][element][tuple(index)] = val
         except ValueError:
             print index, node
 
     def processAverageSpectrum(self, indices=None):
         self.statusBar.showMessage('Validating data points ...')
-        valid = self.scanData['measurement']['scalar_data'].valid_indices
+        valid = self.scanData['scalar_data'].valid_indices
         if indices is None:
             indices = valid
         else:
             indices = valid[indices]
         if len(indices):
             self.statusBar.showMessage('Averaging spectra ...')
-            counts = self.scanData['measurement'].mcas[0].get_averaged_counts(
+            counts = self.scanData.mcas[0].get_averaged_counts(
                 indices
             )
-            channels = self.scanData['measurement'].mcas[0].channels
+            channels = self.scanData.mcas[0].channels
 
             self.spectrumAnalysis.setData(x=channels, y=counts)
 
@@ -379,10 +379,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.actionCalibration.setEnabled(enabled)
 
     def updateNormalizationChannels(self):
-        norm = self.scanData['measurement'].mcas[0].normalization_channel
+        norm = self.scanData.mcas[0].normalization_channel
         self.normalizationComboBox.clear()
         self.normalizationComboBox.addItems(
-            ['', 'None'] + self.scanData['measurement'].mcas[0].signal_names
+            ['', 'None'] + self.scanData.mcas[0].signal_names
         )
         i = self.normalizationComboBox.findText(norm)
         self.normalizationComboBox.setCurrentIndex(i)

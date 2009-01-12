@@ -7,7 +7,7 @@
     :Release: |version|
     :Date: |today|
 
-    Download `PDF <http://dale.chess.cornell.edu/~darren/XPaXS.pdf>`_
+    Download `PDF <./XPaXS.pdf>`_
 
 .. _contents:
 

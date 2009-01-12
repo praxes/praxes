@@ -3,4 +3,4 @@
 ========================
 
 .. automodule:: xpaxs.io.specfile
-   :members: load, spec2hdf5
+   :members: load
