@@ -64,14 +64,14 @@ class MultiChannelAnalyzer(Detector):
             temp = self.attrs['calibration'].lstrip('(').rstrip(')')
         except h5py.H5Error:
             temp = '0,1'
-        return array(temp.split(','), 'f')
+        return numpy.array(temp.split(','), 'f')
 
     @property
     def channels(self):
         try:
             return self['channels']
         except h5py.H5Error:
-            return arange(self['counts'].shape[-1])
+            return numpy.arange(self['counts'].shape[-1])
 
     @property
     def energy(self):

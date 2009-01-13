@@ -277,7 +277,6 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         )
 
     for f in os.listdir(os.curdir):
-        print f, spec_filename+'.scan%s'%scan_number
         if f.startswith(spec_filename+'.scan%s'%scan_number) and \
             f.endswith('.mca'):
             process_mca(specfile.Specfile(f)[0], measurement, True)
