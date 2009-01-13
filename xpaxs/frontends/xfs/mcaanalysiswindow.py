@@ -59,7 +59,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 #            self.updateNormalizationChannels
 #        )
 
-        self.elementsView = ElementsView(scanData, self)
+        self.elementsView = ElementsView(self.scanData, self)
 
         self.xrfBandComboBox.addItems(self.availableElements)
         self.updateNormalizationChannels()
@@ -315,10 +315,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
         self._resetPeaks()
 
-        config = copy.deepcopy(self.pymcaConfig)
-
         thread = XfsPPTaskManager(parent=self)
-        thread.setData(self.scanData, config)
+#        config = copy.deepcopy(self.pymcaConfig)
+#        thread.setData(self.scanData, config)
+        thread.setData(self.scanData, self.pymcaConfig)
 
         self.connect(
             thread,

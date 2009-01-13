@@ -84,9 +84,8 @@ class MultiChannelAnalyzer(Detector):
         except h5py.H5Error:
             return self.name
 
-    @property
-    def iter_mca_counts(self):
-        return AcquisitionIterator(self, self['counts'], self.normalization)
+    def iter_counts(self):
+        return AcquisitionIterator(self, self['counts'])
 
     @property
     def normalization(self):

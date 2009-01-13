@@ -98,7 +98,7 @@ class XfsPPTaskManager(PPTaskManager):
 
     def setData(self, scan, config):
         self.scan = scan
-        self.iterData = scan.iterMcaSpectra
+        self.iterData = scan.mcas[0].iter_counts()
 
         self.config = config
 
@@ -109,6 +109,12 @@ class XfsPPTaskManager(PPTaskManager):
             self.mfTool = ConcentrationsTool(config)
             self.tconf = self.mfTool.configure()
 
+    def updateElementMap(self, mapType, element, index, val):
+        try:
+            self.scan['element_maps'][mapType][element][index] = val
+        except ValueError:
+            print index, node
+
     def updateRecords(self, data):
         if data:
             try:
@@ -117,29 +123,28 @@ class XfsPPTaskManager(PPTaskManager):
 
                 self.advancedFit = data['advancedFit']
                 shape = self.scan.acquisition_shape
-                index = flat_to_nd(data['index'], shape)
+                index = data['index']
 
                 result = data['result']
                 for group in result['groups']:
-                    g = group.replace(' ', '')
+                    g = group.replace(' ', '_')
 
                     fitArea = result[group]['fitarea']
                     if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
                     else: sigmaArea = numpy.nan
 
-                    self.scan.updateElementMap('fitArea', g, index, fitArea)
-                    self.scan.updateElementMap('sigmaArea', g, index, sigmaArea)
+                    self.updateElementMap('fit_area', g, index, fitArea)
+                    self.updateElementMap('sigma_area', g, index, sigmaArea)
 
                 if 'concentrations' in result:
                     massFractions = result['concentrations']['mass fraction']
                     for key, val in massFractions.iteritems():
-                        k = key.replace(' ', '')
-                        self.scan.updateElementMap('massFraction', k, index, val)
+                        k = key.replace(' ', '_')
+                        self.updateElementMap('mass_fraction', k, index, val)
                 self.dirty = True
                 self.emit(
                     QtCore.SIGNAL('percentComplete'),
-                    (100.0 * self.iterData.currentIndex) / \
-                        self.iterData.npoints
+                    (100.0 * self.iterData.currentIndex) / self.scan.npoints
                 )
                 if DEBUG: print 'records updated'
             finally:

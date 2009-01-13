@@ -37,45 +37,41 @@ from .registry import registry
 
 class AcquisitionIterator(object):
 
-    def __init__(self, parent, dataset, normalization=None):
+    def __init__(self, parent, dataset):
         self._currentIndex = 0
         self._parent = parent
         self._dataset = dataset
-        self._lock = parent._lock
-        assert skipped is None or isinstance(skipped, Dataset)
 
     def __iter__(self):
         return self
 
     @property
     def currentIndex(self):
-        with self._lock:
-            return self._currentIndex
+        return self._currentIndex
 
     def next(self):
-        with self._lock:
-            if self._currentIndex >= self.npoints:
-                raise StopIteration
+        if self._currentIndex >= self._dataset.npoints:
+            raise StopIteration
 
-            else:
-                try:
-                    if self.parent.is_valid_index(self._currentIndex):
-                        i = self._currentIndex
-                        data = self._dataset[i]
-                        try:
-                            data /= self._parent.normalization[i]
-                        except TypeError:
-                            pass
-                        self._currentIndex += 1
+        else:
+            try:
+                if self._parent.is_valid_index(self._currentIndex):
+                    i = self._currentIndex
+                    data = self._dataset[i]
+                    try:
+                        data /= self._parent.normalization[i]
+                    except TypeError:
+                        pass
+                    self._currentIndex += 1
 
-                        return i, data
+                    return i, data
 
-                    else:
-                        self._currentIndex += 1
-                        return self.next()
+                else:
+                    self._currentIndex += 1
+                    return self.next()
 
-                except h5py.H5Error:
-                    raise IndexError
+            except h5py.H5Error:
+                raise IndexError
 
 
 class Group(h5py.Group, _PhynxProperties, HasTraits):
