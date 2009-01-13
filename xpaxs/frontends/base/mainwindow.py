@@ -24,7 +24,7 @@ import numpy
 
 from xpaxs import __version__
 from .ui import ui_mainwindow
-from xpaxs.io.phynxfile import FileInterface
+from xpaxs.io.phynx.ui.qt import FileInterface
 #from xpaxs.frontends.base.ppjobstats import PPJobStats
 from .emailDlg import EmailDialog
 
@@ -322,16 +322,16 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
     def getScanView(self, *args):
         raise NotImplementedError
 
-    def importSpecFile(self, force=False):
-        f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',
-                    "Spec datafiles (*.dat *.mca);;All files (*)")
-        if f:
-            h5filename = '%s'% QtGui.QFileDialog.getSaveFileName(self,
-                    'Save HDF5 File', '.', 'HDF5 files (*.h5 *.hdf5)', f+'.h5')
-            if h5filename:
-                from xpaxs.io import specfile
-                specfile.spec2hdf5(f, hdf5Filename=h5filename, force=True)
-                self.openDatafile(h5filename)
+#    def importSpecFile(self, force=False):
+#        f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',
+#                    "Spec datafiles (*.dat *.mca);;All files (*)")
+#        if f:
+#            h5filename = '%s'% QtGui.QFileDialog.getSaveFileName(self,
+#                    'Save HDF5 File', '.', 'HDF5 files (*.h5 *.hdf5)', f+'.h5')
+#            if h5filename:
+#                from xpaxs.io import spec
+#                specfile.spec2hdf5(f, hdf5Filename=h5filename, force=True)
+#                self.openDatafile(h5filename)
 
     def newScanWindow(self, scan, beginProcessing=False):
         # TODO: this belongs in the file interface, not here:

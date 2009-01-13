@@ -40,7 +40,7 @@ from PyMca.specfile import Specfile, Scandata, error
 # Normal code begins
 #---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.io.specfile')
+logger = logging.getLogger(__file__)
 
 __all__ = ['load']
 
