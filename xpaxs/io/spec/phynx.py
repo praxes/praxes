@@ -12,17 +12,17 @@ import os
 #---------------------------------------------------------------------------
 
 import numpy
-#try:
-#    import specfile
-#except ImportError:
-#    from PyMca import specfile
-from PyMca import specfile
+try:
+    import specfile
+except ImportError:
+    from PyMca import specfile
+
 
 #---------------------------------------------------------------------------
 # xpaxs imports
 #---------------------------------------------------------------------------
 
-from ..file import File
+from xpaxs.io.phynx import File
 
 #---------------------------------------------------------------------------
 # Normal code begins
