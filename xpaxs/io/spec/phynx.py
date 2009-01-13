@@ -281,7 +281,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
             f.endswith('.mca'):
             process_mca(specfile.Specfile(f)[0], measurement, True)
 
-def convert_spec(spec_filename, h5_filename=None, force=False):
+def convert_to_phynx(spec_filename, h5_filename=None, force=False):
     """convert a spec data file to hdf5 and return the file object"""
     print 'Converting spec file %s to hdf5'% spec_filename
     if h5_filename is None:
