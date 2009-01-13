@@ -122,9 +122,13 @@ class Axis(Dataset):
         with self._lock:
             try:
                 temp = self.attrs['range'].lstrip('(').rstrip(')')
+                return tuple(float(i) for i in temp.split(','))
             except h5py.H5Error:
-                temp = '0, 1'
-            return tuple(float(i) for i in temp.split(','))
+                try:
+                    return (self.value[[0, -1]])
+                except IndexError:
+                    return (0, 0)
+
 
 registry.register(Axis)
 

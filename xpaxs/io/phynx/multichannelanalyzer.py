@@ -69,7 +69,7 @@ class MultiChannelAnalyzer(Detector):
     @property
     def channels(self):
         try:
-            return self['channels']
+            return self['channels'].value
         except h5py.H5Error:
             return numpy.arange(self['counts'].shape[-1])
 
