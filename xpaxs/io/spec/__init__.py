@@ -34,7 +34,7 @@ import numpy
 #---------------------------------------------------------------------------
 
 # TODO: fix this import:
-from specfile import Specfile, Scandata, error
+from PyMca.specfile import Specfile, Scandata, error
 from phynx import convert_to_phynx
 
 #---------------------------------------------------------------------------

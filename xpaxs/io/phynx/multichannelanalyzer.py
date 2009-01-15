@@ -7,7 +7,7 @@ from __future__ import absolute_import, with_statement
 # Stdlib imports
 #---------------------------------------------------------------------------
 
-
+import copy
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -89,6 +89,7 @@ class MultiChannelAnalyzer(Detector):
 
     @property
     def normalization(self):
+        # TODO: this should not return a dataset, but a numpy array
         try:
             norm = self.attrs['normalization']
             if norm in ('', 'None'):
@@ -109,18 +110,19 @@ class MultiChannelAnalyzer(Detector):
     )
 
     def get_averaged_counts(self, indices=[]):
-        if len(indices) > 0:
-            spectrum = numpy.zeros(len(self['counts'][indices[0]]), 'f')
-            numIndices = len(indices)
-            for index in indices:
-                if not self.is_valid_index(index):
-                    continue
-                result = self['counts'][index]
-                if self.normalization is not None:
-                    norm = self.normalization[index]
-                    result /= numpy.where(norm==0, numpy.inf, norm)
-                spectrum += result
-            return spectrum / len(indices)
+        with self._lock:
+            if len(indices) > 0:
+                spectrum = numpy.zeros(len(self['counts'][indices[0]]), 'f')
+                numIndices = len(indices)
+                for index in indices:
+                    if not self.is_valid_index(index):
+                        continue
+                    result = self['counts'][index]
+                    if self.normalization is not None:
+                        norm = self.normalization[index]
+                        result /= numpy.where(norm==0, numpy.inf, norm)
+                    spectrum += result
+                return spectrum / len(indices)
 
     def _get_pymca_config(self):
         try:

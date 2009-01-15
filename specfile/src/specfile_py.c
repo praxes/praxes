@@ -1,5 +1,5 @@
 #/*##########################################################################
-# Copyright (C) 2004-2007 European Synchrotron Radiation Facility
+# Copyright (C) 2004-2008 European Synchrotron Radiation Facility
 #
 # This file is part of the PyMCA X-ray Fluorescence Toolkit developed at
 # the ESRF by the Beamline Instrumentation Software Support (BLISS) group.
@@ -22,7 +22,7 @@
 # and cannot be used as a free plugin for a non-free program. 
 #
 # Please contact the ESRF industrial unit (industry@esrf.fr) if this license 
-# is a problem to you.
+# is a problem for you.
 #############################################################################*/
 /*char RcsId[] = "$Header: /segfs/bliss/source/python/specfile/specfile-3.1/src/RCS/specfile_py.c,v 1.9 2005/05/25 13:30:16 sole Exp $"; */
 /************************************************************************
@@ -614,13 +614,13 @@ specfile_getattr(PyObject *self,char *name) {
  * Type descriptors
  */
 static PySequenceMethods specfile_as_sequence = {
-  (inquiry)        specfile_noscans,    /*     length len(sf)     */
-  (binaryfunc)          0,              /*     concat sf1 + sf2   */
-  (intargfunc)          0,              /*     repeat sf * n      */
-  (intargfunc)     specfile_scan,       /*     item  sf[i], in    */
-  (intintargfunc)       0,              /*     slice sf[i:j]      */
-  (intobjargproc)       0,              /*     asset sf[i] = v    */
-  (intintobjargproc)    0,              /* slice ass. sf[i:j] = v */
+  specfile_noscans,    /*     length len(sf)     */
+  0,              /*     concat sf1 + sf2   */
+  0,              /*     repeat sf * n      */
+  specfile_scan,       /*     item  sf[i], in    */
+  0,              /*     slice sf[i:j]      */
+  0,              /*     asset sf[i] = v    */
+  0,              /* slice ass. sf[i:j] = v */
 };
 
 static PyTypeObject Specfiletype = {
@@ -630,7 +630,7 @@ static PyTypeObject Specfiletype = {
 #else
        PyObject_HEAD_INIT(&PyType_Type)
 #endif       
-	   0,
+       0,
        "specfile",
        sizeof(specfileobject),
        0,
@@ -664,13 +664,14 @@ scandata_data(PyObject *self,PyObject *args) {
     int     error;
     int     ret;
     double  **data;
-    long     *data_info;
-    int       dimensions[2],i,j;
+    long    *data_info;
+    int i,j;
+    npy_intp dimensions[2];
 
     SpecFile *sf;
     int     idx,didx;
 
-    PyArrayObject *array;
+    PyArrayObject *r_array;
 
     scandataobject *s = (scandataobject *) self;
 
@@ -687,7 +688,7 @@ scandata_data(PyObject *self,PyObject *args) {
 
     dimensions[0] = data_info[1];
     dimensions[1] = data_info[0];
-    array = (PyArrayObject *)PyArray_FromDims(2,dimensions,PyArray_DOUBLE);
+    r_array = (PyArrayObject *)PyArray_SimpleNew(2,dimensions,PyArray_DOUBLE);
 
    /*
     * Copy
@@ -697,7 +698,7 @@ scandata_data(PyObject *self,PyObject *args) {
     for (i=0;i<dimensions[0];i++) {
        for (j=0;j<dimensions[1];j++) {
           didx = j + i * dimensions[1];
-          ((double *)array->data)[didx] = data[j][i];
+          ((double *)r_array->data)[didx] = data[j][i];
        }
     }
     /* memcpy(array->data,data,PyArray_NBYTES(array)); */
@@ -708,16 +709,17 @@ scandata_data(PyObject *self,PyObject *args) {
         free(data);
     }
 /*    return (PyObject *)array; */
-    return PyArray_Return(array);
+    return PyArray_Return(r_array);
 }
 
 static PyObject *
 scandata_dataline(PyObject *self,PyObject *args) {
     int     error;
-    int     ret, lineno;
+    int     lineno;
+    npy_intp ret;
     double  *data;
 
-    PyArrayObject *array;
+    PyArrayObject *r_array;
 
     SpecFile *sf;
     int     idx;
@@ -735,21 +737,22 @@ scandata_dataline(PyObject *self,PyObject *args) {
     if (ret == -1 )
           onError("cannot get data for line");
 
-    array  = (PyArrayObject *)PyArray_FromDims(1,&ret,PyArray_DOUBLE);
+    r_array  = (PyArrayObject *)PyArray_SimpleNew(1,&ret,PyArray_DOUBLE);
 
-    memcpy(array->data,data,PyArray_NBYTES(array));
+    memcpy(r_array->data,data,PyArray_NBYTES(r_array));
 
-    return (PyObject *)array;
+    return (PyObject *)r_array;
 }
 
 static PyObject *
 scandata_datacol(PyObject *self,PyObject *args) {
     int     error;
-    int     ret, colno;
+    int     colno;
+    npy_intp ret;
     char    *colname;
     double  *data;
 
-    PyArrayObject *array;
+    PyArrayObject *r_array;
 
     SpecFile *sf;
     int     idx;
@@ -761,9 +764,9 @@ scandata_datacol(PyObject *self,PyObject *args) {
     if (!PyArg_ParseTuple(args,"i",&colno)) {
       PyErr_Clear() ; 
       if (!PyArg_ParseTuple(args,"s",&colname)) {
-	onError("cannot decode arguments for column data"); 
+    onError("cannot decode arguments for column data"); 
       } else {
-	ret = SfDataColByName(sf,idx,colname,&data,&error);
+    ret = SfDataColByName(sf,idx,colname,&data,&error);
       }
     } else {
       ret = SfDataCol(sf,idx,colno,&data,&error);
@@ -772,20 +775,18 @@ scandata_datacol(PyObject *self,PyObject *args) {
     if (ret == -1 )
       onError("cannot get data for column");
     
-    array      = (PyArrayObject *)PyArray_FromDims(1,&ret,PyArray_DOUBLE);
+    r_array      = (PyArrayObject *)PyArray_SimpleNew(1,&ret,PyArray_DOUBLE);
     
    if (data != (double *) NULL){
-        memcpy(array->data,data,PyArray_NBYTES(array));
+        memcpy(r_array->data,data,PyArray_NBYTES(r_array));
         free(data);
     }else{
         /* return an empty array? */
         printf("I should return an empty array ...\n");
-        ;
+		PyArray_FILLWBYTE(r_array, 0);
     }
 
-    /* put back PyArray_Return */ 
-/*    return (PyObject *)array; */
-    return PyArray_Return(array);
+    return PyArray_Return(r_array);
     /*
       it does not work for solaris and linux
       I should check the call to PyErr_Occurred()) in Numeric/Src/arrayobject.c
@@ -1131,11 +1132,12 @@ scandata_nbmca      (PyObject *self,PyObject *args)
 static PyObject   * 
 scandata_mca      (PyObject *self,PyObject *args)
 {
-    int    ret,error;
+    int    error;
+    npy_intp ret;
     long   idx,mcano;
 
     double         *mcadata = NULL;
-    PyArrayObject  *array;
+    PyArrayObject  *r_array;
 
     SpecFile *sf;
 
@@ -1157,11 +1159,11 @@ scandata_mca      (PyObject *self,PyObject *args)
     if (ret == -1) 
         onError("cannot get mca for scan");
 
-    array = (PyArrayObject *)PyArray_FromDims(1,&ret,PyArray_DOUBLE);
+    r_array = (PyArrayObject *)PyArray_SimpleNew(1,&ret,PyArray_DOUBLE);
 
 
     if (mcadata != (double *) NULL){
-        memcpy(array->data,mcadata,PyArray_NBYTES(array));
+        memcpy(r_array->data,mcadata,PyArray_NBYTES(r_array));
         free(mcadata);
     }else{
         printf("I should give back an empty array\n");
@@ -1169,7 +1171,7 @@ scandata_mca      (PyObject *self,PyObject *args)
  
 /*    return (PyObject *)array; */
     
-    return PyArray_Return(array);
+    return PyArray_Return(r_array);
     /*
       it does not work for solaris and linux
       I should check the call to PyErr_Occurred()) in Numeric/Src/arrayobject.c
@@ -1239,10 +1241,10 @@ scandata_size(PyObject *self) {
 static PyObject *
 scandata_col(PyObject *self,int index) {
     int     error;
-    int     ret;
+    npy_intp ret;
     double  *data;
 
-    PyArrayObject *array;
+    PyArrayObject *r_array;
 
     SpecFile *sf;
     int      idx,col;
@@ -1264,23 +1266,23 @@ scandata_col(PyObject *self,int index) {
     if (ret == -1 )
           onError("cannot get data for column");
 
-    array = (PyArrayObject *)PyArray_FromDims(1,&ret,PyArray_DOUBLE);
+    r_array = (PyArrayObject *)PyArray_SimpleNew(1,&ret,PyArray_DOUBLE);
 
-    if ( array == NULL ) 
+    if ( r_array == NULL ) 
           onError("cannot get memory for array data");
 
     if (data != (double *) NULL){
-        memcpy(array->data,data,PyArray_NBYTES(array));
+        memcpy(r_array->data,data,PyArray_NBYTES(r_array));
         free(data);
     }else{
         /* return an empty array? */
         printf("I should return an empty array ...\n");
-        ;
-    }
+		PyArray_FILLWBYTE(r_array, 0);
+	}
 
 /*    return (PyObject *)array; */
 /* put back the PyArray_Return call instead of the previous line */
-    return PyArray_Return(array);
+    return PyArray_Return(r_array);
 
     /*
       it does not work for solaris and linux
@@ -1336,13 +1338,13 @@ scandata_getattr(PyObject *self,char *name) {
  * Type descriptors
  */
 static PySequenceMethods scandata_as_sequence = {
-  (inquiry)        scandata_size,       /*     length len(sf)     */
-  (binaryfunc)          0,              /*     concat sf1 + sf2   */
-  (intargfunc)          0,              /*     repeat sf * n      */
-  (intargfunc)     scandata_col,        /*     item  sf[i], in    */
-  (intintargfunc)  scandata_slice,      /*     slice sf[i:j]      */
-  (intobjargproc)       0,              /*     asset sf[i] = v    */
-  (intintobjargproc)    0,              /* slice ass. sf[i:j] = v */
+  scandata_size,       /*     length len(sf)     */
+  0,              /*     concat sf1 + sf2   */
+  0,              /*     repeat sf * n      */
+  scandata_col,        /*     item  sf[i], in    */
+  scandata_slice,      /*     slice sf[i:j]      */
+  0,              /*     asset sf[i] = v    */
+  0,              /* slice ass. sf[i:j] = v */
 };
 
 static PyTypeObject Scandatatype = {
@@ -1426,10 +1428,10 @@ DL_EXPORT(void)
 initspecfile(void) {
     PyObject *m,*d;
 
-	Specfiletype.ob_type = &PyType_Type;
+    Specfiletype.ob_type = &PyType_Type;
     Scandatatype.ob_type = &PyType_Type;
     m = Py_InitModule("specfile",specfiletype_methods);
-	
+    
 /*    printf("Loading test specfile module\n");*/
 
     import_array();

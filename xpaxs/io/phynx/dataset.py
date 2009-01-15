@@ -77,11 +77,13 @@ class Dataset(h5py.Dataset, _PhynxProperties, HasTraits):
 
     @property
     def name(self):
-        return basename(super(Dataset, self).name)
+        with self._lock:
+            return basename(super(Dataset, self).name)
 
     @property
     def path(self):
-        return super(Dataset, self).name
+        with self._lock:
+            return super(Dataset, self).name
 
 registry.register(Dataset)
 
@@ -103,32 +105,28 @@ class Axis(Dataset):
 
     @property
     def axis(self):
-        with self._lock:
-            try:
-                return self.attrs['axis']
-            except h5py.H5Error:
-                return 0
+        try:
+            return self.attrs['axis']
+        except h5py.H5Error:
+            return 0
 
     @property
     def primary(self):
-        with self._lock:
-            try:
-                return self.attrs['primary']
-            except h5py.H5Error:
-                return 0
+        try:
+            return self.attrs['primary']
+        except h5py.H5Error:
+            return 0
 
     @property
     def range(self):
-        with self._lock:
+        try:
+            temp = self.attrs['range'].lstrip('(').rstrip(')')
+            return tuple(float(i) for i in temp.split(','))
+        except h5py.H5Error:
             try:
-                temp = self.attrs['range'].lstrip('(').rstrip(')')
-                return tuple(float(i) for i in temp.split(','))
-            except h5py.H5Error:
-                try:
-                    return (self.value[[0, -1]])
-                except IndexError:
-                    return (0, 0)
-
+                return (self.value[[0, -1]])
+            except IndexError:
+                return (0, 0)
 
 registry.register(Axis)
 
@@ -152,10 +150,9 @@ class Signal(Dataset):
 
     @property
     def signal(self):
-        with self._lock:
-            try:
-                return self.attrs['signal']
-            except h5py.H5Error:
-                return 0
+        try:
+            return self.attrs['signal']
+        except h5py.H5Error:
+            return 0
 
 registry.register(Signal)

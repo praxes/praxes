@@ -233,7 +233,8 @@ class FileModel(QtCore.QAbstractItemModel):
                 return item
 
     def _openFile(self, filename):
-        return phynx.File(filename, 'a', QRLock())
+#        return phynx.File(filename, 'a', QRLock())
+        return phynx.File(filename, 'a')
 
     def openFile(self, filename):
         item = self.getFileItem(filename)
@@ -381,3 +382,6 @@ class QRLock(QtCore.QMutex):
 
     def release(self):
         self.unlock()
+
+#from h5py.highlevel import LockableObject
+#LockableObject._lock = QRLock()

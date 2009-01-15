@@ -4,9 +4,9 @@
 # This file is part of the PyMCA X-ray Fluorescence Toolkit developed at
 # the ESRF by the Beamline Instrumentation Software Support (BLISS) group.
 #
-# This toolkit is free software; you can redistribute it and/or modify it
+# This toolkit is free software; you can redistribute it and/or modify it 
 # under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 2 of the License, or (at your option)
+# Software Foundation; either version 2 of the License, or (at your option) 
 # any later version.
 #
 # PyMCA is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -19,9 +19,9 @@
 # Suite 330, Boston, MA 02111-1307, USA.
 #
 # PyMCA follows the dual licensing model of Trolltech's Qt and Riverbank's PyQt
-# and cannot be used as a free plugin for a non-free program.
+# and cannot be used as a free plugin for a non-free program. 
 #
-# Please contact the ESRF industrial unit (industry@esrf.fr) if this license
+# Please contact the ESRF industrial unit (industry@esrf.fr) if this license 
 # is a problem to you.
 #############################################################################*/
 /*char RcsId[] = "$Header: /segfs/bliss/source/python/specfile/specfile-3.1/src/RCS/sfwrite.c,v 1.1 2003/09/12 13:20:35 rey Exp $"; */
@@ -32,7 +32,7 @@
  *   Project:       SpecFile library
  *
  *   Description:   Functions for scan output
- *
+ * 
  *   Author:        V.Rey
  *
  *   Date:          $Date: 2003/09/12 13:20:35 $
@@ -48,7 +48,7 @@
  *   Log:
  * Revision 2.1  2000/07/31  19:05:14  19:05:14  rey (Vicente Rey-Bakaikoa)
  * SfUpdate and bug corrected in ReadIndex
- *
+ * 
  * Revision 2.0  2000/04/13  13:28:54  13:28:54  rey (Vicente Rey-Bakaikoa)
  * New version of the library. Complete rewrite
  * Adds support for MCA
@@ -66,11 +66,11 @@ DllExport long      SfoSelectOne ( SpecFileOut *sfo, long index,
                                                 int *error );
 DllExport long      SfoSelect    ( SpecFileOut *sfo, long *list,
                                                 int *error );
-DllExport long      SfoSelectRange ( SpecFileOut *sfo, long begin,
+DllExport long      SfoSelectRange ( SpecFileOut *sfo, long begin, 
                                                 long end, int *error );
 DllExport long      SfoRemoveOne ( SpecFileOut *sfo, long index,
                                                 int *error );
-DllExport long      SfoRemove    ( SpecFileOut *sfo, long *list,
+DllExport long      SfoRemove    ( SpecFileOut *sfo, long *list, 
                                                 int *error );
 DllExport long      SfoRemoveRange ( SpecFileOut *sfo, long begin,
                                                 long end, int *error );
@@ -96,16 +96,16 @@ static int sfoWriteOne(SpecFileOut *sfo,int output, long index,int *error);
  *                - last written file header
  *   Parameters:
  *        Input :    (1) SpecFile pointer
- *
+ *            
  *        Output:
  *            (2) error number
  *   Returns:
  *            Pointer to the initialized SpecFileOut structure.
- *            NULL in case of an error.
+ *            NULL in case of an error.            
  *
  *   Possible errors:
  *            SF_ERR_MEMOREY_ALLOC
- *
+ *            
  *   Remark:    This function MUST be the FIRST called before
  *        any other WRITE function is called !
  *
@@ -116,7 +116,7 @@ SfoInit( SpecFile *sf, int *error )
      SpecFileOut    *sfo;
 
      /*
-      * Alloc memory
+      * Alloc memory 
       */
      sfo = (SpecFileOut *) malloc ( sizeof(SpecFileOut) );
 
@@ -126,12 +126,12 @@ SfoInit( SpecFile *sf, int *error )
      }
 
      /*
-      * Initialize
+      * Initialize 
       */
      sfo->sf          = sf;
      sfo->list        = (long *)NULL;
      sfo->list_size   =  0;
-     sfo->file_header = -1;
+     sfo->file_header = -1;     
 
      return( sfo );
 }
@@ -143,8 +143,8 @@ SfoInit( SpecFile *sf, int *error )
  *   Description:     Makes a copy of the SpecFileOut list.
  *
  *   Parameters:
- *        Input :    (1) SpecFileOut pointer
- *
+ *        Input :    (1) SpecFileOut pointer 
+ *            
  *        Output: (2) Copy of the output list of spec scan indices.
  *            (3) error code
  *   Returns:
@@ -154,11 +154,11 @@ SfoInit( SpecFile *sf, int *error )
  *
  *   Possible errors:
  *            SF_ERR_MEMOREY_ALLOC
- *
+ *            
  *   Remark:  The memory allocated should be freed by the application
  *
  *********************************************************************/
-DllExport long
+DllExport long 
 SfoGetList( SpecFileOut *sfo, long **list, int *error )
 {
      long    i;
@@ -173,8 +173,8 @@ SfoGetList( SpecFileOut *sfo, long **list, int *error )
       }
       for ( i=0 ; i < sfo->list_size ; i++ ) {
            (*list)[i] = sfo->list[i];
-      }
-     } else *list = (long *)NULL;
+      }    
+     } else *list = (long *)NULL;   
 
      return( sfo->list_size );
 }
@@ -193,7 +193,7 @@ SfoGetList( SpecFileOut *sfo, long **list, int *error )
  *   Returns:
  *            ( -1 ) => error
  *            Number of scan indices in the SpecFileOut list.
- *
+ *              
  *   Possible errors:
  *            SF_ERR_MEMORY_ALLOC
  *
@@ -224,7 +224,7 @@ SfoSelectOne( SpecFileOut *sfo, long index, int *error )
       /*
        * Is the new index already in list ?
        */
-      for ( i=0 ; i<sfo->list_size ; i++ )
+      for ( i=0 ; i<sfo->list_size ; i++ ) 
         if ( index == sfo->list[i] ) return( sfo->list_size );
       sfo->list = realloc( sfo->list, ++(sfo->list_size) * sizeof(long) );
       if ( sfo->list == (long *)NULL ) {
@@ -232,9 +232,9 @@ SfoSelectOne( SpecFileOut *sfo, long index, int *error )
            sfo->list_size = 0;
            return( -1 );
       }
-     }
+     }     
      sfo->list[sfo->list_size-1] = index;
-     printf("Adding scan %ld\n",index);
+     printf("Adding scan %d\n",index);
 
      return( sfo->list_size );
 }
@@ -247,14 +247,14 @@ SfoSelectOne( SpecFileOut *sfo, long index, int *error )
  *
  *   Parameters:
  *        Input :    (1) SpecFileOut pointer
- *            (2) List scan indices (!The last element
+ *            (2) List scan indices (!The last element 
  *                        MUST be a '0' !)
  *        Output:
  *            (3) error code
  *   Returns:
  *            ( -1 ) => error
  *            Number of scan indices in the SpecFileOut list.
- *
+ *            
  *   Possible errors:
  *            SF_ERR_MEMORY_ALLOC    | => SfoSelectOne()
  *
@@ -284,7 +284,7 @@ SfoSelect( SpecFileOut *sfo, long *list, int *error )
  *   Returns:
  *            ( -1 ) => error
  *            Number of scan indices in the SpecFileOut list.
- *
+ *            
  *   Possible errors:
  *            SF_ERR_MEMORY_ALLOC    | => SfoSelectOne()
  *
@@ -315,12 +315,12 @@ SfoSelectRange( SpecFileOut *sfo, long begin, long end, int *error )
  *   Description:    Writes all scan indices in the SpecFileOut list.
  *
  *   Parameters:
- *        Input :    (1) SpecFileOutput pointer
+ *        Input :    (1) SpecFileOutput pointer 
  *        Output:    (2) error number
  *   Returns:
  *            ( -1 ) => error
  *            Number of scan indices in the SpecFileOut list.
- *
+ *            
  *   Possible errors:
  *            SF_ERR_MEMORY_ALLOC
  *
@@ -333,11 +333,11 @@ SfoSelectAll( SpecFileOut *sfo, int *error )
      if ( sfo->sf->no_scans > 0 ) {
       for ( i=1 ; i<=sfo->sf->no_scans ; i++ ) {
            if ( SfoSelectOne( sfo, i , error ) < 0 ) return( -1 );
-      }
-     }
+      }    
+     }    
      return( sfo->list_size );
 }
-
+          
 
 /*********************************************************************
  *   Function:        long SfoRemoveOne( sfo, index, error )
@@ -353,7 +353,7 @@ SfoSelectAll( SpecFileOut *sfo, int *error )
  *            Number of scans left ,
  *            (  0 ) => list empty( (long *)NULL ) ), no errors
  *            ( -1 ) => error.
- *
+ *            
  *   Possible errors:
  *            SF_ERR_MEMORY_ALLOC
  *
@@ -363,7 +363,7 @@ SfoRemoveOne( SpecFileOut *sfo, long index, int *error )
 {
      long    i;
      int    found = 0;
-
+     
      /*
       * Look for scan index and delete.
       */
@@ -390,7 +390,7 @@ SfoRemoveOne( SpecFileOut *sfo, long index, int *error )
 /*********************************************************************
  *   Function:        long SfoRemove( sfo, list, error )
  *
- *   Description:    Removes several scans indices from the
+ *   Description:    Removes several scans indices from the 
  *                        SpecFileOut list.
  *
  *   Parameters:
@@ -400,10 +400,10 @@ SfoRemoveOne( SpecFileOut *sfo, long index, int *error )
  *        Output:
  *            (3) error code
  *   Returns:
- *            Number of scan indices left ,
+ *            Number of scan indices left , 
  *            (  0 ) => list empty( (long *)NULL ) ), no errors
  *            ( -1 ) => error.
- *
+ *            
  *   Possible errors:
  *            SF_ERR_MEMORY_ALLOC    | => SfoRemoveOne()
  *
@@ -425,17 +425,17 @@ SfoRemove( SpecFileOut *sfo, long *list, int *error )
  *                    from the SpecFileOut list.
  *
  *   Parameters:
- *        Input :
+ *        Input :    
  *            (1) SpecFileOut pointer
  *            (2) First ...
  *            (3) Last index to be removed
  *        Output:
  *            (4) error code
  *   Returns:
- *            Number of scan indices left ,
+ *            Number of scan indices left , 
  *            (  0 ) => list empty( (long *)NULL ) ), no errors
  *            ( -1 ) => error.
- *
+ *            
  *   Possible errors:
  *            SF_ERR_MEMORY_ALLOC    | => SfoRemoveOne()
  *
@@ -467,12 +467,12 @@ SfoRemoveRange( SpecFileOut *sfo, long begin, long end, int *error )
  *                    from the SpecFileOut list.
  *
  *   Parameters:
- *        Input :
+ *        Input :    
  *            (1) SpecFileOut pointer
  *        Output:
  *            (2) error code
  *   Returns:
- *            ( 0 ) => OK
+ *            ( 0 ) => OK 
  *
  *********************************************************************/
 DllExport long
@@ -481,7 +481,7 @@ SfoRemoveAll( SpecFileOut *sfo, int *error )
      free( sfo->list );
      sfo->list        = (long *)NULL;
      sfo->list_size        =  0;
-     sfo->file_header      = -1;
+     sfo->file_header      = -1;     
      return( 0 );
 }
 
@@ -499,10 +499,10 @@ SfoRemoveAll( SpecFileOut *sfo, int *error )
  *            (3) error number
  *   Returns:
  *            Number of written scans,
- *            (-1 ) => Errors occured
+ *            (-1 ) => Errors occured 
  *   Possible errors:
  *            SF_ERR_FILE_WRITE    | => cpyBlock()
- *            SF_ERR_FILE_READ
+ *            SF_ERR_FILE_READ    
  *            SF_ERR_FILE_OPEN
  *            SF_ERR_FILE_CLOSE
  *
@@ -515,10 +515,10 @@ SfoWrite( SpecFileOut *sfo, char *name, int *error )
 
      if ( sfo == (SpecFileOut *)NULL || sfo->list_size<1 ) return( 0 );
 
-     /*
+     /* 
       * Open file
       */
-     if ( (output = open(name, O_CREAT | O_RDWR | O_APPEND, SF_UMASK)) == (int)NULL ) {
+     if ( (output = open(name, O_CREAT | O_RDWR | O_APPEND, SF_UMASK )) == (int)NULL ) {
         *error = SF_ERR_FILE_OPEN;
          return( -1 );
      }
@@ -538,8 +538,8 @@ SfoWrite( SpecFileOut *sfo, char *name, int *error )
 /*********************************************************************
  *   Function:        int SfoClose( sfo )
  *
- *   Description:    Frees all memory used by
- *            SpecFileOut structure.
+ *   Description:    Frees all memory used by 
+ *            SpecFileOut structure. 
  *   Parameters:
  *        Input :    (1) SpecFileOut pointer
  *
@@ -551,15 +551,15 @@ DllExport void
 SfoClose( SpecFileOut *sfo )
 {
      /*
-      * Free memory.
+      * Free memory. 
       */
      free( sfo->list );
      free( sfo );
-}
+}     
 
 
 static int
-sfoWriteOne(SpecFileOut *sfo,int output,long index,int *error)
+sfoWriteOne(SpecFileOut *sfo,int output,long index,int *error) 
 {
    long file_header,size;
    SpecFile *sf;
@@ -568,7 +568,7 @@ sfoWriteOne(SpecFileOut *sfo,int output,long index,int *error)
        *error = SF_ERR_SCAN_NOT_FOUND;
         return(-1);
    }
-
+ 
   /*
    * File header
    */

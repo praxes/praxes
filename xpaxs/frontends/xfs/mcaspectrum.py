@@ -99,7 +99,7 @@ class McaSpectrumFigure(plotwidgets.QtMplCanvas):
 
         self.spectrumAxes.xaxis.set_visible(False)
         self.spectrumAxes.set_ylabel('Counts')
-        l = self.spectrumAxes.legend(loc=[1.05, -.85], numpoints=4)
+        l = self.spectrumAxes.legend(loc=[1.05, -.7], numpoints=4)
         l.draw_frame(False)
 
         if self.useLogScale:

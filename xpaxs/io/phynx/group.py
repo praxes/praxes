@@ -150,15 +150,18 @@ class Group(h5py.Group, _PhynxProperties, HasTraits):
 
     @property
     def children(self):
+        # used by traits
         return self.listobjects()
 
     @property
     def name(self):
-        return basename(super(Group, self).name)
+        with self._lock:
+            return basename(super(Group, self).name)
 
     @property
     def path(self):
-        return super(Group, self).name
+        with self._lock:
+            return super(Group, self).name
 
     @property
     def signals(self):
@@ -186,12 +189,11 @@ class Group(h5py.Group, _PhynxProperties, HasTraits):
 
     @property
     def valid_indices(self):
-        with self._lock:
-            indices = numpy.arange(len(self.axes[0]))
-            try:
-                return indices[self['skipped'].value]
-            except h5py.H5Error:
-                return indices
+        indices = numpy.arange(len(self.axes[0]))
+        try:
+            return indices[self['skipped'].value]
+        except h5py.H5Error:
+            return indices
 
     def get_axes(self, direction=1):
         with self._lock:

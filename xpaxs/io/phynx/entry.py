@@ -35,12 +35,11 @@ class Entry(Group):
     nx_class = 'NXentry'
 
     def _get_npoints(self):
-        with self._lock:
-            # TODO: use h5py get() when available
-            try:
-                return int(self.attrs['npoints'])
-            except h5py.H5Error:
-                return 0
+        # TODO: use h5py get() when available
+        try:
+            return int(self.attrs['npoints'])
+        except h5py.H5Error:
+            return 0
     def _set_npoints(self, np):
         def func(name, obj):
             obj.attrs['npoints'] = np

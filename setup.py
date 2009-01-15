@@ -95,9 +95,9 @@ def ui_cvt(arg, dirname, fnames):
             os.system('pyrcc4 -o %s %s'%(py, rc))
             print 'converted %s'%fname
 
-if 'build' in sys.argv or 'install' in sys.argv:
+if 'build' in sys.argv or 'install' in sys.argv or 'develop' in sys.argv:
 
-    build_specfile(ext_modules)
+#    build_specfile(ext_modules)
 
     sys.stdout.write('creating qt resources... ')
     sys.stdout.flush()

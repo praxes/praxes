@@ -24,48 +24,44 @@ class _PhynxProperties:
 
     @property
     def format_version(self):
-        if 'format_version' in self.attrs:
+        # TODO: use get() when available
+        try:
             return self.attrs['format_version']
-        else:
+        except h5py.H5Error:
             return ''
 
     @property
     def acquisition_shape(self):
-        with self._lock:
-            try:
-                temp = self.attrs['acquisition_shape'].lstrip('(').rstrip(')')
-            except h5py.H5Error:
-                temp = ''
-            return tuple(int(i) for i in temp.split(',')) if temp else tuple()
+        try:
+            temp = self.attrs['acquisition_shape'].lstrip('(').rstrip(')')
+        except h5py.H5Error:
+            temp = ''
+        return tuple(int(i) for i in temp.split(',') if i) if temp else tuple()
 
     @property
     def acquisition_id(self):
-        with self._lock:
-            try:
-                return self.attrs['acquisition_id']
-            except h5py.H5Error:
-                return ''
+        try:
+            return self.attrs['acquisition_id']
+        except h5py.H5Error:
+            return ''
 
     @property
     def acquisition_command(self):
-        with self._lock:
-            try:
-                return self.attrs['acquisition_command']
-            except h5py.H5Error:
-                return ''
+        try:
+            return self.attrs['acquisition_command']
+        except h5py.H5Error:
+            return ''
 
     @property
     def file_name(self):
-        with self._lock:
-            try:
-                return self.attrs['file_name']
-            except h5py.H5Error:
-                return ''
+        try:
+            return self.attrs['file_name']
+        except h5py.H5Error:
+            return ''
 
     @property
     def npoints(self):
-        with self._lock:
-            try:
-                return self.attrs['npoints']
-            except h5py.H5Error:
-                return 0
+        try:
+            return self.attrs['npoints']
+        except h5py.H5Error:
+            return 0

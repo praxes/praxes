@@ -39,7 +39,8 @@ def getLocalTime():
 
 class File(Group, h5py.File):
 
-    def __init__(self, name, mode='a', lock=None):
+#    def __init__(self, name, mode='a', lock=None):
+    def __init__(self, name, mode='a'):
         """
         Create a new file object.
 
@@ -50,41 +51,37 @@ class File(Group, h5py.File):
         - w-  Create file, fail if exists
         - a   Read/write if exists, create otherwise (default)
 
-        lock is a recursive thread lock conformant to python's context manager.
-        If lock is None, an threading.RLock is used from the standard library.
         """
-        if lock is None:
-            import threading
-            self._lock = threading.RLock()
-        else:
-            assert hasattr(lock, '__enter__')
-            assert hasattr(lock, '__exit__')
-            self._lock = lock
+#        if lock is None:
+#            import threading
+#            self._lock = threading.RLock()
+#        else:
+#            assert hasattr(lock, '__enter__')
+#            assert hasattr(lock, '__exit__')
+#            self._lock = lock
 
         h5py.File.__init__(self, name, mode)
 
-        with self._lock:
-            if self.mode != 'r':
-                if not 'file_name' in self.attrs:
-                    self.attrs['file_name'] = name
-                if not 'file_time' in self.attrs:
-                    self.attrs['file_time'] = getLocalTime()
-                if not 'HDF5_version' in self.attrs:
-                    self.attrs['HDF5_version'] = h5py.version.hdf5_version
-                if not 'HDF5_API_version' in self.attrs:
-                    self.attrs['HDF5_API_version'] = h5py.version.api_version
-                if not 'HDF5_version' in self.attrs:
-                    self.attrs['h5py_version'] = h5py.version.version
-                if not 'creator' in self.attrs:
-                    self.attrs['creator'] = 'phynx'
-                if not 'format_version' in self.attrs:
-                    self.attrs['format_version'] = '0.1'
+        if self.mode != 'r':
+            if 'file_name' not in self.attrs:
+                self.attrs['file_name'] = name
+            if 'file_time' not in self.attrs:
+                self.attrs['file_time'] = getLocalTime()
+            if 'HDF5_version' not in self.attrs:
+                self.attrs['HDF5_version'] = h5py.version.hdf5_version
+            if 'HDF5_API_version' not in self.attrs:
+                self.attrs['HDF5_API_version'] = h5py.version.api_version
+            if 'HDF5_version' not in self.attrs:
+                self.attrs['h5py_version'] = h5py.version.version
+            if 'creator' not in self.attrs:
+                self.attrs['creator'] = 'phynx'
+            if 'format_version' not in self.attrs:
+                self.attrs['format_version'] = '0.1'
 
     @property
     def format(self):
-        with self._lock:
-            # TODO: use h5py get() when available
-            try:
-                return self.attrs['format']
-            except h5py.H5Error:
-                raise RuntimeError('unrecognized format')
+        # TODO: use h5py get() when available
+        try:
+            return self.attrs['format']
+        except h5py.H5Error:
+            raise RuntimeError('unrecognized format')
