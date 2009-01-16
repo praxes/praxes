@@ -6,6 +6,7 @@
 #---------------------------------------------------------------------------
 
 import os
+import sys
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -28,7 +29,7 @@ from xpaxs.io.phynx import File
 # Normal code begins
 #---------------------------------------------------------------------------
 
-compression = {'compression':9, 'shuffle':True, 'fletcher32':True}
+compression = {'compression':4, 'shuffle':True, 'fletcher32':True}
 
 def get_spec_scan_info(commandList):
     scan_type, args = commandList[0], commandList[1:]
@@ -50,7 +51,8 @@ def get_spec_scan_info(commandList):
             scan_info['axis_info'][axis] = axis_info
             scan_info['scan_shape'].append(step)
     elif scan_type in (
-            'ascan', 'a2scan', 'a3scan', 'dscan', 'd2scan', 'd3scan'
+            'ascan', 'a2scan', 'a3scan', 'dscan', 'd2scan', 'd3scan',
+            'ztscan', 'ytscan', 'xtscan',
         ):
         temp = []
         i = 0
@@ -124,19 +126,22 @@ def process_mca(scan, measurement, process_scalars=False):
         )
         mca['channels'] = channels
         mca.create_dataset(
-            'counts', dtype='float32', shape=(scan.lines(), len(channels)),
-            **compression
+            'counts', dtype='float32', shape=(scan.lines(), len(channels))
         )
 
+        i = 0
         for line in xrange(scan.lines()):
-            mca['counts'][line] = scan.mca((num_mca*line+1) \
-                + mca_index)[:len(channels)]
+            i += 1
+            if i%10 == 0:
+                sys.stdout.write('.')
+                sys.stdout.flush()
+            mca['counts'][line] = \
+                scan.mca(num_mca * line + 1 + mca_index)[:len(channels)]
 
         if process_scalars:
             # assume all scalars to be signals
             for i, label in enumerate(scan.alllabels()):
                 kwargs = {'attrs': {'class':'Signal'}}
-                kwargs.update(compression)
                 dset = mca.create_dataset(
                     label, data=scan.datacol(i+1), dtype='float32', **kwargs
                 )
@@ -156,7 +161,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     scan_number = scan_number.replace('.1', '')
     scan_name = 'entry_'+scan_number
 
-    print 'Converting Spec File %s %s to h5'% (file_name, scan_name)
+    print 'converting %s'% scan_name
 
     scan_info = get_spec_scan_info(scan.command().split())
     labels = [label.lower() for label in scan.alllabels()]
@@ -191,7 +196,6 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     attrs['acquisition_shape'] = str(tuple(scan_info['scan_shape']))
 
     entry = h5file.create_group(scan_name, type='Entry', attrs=attrs)
-    print 'creating group %s'% scan_name
 
     measurement = entry.create_group('measurement', type='Measurement')
 
@@ -203,9 +207,10 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         pass
 
     # try to get MCA metadata:
-    print 'Getting MCA Metadata'
-
+    print 'processing MCA data ',
     mca = process_mca(scan, measurement)
+    sys.stdout.write('\n')
+    sys.stdout.flush()
 
     scalar_data = measurement.create_group('scalar_data', type='ScalarData')
 
@@ -214,11 +219,13 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     except specfile.error:
         allmotors = []
     for i, label in enumerate(scan.alllabels()):
+        if label in scalar_data:
+            print 'Badly formatted spec file, %s appears more than once'%label
+            continue
         if mca is not None and \
             label in ('icr', 'ocr', 'real', 'live', 'dtn', 'vtxdtn'):
             # vortex detector, assume single mca
             kwargs = {'attrs': {'class':'Signal', 'signal':0}}
-            kwargs.update(compression)
             try:
                 dset = mca.create_dataset(
                     label, data=scan.datacol(i+1), dtype='float32',
@@ -237,20 +244,17 @@ def convert_scan(scan, sfile, h5file, spec_filename):
             kwargs['attrs'].update(
                 scan_info['axis_info'].get(label.lower(), {})
             )
-            kwargs.update(compression)
             dset = scalar_data.create_dataset(
                 label, data=scan.datacol(i+1), dtype='float32', **kwargs
             )
         elif label.lower() == 'epoch':
             kwargs = {'attrs': {'class':'Axis'}}
-            kwargs.update(compression)
             dset = scalar_data.create_dataset(
                 label, data=scan.datacol(i+1)+sfile.epoch(), dtype='float32',
                 **kwargs
             )
         else:
             kwargs = {'attrs': {'class':'Signal'}}
-            kwargs.update(compression)
             dset = scalar_data.create_dataset(
                 label, data=scan.datacol(i+1), dtype='float32', **kwargs
             )
@@ -259,7 +263,6 @@ def convert_scan(scan, sfile, h5file, spec_filename):
 
     # and dont forget to include the index
     kwargs = {'attrs': {'class':'Axis'}}
-    kwargs.update(compression)
     dset = scalar_data.create_dataset(
         'i', data=numpy.arange(len(dset)), dtype='i', **kwargs
     )
@@ -271,7 +274,6 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         index = scan.alllabels().index(mon)+1
         skipped = scan.datacol(index) < thresh
         kwargs = {'attrs':{'class':'Signal', 'monitor':mon, 'threshold':thresh}}
-        kwargs.update(compression)
         dset = scalar_data.create_dataset(
             'skipped', data=skipped, **kwargs
         )
@@ -295,7 +297,12 @@ def convert_to_phynx(spec_filename, h5_filename=None, force=False):
     h5_file = File(h5_filename, 'w')
     spec_file = specfile.Specfile(spec_filename)
     for scan in spec_file:
-        'converting Scan %s'% scan
-        convert_scan(scan, spec_file, h5_file, spec_filename)
+        try:
+            scan.lines()
+            convert_scan(scan, spec_file, h5_file, spec_filename)
+        except specfile.error:
+            # scan.lines() failed because there were none
+            continue
+
     print 'h5file %s complete'% h5_file
     return h5_file
