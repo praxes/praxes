@@ -109,9 +109,10 @@ class XfsPPTaskManager(PPTaskManager):
             self.mfTool = ConcentrationsTool(config)
             self.tconf = self.mfTool.configure()
 
-    def updateElementMap(self, mapType, element, index, val):
+    def updateElementMap(self, element, mapType, index, val):
         try:
-            self.scan['element_maps'][mapType][element][index] = val
+            entry = '%s_%s'%(element, mapType)
+            self.scan['element_maps'][entry][index] = val
         except ValueError:
             print index, node
 
@@ -133,14 +134,14 @@ class XfsPPTaskManager(PPTaskManager):
                     if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
                     else: sigmaArea = numpy.nan
 
-                    self.updateElementMap('fit_area', g, index, fitArea)
-                    self.updateElementMap('sigma_area', g, index, sigmaArea)
+                    self.updateElementMap(g, 'fit', index, fitArea)
+                    self.updateElementMap(g, 'fit_error', index, sigmaArea)
 
                 if 'concentrations' in result:
                     massFractions = result['concentrations']['mass fraction']
                     for key, val in massFractions.iteritems():
                         k = key.replace(' ', '_')
-                        self.updateElementMap('mass_fraction', k, index, val)
+                        self.updateElementMap(k, 'mass_fraction', index, val)
                 self.dirty = True
                 self.emit(
                     QtCore.SIGNAL('percentComplete'),

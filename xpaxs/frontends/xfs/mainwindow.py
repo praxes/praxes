@@ -49,8 +49,11 @@ class MainWindow(MainWindowBase):
         # this is a shortcut for now, in the future the view would be
         # an overview of the entry with ability to open different analyses
         from xpaxs.frontends.xfs.mcaanalysiswindow import McaAnalysisWindow
-
-        return McaAnalysisWindow(scan, self)
+        if len(scan['measurement'].mcas) > 0:
+            return McaAnalysisWindow(scan, self)
+        else:
+            msg = QtGui.QErrorMessage(self)
+            msg.showMessage('The entry you selected has no MCA data to process')
 
 
 def main():

@@ -116,8 +116,8 @@ class ElementImageFigure(ElementBaseFigure):
     def _createInitialFigure(self):
         extent = []
         sd = self.scanData['scalar_data']
-        x_axis = sd.get_axes(1)[0]
-        y_axis = sd.get_axes(2)[0]
+        x_axis = sd.get_sorted_axes_list(1)[0]
+        y_axis = sd.get_sorted_axes_list(2)[0]
         extent.extend(x_axis.range)
         extent.extend(y_axis.range)
         self.image = self.axes.imshow(self._elementData, extent=extent,
@@ -174,10 +174,12 @@ class ElementPlotFigure(ElementBaseFigure):
         self._updatePixelMap()
 
     def _createInitialFigure(self):
-        self._elementPlot, = self.axes.plot(self._elementData, 'b')
-
-        x_axis = self.scanData['scalar_data'].get_axes(1)[0]
-        self.axes.set_xlabel(x_axis.name)
+        try:
+            x_axis = self.scanData['scalar_data'].get_sorted_axes_list(1)[0]
+            self._elementPlot, = self.axes.plot(x_axis.value, self._elementData)
+            self.axes.set_xlabel(x_axis.name)
+        except:
+            self._elementPlot, = self.axes.plot(self._elementData)
 
     def _updatePixelMap(self):
         xmin, xmax = self.axes.get_xlim()

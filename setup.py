@@ -6,7 +6,8 @@ import sys
 if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 
 try:
-    from setuptools import Extension, find_packages, setup
+#    from setuptools import Extension, find_packages, setup
+    from setuptools import find_packages, setup
 except ImportError:
     raise ImportError("""Please install setuptools""")
 
@@ -69,18 +70,18 @@ if sys.platform == "win32":
 else:
     define_macros = []
 
-def build_specfile(ext_modules):
-    import numpy
-    sources = 'specfile/src/*.c'
-    headers = 'specfile/include'
-    module  = Extension(name = 'specfile',
-                        sources = glob.glob(sources),
-                        define_macros = define_macros,
-                        include_dirs = [headers,
-                                        numpy.get_include()])
-    ext_modules.append(module)
-
-ext_modules = []
+#def build_specfile(ext_modules):
+#    import numpy
+#    sources = 'specfile/src/*.c'
+#    headers = 'specfile/include'
+#    module  = Extension(name = 'specfile',
+#                        sources = glob.glob(sources),
+#                        define_macros = define_macros,
+#                        include_dirs = [headers,
+#                                        numpy.get_include()])
+#    ext_modules.append(module)
+#
+#ext_modules = []
 
 def ui_cvt(arg, dirname, fnames):
     for fname in fnames:
@@ -134,7 +135,7 @@ setup(name = 'xpaxs',
       platforms = ['any'],
       packages = packages,
 #      package_dir = package_dir,
-      ext_modules = ext_modules,
+#      ext_modules = ext_modules,
       package_data = package_data,
       scripts = scriptfiles,
       test_suite = 'nose.collector',

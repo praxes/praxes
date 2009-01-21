@@ -166,38 +166,33 @@ class Group(h5py.Group, _PhynxProperties, HasTraits):
     @property
     def signals(self):
         with self._lock:
-            return sorted(
-                [s for s in self.iterobjects() if isinstance(s, Signal)]
+            return dict(
+                [(s.name, s) for s in self.iterobjects()
+                    if isinstance(s, Signal)]
             )
-
-    @property
-    def signal_names(self):
-        with self._lock:
-            return [s.name for s in self.signals]
 
     @property
     def axes(self):
         with self._lock:
-            return sorted(
-                [a for a in self.iterobjects() if isinstance(a, Axis)]
+            return dict(
+                [(a.name, a) for a in self.iterobjects() if isinstance(a, Axis)]
             )
 
     @property
-    def axis_names(self):
-        with self._lock:
-            return [a.name for a in self.axes]
-
-    @property
     def valid_indices(self):
-        indices = numpy.arange(len(self.axes[0]))
+        indices = numpy.arange(len(self.axes.values()[0]))
         try:
             return indices[self['skipped'].value]
         except h5py.H5Error:
             return indices
 
-    def get_axes(self, direction=1):
+    def get_sorted_axes_list(self, direction=1):
         with self._lock:
-            return [a for a in self.axes if a.axis==direction]
+            return sorted([a for a in self.axes.values() if a.axis==direction])
+
+    def get_sorted_signals_list(self, direction=1):
+        with self._lock:
+            return sorted([s for s in self.signals.values()])
 
     def create_dataset(self, name, *args, **kwargs):
         type = kwargs.pop('type', 'Dataset')

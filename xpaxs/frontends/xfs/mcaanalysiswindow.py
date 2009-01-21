@@ -104,17 +104,13 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     @property
     def availableElements(self):
         try:
-            maps = self.scanData['element_maps']
-            elements = maps['fitArea'].listnames()
-            elements.sort()
-            return elements
-        except (phynx.H5Error, AttributeError):
+            return sorted(self.scanData['element_maps'].fits.keys())
+        except (H5Error, AttributeError):
             return []
 
     @property
     def mapType(self):
-        temp = str(self.mapTypeComboBox.currentText()).lower()
-        return temp.replace(' ', '_')
+        return str(self.mapTypeComboBox.currentText()).lower().replace(' ', '_')
 
     @property
     def normalization(self):
@@ -123,14 +119,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     @property
     def xrfBand(self):
         return str(self.xrfBandComboBox.currentText())
-
-    @property
-    def availableElements(self):
-        try:
-            return self.scanData['element_maps']\
-                ['fit_area'].listnames()
-        except H5Error:
-            return []
 
     @property
     def pymcaConfig(self):
@@ -244,8 +232,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
         if mapType and element:
             try:
-                return self.scanData['element_maps'][mapType]\
-                    [element].map
+                entry = '%s_%s'%(element, mapType)
+                return self.scanData['element_maps'][entry].map
 
             except H5Error:
                 return numpy.zeros(self.scanData.acquisition_shape)
@@ -257,21 +245,29 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         if 'element_maps' in self.scanData:
             del self.scanData['element_maps']
 
-        elementMaps = self.scanData.create_group('element_maps')
-        for mapType in ['fit_area', 'mass_fraction', 'sigma_area']:
-            mapGroup = elementMaps.create_group(mapType)
+        elementMaps = self.scanData.create_group(
+            'element_maps', type='ElementMaps'
+        )
+
+        for mapType, cls in [
+            ('fit', 'Fit'),
+            ('fit_error', 'FitError'),
+            ('mass_fraction', 'MassFraction')
+        ]:
             for element in elements:
-                mapGroup.create_dataset(
-                    element.replace(' ', '_'),
+                entry = '%s_%s'%(element, mapType)
+                elementMaps.create_dataset(
+                    entry,
+                    type=cls,
                     data=numpy.zeros(self.scanData.npoints, 'f')
                 )
 
-    def updateElementMap(self, mapType, element, index, val):
-        try:
-            maps = self.scanData['element_maps']
-            maps[mapType][element][tuple(index)] = val
-        except ValueError:
-            print index, node
+#    def updateElementMap(self, mapType, element, index, val):
+#        try:
+#            entry = '%s_%s'%(element, mapType)
+#            self.scanData['element_maps'][entry][tuple(index)] = val
+#        except ValueError:
+#            print index, node
 
     def processAverageSpectrum(self, indices=None):
         self.statusBar.showMessage('Validating data points ...')
@@ -382,7 +378,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         norm = self.scanData.mcas[0].normalization_channel
         self.normalizationComboBox.clear()
         self.normalizationComboBox.addItems(
-            ['', 'None'] + self.scanData.mcas[0].signal_names
+            ['', 'None'] + sorted(self.scanData.mcas[0].signals.keys())
         )
         i = self.normalizationComboBox.findText(norm)
         self.normalizationComboBox.setCurrentIndex(i)

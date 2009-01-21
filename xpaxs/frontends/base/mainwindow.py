@@ -340,7 +340,9 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
 
         self.statusBar.showMessage('Configuring New Analysis Window ...')
         scanView = self.getScanView(scan)
-
+        if scanView is None:
+            self.statusBar.clearMessage()
+            return
         self.connect(scanView, QtCore.SIGNAL("scanClosed"), self.scanClosed)
 #        self.connect(scanView, QtCore.SIGNAL("ppJobStats"),
 #                     self.ppJobStats.updateTable)
