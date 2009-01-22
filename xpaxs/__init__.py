@@ -78,7 +78,7 @@ from xpaxs import config
 # Normal code begins
 #---------------------------------------------------------------------------
 
-__version__ = '0.8a1'
+__version__ = '0.8a2'
 
 # One of DEBUG, INFO, WARNING, ERROR, CRITICAL:
 logLevel = DEBUG
