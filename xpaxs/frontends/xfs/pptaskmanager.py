@@ -98,7 +98,7 @@ class XfsPPTaskManager(PPTaskManager):
 
     def setData(self, scan, config):
         self.scan = scan
-        self.iterData = scan.mcas[0].iter_counts()
+        self.iterData = scan.mcas.values()[0].iter_counts()
 
         self.config = config
 

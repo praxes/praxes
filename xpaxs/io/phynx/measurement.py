@@ -38,10 +38,10 @@ class Measurement(Group):
     @property
     def mcas(self):
         with self._lock:
-            return [
-                a for a in self.iterobjects()
+            return dict([
+                (a.name, a) for a in self.iterobjects()
                 if isinstance(a, registry['MultiChannelAnalyzer'])
-            ]
+            ])
 
 registry.register(Measurement)
 

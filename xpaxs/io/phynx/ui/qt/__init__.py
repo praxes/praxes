@@ -121,7 +121,7 @@ class FileItem(TreeItem):
         self.itemData = [os.path.split(self.filename)[-1], '', '']
         self.childItems = []
 
-        for entry in datafile.iterobjects():
+        for entry in datafile.list_sorted_entries():
             self.appendChild(entry)
 
 #        QtCore.QObject.connect(self.xpaxsFile,

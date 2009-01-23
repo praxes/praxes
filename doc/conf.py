@@ -48,6 +48,7 @@ v = version.LooseVersion(xpaxs.__version__)
 
 # The short X.Y version.
 version = '.'.join([str(i) for i in v.version[:2]])
+version = xpaxs.__version__
 # The full version, including alpha/beta/rc tags.
 release = xpaxs.__version__
 

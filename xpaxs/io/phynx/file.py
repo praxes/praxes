@@ -7,6 +7,7 @@ from __future__ import absolute_import, with_statement
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+import operator
 import os
 import sys
 import threading
@@ -85,3 +86,8 @@ class File(Group, h5py.File):
             return self.attrs['format']
         except h5py.H5Error:
             raise RuntimeError('unrecognized format')
+
+    def list_sorted_entries(self):
+        return sorted(
+            self.listobjects(), key=operator.attrgetter('acquisition_id')
+        )

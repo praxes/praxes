@@ -81,7 +81,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.verticalLayout.addWidget(self.elementsView)
 
         self.fitParamDlg = FitParamDialog(parent=self)
-        pymcaConfig = self.scanData.mcas[0].pymca_config
+        pymcaConfig = self.scanData.mcas.values()[0].pymca_config
 
         if pymcaConfig:
             self.fitParamDlg.setParameters(pymcaConfig)
@@ -182,7 +182,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
     @QtCore.pyqtSignature("QString")
     def on_normalizationComboBox_currentIndexChanged(self):
-        self.scanData.mcas[0].normalization_channel = \
+        self.scanData.mcas.values()[0].normalization_channel = \
             self.normalization
 
     @QtCore.pyqtSignature("QString")
@@ -220,7 +220,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             self.statusBar.showMessage('Reconfiguring PyMca ...')
             configDict = self.fitParamDlg.getParameters()
             self.spectrumAnalysis.configure(configDict)
-            self.scanData.mcas[0].pymca_config = configDict
+            self.scanData.mcas.values()[0].pymca_config = configDict
             self.statusBar.clearMessage()
 
     def elementMapUpdated(self):
@@ -278,10 +278,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             indices = valid[indices]
         if len(indices):
             self.statusBar.showMessage('Averaging spectra ...')
-            counts = self.scanData.mcas[0].get_averaged_counts(
+            counts = self.scanData.mcas.values()[0].get_averaged_counts(
                 indices
             )
-            channels = self.scanData.mcas[0].channels
+            channels = self.scanData.mcas.values()[0].channels
 
             self.spectrumAnalysis.setData(x=channels, y=counts)
 
@@ -375,10 +375,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.actionCalibration.setEnabled(enabled)
 
     def updateNormalizationChannels(self):
-        norm = self.scanData.mcas[0].normalization_channel
+        norm = self.scanData.mcas.values()[0].normalization_channel
         self.normalizationComboBox.clear()
         self.normalizationComboBox.addItems(
-            ['', 'None'] + sorted(self.scanData.mcas[0].signals.keys())
+            ['', 'None'] + sorted(self.scanData.mcas.values()[0].signals.keys())
         )
         i = self.normalizationComboBox.findText(norm)
         self.normalizationComboBox.setCurrentIndex(i)

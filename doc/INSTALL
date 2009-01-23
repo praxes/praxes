@@ -3,20 +3,28 @@ Prerequisites
 
 XPaXS requires several packages in order to run:
 
-* Python_ (version 2.5 or later)
+* Python_ (version 2.5 or later) Windows users: Please install the 32 bit
+  version of python-2.5.4, even if your computer is 64-bit.
 * setuptools_ (version 0.6c8 or later)
-* NumPy_ (version 1.1 or later)
+* NumPy_ (version 1.2 or later)
 * PyQt4_ (preferrably version 4.3.3 or later)
-* PyQwt_ (version 5.0.1 or later)
-* PyMca_ (version 4.2.5 or later)
-* matplotlib_ (0.98 or later)
-* ParallelPython_ (version 1.5.3 or later)
-* h5py_ (1.0.0 or later)
-* PyTables_ (version 2.0.3 or later)
-* Pexpect_ (version 2.3 or later)
+* PyQwt_ (version 5.1.0 or later)
+* PyMca_ (version 4.3.0 or later) Please be sure to use the windows installer
+  includes your python version in the name (like PyMca-4.3.0.win32-py2.5.exe).
+  Windows users: You may need to right-click on the installer and select "run
+  as administrator"
+* matplotlib_ (0.98 or later) Windows users: you may need to right-click on the
+  installer and select "run as administrator"
+* ParallelPython_ (version 1.5.6 or later) Note: please install from one of the
+  .zip or .tgz source files, **not** the .exe file and not using easy_install.
+  There is a bug with the later two installers. Just unzip the sources, cd into
+  the new directory and run "python setup.py install".
+* h5py_ (1.0.1 or later)
+* XPaXS_ Windows users: you may need to right-click on the installer and select
+  "run as administrator".
 
 On several distributions, like Ubuntu, you may need to install the developer
-tools and -dev libraries in order to use XPaXS.
+tools and -dev libraries in order to use XPaXS. Any of the
 
 Linux and OSX
 =============
@@ -27,10 +35,9 @@ and run "python setup.py install" in the xpaxs source directory.
 Windows
 =======
 
-A 32-bit windows installer is expected to be available at PyPi_ in 
-January 2009. This will require the 32-bit python installation, even on 
-a 64-bit machine, since most 3rd-party modules are compiled for the 
-32-bit platform. 
+A 32-bit windows installer is available at PyPi_. It requires the 32-bit python
+installation, even on a 64-bit machine, since most 3rd-party modules (like numpy
+and PyQt4) are compiled for the 32-bit platform.
 
 Development Branch
 ==================
@@ -61,4 +68,5 @@ website.
 .. _PyTables: http://www.pytables.org/moin
 .. _Pexpect: http://www.noah.org/wiki/Pexpect
 .. _PyPi: http://pypi.python.org/pypi/xpaxs
+.. _XPaXS: http://pypi.python.org/pypi/xpaxs
 .. _launchpad: https://launchpad.net/xpaxs
