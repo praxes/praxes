@@ -54,7 +54,7 @@ class Dataset(h5py.Dataset, _PhynxProperties, HasTraits):
                     super(Dataset, self).__init__(
                         parent_object, name, *args, **h5kwargs
                     )
-                except TypeError:
+                except (TypeError, ValueError):
                     # scalar datasets dont allow chunking
                     super(Dataset, self).__init__(
                         parent_object, name, *args, **kwargs

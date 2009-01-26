@@ -137,6 +137,9 @@ def process_mca(scan, measurement, process_scalars=False):
                 sys.stdout.flush()
             mca['counts'][line] = \
                 scan.mca(num_mca * line + 1 + mca_index)[:len(channels)]
+        if i>10:
+            sys.stdout.write('\n')
+            sys.stdout.flush()
 
         if process_scalars:
             # assume all scalars to be signals
@@ -284,8 +287,8 @@ def convert_scan(scan, sfile, h5file, spec_filename):
             process_mca(specfile.Specfile(f)[0], measurement, True)
 
 def convert_to_phynx(spec_filename, h5_filename=None, force=False):
-    """convert a spec data file to hdf5 and return the file object"""
-    print 'Converting spec file %s to hdf5'% spec_filename
+    """convert a spec data file to phynx and return the phynx file object"""
+    print 'Converting spec file %s to phynx'% spec_filename
     if h5_filename is None:
         h5_filename = spec_filename + '.h5'
     if os.path.exists(h5_filename) and force==False:
@@ -304,5 +307,5 @@ def convert_to_phynx(spec_filename, h5_filename=None, force=False):
             # scan.lines() failed because there were none
             continue
 
-    print 'h5file %s complete'% h5_file
+    print 'phynx %s complete'% h5_file
     return h5_file
