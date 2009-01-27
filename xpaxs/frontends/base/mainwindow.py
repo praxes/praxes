@@ -330,7 +330,9 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                     'Save HDF5 File', '.', 'HDF5 files (*.h5 *.hdf5)', f+'.h5')
             if h5filename:
                 from xpaxs.io.spec import convert_to_phynx
-                convert_to_phynx(f, hdf5Filename=h5filename, force=True)
+                f = convert_to_phynx(f, hdf5Filename=h5filename, force=True)
+                f.close()
+                del f
                 self.openDatafile(h5filename)
 
     def newScanWindow(self, scan, beginProcessing=False):
