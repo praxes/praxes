@@ -329,7 +329,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
             h5filename = '%s'% QtGui.QFileDialog.getSaveFileName(self,
                     'Save HDF5 File', '.', 'HDF5 files (*.h5 *.hdf5)', f+'.h5')
             if h5filename:
-                from xpaxs.io.spec import cvt_to_phynx
+                from xpaxs.io.spec import convert_to_phynx
                 convert_to_phynx(f, hdf5Filename=h5filename, force=True)
                 self.openDatafile(h5filename)
 
@@ -360,7 +360,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                             'Open File', '.', "hdf5 files (*.h5 *.hdf5)")
         if not filename: return
 
-        self.fileInterface.openFile(filename)
+        self.fileInterface.openFile(str(filename))
 
     def scanClosed(self, scan):
         self.openScans.remove(scan)

@@ -103,6 +103,7 @@ def process_mca(scan, measurement, process_scalars=False):
     num_mca = int(scan.nbmca()/scan.lines())
     mca_info = scan.header('@')
     mca_names = []
+    print 'Number of MCA:', num_mca
     for mca_index in xrange(num_mca):
         attrs = {}
         if len(mca_info)/3 == num_mca:
@@ -211,7 +212,10 @@ def convert_scan(scan, sfile, h5file, spec_filename):
 
     # try to get MCA metadata:
     print 'processing MCA data ',
-    mca = process_mca(scan, measurement)
+    try:
+        mca = process_mca(scan, measurement)
+    except specfile.error:
+        mca = None
     sys.stdout.write('\n')
     sys.stdout.flush()
 
@@ -275,15 +279,19 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         mon, thresh = skipmode[0].split()[2:]
         thresh = int(thresh)
         index = scan.alllabels().index(mon)+1
-        skipped = scan.datacol(index) < thresh
+        skipped = (scan.datacol(index) < thresh).astype('uint8')
         kwargs = {'attrs':{'class':'Signal', 'monitor':mon, 'threshold':thresh}}
         dset = scalar_data.create_dataset(
             'skipped', data=skipped, **kwargs
         )
 
-    for f in os.listdir(os.curdir):
+    dir, spec_filename = os.path.split(spec_filename)
+    if not dir:
+        dir = os.getcwd()
+    for f in os.listdir(dir):
         if f.startswith(spec_filename+'.scan%s'%scan_number) and \
             f.endswith('.mca'):
+            print 'integrating %s'%f
             process_mca(specfile.Specfile(f)[0], measurement, True)
 
 def convert_to_phynx(spec_filename, h5_filename=None, force=False):
@@ -302,10 +310,10 @@ def convert_to_phynx(spec_filename, h5_filename=None, force=False):
     for scan in spec_file:
         try:
             scan.lines()
-            convert_scan(scan, spec_file, h5_file, spec_filename)
         except specfile.error:
             # scan.lines() failed because there were none
             continue
+        convert_scan(scan, spec_file, h5_file, spec_filename)
 
     print 'phynx %s complete'% h5_file
     return h5_file

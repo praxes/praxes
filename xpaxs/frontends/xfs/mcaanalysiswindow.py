@@ -225,6 +225,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
     def elementMapUpdated(self):
         self.elementsView.updateFigure(self.getElementMap())
+        QtGui.qApp.processEvents()
 
     def getElementMap(self, mapType=None, element=None):
         if element is None: element = self.xrfBand

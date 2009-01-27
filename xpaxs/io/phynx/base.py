@@ -2,6 +2,7 @@
 from __future__ import with_statement
 
 import re
+from distutils import version
 
 import h5py
 
@@ -112,9 +113,9 @@ class _PhynxProperties:
     def format_version(self):
         # TODO: use get() when available
         try:
-            return self.attrs['format_version']
+            return version.LooseVersion(self.attrs['format_version'])
         except h5py.H5Error:
-            return ''
+            return version.LooseVersion('0.0')
 
     @property
     def acquisition_shape(self):

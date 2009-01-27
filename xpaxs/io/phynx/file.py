@@ -63,7 +63,7 @@ class File(Group, h5py.File):
 
         h5py.File.__init__(self, name, mode)
 
-        if self.mode != 'r':
+        if self.mode != 'r' and len(self) == 0:
             if 'file_name' not in self.attrs:
                 self.attrs['file_name'] = name
             if 'file_time' not in self.attrs:
@@ -80,10 +80,10 @@ class File(Group, h5py.File):
                 self.attrs['format_version'] = '0.1'
 
     @property
-    def format(self):
+    def creator(self):
         # TODO: use h5py get() when available
         try:
-            return self.attrs['format']
+            return self.attrs['creator']
         except h5py.H5Error:
             raise RuntimeError('unrecognized format')
 

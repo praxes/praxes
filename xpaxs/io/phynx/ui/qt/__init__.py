@@ -11,6 +11,8 @@ ascii files. A new interface will be developed based on the NeXus standard.
 
 import copy
 import logging
+import os
+import shutil
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -233,8 +235,34 @@ class FileModel(QtCore.QAbstractItemModel):
                 return item
 
     def _openFile(self, filename):
-#        return phynx.File(filename, 'a', QRLock())
-        return phynx.File(filename, 'a')
+        f = phynx.File(filename, 'a')
+        try:
+            if f.creator == 'phynx':
+                return f
+        except RuntimeError:
+            pass
+
+        print 'this is an old file whose format is no longer supported'
+        try:
+            format = f.attrs['format']
+            if format == 'h5py transitional':
+                from xpaxs.io.compat.transitional import convert_to_phynx
+            else:
+                from xpaxs.io.compat.original import convert_to_phynx
+        except:
+            from xpaxs.io.compat.original import convert_to_phynx
+        f.close()
+
+        backup = '%s.old'%filename
+        if os.path.exists(backup):
+            backup = '%s.backup'%filename
+            print 'moving old file to %s'%backup
+            shutil.move(filename, backup)
+        else:
+            print 'moving old file to %s'%backup
+            shutil.move(filename, backup)
+        specfile = filename.rstrip('.hdf5').rstrip('.h5')
+        return convert_to_phynx(specfile)
 
     def openFile(self, filename):
         item = self.getFileItem(filename)
@@ -345,7 +373,7 @@ class FileInterface(QtCore.QObject):
             newfilename = QtGui.QFileDialog.getSaveFileName(self.mainWindow,
                     "Save File", filename, "hdf5 files (*.h5 *.hdf5 *.nxs)")
             if newfilename:
-                newfilename = unicode(newfilename)
+                newfilename = str(newfilename)
                 if newfilename.split('.')[-1] not in ('h5', 'hdf5', 'nxs'):
                     newfilename = newfilename + '.h5'
                 return self.fileModel.openFile(newfilename)
@@ -362,26 +390,26 @@ class FileInterface(QtCore.QObject):
         return entry
 
 
-class QRLock(QtCore.QMutex):
-
-    """
-    """
-
-    def __init__(self):
-        QtCore.QMutex.__init__(self, QtCore.QMutex.Recursive)
-
-    def __enter__(self):
-        self.lock()
-        return self
-
-    def __exit__(self, type, value, traceback):
-        self.unlock()
-
-    def acquire(self):
-        return self.lock()
-
-    def release(self):
-        self.unlock()
-
+#class QRLock(QtCore.QMutex):
+#
+#    """
+#    """
+#
+#    def __init__(self):
+#        QtCore.QMutex.__init__(self, QtCore.QMutex.Recursive)
+#
+#    def __enter__(self):
+#        self.lock()
+#        return self
+#
+#    def __exit__(self, type, value, traceback):
+#        self.unlock()
+#
+#    def acquire(self):
+#        return self.lock()
+#
+#    def release(self):
+#        self.unlock()
+#
 #from h5py.highlevel import LockableObject
 #LockableObject._lock = QRLock()
