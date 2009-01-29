@@ -98,7 +98,8 @@ class XfsPPTaskManager(PPTaskManager):
 
     def setData(self, scan, config):
         self.scan = scan
-        self.iterData = scan.mcas.values()[0].iter_counts()
+        self.iterData = scan.mcas.values()[0].itercounts()
+        self._totalProcessed = 0
 
         self.config = config
 
@@ -126,6 +127,8 @@ class XfsPPTaskManager(PPTaskManager):
                 shape = self.scan.acquisition_shape
                 index = data['index']
 
+                self._totalProcessed += 1
+
                 result = data['result']
                 for group in result['groups']:
                     g = group.replace(' ', '_')
@@ -143,9 +146,10 @@ class XfsPPTaskManager(PPTaskManager):
                         k = key.replace(' ', '_')
                         self.updateElementMap(k, 'mass_fraction', index, val)
                 self.dirty = True
+                track = self._totalProcessed + self.iterData.totalSkipped
                 self.emit(
                     QtCore.SIGNAL('percentComplete'),
-                    (100.0 * self.iterData.currentIndex) / self.scan.npoints
+                    (100.0 * track) / self.scan.npoints
                 )
                 if DEBUG: print 'records updated'
             finally:

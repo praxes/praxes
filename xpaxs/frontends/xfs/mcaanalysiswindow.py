@@ -381,7 +381,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.normalizationComboBox.addItems(
             ['', 'None'] + sorted(self.scanData.mcas.values()[0].signals.keys())
         )
-        i = self.normalizationComboBox.findText(norm)
+        i = self.normalizationComboBox.findText(norm) if norm else 0
         self.normalizationComboBox.setCurrentIndex(i)
 
 

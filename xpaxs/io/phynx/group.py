@@ -35,45 +35,6 @@ from .registry import registry
 #---------------------------------------------------------------------------
 
 
-class AcquisitionIterator(object):
-
-    def __init__(self, parent, dataset):
-        self._currentIndex = 0
-        self._parent = parent
-        self._dataset = dataset
-
-    def __iter__(self):
-        return self
-
-    @property
-    def currentIndex(self):
-        return self._currentIndex
-
-    def next(self):
-        if self._currentIndex >= self._dataset.npoints:
-            raise StopIteration
-
-        else:
-            try:
-                if self._parent.is_valid_index(self._currentIndex):
-                    i = self._currentIndex
-                    data = self._dataset[i]
-                    try:
-                        data /= self._parent.normalization[i]
-                    except TypeError:
-                        pass
-                    self._currentIndex += 1
-
-                    return i, data
-
-                else:
-                    self._currentIndex += 1
-                    return self.next()
-
-            except h5py.H5Error:
-                raise IndexError
-
-
 class Group(h5py.Group, _PhynxProperties, HasTraits):
 
     def __init__(self, parent_object, name, **data):

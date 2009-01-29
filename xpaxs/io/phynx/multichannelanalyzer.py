@@ -21,7 +21,6 @@ import numpy
 #---------------------------------------------------------------------------
 
 from .detector import Detector
-from .group import AcquisitionIterator
 from .registry import registry
 
 #---------------------------------------------------------------------------
@@ -76,53 +75,6 @@ class MultiChannelAnalyzer(Detector):
     @property
     def energy(self):
         return numpy.polyval(self.calibration[::-1], self.channels)
-
-    @property
-    def device_id(self):
-        try:
-            return self.attrs['id']
-        except h5py.H5Error:
-            return self.name
-
-    def iter_counts(self):
-        return AcquisitionIterator(self, self['counts'])
-
-    @property
-    def normalization(self):
-        # TODO: this should not return a dataset, but a numpy array
-        try:
-            norm = self.attrs['normalization']
-            if norm in ('', 'None'):
-                return None
-            return self[norm]
-        except h5py.H5Error:
-            return None
-
-    def _get_normalization_channel(self):
-        try:
-            return self.attrs['normalization']
-        except h5py.H5Error:
-            return ''
-    def _set_normalization_channel(self, norm):
-        self.attrs['normalization'] = norm
-    normalization_channel = property(
-        _get_normalization_channel, _set_normalization_channel
-    )
-
-    def get_averaged_counts(self, indices=[]):
-        with self._lock:
-            if len(indices) > 0:
-                spectrum = numpy.zeros(len(self['counts'][indices[0]]), 'f')
-                numIndices = len(indices)
-                for index in indices:
-                    if not self.is_valid_index(index):
-                        continue
-                    result = self['counts'][index]
-                    if self.normalization is not None:
-                        norm = self.normalization[index]
-                        result /= numpy.where(norm==0, numpy.inf, norm)
-                    spectrum += result
-                return spectrum / len(indices)
 
     def _get_pymca_config(self):
         try:
