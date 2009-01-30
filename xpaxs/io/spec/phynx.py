@@ -99,7 +99,7 @@ def get_spec_scan_info(commandList):
 
     return scan_info
 
-def process_mca(scan, measurement, process_scalars=False):
+def process_mca(scan, measurement, process_scalars=False, masked=None):
     num_mca = int(scan.nbmca()/scan.lines())
     mca_info = scan.header('@')
     mca_names = []
@@ -127,7 +127,7 @@ def process_mca(scan, measurement, process_scalars=False):
         )
         mca['channels'] = channels
         mca.create_dataset(
-            'counts', dtype='float32', shape=(scan.lines(), len(channels))
+            'counts', type='Signal', dtype='float32', shape=(scan.lines(), len(channels))
         )
 
         i = 0
@@ -149,6 +149,9 @@ def process_mca(scan, measurement, process_scalars=False):
                 dset = mca.create_dataset(
                     label, data=scan.datacol(i+1), dtype='float32', **kwargs
                 )
+
+        if mask is not None:
+            mca['masked'] = masked
 
     try:
         return mca
@@ -210,16 +213,27 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     except specfile.error:
         pass
 
+    scalar_data = measurement.create_group('scalar_data', type='ScalarData')
+
+    skipmode = scan.header('C SKIPMODE')
+    if skipmode:
+        mon, thresh = skipmode[0].split()[2:]
+        thresh = int(thresh)
+        index = scan.alllabels().index(mon)+1
+        skipped = (scan.datacol(index) < thresh).astype('uint8')
+        kwargs = {'attrs':{'class':'Signal', 'monitor':mon, 'threshold':thresh}}
+        masked = scalar_data.create_dataset(
+            'masked', data=skipped, **kwargs
+        )
+
     # try to get MCA metadata:
     print 'processing MCA data ',
     try:
-        mca = process_mca(scan, measurement)
+        mca = process_mca(scan, measurement, mask=mask)
     except specfile.error:
         mca = None
     sys.stdout.write('\n')
     sys.stdout.flush()
-
-    scalar_data = measurement.create_group('scalar_data', type='ScalarData')
 
     try:
         allmotors = sfile.allmotors()
@@ -229,21 +243,21 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         if label in scalar_data:
             print 'Badly formatted spec file, %s appears more than once'%label
             continue
-        if mca is not None and \
-            label in ('icr', 'ocr', 'real', 'live', 'dtn', 'vtxdtn'):
+        if mca is not None and label in (
+                    'icr', 'ocr', 'real', 'live', 'dtn', 'vtxdtn', 'dead',
+                    'dead_time'
+                ):
             # vortex detector, assume single mca
             kwargs = {'attrs': {'class':'Signal', 'signal':0}}
+            if label == 'dead_time':
+                kwargs['attrs']['units'] = '%'
             try:
                 dset = mca.create_dataset(
-                    label, data=scan.datacol(i+1), dtype='float32',
-                    **kwargs
+                    label, data=scan.datacol(i+1), dtype='float32', **kwargs
                 )
-                if label in ('dtn', 'vtxdtn'):
-                    mca.attrs['deadtime_correction'] = label
             except UnboundLocalError:
                 dset = measurement.create_dataset(
-                    label, data=scan.datacol(i+1), dtype='float32',
-                    **kwargs
+                    label, data=scan.datacol(i+1), dtype='float32', **kwargs
                 )
         elif (label in allmotors) \
             or (label.lower() in ('energy', 'time', 'h', 'k', 'l', 'q')):
@@ -274,17 +288,6 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         'i', data=numpy.arange(len(dset)), dtype='i', **kwargs
     )
 
-    skipmode = scan.header('C SKIPMODE')
-    if skipmode:
-        mon, thresh = skipmode[0].split()[2:]
-        thresh = int(thresh)
-        index = scan.alllabels().index(mon)+1
-        skipped = (scan.datacol(index) < thresh).astype('uint8')
-        kwargs = {'attrs':{'class':'Signal', 'monitor':mon, 'threshold':thresh}}
-        dset = scalar_data.create_dataset(
-            'skipped', data=skipped, **kwargs
-        )
-
     dir, spec_filename = os.path.split(spec_filename)
     if not dir:
         dir = os.getcwd()
@@ -292,7 +295,9 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         if f.startswith(spec_filename+'.scan%s'%scan_number) and \
             f.endswith('.mca'):
             print 'integrating %s'%f
-            process_mca(specfile.Specfile(f)[0], measurement, True)
+            process_mca(
+                specfile.Specfile(f)[0], measurement, True, masked=masked
+            )
 
 def convert_to_phynx(spec_filename, h5_filename=None, force=False):
     """convert a spec data file to phynx and return the phynx file object"""

@@ -139,14 +139,6 @@ class Group(h5py.Group, _PhynxProperties, HasTraits):
                 [(a.name, a) for a in self.iterobjects() if isinstance(a, Axis)]
             )
 
-    @property
-    def valid_indices(self):
-        indices = numpy.arange(len(self.axes.values()[0]))
-        try:
-            return indices[self['skipped'].value]
-        except h5py.H5Error:
-            return indices
-
     def get_sorted_axes_list(self, direction=1):
         with self._lock:
             return sorted([a for a in self.axes.values() if a.axis==direction])

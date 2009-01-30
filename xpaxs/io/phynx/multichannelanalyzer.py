@@ -8,6 +8,7 @@ from __future__ import absolute_import, with_statement
 #---------------------------------------------------------------------------
 
 import copy
+import threading
 
 #---------------------------------------------------------------------------
 # Extlib imports
@@ -20,6 +21,7 @@ import numpy
 # xpaxs imports
 #---------------------------------------------------------------------------
 
+from .dataset import AcquisitionIterator, Signal
 from .detector import Detector
 from .registry import registry
 
@@ -32,6 +34,33 @@ class MultiChannelAnalyzer(Detector):
 
     """
     """
+    def __init__(self, *args, **kwargs):
+        # this whole __init__ is only needed to fix some badly formatted data
+        # from early in development of phynx
+        super(MultiChannelAnalyzer, self).__init__(*args, **kwargs)
+        with self._lock:
+            try:
+                if self['counts'].attrs['class'] != 'McaSpectrum':
+                    self['counts'].attrs['class'] = 'McaSpectrum'
+            except h5py.H5Error:
+                pass
+
+            # TODO: this could eventually go away
+            if 'dead_time' not in self:
+                self._set_dead_time()
+
+    def _set_dead_time(self):
+        if 'dead' in self:
+            self['dead_time'] = self['dead']
+        elif 'dtn' in self:
+            data = 100*(1-self['dtn'].value)
+            self.create_dataset('dead_time', data=data)
+        elif 'vtxdtn' in self:
+            data = 100*(1-self['vtxdtn'].value)
+            self.create_dataset('dead_time', data=data)
+        else:
+            return
+        self['dead_time'].attrs['units'] = '%'
 
     def set_calibration(self, cal, order=None):
         with self._lock:
@@ -87,3 +116,97 @@ class MultiChannelAnalyzer(Detector):
     pymca_config = property(_get_pymca_config, _set_pymca_config)
 
 registry.register(MultiChannelAnalyzer)
+
+
+class CorrectedDataProxy(object):
+
+    def __init__(self, dataset):
+        self._lock = threading.RLock()
+        self._dataset = dataset
+
+    @property
+    def masked(self):
+        return self._dataset.masked
+
+    @property
+    def npoints(self):
+        return self._dataset.npoints
+
+    def __getitem__(self, key):
+        with self._lock:
+            data = self._dataset[key]
+
+            # normalization may be something like ring current or monitor counts
+            try:
+                norm = self._dataset.parent['normalization'][key]
+                if norm.shape and len(norm.shape) < len(data.shape):
+                    newshape = [1]*len(data.shape)
+                    newshape[:len(norm.shape)] = norm.shape
+                    norm.shape = newshape
+                data /= norm
+            except h5py.H5Error:
+                # fails if normalization is not defined
+                pass
+
+            # detector deadtime correction
+            try:
+                dtn = 1-self._dataset.parent['dead_time'][key]/100
+                if isinstance(dtn, numpy.ndarray) \
+                        and len(dtn.shape) < len(data.shape):
+                    newshape = [1]*len(data.shape)
+                    newshape[:len(dtn.shape)] = dtn.shape
+                    dtn.shape = newshape
+                data /= dtn
+            except h5py.H5Error:
+                # fails if dead_time_correction is not defined
+                pass
+
+            return data
+
+    def __len__(self):
+        return len(self._dataset)
+
+    def iteritems(self):
+        return AcquisitionIterator(self)
+
+    def get_averaged_counts(self, indices=[]):
+        with self._lock:
+            if not len(indices):
+                indices = range(len(self))
+            if len(indices) == 0:
+                return
+
+            result = numpy.zeros(len(self[indices[0]]), 'f')
+            numIndices = len(indices)
+            total_valid = 0
+            for index in indices:
+                try:
+                    valid = not self._dataset.masked[index]
+                except TypeError:
+                    valid = True
+                if valid:
+                    temp = self[index]
+                    result += temp
+                    total_valid += 1
+
+            return result / total_valid
+
+
+class McaSpectrum(Signal):
+
+    """
+    """
+
+    @property
+    def corrected(self):
+        try:
+            return self._corrected_data_proxy
+        except AttributeError:
+            self._corrected_data_proxy = CorrectedDataProxy(self)
+            return self._corrected_data_proxy
+
+    @property
+    def map(self):
+        raise TypeError('can not produce a map of a 3-dimensional dataset')
+
+registry.register(McaSpectrum)

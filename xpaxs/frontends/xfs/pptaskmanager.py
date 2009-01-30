@@ -73,7 +73,12 @@ def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
               'fit': fit-estimate,
               'fitconc': fitconc-fit}
 
-    return {'index': index, 'result': result, 'advancedFit': advancedFit, 'report': report}
+    return {
+        'index': index,
+        'result': result,
+        'advancedFit': advancedFit,
+        'report': report
+    }
 
 
 class XfsPPTaskManager(PPTaskManager):
@@ -84,7 +89,9 @@ class XfsPPTaskManager(PPTaskManager):
             for i in range(numJobs):
                 try:
                     index, data = self.iterData.next()
-                    args = (index, data, self.tconf, self.advancedFit, self.mfTool)
+                    args = (
+                        index, data, self.tconf, self.advancedFit, self.mfTool
+                    )
                     self.jobServer.submit(
                         analyzeSpectrum,
                         args,
@@ -98,7 +105,7 @@ class XfsPPTaskManager(PPTaskManager):
 
     def setData(self, scan, config):
         self.scan = scan
-        self.iterData = scan.mcas.values()[0].itercounts()
+        self.iterData = scan.mcas.values()[0]['counts'].corrected.iteritems()
         self._totalProcessed = 0
 
         self.config = config

@@ -62,7 +62,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.elementsView = ElementsView(self.scanData, self)
 
         self.xrfBandComboBox.addItems(self.availableElements)
-        self.updateNormalizationChannels()
+#        self.updateNormalizationChannels()
+#        self.updateDeadTimeChannels()
 
         self._setupMcaDockWindows()
         self._setupPPJobStats()
@@ -107,6 +108,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             return sorted(self.scanData['element_maps'].fits.keys())
         except (H5Error, AttributeError):
             return []
+
+    @property
+    def deadTimePercent(self):
+        return str(self.deadTimeComboBox.currentText())
 
     @property
     def mapType(self):
@@ -177,13 +182,18 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.processAverageSpectrum()
 
     @QtCore.pyqtSignature("QString")
+    def on_deadTimeComboBox_currentIndexChanged(self):
+        self.scanData.mcas.values()[0]['dead_time_percent'] = \
+            self.scanData.mcas.values()[0][self.deadTimePercent]
+
+    @QtCore.pyqtSignature("QString")
     def on_mapTypeComboBox_currentIndexChanged(self):
         self.elementsView.updateFigure(self.getElementMap())
 
     @QtCore.pyqtSignature("QString")
     def on_normalizationComboBox_currentIndexChanged(self):
-        self.scanData.mcas.values()[0].normalization_channel = \
-            self.normalization
+        self.scanData.mcas.values()[0]['normalization'] = \
+            self.scanData.mcas.values()[0][self.normalization]
 
     @QtCore.pyqtSignature("QString")
     def on_xrfBandComboBox_currentIndexChanged(self):
@@ -263,26 +273,14 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
                     data=numpy.zeros(self.scanData.npoints, 'f')
                 )
 
-#    def updateElementMap(self, mapType, element, index, val):
-#        try:
-#            entry = '%s_%s'%(element, mapType)
-#            self.scanData['element_maps'][entry][tuple(index)] = val
-#        except ValueError:
-#            print index, node
-
     def processAverageSpectrum(self, indices=None):
-        self.statusBar.showMessage('Validating data points ...')
-        valid = self.scanData['scalar_data'].valid_indices
         if indices is None:
-            indices = valid
-        else:
-            indices = valid[indices]
+            indices = self.scanData['scalar_data']['i'].value
         if len(indices):
             self.statusBar.showMessage('Averaging spectra ...')
-            counts = self.scanData.mcas.values()[0].get_averaged_counts(
-                indices
-            )
-            channels = self.scanData.mcas.values()[0].channels
+            mca = self.scanData.mcas.values()[0]
+            counts = mca['counts'].corrected.get_averaged_counts(indices)
+            channels = mca.channels
 
             self.spectrumAnalysis.setData(x=channels, y=counts)
 
@@ -375,15 +373,23 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.actionConfigurePymca.setEnabled(enabled)
         self.actionCalibration.setEnabled(enabled)
 
-    def updateNormalizationChannels(self):
-        norm = self.scanData.mcas.values()[0].normalization_channel
-        self.normalizationComboBox.clear()
-        self.normalizationComboBox.addItems(
-            ['', 'None'] + sorted(self.scanData.mcas.values()[0].signals.keys())
-        )
-        i = self.normalizationComboBox.findText(norm) if norm else 0
-        self.normalizationComboBox.setCurrentIndex(i)
-
+#    def updateNormalizationChannels(self):
+#        self.normalizationComboBox.clear()
+#        mca = self.scanData.mcas.values()[0]
+#        self.normalizationComboBox.addItems(
+#            ['', 'None'] + sorted(mca.signals.keys())
+#        )
+#        if 'normalization' not in mca:
+#            self.normalizationComboBox.setCurrentIndex(1)
+#
+#    def updateDeadTimeChannels(self):
+#        self.normalizationComboBox.clear()
+#        mca = self.scanData.mcas.values()[0]
+#        self.normalizationComboBox.addItems(
+#            ['', 'None'] + sorted(mca.signals.keys())
+#        )
+#        if 'normalization' not in mca:
+#            self.normalizationComboBox.setCurrentIndex(1)
 
 if __name__ == "__main__":
     import sys
