@@ -326,14 +326,21 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
         f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',
                     "Spec datafiles (*.dat *.mca);;All files (*)")
         if f:
-            h5filename = '%s'% QtGui.QFileDialog.getSaveFileName(self,
-                    'Save HDF5 File', '.', 'HDF5 files (*.h5 *.hdf5)', f+'.h5')
-            if h5filename:
+            h5_filename = str(
+                QtGui.QFileDialog.getSaveFileName(
+                    self,
+                    'Save HDF5 File',
+                    '.',
+                    'HDF5 files (*.h5 *.hdf5)',
+                    f+'.h5'
+                )
+            )
+            if h5_filename:
                 from xpaxs.io.spec import convert_to_phynx
-                f = convert_to_phynx(f, hdf5Filename=h5filename, force=True)
+                f = convert_to_phynx(f, h5_filename=h5_filename, force=True)
                 f.close()
                 del f
-                self.openDatafile(h5filename)
+                self.openDatafile(h5_filename)
 
     def newScanWindow(self, scan, beginProcessing=False):
         # TODO: this belongs in the file interface, not here:

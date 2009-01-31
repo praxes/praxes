@@ -121,7 +121,8 @@ registry.register(MultiChannelAnalyzer)
 class CorrectedDataProxy(object):
 
     def __init__(self, dataset):
-        self._lock = threading.RLock()
+#        self._lock = threading.RLock()
+        self._lock = dataset._lock
         self._dataset = dataset
 
     @property

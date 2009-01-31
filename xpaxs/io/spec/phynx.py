@@ -150,7 +150,7 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
                     label, data=scan.datacol(i+1), dtype='float32', **kwargs
                 )
 
-        if mask is not None:
+        if masked is not None:
             mca['masked'] = masked
 
     try:
@@ -225,11 +225,13 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         masked = scalar_data.create_dataset(
             'masked', data=skipped, **kwargs
         )
+    else:
+        masked = None
 
     # try to get MCA metadata:
     print 'processing MCA data ',
     try:
-        mca = process_mca(scan, measurement, mask=mask)
+        mca = process_mca(scan, measurement, masked=masked)
     except specfile.error:
         mca = None
     sys.stdout.write('\n')

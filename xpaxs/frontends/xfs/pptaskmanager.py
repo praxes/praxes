@@ -153,7 +153,7 @@ class XfsPPTaskManager(PPTaskManager):
                         k = key.replace(' ', '_')
                         self.updateElementMap(k, 'mass_fraction', index, val)
                 self.dirty = True
-                track = self._totalProcessed + self.iterData.totalSkipped
+                track = self._totalProcessed + self.iterData.total_skipped
                 self.emit(
                     QtCore.SIGNAL('percentComplete'),
                     (100.0 * track) / self.scan.npoints
