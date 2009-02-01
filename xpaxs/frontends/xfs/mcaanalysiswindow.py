@@ -285,6 +285,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             self.spectrumAnalysis.setData(x=channels, y=counts)
 
             self.statusBar.showMessage('Performing Fit ...')
+            QtGui.qApp.processEvents()
             fitresult = self.spectrumAnalysis.fit()
 
             self.fitParamDlg.setFitResult(fitresult['result'])
