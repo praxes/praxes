@@ -1,0 +1,13 @@
+Metadata-Version: 1.0
+Name: xpaxs
+Version: 0.8a3
+Summary: Extensible Packages for X-ray Science
+Home-page: http://www.chess.cornell.edu/software/xpaxs
+Author: Darren S. Dale
+Author-email: darren.dale@cornell.edu
+License: GPL2
+Download-URL: http://pypi.python.org/pypi/xpaxs
+Description: XPaXS provides a python interface for data acquisition and analysis in the
+        field of X-ray science.
+        
+Platform: any

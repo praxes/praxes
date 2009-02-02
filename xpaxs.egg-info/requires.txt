@@ -1,0 +1,6 @@
+numpy>=1.1
+matplotlib>=0.98
+PyMca>=4.2.4
+pp>=1.5.3
+tables>=2.0.2
+h5py>=1.0
