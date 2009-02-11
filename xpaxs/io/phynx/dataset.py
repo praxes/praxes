@@ -150,10 +150,7 @@ class Dataset(h5py.Dataset, _PhynxProperties, HasTraits):
 
     @property
     def masked(self):
-        try:
-            return self._parent['masked']
-        except:
-            return None
+        return self._parent.get('masked', None)
 
     @property
     def name(self):
@@ -192,17 +189,11 @@ class Axis(Dataset):
 
     @property
     def axis(self):
-        try:
-            return self.attrs['axis']
-        except h5py.H5Error:
-            return 0
+        return self.attrs.get('axis', 0)
 
     @property
     def primary(self):
-        try:
-            return self.attrs['primary']
-        except h5py.H5Error:
-            return 0
+        return self.attrs.get('primary', 0)
 
     @property
     def range(self):
@@ -237,9 +228,6 @@ class Signal(Dataset):
 
     @property
     def signal(self):
-        try:
-            return self.attrs['signal']
-        except h5py.H5Error:
-            return 0
+        return self.attrs.get('signal', 0)
 
 registry.register(Signal)

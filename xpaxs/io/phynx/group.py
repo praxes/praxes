@@ -105,8 +105,6 @@ class Group(h5py.Group, _PhynxProperties, HasTraits):
 
     def __setitem__(self, name, value):
         with self._lock:
-            # lets allow integer and floats as keys:
-            if isinstance(name, (int, float)): name = str(name)
             super(Group, self).__setitem__(name, value)
 
     @property
@@ -190,11 +188,5 @@ class Group(h5py.Group, _PhynxProperties, HasTraits):
                         item.__class__.__name__
                     )
                 return item
-
-    def is_valid_index(self, index):
-        if 'skipped' in self:
-            return not self['skipped'][index]
-        else:
-            return True
 
 registry.register(Group)

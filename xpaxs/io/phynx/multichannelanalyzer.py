@@ -87,11 +87,7 @@ class MultiChannelAnalyzer(Detector):
 
     @property
     def calibration(self):
-        # TODO: use h5py get() when available
-        try:
-            temp = self.attrs['calibration'].lstrip('(').rstrip(')')
-        except h5py.H5Error:
-            temp = '0,1'
+        temp = self.attrs.get('calibration', '(0,1)').lstrip('(').rstrip(')')
         return numpy.array(temp.split(','), 'f')
 
     @property

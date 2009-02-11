@@ -37,9 +37,6 @@ class Detector(Group):
 
     @property
     def device_id(self):
-        try:
-            return self.attrs['id']
-        except h5py.H5Error:
-            return self.name
+        return self.attrs.get('id', self.name)
 
 registry.register(Detector)

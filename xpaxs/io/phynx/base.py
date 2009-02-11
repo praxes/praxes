@@ -90,8 +90,6 @@ class AcquisitionID(object):
         return cmp(self.id, other.id)
 
 
-# TODO: use attrs.get() with h5py-1.1
-
 class _PhynxProperties:
 
     """A mix-in class to propagate attributes from the parent object to
@@ -111,44 +109,25 @@ class _PhynxProperties:
 
     @property
     def format_version(self):
-        # TODO: use get() when available
-        try:
-            return version.LooseVersion(self.attrs['format_version'])
-        except h5py.H5Error:
-            return version.LooseVersion('0.0')
+        return version.LooseVersion(self.attrs.get('format_version', '0.0'))
 
     @property
     def acquisition_shape(self):
-        try:
-            temp = self.attrs['acquisition_shape'].lstrip('(').rstrip(')')
-        except h5py.H5Error:
-            temp = ''
+        temp = self.attrs.get('acquisition_shape', '()').lstrip('(').rstrip(')')
         return tuple(int(i) for i in temp.split(',') if i) if temp else tuple()
 
     @property
     def acquisition_id(self):
-        try:
-            return AcquisitionID(self.attrs['acquisition_id'])
-        except (h5py.H5Error, ValueError):
-            return AcquisitionID('0')
+        return AcquisitionID(self.attrs.get('acquisition_id', '0'))
 
     @property
     def acquisition_command(self):
-        try:
-            return self.attrs['acquisition_command']
-        except h5py.H5Error:
-            return ''
+        return self.attrs.get('acquisition_command', '')
 
     @property
     def file_name(self):
-        try:
-            return self.attrs['file_name']
-        except h5py.H5Error:
-            return ''
+        return self.attrs.get('file_name', '')
 
     @property
     def npoints(self):
-        try:
-            return self.attrs['npoints']
-        except h5py.H5Error:
-            return 0
+        return self.attrs.get('npoints', 0)
