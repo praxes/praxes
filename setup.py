@@ -139,14 +139,15 @@ setup(name = 'xpaxs',
       package_data = package_data,
       scripts = scriptfiles,
       test_suite = 'nose.collector',
-      install_requires = ['numpy>=1.1',
-                          'matplotlib>=0.98',
-                          'PyMca>=4.2.4',
-                          'pp>=1.5.3',
-                          'tables>=2.0.2',
-#                          'pexpect>=2.3',
-                          'h5py>=1.1',
-#                          'TraitsBackendQt>=3.0',
-#                          'EnvisagePlugins>=3.0',
-                          ])
-
+      install_requires = [
+        'numpy>=1.1',
+        'matplotlib>=0.98',
+        'PyMca>=4.2.4',
+        'pp>=1.5.3',
+        'tables>=2.0.2',
+#        'pexpect>=2.3',
+        'h5py>=1.1',
+#        'TraitsBackendQt>=3.0',
+#        'EnvisagePlugins>=3.0',
+    ]
+)
