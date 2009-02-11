@@ -107,19 +107,12 @@ class Dataset(h5py.Dataset, _PhynxProperties, HasTraits):
                     parent_object, name
                 )
             else:
-                try:
-                    h5kwargs = {
-                        'compression':4, 'shuffle':True, 'fletcher32':True
-                    }
-                    h5kwargs.update(kwargs)
-                    super(Dataset, self).__init__(
-                        parent_object, name, *args, **h5kwargs
-                    )
-                except (TypeError, ValueError):
-                    # scalar datasets dont allow chunking
-                    super(Dataset, self).__init__(
-                        parent_object, name, *args, **kwargs
-                    )
+                kwargs.setdefault('compression', 'gzip')
+                kwargs.setdefault('fletcher32', True)
+                super(Dataset, self).__init__(
+                    parent_object, name, *args, **kwargs
+                )
+
                 self.attrs['class'] = self.__class__.__name__
 
                 _PhynxProperties.__init__(self, parent_object)
