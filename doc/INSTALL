@@ -24,7 +24,7 @@ XPaXS requires several packages in order to run:
   "run as administrator".
 
 On several distributions, like Ubuntu, you may need to install the developer
-tools and -dev libraries in order to use XPaXS. Any of the
+tools and -dev libraries in order to use XPaXS.
 
 Linux and OSX
 =============

@@ -8,4 +8,4 @@ User's Guide
    :maxdepth: 2
 
    installation.rst
-   sxfm.rst
+   phynx.rst

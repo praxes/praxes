@@ -8,4 +8,4 @@ XPaXS IO API
    :maxdepth: 0
 
    introduction.rst
-   specfile_api.rst
+   spec.rst
