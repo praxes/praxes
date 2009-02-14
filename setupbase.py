@@ -33,8 +33,7 @@ from setupext import (
     check_for_python, check_for_numpy, check_for_h5py,
     check_for_pyqt4, check_for_matplotlib,
     check_for_pymca, check_for_pyqwt,
-    check_for_parallelpython, check_for_pexpect,
-    check_for_pytables
+    check_for_parallelpython, check_for_pytables
 )
 
 #---------------------------------------------------------------------------
@@ -77,7 +76,7 @@ def ui_cvt(arg, dirname, fnames):
                 print_raw('converted %s'%fname)
             elif fname.endswith('.qrc'):
                 rc = '/'.join([dirname, fname])
-                py = os.path.splitext(rc)[0]+'_rc.py'
+                py = os.path.splitext(rc)[0]+'.py'
                 if os.path.isfile(py):
                     if os.path.getmtime(rc) < os.path.getmtime(py):
                         continue
@@ -168,7 +167,9 @@ def find_scripts():
     # routine, to add shortcuts and similar windows-only things.  Windows
     # post-install scripts MUST reside in the scripts/ dir, otherwise distutils
     # doesn't find them.
-    if 'bdist_wininst' not in sys.argv:
+    if 'bdist_wininst' in sys.argv or 'sdist' in sys.argv:
+        pass
+    else:
         scripts.remove('scripts/xpaxs_win_post_install.py')
 
     return scripts
@@ -182,14 +183,6 @@ def check_for_dependencies():
 
     This function should NOT be called if running under setuptools!
     """
-    from setupext import (
-        print_line, print_raw, print_status, print_message,
-        check_for_python, check_for_numpy, check_for_h5py,
-        check_for_pyqt4, check_for_matplotlib,
-        check_for_pymca, check_for_pyqwt,
-        check_for_parallelpython, check_for_pexpect,
-        check_for_pytables
-    )
     print_line()
     print_raw("BUILDING XPAXS")
     print_status('platform', sys.platform)
@@ -211,6 +204,5 @@ def check_for_dependencies():
     print_raw("")
     print_raw("OPTIONAL DEPENDENCIES")
 
-    check_for_pexpect()
     check_for_pytables()
     print_line()

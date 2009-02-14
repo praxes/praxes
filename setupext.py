@@ -49,20 +49,6 @@ def convert_qt_version(version):
         temp.insert(0, str(int(chunk, 16)))
     return '.'.join(temp)
 
-class Redirect(object):
-
-    'This wouldnt be necessary if ipython and pp were more friendly to py-2.6'
-
-    def __init__(self, stdout):
-        self._stdout = stdout
-
-    def write(self, s):
-        pass
-
-    @property
-    def original_stdout(self):
-        return self._stdout
-
 #-------------------------------------------------------------------------------
 # Tests for specific packages
 #-------------------------------------------------------------------------------
@@ -83,18 +69,17 @@ def check_for_numpy():
     except ImportError:
         print_status("numpy", "Not found")
         print_message(
-            "WARNING: numpy-%s or greater required" % npReq
+            "WARNING: numpy-%s or later required for handling arrays of "
+            "numerical data" % npReq
         )
-        print_message("XPaXS uses numpy to handle numeric arrays")
         return False
     else:
         print_status("numpy", numpy.__version__)
         if LooseVersion(numpy.__version__) < LooseVersion(npReq):
             print_message(
-                "WARNING: numpy-%s or greater required, found %s"
-                % (npReq, numpy.__version__)
+                "WARNING: numpy-%s or later required for handling arrays of "
+                "numerical data" % npReq
             )
-            print_message("XPaXS uses numpy to handle numeric arrays")
             return False
         else:
             return True
@@ -102,30 +87,26 @@ def check_for_numpy():
 def check_for_h5py():
     h5Req = '1.1'
     try:
-        sys.stdout = Redirect(sys.stdout)
         from h5py.version import hdf5_version, version
-        sys.stdout = sys.stdout.original_stdout
     except ImportError:
-        sys.stdout = sys.stdout.original_stdout
         print_status("h5py", "Not found")
-        print_message("WARNING: h5py-%s or greater required" % h5Req)
-        print_message("XPaXS uses h5py for reading and writing data")
+        print_message(
+            "WARNING: h5py-%s or greater required for reading and writing "
+            "data" % h5Req
+        )
         return False
     else:
         print_status("h5py", "HDF5: %s, h5py: %s" % (hdf5_version, version))
         if LooseVersion(version) < LooseVersion(h5Req):
             print_message(
-                "WARNING: h5py-%s or greater required, found %s"
-                % (h5Req, version)
+                "WARNING: h5py-%s or greater required for reading and writing "
+                "data" % h5Req
             )
-            print_message("XPaXS uses h5py for reading and writing data")
             return False
         elif LooseVersion(hdf5_version) < LooseVersion('1.8.1'):
             print_message(
-                "WARNING: hdf5-1.8 or greater required for data acquisition"
-            )
-            print_message(
-                "Offline data analysis requires hdf5-1.6.7 or greater"
+                "WARNING: hdf5-1.8 or later required for data acquisition. "
+                "hdf5-1.6.7 or later is sufficient for offline data analysis"
             )
             return True
         else:
@@ -136,7 +117,11 @@ def check_for_pyqt4():
         from PyQt4 import pyqtconfig
     except ImportError:
         print_status(
-            "PyQt4", "Not found (required for graphical user interfaces)"
+            "PyQt4", "Not found"
+        )
+        print_message(
+            "WARNING: PyQt4-%s or later required for graphical user interfaces"
+            % mplReq
         )
         return False
     else:
@@ -157,36 +142,41 @@ def check_for_matplotlib():
         import matplotlib as mpl
     except ImportError:
         print_status("matplotlib", "Not found")
-        print_message("WARNING: matplotlib-%s or greater required" % mplReq)
-        print_message('XPaXS uses matplotlib to plot data')
+        print_message(
+            "WARNING: matplotlib-%s or later required to generate plots"
+            % mplReq
+        )
         return False
     else:
         print_status("matplotlib", mpl.__version__)
         if LooseVersion(mpl.__version__) < LooseVersion(mplReq):
             print_message(
-                "WARNING: matplotlib-%s or greater required, found %s"
-                % (mplReq, mpl.__version__)
+                "WARNING: matplotlib-%s or later required to generate plots"
+                % mplReq
             )
-            print_message('XPaXS uses matplotlib to plot data')
             return False
         else:
             return True
 
 def check_for_pymca():
-    pymcaReq = '4.3.1'
+    pymcaReq = '4.3.1 20090202-snapshot'
     try:
         from PyMca import PyMca
     except ImportError:
         print_status(
-            "PyMca", "Not found (required for X-ray fluorescence capabilities)"
+            "PyMca", "Not found"
+        )
+        print_message(
+            "WARNING: pymca-%s or later required for X-ray fluorescence "
+            "analysis" % pymcaReq
         )
         return False
     else:
         print_status("PyMca", PyMca.__version__)
         if LooseVersion(PyMca.__version__) < LooseVersion(pymcaReq):
             print_message(
-                "pymca-%s or greater required for X-ray fluorescence analysis"
-                % pymcaReq
+                "WARNING: pymca-%s or later required for X-ray fluorescence "
+                "analysis" % pymcaReq
             )
             return False
         else:
@@ -216,48 +206,27 @@ def check_for_pyqwt():
 def check_for_parallelpython():
     ppReq = '1.5.6'
     try:
-        sys.stdout = Redirect(sys.stdout)
         import pp
-        sys.stdout = sys.stdout.original_stdout
     except ImportError:
-        sys.stdout = sys.stdout.original_stdout
         print_status("parallelpython", "Not found")
         print_message(
-            "WARNING: parallelpython-%s or greater required" % ppReq
+            "WARNING: parallelpython-%s or later required to process data"
+            % ppReq
         )
-        print_message("XPaXS uses parallelpython to process data")
         return False
     else:
         print_status("parallelpython", pp.version)
         if LooseVersion(pp.version) < LooseVersion(ppReq):
             print_message(
-                "WARNING: parallelpython-%s or greater required" % ppReq
-            )
-            print_message("XPaXS uses parallelpython to process data")
-            return False
-        else:
-            return True
-
-def check_for_pexpect():
-    pxReq = '2.3'
-    try:
-        import pexpect
-    except ImportError:
-        print_status("pexpect", "Not found")
-        return False
-    else:
-        print_status("pexpect", pexpect.__version__)
-        if LooseVersion(pexpect.__version__) < LooseVersion(pxReq):
-            print_message(
-                "pexpect-%s or greater, found %s"
-                % (pxReq, pexpect.__version__)
+                "WARNING: parallelpython-%s or later required to process data"
+                % ppReq
             )
             return False
         else:
             return True
 
 def check_for_pytables():
-    ptReq = '2.1'
+    ptReq = '2.0'
     try:
         import tables
     except ImportError:
@@ -267,8 +236,8 @@ def check_for_pytables():
         print_status("pytables", tables.__version__)
         if LooseVersion(tables.__version__) < LooseVersion(ptReq):
             print_message(
-                "pytables-%s or greater, found %s"
-                % (ptReq, tables.__version__)
+                "pytables-%s or later required to convert data from legacy "
+                "format, found pytables-%s" % (ptReq, tables.__version__)
             )
             return False
         else:

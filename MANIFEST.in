@@ -1,7 +1,9 @@
+include setup*
 include specfile/src/*
 include specfile/include/*
 include SpecClient/*
 include SpecClient/doc/*
+include scripts/*
 include xpaxs/config/tests/*
 include xpaxs/dispatch/tests/*
 include xpaxs/frontends/base/tests/*
