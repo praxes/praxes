@@ -16,17 +16,12 @@ from setupbase import check_for_dependencies, find_scripts, find_package_data, \
     find_packages, convert_ui, setup_args, find_extensions
 
 check_for_dependencies()
-packages = find_packages()
-scripts = find_scripts()
-package_data = find_package_data()
-ext_modules = find_extensions()
-
 convert_ui()
 
 setup(
-    packages = packages,
-    package_data = package_data,
-    scripts = scripts,
-    ext_modules = ext_modules,
+    packages = find_packages(),
+    package_data = find_package_data(),
+    scripts = find_scripts(),
+    ext_modules = find_extensions(),
     **setup_args
 )
