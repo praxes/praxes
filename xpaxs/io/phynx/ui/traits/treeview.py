@@ -1,12 +1,13 @@
-from enthought.traits.api import HasTraits, Instance, List, Str
+from __future__ import absolute_import
 
+from enthought.traits.api import HasTraits, Instance, List, Str
 from enthought.traits.ui.api import Item, View, TreeEditor, TreeNode
 
 # TODO: when registering classes, they should also register TreeNodes
 # then these imports are unnecessary:
-from ..file import File
-from ..group import Group
-from ..dataset import Dataset
+from ...file import File
+from ...group import Group
+from ...dataset import Dataset
 
 class File_List(HasTraits):
     name = Str
@@ -59,9 +60,3 @@ class MainInterface(HasTraits):
 
     def open_file(self, name, mode = 'a'):
         self.file_list.append(File(name, mode))
-
-if __name__ == '__main__':
-    create_file()
-    file_interface = MainInterface()
-    file_interface.open_file('foo.h5')
-    file_interface.configure_traits()

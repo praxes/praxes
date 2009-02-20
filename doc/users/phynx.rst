@@ -32,8 +32,8 @@ Exporting data
 ==============
 
 Naturally, you will feel more comfortable storing your data in the HDF5 format
-if you understand how to get it back out. Imagine have a file with the following
-standard format::
+if you understand how to get it back out. Imagine you have a file with the
+following standard format::
 
   mydata.h5
     /entry_1/measurement/scalar_data/motor_1
