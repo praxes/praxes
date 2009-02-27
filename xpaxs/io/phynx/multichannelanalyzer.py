@@ -3,31 +3,16 @@
 
 from __future__ import absolute_import, with_statement
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
 import copy
 import threading
-
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
 
 import h5py
 import numpy
 
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
-
 from .dataset import AcquisitionIterator, Signal
 from .detector import Detector
 from .registry import registry
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
+from .utils import sync
 
 
 class MultiChannelAnalyzer(Detector):
@@ -62,28 +47,28 @@ class MultiChannelAnalyzer(Detector):
             return
         self['dead_time'].attrs['units'] = '%'
 
+    @sync
     def set_calibration(self, cal, order=None):
-        with self._lock:
-            if order is not None:
-                try:
-                    assert isinstance(order, int)
-                except AssertionError:
-                    raise AssertionError('order must be an integer value')
-                old = self.calibration
-                new = self.calibration
-                if len(old) < order:
-                    new = numpy.zeros(order+1)
-                    new[:len(old)] = old
-                new[order] = cal
-                self.attrs['calibration'] = str(tuple(new))
-            else:
-                try:
-                    assert len(cal) > 1
-                except AssertionError:
-                    raise AssertionError(
-                        'Expecting a numerical sequence, received %s'%str(cal)
-                    )
-                self.attrs['calibration'] = str(tuple(cal))
+        if order is not None:
+            try:
+                assert isinstance(order, int)
+            except AssertionError:
+                raise AssertionError('order must be an integer value')
+            old = self.calibration
+            new = self.calibration
+            if len(old) < order:
+                new = numpy.zeros(order+1)
+                new[:len(old)] = old
+            new[order] = cal
+            self.attrs['calibration'] = str(tuple(new))
+        else:
+            try:
+                assert len(cal) > 1
+            except AssertionError:
+                raise AssertionError(
+                    'Expecting a numerical sequence, received %s'%str(cal)
+                )
+            self.attrs['calibration'] = str(tuple(cal))
 
     @property
     def calibration(self):
@@ -129,36 +114,36 @@ class CorrectedDataProxy(object):
     def npoints(self):
         return self._dataset.npoints
 
+    @sync
     def __getitem__(self, key):
-        with self._lock:
-            data = self._dataset[key]
+        data = self._dataset[key]
 
-            # normalization may be something like ring current or monitor counts
-            try:
-                norm = self._dataset.parent['normalization'][key]
-                if norm.shape and len(norm.shape) < len(data.shape):
-                    newshape = [1]*len(data.shape)
-                    newshape[:len(norm.shape)] = norm.shape
-                    norm.shape = newshape
-                data /= norm
-            except h5py.H5Error:
-                # fails if normalization is not defined
-                pass
+        # normalization may be something like ring current or monitor counts
+        try:
+            norm = self._dataset.parent['normalization'][key]
+            if norm.shape and len(norm.shape) < len(data.shape):
+                newshape = [1]*len(data.shape)
+                newshape[:len(norm.shape)] = norm.shape
+                norm.shape = newshape
+            data /= norm
+        except h5py.H5Error:
+            # fails if normalization is not defined
+            pass
 
-            # detector deadtime correction
-            try:
-                dtn = 1-self._dataset.parent['dead_time'][key]/100
-                if isinstance(dtn, numpy.ndarray) \
-                        and len(dtn.shape) < len(data.shape):
-                    newshape = [1]*len(data.shape)
-                    newshape[:len(dtn.shape)] = dtn.shape
-                    dtn.shape = newshape
-                data /= dtn
-            except h5py.H5Error:
-                # fails if dead_time_correction is not defined
-                pass
+        # detector deadtime correction
+        try:
+            dtn = 1-self._dataset.parent['dead_time'][key]/100
+            if isinstance(dtn, numpy.ndarray) \
+                    and len(dtn.shape) < len(data.shape):
+                newshape = [1]*len(data.shape)
+                newshape[:len(dtn.shape)] = dtn.shape
+                dtn.shape = newshape
+            data /= dtn
+        except h5py.H5Error:
+            # fails if dead_time_correction is not defined
+            pass
 
-            return data
+        return data
 
     def __len__(self):
         return len(self._dataset)
@@ -166,27 +151,27 @@ class CorrectedDataProxy(object):
     def iteritems(self):
         return AcquisitionIterator(self)
 
+    @sync
     def get_averaged_counts(self, indices=[]):
-        with self._lock:
-            if not len(indices):
-                indices = range(len(self))
-            if len(indices) == 0:
-                return
+        if not len(indices):
+            indices = range(len(self))
+        if len(indices) == 0:
+            return
 
-            result = numpy.zeros(len(self[indices[0]]), 'f')
-            numIndices = len(indices)
-            total_valid = 0
-            for index in indices:
-                try:
-                    valid = not self._dataset.masked[index]
-                except TypeError:
-                    valid = True
-                if valid:
-                    temp = self[index]
-                    result += temp
-                    total_valid += 1
+        result = numpy.zeros(len(self[indices[0]]), 'f')
+        numIndices = len(indices)
+        total_valid = 0
+        for index in indices:
+            try:
+                valid = not self._dataset.masked[index]
+            except TypeError:
+                valid = True
+            if valid:
+                temp = self[index]
+                result += temp
+                total_valid += 1
 
-            return result / total_valid
+        return result / total_valid
 
 
 class McaSpectrum(Signal):

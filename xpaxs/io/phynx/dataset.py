@@ -3,15 +3,7 @@
 
 from __future__ import absolute_import, with_statement
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
 from posixpath import basename
-
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
 
 try:
     from enthought.traits.api import HasTraits
@@ -21,16 +13,9 @@ except ImportError:
 import h5py
 import numpy
 
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
-
 from .base import _PhynxProperties
 from .registry import registry
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
+from .utils import sync
 
 
 class AcquisitionIterator(object):
@@ -122,18 +107,18 @@ class Dataset(h5py.Dataset, _PhynxProperties, HasTraits):
 
             self._parent = parent_object
 
+    @sync
     def __repr__(self):
-        with self._lock:
-            try:
-                return '<%s dataset "%s": shape %s, type "%s" (%d attrs)>'%(
-                    self.__class__.__name__,
-                    self.name,
-                    self.shape,
-                    self.dtype.str,
-                    len(self.attrs)
-                )
-            except Exception:
-                return "<Closed %s dataset>" % self.__class__.__name__
+        try:
+            return '<%s dataset "%s": shape %s, type "%s" (%d attrs)>'%(
+                self.__class__.__name__,
+                self.name,
+                self.shape,
+                self.dtype.str,
+                len(self.attrs)
+            )
+        except Exception:
+            return "<Closed %s dataset>" % self.__class__.__name__
 
     @property
     def map(self):
@@ -146,18 +131,18 @@ class Dataset(h5py.Dataset, _PhynxProperties, HasTraits):
         return self._parent.get('masked', None)
 
     @property
+    @sync
     def name(self):
-        with self._lock:
-            return basename(super(Dataset, self).name)
+        return basename(super(Dataset, self).name)
 
     @property
     def parent(self):
         return self._parent
 
     @property
+    @sync
     def path(self):
-        with self._lock:
-            return super(Dataset, self).name
+        return super(Dataset, self).name
 
     def iteritems(self):
         return AcquisitionIterator(self)
@@ -170,15 +155,15 @@ class Axis(Dataset):
     """
     """
 
+    @sync
     def __cmp__(self, other):
-        with self._lock:
-            try:
-                assert isinstance(other, Axis)
-                return cmp(self.primary, other.primary)
-            except AssertionError:
-                raise AssertionError(
-                    'Cannot compare Axis and %s'%other.__class__.__name__
-                )
+        try:
+            assert isinstance(other, Axis)
+            return cmp(self.primary, other.primary)
+        except AssertionError:
+            raise AssertionError(
+                'Cannot compare Axis and %s'%other.__class__.__name__
+            )
 
     @property
     def axis(self):
@@ -207,17 +192,17 @@ class Signal(Dataset):
     """
     """
 
+    @sync
     def __cmp__(self, other):
-        with self._lock:
-            try:
-                assert isinstance(other, Signal)
-                ss = self.signal if self.signal else 999
-                os = other.signal if other.signal else 999
-                return cmp(ss, os)
-            except AssertionError:
-                raise AssertionError(
-                    'Cannot compare Signal and %s'%other.__class__.__name__
-                )
+        try:
+            assert isinstance(other, Signal)
+            ss = self.signal if self.signal else 999
+            os = other.signal if other.signal else 999
+            return cmp(ss, os)
+        except AssertionError:
+            raise AssertionError(
+                'Cannot compare Signal and %s'%other.__class__.__name__
+            )
 
     @property
     def signal(self):

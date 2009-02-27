@@ -1,65 +1,47 @@
 """
 """
 
-from __future__ import absolute_import, with_statement
-
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
+from __future__ import absolute_import
 
 import threading
 import warnings
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
-
-
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
-
-
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
+from .utils import sync
 
 
 class _Registry(object):
 
     def __init__(self):
-        self.__lock = threading.Lock()
+        self._lock = threading.Lock()
         self.__data = {}
 
+    @sync
     def __contains__(self, name):
-        with self.__lock:
-            return name in self.__data
+        return name in self.__data
 
+    @sync
     def __getitem__(self, name):
-        with self.__lock:
-            try:
-                return self.__data[name]
-            except KeyError:
-                warnings.warn("there is no registered class named `%s`, "
-                              "defaulting to Group"% name)
-                return self.__data['Group']
+        try:
+            return self.__data[name]
+        except KeyError:
+            warnings.warn("there is no registered class named `%s`, "
+                          "defaulting to Group"% name)
+            return self.__data['Group']
 
+    @sync
     def __iter__(self):
-        with self.__lock:
-            return self.__data.__iter__()
+        return self.__data.__iter__()
 
+    @sync
     def __setitem__(self, name, value):
-        with self.__lock:
-            self.__data[name] = value
+        self.__data[name] = value
 
+    @sync
     def register(self, value):
-        with self.__lock:
-            self.__data[value.__name__] = value
-            try:
-                self.__data[value.nx_class] = value
-            except AttributeError:
-                pass
+        self.__data[value.__name__] = value
+        try:
+            self.__data[value.nx_class] = value
+        except AttributeError:
+            pass
 
 registry = _Registry()

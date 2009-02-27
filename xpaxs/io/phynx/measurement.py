@@ -1,30 +1,11 @@
 """
 """
 
-from __future__ import absolute_import, with_statement
-
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
-
-
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
-
-
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
+from __future__ import absolute_import
 
 from .group import Group
 from .registry import registry
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
+from .utils import sync
 
 
 class Measurement(Group):
@@ -36,12 +17,12 @@ class Measurement(Group):
     """
 
     @property
+    @sync
     def mcas(self):
-        with self._lock:
-            return dict([
-                (a.name, a) for a in self.iterobjects()
-                if isinstance(a, registry['MultiChannelAnalyzer'])
-            ])
+        return dict([
+            (a.name, a) for a in self.iterobjects()
+            if isinstance(a, registry['MultiChannelAnalyzer'])
+        ])
 
 registry.register(Measurement)
 

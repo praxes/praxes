@@ -1,11 +1,7 @@
 """
 """
 
-from __future__ import absolute_import, with_statement
-
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
+from __future__ import absolute_import
 
 import operator
 import os
@@ -13,21 +9,10 @@ import sys
 import threading
 import time
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 import h5py
 
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
-
 from .group import Group
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
+from .utils import sync
 
 
 def getLocalTime():
@@ -87,6 +72,7 @@ class File(Group, h5py.File):
         except h5py.H5Error:
             raise RuntimeError('unrecognized format')
 
+    @sync
     def list_sorted_entries(self):
         return sorted(
             self.listobjects(), key=operator.attrgetter('acquisition_id')

@@ -1,31 +1,12 @@
 """
 """
 
-from __future__ import absolute_import, with_statement
-
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
-
-
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
-
-
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
+from __future__ import absolute_import
 
 from .dataset import Dataset
 from .group import Group
 from .registry import registry
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
+from .utils import sync
 
 
 class ProcessedData(Group):
@@ -34,20 +15,20 @@ class ProcessedData(Group):
     """
 
     @property
+    @sync
     def fits(self):
-        with self._lock:
-            return dict(
-                [(s.name.rstrip('_fit'), s) for s in self.iterobjects()
-                    if isinstance(s, Fit)]
-            )
+        return dict(
+            [(s.name.rstrip('_fit'), s) for s in self.iterobjects()
+                if isinstance(s, Fit)]
+        )
 
     @property
+    @sync
     def fit_errors(self):
-        with self._lock:
-            return dict(
-                [(s.name.rstrip('_fit_error'), s) for s in self.iterobjects()
-                    if isinstance(s, FitError)]
-            )
+        return dict(
+            [(s.name.rstrip('_fit_error'), s) for s in self.iterobjects()
+                if isinstance(s, FitError)]
+        )
 
 registry.register(ProcessedData)
 
@@ -58,12 +39,12 @@ class ElementMaps(ProcessedData):
     """
 
     @property
+    @sync
     def mass_fractions(self):
-        with self._lock:
-            return dict(
-                [(s.name.rstrip('_mass_fraction'), s)
-                    for s in self.iterobjects() if isinstance(s, MassFraction)]
-            )
+        return dict(
+            [(s.name.rstrip('_mass_fraction'), s)
+                for s in self.iterobjects() if isinstance(s, MassFraction)]
+        )
 
 registry.register(ElementMaps)
 
@@ -73,6 +54,7 @@ class FitResult(Dataset):
     """
     """
 
+    @sync
     def __cmp__(self, other):
         return cmp(self.name, other.name)
 
