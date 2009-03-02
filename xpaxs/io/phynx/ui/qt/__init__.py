@@ -6,7 +6,7 @@ import logging
 import os
 import shutil
 
-from PyQt4 import QtCore
+from PyQt4 import QtCore, QtGui
 
 from xpaxs.io import phynx
 
