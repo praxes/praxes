@@ -1,32 +1,14 @@
 """
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
 import gc
 import logging
 import time
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 import pp
 from PyQt4 import QtCore
-import numpy
-numpy.seterr(all='ignore')
-
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
-
-
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
+import numpy as np
+np.seterr(all='ignore')
 
 
 logger = logging.getLogger(__file__)
@@ -47,7 +29,7 @@ class PPTaskManager(QtCore.QThread):
         self.jobServer = pp.Server(ncpus, ('*',))
         # TODO: make this configurable
         self.jobServer.set_ncpus(ncpus)
-        self.numCpus = numpy.sum([i for i in
+        self.numCpus = np.sum([i for i in
                             self.jobServer.get_active_nodes().itervalues()])
 
         self.dirty = False

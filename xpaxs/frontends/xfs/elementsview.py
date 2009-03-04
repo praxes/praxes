@@ -13,7 +13,7 @@ import logging
 # Extlib imports
 #---------------------------------------------------------------------------
 
-import numpy
+import numpy as np
 from PyQt4 import QtCore, QtGui
 
 #---------------------------------------------------------------------------
@@ -31,8 +31,8 @@ logger = logging.getLogger('XPaXS.frontends.xfs.elementsview')
 DEBUG = True
 
 def locateClosest(point, points):
-    compare = numpy.abs(points-point)
-    return numpy.nonzero(numpy.ravel(compare==compare.min()))[0]
+    compare = np.abs(points-point)
+    return np.nonzero(np.ravel(compare==compare.min()))[0]
 
 
 class ElementBaseFigure(plotwidgets.QtMplCanvas):
@@ -106,12 +106,12 @@ class ElementImageFigure(ElementBaseFigure):
         imarray = self.image.get_array()
 
 
-        self.indices = numpy.arange(len(self.image.get_array().flatten()))
+        self.indices = np.arange(len(self.image.get_array().flatten()))
         self.indices.shape = self.image.get_array().shape
 
         yshape, xshape = self.image.get_size()
-        self.xPixelLocs = numpy.linspace(xmin, xmax, xshape)
-        self.yPixelLocs = numpy.linspace(ymin, ymax, yshape)
+        self.xPixelLocs = np.linspace(xmin, xmax, xshape)
+        self.yPixelLocs = np.linspace(ymin, ymax, yshape)
 
     def _createInitialFigure(self):
         extent = []
@@ -186,10 +186,10 @@ class ElementPlotFigure(ElementBaseFigure):
 
         data = self.axes.get_lines()[0].get_xdata()
 
-        self.indices = numpy.arange(len(data))
+        self.indices = np.arange(len(data))
         self.indices.shape = (1, len(data))
 
-        self.xPixelLocs = numpy.linspace(xmin, xmax, len(data))
+        self.xPixelLocs = np.linspace(xmin, xmax, len(data))
         self.yPixelLocs = [0]
 
     def enableAutoscale(self, val):

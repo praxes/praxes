@@ -1,36 +1,20 @@
 """
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
 from __future__ import absolute_import
 
 import logging
 import sys
 import os
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 from PyMca import McaAdvancedFit
 from PyQt4 import QtCore, QtGui
-import numpy
-
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
 
 from xpaxs import __version__
 from ..base.mainwindow import MainWindow as MainWindowBase
 
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.frontends.xfs.ui.mainwindow')
+logger = logging.getLogger(__file__)
 
 USE_PYMCA_ADVANCEDFIT = False
 McaAdvancedFit.USE_BOLD_FONT = False

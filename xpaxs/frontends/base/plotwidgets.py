@@ -1,18 +1,10 @@
 """
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
 from __future__ import absolute_import
 
 import logging
 import os
-
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
 
 from PyQt4 import QtCore, QtGui
 import matplotlib as mpl
@@ -22,17 +14,10 @@ from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg\
 from matplotlib.backend_bases import cursors as mplCursors
 from matplotlib.figure import Figure
 from matplotlib.widgets import Cursor
-import numpy
-
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
+import numpy as np
 
 from .ui.resources import icons, cursors
 
-#---------------------------------------------------------------------------
-# Normal code begins
-#--------------------------------------------------------------------------
 
 logger = logging.getLogger('XPaXS.frontends.base.plotwidgets')
 
@@ -42,7 +27,7 @@ mpl.rcParams['mathtext.fontset'] = 'stix'
 mpl.rcParams['legend.fontsize'] = 'small'
 MplToolbar.margin = 4
 
-numpy.seterr(all='ignore')
+np.seterr(all='ignore')
 
 
 class Toolbar(MplToolbar):

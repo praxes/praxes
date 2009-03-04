@@ -1,33 +1,17 @@
 """
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
 import logging
 import time
-
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
 
 import pp
 from PyMca import ClassMcaTheory
 from PyMca.ConcentrationsTool import ConcentrationsTool
 from PyQt4 import QtCore
-import numpy
-numpy.seterr(all='ignore')
-
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
+import numpy as np
+np.seterr(all='ignore')
 
 from xpaxs.dispatch.pptaskmanager import PPTaskManager
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
 
 
 logger = logging.getLogger(__file__)
@@ -36,7 +20,7 @@ DEBUG = False
 def flat_to_nd(index, shape):
     res = []
     for i in xrange(1, len(shape)):
-        p = numpy.product(shape[i:])
+        p = np.product(shape[i:])
         res.append(index//p)
         index = index % p
     res.append(index)
@@ -142,7 +126,7 @@ class XfsPPTaskManager(PPTaskManager):
 
                     fitArea = result[group]['fitarea']
                     if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
-                    else: sigmaArea = numpy.nan
+                    else: sigmaArea = np.nan
 
                     self.updateElementMap(g, 'fit', index, fitArea)
                     self.updateElementMap(g, 'fit_error', index, sigmaArea)

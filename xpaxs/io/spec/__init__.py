@@ -13,33 +13,17 @@ stored in the scan header, like motor positions, scan parameters, etc.
 
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
 from __future__ import division
 from itertools import izip
 import logging
 import os
 import tempfile
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
-import numpy
-
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
+import numpy as np
 
 # TODO: fix this import:
 from PyMca.specfile import Specfile, Scandata, error
 from phynx import convert_to_phynx
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
 
 logger = logging.getLogger(__file__)
 
@@ -60,7 +44,7 @@ def getScanInfo(commandList):
             i += 1
             scan_info['axes'].append((axis, ))
             axis_info = {}
-            axis_info['range'] = numpy.array([start, stop])
+            axis_info['range'] = np.array([start, stop])
             axis_info['axis'] = i
             scan_info['axis_info'][axis] = axis_info
             scan_info['scan_shape'].append(step)
@@ -77,7 +61,7 @@ def getScanInfo(commandList):
             axis_info = {}
             axis_info['axis'] = 1
             axis_info['priority'] = i
-            axis_info['range'] = numpy.array([start, stop])
+            axis_info['range'] = np.array([start, stop])
             scan_info['axis_info'][axis] = axis_info
         scan_info['axes'].append(tuple(temp))
         scan_info['scan_shape'].append(int(args[0])+1)
@@ -89,7 +73,7 @@ def getScanInfo(commandList):
         scan_info['axes'].append('time')
         axis_info = {}
         axis_info['axis'] = 1
-        axis_info['range'] = numpy.array([0, ctime*numPts])
+        axis_info['range'] = np.array([0, ctime*numPts])
         scan_info['axis_info']['time'] = axis_info
         scan_info['scan_shape'].append(numPts)
     elif scan_type in ('Escan', ):
@@ -98,12 +82,12 @@ def getScanInfo(commandList):
         scan_info['axes'].append('energy')
         axis_info = {}
         axis_info['axis'] = 1
-        axis_info['range'] = numpy.array([start, stop])
+        axis_info['range'] = np.array([start, stop])
         scan_info['axis_info']['energy'] = axis_info
         scan_info['scan_shape'].append(steps)
     else:
         raise RuntimeError('Scan %s not recognized!'%commandType)
-    scan_info['scan_shape'] = numpy.array(scan_info['scan_shape'][::-1])
+    scan_info['scan_shape'] = np.array(scan_info['scan_shape'][::-1])
 
     return scan_info
 
@@ -374,10 +358,10 @@ class ChessScandata(object):
             data = self.scan_info.get_data()
             for label, value in izip(self.scan_info.get_all_labels(),
                                      self.scan_info.get_data()):
-                setattr(self, label, numpy.array(value))
+                setattr(self, label, np.array(value))
                 if label.lower() == 'epoch':
                     epoch_offset = self.scan_info.get_epoch_offset()
-                    setattr(self, label, numpy.array(value)+epoch_offset)
+                    setattr(self, label, np.array(value)+epoch_offset)
         except specfile.error:
             # TODO: is this necessary?
             pass
@@ -464,11 +448,11 @@ class MultiChannelData(object):
         self._mca = scan.scan_info.get_scandata().mca
 
         total, start, stop, step = channels
-        self.channels = numpy.arange(start, stop+1, step, dtype=numpy.float64)
+        self.channels = np.arange(start, stop+1, step, dtype=np.float64)
         self.set_calibration(calibration)
 
 #        shape = scan.scan_info.scan_shape
-#        shape = [numpy.product(shape)]
+#        shape = [np.product(shape)]
 #        shape.append(len(self.channels))
 
         shape = [scan.scan_info.get_number_rows()]
@@ -481,7 +465,7 @@ class MultiChannelData(object):
         name = f.name
         f.close()
 
-        self.counts = numpy.memmap(name, dtype=numpy.float64, mode='w+',
+        self.counts = np.memmap(name, dtype=np.float64, mode='w+',
                                    shape=tuple(shape))
 
         for i in xrange(scan.scan_info.get_number_rows()):
@@ -497,7 +481,7 @@ class MultiChannelData(object):
         """
         self._calibration = value[::-1]
         temp = self.channels
-        self._scaled_channels = numpy.polyval(self._calibration, temp)
+        self._scaled_channels = np.polyval(self._calibration, temp)
 
 
 class McsData(MultiChannelData):

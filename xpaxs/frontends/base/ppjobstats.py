@@ -1,31 +1,16 @@
 """
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
 from __future__ import absolute_import
 
 import logging
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
-import numpy
+import numpy as np
 import pp
 from PyQt4 import QtCore, QtGui
 
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
-
 from .ui import ui_ppjobstats
 
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
 
 logger = logging.getLogger('XPaXS.frontends.base.ppjobstats')
 
@@ -69,7 +54,7 @@ class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):
     def updateTable(self, statsDict=None):
         if statsDict is None: statsDict = self.server.get_stats()
 
-        totalJobs = numpy.sum([i.njobs for i in statsDict.itervalues()])
+        totalJobs = np.sum([i.njobs for i in statsDict.itervalues()])
 
         self.jobStatsTable.setUpdatesEnabled(False)
         self.jobStatsTable.clearContents()

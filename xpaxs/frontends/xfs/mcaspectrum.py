@@ -1,34 +1,19 @@
 """
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
 from __future__ import absolute_import
 
 import logging
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg\
     as MplToolbar
-import numpy
+import numpy as np
 from PyMca.ClassMcaTheory import McaTheory
 from PyQt4 import QtCore, QtGui
-
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
 
 from ..base import plotwidgets
 from .ui import ui_mcaspectrum
 
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
 
 logger = logging.getLogger('XPaXS.frontends.xfs.mcaspectrum')
 
@@ -103,8 +88,8 @@ class McaSpectrumFigure(plotwidgets.QtMplCanvas):
         l.draw_frame(False)
 
         if self.useLogScale:
-            res = numpy.log10(results['ydata']) - numpy.log10(results['yfit'])
-            res[numpy.isinf(res)] = numpy.nan
+            res = np.log10(results['ydata']) - np.log10(results['yfit'])
+            res[np.isinf(res)] = np.nan
             self.residualsAxes.plot(xdata, res, linewidth=1.5)
         else:
             res = results['ydata'] - results['yfit']

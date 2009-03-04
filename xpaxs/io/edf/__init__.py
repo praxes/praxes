@@ -33,7 +33,7 @@ import warnings
 # Extlib imports
 #---------------------------------------------------------------------------
 
-import numpy
+import numpy as np
 
 #---------------------------------------------------------------------------
 # Interface
@@ -103,29 +103,29 @@ STATIC_HEADER_KEYS = {"headerid": "HeaderID",
                       "offset_3": "Offset_3",
                       "size": "Size"}
 
-NUMPY_TYPE_TO_EDF_TYPE = {numpy.dtype(numpy.int8): 'SignedByte',
-                          numpy.dtype(numpy.uint8): 'UnsignedByte',
-                          numpy.dtype(numpy.int16): 'SignedShort',
-                          numpy.dtype(numpy.uint16): 'UnsignedShort',
-                          numpy.dtype(numpy.int32): 'SignedInteger',
-                          numpy.dtype(numpy.uint32): 'UnsignedInteger',
-                          numpy.dtype(numpy.int64): 'Signed64',
-                          numpy.dtype(numpy.uint64): 'Unsigned64',
-                          numpy.dtype(numpy.float32): 'FloatValue',
-                          numpy.dtype(numpy.float64): 'DoubleValue'}
+NUMPY_TYPE_TO_EDF_TYPE = {np.dtype(np.int8): 'SignedByte',
+                          np.dtype(np.uint8): 'UnsignedByte',
+                          np.dtype(np.int16): 'SignedShort',
+                          np.dtype(np.uint16): 'UnsignedShort',
+                          np.dtype(np.int32): 'SignedInteger',
+                          np.dtype(np.uint32): 'UnsignedInteger',
+                          np.dtype(np.int64): 'Signed64',
+                          np.dtype(np.uint64): 'Unsigned64',
+                          np.dtype(np.float32): 'FloatValue',
+                          np.dtype(np.float64): 'DoubleValue'}
 
-EDF_TYPE_TO_NUMPY_TYPE = {'SIGNEDBYTE': numpy.int8,
-                          'UNSIGNEDBYTE': numpy.uint8,
-                          'SIGNEDSHORT': numpy.int16,
-                          'UNSIGNEDSHORT': numpy.uint16,
-                          'SIGNEDINTEGER': numpy.int32,
-                          'UNSIGNEDINTEGER': numpy.uint32,
-                          'SIGNEDLONG': numpy.int32,
-                          'UNSIGNEDLONG': numpy.uint32,
-                          'SIGNED64': numpy.int64,
-                          'UNSIGNED64': numpy.uint64,
-                          'FLOATVALUE': numpy.float32,
-                          'DOUBLEVALUE': numpy.float64}
+EDF_TYPE_TO_NUMPY_TYPE = {'SIGNEDBYTE': np.int8,
+                          'UNSIGNEDBYTE': np.uint8,
+                          'SIGNEDSHORT': np.int16,
+                          'UNSIGNEDSHORT': np.uint16,
+                          'SIGNEDINTEGER': np.int32,
+                          'UNSIGNEDINTEGER': np.uint32,
+                          'SIGNEDLONG': np.int32,
+                          'UNSIGNEDLONG': np.uint32,
+                          'SIGNED64': np.int64,
+                          'UNSIGNED64': np.uint64,
+                          'FLOATVALUE': np.float32,
+                          'DOUBLEVALUE': np.float64}
 
 if sys.byteorder == 'big': SYS_BYTE_ORDER = "HighByteFirst"
 else: SYS_BYTE_ORDER = "LowByteFirst"
@@ -145,8 +145,8 @@ def getDefaultNumpyType(edfType, itemSize=None):
     """
     edfType = string.upper(edfType)
     # An unfortunate hack to handle ambiguity with longs:
-    if edfType == "SIGNEDLONG" and itemSize == 8: return numpy.int64
-    elif edfType == "UNSIGNEDLONG" and itemSize == 8: return numpy.uint64
+    if edfType == "SIGNEDLONG" and itemSize == 8: return np.int64
+    elif edfType == "UNSIGNEDLONG" and itemSize == 8: return np.uint64
     # Otherwise robust:
     try: return EDF_TYPE_TO_NUMPY_TYPE[edfType]
     except KeyError: raise TypeError, "unknown EdfType %s" % EdfType
@@ -243,13 +243,13 @@ class Image:
 
     def getItemSize(self):
         if self._itemSize is None:
-            self._itemSize = self.getSize()/numpy.product(self.getShape())
+            self._itemSize = self.getSize()/np.product(self.getShape())
         return self._itemSize
 
     def setItemSize(self, size):
         self._itemSize = size
         try:
-            size = self._itemSize * numpy.product(self.getShape())
+            size = self._itemSize * np.product(self.getShape())
             self.setStaticHeader('Size', size)
         except:
             pass
@@ -267,14 +267,14 @@ class Image:
 
     def setEdfDataType(self, datatype):
         self.setStaticHeader('DataType', datatype)
-        self.setItemSize(numpy.nbytes[getDefaultNumpyType(datatype)])
+        self.setItemSize(np.nbytes[getDefaultNumpyType(datatype)])
 
     def getNumpyDataType(self):
         return getDefaultNumpyType(self.getEdfDataType(), self.getItemSize())
 
     def setNumpyDataType(self, datatype):
         self.setStaticHeader('DataType', getDefaultEdfType(datatype))
-        self.setItemSize(numpy.nbytes[datatype])
+        self.setItemSize(np.nbytes[datatype])
 
     def getOffsets(self):
         ret = []
@@ -302,7 +302,7 @@ class Image:
             dim = 'Dim_%d'%i
             self._staticHeader[dim] = s
         try:
-            size = self.getItemSize * numpy.product(shape)
+            size = self.getItemSize * np.product(shape)
             self.setStaticHeader('Size', size)
         except:
             pass
@@ -417,9 +417,9 @@ class EdfFile:
         itemSize = im.getItemSize()
 
         if pos is None and size is None:
-            sizeToRead = numpy.product(shape)*itemSize
+            sizeToRead = np.product(shape)*itemSize
             self._file.seek(im.getDataPosition())
-            data = numpy.fromstring(self._file.read(sizeToRead), numpyType)
+            data = np.fromstring(self._file.read(sizeToRead), numpyType)
             data.shape = shape[::-1]
         else:
             if pos is None: pos = [0 for i in shape]
@@ -431,27 +431,27 @@ class EdfFile:
                 return size
             size = [getSize(p, s, sh) for p, s, sh in zip(pos, size, shape)]
 
-            data = numpy.array([], numpyType)
+            data = np.array([], numpyType)
             sizeToRead = size[0] * itemSize
             if dims == 1:
                 self._file.seek(im.getFilePosition(pos))
-                data = numpy.fromstring(self._file.read(sizeToRead),
+                data = np.fromstring(self._file.read(sizeToRead),
                                         numpyType)
             elif dims == 2:
                 for y in xrange(pos[1], pos[1] + size[1]):
                     self._file.seek(im.getFilePosition([pos[0], y]))
-                    line = numpy.fromstring(self._file.read(sizeToRead),
+                    line = np.fromstring(self._file.read(sizeToRead),
                                             numpyType)
-                    data = numpy.concatenate((data, line))
+                    data = np.concatenate((data, line))
                 data.shape = size[::-1]
             elif dims == 3:
-                data = numpy.array([], numpyType)
+                data = np.array([], numpyType)
                 for z in range(pos[2], pos[2] + size[2]):
                     for y in range(pos[1], pos[1] + size[1]):
                         self._file.seek(im.getFilePosition([pos[0], y, z]))
-                        line = numpy.fromstring(self._file.read(sizeToRead),
+                        line = np.fromstring(self._file.read(sizeToRead),
                                                 numpyType)
-                        data = numpy.concatenate((data, line))
+                        data = np.concatenate((data, line))
                 data.shape = size[::-1]
 
         if not SYS_BYTE_ORDER.upper() == im.getByteOrder().upper():
@@ -478,10 +478,10 @@ class EdfFile:
         numpyType = im.getNumpyDataType()
 
         self._file.seek(im.getFilePosition(pos))
-        data = numpy.fromstring(self._file.read(itemSize), numpyType)
+        data = np.fromstring(self._file.read(itemSize), numpyType)
         if not SYS_BYTE_ORDER.upper() == im.getByteOrder().upper():
             data = data.byteswap()
-        return data.astype(numpy.float64)
+        return data.astype(np.float64)
 
     def GetHeader(self, index):
         """See getHeader"""
@@ -564,7 +564,7 @@ class EdfFile:
         else:
             im.setNumpyDataType(data.dtype)
 
-        itemSize = numpy.nbytes[data.dtype]
+        itemSize = np.nbytes[data.dtype]
 
         if byteorder: im.setByteorder(byteorder)
         else: im.setByteorder(SYS_BYTE_ORDER)

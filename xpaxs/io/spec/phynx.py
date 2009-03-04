@@ -12,7 +12,7 @@ import sys
 # Extlib imports
 #---------------------------------------------------------------------------
 
-import numpy
+import numpy as np
 try:
     import specfile
 except ImportError:
@@ -95,7 +95,7 @@ def get_spec_scan_info(commandList):
         scan_info['axis_info']['energy'] = axis_info
     else:
         raise RuntimeError('Scan %s not recognized!'%scan_type)
-    scan_info['scan_shape'] = numpy.array(scan_info['scan_shape'][::-1])
+    scan_info['scan_shape'] = np.array(scan_info['scan_shape'][::-1])
 
     return scan_info
 
@@ -110,15 +110,15 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
             item_info, mca_info = mca_info[:3], mca_info[3:]
             attrs['id'] = item_info[0].split()[0][2:]
             start, stop, step = [int(i) for i in item_info[1].split()[2:]]
-            channels = numpy.arange(start,  stop+1, step)
-            attrs['calibration'] = str(tuple(numpy.array(
+            channels = np.arange(start,  stop+1, step)
+            attrs['calibration'] = str(tuple(np.array(
                 [float(i) for i in item_info[2].split()[1:]]
             )))
         else:
             print 'mca metadata in specfile is incomplete!'
 
             attrs['id'] = 'mca_%d'%mca_index
-            channels = numpy.arange(len(scan.mca(1)))
+            channels = np.arange(len(scan.mca(1)))
 
         mca_names.append(attrs['id'])
 
@@ -174,14 +174,14 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     labels = [label.lower() for label in scan.alllabels()]
     # We need to update time metadata if it was a tseries:
     if scan_info['scan_type'] == 'tseries':
-        scan_info['scan_shape'] = numpy.array([scan.lines()])
+        scan_info['scan_shape'] = np.array([scan.lines()])
         # ugh;
         index = labels.index('time')+1
         t = scan.datacol(index)
         scan_info['axis_info']['time']['range'] = str((t.min(), t.max()))
     # We need to update time metadata if it was a chess_escan:
     if scan_info['scan_type'] == 'chess_escan':
-        scan_info['scan_shape'] = numpy.array([scan.lines()])
+        scan_info['scan_shape'] = np.array([scan.lines()])
         # ugh
         index = labels.index('energy')+1
         t = scan.datacol(index)
@@ -199,7 +199,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     if len(scan_info['scan_shape']) < 2:
         if scan_info['scan_shape'] < 1:
             # an open-ended scan
-            scan_info['scan_shape'] = numpy.array([scan.lines()])
+            scan_info['scan_shape'] = np.array([scan.lines()])
     attrs['acquisition_shape'] = str(tuple(scan_info['scan_shape']))
 
     entry = h5file.create_group(scan_name, type='Entry', attrs=attrs)
@@ -287,7 +287,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     # and dont forget to include the index
     kwargs = {'attrs': {'class':'Axis'}}
     dset = scalar_data.create_dataset(
-        'i', data=numpy.arange(len(dset)), dtype='i', **kwargs
+        'i', data=np.arange(len(dset)), dtype='i', **kwargs
     )
 
     dir, spec_filename = os.path.split(spec_filename)

@@ -1,26 +1,13 @@
 """
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
 from __future__ import absolute_import
 
 import logging
 import sys
 import os
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 from PyQt4 import QtCore, QtGui
-import numpy
-
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
 
 from xpaxs import __version__
 from .ui import ui_mainwindow
@@ -28,10 +15,6 @@ from xpaxs.io.phynx.ui.qt import FileInterface
 #from xpaxs.frontends.base.ppjobstats import PPJobStats
 from .emailDlg import EmailDialog
 
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
 
 logger = logging.getLogger(__file__)
 

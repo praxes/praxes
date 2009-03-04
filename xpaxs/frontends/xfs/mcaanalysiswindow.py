@@ -1,36 +1,21 @@
 """
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
 from __future__ import absolute_import
 
 import copy
 import gc
 import logging
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 from PyQt4 import QtCore, QtGui
 from PyMca.FitParam import FitParamDialog
-import numpy
-
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
+import numpy as np
 
 from ..base.mainwindow import MainWindowBase
 from .ui.ui_mcaanalysiswindow import Ui_McaAnalysisWindow
 from .elementsview import ElementsView
 from xpaxs.io.phynx import H5Error
 
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
 
 logger = logging.getLogger(__file__)
 
@@ -247,10 +232,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
                 return self.scanData['element_maps'][entry].map
 
             except H5Error:
-                return numpy.zeros(self.scanData.acquisition_shape)
+                return np.zeros(self.scanData.acquisition_shape)
 
         else:
-            return numpy.zeros(self.scanData.acquisition_shape, dtype='f')
+            return np.zeros(self.scanData.acquisition_shape, dtype='f')
 
     def initializeElementMaps(self, elements):
         if 'element_maps' in self.scanData:
@@ -270,7 +255,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
                 elementMaps.create_dataset(
                     entry,
                     type=cls,
-                    data=numpy.zeros(self.scanData.npoints, 'f')
+                    data=np.zeros(self.scanData.npoints, 'f')
                 )
 
     def processAverageSpectrum(self, indices=None):

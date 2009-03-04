@@ -7,7 +7,7 @@ import copy
 import threading
 
 import h5py
-import numpy
+import numpy as np
 
 from .dataset import AcquisitionIterator, Signal
 from .detector import Detector
@@ -57,7 +57,7 @@ class MultiChannelAnalyzer(Detector):
             old = self.calibration
             new = self.calibration
             if len(old) < order:
-                new = numpy.zeros(order+1)
+                new = np.zeros(order+1)
                 new[:len(old)] = old
             new[order] = cal
             self.attrs['calibration'] = str(tuple(new))
@@ -73,18 +73,18 @@ class MultiChannelAnalyzer(Detector):
     @property
     def calibration(self):
         cal = simple_eval(self.attrs.get('calibration', '(0,1)'))
-        return numpy.array(cal, 'f')
+        return np.array(cal, 'f')
 
     @property
     def channels(self):
         try:
             return self['channels'].value
         except h5py.H5Error:
-            return numpy.arange(self['counts'].shape[-1])
+            return np.arange(self['counts'].shape[-1])
 
     @property
     def energy(self):
-        return numpy.polyval(self.calibration[::-1], self.channels)
+        return np.polyval(self.calibration[::-1], self.channels)
 
     def _get_pymca_config(self):
         try:
@@ -133,7 +133,7 @@ class CorrectedDataProxy(object):
         # detector deadtime correction
         try:
             dtn = 1-self._dataset.parent['dead_time'][key]/100
-            if isinstance(dtn, numpy.ndarray) \
+            if isinstance(dtn, np.ndarray) \
                     and len(dtn.shape) < len(data.shape):
                 newshape = [1]*len(data.shape)
                 newshape[:len(dtn.shape)] = dtn.shape
@@ -158,7 +158,7 @@ class CorrectedDataProxy(object):
         if len(indices) == 0:
             return
 
-        result = numpy.zeros(len(self[indices[0]]), 'f')
+        result = np.zeros(len(self[indices[0]]), 'f')
         numIndices = len(indices)
         total_valid = 0
         for index in indices:
