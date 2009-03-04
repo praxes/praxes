@@ -11,11 +11,11 @@ except ImportError:
     class HasTraits(object):
         pass
 import h5py
-import numpy
+import numpy as np
 
 from .base import _PhynxProperties
 from .registry import registry
-from .utils import sync
+from .utils import simple_eval, sync
 
 
 class AcquisitionIterator(object):
@@ -86,23 +86,34 @@ class Dataset(h5py.Dataset, _PhynxProperties, HasTraits):
 
     def __init__(self, parent_object, name, *args, **kwargs):
         with parent_object._lock:
-            attrs = kwargs.pop('attrs', {})
             if name in parent_object:
                 super(Dataset, self).__init__(
                     parent_object, name
                 )
             else:
-                kwargs.setdefault('compression', 'gzip')
-                kwargs.setdefault('fletcher32', True)
+                h5_kwargs = {}
+                for k in [
+                    'shape', 'dtype', 'data', 'chunks', 'compression',
+                    'shuffle', 'fletcher32', 'maxshape', 'compression_opts'
+                ]:
+                    h5_kwargs[k] = kwargs.pop(k, None)
+                h5_kwargs['compression'] = 'gzip'
                 super(Dataset, self).__init__(
-                    parent_object, name, *args, **kwargs
+                    parent_object, name, *args, **h5_kwargs
                 )
 
                 self.attrs['class'] = self.__class__.__name__
 
                 _PhynxProperties.__init__(self, parent_object)
 
-                for key, val in attrs.iteritems():
+                for key, val in kwargs.iteritems():
+                    try:
+                        assert np.isscalar(val)
+                    except AssertionError:
+                        raise TypeError(
+                            'attributes must be strings or scalars, '
+                            'got %r which is of %r' % (val, type(val))
+                        )
                     self.attrs[key] = val
 
             self._parent = parent_object
@@ -122,7 +133,7 @@ class Dataset(h5py.Dataset, _PhynxProperties, HasTraits):
 
     @property
     def map(self):
-        res = numpy.zeros(self.acquisition_shape, 'f')
+        res = np.zeros(self.acquisition_shape, 'f')
         res.flat[:len(self)] = self.value.flat[:]
         return res
 
@@ -176,8 +187,7 @@ class Axis(Dataset):
     @property
     def range(self):
         try:
-            temp = self.attrs['range'].lstrip('(').rstrip(')')
-            return tuple(float(i) for i in temp.split(','))
+            return simple_eval(self.attrs['range'])
         except h5py.H5Error:
             try:
                 return (self.value[[0, -1]])

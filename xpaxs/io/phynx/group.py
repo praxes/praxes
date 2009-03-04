@@ -11,6 +11,7 @@ except ImportError:
     class HasTraits(object):
         pass
 import h5py
+import numpy as np
 
 from .base import _PhynxProperties
 from .dataset import Axis, Dataset, Signal
@@ -20,14 +21,12 @@ from .utils import sync
 
 class Group(h5py.Group, _PhynxProperties, HasTraits):
 
-    def __init__(self, parent_object, name, **data):
+    def __init__(self, parent_object, name, **attrs):
         """
-        If data is not specified, return an existing group or raise an error.
+        Open an existing group or create a new one.
 
-        Otherwise, data must be a python dictionary. hdf5 attributes can be
-        identified by::
-
-            data={'attrs': {'foo':1, 'bar':2}}
+        attrs is a python dictionary of strings and numbers to be saved as hdf5
+        attributes of the group.
 
         """
         with parent_object._lock:
@@ -48,13 +47,16 @@ class Group(h5py.Group, _PhynxProperties, HasTraits):
 
                 _PhynxProperties.__init__(self, parent_object)
 
-            if data:
-                for attr, val in data.pop('attrs', {}).iteritems():
+            if attrs:
+                for attr, val in attrs.iteritems():
+                    try:
+                        assert np.isscalar(val)
+                    except AssertionError:
+                        raise TypeError(
+                            'attributes must be strings or scalars, '
+                            'got %r which is of %r' % (val, type(val))
+                        )
                     self.attrs[attr] = val
-
-                for name, val in data.iteritems():
-                    gtype, val = val
-                    registry[gtype](self, name, **val)
 
     @sync
     def __repr__(self):
@@ -70,9 +72,6 @@ class Group(h5py.Group, _PhynxProperties, HasTraits):
 
     @sync
     def __getitem__(self, name):
-        # lets allow integer and floats as keys:
-        if isinstance(name, (int, float)): name = str(name)
-
         # TODO: would be better to check the attribute without having to
         # create create the group twice. This might be possible with the
         # 1.8 API.

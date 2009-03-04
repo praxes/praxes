@@ -1,10 +1,13 @@
 """
 """
+from __future__ import absolute_import
 
 import re
 from distutils import version
 
 import h5py
+
+from .utils import simple_eval
 
 
 class AcquisitionID(object):
@@ -99,8 +102,8 @@ class _PhynxProperties:
 
     def __init__(self, parent_object):
         for attr in [
-            'acquisition_shape', 'file_name', 'acquisition_name',
-            'acquisition_id', 'npoints', 'format_version'
+            'acquisition_command', 'acquisition_id', 'acquisition_name',
+            'acquisition_shape', 'file_name', 'format_version', 'npoints'
         ]:
             try:
                 self.attrs[attr] = parent_object.attrs[attr]
@@ -108,25 +111,28 @@ class _PhynxProperties:
                 pass
 
     @property
-    def format_version(self):
-        return version.LooseVersion(self.attrs.get('format_version', '0.0'))
-
-    @property
-    def acquisition_shape(self):
-        temp = self.attrs.get('acquisition_shape', '()').lstrip('(').rstrip(')')
-        return tuple(int(i) for i in temp.split(',') if i) if temp else tuple()
+    def acquisition_command(self):
+        return AcquisitionID(self.attrs.get('acquisition_command', ''))
 
     @property
     def acquisition_id(self):
         return AcquisitionID(self.attrs.get('acquisition_id', '0'))
 
     @property
-    def acquisition_command(self):
-        return self.attrs.get('acquisition_command', '')
+    def acquisition_name(self):
+        return self.attrs.get('acquisition_name', '')
+
+    @property
+    def acquisition_shape(self):
+        return simple_eval(self.attrs.get('acquisition_shape', '()'))
 
     @property
     def file_name(self):
         return self.attrs.get('file_name', '')
+
+    @property
+    def format_version(self):
+        return version.LooseVersion(self.attrs.get('format_version', '0.0'))
 
     @property
     def npoints(self):

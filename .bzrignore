@@ -17,4 +17,4 @@ doc/math.*
 doc/_build
 xpaxs/frontends/base/ui/resources/*.py
 xpaxs/instrumentation/spec/ui/resources/*.py
-xpaxs/instrumentation/spec/ui/gamepad_rc.py
+xpaxs/instrumentation/spec/ui/*.py

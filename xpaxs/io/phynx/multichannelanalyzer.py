@@ -12,7 +12,7 @@ import numpy
 from .dataset import AcquisitionIterator, Signal
 from .detector import Detector
 from .registry import registry
-from .utils import sync
+from .utils import simple_eval, sync
 
 
 class MultiChannelAnalyzer(Detector):
@@ -72,8 +72,8 @@ class MultiChannelAnalyzer(Detector):
 
     @property
     def calibration(self):
-        temp = self.attrs.get('calibration', '(0,1)').lstrip('(').rstrip(')')
-        return numpy.array(temp.split(','), 'f')
+        cal = simple_eval(self.attrs.get('calibration', '(0,1)'))
+        return numpy.array(cal, 'f')
 
     @property
     def channels(self):
