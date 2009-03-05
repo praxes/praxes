@@ -37,16 +37,6 @@ def SpecConnectionsManager(pollingThread = True):
     if _SpecConnectionsManagerInstance is None:
         if pollingThread:
             _SpecConnectionsManagerInstance = _ThreadedSpecConnectionsManager()
-           
-            def _endSpecConnectionsManager():
-                global _SpecConnectionsManagerInstance
-
-                if _SpecConnectionsManagerInstance is not None:
-                    _SpecConnectionsManagerInstance.stop()
-                    _SpecConnectionsManagerInstance = None 
-                
-            # register _endSpecConnectionsManager() to be called on Python interpreter exit
-            atexit.register(_endSpecConnectionsManager)
         else:
             _SpecConnectionsManagerInstance = _SpecConnectionsManager()
       
@@ -70,6 +60,7 @@ class _ThreadedSpecConnectionsManager(threading.Thread):
         self.connectionDispatchers = {}
         self.stopEvent = threading.Event()
         self.__started = False
+        self.setDaemon(True)
       
         
     def run(self):
