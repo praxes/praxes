@@ -6,6 +6,11 @@ import re
 from distutils import version
 
 import h5py
+try:
+    from enthought.traits.api import HasTraits
+except ImportError:
+    class HasTraits(object):
+        pass
 
 from .utils import simple_eval
 
@@ -93,7 +98,7 @@ class AcquisitionID(object):
         return cmp(self.id, other.id)
 
 
-class _PhynxProperties:
+class _PhynxProperties(HasTraits):
 
     """A mix-in class to propagate attributes from the parent object to
     the new HDF5 group or dataset, and to expose those attributes via
@@ -112,7 +117,7 @@ class _PhynxProperties:
 
     @property
     def acquisition_command(self):
-        return AcquisitionID(self.attrs.get('acquisition_command', ''))
+        return self.attrs.get('acquisition_command', '')
 
     @property
     def acquisition_id(self):
@@ -137,3 +142,7 @@ class _PhynxProperties:
     @property
     def npoints(self):
         return self.attrs.get('npoints', 0)
+
+    @property
+    def parent(self):
+        return self._parent

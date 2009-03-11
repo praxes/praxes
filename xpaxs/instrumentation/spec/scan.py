@@ -57,6 +57,15 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         if fileInterface:
             specFile = scanParameters['scan_desc']['filename']
             h5File = fileInterface.getH5FileFromKey(specFile)
+            # It is possible for a scan number to appear multiple times in a
+            # spec file. Booo!
+            acq_order = ''
+            i = 0
+            while (name + acq_order) in self:
+                i += 1
+                acq_order = '.%d'%i
+            name = name + acq_order
+
             self._scanData = fileInterface.createEntry(h5File, scanParameters)
 
             if self._scanData:

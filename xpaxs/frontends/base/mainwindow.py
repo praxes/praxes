@@ -273,7 +273,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
 
     def connectToSpec(self, bool):
         if bool:
-            from xpaxs.instrumentation.spec.specconnect import ConnectionAborted
+            from xpaxs.instrumentation.spec.specinterface import ConnectionAborted
 
             try:
                 from xpaxs.instrumentation.spec.specinterface import SpecInterface
@@ -299,8 +299,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                     self.menuView.removeAction(action)
                 self.expInterface.close()
                 self.expInterface = None
-#        import gc
-#        gc.collect()
 
     def getScanView(self, *args):
         raise NotImplementedError

@@ -5,11 +5,6 @@ from __future__ import absolute_import, with_statement
 
 from posixpath import basename
 
-try:
-    from enthought.traits.api import HasTraits
-except ImportError:
-    class HasTraits(object):
-        pass
 import h5py
 import numpy as np
 
@@ -79,7 +74,7 @@ class AcquisitionIterator(object):
                 raise IndexError
 
 
-class Dataset(h5py.Dataset, _PhynxProperties, HasTraits):
+class Dataset(h5py.Dataset, _PhynxProperties):
 
     """
     """
@@ -107,13 +102,8 @@ class Dataset(h5py.Dataset, _PhynxProperties, HasTraits):
                 _PhynxProperties.__init__(self, parent_object)
 
                 for key, val in kwargs.iteritems():
-                    try:
-                        assert np.isscalar(val)
-                    except AssertionError:
-                        raise TypeError(
-                            'attributes must be strings or scalars, '
-                            'got %r which is of %r' % (val, type(val))
-                        )
+                    if not np.isscalar(val):
+                        val = str(val)
                     self.attrs[key] = val
 
             self._parent = parent_object
@@ -145,10 +135,6 @@ class Dataset(h5py.Dataset, _PhynxProperties, HasTraits):
     @sync
     def name(self):
         return basename(super(Dataset, self).name)
-
-    @property
-    def parent(self):
-        return self._parent
 
     @property
     @sync

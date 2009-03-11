@@ -25,7 +25,6 @@ def getLocalTime():
 
 class File(Group, h5py.File):
 
-#    def __init__(self, name, mode='a', lock=None):
     def __init__(self, name, mode='a'):
         """
         Create a new file object.
@@ -37,14 +36,8 @@ class File(Group, h5py.File):
         - w-  Create file, fail if exists
         - a   Read/write if exists, create otherwise (default)
 
+        parent is used for used for GUI interfaces
         """
-#        if lock is None:
-#            import threading
-#            self._lock = threading.RLock()
-#        else:
-#            assert hasattr(lock, '__enter__')
-#            assert hasattr(lock, '__exit__')
-#            self._lock = lock
 
         h5py.File.__init__(self, name, mode)
 
@@ -66,11 +59,16 @@ class File(Group, h5py.File):
 
     @property
     def creator(self):
-        # TODO: use h5py get() when available
         try:
             return self.attrs['creator']
         except h5py.H5Error:
             raise RuntimeError('unrecognized format')
+
+    def _get_parent(self):
+        return getattr(self, '_parent', None)
+    def _set_parent(self, parent):
+        self._parent = parent
+    parent = property(_get_parent, _set_parent)
 
     @sync
     def list_sorted_entries(self):

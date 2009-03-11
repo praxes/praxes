@@ -49,14 +49,11 @@ class Group(h5py.Group, _PhynxProperties, HasTraits):
 
             if attrs:
                 for attr, val in attrs.iteritems():
-                    try:
-                        assert np.isscalar(val)
-                    except AssertionError:
-                        raise TypeError(
-                            'attributes must be strings or scalars, '
-                            'got %r which is of %r' % (val, type(val))
-                        )
+                    if not np.isscalar(val):
+                        val = str(val)
                     self.attrs[attr] = val
+
+            self._parent = parent_object
 
     @sync
     def __repr__(self):
@@ -91,7 +88,13 @@ class Group(h5py.Group, _PhynxProperties, HasTraits):
 
     @property
     def children(self):
-        # used by traits
+        try:
+            return self._children
+        except AttributeError:
+            self._children = self.listobjects()
+            return self._children
+        # TODO: we have to cache because of segfaults with PyQt
+        # would be better to just do:
         return self.listobjects()
 
     @property
