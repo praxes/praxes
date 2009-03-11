@@ -51,12 +51,19 @@ def _atom(next, token):
             return int(token[1], 0)
         except ValueError:
             return float(token[1])
+    elif token[1] == "-":
+        token = list(next())
+        token[1] = "-" + token[1]
+        return _atom(next, token)
     elif not token[0]:
         return
     raise SyntaxError("malformed expression (%s)" % token[1])
 
 def simple_eval(source):
     """a safe version of the builtin eval function, """
-    src = cStringIO.StringIO(source).readline
-    src = tokenize.generate_tokens(src)
-    return _atom(src.next, src.next())
+    try:
+        src = cStringIO.StringIO(source).readline
+        src = tokenize.generate_tokens(src)
+        return _atom(src.next, src.next())
+    except SyntaxError:
+        raise SyntaxError("malformed expression (%s)" % source)
