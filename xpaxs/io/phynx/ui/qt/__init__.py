@@ -2,6 +2,7 @@
 """
 
 import logging
+import operator
 import os
 import shutil
 
@@ -24,6 +25,10 @@ class RootItem(object):
         return self._children
 
     @property
+    def hasChildren(self):
+        return True
+
+    @property
     def header(self):
         return self._header
 
@@ -41,8 +46,88 @@ class RootItem(object):
         return len(self.children)
 
     def appendChild(self, item):
-        item.parent = self
-        self.children.append(item)
+        self.children.append(H5FileProxy(item, self))
+
+
+class H5NodeProxy(object):
+
+    def __init__(self, file, node, parent=None):
+        self._file = file
+        self._name = node.name
+        self._parent = parent
+        self._path = node.path
+        self._type = type(node).__name__
+        self._hasChildren = isinstance(node, phynx.Group)
+        self._children = []
+
+    @property
+    def children(self):
+        if self.hasChildren:
+            if not self._children:
+                self._children = [
+                    H5NodeProxy(self.file, i, self)
+                    for i in sorted(
+                        self.getNode(self.path).listobjects(),
+                        key=operator.attrgetter('name')
+                    )
+                ]
+            return self._children
+        return []
+
+    @property
+    def file(self):
+        return self._file
+
+    @property
+    def hasChildren(self):
+#        print self.type, self._hasChildren
+        return self._hasChildren
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def parent(self):
+        return self._parent
+
+    @property
+    def path(self):
+        return self._path
+
+    @property
+    def row(self):
+        return self.parent.children.index(self)
+
+    @property
+    def type(self):
+        return self._type
+
+    def clearChildren(self):
+        self._children = []
+
+    def getNode(self, path=None):
+        if not path:
+            path = self.path
+        if path == '/':
+            return self.file
+        return self.file[path]
+
+    def __len__(self):
+        return len(self.children)
+
+
+class H5FileProxy(H5NodeProxy):
+
+    def __init__(self, file, parent=None):
+        super(H5FileProxy, self).__init__(file, file, parent)
+
+    @property
+    def path(self):
+        return '/'
+
+    def close(self):
+        return self.file.close()
 
 
 class FileModel(QtCore.QAbstractItemModel):
@@ -53,6 +138,19 @@ class FileModel(QtCore.QAbstractItemModel):
     def __init__(self, parent=None):
         super(FileModel, self).__init__(parent)
         self.rootItem = RootItem(['File/Group/Dataset', 'Description'])
+
+    def canFetchMore(self, index):
+        parentItem = index.internalPointer()
+        if parentItem is not None and parentItem.hasChildren:
+            return len(parentItem) == 0
+        else:
+            return False
+
+    def clearRows(self, index):
+        parent = index.internalPointer()
+        self.beginRemoveRows(index, 0, len(parent)-1)
+        parent.clearChildren()
+        self.endRemoveRows()
 
     def close(self):
         for item in self.rootItem:
@@ -71,10 +169,26 @@ class FileModel(QtCore.QAbstractItemModel):
             if column == 0:
                 return QtCore.QVariant(item.name)
             if column == 1:
-                return QtCore.QVariant(type(item).__name__)
+                return QtCore.QVariant(item.type)
             return QtCore.QVariant()
         except AttributeError:
             return QtCore.QVariant()
+
+    def fetchMore(self, index):
+        parent = index.internalPointer()
+        if parent is not None:
+#            if len(parent):
+#                self.beginRemoveRows(index, 0, len(parent))
+#                self.endRemoveRows()
+            self.beginInsertRows(index, 0, len(parent))
+            parent.children
+            self.endInsertRows()
+
+    def hasChildren(self, index):
+        parentItem = index.internalPointer()
+        if parentItem is None:
+            parentItem = self.rootItem
+        return parentItem.hasChildren
 
     def headerData(self, section, orientation, role):
         if orientation == QtCore.Qt.Horizontal and \
@@ -83,20 +197,17 @@ class FileModel(QtCore.QAbstractItemModel):
 
         return QtCore.QVariant()
 
-    def index(self, row, column, parentIndex):
-        if not self.hasIndex(row, column, parentIndex):
+    def index(self, row, column, parent):
+        if not self.hasIndex(row, column, parent):
             return QtCore.QModelIndex()
 
-        if not parentIndex.isValid():
-            parent = self.rootItem
+        if parent.isValid():
+            parentItem = parent.internalPointer()
         else:
-            parent = parentIndex.internalPointer()
+            parentItem = self.rootItem
 
-        child = parent.children[row]
-        if child:
-            return self.createIndex(row, column, child)
-        else:
-            return QtCore.QModelIndex()
+        child = parentItem.children[row]
+        return self.createIndex(row, column, child)
 
     def parent(self, index):
         if not index.isValid():
@@ -108,9 +219,7 @@ class FileModel(QtCore.QAbstractItemModel):
         if parent == self.rootItem:
             return QtCore.QModelIndex()
 
-        row = parent.parent.children.index(parent)
-
-        return self.createIndex(row, 0, parent)
+        return self.createIndex(parent.row, 0, parent)
 
     def rowCount(self, parent):
         if parent.column() > 0:
@@ -121,10 +230,7 @@ class FileModel(QtCore.QAbstractItemModel):
         else:
             parentItem = parent.internalPointer()
 
-        try:
-            return len(parentItem.children)
-        except (TypeError, AttributeError):
-            return 0
+        return len(parentItem)
 
     def _openFile(self, filename):
         f = phynx.File(filename, 'a')
@@ -166,8 +272,9 @@ class FileModel(QtCore.QAbstractItemModel):
         self.emit(QtCore.SIGNAL('fileAppended'))
         return phynxFile
 
-#    def itemActivated(self, index):
-#        scanData = index.internalPointer().itemActivated()
+    def itemActivated(self, index):
+        scanData = index.internalPointer().getNode()
+        print scanData
 #        self.emit(QtCore.SIGNAL('scanActivated'), scanData)
 
 
@@ -178,9 +285,16 @@ class FileView(QtGui.QTreeView):
 
         self.setModel(model)
 
-#        self.connect(self,
-#                     QtCore.SIGNAL('activated(QModelIndex)'),
-#                     model.itemActivated)
+        self.connect(
+            self,
+            QtCore.SIGNAL('activated(QModelIndex)'),
+            model.itemActivated
+        )
+        self.connect(
+            self,
+            QtCore.SIGNAL('collapsed(QModelIndex)'),
+            model.clearRows
+        )
 
 #    def appendItem(self, index):
 #        self.expand(index)
