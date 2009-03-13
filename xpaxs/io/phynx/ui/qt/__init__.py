@@ -109,8 +109,6 @@ class H5NodeProxy(object):
     def getNode(self, path=None):
         if not path:
             path = self.path
-        if path == '/':
-            return self.file
         return self.file[path]
 
     def __len__(self):

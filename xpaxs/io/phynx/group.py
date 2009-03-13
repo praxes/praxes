@@ -30,7 +30,7 @@ class Group(h5py.Group, _PhynxProperties, HasTraits):
 
         """
         with parent_object._lock:
-            if name in parent_object:
+            if name in parent_object or name == '/':
                 super(Group, self).__init__(
                     parent_object, name, create=False
                 )
