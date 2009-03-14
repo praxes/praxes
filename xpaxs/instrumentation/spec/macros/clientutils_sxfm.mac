@@ -26,6 +26,7 @@ def _client_setscanenv '{
     local scan_env column_names
 
     local plot_desc[] scan_desc[] mode_desc[] positions detectors[]
+    local npoints spoints id entry attrs
 
     scan_env = ""
 
@@ -44,105 +45,101 @@ def _client_setscanenv '{
     }
     # for backwards compatibility:
     scan_env = sprintf("%s%s", scan_env, plot_dict)
-    # and looking forward:
+    # and looking forward, the plot information should really be in a subdict:
     scan_env = sprintf("%s\'plot_desc\':{%s}, ", scan_env, plot_dict)
 
-    # collect the scan metadata:
-    scan_desc["filename"] = sprintf("\'%s/%s\'", CWD, DATAFILE)
-    scan_desc["command"] = sprintf("\'%s\'", HEADING)
-    scan_desc["scan number"] = sprintf("%d", SCAN_N+1)
-    scan_desc["scan points"] = sprintf("%d", (_stype&8? _n1*_n2:_n1))
-    scan_desc["monitor"] = sprintf("\'%s\'", cnt_mne(MON))
-
-    column_names = "\'i\', "
-    for (i=0;i<_nm;i++) {
-        column_names = sprintf("%s\'%s\', ", column_names, motor_mne(_m[i]))
+    # collect the scan metadata for phynx:
+    npoints = _stype&8? _n1*_n2:_n1
+    scan_info["file_name"] = sprintf("\'%s/%s\'", CWD, DATAFILE)
+    scan_info["acquisition_command"] = sprintf("\'%s\'", HEADING)
+    scan_info["acquisition_id"] = sprintf("%d", SCAN_N+1)
+    scan_info["npoints"] = sprintf("%d", npoints)
+    if (_stype&8) {
+        scan_info["acquisition_shape"] = sprintf("(%d, %d)", _n1, _n2)
+    } else {
+        scan_info["acquisition_shape"] = sprintf("(%d, )", _n1)
     }
-    column_names = sprintf("%s\'epoch\', ", column_names)
+
+    info_dict = ""
+    for (i in scan_info) {
+        info_dict = sprintf("%s\'%s\':%s, ", info_dict, i, scan_info[i])
+    }
+    scan_env = sprintf("%s\'info\':{%s}, ", scan_env, info_dict)
+
+    # create the phynx hierarchy under entry/measurement:
+    scan_desc["i"] = sprintf("(\'Dataset\', {\'shape\': (%d,)})", npoints)
+    entry = "(\'Signal\', {\'shape\': (%d,), \'signal\': %d})"
     for (i=0;i<COUNTERS;i++) {
-        column_names = sprintf("%s\'%s\', ", column_names, cnt_mne(i))
+        id = sprintf("scalar_data/%s", cnt_mne(i))
+        scan_desc[id] = sprintf(entry, npoints, (i==DET))
     }
-    scan_desc["column names"] = sprintf("[%s]", column_names)
-
-    scan_dict = ""
-    for (i in scan_desc) {
-        scan_dict = sprintf("%s\'%s\':%s, ", scan_dict, i, scan_desc[i])
-    }
-    scan_env = sprintf("%s\'scan_desc\':{%s}, ", scan_env, scan_dict)
 
     if (SKIPMODE_COUNTER) {
-        mode_desc["skipmode"] = sprintf("\'channel\':\'%s\', \'threshold\': %g", \
-            cnt_mne(SKIPMODE_COUNTER), SKIPMODE_THRESHOLD)
+        id = "scalar_data/masked"
+        entry = "(\'Signal\', {\'shape\': (%d,), \'monitor\': %s, \'threshold\': %d})"
+        scan_desc[id] = sprintf(entry, npoints, cnt_mne(SKIPMODE_COUNTER), \
+            SKIPMODE_THRESHOLD)
     }
 
-    modes_dict = ""
-    for (i in mode_desc) {
-        modes_dict = sprintf("%s\'%s\':{%s}, ", modes_dict, i, mode_desc[i])
-    }
-    scan_env = sprintf("%s%s", scan_env, modes_dict)
-
-    positions = ""
     for (i=0;i<MOTORS;i++) {
-        positions = sprintf("%s\'%s\':%g, ", positions, motor_mne(i), A[i])
+        id = sprintf("positioners/%s", motor_mne(i))
+        entry = "(\'Dataset\', {\'data\': %g})"
+        scan_desc[id] = sprintf("(\'Dataset\', {\'data\': %g})", A[i])
     }
-    scan_env = sprintf("%s\'motor_positions\':{%s}, ", scan_env, positions)
+    for (i=0;i<_nm;i++) {
+        id = sprintf("scalar_data/%s", motor_mne(i))
+        # should add 'primary' also for d3scan, but lets not worry about it now:
+        entry = "(\'Axis\', {\'shape\': (%d,), \'axis\': %d, '\range'\: (%g,%g)})"
+        scan_desc[id] = sprintf(entry, npoints, _stype&8? i+1:1, _s[i], _f[i])
+    }
 
     if (MCA_CHAN > 0) {
-        local mca_desc mca_channels mca_energy
+        # this block is executed for old-school MCA description
+        local mca_channels mca_cal
 
-        mca_desc = "\'class\':\'detector\', \'type\':\'MCA\', "
-        mca_desc = sprintf("%s\'description\':\'%s\', ", mca_desc, MCA_NAME)
+        mca_cal = sprintf("(%g,%g,%g)", MCA_DATA_PARAM[0], MCA_DATA_PARAM[1],
+            MCA_DATA_PARAM[2])
+        entry = "(\'MultiChannelAnalyzer\', {\'shape\': (%d, %d), \'calibration\': %s})"
+        scan_desc['mca'] = sprintf(entry, npoints, MCA_CHAN, mca_cal)
 
         mca_channels = ""
-        mca_energy = ""
         for(i = 0; i < MCA_CHAN; i++){
             mca_channels = sprintf("%s%g,", mca_channels, MCA_DATA[i][0])
-            mca_energy = sprintf("%s%g,", mca_energy, MCA_DATA_FL[i][0])
         }
-        mca_desc = sprintf("%s\'channels\':array([%s], dtype=\'i\'), ", \
-            mca_desc, mca_channels)
-        mca_desc = sprintf("%s\'energy\':array([%s], dtype=\'f\'), ", \
-            mca_desc, mca_energy)
-        mca_desc = sprintf("%s\'calibration\':array([%g,%g,%g], dtype=\'f\'), ", \
-            mca_desc, MCA_DATA_PARAM[0], MCA_DATA_PARAM[1], MCA_DATA_PARAM[2])
+        scan_desc['mca/channels'] = sprintf("(%s)", mca_channels)
 
-        detectors[MCA_NAME] = mca_desc
+        # IMPORTANT: DONT FORGET TO INCLUDE DEADTIME INFORMATION HERE!
     }
+
     if (EPICS_MCAS > 0) {
-        local uch mca_desc mca_channels mca_energy _oo _ss _qq
+        # this block is used for MCAs under EPICS control
+        local uch mca_desc mca_channels mca_energy _oo _ss _qq mca_cal
 
         for (mne in mca_pv) {
-            mca_desc = "\'class\':\'detector\', \'type\':\'MCA\', "
-            mca_desc = sprintf("%s\'description\':\'%s\', ", mca_desc, mca_pv[mne])
-
-            mca_energy = ""
-            mca_channels = ""
-
             uch = epics_get(sprintf("%s.NUSE", mca_pv[mne]))
             _oo = epics_get(sprintf("%s.CALO", mca_pv[mne]))
             _ss = epics_get(sprintf("%s.CALS", mca_pv[mne]))
             _qq = epics_get(sprintf("%s.CALQ", mca_pv[mne]))
 
+            mca_cal = sprintf("(%g,%g,%g)", _oo, _ss, _qq)
+            entry = "(\'MultiChannelAnalyzer\', {\'shape\': (%d, %d), \'calibration\': %s})"
+            scan_desc[mne] = sprintf(entry, npoints, MCA_CHAN, mca_cal)
+
+            mca_channels = ""
             for (i = 0; i < uch; i++) {
                 mca_channels = sprintf("%s%g,", mca_channels, i)
-                mca_energy = sprintf("%s%g,", mca_energy, _ss*i+_qq*i*i)
             }
+            scan_desc[sprintf('%s/channels', mne)] = sprintf("(%s)", mca_channels)
 
-            mca_desc = sprintf("%s\'channels\':array([%s], dtype=\'i\'), ", \
-                mca_desc, mca_channels)
-            mca_desc = sprintf("%s\'energy\':array([%s], dtype=\'f\'), ", \
-                mca_desc, mca_energy)
-            mca_desc = sprintf("%s\'calibration\':array([%g,%g,%g], dtype=\'f\'), ", \
-                mca_desc, MCA_DATA_PARAM[0], MCA_DATA_PARAM[1], MCA_DATA_PARAM[2])
-
-            detectors[mne] = mca_desc
+            # IMPORTANT: DONT FORGET TO INCLUDE DEADTIME INFORMATION HERE!
         }
-
     }
 
-    for (i in detectors) {
-        scan_env = sprintf("%s\'%s\':{%s}, ", scan_env, i, detectors[i])
+    hierarchy_dict = ""
+    for (i in scan_desc) {
+        info_dict = sprintf("%s\'%s\':%s, ", hierarchy_dict, i, scan_desc[i])
     }
+    scan_env = sprintf("%s\'info\':{%s}, ", scan_env, hierarchy_dict)
 
     _SC_NEWSCAN = sprintf("{%s}", scan_env)
 }'

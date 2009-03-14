@@ -1,14 +1,19 @@
 """Helper module for managing scans"""
+
+import copy
+import cStringIO
+import logging
+import time
+import tokenize
+import types
+
+import numpy as np
+
 from SpecClient.SpecConnectionsManager import SpecConnectionsManager
 from SpecClient import SpecCommand
 from SpecClient import SpecEventsDispatcher
 from SpecClient import SpecWaitObject
-import logging
-import types
-import time
-import numpy
 
-import copy
 
 __author__ = 'Matias Guijarro'
 __version__ = 1
@@ -17,6 +22,65 @@ __version__ = 1
 (TIMESCAN) = (16)
 
 DEBUG = False
+
+
+def _iterable(next, terminator):
+    out = []
+    token = next()
+    while token[1] != terminator:
+        out.append(_atom(next, token))
+        token = next()
+        if token[1] == ",":
+            token = next()
+    return out
+
+def _dictable(next):
+    out = []
+    token = next()
+    while token[1] != '}':
+        k = _atom(next, token)
+        token = next()
+        token = next()
+        v = _atom(next, token)
+        out.append((k, v))
+        token = next()
+        if token[1] == ",":
+            token = next()
+    return dict(out)
+
+def _atom(next, token):
+    if token[1] == "(":
+        return tuple(_iterable(next, ')'))
+    if token[1] == "[":
+        return list(_iterable(next, ']'))
+    if token[1] == "{":
+        return _dictable(next)
+    if token[1] == "array":
+        token = next()
+        return np.array(*_iterable(next, ')'))
+    elif token[0] is tokenize.STRING:
+        return token[1][1:-1].decode("string-escape")
+    elif token[0] is tokenize.NUMBER:
+        try:
+            return int(token[1], 0)
+        except ValueError:
+            return float(token[1])
+    elif token[1] == "-":
+        token = list(next())
+        token[1] = "-" + token[1]
+        return _atom(next, token)
+    elif not token[0]:
+        return
+    raise SyntaxError("malformed expression (%s)" % token[1])
+
+def simple_eval(source):
+    """a safe version of the builtin eval function, """
+    try:
+        src = cStringIO.StringIO(source).readline
+        src = tokenize.generate_tokens(src)
+        return _atom(src.next, src.next())
+    except SyntaxError:
+        raise SyntaxError("malformed expression (%s)" % source)
 
 
 class SpecScanA:
@@ -79,7 +143,7 @@ class SpecScanA:
 
         self.__scanning = False
 
-        self.scanParams = eval(scanParams, {'array':numpy.array})
+        self.scanParams = simple_eval(scanParams)
 
         if type(self.scanParams) != types.DictType:
             return
@@ -109,7 +173,7 @@ class SpecScanA:
     def __newScanData(self, scanData):
         if DEBUG: print "SpecScanA.__newScanData", scanData
         if self.__scanning and scanData:
-            scanData = eval(scanData, {'array':numpy.array})
+            scanData = simple_eval(scanData)
 
             self.newScanData(scanData)
 
@@ -120,7 +184,7 @@ class SpecScanA:
     def __newScanPoint(self, scanData):
         if DEBUG: print "SpecScanA.__newScanPoint", scanData
         if self.__scanning and scanData:
-            scanData = eval(scanData, {'array':numpy.array})
+            scanData = simple_eval(scanData)
 
             i = scanData['i']
             x = scanData['x']
