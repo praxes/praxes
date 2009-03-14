@@ -139,8 +139,10 @@ class _PhynxProperties(HasTraits):
             'acquisition_command', 'acquisition_id', 'acquisition_name',
             'acquisition_shape', 'file_name', 'format_version', 'npoints'
         ]:
-            if attr not in self.attrs:
-                try:
-                    self.attrs[attr] = parent_object.attrs[attr]
-                except h5py.H5Error:
-                    pass
+            with parent_object._plock:
+                self._plock = parent_object._plock
+                if attr not in self.attrs:
+                    try:
+                        self.attrs[attr] = parent_object.attrs[attr]
+                    except h5py.H5Error:
+                        pass

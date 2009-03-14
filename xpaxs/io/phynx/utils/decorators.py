@@ -9,6 +9,6 @@ from functools import wraps
 def sync(f):
     @wraps(f)
     def g(self, *args, **kwargs):
-        with self._lock:
+        with self._plock:
             return f(self, *args, **kwargs)
     return g

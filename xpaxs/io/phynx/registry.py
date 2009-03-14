@@ -12,7 +12,7 @@ from .utils import sync
 class _Registry(object):
 
     def __init__(self):
-        self._lock = threading.Lock()
+        self._plock = threading.Lock()
         self.__data = {}
 
     @sync

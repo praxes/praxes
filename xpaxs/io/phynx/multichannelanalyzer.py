@@ -50,16 +50,16 @@ class MultiChannelAnalyzer(Detector):
         # this whole __init__ is only needed to fix some badly formatted data
         # from early in development of phynx
         super(MultiChannelAnalyzer, self).__init__(*args, **kwargs)
-        with self._lock:
-            try:
-                if self['counts'].attrs['class'] != 'McaSpectrum':
-                    self['counts'].attrs['class'] = 'McaSpectrum'
-            except h5py.H5Error:
-                pass
 
-            # TODO: this could eventually go away
-            if 'dead_time' not in self:
-                self._set_dead_time()
+        try:
+            if self['counts'].attrs['class'] != 'McaSpectrum':
+                self['counts'].attrs['class'] = 'McaSpectrum'
+        except h5py.H5Error:
+            pass
+
+        # TODO: this could eventually go away
+        if 'dead_time' not in self:
+            self._set_dead_time()
 
     def _set_dead_time(self):
         if 'dead' in self:
@@ -111,39 +111,38 @@ class CorrectedDataProxy(object):
         return self._dataset.npoints
 
     def __init__(self, dataset):
-        self._lock = dataset._lock
         self._dataset = dataset
 
-    @sync
     def __getitem__(self, key):
-        data = self._dataset[key]
+        with self.dataset._plock:
+            data = self._dataset[key]
 
-        # normalization may be something like ring current or monitor counts
-        try:
-            norm = self._dataset.parent['normalization'][key]
-            if norm.shape and len(norm.shape) < len(data.shape):
-                newshape = [1]*len(data.shape)
-                newshape[:len(norm.shape)] = norm.shape
-                norm.shape = newshape
-            data /= norm
-        except h5py.H5Error:
-            # fails if normalization is not defined
-            pass
+            # normalization may be something like ring current or monitor counts
+            try:
+                norm = self._dataset.parent['normalization'][key]
+                if norm.shape and len(norm.shape) < len(data.shape):
+                    newshape = [1]*len(data.shape)
+                    newshape[:len(norm.shape)] = norm.shape
+                    norm.shape = newshape
+                data /= norm
+            except h5py.H5Error:
+                # fails if normalization is not defined
+                pass
 
-        # detector deadtime correction
-        try:
-            dtn = 1-self._dataset.parent['dead_time'][key]/100
-            if isinstance(dtn, np.ndarray) \
-                    and len(dtn.shape) < len(data.shape):
-                newshape = [1]*len(data.shape)
-                newshape[:len(dtn.shape)] = dtn.shape
-                dtn.shape = newshape
-            data /= dtn
-        except h5py.H5Error:
-            # fails if dead_time_correction is not defined
-            pass
+            # detector deadtime correction
+            try:
+                dtn = 1-self._dataset.parent['dead_time'][key]/100
+                if isinstance(dtn, np.ndarray) \
+                        and len(dtn.shape) < len(data.shape):
+                    newshape = [1]*len(data.shape)
+                    newshape[:len(dtn.shape)] = dtn.shape
+                    dtn.shape = newshape
+                data /= dtn
+            except h5py.H5Error:
+                # fails if dead_time_correction is not defined
+                pass
 
-        return data
+            return data
 
     def __len__(self):
         return len(self._dataset)
@@ -151,27 +150,27 @@ class CorrectedDataProxy(object):
     def iteritems(self):
         return AcquisitionIterator(self)
 
-    @sync
     def get_averaged_counts(self, indices=[]):
-        if not len(indices):
-            indices = range(len(self))
-        if len(indices) == 0:
-            return
+        with self._dataset._plock:
+            if not len(indices):
+                indices = range(len(self))
+            if len(indices) == 0:
+                return
 
-        result = np.zeros(len(self[indices[0]]), 'f')
-        numIndices = len(indices)
-        total_valid = 0
-        for index in indices:
-            try:
-                valid = not self._dataset.masked[index]
-            except TypeError:
-                valid = True
-            if valid:
-                temp = self[index]
-                result += temp
-                total_valid += 1
+            result = np.zeros(len(self[indices[0]]), 'f')
+            numIndices = len(indices)
+            total_valid = 0
+            for index in indices:
+                try:
+                    valid = not self._dataset.masked[index]
+                except TypeError:
+                    valid = True
+                if valid:
+                    temp = self[index]
+                    result += temp
+                    total_valid += 1
 
-        return result / total_valid
+            return result / total_valid
 
 
 class McaSpectrum(Signal):

@@ -112,7 +112,7 @@ class Dataset(h5py.Dataset, _PhynxProperties):
         """
         The following args and kwargs
         """
-        with parent_object._lock:
+        with parent_object._plock:
             if name in parent_object:
                 h5py.Dataset.__init__(self, parent_object, name)
                 _PhynxProperties.__init__(self, parent_object)

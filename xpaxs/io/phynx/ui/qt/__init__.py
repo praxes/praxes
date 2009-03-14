@@ -16,10 +16,6 @@ logger = logging.getLogger(__file__)
 
 class RootItem(object):
 
-    def __init__(self, header):
-        self._header = header
-        self._children = []
-
     @property
     def children(self):
         return self._children
@@ -36,6 +32,10 @@ class RootItem(object):
     def parent(self):
         return None
 
+    def __init__(self, header):
+        self._header = header
+        self._children = []
+
     def __iter__(self):
         def iter_files(files):
             for f in files:
@@ -51,28 +51,20 @@ class RootItem(object):
 
 class H5NodeProxy(object):
 
-    def __init__(self, file, node, parent=None):
-        self._file = file
-        self._name = node.name
-        self._parent = parent
-        self._path = node.path
-        self._type = type(node).__name__
-        self._hasChildren = isinstance(node, phynx.Group)
-        self._children = []
-
     @property
     def children(self):
-        if self.hasChildren:
-            if not self._children:
-                self._children = [
-                    H5NodeProxy(self.file, i, self)
-                    for i in sorted(
-                        self.getNode(self.path).listobjects(),
-                        key=operator.attrgetter('name')
-                    )
-                ]
-            return self._children
-        return []
+        if not self.hasChildren:
+            return []
+
+        if not self._children:
+            self._children = [
+                H5NodeProxy(self.file, i, self)
+                for i in sorted(
+                    self.getNode(self.path).listobjects(),
+                    key=operator.attrgetter('name')
+                )
+            ]
+        return self._children
 
     @property
     def file(self):
@@ -80,7 +72,6 @@ class H5NodeProxy(object):
 
     @property
     def hasChildren(self):
-#        print self.type, self._hasChildren
         return self._hasChildren
 
     @property
@@ -103,6 +94,15 @@ class H5NodeProxy(object):
     def type(self):
         return self._type
 
+    def __init__(self, file, node, parent=None):
+        self._file = file
+        self._name = node.name
+        self._parent = parent
+        self._path = node.path
+        self._type = type(node).__name__
+        self._hasChildren = isinstance(node, phynx.Group)
+        self._children = []
+
     def clearChildren(self):
         self._children = []
 
@@ -117,12 +117,12 @@ class H5NodeProxy(object):
 
 class H5FileProxy(H5NodeProxy):
 
-    def __init__(self, file, parent=None):
-        super(H5FileProxy, self).__init__(file, file, parent)
-
     @property
     def path(self):
         return '/'
+
+    def __init__(self, file, parent=None):
+        super(H5FileProxy, self).__init__(file, file, parent)
 
     def close(self):
         return self.file.close()
@@ -175,9 +175,6 @@ class FileModel(QtCore.QAbstractItemModel):
     def fetchMore(self, index):
         parent = index.internalPointer()
         if parent is not None:
-#            if len(parent):
-#                self.beginRemoveRows(index, 0, len(parent))
-#                self.endRemoveRows()
             self.beginInsertRows(index, 0, len(parent))
             parent.children
             self.endInsertRows()
@@ -303,6 +300,14 @@ class FileView(QtGui.QTreeView):
 
 class FileInterface(QtCore.QObject):
 
+    @property
+    def fileModel(self):
+        return self._fileModel
+
+    @property
+    def fileView(self):
+        return self._fileView
+
     def __init__(self, parent=None):
         super(FileInterface, self).__init__(parent)
         self.dockWidgets = {}
@@ -329,14 +334,6 @@ class FileInterface(QtCore.QObject):
     def _registerService(self):
         import xpaxs
         xpaxs.application.registerService('FileInterface', self)
-
-    @property
-    def fileModel(self):
-        return self._fileModel
-
-    @property
-    def fileView(self):
-        return self._fileView
 
     def addDockWidget(self, widget, title, allowedAreas, defaultArea,
                       name = None):

@@ -40,7 +40,7 @@ class File(Group, h5py.File):
     def path(self):
         return '/'
 
-    def __init__(self, name, mode='a'):
+    def __init__(self, name, mode='a', lock=None):
         """
         Create a new file object.
 
@@ -55,6 +55,18 @@ class File(Group, h5py.File):
         """
 
         h5py.File.__init__(self, name, mode)
+        if lock is None:
+            lock = threading.RLock()
+        else:
+            try:
+                with lock:
+                    pass
+            except AttributeError:
+                raise RuntimeError(
+                    'lock must be a context manager, providing __enter__ and '
+                    '__exit__ methods'
+                )
+        self._plock = lock
 
         if self.mode != 'r' and len(self) == 0:
             if 'file_name' not in self.attrs:
