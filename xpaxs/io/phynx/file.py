@@ -25,6 +25,21 @@ def getLocalTime():
 
 class File(Group, h5py.File):
 
+    @property
+    def creator(self):
+        try:
+            return self.attrs['creator']
+        except h5py.H5Error:
+            raise RuntimeError('unrecognized format')
+
+    @property
+    def parent(self):
+        return None
+
+    @property
+    def path(self):
+        return '/'
+
     def __init__(self, name, mode='a'):
         """
         Create a new file object.
@@ -56,19 +71,6 @@ class File(Group, h5py.File):
                 self.attrs['creator'] = 'phynx'
             if 'format_version' not in self.attrs:
                 self.attrs['format_version'] = '0.1'
-
-    @property
-    def creator(self):
-        try:
-            return self.attrs['creator']
-        except h5py.H5Error:
-            raise RuntimeError('unrecognized format')
-
-    def _get_parent(self):
-        return getattr(self, '_parent', None)
-    def _set_parent(self, parent):
-        self._parent = parent
-    parent = property(_get_parent, _set_parent)
 
     @sync
     def list_sorted_entries(self):

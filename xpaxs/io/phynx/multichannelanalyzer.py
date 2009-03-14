@@ -19,6 +19,33 @@ class MultiChannelAnalyzer(Detector):
 
     """
     """
+
+    @property
+    def calibration(self):
+        cal = simple_eval(self.attrs.get('calibration', '(0,1)'))
+        return np.array(cal, 'f')
+
+    @property
+    def channels(self):
+        try:
+            return self['channels'].value
+        except h5py.H5Error:
+            return np.arange(self['counts'].shape[-1])
+
+    @property
+    def energy(self):
+        return np.polyval(self.calibration[::-1], self.channels)
+
+    def _get_pymca_config(self):
+        try:
+            from PyMca.ConfigDict import ConfigDict
+            return ConfigDict(eval(self.attrs['pymca_config']))
+        except h5py.H5Error:
+            return None
+    def _set_pymca_config(self, config):
+        self.attrs['pymca_config'] = str(config)
+    pymca_config = property(_get_pymca_config, _set_pymca_config)
+
     def __init__(self, *args, **kwargs):
         # this whole __init__ is only needed to fix some badly formatted data
         # from early in development of phynx
@@ -70,41 +97,10 @@ class MultiChannelAnalyzer(Detector):
                 )
             self.attrs['calibration'] = str(tuple(cal))
 
-    @property
-    def calibration(self):
-        cal = simple_eval(self.attrs.get('calibration', '(0,1)'))
-        return np.array(cal, 'f')
-
-    @property
-    def channels(self):
-        try:
-            return self['channels'].value
-        except h5py.H5Error:
-            return np.arange(self['counts'].shape[-1])
-
-    @property
-    def energy(self):
-        return np.polyval(self.calibration[::-1], self.channels)
-
-    def _get_pymca_config(self):
-        try:
-            from PyMca.ConfigDict import ConfigDict
-            return ConfigDict(eval(self.attrs['pymca_config']))
-        except h5py.H5Error:
-            return None
-    def _set_pymca_config(self, config):
-        self.attrs['pymca_config'] = str(config)
-    pymca_config = property(_get_pymca_config, _set_pymca_config)
-
 registry.register(MultiChannelAnalyzer)
 
 
 class CorrectedDataProxy(object):
-
-    def __init__(self, dataset):
-#        self._lock = threading.RLock()
-        self._lock = dataset._lock
-        self._dataset = dataset
 
     @property
     def masked(self):
@@ -113,6 +109,10 @@ class CorrectedDataProxy(object):
     @property
     def npoints(self):
         return self._dataset.npoints
+
+    def __init__(self, dataset):
+        self._lock = dataset._lock
+        self._dataset = dataset
 
     @sync
     def __getitem__(self, key):

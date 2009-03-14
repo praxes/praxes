@@ -2,12 +2,13 @@
 """
 from __future__ import absolute_import
 
+import posixpath
 import re
 from distutils import version
 
 import h5py
 try:
-    from enthought.traits.api import HasTraits
+    from enthought.traits.api import HasTraits_DISABLED
 except ImportError:
     class HasTraits(object):
         pass
@@ -52,6 +53,14 @@ class AcquisitionID(object):
 
     component_re = re.compile(r'(\d+ | [a-z]+ | \.)', re.VERBOSE)
 
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def idstring(self):
+        return self._idstring
+
     def __init__(self, idstring):
         if not isinstance(idstring, str):
             idstring = str(idstring)
@@ -77,14 +86,6 @@ class AcquisitionID(object):
 
         self._id = components
 
-    @property
-    def id(self):
-        return self._id
-
-    @property
-    def idstring(self):
-        return self._idstring
-
     def __str__(self):
         return self.idstring
 
@@ -104,16 +105,6 @@ class _PhynxProperties(HasTraits):
     the new HDF5 group or dataset, and to expose those attributes via
     python properties.
     """
-
-    def __init__(self, parent_object):
-        for attr in [
-            'acquisition_command', 'acquisition_id', 'acquisition_name',
-            'acquisition_shape', 'file_name', 'format_version', 'npoints'
-        ]:
-            try:
-                self.attrs[attr] = parent_object.attrs[attr]
-            except h5py.H5Error:
-                pass
 
     @property
     def acquisition_command(self):
@@ -145,4 +136,16 @@ class _PhynxProperties(HasTraits):
 
     @property
     def parent(self):
-        return self._parent
+        return self[self._parent]
+
+    def __init__(self, parent_object):
+        for attr in [
+            'acquisition_command', 'acquisition_id', 'acquisition_name',
+            'acquisition_shape', 'file_name', 'format_version', 'npoints'
+        ]:
+            self._parent = posixpath.split(self.path)[0]
+            if attr not in self.attrs:
+                try:
+                    self.attrs[attr] = parent_object.attrs[attr]
+                except h5py.H5Error:
+                    pass

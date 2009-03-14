@@ -3,13 +3,8 @@
 
 from __future__ import absolute_import, with_statement
 
-from posixpath import basename
+import posixpath
 
-try:
-    from enthought.traits.api import HasTraits
-except ImportError:
-    class HasTraits(object):
-        pass
 import h5py
 import numpy as np
 
@@ -19,7 +14,39 @@ from .registry import registry
 from .utils import sync
 
 
-class Group(h5py.Group, _PhynxProperties, HasTraits):
+class Group(h5py.Group, _PhynxProperties):
+
+    """
+    """
+
+    @property
+    def children(self):
+        return self.listobjects()
+
+    @property
+    @sync
+    def name(self):
+        return posixpath.basename(super(Group, self).name)
+
+    @property
+    @sync
+    def path(self):
+        return super(Group, self).name
+
+    @property
+    @sync
+    def signals(self):
+        return dict(
+            [(s.name, s) for s in self.iterobjects()
+                if isinstance(s, Signal)]
+        )
+
+    @property
+    @sync
+    def axes(self):
+        return dict(
+            [(a.name, a) for a in self.iterobjects() if isinstance(a, Axis)]
+        )
 
     def __init__(self, parent_object, name, **attrs):
         """
@@ -30,30 +57,22 @@ class Group(h5py.Group, _PhynxProperties, HasTraits):
 
         """
         with parent_object._lock:
-            if name in parent_object or name == '/':
-                super(Group, self).__init__(
-                    parent_object, name, create=False
-                )
-            else:
-                super(Group, self).__init__(
-                    parent_object, name, create=True
-                )
+            create = not (name in parent_object or name == '/')
+            h5py.Group.__init__(self, parent_object, name, create=create)
+            _PhynxProperties.__init__(self, parent_object)
 
+            if create:
                 self.attrs['class'] = self.__class__.__name__
                 try:
                     self.attrs['NX_class'] = self.nx_class
                 except AttributeError:
                     pass
 
-                _PhynxProperties.__init__(self, parent_object)
-
             if attrs:
                 for attr, val in attrs.iteritems():
                     if not np.isscalar(val):
                         val = str(val)
                     self.attrs[attr] = val
-
-            self._parent = parent_object
 
     @sync
     def __repr__(self):
@@ -85,42 +104,6 @@ class Group(h5py.Group, _PhynxProperties, HasTraits):
     @sync
     def __setitem__(self, name, value):
         super(Group, self).__setitem__(name, value)
-
-    @property
-    def children(self):
-        try:
-            return self._children
-        except AttributeError:
-            self._children = self.listobjects()
-            return self._children
-        # TODO: we have to cache because of segfaults with PyQt
-        # would be better to just do:
-        return self.listobjects()
-
-    @property
-    @sync
-    def name(self):
-        return basename(super(Group, self).name)
-
-    @property
-    @sync
-    def path(self):
-        return super(Group, self).name
-
-    @property
-    @sync
-    def signals(self):
-        return dict(
-            [(s.name, s) for s in self.iterobjects()
-                if isinstance(s, Signal)]
-        )
-
-    @property
-    @sync
-    def axes(self):
-        return dict(
-            [(a.name, a) for a in self.iterobjects() if isinstance(a, Axis)]
-        )
 
     @sync
     def get_sorted_axes_list(self, direction=1):

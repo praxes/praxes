@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import, with_statement
 
-from posixpath import basename
+import posixpath
 
 import h5py
 import numpy as np
@@ -79,34 +79,62 @@ class Dataset(h5py.Dataset, _PhynxProperties):
     """
     """
 
-    def __init__(self, parent_object, name, *args, **kwargs):
+    @property
+    def map(self):
+        res = np.zeros(self.acquisition_shape, 'f')
+        res.flat[:len(self)] = self.value.flat[:]
+        return res
+
+    @property
+    def masked(self):
+        return self._parent.get('masked', None)
+
+    @property
+    @sync
+    def name(self):
+        return posixpath.basename(super(Dataset, self).name)
+
+    @property
+    @sync
+    def path(self):
+        return super(Dataset, self).name
+
+    @property
+    @sync
+    def parent(self):
+        return self._navigate(self._parent)
+
+    def __init__(
+        self, parent_object, name, shape=None, dtype=None, data=None,
+        chunks=None, compression='gzip', shuffle=None, fletcher32=None,
+        maxshape=None, compression_opts=None, **kwargs
+    ):
+        """
+        The following args and kwargs
+        """
         with parent_object._lock:
             if name in parent_object:
-                super(Dataset, self).__init__(
-                    parent_object, name
-                )
+                h5py.Dataset.__init__(self, parent_object, name)
+                _PhynxProperties.__init__(self, parent_object)
             else:
-                h5_kwargs = {}
-                for k in [
-                    'shape', 'dtype', 'data', 'chunks', 'compression',
-                    'shuffle', 'fletcher32', 'maxshape', 'compression_opts'
-                ]:
-                    h5_kwargs[k] = kwargs.pop(k, None)
-                h5_kwargs['compression'] = 'gzip'
-                super(Dataset, self).__init__(
-                    parent_object, name, *args, **h5_kwargs
+                h5py.Dataset.__init__(
+                    self, parent_object, name, shape=shape, dtype=dtype,
+                    data=data, chunks=chunks, compression=compression,
+                    shuffle=shuffle, fletcher32=fletcher32, maxshape=maxshape,
+                    compression_opts=compression_opts
                 )
+                _PhynxProperties.__init__(self, parent_object)
 
                 self.attrs['class'] = self.__class__.__name__
 
-                _PhynxProperties.__init__(self, parent_object)
+            for key, val in kwargs.iteritems():
+                if not np.isscalar(val):
+                    val = str(val)
+                self.attrs[key] = val
 
-                for key, val in kwargs.iteritems():
-                    if not np.isscalar(val):
-                        val = str(val)
-                    self.attrs[key] = val
-
-            self._parent = parent_object
+            # datasets don't provide a convenient navigation method like groups
+            # so we'll borrow this one
+            self._navigate = parent_object.__getitem__
 
     @sync
     def __repr__(self):
@@ -121,26 +149,6 @@ class Dataset(h5py.Dataset, _PhynxProperties):
         except Exception:
             return "<Closed %s dataset>" % self.__class__.__name__
 
-    @property
-    def map(self):
-        res = np.zeros(self.acquisition_shape, 'f')
-        res.flat[:len(self)] = self.value.flat[:]
-        return res
-
-    @property
-    def masked(self):
-        return self._parent.get('masked', None)
-
-    @property
-    @sync
-    def name(self):
-        return basename(super(Dataset, self).name)
-
-    @property
-    @sync
-    def path(self):
-        return super(Dataset, self).name
-
     def iteritems(self):
         return AcquisitionIterator(self)
 
@@ -151,16 +159,6 @@ class Axis(Dataset):
 
     """
     """
-
-    @sync
-    def __cmp__(self, other):
-        try:
-            assert isinstance(other, Axis)
-            return cmp(self.primary, other.primary)
-        except AssertionError:
-            raise AssertionError(
-                'Cannot compare Axis and %s'%other.__class__.__name__
-            )
 
     @property
     def axis(self):
@@ -180,6 +178,16 @@ class Axis(Dataset):
             except IndexError:
                 return (0, 0)
 
+    @sync
+    def __cmp__(self, other):
+        try:
+            assert isinstance(other, Axis)
+            return cmp(self.primary, other.primary)
+        except AssertionError:
+            raise AssertionError(
+                'Cannot compare Axis and %s'%other.__class__.__name__
+            )
+
 registry.register(Axis)
 
 
@@ -187,6 +195,10 @@ class Signal(Dataset):
 
     """
     """
+
+    @property
+    def signal(self):
+        return self.attrs.get('signal', 0)
 
     @sync
     def __cmp__(self, other):
@@ -199,9 +211,5 @@ class Signal(Dataset):
             raise AssertionError(
                 'Cannot compare Signal and %s'%other.__class__.__name__
             )
-
-    @property
-    def signal(self):
-        return self.attrs.get('signal', 0)
 
 registry.register(Signal)
