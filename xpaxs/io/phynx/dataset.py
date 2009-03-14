@@ -102,7 +102,7 @@ class Dataset(h5py.Dataset, _PhynxProperties):
     @property
     @sync
     def parent(self):
-        return self._navigate(self._parent)
+        return self._navigate(posixpath.split(self.path)[0])
 
     def __init__(
         self, parent_object, name, shape=None, dtype=None, data=None,

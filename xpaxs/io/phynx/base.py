@@ -134,16 +134,11 @@ class _PhynxProperties(HasTraits):
     def npoints(self):
         return self.attrs.get('npoints', 0)
 
-    @property
-    def parent(self):
-        return self[self._parent]
-
     def __init__(self, parent_object):
         for attr in [
             'acquisition_command', 'acquisition_id', 'acquisition_name',
             'acquisition_shape', 'file_name', 'format_version', 'npoints'
         ]:
-            self._parent = posixpath.split(self.path)[0]
             if attr not in self.attrs:
                 try:
                     self.attrs[attr] = parent_object.attrs[attr]
