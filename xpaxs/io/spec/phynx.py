@@ -145,7 +145,7 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
         if process_scalars:
             # assume all scalars to be signals
             for i, label in enumerate(scan.alllabels()):
-                kwargs = {'attrs': {'class':'Signal'}}
+                kwargs = {'class':'Signal'}
                 dset = mca.create_dataset(
                     label, data=scan.datacol(i+1), dtype='float32', **kwargs
                 )
@@ -221,7 +221,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         thresh = int(thresh)
         index = scan.alllabels().index(mon)+1
         skipped = (scan.datacol(index) < thresh).astype('uint8')
-        kwargs = {'attrs':{'class':'Signal', 'monitor':mon, 'threshold':thresh}}
+        kwargs = {'class':'Signal', 'monitor':mon, 'threshold':thresh}
         masked = scalar_data.create_dataset(
             'masked', data=skipped, **kwargs
         )
@@ -250,7 +250,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
                     'dead_time'
                 ):
             # vortex detector, assume single mca
-            kwargs = {'attrs': {'class':'Signal', 'signal':0}}
+            kwargs = {'class':'Signal', 'signal':0}
             if label == 'dead_time':
                 kwargs['attrs']['units'] = '%'
             try:
@@ -263,7 +263,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
                 )
         elif (label in allmotors) \
             or (label.lower() in ('energy', 'time', 'h', 'k', 'l', 'q')):
-            kwargs = {'attrs': {'class':'Axis'}}
+            kwargs = {'class':'Axis'}
             kwargs['attrs'].update(
                 scan_info['axis_info'].get(label.lower(), {})
             )
@@ -271,13 +271,13 @@ def convert_scan(scan, sfile, h5file, spec_filename):
                 label, data=scan.datacol(i+1), dtype='float32', **kwargs
             )
         elif label.lower() == 'epoch':
-            kwargs = {'attrs': {'class':'Axis'}}
+            kwargs = {'class':'Axis'}
             dset = scalar_data.create_dataset(
                 label, data=scan.datacol(i+1)+sfile.epoch(), dtype='float32',
                 **kwargs
             )
         else:
-            kwargs = {'attrs': {'class':'Signal'}}
+            kwargs = {'class':'Signal'}
             dset = scalar_data.create_dataset(
                 label, data=scan.datacol(i+1), dtype='float32', **kwargs
             )
@@ -285,7 +285,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     dset.attrs['signal'] = 1
 
     # and dont forget to include the index
-    kwargs = {'attrs': {'class':'Axis'}}
+    kwargs = {'class':'Axis'}
     dset = scalar_data.create_dataset(
         'i', data=np.arange(len(dset)), dtype='i', **kwargs
     )
