@@ -87,7 +87,7 @@ class Dataset(h5py.Dataset, _PhynxProperties):
 
     @property
     def masked(self):
-        return self._parent.get('masked', None)
+        return self.parent.get('masked', None)
 
     @property
     @sync

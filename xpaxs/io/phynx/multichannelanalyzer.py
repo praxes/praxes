@@ -114,7 +114,7 @@ class CorrectedDataProxy(object):
         self._dataset = dataset
 
     def __getitem__(self, key):
-        with self.dataset._plock:
+        with self._dataset._plock:
             data = self._dataset[key]
 
             # normalization may be something like ring current or monitor counts

@@ -14,6 +14,23 @@ from xpaxs.io import phynx
 logger = logging.getLogger(__file__)
 
 
+
+class QRLock(QtCore.QMutex):
+
+    """
+    """
+
+    def __init__(self):
+        QtCore.QMutex.__init__(self, QtCore.QMutex.Recursive)
+
+    def __enter__(self):
+        self.lock()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.unlock()
+
+
 class RootItem(object):
 
     @property
@@ -228,7 +245,7 @@ class FileModel(QtCore.QAbstractItemModel):
         return len(parentItem)
 
     def _openFile(self, filename):
-        f = phynx.File(filename, 'a')
+        f = phynx.File(filename, 'a', lock=QRLock())
         try:
             if f.creator == 'phynx':
                 return f
@@ -255,7 +272,9 @@ class FileModel(QtCore.QAbstractItemModel):
             print 'moving old file to %s'%backup
             shutil.move(filename, backup)
         specfile = filename.rstrip('.hdf5').rstrip('.h5')
-        return convert_to_phynx(specfile)
+        f = convert_to_phynx(specfile)
+        f.close()
+        return phynx.File(filename, 'a', lock=QRLock())
 
     def openFile(self, filename):
         for item in self.rootItem:
@@ -269,8 +288,7 @@ class FileModel(QtCore.QAbstractItemModel):
 
     def itemActivated(self, index):
         scanData = index.internalPointer().getNode()
-        print scanData
-#        self.emit(QtCore.SIGNAL('scanActivated'), scanData)
+        self.emit(QtCore.SIGNAL('scanActivated'), scanData)
 
 
 class FileView(QtGui.QTreeView):
@@ -321,9 +339,9 @@ class FileInterface(QtCore.QObject):
         self.connect(self._fileModel,
                      QtCore.SIGNAL('fileAppended'),
                      self._fileView.doItemsLayout)
-#        self.connect(self._fileModel,
-#                     QtCore.SIGNAL('scanActivated'),
-#                     self.mainWindow.newScanWindow)
+        self.connect(self._fileModel,
+                     QtCore.SIGNAL('scanActivated'),
+                     self.mainWindow.newScanWindow)
         self.addDockWidget(self._fileView, 'File View',
                            QtCore.Qt.AllDockWidgetAreas,
                            QtCore.Qt.LeftDockWidgetArea,
@@ -370,28 +388,3 @@ class FileInterface(QtCore.QObject):
                     newfilename = newfilename + '.h5'
                 return self.fileModel.openFile(newfilename)
             else: self.openFile(filename)
-
-
-#class QRLock(QtCore.QMutex):
-#
-#    """
-#    """
-#
-#    def __init__(self):
-#        QtCore.QMutex.__init__(self, QtCore.QMutex.Recursive)
-#
-#    def __enter__(self):
-#        self.lock()
-#        return self
-#
-#    def __exit__(self, type, value, traceback):
-#        self.unlock()
-#
-#    def acquire(self):
-#        return self.lock()
-#
-#    def release(self):
-#        self.unlock()
-#
-#from h5py.highlevel import LockableObject
-#LockableObject._lock = QRLock()

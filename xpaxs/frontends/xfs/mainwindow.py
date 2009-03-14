@@ -12,6 +12,7 @@ from PyQt4 import QtCore, QtGui
 
 from xpaxs import __version__
 from ..base.mainwindow import MainWindow as MainWindowBase
+from xpaxs.io import phynx
 
 
 logger = logging.getLogger(__file__)
@@ -32,12 +33,15 @@ class MainWindow(MainWindowBase):
     def getScanView(self, scan):
         # this is a shortcut for now, in the future the view would be
         # an overview of the entry with ability to open different analyses
-        from xpaxs.frontends.xfs.mcaanalysiswindow import McaAnalysisWindow
-        if len(scan['measurement'].mcas) > 0:
-            return McaAnalysisWindow(scan, self)
-        else:
-            msg = QtGui.QErrorMessage(self)
-            msg.showMessage('The entry you selected has no MCA data to process')
+        if isinstance(scan, phynx.registry['Entry']):
+            from xpaxs.frontends.xfs.mcaanalysiswindow import McaAnalysisWindow
+            if len(scan['measurement'].mcas) > 0:
+                return McaAnalysisWindow(scan, self)
+            else:
+                msg = QtGui.QErrorMessage(self)
+                msg.showMessage(
+                    'The entry you selected has no MCA data to process'
+                )
 
 
 def main():
