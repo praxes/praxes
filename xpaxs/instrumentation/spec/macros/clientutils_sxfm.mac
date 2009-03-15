@@ -70,15 +70,17 @@ def _client_setscanenv '{
 
     # create the phynx hierarchy under entry/measurement. SpecClient will take
     # care of creating the entry and entry/measurement groups
+    # start with small datasets, specify maxshape, and SpecClient will resize as
+    # we proceed
     scan_desc["scalar_data"] = "(\'ScalarData\', {})"
     scan_desc["positioners"] = "(\'Positioners\', {})"
 
     id = "scalar_data/i"
-    scan_desc[id] = sprintf("(\'Dataset\', {\'shape\': (%d,), \'dtype\': \'uint32\'})", npoints)
+    scan_desc[id] = sprintf("(\'Dataset\', {\'shape\': (1,), \'dtype\': \'uint32\', \'maxshape\': (%d, )})", npoints)
     id = "scalar_data/epoch"
-    scan_desc[id] = sprintf("(\'Axis\', {\'shape\': (%d,), \'dtype\': \'d\'})", npoints)
+    scan_desc[id] = sprintf("(\'Axis\', {\'shape\': (1,), \'dtype\': \'d\', \'maxshape\': (%d, )})", npoints)
 
-    entry = "(\'Signal\', {\'shape\': (%d,), \'dtype\': \'f\', \'signal\': %d})"
+    entry = "(\'Signal\', {\'shape\': (1,), \'dtype\': \'f\', \'maxshape\': (%d, ), \'signal\': %d})"
     for (i=0;i<COUNTERS;i++) {
         id = sprintf("scalar_data/%s", cnt_mne(i))
         scan_desc[id] = sprintf(entry, npoints, (i==DET))
@@ -86,7 +88,7 @@ def _client_setscanenv '{
 
     if (SKIPMODE_COUNTER) {
         id = "scalar_data/masked"
-        entry = "(\'Signal\', {\'shape\': (%d,), \'dtype\': \'?\', \'monitor\': %s, \'threshold\': %d})"
+        entry = "(\'Signal\', {\'shape\': (1,), \'dtype\': \'?\', \'maxshape\': (%d, ), \'monitor\': %s, \'threshold\': %d})"
         scan_desc[id] = sprintf(entry, npoints, cnt_mne(SKIPMODE_COUNTER), \
             SKIPMODE_THRESHOLD)
     }
@@ -98,7 +100,7 @@ def _client_setscanenv '{
     for (i=0;i<_nm;i++) {
         id = sprintf("scalar_data/%s", motor_mne(_m[i]))
         # should add primary also for d3scan, but lets not worry about it now:
-        entry = "(\'Axis\', {\'shape\': (%d,), \'dtype\': \'f\', \'axis\': %d, \'range\': (%g,%g)})"
+        entry = "(\'Axis\', {\'shape\': (1,), \'dtype\': \'f\', \'maxshape\': (%d, ), \'axis\': %d, \'range\': (%g,%g)})"
         scan_desc[id] = sprintf(entry, npoints, _stype&8? i+1:1, _s[i], _f[i])
     }
 
@@ -111,8 +113,8 @@ def _client_setscanenv '{
         scan_desc[MCA_NAME] = sprintf(entry, mca_cal)
 
         id = sprintf("%s/counts", MCA_NAME)
-        entry = "(\'McaSpectrum\', {\'shape\': (%d, %d), \'dtype\': \'uint32\'})"
-        scan_desc[id] = sprintf(entry, npoints, MCA_CHAN)
+        entry = "(\'McaSpectrum\', {\'shape\': (1, %d), \'dtype\': \'uint32\', \'maxshape\': (%d, %d)})"
+        scan_desc[id] = sprintf(entry, MCA_CHAN, npoints, MCA_CHAN)
 
         mca_channels = ""
         for(i = 0; i < MCA_CHAN; i++){
@@ -123,23 +125,23 @@ def _client_setscanenv '{
 
         if (MCA_NAME == "vortex") {
             id = sprintf("%s/icr", MCA_NAME)
-            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+            entry = "(\'Signal\', {\'shape\': (1, ), \'dtype\': \'f\', \'maxshape\': (%d, ), \'units\': \'s\'})"
             scan_desc[id] = sprintf(entry, npoints)
 
             id = sprintf("%s/ocr", MCA_NAME)
-            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+            entry = "(\'Signal\', {\'shape\': (1, ), \'dtype\': \'f\', \'maxshape\': (%d, ), \'units\': \'s\'})"
             scan_desc[id] = sprintf(entry, npoints)
 
             id = sprintf("%s/real", MCA_NAME)
-            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+            entry = "(\'Signal\', {\'shape\': (1, ), \'dtype\': \'f\', \'maxshape\': (%d, ), \'units\': \'s\'})"
             scan_desc[id] = sprintf(entry, npoints)
 
             id = sprintf("%s/live", MCA_NAME)
-            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+            entry = "(\'Signal\', {\'shape\': (1, ), \'dtype\': \'f\', \'maxshape\': (%d, ), \'units\': \'s\'})"
             scan_desc[id] = sprintf(entry, npoints)
 
             id = sprintf("%s/dead_time", MCA_NAME)
-            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'\%\'})"
+            entry = "(\'Signal\', {\'shape\': (1, ), \'dtype\': \'f\', \'maxshape\': (%d, ), \'units\': \'\%\'})"
             scan_desc[id] = sprintf(entry, npoints)
         }
     }
@@ -159,8 +161,8 @@ def _client_setscanenv '{
             scan_desc[mne] = sprintf(entry, mca_cal)
 
             id = sprintf("%s/counts", mne)
-            entry = "(\'McaSpectrum\', {\'shape\': (%d, %d), \'dtype\': \'uint32\'})"
-            scan_desc[id] = sprintf(entry, npoints, uch)
+            entry = "(\'McaSpectrum\', {\'shape\': (1, %d), \'dtype\': \'uint32\', \'maxshape\': (%d, %d)})"
+            scan_desc[id] = sprintf(entry, uch, npoints, uch)
 
             mca_channels = ""
             for (i = 0; i < uch; i++) {
@@ -171,23 +173,23 @@ def _client_setscanenv '{
 
             if (1) {
                 id = sprintf("%s/icr", mne)
-                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+                entry = "(\'Signal\', {\'shape\': (1, ), \'dtype\': \'f\', \'maxshape\': (%d, ), \'units\': \'s\'})"
                 scan_desc[id] = sprintf(entry, npoints)
 
                 id = sprintf("%s/ocr", mne)
-                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+                entry = "(\'Signal\', {\'shape\': (1, ), \'dtype\': \'f\', \'maxshape\': (%d, ), \'units\': \'s\'})"
                 scan_desc[id] = sprintf(entry, npoints)
 
                 id = sprintf("%s/real", mne)
-                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+                entry = "(\'Signal\', {\'shape\': (1, ), \'dtype\': \'f\', \'maxshape\': (%d, ), \'units\': \'s\'})"
                 scan_desc[id] = sprintf(entry, npoints)
 
                 id = sprintf("%s/live", mne)
-                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+                entry = "(\'Signal\', {\'shape\': (1, ), \'dtype\': \'f\', \'maxshape\': (%d, ), \'units\': \'s\'})"
                 scan_desc[id] = sprintf(entry, npoints)
 
                 id = sprintf("%s/dead_time", mne)
-                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'\%\'})"
+                entry = "(\'Signal\', {\'shape\': (1, ), \'dtype\': \'f\', \'maxshape\': (%d, ), \'units\': \'\%\'})"
                 scan_desc[id] = sprintf(entry, npoints)
             }
         }

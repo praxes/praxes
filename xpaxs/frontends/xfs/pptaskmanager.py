@@ -82,7 +82,7 @@ class XfsPPTaskManager(PPTaskManager):
                         modules=("time", ),
                         callback=self.updateRecords
                     )
-                except IndexError:
+                except (IndexError, ValueError):
                     break
         finally:
             self.mutex.unlock()

@@ -92,7 +92,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
             ScanView = xpaxs.application.getService('ScanView')
             if ScanView:
-                ScanView(entry, beginProcessing=True)
+                ScanView(entry, beginProcessing=False)
 
         self.emit(QtCore.SIGNAL("newScanLength"), info['npoints'])
 
@@ -100,13 +100,14 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         logger.debug( 'scanData: %s', scanData)
 
         i = int(scanData.pop('i'))
-        self._lastPoint = i
 
         if self._scanData:
             m = self._scanData['measurement']
             for k, val in scanData.iteritems():
+                m[k].resize(i+1, axis=0)
                 m[k][i] = val
 
+        self._lastPoint = i
         self.emit(QtCore.SIGNAL("newScanData"), i)
 
 
