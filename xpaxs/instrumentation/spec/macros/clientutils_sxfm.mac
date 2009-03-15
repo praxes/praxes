@@ -23,10 +23,9 @@ def _clientutils_off '{
 
 
 def _client_setscanenv '{
-    local scan_env column_names
-
-    local plot_desc[] scan_desc[] mode_desc[] positions detectors[]
-    local npoints spoints id entry attrs
+    local scan_env phynx_env
+    local plot_desc[] scan_info[] scan_desc[]
+    local npoints id entry info_dict
 
     scan_env = ""
 
@@ -48,7 +47,10 @@ def _client_setscanenv '{
     # and looking forward, the plot information should really be in a subdict:
     scan_env = sprintf("%s\'plot_desc\':{%s}, ", scan_env, plot_dict)
 
-    # collect the scan metadata for phynx:
+    #######################################
+    # collect the scan metadata for phynx #
+    #######################################
+
     npoints = _stype&8? _n1*_n2:_n1
     scan_info["file_name"] = sprintf("\'%s/%s\'", CWD, DATAFILE)
     scan_info["acquisition_command"] = sprintf("\'%s\'", HEADING)
@@ -64,11 +66,17 @@ def _client_setscanenv '{
     for (i in scan_info) {
         info_dict = sprintf("%s\'%s\':%s, ", info_dict, i, scan_info[i])
     }
-    scan_env = sprintf("%s\'info\':{%s}, ", scan_env, info_dict)
+    scan_desc["info"] = sprintf("{%s}", info_dict)
 
-    # create the phynx hierarchy under entry/measurement:
-    scan_desc["i"] = sprintf("(\'Dataset\', {\'shape\': (%d,)})", npoints)
-    entry = "(\'Signal\', {\'shape\': (%d,), \'signal\': %d})"
+    # create the phynx hierarchy under entry/measurement. SpecClient will take
+    # care of creating the entry and entry/measurement groups
+    scan_desc["scalar_data"] = "(\'ScalarData\', {})"
+    scan_desc["positioners"] = "(\'Positioners\', {})"
+
+    id = "scalar_data/i"
+    scan_desc[id] = sprintf("(\'Dataset\', {\'shape\': (%d,), \'dtype\': \'uint32\'})", npoints)
+
+    entry = "(\'Signal\', {\'shape\': (%d,), \'dtype\': \'f\', \'signal\': %d})"
     for (i=0;i<COUNTERS;i++) {
         id = sprintf("scalar_data/%s", cnt_mne(i))
         scan_desc[id] = sprintf(entry, npoints, (i==DET))
@@ -76,20 +84,19 @@ def _client_setscanenv '{
 
     if (SKIPMODE_COUNTER) {
         id = "scalar_data/masked"
-        entry = "(\'Signal\', {\'shape\': (%d,), \'monitor\': %s, \'threshold\': %d})"
+        entry = "(\'Signal\', {\'shape\': (%d,), \'dtype\': \'?\', \'monitor\': %s, \'threshold\': %d})"
         scan_desc[id] = sprintf(entry, npoints, cnt_mne(SKIPMODE_COUNTER), \
             SKIPMODE_THRESHOLD)
     }
 
     for (i=0;i<MOTORS;i++) {
         id = sprintf("positioners/%s", motor_mne(i))
-        entry = "(\'Dataset\', {\'data\': %g})"
         scan_desc[id] = sprintf("(\'Dataset\', {\'data\': %g})", A[i])
     }
     for (i=0;i<_nm;i++) {
         id = sprintf("scalar_data/%s", motor_mne(i))
-        # should add 'primary' also for d3scan, but lets not worry about it now:
-        entry = "(\'Axis\', {\'shape\': (%d,), \'axis\': %d, '\range'\: (%g,%g)})"
+        # should add primary also for d3scan, but lets not worry about it now:
+        entry = "(\'Axis\', {\'shape\': (%d,), \'dtype\': \'f\', \'axis\': %d, \'range\': (%g,%g)})"
         scan_desc[id] = sprintf(entry, npoints, _stype&8? i+1:1, _s[i], _f[i])
     }
 
@@ -97,18 +104,42 @@ def _client_setscanenv '{
         # this block is executed for old-school MCA description
         local mca_channels mca_cal
 
-        mca_cal = sprintf("(%g,%g,%g)", MCA_DATA_PARAM[0], MCA_DATA_PARAM[1],
-            MCA_DATA_PARAM[2])
-        entry = "(\'MultiChannelAnalyzer\', {\'shape\': (%d, %d), \'calibration\': %s})"
-        scan_desc['mca'] = sprintf(entry, npoints, MCA_CHAN, mca_cal)
+        mca_cal = sprintf("(%g,%g,%g)", MCA_DATA_PARAM[0], MCA_DATA_PARAM[1], MCA_DATA_PARAM[2])
+        entry = "(\'MultiChannelAnalyzer\', {\'calibration\': %s})"
+        scan_desc[MCA_NAME] = sprintf(entry, mca_cal)
+
+        id = sprintf("%s/counts", MCA_NAME)
+        entry = "(\'McaSpectrum\', {\'shape\': (%d, %d), \'dtype\': \'uint32\'})"
+        scan_desc[id] = sprintf(entry, npoints, MCA_CHAN)
 
         mca_channels = ""
         for(i = 0; i < MCA_CHAN; i++){
             mca_channels = sprintf("%s%g,", mca_channels, MCA_DATA[i][0])
         }
-        scan_desc['mca/channels'] = sprintf("(%s)", mca_channels)
+        id = sprintf("%s/channels", MCA_NAME)
+        scan_desc[id] = sprintf("(\'Dataset\', {data: [%s]})", mca_channels)
 
-        # IMPORTANT: DONT FORGET TO INCLUDE DEADTIME INFORMATION HERE!
+        if (MCA_NAME == "vortex") {
+            id = sprintf("%s/icr", MCA_NAME)
+            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+            scan_desc[id] = sprintf(entry, npoints)
+
+            id = sprintf("%s/ocr", MCA_NAME)
+            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+            scan_desc[id] = sprintf(entry, npoints)
+
+            id = sprintf("%s/real", MCA_NAME)
+            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+            scan_desc[id] = sprintf(entry, npoints)
+
+            id = sprintf("%s/live", MCA_NAME)
+            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+            scan_desc[id] = sprintf(entry, npoints)
+
+            id = sprintf("%s/dead_time", MCA_NAME)
+            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'\%\'})"
+            scan_desc[id] = sprintf(entry, npoints)
+        }
     }
 
     if (EPICS_MCAS > 0) {
@@ -122,24 +153,54 @@ def _client_setscanenv '{
             _qq = epics_get(sprintf("%s.CALQ", mca_pv[mne]))
 
             mca_cal = sprintf("(%g,%g,%g)", _oo, _ss, _qq)
-            entry = "(\'MultiChannelAnalyzer\', {\'shape\': (%d, %d), \'calibration\': %s})"
-            scan_desc[mne] = sprintf(entry, npoints, MCA_CHAN, mca_cal)
+            entry = "(\'MultiChannelAnalyzer\', {\'calibration\': %s})"
+            scan_desc[mne] = sprintf(entry, mca_cal)
+
+            id = sprintf("%s/counts", mne)
+            entry = "(\'McaSpectrum\', {\'shape\': (%d, %d), \'dtype\': \'uint32\'})"
+            scan_desc[id] = sprintf(entry, npoints, uch)
 
             mca_channels = ""
             for (i = 0; i < uch; i++) {
                 mca_channels = sprintf("%s%g,", mca_channels, i)
             }
-            scan_desc[sprintf('%s/channels', mne)] = sprintf("(%s)", mca_channels)
+            id = sprintf("%s/channels", mne)
+            scan_desc[id] = sprintf("(\'Dataset\', {data: [%s]})", mca_channels)
 
-            # IMPORTANT: DONT FORGET TO INCLUDE DEADTIME INFORMATION HERE!
+            if (1) {
+                id = sprintf("%s/icr", mne)
+                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+                scan_desc[id] = sprintf(entry, npoints)
+
+                id = sprintf("%s/ocr", mne)
+                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+                scan_desc[id] = sprintf(entry, npoints)
+
+                id = sprintf("%s/real", mne)
+                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+                scan_desc[id] = sprintf(entry, npoints)
+
+                id = sprintf("%s/live", mne)
+                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+                scan_desc[id] = sprintf(entry, npoints)
+
+                id = sprintf("%s/dead_time", mne)
+                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'\%\'})"
+                scan_desc[id] = sprintf(entry, npoints)
+            }
         }
     }
 
-    hierarchy_dict = ""
+    phynx_env = ""
     for (i in scan_desc) {
-        info_dict = sprintf("%s\'%s\':%s, ", hierarchy_dict, i, scan_desc[i])
+        phynx_env = sprintf("%s\'%s\':%s, ", phynx_env, i, scan_desc[i])
     }
-    scan_env = sprintf("%s\'info\':{%s}, ", scan_env, hierarchy_dict)
+
+    scan_env = sprintf("%s\'phynx\':{%s}, ", scan_env, phynx_env)
+
+    ##########################
+    # end metadata for phynx #
+    ##########################
 
     _SC_NEWSCAN = sprintf("{%s}", scan_env)
 }'
@@ -219,59 +280,49 @@ def clientdataoff '{
 
 
 def _client_updatescandata '{
-    local i scan_data scalars[] positions[] detectors[]
+    local i scan_data scalars[]
 
-    scan_data = sprintf("\'i\':%d, ", NPTS)
+    scan_data = sprintf("\'scalar_data/i\':%d,", NPTS)
 
     for (i=0;i<_nm;i++) {
-        positions[motor_mne(_m[i])] = sprintf("%g", A[_m[i]])
+        id = sprintf("scalar_data/%s", motor_mne(_m[i]))
+        scan_data = sprintf("%s \'%s\': %g,", scan_data, id, A[_m[i]])
     }
 
-    pos_dict = ""
-    for (i in positions) {
-        pos_dict = sprintf("%s\'%s\':%g, ", pos_dict, i, positions[i])
-    }
-    scan_data = sprintf("%s\'positions\':{%s}, ", scan_data, pos_dict)
-
-    scalars["epoch"] = sprintf("%f", time())
+    scan_data = sprintf("%s \'scalar_data/epoch\': %f,", scan_data, time())
     for (i=0;i<COUNTERS;i++) {
-        scalars[cnt_mne(i)] = sprintf("%g", S[i])
+        id = sprintf("scalar_data/%s", cnt_mne(i))
+        scan_data = sprintf("%s \'%s\': %g,", scan_data, id, S[i])
     }
 
-    scalars_dict = ""
-    for (i in scalars) {
-        scalars_dict = sprintf("%s\'%s\':%g, ", scalars_dict, i, scalars[i])
+    if (SKIPMODE_COUNTER) {
+        id = "scalar_data/masked"
+        scan_data = sprintf("%s \'%s\': %g,", scan_data, id, \
+            (S[SKIPMODE_COUNTER] < SKIPMODE_THRESHOLD))
     }
-    scan_data = sprintf("%s\'scalars\':{%s}, ", scan_data, scalars_dict)
 
     if (MCA_CHAN > 0) {
-        local mca_counts detector
-
-        detector = ""
+        local mca_counts
 
         if (MCA_NAME == "vortex") {
-            detector = sprintf("%s\'icr\':%g, ", detector, S[icr])
-            detector = sprintf("%s\'ocr\':%g, ", detector, S[ocr])
-            detector = sprintf("%s\'real\':%g, ", detector, S[real])
-            detector = sprintf("%s\'live\':%g, ", detector, S[live])
-            detector = sprintf("%s\'dead\':%g, ", detector, S[dead])
-            detector = sprintf("%s\'dtn\':%g, ", detector, S[vtxdtn])
+            scan_data = sprintf("%s \'vortex/icr\': %g,", scan_data, S[icr])
+            scan_data = sprintf("%s \'vortex/ocr\': %g,", scan_data, S[ocr])
+            scan_data = sprintf("%s \'vortex/real\': %g,", scan_data, S[real])
+            scan_data = sprintf("%s \'vortex/live\': %g,", scan_data, S[live])
+            scan_data = sprintf("%s \'vortex/dead_time\': %g,", scan_data, S[dead])
         }
 
         mca_counts = ""
         for(i = 0; i < MCA_CHAN; i++){
             mca_counts = sprintf("%s%g,", mca_counts, MCA_DATA[i][1])
         }
-        detector = sprintf("%s\'counts\':array([%s],dtype=\'i\'), ", \
-            detector, mca_counts)
-
-        detectors[MCA_NAME] = detector
+        scan_data = sprintf("%s\'%s/counts\': [%s],", MCA_NAME, mca_counts)
     }
+
     if (EPICS_MCAS > 0) {
-        local mca_counts uch detector
+        local mca_counts uch
 
         for (mne in mca_pv) {
-            detector = ""
 
             if (USE_DXP) {
                 dxpICR = epics_get(sprintf("%s.ICR", dxp_pv[mne]))
@@ -289,12 +340,11 @@ def _client_updatescandata '{
             }
             mcaDtime = 100*(1-mcadtc)
 
-            detector = sprintf("%s\'icr\':%g, ", detector, dxpICR)
-            detector = sprintf("%s\'ocr\':%g, ", detector, dxpOCR)
-            detector = sprintf("%s\'real\':%g, ", detector, mcaRtime)
-            detector = sprintf("%s\'live\':%g, ", detector, mcaLtime)
-            detector = sprintf("%s\'dead\':%g, ", detector, mcaDtime)
-            detector = sprintf("%s\'dtn\':%g, ", detector, mcadtc)
+            scan_data = sprintf("%s \'%s/icr\':%g,", scan_data, mne, dxpICR)
+            scan_data = sprintf("%s \'%s/ocr\':%g,", scan_data, mne, dxpOCR)
+            scan_data = sprintf("%s \'%s/real\':%g,", scan_data, mne, mcaRtime)
+            scan_data = sprintf("%s \'%s/live\':%g,", scan_data, mne, mcaLtime)
+            scan_data = sprintf("%s \'%s/dead_time\':%g,", scan_data, mne, mcaDtime)
 
             uch = epics_get(sprintf("%s.NUSE", mca_pv[mne]))
             A_name = sprintf("mcadat_%s",mne)
@@ -302,18 +352,9 @@ def _client_updatescandata '{
             for(i = 0; i < uch; i++){
                 mca_counts = sprintf("%s%g,", mca_counts, @A_name[1][i])
             }
-            detector = sprintf("%s\'counts\':array([%s],dtype=\'i\'), ", \
-                detector, mca_counts)
-
-            detectors[mne] = detector
+            scan_data = sprintf("%s \'%s/counts\': [%s], ", scan_data, mne, mca_counts)
         }
     }
-
-    dets_dict = ""
-    for (mne in detectors) {
-        dets_dict = sprintf("%s\'%s\':{%s}, ", dets_dict, mne, detectors[mne])
-    }
-    scan_data = sprintf("%s%s", scan_data, dets_dict)
 
     _SC_NEWSCANDATA = sprintf("{%s}", scan_data)
 }'

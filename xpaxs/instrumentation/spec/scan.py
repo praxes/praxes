@@ -11,6 +11,7 @@ from SpecClient import SpecScan, SpecCommand, SpecConnectionsManager, \
 import h5py
 
 from xpaxs.instrumentation.spec import TEST_SPEC
+from xpaxs.io import phynx
 
 
 logger = logging.getLogger(__file__)
@@ -51,41 +52,63 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
     def newScan(self, scanParameters):
         logger.debug('newScan: %s', scanParameters)
 
+        tree = scanParameters['phynx']
+        info = tree.pop('info')
+#        print tree
+
         import xpaxs
         fileInterface = xpaxs.application.getService('FileInterface')
 
         if fileInterface:
-            specFile = scanParameters['scan_desc']['filename']
+            specFile = info['file_name']
             h5File = fileInterface.getH5FileFromKey(specFile)
             # It is possible for a scan number to appear multiple times in a
             # spec file. Booo!
+            name = str(info['acquisition_id'])
             acq_order = ''
             i = 0
-            while (name + acq_order) in self:
+            while (name + acq_order) in h5File:
                 i += 1
                 acq_order = '.%d'%i
             name = name + acq_order
 
-            self._scanData = fileInterface.createEntry(h5File, scanParameters)
+            # create the entry and measurement groups
+            entry = h5File.create_group(name, type='Entry', **info)
+            measurement = entry.create_group(
+                'measurement', type='Measurement'
+            )
+            # create all the groups under measurement, defined by clientutils:
+            keys = sorted(tree.keys())
+            for k in keys:
+                val = tree.pop(k)
+                t, kwargs = val
+                phynx.registry[t](measurement, k, **kwargs)
 
-            if self._scanData:
-                ScanView = xpaxs.application.getService('ScanView')
-                if ScanView:
-                    ScanView(self._scanData, beginProcessing=True)
+            # make a few links:
+            if 'masked' in measurement['scalar_data']:
+                for k, val in measurement.mcas:
+                    val['masked'] = measurement['scalar_data/masked']
 
-        self.emit(
-            QtCore.SIGNAL("newScanLength"),
-            scanParameters['scan_desc']['scan points']
-        )
+            self._scanData = entry
+
+            ScanView = xpaxs.application.getService('ScanView')
+            if ScanView:
+                ScanView(entry, beginProcessing=True)
+
+        self.emit(QtCore.SIGNAL("newScanLength"), info['npoints'])
 
     def newScanData(self, scanData):
         logger.debug( 'scanData: %s', scanData)
-
-        if self._scanData:
-            self._scanData.appendDataPoint(scanData)
+        print scanData
 
         i = int(scanData['i'])
         self._lastPoint = i
+
+        if self._scanData:
+            m = self._scanData['measurement']
+            for k, val in scanData.iteritems():
+                m[k][i] = val
+
         self.emit(QtCore.SIGNAL("newScanData"), i)
 
 
