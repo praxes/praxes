@@ -39,7 +39,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
             self._scan_aborted()
             try:
                 self._scanData.npoints = self._lastPoint
-            except (AttributeError, h5py.h5.H5Error):
+            except (AttributeError, h5py.h5.H5Error, TypeError):
                 pass
             self.scanAborted()
 
@@ -92,7 +92,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
             ScanView = xpaxs.application.getService('ScanView')
             if ScanView:
-                ScanView(entry, beginProcessing=False)
+                ScanView(entry, beginProcessing=True)
 
         self.emit(QtCore.SIGNAL("newScanLength"), info['npoints'])
 
