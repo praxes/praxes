@@ -80,8 +80,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
             # create all the groups under measurement, defined by clientutils:
             keys = sorted(tree.keys())
             for k in keys:
-                val = tree.pop(k)
-                t, kwargs = val
+                t, kwargs = tree.pop(k)
                 phynx.registry[t](measurement, k, **kwargs)
 
             # make a few links:
@@ -99,9 +98,8 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
     def newScanData(self, scanData):
         logger.debug( 'scanData: %s', scanData)
-        print scanData
 
-        i = int(scanData['i'])
+        i = int(scanData.pop('i'))
         self._lastPoint = i
 
         if self._scanData:

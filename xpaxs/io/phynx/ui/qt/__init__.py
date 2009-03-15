@@ -279,7 +279,7 @@ class FileModel(QtCore.QAbstractItemModel):
     def openFile(self, filename):
         for item in self.rootItem:
             if item.name == filename:
-                return item
+                return item.file
 
         phynxFile = self._openFile(filename)
         self.rootItem.appendChild(phynxFile)

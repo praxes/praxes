@@ -75,6 +75,8 @@ def _client_setscanenv '{
 
     id = "scalar_data/i"
     scan_desc[id] = sprintf("(\'Dataset\', {\'shape\': (%d,), \'dtype\': \'uint32\'})", npoints)
+    id = "scalar_data/epoch"
+    scan_desc[id] = sprintf("(\'Axis\', {\'shape\': (%d,), \'dtype\': \'d\'})", npoints)
 
     entry = "(\'Signal\', {\'shape\': (%d,), \'dtype\': \'f\', \'signal\': %d})"
     for (i=0;i<COUNTERS;i++) {
@@ -94,7 +96,7 @@ def _client_setscanenv '{
         scan_desc[id] = sprintf("(\'Dataset\', {\'data\': %g})", A[i])
     }
     for (i=0;i<_nm;i++) {
-        id = sprintf("scalar_data/%s", motor_mne(i))
+        id = sprintf("scalar_data/%s", motor_mne(_m[i]))
         # should add primary also for d3scan, but lets not worry about it now:
         entry = "(\'Axis\', {\'shape\': (%d,), \'dtype\': \'f\', \'axis\': %d, \'range\': (%g,%g)})"
         scan_desc[id] = sprintf(entry, npoints, _stype&8? i+1:1, _s[i], _f[i])
@@ -117,7 +119,7 @@ def _client_setscanenv '{
             mca_channels = sprintf("%s%g,", mca_channels, MCA_DATA[i][0])
         }
         id = sprintf("%s/channels", MCA_NAME)
-        scan_desc[id] = sprintf("(\'Dataset\', {data: [%s]})", mca_channels)
+        scan_desc[id] = sprintf("(\'Dataset\', {\'data\': [%s]})", mca_channels)
 
         if (MCA_NAME == "vortex") {
             id = sprintf("%s/icr", MCA_NAME)
@@ -165,7 +167,7 @@ def _client_setscanenv '{
                 mca_channels = sprintf("%s%g,", mca_channels, i)
             }
             id = sprintf("%s/channels", mne)
-            scan_desc[id] = sprintf("(\'Dataset\', {data: [%s]})", mca_channels)
+            scan_desc[id] = sprintf("(\'Dataset\', {\'data\': [%s]})", mca_channels)
 
             if (1) {
                 id = sprintf("%s/icr", mne)
@@ -282,7 +284,9 @@ def clientdataoff '{
 def _client_updatescandata '{
     local i scan_data scalars[]
 
-    scan_data = sprintf("\'scalar_data/i\':%d,", NPTS)
+    scan_data = sprintf("\'i\':%d,", NPTS)
+    scan_data = sprintf("%s \'scalar_data/i\':%d,", scan_data, NPTS)
+    scan_data = sprintf("%s \'scalar_data/epoch\':%d,", scan_data, NPTS)
 
     for (i=0;i<_nm;i++) {
         id = sprintf("scalar_data/%s", motor_mne(_m[i]))
