@@ -134,13 +134,17 @@ class _PhynxProperties(HasTraits):
     def npoints(self):
         return self.attrs.get('npoints', 0)
 
+    @property
+    def plock(self):
+        return self._plock
+
     def __init__(self, parent_object):
         for attr in [
             'acquisition_command', 'acquisition_id', 'acquisition_name',
             'acquisition_shape', 'file_name', 'format_version', 'npoints'
         ]:
-            with parent_object._plock:
-                self._plock = parent_object._plock
+            with parent_object.plock:
+                self._plock = parent_object.plock
                 if attr not in self.attrs:
                     try:
                         self.attrs[attr] = parent_object.attrs[attr]

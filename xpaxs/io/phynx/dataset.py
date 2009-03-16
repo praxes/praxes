@@ -31,6 +31,14 @@ class AcquisitionIterator(object):
     The iterator yields an index, item tuple.
     """
 
+    @property
+    def current_index(self):
+        return self._current_index
+
+    @property
+    def total_skipped(self):
+        return self._total_skipped
+
     def __init__(self, dataset):
         self._dataset = dataset
 
@@ -39,14 +47,6 @@ class AcquisitionIterator(object):
 
     def __iter__(self):
         return self
-
-    @property
-    def current_index(self):
-        return self._current_index
-
-    @property
-    def total_skipped(self):
-        return self._total_skipped
 
     def next(self):
         if self._current_index >= self._dataset.npoints:
@@ -112,7 +112,7 @@ class Dataset(h5py.Dataset, _PhynxProperties):
         """
         The following args and kwargs
         """
-        with parent_object._plock:
+        with parent_object.plock:
             if name in parent_object:
                 h5py.Dataset.__init__(self, parent_object, name)
                 _PhynxProperties.__init__(self, parent_object)

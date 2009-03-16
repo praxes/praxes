@@ -39,7 +39,7 @@ class MultiChannelAnalyzer(Detector):
     def _get_pymca_config(self):
         try:
             from PyMca.ConfigDict import ConfigDict
-            return ConfigDict(eval(self.attrs['pymca_config']))
+            return ConfigDict(simpl_eval(self.attrs['pymca_config']))
         except h5py.H5Error:
             return None
     def _set_pymca_config(self, config):
@@ -114,7 +114,7 @@ class CorrectedDataProxy(object):
         self._dataset = dataset
 
     def __getitem__(self, key):
-        with self._dataset._plock:
+        with self._dataset.plock:
             data = self._dataset[key]
 
             # normalization may be something like ring current or monitor counts

@@ -5,6 +5,7 @@ from __future__ import absolute_import
 
 from .group import Group
 from .registry import registry
+from .utils import sync
 
 
 class Entry(Group):
@@ -16,6 +17,7 @@ class Entry(Group):
 
     def _get_npoints(self):
         return self.attrs.get('npoints', 0)
+    @sync
     def _set_npoints(self, np):
         def func(name, obj):
             obj.attrs['npoints'] = np

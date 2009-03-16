@@ -60,7 +60,7 @@ class Group(h5py.Group, _PhynxProperties):
         attributes of the group.
 
         """
-        with parent_object._plock:
+        with parent_object.plock:
             create = not (name in parent_object or name == '/')
             h5py.Group.__init__(self, parent_object, name, create=create)
             _PhynxProperties.__init__(self, parent_object)

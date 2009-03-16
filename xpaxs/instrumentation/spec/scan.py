@@ -1,6 +1,7 @@
 """
 """
 
+import copy
 import logging
 import os
 
@@ -54,7 +55,6 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
         tree = scanParameters['phynx']
         info = tree.pop('info')
-#        print tree
 
         import xpaxs
         fileInterface = xpaxs.application.getService('FileInterface')
@@ -81,6 +81,10 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
             keys = sorted(tree.keys())
             for k in keys:
                 t, kwargs = tree.pop(k)
+                if 'shape' in kwargs and 'dtype' in kwargs:
+                    # these are empty datasets, lets start small and grow
+                    kwargs['maxshape'] = kwargs['shape']
+                    kwargs['shape'] = (1, ) + kwargs['shape'][1:]
                 phynx.registry[t](measurement, k, **kwargs)
 
             # make a few links:
@@ -102,10 +106,14 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         i = int(scanData.pop('i'))
 
         if self._scanData:
-            m = self._scanData['measurement']
-            for k, val in scanData.iteritems():
-                m[k].resize(i+1, axis=0)
-                m[k][i] = val
+            with self._scanData.plock:
+                m = self._scanData['measurement']
+                for k, val in scanData.iteritems():
+                    try:
+                        m[k][i] = val
+                    except ValueError:
+                        m[k].resize(i+1, axis=0)
+                        m[k][i] = val
 
         self._lastPoint = i
         self.emit(QtCore.SIGNAL("newScanData"), i)
