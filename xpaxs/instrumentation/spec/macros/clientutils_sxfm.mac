@@ -9,15 +9,15 @@ def _clientutils_on '{
     global _SC_NEWSCAN _SC_NEWSCANDATA _SC_NEWPLOTDATA _SC_DATA_ACTIVE _SC_PLOT_ACTIVE
     _SC_NEWSCAN = 0
 
-    cdef("user_prescan_head", "_client_setscanenv;", "_clientutils_", "0xff")
-    cdef("user_scan_tail", "_SC_NEWSCAN = 0;", "_clientutils_", "0xff")
+    cdef("user_prescan_head", "_client_setscanenv;", "zzz_clientutils", 0x20)
+    cdef("user_scan_tail", "_SC_NEWSCAN = 0;", "zzz_clientutils_", 0x20)
 }'
 
 
 def _clientutils_off '{
     if (_SC_PLOT_ACTIVE == 0 && _SC_DATA_ACTIVE == 0){
         unglobal _SC_NEWSCAN _SC_NEWSCANDATA _SC_DATA_ACTIVE _SC_PLOT_ACTIVE
-        cdef("", "", "_clientutils_", "delete")
+        cdef("", "", "zzz_clientutils", "delete")
     }
 }'
 
@@ -230,7 +230,7 @@ def clientploton '{
         tty_cntl("me")
     }
 
-    cdef("user_scan_plot", "_client_updateplotdata;", "_client_plot_", "0xff")
+    cdef("user_scan_plot", "_client_updateplotdata;", "zzz_client_plot", 0x20)
 }'
 
 
@@ -238,7 +238,7 @@ def clientplotoff '{
     unglobal _SC_OLDX
     _clientutils_off
 
-    cdef("", "", "_client_plot_", "delete")
+    cdef("", "", "zzz_client_plot", "delete")
 }'
 
 
@@ -278,14 +278,14 @@ def clientdataon '{
 
     _SC_DATA_ACTIVE = 1
 
-    cdef("user_scan_loop", "_client_updatescandata;", "_client_data_", "0xff")
+    cdef("user_scan_loop", "_client_updatescandata;", "zzz_client_data", 0x20)
 }'
 
 
 def clientdataoff '{
     _clientutils_off
 
-    cdef("", "", "_client_data_", "delete")
+    cdef("", "", "zzz_client_data", "delete")
 }'
 
 

@@ -115,29 +115,23 @@ global EPICS_MCAS USE_DXP
 # user macros defined here
 #===============================================================================
 
-def unsetup_mca '{
-    unglobal mca_name[] mca_pv[] roi_pv[] dxp_pv[]
-    unglobal EPICS_MCAS USE_DXP
-
-    global mca_name[] mca_pv[] roi_pv[] dxp_pv[]
-    global EPICS_MCAS USE_DXP
-}'
-
 #-------------------------------------------------------------------------------
 # setup_mca-> configure epics MCAs and create global arrays for each MCA
 #-------------------------------------------------------------------------------
 
 def setup_mca '{
-    if($# == 0) {
+    if ($# == 0) {
         p "Current MCA Setup:\n"
         show_mca
-        while(yesno("\nConfigure a new MCA?","0")) {
+        while(yesno("\nConfigure a new MCA?", "0")) {
             setup_dxp
             local foo nme A_name
             nme = getval("MCA mnemonic:", "")
-            if(nme=="") continue;
-            mca_name[nme]=getval("MCA name:", "")
-            mca_pv[nme]=getval("EPICS MCA PV:", "")
+            if (nme == "") {
+                continue
+            }
+            mca_name[nme] = getval("MCA name:", "")
+            mca_pv[nme] = getval("EPICS MCA PV:", "")
             if (USE_DXP) {
                 dxp_pv[nme] = getval("EPICS DXP PV:", "")
             }
@@ -152,7 +146,7 @@ def setup_mca '{
         }
         p "New MCA Setup:"
         show_mca
-        if(yesno("\nDo you want to setup the ROIS? \
+        if (yesno("\nDo you want to setup the ROIS? \
                 \n(You can always use mca_rois to setup later.)", "0")) {
             mca_rois
             printf("\n\nOnce you reconfigure the MCA ROIS externally(i.e. in MEDM),\
@@ -173,14 +167,6 @@ def setup_mca '{
     }
 }'
 
-def setup_dxp '{
-    if (yesno("\nUse a DXP with this MCA?", "0")) {
-        USE_DXP = 1
-    } else {
-        USE_DXP = 0
-    }
-}'
-
 #-------------------------------------------------------------------------------
 # show_mca-> display configured MCAs and their configuration
 #-------------------------------------------------------------------------------
@@ -192,12 +178,12 @@ def show_mca '{
     }
     if(_aa_length(mca_pv) == 0) {
         print "No MCA defined. Please define MCA first."
-    }
-    else {
+    } else {
         local tch uch A_name i
 
         printf("\n%8.8s %15.15s %15.15s %12.12s %12.12s %15.15s ",\
                "Mne", "Name", "EPICS_PV", "Total_Chs", "Use_Chs", "Data_array")
+
         for (i in mca_pv) {
             tch = epics_par(sprintf("%s.VAL", mca_pv[i]), "count")
             uch = epics_get(sprintf("%s.NUSE", mca_pv[i]))
@@ -327,15 +313,18 @@ def rm_mca '{
     if ("$1" == "all") {
         for (i in mca_pv) {
             rm_roi all
-            A_name=sprintf("mcadat_%s",i)
+            A_name = sprintf("mcadat_%s",i)
             unglobal @A_name
             delete mca_pv[i] mca_name[i] dxp_pv[i]
             printf("Deleted MCA %s and data array %s\n",i,A_name)
         }
     } else {
-        if( mca_pv["$1"]==0) {printf("Invalid MCA mnemonic %s\n","$1");exit}
+        if (mca_pv["$1"] == 0) {
+            printf("Invalid MCA mnemonic %s\n","$1")
+            exit
+        }
         rm_roi "$1"
-        A_name=sprintf("mcadat_%s","$1")
+        A_name = sprintf("mcadat_%s","$1")
         unglobal @A_name
         delete mca_pv["$1"] mca_name["$1"] dxp_pv["$1"]
         printf("Deleted MCA %s and data array %s\n","$1",A_name)
@@ -359,11 +348,11 @@ def rm_roi '{
             printf("\nDeleted MCA  ROI %s \n",i)
         }
     } else {
-        if( mca_pv["$1"]!=0) {
+        if (mca_pv["$1"]!=0) {
             local foo
-            for( i in roi_pv) {
-                foo=substr(i,0,length("$1"))
-                if(foo== "$1") {
+            for (i in roi_pv) {
+                foo = substr(i,0,length("$1"))
+                if(foo == "$1") {
                     delete roi_pv[i]
                     printf("Deleted MCA ROI %s related to %s\n",i,"$1")
                 }
@@ -391,13 +380,11 @@ def mcasmode '{
     }
     if(MCA_SCAN) {
         mca_on
-        cdef("user_getcounts", "get_mca;", "mcapt", "0x20")
-        cdef("user_scan_loop", "save_mca_point;", "mcapt", "0x20")
+        cdef("user_scan_loop", "save_mca_point;", "epics_mcasmode", 0x20)
     }
     else {
         mca_off
-        cdef("user_getcounts","","mcapt","delete")
-        cdef("user_scan_loop","","mcapt","delete")
+        cdef("user_scan_loop", "", "epics_mcasmode", "delete")
     }
 }'
 
@@ -405,55 +392,58 @@ def mcasmode '{
 # internal macros defined here
 #===============================================================================
 
+def setup_dxp '{
+    if (yesno("\nUse a DXP with this MCA?", "0")) {
+        USE_DXP = 1
+    } else {
+        USE_DXP = 0
+    }
+}'
+
 def mca_on '{
-    cdef("user_precount", "
-        if(COUNT_TIME!=0) {
-            if(COUNT_TIME>0) {
-            for (i in mca_pv) epics_put(sprintf(\"%s.PRTM\", mca_pv[i]), COUNT_TIME)
-                } else {
-            for (i in mca_pv) epics_put(sprintf(\"%s.PRTM\", mca_pv[i]), 0)
-                }
-            for (i in mca_pv) epics_put(sprintf(\"%s.ERST\", mca_pv[i]), 1)
-        }", "mca", "0x20")
-
-   cdef("user_waitcount", "if (COUNT_TIME > 0) {wait_mca;}", "mca", "0x10")
-
-   cdef("user_getcounts","
-        # this was necessary when dxp params read rate is passive:
-            for (i in dxp_pv) epics_put(sprintf(\"%s.READ_PARAMS\", dxp_pv[i]), 1);
-        if(COUNT_TIME<0) {
-            for(i in mca_pv) epics_put(sprintf(\"%s.STOP\",mca_pv[i]), 1);
-            wait_mca;
-        }","mca","0x10")
-
-   cdef("user_Fheader", "mca_specfile_Fheader;", "mca", "0x10")
-   cdef("user_postscan_head", "mca_Fheader;", "mca", "0x10")
+    cdef("user_Fheader", "mca_specfile_Fheader;", "epics_mca", 0x10)
+    cdef("user_postscan_head", "mca_Fheader;", "epics_mca", 0x10)
+    cdef("user_precount", "mca_startcount", "epics_mca", 0x20)
+    cdef("user_getcounts", "mca_getcounts;", "epics_mcasmode", 0x10)
 
 }'
 
 def mca_off '{
-    cdef("user_precount", "", "mca", "delete")
-    cdef("user_getcounts", "", "mca", "delete")
-    cdef("user_waitcount", "", "mca", "delete")
     cdef("user_Fheader", "", "mca", "delete")
     cdef("user_postscan_head", "", "mca", "delete")
+    cdef("user_precount", "", "mca", "delete")
+    cdef("user_getcounts", "", "mca", "delete")
 }'
 
-global MCAOVERHEAD
-
-MCAOVERHEAD = 0.1 # user can adjust to optimize overhead
-def wait_mca '{
-    sleep(MCAOVERHEAD) # wait MCA to finish erase and start
-    for (i in mca_pv) {
-        while(epics_get(sprintf("%s.ACQG", mca_pv[i]), "short")) sleep(MCAOVERHEAD)
+def mca_startcount '{
+    if (COUNT_TIME!=0) {
+        if(COUNT_TIME>0) {
+            for (i in mca_pv) {
+                epics_put(sprintf(\"%s.PRTM\", mca_pv[i]), COUNT_TIME)
+            }
+        } else {
+            for (i in mca_pv) {
+                epics_put(sprintf(\"%s.PRTM\", mca_pv[i]), 0)
+            }
+        }
+        for (i in mca_pv) {
+            epics_put(sprintf(\"%s.ERST\", mca_pv[i]), 1)
+        }
     }
-    #sleep(MCAOVERHEAD) #wait ROIs to be computed
 }'
 
-def get_mca '{
+def mca_getcounts '{
+    if (COUNT_TIME < 0) {
+        for(i in mca_pv) {
+            epics_put(sprintf(\"%s.STOP\",mca_pv[i]), 1)
+        }
+    }
     for (i in mca_pv) {
         local _oo _ss _qq A_name pvlist[]
 
+        while (epics_get(sprintf("%s.ACQG", mca_pv[i]), "short")) {
+            sleep(0.1)
+        }
         _oo = epics_get(sprintf("%s.CALO", mca_pv[i]))
         _ss = epics_get(sprintf("%s.CALS", mca_pv[i]))
         _qq = epics_get(sprintf("%s.CALQ", mca_pv[i]))
@@ -461,6 +451,9 @@ def get_mca '{
         array_op("fill", @A_name[0], 1)
         @A_name[0] = _oo + @A_name[0] * (_ss + _qq * @A_name[0])
         @A_name[1] = epics_get(mca_pv[i])
+    }
+    for (i in dxp_pv) {
+        epics_put(sprintf(\"%s.READ_PARAMS\", dxp_pv[i]), 1)
     }
 }'
 
