@@ -9,8 +9,8 @@ def _clientutils_on '{
     global _SC_NEWSCAN _SC_NEWSCANDATA _SC_NEWPLOTDATA _SC_DATA_ACTIVE _SC_PLOT_ACTIVE
     _SC_NEWSCAN = 0
 
-    cdef("user_prescan_head", "_client_setscanenv;", "_clientutils_")
-    cdef("user_scan_tail", "_SC_NEWSCAN = 0;", "_clientutils_")
+    cdef("user_prescan_head", "_client_setscanenv;", "_clientutils_", "0xff")
+    cdef("user_scan_tail", "_SC_NEWSCAN = 0;", "_clientutils_", "0xff")
 }'
 
 
@@ -230,7 +230,7 @@ def clientploton '{
         tty_cntl("me")
     }
 
-    cdef("user_scan_plot", "_client_updateplotdata;", "_client_plot_")
+    cdef("user_scan_plot", "_client_updateplotdata;", "_client_plot_", "0xff")
 }'
 
 
@@ -278,7 +278,7 @@ def clientdataon '{
 
     _SC_DATA_ACTIVE = 1
 
-    cdef("user_scan_loop", "_client_updatescandata;", "_client_data_")
+    cdef("user_scan_loop", "_client_updatescandata;", "_client_data_", "0xff")
 }'
 
 
