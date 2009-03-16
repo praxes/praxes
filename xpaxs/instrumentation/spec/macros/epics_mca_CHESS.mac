@@ -17,39 +17,27 @@
 #
 # Modified by:
 #
-# User macros: setup_mca-> interface to configure multiple epics MCAs in spec.
-#              setup_mca (no paramerter) : interactive mode
-#              setup_mca mnemonic name PV : quiet mode
+# User macros: setup_mca -> interface to configure multiple epics MCAs in spec.
+#              setup_mca (no paramerter) -> interactive mode
+#              setup_mca mnemonic name PV -> quiet mode
+#
+#              mcasmode -> turn on mca data collection and save spectra to
+#                          device files
 #
 #              show_mca -> display the configured epics MCAs nicely.
 #              mca_rois -> to automatically check the created ROIS in each MCA
 #                          and display their parameters.
-#              save_rois ->to turn on/off the feature of saving MCA_ROIS(defined
+#              save_rois -> to turn on/off the feature of saving MCA_ROIS(defined
 #                           in roi_pv[], and filled when mca_rois is called)
 #              rm_mca -> remove one or all configured MCAs,also remove all rois
 #                        related to that MCA
 #              rm_roi -> remove one/all configured MCA ROIS.Can also rmove all
 #                        rois related to one MCA by calling rm_roi mca_nme
-#              getandsave_mca-> to start counting and save MCAs and save their
-#                        spectra in spec file.
-#              MCAscanpt->to save the MCA spectra in a separate file on each
-#                        scan point of whatever scan( MCAscanpt anyscan macro)
-#              MCAscanend-> to save the MCA spectra at the end  of a scan
-#                        (MCAscanend anyscan macro)
 #
-#
-#
-# Internal macros: aq_mca
-#                  mca_on
+# Internal macros: mca_on
 #                  mca_off
-#                  wait_mca
-#                  get_mca
-#                  save_mca
-#                  save_mca_scan
-#                  save_mca_point
-#                  onmcad
-#                  offmcad
-#                  mca_cleanup
+#                  mca_getcounts
+#                  mca_scan_loop
 #
 # Modification history:
 #  July 13, 2005 X. Jiao
@@ -379,7 +367,7 @@ def mcasmode '{
     }
     if(MCA_SCAN) {
         mca_on
-        cdef("user_scan_loop", "save_mca_point;", "epics_mcasmode", 0x20)
+        cdef("user_scan_loop", "mca_scan_loop;", "epics_mcasmode", 0x20)
     }
     else {
         mca_off
@@ -461,7 +449,7 @@ def mca_getcounts '{
 # need to move most print statements to mca_Fheader
 #----------------------------------------------------------------------
 
-def save_mca_point'{
+def mca_scan_loop '{
     local device_file
 
     for(mne in mca_pv ) {
