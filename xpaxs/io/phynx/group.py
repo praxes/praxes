@@ -61,16 +61,18 @@ class Group(h5py.Group, _PhynxProperties):
 
         """
         with parent_object.plock:
-            create = not (name in parent_object or name == '/')
-            h5py.Group.__init__(self, parent_object, name, create=create)
-            _PhynxProperties.__init__(self, parent_object)
 
-            if create:
+            try:
+                h5py.Group.__init__(self, parent_object, name)
+            except h5py.H5Error:
+                h5py.Group.__init__(self, parent_object, name, create=True)
                 self.attrs['class'] = self.__class__.__name__
                 try:
                     self.attrs['NX_class'] = self.nx_class
                 except AttributeError:
                     pass
+
+            _PhynxProperties.__init__(self, parent_object)
 
             if attrs:
                 for attr, val in attrs.iteritems():

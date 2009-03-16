@@ -102,7 +102,10 @@ class Dataset(h5py.Dataset, _PhynxProperties):
     @property
     @sync
     def parent(self):
-        return self._navigate(posixpath.split(self.path)[0])
+        p = posixpath.split(self.path)[0]
+        g = h5py.Group(self, p, create=False)
+        t = g.attrs.get('class', 'Group')
+        return registry[t](self, p)
 
     def __init__(
         self, parent_object, name, shape=None, dtype=None, data=None,
@@ -131,10 +134,6 @@ class Dataset(h5py.Dataset, _PhynxProperties):
                 if not np.isscalar(val):
                     val = str(val)
                 self.attrs[key] = val
-
-            # datasets don't provide a convenient navigation method like groups
-            # so we'll borrow this one
-            self._navigate = parent_object.__getitem__
 
     @sync
     def __repr__(self):
