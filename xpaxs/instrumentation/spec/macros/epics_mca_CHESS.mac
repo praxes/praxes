@@ -403,8 +403,8 @@ def mca_off '{
 }'
 
 def mca_startcount '{
-    if (COUNT_TIME!=0) {
-        if(COUNT_TIME>0) {
+    if (COUNT_TIME != 0) {
+        if (COUNT_TIME > 0) {
             for (i in mca_pv) {
                 epics_put(sprintf(\"%s.PRTM\", mca_pv[i]), COUNT_TIME)
             }
@@ -419,8 +419,14 @@ def mca_startcount '{
     }
 }'
 
+global EPICS_OVERHEAD
+# This value should be tweaked so monitor counts integrates properly
+# need to compare spec's seconds with mca real time
+EPICS_OVERHEAD = 0.047
+
 def mca_getcounts '{
     if (COUNT_TIME < 0) {
+        sleep(EPICS_OVERHEAD)
         for(i in mca_pv) {
             epics_put(sprintf(\"%s.STOP\",mca_pv[i]), 1)
         }
@@ -429,7 +435,7 @@ def mca_getcounts '{
         local _oo _ss _qq A_name pvlist[]
 
         while (epics_get(sprintf("%s.ACQG", mca_pv[i]), "short")) {
-            sleep(0.1)
+            sleep(0.01)
         }
         _oo = epics_get(sprintf("%s.CALO", mca_pv[i]))
         _ss = epics_get(sprintf("%s.CALS", mca_pv[i]))
