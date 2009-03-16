@@ -94,12 +94,12 @@
 # preload check here
 #===============================================================================
 
-if(!(whatis("_aa_length")&0x2 )) {
-    qdo aalength.mac
+if (!(whatis("_aa_length")&0x2)) {
+    udo aalength.mac
 }
 
-if(!(whatis("u_column_add")&0x2)) {
-    qdo uspec_column.mac
+if (!(whatis("u_column_add")&0x2)) {
+    udo uspec_column.mac
 }
 
 #===============================================================================
@@ -172,12 +172,11 @@ def setup_mca '{
 #-------------------------------------------------------------------------------
 
 def show_mca '{
-
     if (unset("mca_pv")) {
         global mca_name[] mca_pv[]
     }
-    if(_aa_length(mca_pv) == 0) {
-        print "No MCA defined. Please define MCA first."
+    if (_aa_length(mca_pv) == 0) {
+        print "No MCA defined."
     } else {
         local tch uch A_name i
 
