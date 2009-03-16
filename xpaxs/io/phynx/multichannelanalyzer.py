@@ -39,7 +39,7 @@ class MultiChannelAnalyzer(Detector):
     def _get_pymca_config(self):
         try:
             from PyMca.ConfigDict import ConfigDict
-            return ConfigDict(simpl_eval(self.attrs['pymca_config']))
+            return ConfigDict(simple_eval(self.attrs['pymca_config']))
         except h5py.H5Error:
             return None
     def _set_pymca_config(self, config):

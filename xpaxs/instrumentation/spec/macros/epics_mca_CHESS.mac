@@ -2,9 +2,9 @@
 #**************SPEC macros for the Advanced Photon Source***********************
 #===============================================================================
 #
-# Beamline/Sector: XOR-Sector4 
+# Beamline/Sector: XOR-Sector4
 #                  (easy to be moved to other sectors without change)
-# 
+#
 # Macro Package: Epics MCA controls
 #
 # Version: 3.4.6
@@ -14,17 +14,17 @@
 #              requires aalength.mac and uspec_colum.mac( will automatically load )
 #
 # Written by: Xuesong Jiao
-# 
-# Modified by: 
+#
+# Modified by:
 #
 # User macros: setup_mca-> interface to configure multiple epics MCAs in spec.
 #              setup_mca (no paramerter) : interactive mode
-#              setup_mca mnemonic name PV : quiet mode  
+#              setup_mca mnemonic name PV : quiet mode
 #
 #              show_mca -> display the configured epics MCAs nicely.
 #              mca_rois -> to automatically check the created ROIS in each MCA
 #                          and display their parameters.
-#              save_rois ->to turn on/off the feature of saving MCA_ROIS(defined 
+#              save_rois ->to turn on/off the feature of saving MCA_ROIS(defined
 #                           in roi_pv[], and filled when mca_rois is called)
 #              rm_mca -> remove one or all configured MCAs,also remove all rois
 #                        related to that MCA
@@ -32,11 +32,11 @@
 #                        rois related to one MCA by calling rm_roi mca_nme
 #              getandsave_mca-> to start counting and save MCAs and save their
 #                        spectra in spec file.
-#              MCAscanpt->to save the MCA spectra in a separate file on each 
+#              MCAscanpt->to save the MCA spectra in a separate file on each
 #                        scan point of whatever scan( MCAscanpt anyscan macro)
 #              MCAscanend-> to save the MCA spectra at the end  of a scan
 #                        (MCAscanend anyscan macro)
-#              
+#
 #
 #
 # Internal macros: aq_mca
@@ -45,22 +45,22 @@
 #                  wait_mca
 #                  get_mca
 #                  save_mca
-#                  save_mca_scan 
+#                  save_mca_scan
 #                  save_mca_point
 #                  onmcad
 #                  offmcad
 #                  mca_cleanup
 #
-# Modification history: 
-#  July 13, 2005 X. Jiao 
+# Modification history:
+#  July 13, 2005 X. Jiao
 #  ->Based on macros originally written by P. Jamian, and epics_mca_3.3.mac
-#    by J. Lang. 
+#    by J. Lang.
 #  Aug. 5, 2005 X. Jiao
 #  -> fixed the mca scan output format,separte each mca's spectra
 #  -> fixed the cleanup bug
 #  -> added user_Fheader(#@ROI entry) to spec scan file if using save_rois on
-#  Nov. 22 2005 X. Jiao 
-#  -> made "save_rois on" to work even if not using MCAscanpt.    
+#  Nov. 22 2005 X. Jiao
+#  -> made "save_rois on" to work even if not using MCAscanpt.
 #  July,6, 2005 X. Jiao
 #  -> added sleep time in wait_mca to make sure it work safely
 #  -> enhanced mca_on to enable use psuedo counter
@@ -88,7 +88,7 @@
 #
 #
 ###############################################################################
- 
+
 
 
 
@@ -127,10 +127,10 @@ def unsetup_mca '{
 #-------------------------------------------------------------------------------
 # setup_mca-> configure epics MCAs and create global arrays for each MCA
 #-------------------------------------------------------------------------------
-def setup_mca '
+def setup_mca '{
    if($# == 0) {
       p "Current MCA Setup:\n"
-      show_mca 
+      show_mca
       while(yesno("\nConfigure a new MCA?","0")) {
          setup_dxp
          local foo nme A_name
@@ -139,21 +139,21 @@ def setup_mca '
          mca_name[nme]=getval("MCA name:","")
          mca_pv[nme]=getval("EPICS MCA PV:","")
          if (USE_DXP) {
-	 	dxp_pv[nme]=getval("EPICS DXP PV:","")
-	 }
+        dxp_pv[nme]=getval("EPICS DXP PV:","")
+     }
          foo = epics_par(sprintf("%s.VAL",mca_pv[nme]),"count")
          printf("Found MCA with %i channels\n",foo)
          foo= epics_get(sprintf("%s.NUSE",mca_pv[nme]))
          printf("Reading %i channels of MCA\n",foo)
          A_name=sprintf("mcadat_%s",nme)
          array @A_name[2][foo]
-	 EPICS_MCAS++
+     EPICS_MCAS++
          printf("Created data array %s for MCA %s\n",A_name,nme)
       }
-      p "New MCA Setup:"   
+      p "New MCA Setup:"
       show_mca
       if(yesno("\nDo you want to setup the ROIS? \
-                \n(You can always use mca_rois to setup later.)","1")) {
+                \n(You can always use mca_rois to setup later.)","0")) {
           mca_rois
           print "\n\nOnce you reconfigure the MCA ROIS externally(i.e. in MEDM),\
                  \nuse mca_rois to refresh, or you may not save the new ROIS."
@@ -169,92 +169,91 @@ def setup_mca '
       EPICS_MCAS++
       mca_rois
       p "\n"
-      show_mca  
-  
-   }
-    
-'
+      show_mca
 
-def setup_dxp '
+   }
+}'
+
+def setup_dxp '{
 if(yesno("\nUse a DXP with this MCA?","0")) {
-	USE_DXP = 1
-	} else {
-	USE_DXP = 0
-	}
-'
+    USE_DXP = 1
+    } else {
+    USE_DXP = 0
+    }
+}'
 
 
 #-------------------------------------------------------------------------------
 # show_mca-> display configured MCAs and their configuration
 #-------------------------------------------------------------------------------
-def show_mca ' 
-  
+def show_mca '{
+
     if (unset("mca_pv")) { global mca_name[] mca_pv[]}
     if(_aa_length(mca_pv)==0) {
-	print "No MCA defined. Please define MCA first."
+    print "No MCA defined. Please define MCA first."
     }
     else {
-	local tch uch A_name i
-	printf("\n%8.8s %15.15s %15.15s %12.12s %12.12s %15.15s ",\
-	       "Mne","Name","EPICS_PV","Total_Chs","Use_Chs","Data_array") 
-	for(i in mca_pv) {
-	    tch=epics_par(sprintf("%s.VAL",mca_pv[i]),"count")
-	    uch=epics_get(sprintf("%s.NUSE",mca_pv[i]))
-	    A_name=sprintf("mcadat_%s",i)
-	    printf("\n%8.8s %15.15s %15.15s %12i %12i %15.15s ",\
-		i,mca_name[i],mca_pv[i],tch,uch,A_name)
-	}
-	printf("\n")
-    } 
-'
+    local tch uch A_name i
+    printf("\n%8.8s %15.15s %15.15s %12.12s %12.12s %15.15s ",\
+           "Mne","Name","EPICS_PV","Total_Chs","Use_Chs","Data_array")
+    for(i in mca_pv) {
+        tch=epics_par(sprintf("%s.VAL",mca_pv[i]),"count")
+        uch=epics_get(sprintf("%s.NUSE",mca_pv[i]))
+        A_name=sprintf("mcadat_%s",i)
+        printf("\n%8.8s %15.15s %15.15s %12i %12i %15.15s ",\
+        i,mca_name[i],mca_pv[i],tch,uch,A_name)
+    }
+    printf("\n")
+    }
+}'
 
 #-------------------------------------------------------------------------------
-# mca_rois-> read available ROIs from each MCA and store their pvs in roi_pv 
+# mca_rois-> read available ROIs from each MCA and store their pvs in roi_pv
 #-------------------------------------------------------------------------------
-def mca_rois '
+def mca_rois '{
     global MAXROIN
     MAXROIN=32
     if(_aa_length(mca_pv)==0) {
-	print "No MCA defined. Please define MCA first."
-	exit
+    print "No MCA defined. Please define MCA first."
+    exit
     }
     for( i in roi_pv) delete roi_pv[i]
     for( i in mca_pv) {
-	local rname rlch rhch A_name flag mne
-	flag=0
-	printf("\nCurrent configured ROI for %s:",i)
-	for(j=0;j<MAXROIN;j++) {
-	    rname = epics_get(sprintf("%s.R%iNM",mca_pv[i],j))
-	    rlch = epics_get(sprintf("%s.R%iLO",mca_pv[i],j))
-	    rhch = epics_get(sprintf("%s.R%iHI",mca_pv[i],j))
-	    if((rname != " ") & (rlch !=-1)) {
-		mne=sprintf("%sR%i",i,j)
-		printf("\nmne: %s |pv: %s.R%i  |name:%s  |low: %i  |high: %i",\
-		       mne,mca_pv[i],j,rname,rlch,rhch);
-		roi_pv[mne] = sprintf("%s.R%i",mca_pv[i],j)
-		flag = 1
-	    }    
-         
-	}
-	if(!flag) print "\nNo ROIS configured!"
-    }     
-'
+    local rname rlch rhch A_name flag mne
+    flag=0
+    printf("\nCurrent configured ROI for %s:",i)
+    for(j=0;j<MAXROIN;j++) {
+        rname = epics_get(sprintf("%s.R%iNM",mca_pv[i],j))
+        rlch = epics_get(sprintf("%s.R%iLO",mca_pv[i],j))
+        rhch = epics_get(sprintf("%s.R%iHI",mca_pv[i],j))
+        if((rname != " ") & (rlch !=-1)) {
+        mne=sprintf("%sR%i",i,j)
+        printf("\nmne: %s |pv: %s.R%i  |name:%s  |low: %i  |high: %i",\
+               mne,mca_pv[i],j,rname,rlch,rhch);
+        roi_pv[mne] = sprintf("%s.R%i",mca_pv[i],j)
+        flag = 1
+        }
+
+    }
+    if(!flag) print "\nNo ROIS configured!"
+    }
+}'
 
 #-------------------------------------------------------------------------------
 # save_rois-> save_rois on/off to save/not save ROI data in spec file
 #-------------------------------------------------------------------------------
 
-def save_rois '
+def save_rois '{
   if($# != 1) {print "Usage: save_rois on/off";exit;}
   if(( "$1"== "on"))  {
     u_column_clear("mcaroi")
-    local n rname cmd i j  
+    local n rname cmd i j
     local tmp[]
     local header_str lch hch
     header_str = ""
     if(_aa_length(roi_pv)==0) {
       p "\nNo roi configured. Please run mca_rois.\n"
-      
+
       exit
     }
     for( i in roi_pv) {
@@ -262,15 +261,15 @@ def save_rois '
       rname = strjoin(rname," ")
       rname = sprintf("%s(%s)",rname,i)
       cmd = sprintf("epics_get(\"%s\")",roi_pv[i])
-      u_column_add(rname,"%s",cmd,"mcaroi") 
+      u_column_add(rname,"%s",cmd,"mcaroi")
       lch=epics_get(sprintf("%sLO",roi_pv[i]))
       hch=epics_get(sprintf("%sHI",roi_pv[i]))
       header_str = sprintf("%s#@ROI  %s %d %d\n",header_str,rname,lch,hch)
-      for( j in mca_pv) { 
+      for( j in mca_pv) {
         if( (index(i,j) ==1 ) && !(tmp[j]) ) {tmp[j]=mca_pv[j];break;}
       }
     }
-    
+
     for( j in tmp) {
       if (USE_DXP) {
          rname =sprintf("ICR%s",j)
@@ -293,33 +292,30 @@ def save_rois '
     print "\n"
     u_column_show
     mca_on
-        
+
   };
   if(("$1" == "off")) {
     u_column_clear("mcaroi")
     cdef("user_Fheader","","mcaroi","delete")
     mca_off
-    
+
   };
-  
-   
-'
+}'
 
 #-------------------------------------------------------------------------------
 # rm_mca-> i.e. rm_mca all( clear all configure MCAs)
 #               rm_mca mca1( clear MCA with mnemonic name mca1)
 #-------------------------------------------------------------------------------
-def rm_mca ' 
+def rm_mca '{
     if($# !=1) { print "Usage: rm_mca mne or rm_mca all.\n" ;exit}
-    if ("$1" == "all") { 
+    if ("$1" == "all") {
        for( i in mca_pv ) {
             rm_roi all
             A_name=sprintf("mcadat_%s",i)
             unglobal @A_name
             delete mca_pv[i] mca_name[i] dxp_pv[i]
             printf("Deleted MCA %s and data array %s\n",i,A_name)
-            
-       } 
+       }
     }
     else {
        if( mca_pv["$1"]==0) {printf("Invalid MCA mnemonic %s\n","$1");exit}
@@ -328,22 +324,21 @@ def rm_mca '
        unglobal @A_name
        delete mca_pv["$1"] mca_name["$1"] dxp_pv["$1"]
        printf("Deleted MCA %s and data array %s\n","$1",A_name)
-       
     }
-'   
+}'
 
 #-------------------------------------------------------------------------------
 # rm_roi-> rm_roi mca1R1 ( to delete roi with mnemonic mca1R1)
 #          rm_roi mca1  ( to delete all rois related to mca1)
 #          rm_roi all   ( to clear all rois)
 #-------------------------------------------------------------------------------
-def rm_roi '
+def rm_roi '{
     if($# !=1) { print "Usage: rm_roi mne or rm_roi all or rm_roi mca_mne.\n" ;exit}
-    if ("$1" == "all") { 
+    if ("$1" == "all") {
        for( i in roi_pv ) {
-            delete roi_pv[i] 
+            delete roi_pv[i]
             printf("\nDeleted MCA  ROI %s \n",i)
-       } 
+       }
     }
     else {
        if( mca_pv["$1"]!=0) {
@@ -355,19 +350,19 @@ def rm_roi '
             printf("Deleted MCA ROI %s related to %s\n",i,"$1")
             }
           }
-           
+
        }
        else{
           if( roi_pv["$1"]==0) {printf("Invalid ROI mnemonic %s\n","$1");exit}
-          delete roi_pv["$1"] 
+          delete roi_pv["$1"]
           printf("\nDeleted MCA ROI %s \n","$1")
       }
     }
-'    
+}'
 
 #-------------------------------------------------------------------------------
 # getandsave_mca-> acquire and save MCA spectras as spec scan
-#-------------------------------------------------------------------------------     
+#-------------------------------------------------------------------------------
 def getandsave_mca '{
     if($#!=1) {
     print "Usage: getandsave_mca count_time (for all active mcas)\n"
@@ -377,22 +372,22 @@ def getandsave_mca '{
 }'
 
 #-------------------------------------------------------------------------------
-# mcasmode->Set the scan mode for epics interface 
+# mcasmode->Set the scan mode for epics interface
 #-------------------------------------------------------------------------------
 def mcasmode '{
     MCA_SCAN = $1
 
     if($# < 1) {
-	MCA_SCAN = yesno("Enable MCA scan mode", MCA_SCAN)
+    MCA_SCAN = yesno("Enable MCA scan mode", MCA_SCAN)
     }
     if(MCA_SCAN) {
-	mca_on
-	cdef("user_getcounts", "get_mca; save_mca_point;", "mcapt", "0x20") 
+    mca_on
+    cdef("user_getcounts", "get_mca; save_mca_point;", "mcapt", "0x20")
     }
     else {
-	mca_off
-	cdef("user_getcounts","","mcapt","delete")
-	close(MCAFILE)
+    mca_off
+    cdef("user_getcounts","","mcapt","delete")
+    close(MCAFILE)
     }
 }'
 
@@ -400,28 +395,28 @@ def mcasmode '{
 #===============================================================================
 # internal macros defined here
 #===============================================================================
-def aq_mca '
-    
+def aq_mca '{
+
     _ctime = $1;
     mca_on;
-    count_em _ctime; 
+    count_em _ctime;
     waitcount;
     get_counts;
     mca_off
-'
+}'
 
 def mca_on '{
     cdef("user_precount","
-	if(COUNT_TIME!=0) {
-	    if(COUNT_TIME>0) {
-		for (i in mca_pv) epics_put(sprintf(\"%s.PRTM\",mca_pv[i]),COUNT_TIME)
+    if(COUNT_TIME!=0) {
+        if(COUNT_TIME>0) {
+        for (i in mca_pv) epics_put(sprintf(\"%s.PRTM\",mca_pv[i]),COUNT_TIME)
             } else {
-		for (i in mca_pv) epics_put(sprintf(\"%s.PRTM\",mca_pv[i]),0)
+        for (i in mca_pv) epics_put(sprintf(\"%s.PRTM\",mca_pv[i]),0)
             }
-	    for (i in mca_pv)  epics_put(sprintf(\"%s.ERST\", mca_pv[i]), 1)
-         }   
+        for (i in mca_pv)  epics_put(sprintf(\"%s.ERST\", mca_pv[i]), 1)
+         }
     ","mca","0x20")
-   
+
    cdef("user_waitcount","
               if(COUNT_TIME>0) {
                   wait_mca;
@@ -429,13 +424,13 @@ def mca_on '{
          ","mca","0x10")
 
    cdef("user_getcounts","
-	    # this was necessary when dxp params read rate is passive:
+        # this was necessary when dxp params read rate is passive:
             for (i in dxp_pv) epics_put(sprintf(\"%s.READ_PARAMS\", dxp_pv[i]), 1);
-	    if(COUNT_TIME<0) {
-		for(i in mca_pv) epics_put(sprintf(\"%s.STOP\",mca_pv[i]),1);
-		wait_mca;             
-		getcounts;
-	    }
+        if(COUNT_TIME<0) {
+        for(i in mca_pv) epics_put(sprintf(\"%s.STOP\",mca_pv[i]),1);
+        wait_mca;
+        getcounts;
+        }
          ","mca","0x10")
    cdef("user_Fheader", "mca_specfile_Fheader; mca_Fheader;", "mca", "0x10")
 
@@ -452,15 +447,15 @@ global MCAOVERHEAD
 
 MCAOVERHEAD = 0.1 # user can adjust to optimize overhead
 def wait_mca '{
-    sleep(MCAOVERHEAD) # wait MCA to finish erase and start 
+    sleep(MCAOVERHEAD) # wait MCA to finish erase and start
     for( i in mca_pv) {
-	while(epics_get(sprintf("%s.ACQG",mca_pv[i]),"short")) sleep(0.1)
+    while(epics_get(sprintf("%s.ACQG",mca_pv[i]),"short")) sleep(0.1)
     }
     #sleep(0.1) #wait ROIs to be computed
 }'
 
 
-def get_mca '
+def get_mca '{
     for(i in mca_pv ) {
        local _oo _ss _qq A_name pvlist[]
        _oo=epics_get(sprintf("%s.CALO",mca_pv[i]))
@@ -470,14 +465,14 @@ def get_mca '
        array_op("fill",@A_name[0],1)
        @A_name[0] = _oo + @A_name[0]*(_ss+_qq*@A_name[0])
        @A_name[1] = epics_get(mca_pv[i])
-    }  
-'
-    
+    }
+}'
+
 
 def save_mca '{
    ond;offt
-   
-   { 
+
+   {
       local t[] lname  i pname
       if($#==1) {t["$1"]=mca_pv["$1"]; lname="t"}
       if($#==0) lname="mca_pv"
@@ -493,11 +488,11 @@ def save_mca '{
 }'
 
 def save_mca_scan(mne) '{
-   
+
    waitall;get_angles;calcHKL
- 
+
    DATE = date()
-  
+
       local  uch mcaRtime mcaLtime _oo _ss _qq  dxpICr dxpOCR
       printf("\n#S %i %s\n#D %s\n",SCAN_NUM,HEADING,DATE)
       if(_ctime<0) printf("#M %g (%s)\n",-_ctime,cnt_name(MON))
@@ -505,8 +500,8 @@ def save_mca_scan(mne) '{
       printf("#Q %g %g %g\n",H,K,L)
       uch=epics_get(sprintf("%s.NUSE",mca_pv[mne]))
        if (USE_DXP) {
- 	     dxpICR=epics_get(sprintf("%s.ICR",dxp_pv[mne]))
- 	     dxpOCR=epics_get(sprintf("%s.OCR",dxp_pv[mne]))
+         dxpICR=epics_get(sprintf("%s.ICR",dxp_pv[mne]))
+         dxpOCR=epics_get(sprintf("%s.OCR",dxp_pv[mne]))
       } else {
              mcaRtime=epics_get(sprintf("%s.ERTM",mca_pv[mne]))
              mcaLtime=epics_get(sprintf("%s.ELTM",mca_pv[mne]))
@@ -518,7 +513,7 @@ def save_mca_scan(mne) '{
       printf("#@MCA %25C\n")
       printf("#@CHANN %i 0 %i 1\n",uch,uch-1)
       if (USE_DXP) {
-	      printf("#@CTIME %g %g %g \n",S[sec],dxpICR,dxpOCR)   
+          printf("#@CTIME %g %g %g \n",S[sec],dxpICR,dxpOCR)
       } else {
               printf("#@CTIME %g %g %g \n",S[sec],mcaRtime,mcaLtime)
       }
@@ -529,8 +524,8 @@ def save_mca_scan(mne) '{
       A_name=sprintf("mcadat_%s",mne)
       array_dump(@A_name[1],"%25C")
       printf("\n")
-      
-    
+
+
 }'
 
 #----------------------------------------------------------------------
@@ -541,47 +536,48 @@ def save_mca_scan(mne) '{
 def save_mca_point'{
 
     for(mne in mca_pv ) {
-	onmcad(mne);offd;offt
-  
-	local  mcaRtime mcaLtime dxpICr dxpOCR mcaDtime mcadtc
-      
-	if (USE_DXP) {
-	     dxpICR = epics_get(sprintf("%s.ICR", dxp_pv[mne]))
-	     dxpOCR = epics_get(sprintf("%s.OCR", dxp_pv[mne]))
-	} else {
-	    dxpICR = 1
-	    dxpOCR = 1
-	}
-	
-	mcaRtime = epics_get(sprintf("%s.ERTM", mca_pv[mne]))
-	mcaLtime = epics_get(sprintf("%s.ELTM", mca_pv[mne]))
-	
-	# dxp realtime does not gate properly, lets try to correct it:
-	mcaRtime = mcaRtime > 1.1*S[sec]? S[sec]:mcaRtime
-	
-	# lets calculate the first-order deadtime correction:
-	mcadtc = dxpICR * mcaRtime
-	if (mcadtc != 0) {
+    onmcad(mne);offd;offt
+
+    local  mcaRtime mcaLtime dxpICr dxpOCR mcaDtime mcadtc
+
+    if (USE_DXP) {
+         dxpICR = epics_get(sprintf("%s.ICR", dxp_pv[mne]))
+         dxpOCR = epics_get(sprintf("%s.OCR", dxp_pv[mne]))
+    } else {
+        dxpICR = 1
+        dxpOCR = 1
+    }
+
+    mcaRtime = epics_get(sprintf("%s.ERTM", mca_pv[mne]))
+    mcaLtime = epics_get(sprintf("%s.ELTM", mca_pv[mne]))
+
+    # dxp realtime does not gate properly, lets try to correct it:
+    mcaRtime = mcaRtime > 1.1*S[sec]? S[sec]:mcaRtime
+
+    # lets calculate the first-order deadtime correction:
+    mcadtc = dxpICR * mcaRtime
+    if (mcadtc != 0) {
             mcadtc = dxpOCR*mcaLtime/mcadtc
         }
-	
-	mcaDtime = dxpICR*mcaRtime
+
+    mcaDtime = dxpICR*mcaRtime
         if (mcaDtime != 0) {
             mcaDtime = 100*(1-dxpOCR*mcaLtime/mcaDtime)
         }
-	
-	printf("%g %g %g %g %g %g\n", dxpICR, dxpOCR, \
-	  mcaRtime, mcaLtime, mcaDtime, mcadtc)
-	
-	printf("@%s ", mne)
-	A_name=sprintf("mcadat_%s",mne)
-	array_dump(@A_name[1],"%25C")
-    
-	offmcad
+
+    printf("%g %g %g %g %g %g\n", dxpICR, dxpOCR, \
+      mcaRtime, mcaLtime, mcaDtime, mcadtc)
+
+    printf("@%s ", mne)
+    A_name=sprintf("mcadat_%s",mne)
+    array_dump(@A_name[1],"%25C")
+
+    offmcad
     }
-    
+
     ont
- } '
+}'
+
 #----------------------------------------------------------------------
 # Format the Header for a specfile
 #----------------------------------------------------------------------
@@ -592,79 +588,77 @@ def mca_specfile_Fheader '{
 
 def mca_Fheader '{
     local  uch
-    
+
     for(mne in mca_pv ) {
-	
-	onmcad(mne); offd; offt
-	
-	if(NPTS == 0) {
-	    constant EPOCH time()
-	    printf("#F %s\n",MCAFILE)
-	    printf("#E %d\n",EPOCH)
-	    printf("#D %s\n",date())
-	    printf("#C %s  User= %s\n",TITLE,USER)
-	    printf("\n#C Saving MCA data for Scan:%i in Datafile:%s\n",SCAN_N,DATAFILE)
-	}
-	
-	printf("\n#S %d  %s\n#D %s\n", SCAN_N, HEADING, DATE)
-	
-	if(_ctime<0) printf("#M %g (%s)\n", -_ctime, cnt_name(MON))
-	else printf("#T %g (%s)\n", _ctime, cnt_name(sec))
-	
-	uch=epics_get(sprintf("%s.NUSE", mca_pv[mne]))
-	
-	_oo=epics_get(sprintf("%s.CALO", mca_pv[mne]))
-	_ss=epics_get(sprintf("%s.CALS", mca_pv[mne]))
-	_qq=epics_get(sprintf("%s.CALQ", mca_pv[mne]))
-	printf("#U EPICS mca: %s(%s)\n", mne, mca_pv[mne])
-	printf("#@MCA %25C\n")
-	printf("#@CHANN %i 0 %i 1\n",uch,uch-1)
-	printf("#@CALIB %g %g %g \n",_oo,_ss,_qq)
-	printf("#N 65\n")
-	printf("#L icr  ocr  real  live  dead  dtn\n")
-    
-	offmcad
+
+    onmcad(mne); offd; offt
+
+    if(NPTS == 0) {
+        constant EPOCH time()
+        printf("#F %s\n",MCAFILE)
+        printf("#E %d\n",EPOCH)
+        printf("#D %s\n",date())
+        printf("#C %s  User= %s\n",TITLE,USER)
+        printf("\n#C Saving MCA data for Scan:%i in Datafile:%s\n",SCAN_N,DATAFILE)
     }
-    
+
+    printf("\n#S %d  %s\n#D %s\n", SCAN_N, HEADING, DATE)
+
+    if(_ctime<0) printf("#M %g (%s)\n", -_ctime, cnt_name(MON))
+    else printf("#T %g (%s)\n", _ctime, cnt_name(sec))
+
+    uch=epics_get(sprintf("%s.NUSE", mca_pv[mne]))
+
+    _oo=epics_get(sprintf("%s.CALO", mca_pv[mne]))
+    _ss=epics_get(sprintf("%s.CALS", mca_pv[mne]))
+    _qq=epics_get(sprintf("%s.CALQ", mca_pv[mne]))
+    printf("#U EPICS mca: %s(%s)\n", mne, mca_pv[mne])
+    printf("#@MCA %25C\n")
+    printf("#@CHANN %i 0 %i 1\n",uch,uch-1)
+    printf("#@CALIB %g %g %g \n",_oo,_ss,_qq)
+    printf("#N 65\n")
+    printf("#L icr  ocr  real  live  dead  dtn\n")
+
+    offmcad
+    }
+
     ond; ont
 }'
 
 def onmcad(mne) '{
-   
+
     if(MCAFILE != "") {
-	if( !index(DATAFILE,"/") && file_info(DATA_DIR,"-d")) {
-	    MCAFILE = sprintf("%s%s.scan%i.%s.mca",DATA_DIR,DATAFILE,SCAN_N,mne)
-	} else { 
-	    MCAFILE=sprintf("%s.scan%i.%s.mca",DATAFILE,SCAN_N,mne) 
-	}
-	on(MCAFILE)
+    if( !index(DATAFILE,"/") && file_info(DATA_DIR,"-d")) {
+        MCAFILE = sprintf("%s%s.scan%i.%s.mca",DATA_DIR,DATAFILE,SCAN_N,mne)
+    } else {
+        MCAFILE=sprintf("%s.scan%i.%s.mca",DATAFILE,SCAN_N,mne)
     }
+    on(MCAFILE)
+    }
+}'
 
-}'           
-
-def offmcad ' 
+def offmcad '{
     if(MCAFILE != "") close(MCAFILE)
-'
+}'
 
 
-def mca_cleanup ' 
+def mca_cleanup '{
     print "Cleaning up MCAscanpt stuff\n"
     cdef("Fheader","","mcapt","delete")
     cdef("user_getcounts","","mcapt","delete")
     mca_off
     close(MCAFILE)
-'
+}'
 
 
 def mca_getcalib() '{
     local str
     str=""
-    for(i in mca_pv ) {
-	_oo=epics_get(sprintf("%s.CALO",mca_pv[i]))
-	_ss=epics_get(sprintf("%s.CALS",mca_pv[i]))
-	_qq=epics_get(sprintf("%s.CALQ",mca_pv[i]))
-	str=sprintf("%s#@CALIB %g %g %g %s \n",str,_oo,_ss,_qq,i)
+    for(i in mca_pv) {
+        _oo=epics_get(sprintf("%s.CALO",mca_pv[i]))
+        _ss=epics_get(sprintf("%s.CALS",mca_pv[i]))
+        _qq=epics_get(sprintf("%s.CALQ",mca_pv[i]))
+        str=sprintf("%s#@CALIB %g %g %g %s \n",str,_oo,_ss,_qq,i)
     }
     return(str)
 }'
-
