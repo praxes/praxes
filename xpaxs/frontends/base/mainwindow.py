@@ -324,10 +324,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                 self.openDatafile(h5_filename)
 
     def newScanWindow(self, scan):
-        # TODO: this belongs in the file interface, not here:
-        if scan in self.openScans:
-            return
-
         self.statusBar.showMessage('Configuring New Analysis Window ...')
         scanView = self.getScanView(scan)
         if scanView is None:
