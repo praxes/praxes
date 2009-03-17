@@ -123,7 +123,7 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
         mca_names.append(attrs['id'])
 
         mca = measurement.create_group(
-            attrs['id'], type='MultiChannelAnalyzer', attrs=attrs
+            attrs['id'], type='MultiChannelAnalyzer', **attrs
         )
         mca['channels'] = channels
         mca.create_dataset(
@@ -202,7 +202,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
             scan_info['scan_shape'] = np.array([scan.lines()])
     attrs['acquisition_shape'] = str(tuple(scan_info['scan_shape']))
 
-    entry = h5file.create_group(scan_name, type='Entry', attrs=attrs)
+    entry = h5file.create_group(scan_name, type='Entry', **attrs)
 
     measurement = entry.create_group('measurement', type='Measurement')
 
@@ -252,7 +252,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
             # vortex detector, assume single mca
             kwargs = {'class':'Signal', 'signal':0}
             if label == 'dead_time':
-                kwargs['attrs']['units'] = '%'
+                kwargs['units'] = '%'
             try:
                 dset = mca.create_dataset(
                     label, data=scan.datacol(i+1), dtype='float32', **kwargs
@@ -264,7 +264,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         elif (label in allmotors) \
             or (label.lower() in ('energy', 'time', 'h', 'k', 'l', 'q')):
             kwargs = {'class':'Axis'}
-            kwargs['attrs'].update(
+            kwargs.update(
                 scan_info['axis_info'].get(label.lower(), {})
             )
             dset = scalar_data.create_dataset(
