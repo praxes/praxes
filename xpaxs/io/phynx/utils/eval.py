@@ -55,15 +55,18 @@ def _atom(next, token):
         token = list(next())
         token[1] = "-" + token[1]
         return _atom(next, token)
+    elif token[0] is tokenize.NAME:
+        if token[1] == 'None':
+            return None
+        raise ValueError('tokenize NAME: %s unrecognized' % token[1])
     elif not token[0]:
         return
-    raise SyntaxError("malformed expression (%s)" % token[1])
+    for i, v in tokenize.__dict__.iteritems():
+        if v == token[0]:
+            raise ValueError("tokenize.%s unrecognized: %s" % (i, token[1]))
 
 def simple_eval(source):
     """a safe version of the builtin eval function, """
-    try:
-        src = cStringIO.StringIO(source).readline
-        src = tokenize.generate_tokens(src)
-        return _atom(src.next, src.next())
-    except SyntaxError:
-        raise SyntaxError("malformed expression (%s)" % source)
+    src = cStringIO.StringIO(source).readline
+    src = tokenize.generate_tokens(src)
+    return _atom(src.next, src.next())
