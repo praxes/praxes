@@ -98,10 +98,10 @@ def _client_setscanenv '{
 
     if (_stype == 1|8|(2<<8)) {
         # mesh does not save the limits the same way that a*scan and d*scan do
-        #_s[0] = _s1
-        #_s[1] = _s2
-        #_f[0] = _f1
-        #_f[1] = _f2
+        _s[0] = _s1
+        _s[1] = _s2
+        _f[0] = _f1
+        _f[1] = _f2
     }
     for (i=0;i<_nm;i++) {
         id = sprintf("scalar_data/%s", motor_mne(_m[i]))
