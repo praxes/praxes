@@ -323,7 +323,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                 del f
                 self.openDatafile(h5_filename)
 
-    def newScanWindow(self, scan, beginProcessing=False):
+    def newScanWindow(self, scan):
         # TODO: this belongs in the file interface, not here:
         if scan in self.openScans:
             return
@@ -334,15 +334,13 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
             self.statusBar.clearMessage()
             return
         self.connect(scanView, QtCore.SIGNAL("scanClosed"), self.scanClosed)
-#        self.connect(scanView, QtCore.SIGNAL("ppJobStats"),
-#                     self.ppJobStats.updateTable)
 
         self.openScans.append(scanView)
 
         scanView.show()
         self.statusBar.clearMessage()
 
-        if beginProcessing: scanView.processData()
+        return scanView
 
     def openDatafile(self, filename=None):
         if filename is None:

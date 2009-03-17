@@ -96,7 +96,13 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
             ScanView = xpaxs.application.getService('ScanView')
             if ScanView:
-                ScanView(entry, beginProcessing=True)
+                view = ScanView(entry)
+
+            self.connect(
+                self,
+                QtCore.SIGNAL('beginProcessing'),
+                view.processData
+            )
 
         self.emit(QtCore.SIGNAL("newScanLength"), info['npoints'])
 
@@ -116,6 +122,8 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
                         m[k][i] = val
 
         self._lastPoint = i
+        if i == 0:
+            self.emit(QtCore.SIGNAL("beginProcessing"))
         self.emit(QtCore.SIGNAL("newScanData"), i)
 
 
