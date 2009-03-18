@@ -309,12 +309,6 @@ class FileView(QtGui.QTreeView):
             model.clearRows
         )
 
-#    def appendItem(self, index):
-#        self.expand(index)
-#        self.resizeColumnToContents(0)
-#        self.resizeColumnToContents(1)
-#        self.resizeColumnToContents(2)
-
 
 class FileInterface(QtCore.QObject):
 
