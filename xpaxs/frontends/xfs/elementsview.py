@@ -222,10 +222,12 @@ class ElementPlotFigure(ElementBaseFigure):
         self.draw()
 
 
-class ElementsView(QtGui.QWidget):
+class ElementsView(QtGui.QGroupBox):
 
     def __init__(self, scanData, parent=None):
         super(ElementsView, self).__init__(parent)
+        self.setObjectName("elementsView")
+        self.setTitle('Elements View')
 
         layout = QtGui.QVBoxLayout()
 

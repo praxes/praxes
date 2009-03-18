@@ -45,6 +45,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 #        )
 
         self.elementsView = ElementsView(self.scanData, self)
+        self.splitter.addWidget(self.elementsView)
 
         self.xrfBandComboBox.addItems(self.availableElements)
 #        self.updateNormalizationChannels()
@@ -54,7 +55,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self._setupPPJobStats()
 
         plotOptions = self.elementsView.plotOptions
-        self.gridLayout.addWidget(plotOptions, 4, 0, 1, 2)
+        self.optionsWidgetVLayout.insertWidget(1, plotOptions)
 
         self.connect(
             self.elementsView,
@@ -64,7 +65,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         # TODO: remove the window from the list of open windows when we close
 #        self.connect(scanView, QtCore.SIGNAL("scanClosed"), self.scanClosed)
 
-        self.verticalLayout.addWidget(self.elementsView)
+#        self.verticalLayout.addWidget(self.elementsView)
 
         self.fitParamDlg = FitParamDialog(parent=self)
         pymcaConfig = self.scanData.mcas.values()[0].pymca_config
@@ -212,11 +213,11 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             # TODO: is this needed?
             QtGui.qApp.processEvents()
 
-            self.statusBar.showMessage('Reconfiguring PyMca ...')
+            self.statusbar.showMessage('Reconfiguring PyMca ...')
             configDict = self.fitParamDlg.getParameters()
             self.spectrumAnalysis.configure(configDict)
             self.scanData.mcas.values()[0].pymca_config = configDict
-            self.statusBar.clearMessage()
+            self.statusbar.clearMessage()
 
     def elementMapUpdated(self):
         self.elementsView.updateFigure(self.getElementMap())
@@ -262,28 +263,28 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         if indices is None:
             indices = self.scanData['scalar_data']['i'].value
         if len(indices):
-            self.statusBar.showMessage('Averaging spectra ...')
+            self.statusbar.showMessage('Averaging spectra ...')
             mca = self.scanData.mcas.values()[0]
             counts = mca['counts'].corrected.get_averaged_counts(indices)
             channels = mca.channels
 
             self.spectrumAnalysis.setData(x=channels, y=counts)
 
-            self.statusBar.showMessage('Performing Fit ...')
+            self.statusbar.showMessage('Performing Fit ...')
             QtGui.qApp.processEvents()
             fitresult = self.spectrumAnalysis.fit()
 
             self.fitParamDlg.setFitResult(fitresult['result'])
 
-            self.statusBar.clearMessage()
+            self.statusbar.clearMessage()
 
         self.setMenuToolsActionsEnabled(True)
 
     def processComplete(self):
         self.progressBar.hide()
         self.progressBar.reset()
-        self.statusBar.removeWidget(self.progressBar)
-        self.statusBar.clearMessage()
+        self.statusbar.removeWidget(self.progressBar)
+        self.statusbar.clearMessage()
 
         self.analysisThread = None
 
@@ -332,8 +333,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 #            thread.stop
 #        )
 
-        self.statusBar.showMessage('Analyzing spectra ...')
-        self.statusBar.addPermanentWidget(self.progressBar)
+        self.statusbar.showMessage('Analyzing spectra ...')
+        self.statusbar.addPermanentWidget(self.progressBar)
         self.progressBar.show()
 
         self.analysisThread = thread

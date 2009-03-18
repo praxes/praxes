@@ -24,7 +24,7 @@ from .ui.ui_plotoptions import Ui_PlotOptions
 #---------------------------------------------------------------------------
 
 
-class PlotOptions(Ui_PlotOptions, QtGui.QWidget):
+class PlotOptions(Ui_PlotOptions, QtGui.QGroupBox):
 
     def __init__(self, scanData, figure, parent=None):
         super(PlotOptions, self).__init__(parent)
