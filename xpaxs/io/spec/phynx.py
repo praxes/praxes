@@ -50,6 +50,21 @@ def get_spec_scan_info(commandList):
             axis_info['axis'] = i
             scan_info['axis_info'][axis] = axis_info
             scan_info['scan_shape'].append(step)
+    elif scan_type in ('smesh', ):  # AW adds, 3/17/09
+    # Example: smesh  scany 32.3 32.7 -0.05 0.15 100  scanx -143.5 -123.5 40  1
+    #                       ^^^^ ^^^^ <- These are upper and lower limits and can be discarded
+        args = args[:1] + args[3:]
+        i = 0
+        while len(args) > 4:
+            (axis, start, stop, step), args = args[:4], args[4:]
+            start, stop, step = float(start), float(stop), int(step)+1
+            i += 1
+            scan_info['axes'].append((axis, ))
+            axis_info = {}
+            axis_info['range'] = str((start, stop))
+            axis_info['axis'] = i
+            scan_info['axis_info'][axis] = axis_info
+            scan_info['scan_shape'].append(step)
     elif scan_type in (
             'ascan', 'a2scan', 'a3scan', 'dscan', 'd2scan', 'd3scan',
             'ztscan', 'ytscan', 'xtscan',
@@ -136,8 +151,9 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
             if i%10 == 0:
                 sys.stdout.write('.')
                 sys.stdout.flush()
-            mca['counts'][line] = \
-                scan.mca(num_mca * line + 1 + mca_index)[:len(channels)]
+                mca['counts'][line] = \
+                    scan.mca(num_mca * line + 1 + mca_index)[:len(channels)]
+
         if i>10:
             sys.stdout.write('\n')
             sys.stdout.flush()
@@ -294,7 +310,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     if not dir:
         dir = os.getcwd()
     for f in os.listdir(dir):
-        if f.startswith(spec_filename+'.scan%s'%scan_number) and \
+        if f.startswith(spec_filename+'.scan%s.'%scan_number) and \
             f.endswith('.mca'):
             print 'integrating %s'%f
             process_mca(
