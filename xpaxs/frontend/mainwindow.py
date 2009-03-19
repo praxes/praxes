@@ -11,7 +11,7 @@ from PyQt4 import QtCore, QtGui
 
 from xpaxs import __version__
 from .ui import ui_mainwindow
-from .phynx import FileInterface
+from .phynx import FileModel
 from xpaxs.io import phynx
 from .notifications import NotificationsDialog
 
@@ -119,8 +119,12 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
 
         self._configureDockArea()
 
-        self.mdi = QtGui.QMdiArea()
-        self.setCentralWidget(self.mdi)
+        self._specFileRegsitry = {}
+        self.fileModel = FileModel(self)
+        self.fileView = QtGui.QTreeView(self)
+        self.fileView.setModel(self.fileModel)
+
+        self.setCentralWidget(self.fileView)
 
 
         self.expInterface = None
@@ -135,17 +139,18 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
         import xpaxs
         # TODO: this should be a factory function, not a method of the main win:
         xpaxs.application.registerService('ScanView', self.newScanWindow)
+        xpaxs.application.registerService('FileInterface', self)
 
     def _setupDockWindows(self):
-        self._setFileInterface()
+#        self._setFileInterface()
         self._setupEmailDlg()
 
-    def _setFileInterface(self):
-        self.fileInterface = FileInterface(self)
-        for key, (item, area, action) in \
-                self.fileInterface.dockWidgets.iteritems():
-            self.menuView.addAction(action)
-            self.addDockWidget(area, item)
+#    def _setFileInterface(self):
+#        self.fileInterface = FileInterface(self)
+#        for key, (item, area, action) in \
+#                self.fileInterface.dockWidgets.iteritems():
+#            self.menuView.addAction(action)
+#            self.addDockWidget(area, item)
 
     def _setupEmailDlg(self):
         self.menuSettings.addAction("Email Settings",self._startEmailDlg )
@@ -202,31 +207,67 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
         dock.show()
 
     def _connectSignals(self):
-        self.connect(self.actionOpen,
-                     QtCore.SIGNAL("triggered()"),
-                     self.openDatafile)
-        self.connect(self.actionImportSpecFile,
-                     QtCore.SIGNAL("triggered()"),
-                     self.importSpecFile)
-        self.connect(self.actionSpec,
-                     QtCore.SIGNAL("toggled(bool)"),
-                     self.connectToSpec)
-        self.connect(self.actionAbout_Qt,
-                     QtCore.SIGNAL("triggered()"),
-                     QtGui.qApp,
-                     QtCore.SLOT("aboutQt()"))
-        self.connect(self.actionAbout_SMP,
-                     QtCore.SIGNAL("triggered()"),
-                     self.about)
-        self.connect(self.menuTools,
-                     QtCore.SIGNAL("aboutToShow()"),
-                     self.updateToolsMenu)
-        self.connect(self.menuAcquisition,
-                     QtCore.SIGNAL("aboutToShow()"),
-                     self.updateAcquisitionMenu)
-        self.connect(self.actionOffline,
-                     QtCore.SIGNAL("triggered()"),
-                     self.setOffline)
+        self.connect(
+            self.actionOpen,
+            QtCore.SIGNAL("triggered()"),
+            self.openFile
+        )
+        self.connect(
+            self.actionImportSpecFile,
+            QtCore.SIGNAL("triggered()"),
+            self.importSpecFile
+        )
+        self.connect(
+            self.actionSpec,
+            QtCore.SIGNAL("toggled(bool)"),
+            self.connectToSpec
+        )
+        self.connect(
+            self.actionAbout_Qt,
+            QtCore.SIGNAL("triggered()"),
+            QtGui.qApp,
+            QtCore.SLOT("aboutQt()")
+        )
+        self.connect(
+            self.actionAbout_SMP,
+            QtCore.SIGNAL("triggered()"),
+            self.about
+        )
+        self.connect(
+            self.menuTools,
+            QtCore.SIGNAL("aboutToShow()"),
+            self.updateToolsMenu
+        )
+        self.connect(
+            self.menuAcquisition,
+            QtCore.SIGNAL("aboutToShow()"),
+            self.updateAcquisitionMenu
+        )
+        self.connect(
+            self.actionOffline,
+            QtCore.SIGNAL("triggered()"),
+            self.setOffline
+        )
+        self.connect(
+            self.fileView,
+            QtCore.SIGNAL('activated(QModelIndex)'),
+            self.fileModel.itemActivated
+        )
+        self.connect(
+            self.fileView,
+            QtCore.SIGNAL('collapsed(QModelIndex)'),
+            self.fileModel.clearRows
+        )
+        self.connect(
+            self.fileModel,
+            QtCore.SIGNAL('fileAppended'),
+            self.fileView.doItemsLayout
+        )
+        self.connect(
+            self.fileModel,
+            QtCore.SIGNAL('scanActivated'),
+            self.newScanWindow
+        )
 
     def about(self):
         QtGui.QMessageBox.about(self, self.tr("About XPaXS"),
@@ -251,15 +292,14 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                         return event.ignore()
             else:
                 return event.ignore()
-        self.mdi.closeAllSubWindows()
-        if len(self.mdi.subWindowList()) > 0:
-            return event.ignore()
+
         self.connectToSpec(False)
         settings = QtCore.QSettings()
         settings.beginGroup("MainWindow")
         settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
         settings.setValue('State', QtCore.QVariant(self.saveState()))
-        self.fileInterface.close()
+#        self.fileInterface.close()
+        self.fileModel.close()
         if self.expInterface: self.expInterface.close()
         return event.accept()
 
@@ -291,6 +331,16 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                     self.menuView.removeAction(action)
                 self.expInterface.close()
                 self.expInterface = None
+
+    def getH5FileFromKey(self, key):
+        h5File = self._specFileRegistry.get(key, None)
+
+        if not h5File:
+            default = key.split(os.path.sep)[-1] + '.h5'
+            h5File = self.saveFile(default)
+            self._specFileRegistry[key] = h5File
+
+        return h5File
 
     def getScanView(self, scan):
         # this is a shortcut for now, in the future the view would be
@@ -340,13 +390,25 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
 
         return scanView
 
-    def openDatafile(self, filename=None):
+    def openFile(self, filename=None):
         if filename is None:
             filename = '%s'% QtGui.QFileDialog.getOpenFileName(self,
                             'Open File', '.', "hdf5 files (*.h5 *.hdf5)")
-        if not filename: return
+        if filename:
+            self.fileModel.openFile(str(filename))
 
-        self.fileInterface.openFile(str(filename))
+    def saveFile(self, filename=None):
+        if os.path.isfile(filename):
+            return self.fileModel.openFile(filename)
+        else:
+            newfilename = QtGui.QFileDialog.getSaveFileName(self.mainWindow,
+                    "Save File", filename, "hdf5 files (*.h5 *.hdf5 *.nxs)")
+            if newfilename:
+                newfilename = str(newfilename)
+                if newfilename.split('.')[-1] not in ('h5', 'hdf5', 'nxs'):
+                    newfilename = newfilename + '.h5'
+                self.fileModel.openFile(newfilename)
+            else: self.saveFile(filename)
 
     def scanClosed(self, scan):
         self.openScans.remove(scan)
@@ -372,13 +434,13 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
 
     def updateToolsMenu(self):
         self.menuTools.clear()
-        try:
-            window = self.mdi.currentSubWindow().widget()
-            actions = window.getMenuToolsActions()
-            for action in actions:
-                self.menuTools.addAction(action)
-        except AttributeError:
-            pass
+#        try:
+#            window = self.mdi.currentSubWindow().widget()
+#            actions = window.getMenuToolsActions()
+#            for action in actions:
+#                self.menuTools.addAction(action)
+#        except AttributeError:
+#            pass
 
 
 def main():
