@@ -11,9 +11,9 @@ from PyQt4 import QtCore, QtGui
 
 from xpaxs import __version__
 from .ui import ui_mainwindow
-from xpaxs.io.phynx.ui.qt import FileInterface
+from .phynx import FileInterface
 from xpaxs.io import phynx
-from .emailDlg import EmailDialog
+from .notifications import NotificationsDialog
 
 
 logger = logging.getLogger(__file__)
@@ -151,7 +151,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
         self.menuSettings.addAction("Email Settings",self._startEmailDlg )
 
     def _startEmailDlg(self):
-        email = EmailDialog(self).show()
+        email = NotificationsDialog(self).show()
 
     def _restoreSettings(self):
         settings = QtCore.QSettings()

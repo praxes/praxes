@@ -1,7 +1,8 @@
-<ui version="4.0" >
- <class>emailDialog</class>
- <widget class="QDialog" name="emailDialog" >
-  <property name="geometry" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>NotificationsDialog</class>
+ <widget class="QDialog" name="NotificationsDialog">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,50 +10,50 @@
     <height>710</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QVBoxLayout">
    <item>
-    <widget class="QGroupBox" name="serverBox" >
-     <property name="title" >
+    <widget class="QGroupBox" name="serverBox">
+     <property name="title">
       <string>Server Settings</string>
      </property>
-     <layout class="QVBoxLayout" >
+     <layout class="QVBoxLayout">
       <item>
-       <layout class="QHBoxLayout" >
+       <layout class="QHBoxLayout">
         <item>
-         <widget class="QLabel" name="serverLabel" >
-          <property name="text" >
+         <widget class="QLabel" name="serverLabel">
+          <property name="text">
            <string>Server</string>
           </property>
-          <property name="buddy" >
+          <property name="buddy">
            <cstring>serverEdit</cstring>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="serverEdit" />
+         <widget class="QLineEdit" name="serverEdit"/>
         </item>
         <item>
-         <widget class="QLabel" name="portLabel" >
-          <property name="text" >
+         <widget class="QLabel" name="portLabel">
+          <property name="text">
            <string>Port</string>
           </property>
-          <property name="buddy" >
+          <property name="buddy">
            <cstring>portSpin</cstring>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QSpinBox" name="portSpin" >
-          <property name="minimum" >
+         <widget class="QSpinBox" name="portSpin">
+          <property name="minimum">
            <number>1</number>
           </property>
-          <property name="maximum" >
+          <property name="maximum">
            <number>1000000000</number>
           </property>
-          <property name="value" >
+          <property name="value">
            <number>25</number>
           </property>
          </widget>
@@ -60,33 +61,33 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" >
+       <layout class="QHBoxLayout">
         <item>
-         <widget class="QLabel" name="loginLabel" >
-          <property name="text" >
+         <widget class="QLabel" name="loginLabel">
+          <property name="text">
            <string>Login</string>
           </property>
-          <property name="buddy" >
+          <property name="buddy">
            <cstring>loginEdit</cstring>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="loginEdit" />
+         <widget class="QLineEdit" name="loginEdit"/>
         </item>
         <item>
-         <widget class="QLabel" name="pwdLabel" >
-          <property name="text" >
+         <widget class="QLabel" name="pwdLabel">
+          <property name="text">
            <string>Pwd</string>
           </property>
-          <property name="buddy" >
+          <property name="buddy">
            <cstring>passEdit</cstring>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="passEdit" >
-          <property name="echoMode" >
+         <widget class="QLineEdit" name="passEdit">
+          <property name="echoMode">
            <enum>QLineEdit::Password</enum>
           </property>
          </widget>
@@ -94,40 +95,40 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" >
+       <layout class="QHBoxLayout">
         <item>
-         <widget class="QLabel" name="fromLabel" >
-          <property name="text" >
+         <widget class="QLabel" name="fromLabel">
+          <property name="text">
            <string>From</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="fromEdit" />
+         <widget class="QLineEdit" name="fromEdit"/>
         </item>
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" >
+       <layout class="QHBoxLayout">
         <item>
-         <widget class="QCheckBox" name="tlsCheck" >
-          <property name="text" >
+         <widget class="QCheckBox" name="tlsCheck">
+          <property name="text">
            <string>TLS</string>
           </property>
-          <property name="checked" >
+          <property name="checked">
            <bool>true</bool>
           </property>
-          <property name="tristate" >
+          <property name="tristate">
            <bool>false</bool>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="secureCheck" >
-          <property name="text" >
+         <widget class="QCheckBox" name="secureCheck">
+          <property name="text">
            <string>Secure</string>
           </property>
-          <property name="checked" >
+          <property name="checked">
            <bool>true</bool>
           </property>
          </widget>
@@ -138,60 +139,60 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="importantBox" >
-     <property name="title" >
+    <widget class="QGroupBox" name="importantBox">
+     <property name="title">
       <string>Important Messages Only</string>
      </property>
-     <property name="checkable" >
+     <property name="checkable">
       <bool>true</bool>
      </property>
-     <property name="checked" >
+     <property name="checked">
       <bool>false</bool>
      </property>
-     <layout class="QHBoxLayout" >
+     <layout class="QHBoxLayout">
       <item>
-       <widget class="QTextEdit" name="importantEdit" />
+       <widget class="QTextEdit" name="importantEdit"/>
       </item>
      </layout>
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="allBox" >
-     <property name="title" >
+    <widget class="QGroupBox" name="allBox">
+     <property name="title">
       <string>All Messages</string>
      </property>
-     <layout class="QHBoxLayout" >
+     <layout class="QHBoxLayout">
       <item>
-       <widget class="QTextEdit" name="allEdit" />
+       <widget class="QTextEdit" name="allEdit"/>
       </item>
      </layout>
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="eventBox" >
-     <property name="title" >
+    <widget class="QGroupBox" name="eventBox">
+     <property name="title">
       <string>Events</string>
      </property>
-     <property name="checkable" >
+     <property name="checkable">
       <bool>true</bool>
      </property>
-     <layout class="QHBoxLayout" >
+     <layout class="QHBoxLayout">
       <item>
-       <widget class="QCheckBox" name="scanCheck" >
-        <property name="text" >
+       <widget class="QCheckBox" name="scanCheck">
+        <property name="text">
          <string>End of Scan</string>
         </property>
-        <property name="checked" >
+        <property name="checked">
          <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox" >
-        <property name="text" >
+       <widget class="QCheckBox" name="checkBox">
+        <property name="text">
          <string>Error Messages</string>
         </property>
-        <property name="checked" >
+        <property name="checked">
          <bool>true</bool>
         </property>
        </widget>
@@ -200,12 +201,12 @@
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -216,14 +217,14 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>emailDialog</receiver>
+   <receiver>NotificationsDialog</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>222</x>
      <y>630</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -232,14 +233,14 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>emailDialog</receiver>
+   <receiver>NotificationsDialog</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>258</x>
      <y>636</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>262</x>
      <y>274</y>
     </hint>
@@ -251,11 +252,11 @@
    <receiver>scanCheck</receiver>
    <slot>setChecked(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>67</x>
      <y>573</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>65</x>
      <y>580</y>
     </hint>
@@ -267,11 +268,11 @@
    <receiver>checkBox</receiver>
    <slot>setChecked(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>148</x>
      <y>552</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>206</x>
      <y>587</y>
     </hint>

@@ -10,7 +10,8 @@ from getpass import getpass
 
 from PyQt4 import QtCore,  QtGui
 
-from .emailDlg import EmailDialog
+
+from .ui.ui_notificationsdialog import Ui_NotificationsDialog
 
 
 class Mailer(QtGui.QWidget):
@@ -107,7 +108,7 @@ Subject: %s"""%(mailFrom,mailTo,subject)
         return str(self.settings.value('Email/mailFrom').toString())
 
 
-class Notice(mailer):
+class Notice(Mailer):
 
     def __init__(self,subject,message=None):
         subject='Notice: '+subject
@@ -121,7 +122,7 @@ class Notice(mailer):
         )
 
 
-class Alarm(mailer):
+class Alarm(Mailer):
 
     def __init__(self,subject,message=None):
         subject='ALARM: '+subject
@@ -141,13 +142,7 @@ class Alarm(mailer):
         return ';'.join([regualrAddresses, importantAddresses])
 
 
-from .ui import ui_emailDlg
-
-
-logger = logging.getLogger(__file__)
-
-
-class EmailDialog(ui_emailDlg.Ui_emailDialog, QtGui.QDialog):
+class NotificationsDialog(Ui_NotificationsDialog, QtGui.QDialog):
 
     """Specify email settings"""
 
