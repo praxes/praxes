@@ -11,11 +11,11 @@ import numpy as np
 from PyMca.ClassMcaTheory import McaTheory
 from PyQt4 import QtCore, QtGui
 
-from ..base import plotwidgets
+from .plotwidgets import QtMplCanvas
 from .ui import ui_mcaspectrum
 
 
-logger = logging.getLogger('XPaXS.frontends.xfs.mcaspectrum')
+logger = logging.getLogger(__file__)
 
 
 class SpectrumAnalysisThread(QtCore.QThread):
@@ -35,7 +35,7 @@ class SpectrumAnalysisThread(QtCore.QThread):
         self.exec_()
 
 
-class McaSpectrumFigure(plotwidgets.QtMplCanvas):
+class McaSpectrumFigure(QtMplCanvas):
 
     def __init__(self, parent=None):
         super(McaSpectrumFigure, self).__init__(parent)
@@ -53,9 +53,6 @@ class McaSpectrumFigure(plotwidgets.QtMplCanvas):
 
     def updateFigure(self, results):
         xdata = results['energy'][:]
-
-#        import pickle
-#        pickle.dump(results, open('dendro.p', 'w'))
 
         self.spectrumAxes.clear()
         self.residualsAxes.clear()

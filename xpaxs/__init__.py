@@ -26,7 +26,7 @@ XPaXS is therefore divided into several subpackages:
     Provides support for concurrent processing, using multi-core computers and
     computer clusters
 
-:mod:`xpaxs.frontends`
+:mod:`xpaxs.frontend`
     Where the main user interfaces are assembled from xpaxs and external
     libraries
 
@@ -52,33 +52,15 @@ with the GNU Public License.
 
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
 import logging
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
 import logging.config
 import logging.handlers
 import os
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
-
-
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
-
 from xpaxs import config
 
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
-
-__version__ = '0.8a3'
+from xpaxs.release import __version__
 
 # One of DEBUG, INFO, WARNING, ERROR, CRITICAL:
 logLevel = DEBUG

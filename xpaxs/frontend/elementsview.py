@@ -1,41 +1,25 @@
 """
 """
-
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
 from __future__ import absolute_import
 
 import logging
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 import numpy as np
 from PyQt4 import QtCore, QtGui
 
-#---------------------------------------------------------------------------
-# SMP imports
-#---------------------------------------------------------------------------
-
-from ..base import plotwidgets
+from .plotwidgets import QtMplCanvas, Toolbar
 from .plotoptions import PlotOptions
 
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.frontends.xfs.elementsview')
-DEBUG = True
+logger = logging.getLogger(__file__)
+DEBUG = False
 
 def locateClosest(point, points):
     compare = np.abs(points-point)
     return np.nonzero(np.ravel(compare==compare.min()))[0]
 
 
-class ElementBaseFigure(plotwidgets.QtMplCanvas):
+class ElementBaseFigure(QtMplCanvas):
 
     """
     """
@@ -237,7 +221,7 @@ class ElementsView(QtGui.QGroupBox):
         else:
             self.figure = ElementPlotFigure(scanData, self)
 
-        self.toolbar = plotwidgets.Toolbar(self.figure, self)
+        self.toolbar = Toolbar(self.figure, self)
         layout.addWidget(self.toolbar)
         layout.addWidget(self.figure)
         self.setLayout(layout)

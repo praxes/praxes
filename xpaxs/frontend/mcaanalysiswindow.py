@@ -11,7 +11,7 @@ from PyQt4 import QtCore, QtGui
 from PyMca.FitParam import FitParamDialog
 import numpy as np
 
-from ..base.mainwindow import MainWindowBase
+from .mainwindow import MainWindowBase
 from .ui.ui_mcaanalysiswindow import Ui_McaAnalysisWindow
 from .elementsview import ElementsView
 from xpaxs.io.phynx import H5Error
@@ -116,7 +116,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         return self.fitParamDlg.getParameters()
 
     def _setupMcaDockWindows(self):
-        from xpaxs.frontends.xfs.mcaspectrum import McaSpectrum
+        from .mcaspectrum import McaSpectrum
         from PyMca.ConcentrationsWidget import Concentrations
 
         self.concentrationsAnalysisDock = \
@@ -140,7 +140,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         )
 
     def _setupPPJobStats(self):
-        from xpaxs.frontends.base.ppjobstats import PPJobStats
+        from .ppjobstats import PPJobStats
 
         self.ppJobStats = PPJobStats()
         self.ppJobStatsDock = self._createDockWindow('PPJobStatsDock')
@@ -291,7 +291,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.setMenuToolsActionsEnabled(True)
 
     def processData(self):
-        from xpaxs.frontends.xfs.pptaskmanager import XfsPPTaskManager
+        from .pptaskmanager import XfsPPTaskManager
 
         self.setMenuToolsActionsEnabled(False)
 

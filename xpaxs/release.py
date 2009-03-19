@@ -19,7 +19,7 @@ name = 'xpaxs'
 # bdist_deb does not accept underscores (a Debian convention).
 
 development = False    # change this to False to do a release
-version_base = '0.8a5'
+version_base = '0.9a1'
 branch = 'xpaxs'
 revision = '550'
 
@@ -31,6 +31,7 @@ if development:
 else:
     version = version_base
 
+__version__ = version_base
 
 description = 'Extensible Packages for X-ray Science'
 

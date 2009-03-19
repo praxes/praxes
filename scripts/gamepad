@@ -8,9 +8,10 @@ import sys
 
 from PyQt4 import QtGui
 
+from xpaxs.frontend.application import XpaxsApplication
 from xpaxs.instrumentation.spec import gamepad
 
-app = QtGui.QApplication(sys.argv)
+app = XpaxsApplication(sys.argv)
 app.setOrganizationName('XPaXS')
 app.setApplicationName('Gamepad')
 myapp = gamepad.Pad()

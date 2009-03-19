@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 from .ui import ui_ppjobstats
 
 
-logger = logging.getLogger('XPaXS.frontends.base.ppjobstats')
+logger = logging.getLogger(__file__)
 
 
 class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):

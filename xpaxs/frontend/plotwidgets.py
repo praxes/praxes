@@ -19,7 +19,7 @@ import numpy as np
 from .ui.resources import icons, cursors
 
 
-logger = logging.getLogger('XPaXS.frontends.base.plotwidgets')
+logger = logging.getLogger(__file__)
 
 mpl.rcdefaults()
 mpl.rcParams['axes.formatter.limits'] = [-4, 4]

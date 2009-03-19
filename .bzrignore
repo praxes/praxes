@@ -15,6 +15,7 @@ xpaxs.egg-info/
 *.so
 doc/math.*
 doc/_build
-xpaxs/frontends/base/ui/resources/*.py
+xpaxs/frontend/ui/resources/*.py
+xpaxs/frontend/ui/ui_*.py
 xpaxs/instrumentation/spec/ui/resources/*.py
 xpaxs/instrumentation/spec/ui/*.py

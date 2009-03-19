@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 from xpaxs import __version__
 from .ui import ui_mainwindow
 from xpaxs.io.phynx.ui.qt import FileInterface
-#from xpaxs.frontends.base.ppjobstats import PPJobStats
+from xpaxs.io import phynx
 from .emailDlg import EmailDialog
 
 
@@ -300,8 +300,18 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                 self.expInterface.close()
                 self.expInterface = None
 
-    def getScanView(self, *args):
-        raise NotImplementedError
+    def getScanView(self, scan):
+        # this is a shortcut for now, in the future the view would be
+        # an overview of the entry with ability to open different analyses
+        if isinstance(scan, phynx.registry['Entry']):
+            from .mcaanalysiswindow import McaAnalysisWindow
+            if len(scan['measurement'].mcas) > 0:
+                return McaAnalysisWindow(scan, self)
+            else:
+                msg = QtGui.QErrorMessage(self)
+                msg.showMessage(
+                    'The entry you selected has no MCA data to process'
+                )
 
     def importSpecFile(self, force=False):
         f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',

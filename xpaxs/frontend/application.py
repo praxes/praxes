@@ -1,29 +1,12 @@
 """
 """
-
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
+from __future__ import absolute_import
 
 import logging
 import sys
 import os
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 from PyQt4 import QtCore, QtGui
-
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
-
-
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
 
 
 # TODO: this is an attempt to provide a services registry similar to that in
@@ -42,7 +25,7 @@ class XpaxsApplication:
 
             QtGui.QApplication.__init__(self, args)
 
-            from xpaxs.frontends.base.serviceregistry import ServiceRegistry
+            from .serviceregistry import ServiceRegistry
             self._serviceRegistry = ServiceRegistry()
 
         @property

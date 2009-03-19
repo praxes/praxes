@@ -8,10 +8,10 @@ import sys
 
 from PyQt4 import QtGui
 
-from xpaxs.frontends.xfs import mainwindow
+from xpaxs.frontend import mainwindow
 
 # TODO: this would be handled differently through the envisage framework:
-from xpaxs.frontends.base.application import XpaxsApplication
+from xpaxs.frontend.application import XpaxsApplication
 
 app = XpaxsApplication(sys.argv)
 app.setOrganizationName('XPaXS')
