@@ -1,29 +1,12 @@
 """
-
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
-
-
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
+from __future__ import absolute_import
 
 from PyQt4 import QtCore, QtGui
 
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
-
-from xpaxs.instrumentation.spec.scanparameters import ScanParametersWidget
-from xpaxs.instrumentation.spec.skipmode import SkipModeWidget
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
+from .scanparameters import ScanParametersWidget
+from .skipmode import SkipModeWidget
 
 
 class ScanControlsInterface(QtGui.QTabWidget):

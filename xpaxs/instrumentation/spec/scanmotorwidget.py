@@ -1,31 +1,13 @@
 """
-
 """
-
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
-
-
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
+from __future__ import absolute_import
 
 from PyQt4 import QtCore, QtGui
 
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
-
-from xpaxs.instrumentation.spec.ui import ui_scanmotorwidget
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
+from .ui.ui_scanmotorwidget import Ui_ScanMotorWidget
 
 
-class ScanMotorWidget(ui_scanmotorwidget.Ui_ScanMotorWidget, QtGui.QGroupBox):
+class ScanMotorWidget(Ui_ScanMotorWidget, QtGui.QGroupBox):
 
     def __init__(self, specRunner, title="", motorName=None, parent=None):
         QtGui.QGroupBox.__init__(self, parent)

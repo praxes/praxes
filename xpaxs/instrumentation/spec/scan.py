@@ -1,6 +1,8 @@
 """
 """
 
+from __future__ import absolute_import
+
 import copy
 import logging
 import os
@@ -11,7 +13,7 @@ from SpecClient import SpecScan, SpecCommand, SpecConnectionsManager, \
     SpecEventsDispatcher, SpecWaitObject
 import h5py
 
-from xpaxs.instrumentation.spec import TEST_SPEC
+from . import TEST_SPEC
 from xpaxs.io import phynx
 
 

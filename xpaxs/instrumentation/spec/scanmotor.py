@@ -1,32 +1,19 @@
 """
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
+from __future__ import absolute_import
 
 import logging
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 from PyQt4 import QtCore, QtGui
 
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
-
-from xpaxs.instrumentation.spec.ui import ui_scanmotor
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
-
-logger = logging.getLogger('XPaXS.instrumentation.spec.scanmotor')
+from .ui.ui_scanmotor import Ui_ScanMotor
 
 
-class ScanMotor(ui_scanmotor.Ui_ScanMotor, QtGui.QWidget):
+logger = logging.getLogger(__file__)
+
+
+class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
 
     """Establishes a Experiment controls    """
 

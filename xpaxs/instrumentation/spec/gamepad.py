@@ -1,29 +1,16 @@
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
+"""
+"""
 
-
-
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
+from __future__ import absolute_import
 
 from PyQt4 import QtCore, QtGui
 
-#---------------------------------------------------------------------------
-# GUI imports
-#---------------------------------------------------------------------------
-
-from xpaxs.instrumentation.spec.ui import ui_gamepad
-from xpaxs.instrumentation.spec import TEST_SPEC
-from xpaxs.instrumentation.spec.motorwidget import MotorWidget
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
+from .ui.ui_gamepad import Ui_GamePad
+from . import TEST_SPEC
+from .motorwidget import MotorWidget
 
 
-class GamePad(ui_gamepad.Ui_GamePad, QtGui.QWidget):
+class GamePad(Ui_GamePad, QtGui.QWidget):
 
     """Establishes motor pad"""
 

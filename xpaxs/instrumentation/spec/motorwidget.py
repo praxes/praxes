@@ -1,27 +1,14 @@
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
+"""
+"""
 
-
-
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
+from __future__ import absolute_import
 
 from PyQt4 import QtCore, QtGui
 
-#---------------------------------------------------------------------------
-# GUI imports
-#---------------------------------------------------------------------------
-
-from xpaxs.instrumentation.spec.ui import ui_motorwidget
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
+from .ui.ui_motorwidget import Ui_MotorWidget
 
 
-class MotorWidget(ui_motorwidget.Ui_MotorWidget, QtGui.QWidget):
+class MotorWidget(Ui_MotorWidget, QtGui.QWidget):
 
     def __init__(self, direction, specRunner, parent):
         QtGui.QWidget.__init__(self, parent)

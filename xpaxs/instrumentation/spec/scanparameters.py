@@ -1,31 +1,15 @@
 """
-
 """
-
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
+from __future__ import absolute_import
 
 import exceptions
 import gc
 import os
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 from PyQt4 import QtCore, QtGui
 
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
-
-from xpaxs.instrumentation.spec.ui import ui_scanparameterswidget
-from xpaxs.instrumentation.spec import scanmotorwidget
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
+from .ui.ui_scanparameterswidget import Ui_ScanParametersWidget
+from .scanmotorwidget import AScanMotorWidget, DScanMotorWidget, MeshMotorWidget
 
 
 class SpecfileError(exceptions.Exception):
@@ -91,7 +75,7 @@ class ScanParameters(QtGui.QWidget):
 class AScanParameters(ScanParameters):
 
     _cmd = 'ascan'
-    _AxisWidget = scanmotorwidget.AScanMotorWidget
+    _AxisWidget = AScanMotorWidget
 
     def __init__(self, specRunner, parent=None):
         ScanParameters.__init__(self, parent)
@@ -204,25 +188,25 @@ class A3ScanParameters(A2ScanParameters):
 class DScanParameters(AScanParameters):
 
     _cmd = 'dscan'
-    _AxisWidget = scanmotorwidget.DScanMotorWidget
+    _AxisWidget = DScanMotorWidget
 
 
 class D2ScanParameters(A2ScanParameters):
 
     _cmd = 'd2scan'
-    _AxisWidget = scanmotorwidget.DScanMotorWidget
+    _AxisWidget = DScanMotorWidget
 
 
 class D3ScanParameters(A3ScanParameters):
 
     _cmd = 'd3scan'
-    _AxisWidget = scanmotorwidget.DScanMotorWidget
+    _AxisWidget = DScanMotorWidget
 
 
 class MeshParameters(ScanParameters):
 
     _cmd = 'mesh'
-    _AxisWidget = scanmotorwidget.MeshMotorWidget
+    _AxisWidget = MeshMotorWidget
 
     def __init__(self, specRunner, parent=None):
         ScanParameters.__init__(self, parent)
@@ -259,10 +243,7 @@ class TSeriesParameters(ScanParameters):
     pass
 
 
-class ScanParametersWidget(
-    ui_scanparameterswidget.Ui_ScanParametersWidget,
-    QtGui.QWidget
-):
+class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
 
     """Dialog for setting spec scan options"""
 

@@ -1,34 +1,22 @@
 """
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
+from __future__ import absolute_import
 
 import logging
 import os
 import sys
 import time
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 from PyQt4 import QtCore
 from SpecClient import Spec, SpecEventsDispatcher, SpecCommand, SpecVariable
 
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
+from .motor import QtSpecMotorA
+from .scan import QtSpecScanA
+from . import TEST_SPEC
 
-from xpaxs.instrumentation.spec.motor import QtSpecMotorA
-from xpaxs.instrumentation.spec.scan import QtSpecScanA
-from xpaxs.instrumentation.spec import TEST_SPEC
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.instrumentation.spec.runner')
+logger = logging.getLogger(__file__)
 
 
 def getSpecMacro(filename):

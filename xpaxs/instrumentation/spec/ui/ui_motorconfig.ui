@@ -1,7 +1,8 @@
-<ui version="4.0" >
- <class>Widget</class>
- <widget class="QWidget" name="Widget" >
-  <property name="geometry" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MotorConfig</class>
+ <widget class="QWidget" name="MotorConfig">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,111 +10,111 @@
     <height>296</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QWidget" name="horizontalLayout" >
-   <property name="geometry" >
+  <widget class="QWidget" name="horizontalLayout">
+   <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>256</width>
-     <height>297</height>
+     <width>259</width>
+     <height>320</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" >
+   <layout class="QHBoxLayout">
     <item>
-     <layout class="QVBoxLayout" >
+     <layout class="QVBoxLayout">
       <item>
-       <widget class="QLabel" name="label_5" >
-        <property name="text" >
+       <widget class="QLabel" name="label_5">
+        <property name="text">
          <string>Step Size</string>
         </property>
-        <property name="buddy" >
+        <property name="buddy">
          <cstring>stepSizeSpin</cstring>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_4" >
-        <property name="text" >
+       <widget class="QLabel" name="label_4">
+        <property name="text">
          <string>Sign</string>
         </property>
-        <property name="buddy" >
+        <property name="buddy">
          <cstring>signSpin</cstring>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_3" >
-        <property name="text" >
+       <widget class="QLabel" name="label_3">
+        <property name="text">
          <string>Acceleration</string>
         </property>
-        <property name="buddy" >
+        <property name="buddy">
          <cstring>accelSpin</cstring>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_2" >
-        <property name="text" >
+       <widget class="QLabel" name="label_2">
+        <property name="text">
          <string>BaseRate</string>
         </property>
-        <property name="buddy" >
+        <property name="buddy">
          <cstring>baseRateSpin</cstring>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_6" >
-        <property name="text" >
+       <widget class="QLabel" name="label_6">
+        <property name="text">
          <string>Speed</string>
         </property>
-        <property name="buddy" >
+        <property name="buddy">
          <cstring>speedSpin</cstring>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_7" >
-        <property name="text" >
+       <widget class="QLabel" name="label_7">
+        <property name="text">
          <string>Backlash</string>
         </property>
-        <property name="buddy" >
+        <property name="buddy">
          <cstring>backlashSpin</cstring>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label" >
-        <property name="text" >
+       <widget class="QLabel" name="label">
+        <property name="text">
          <string>Upper Limit</string>
         </property>
-        <property name="buddy" >
+        <property name="buddy">
          <cstring>upperLimitSpin</cstring>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_8" >
-        <property name="text" >
+       <widget class="QLabel" name="label_8">
+        <property name="text">
          <string>Lower Limit</string>
         </property>
-        <property name="buddy" >
+        <property name="buddy">
          <cstring>lowerLimitSpin</cstring>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_9" >
-        <property name="text" >
+       <widget class="QLabel" name="label_9">
+        <property name="text">
          <string>Offset</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_10" >
-        <property name="text" >
+       <widget class="QLabel" name="label_10">
+        <property name="text">
          <string>Position</string>
         </property>
        </widget>
@@ -121,157 +122,157 @@
      </layout>
     </item>
     <item>
-     <layout class="QVBoxLayout" >
+     <layout class="QVBoxLayout">
       <item>
-       <widget class="QDoubleSpinBox" name="stepSizeSpin" >
-        <property name="accessibleName" >
+       <widget class="QDoubleSpinBox" name="stepSizeSpin">
+        <property name="accessibleName">
          <string>step_size</string>
         </property>
-        <property name="accessibleDescription" >
+        <property name="accessibleDescription">
          <string/>
         </property>
-        <property name="minimum" >
+        <property name="minimum">
          <double>-100000000000.000000000000000</double>
         </property>
-        <property name="maximum" >
+        <property name="maximum">
          <double>100000000000.000000000000000</double>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="signSpin" >
-        <property name="accessibleName" >
+       <widget class="QDoubleSpinBox" name="signSpin">
+        <property name="accessibleName">
          <string>sign</string>
         </property>
-        <property name="accessibleDescription" >
+        <property name="accessibleDescription">
          <string/>
         </property>
-        <property name="decimals" >
+        <property name="decimals">
          <number>0</number>
         </property>
-        <property name="minimum" >
+        <property name="minimum">
          <double>-1.000000000000000</double>
         </property>
-        <property name="maximum" >
+        <property name="maximum">
          <double>1.000000000000000</double>
         </property>
-        <property name="singleStep" >
+        <property name="singleStep">
          <double>2.000000000000000</double>
         </property>
-        <property name="value" >
+        <property name="value">
          <double>1.000000000000000</double>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="accelSpin" >
-        <property name="accessibleName" >
+       <widget class="QDoubleSpinBox" name="accelSpin">
+        <property name="accessibleName">
          <string>acceleration</string>
         </property>
-        <property name="accessibleDescription" >
+        <property name="accessibleDescription">
          <string/>
         </property>
-        <property name="minimum" >
+        <property name="minimum">
          <double>-100000000000.000000000000000</double>
         </property>
-        <property name="maximum" >
+        <property name="maximum">
          <double>100000000000.000000000000000</double>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="baseRateSpin" >
-        <property name="accessibleName" >
+       <widget class="QDoubleSpinBox" name="baseRateSpin">
+        <property name="accessibleName">
          <string>base_rate</string>
         </property>
-        <property name="minimum" >
+        <property name="minimum">
          <double>-100000000000.000000000000000</double>
         </property>
-        <property name="maximum" >
+        <property name="maximum">
          <double>100000000000.000000000000000</double>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="speedSpin" >
-        <property name="accessibleName" >
+       <widget class="QDoubleSpinBox" name="speedSpin">
+        <property name="accessibleName">
          <string>slew_rate</string>
         </property>
-        <property name="minimum" >
+        <property name="minimum">
          <double>1.000000000000000</double>
         </property>
-        <property name="maximum" >
+        <property name="maximum">
          <double>100000000000.000000000000000</double>
         </property>
-        <property name="value" >
+        <property name="value">
          <double>1.000000000000000</double>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="backlashSpin" >
-        <property name="accessibleName" >
+       <widget class="QDoubleSpinBox" name="backlashSpin">
+        <property name="accessibleName">
          <string>backlash</string>
         </property>
-        <property name="minimum" >
+        <property name="minimum">
          <double>-100000000000000000.000000000000000</double>
         </property>
-        <property name="maximum" >
+        <property name="maximum">
          <double>100000000000000000000.000000000000000</double>
         </property>
-        <property name="value" >
+        <property name="value">
          <double>0.000000000000000</double>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="upperLimitSpin" >
-        <property name="accessibleName" >
+       <widget class="QDoubleSpinBox" name="upperLimitSpin">
+        <property name="accessibleName">
          <string>high_limit</string>
         </property>
-        <property name="minimum" >
+        <property name="minimum">
          <double>-100000000000.000000000000000</double>
         </property>
-        <property name="maximum" >
+        <property name="maximum">
          <double>100000000000.000000000000000</double>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="lowerLimitSpin" >
-        <property name="accessibleName" >
+       <widget class="QDoubleSpinBox" name="lowerLimitSpin">
+        <property name="accessibleName">
          <string>low_limit</string>
         </property>
-        <property name="minimum" >
+        <property name="minimum">
          <double>-100000000000.000000000000000</double>
         </property>
-        <property name="maximum" >
+        <property name="maximum">
          <double>100000000000.000000000000000</double>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="offsetSpin" >
-        <property name="accessibleName" >
+       <widget class="QDoubleSpinBox" name="offsetSpin">
+        <property name="accessibleName">
          <string>offset</string>
         </property>
-        <property name="minimum" >
+        <property name="minimum">
          <double>-100000000000.000000000000000</double>
         </property>
-        <property name="maximum" >
+        <property name="maximum">
          <double>100000000000.000000000000000</double>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="positionSpin" >
-        <property name="accessibleName" >
+       <widget class="QDoubleSpinBox" name="positionSpin">
+        <property name="accessibleName">
          <string>position</string>
         </property>
-        <property name="minimum" >
+        <property name="minimum">
          <double>-100000000000.000000000000000</double>
         </property>
-        <property name="maximum" >
+        <property name="maximum">
          <double>100000000000.000000000000000</double>
         </property>
        </widget>

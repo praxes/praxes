@@ -3,34 +3,23 @@ This is a library that subclasses many of the generic qt spec classes to
 provide support specific to the spectromicroscopy package.
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
+from __future__ import absolute_import
 
 import logging
 import os
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 from PyQt4 import QtCore, QtGui
 
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
-
-from xpaxs.instrumentation.spec import scanmotor, utils
-from xpaxs.instrumentation.spec.ui import ui_scancontrols,  ui_scandialog
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
-
-logger = logging.getLogger('XPaXS.instrumentation.spec.scancontrols')
+from .scanmotor import ScanMotor
+from .utils import MOTOR_SCANS, SCAN_NUM_AXES
+from .ui.ui_scancontrols import Ui_ScanControls
+from .ui.ui_scandialog import Ui_ScanDialog
 
 
-class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
+logger = logging.getLogger(__file__)
+
+
+class ScanControls(Ui_ScanControls, QtGui.QWidget):
 
     """Provides a GUI interface for positioning motors and running scans"""
 
@@ -44,7 +33,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.axes = []
         self.axesTab.removeTab(0)
 
-        scans = list(utils.MOTOR_SCANS)
+        scans = list(MOTOR_SCANS)
         self.scanTypeComboBox.addItems(scans)
         self.setScanType(scans[0])
 
@@ -226,18 +215,18 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         logger.debug('Setting Axes')
         self.disconnectAxesSignals()
 
-        numAxes = utils.SCAN_NUM_AXES[scanType]
+        numAxes = SCAN_NUM_AXES[scanType]
         self.axesTab.setUpdatesEnabled(False)
         while self.axesTab.count() > 0:
             self.axesTab.removeTab(0)
         self.axes=[]
 
-        if scanType in utils.MOTOR_SCANS:
+        if scanType in MOTOR_SCANS:
             for i, ax, m in zip(xrange(numAxes),
                                 ('axis: 1', '2', '3'),
                                 ('samx', 'samz', 'samy')):
                 if i < numAxes:
-                    self.axes.append(scanmotor.ScanMotor(self, m))
+                    self.axes.append(ScanMotor(self, m))
                     self.axesTab.addTab(self.axes[-1], ax)
         self.axesTab.setUpdatesEnabled(True)
         self.connectAxesSignals()
@@ -246,7 +235,7 @@ class ScanControls(ui_scancontrols.Ui_ScanControls, QtGui.QWidget):
         self.progressBar.setValue(val+1)
 
 
-class ScanDialog(ui_scandialog.Ui_Dialog, QtGui.QDialog):
+class ScanDialog(Ui_ScanDialog, QtGui.QDialog):
 
     """Dialog for setting spec scan options"""
 

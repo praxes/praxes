@@ -1,6 +1,6 @@
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
+"""
+"""
+from __future__ import absolute_import
 
 import codecs
 import logging
@@ -8,25 +8,13 @@ import os
 import sys
 import time
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 from PyQt4 import QtCore, QtGui
 import pxssh
 
+from .ui import ui_sshdialog
 
-#---------------------------------------------------------------------------
-# SMP imports
-#---------------------------------------------------------------------------
 
-from xpaxs.instrumentation.spec.ui import ui_sshdialog
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#--------------------------------------------------------------------------
-
-logger = logging.getLogger('XPaXS.instrumentation.spec.sshdialog')
+logger = logging.getLogger(__file__)
 
 
 class SshDialog(ui_sshdialog.Ui_Dialog, QtGui.QDialog):

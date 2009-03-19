@@ -1,35 +1,22 @@
 """
 """
-
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
+from __future__ import absolute_import
 
 import gc
 import logging
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 from PyQt4 import QtCore, QtGui
 from SpecClient import SpecClientError
 
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
+from .ui import ui_specconnect
+from . import configdialog, sshdialog
+from .scancontrols import ScanControls
+from .runner import SpecRunner
 
-from xpaxs.instrumentation.spec.ui import ui_specconnect
-from xpaxs.instrumentation.spec import configdialog, sshdialog
-from xpaxs.instrumentation.spec.scancontrols import ScanControls
-from xpaxs.instrumentation.spec.runner import SpecRunner
+USESSH = False
 
-from xpaxs.instrumentation.spec import USESSH
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
 
-logger = logging.getLogger('XPaXS.instrumentation.spec.specconnect')
+logger = logging.getLogger(__file__)
 
 
 class ConnectionAborted(Exception):

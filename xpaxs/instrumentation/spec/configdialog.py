@@ -1,29 +1,20 @@
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
+"""
+"""
+
+from __future__ import absolute_import
 
 import logging
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 from PyQt4 import QtCore, QtGui
 
-#---------------------------------------------------------------------------
-# SMP imports
-#---------------------------------------------------------------------------
-
-from xpaxs.instrumentation.spec.ui import ui_motordialog, ui_motorconfig
-
-#---------------------------------------------------------------------------
-# Normal code begins
-#--------------------------------------------------------------------------
-
-logger = logging.getLogger('XPaXS.instrumentation.spec.configdialog')
+from .ui.ui_motordialog import Ui_MotorDialog
+from .ui.ui_motorconfig import Ui_MotorConfig
 
 
-class ConfigDialog(ui_motordialog.Ui_Dialog, QtGui.QDialog):
+logger = logging.getLogger(__file__)
+
+
+class ConfigDialog(Ui_MotorDialog, QtGui.QDialog):
 
     """
     """
@@ -71,7 +62,7 @@ class ConfigDialog(ui_motordialog.Ui_Dialog, QtGui.QDialog):
         QtGui.QDialog.accept(self)
 
 
-class MotorTab(ui_motorconfig.Ui_Widget, QtGui.QWidget):
+class MotorTab(Ui_MotorConfig, QtGui.QWidget):
     def __init__(self,motorname,parent):
         QtGui.QWidget.__init__(self, parent)
         self.settings=parent.settings
@@ -120,6 +111,7 @@ class MotorTab(ui_motorconfig.Ui_Widget, QtGui.QWidget):
             self.motor.setParameter("%s"%param,value)
             logger.debug( "%s changed parameter %s to %s",self.name, param,value)
         self.settings.endGroup()
+
 
 if __name__ == "__main__":
     print __file__

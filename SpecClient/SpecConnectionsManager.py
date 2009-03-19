@@ -5,7 +5,7 @@ The SpecConnectionsManager module provides facilities to get
 a connection to Spec. It can run a thread for 'asynchronous'
 polling of socket events. It prevents from having more than
 one connection to the same Spec server at the same time, and
-automatically reconnects lost connections. 
+automatically reconnects lost connections.
 
 
 Classes :
@@ -37,15 +37,26 @@ def SpecConnectionsManager(pollingThread = True):
     if _SpecConnectionsManagerInstance is None:
         if pollingThread:
             _SpecConnectionsManagerInstance = _ThreadedSpecConnectionsManager()
+
+            def _endSpecConnectionsManager():
+                global _SpecConnectionsManagerInstance
+
+                if _SpecConnectionsManagerInstance is not None:
+                    _SpecConnectionsManagerInstance.stop()
+                    _SpecConnectionsManagerInstance = None
+
+            # register _endSpecConnectionsManager() to be called on Python interpreter exit
+            atexit.register(_endSpecConnectionsManager)
+
         else:
             _SpecConnectionsManagerInstance = _SpecConnectionsManager()
-      
+
     return _SpecConnectionsManagerInstance
-       
+
 
 class _ThreadedSpecConnectionsManager(threading.Thread):
     """Class for managing connections to Spec
-    
+
     Polling of asynchronous socket events is delegated to a separate thread
 
     Warning: should never be instanciated directly ; use the module level SpecConnectionsManager()
@@ -61,8 +72,8 @@ class _ThreadedSpecConnectionsManager(threading.Thread):
         self.stopEvent = threading.Event()
         self.__started = False
         self.setDaemon(True)
-      
-        
+
+
     def run(self):
         """Override Thread.run() ; define behaviour for the connections manager thread
 
@@ -71,7 +82,7 @@ class _ThreadedSpecConnectionsManager(threading.Thread):
         Poll the asyncore dispatchers for processing socket events.
         """
         self.__started = True
-        
+
         while not self.stopEvent.isSet():
             self.lock.acquire()
             try:
@@ -90,18 +101,18 @@ class _ThreadedSpecConnectionsManager(threading.Thread):
                 time.sleep(0.01)
 
         asyncore.poll3()
-        
-                    
+
+
     def stop(self):
         """Stop the connections manager thread and dereferences all connections"""
         self.stopEvent.set()
-        
+
         self.join()
-   
+
         self.__started = False
         self.connections = {}
-        
-        
+
+
     def getConnection(self, specVersion):
         """Return a SpecConnection object
 
@@ -115,9 +126,9 @@ class _ThreadedSpecConnectionsManager(threading.Thread):
 
             def removeConnection(ref, connectionName = specVersion):
                 self.closeConnection(connectionName)
-            
+
             self.connections[specVersion] = weakref.ref(con, removeConnection)
-            
+
             self.lock.acquire()
             try:
                 self.connectionDispatchers[specVersion] = con.dispatcher
@@ -127,15 +138,15 @@ class _ThreadedSpecConnectionsManager(threading.Thread):
         if not self.__started:
             self.start()
             self.__started = True
-                
+
         return con
-   
+
 
     def closeConnection(self, specVersion):
         self.lock.acquire()
         try:
             self.connectionDispatchers[specVersion].handle_close()
-            
+
             del self.connectionDispatchers[specVersion]
             del self.connections[specVersion]
         finally:
@@ -152,7 +163,7 @@ class _SpecConnectionsManager:
 
     The poll() method should be called inside a GUI loop during idle time.
     Unlike the threaded class, the poll method will also dispatch SpecClient events
-    
+
     Warning: should never be instanciated directly ; use the module level SpecConnectionsManager()
     function instead.
     """
@@ -160,23 +171,23 @@ class _SpecConnectionsManager:
         """Constructor"""
         self.connections = {}
         self.connectionDispatchers = {}
-              
-        
+
+
     def poll(self, timeout=0.01):
         """Poll the asynchronous socket connections and dispatch incomming events"""
         for connection in self.connectionDispatchers.itervalues():
             connection.makeConnection()
-        
-        asyncore.poll3(timeout) 
-                        
+
+        asyncore.poll3(timeout)
+
         SpecEventsDispatcher.dispatch()
-        
-                    
+
+
     def stop(self):
         """Stop the connections manager thread and dereferences all connections"""
         self.connections = {}
-        
-        
+
+
     def getConnection(self, specVersion):
         """Return a SpecConnection object
 
@@ -190,17 +201,17 @@ class _SpecConnectionsManager:
 
             def removeConnection(ref, connectionName = specVersion):
                 self.closeConnection(connectionName)
-            
+
             self.connections[specVersion] = weakref.ref(con, removeConnection)
             self.connectionDispatchers[specVersion] = con.dispatcher
-                       
+
         return con
-   
+
 
     def closeConnection(self, specVersion):
         try:
             self.connectionDispatchers[specVersion].handle_close()
-                        
+
             del self.connectionDispatchers[specVersion]
             del self.connections[specVersion]
         except:

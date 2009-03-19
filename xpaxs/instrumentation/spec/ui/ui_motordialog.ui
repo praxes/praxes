@@ -1,7 +1,8 @@
-<ui version="4.0" >
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog" >
-  <property name="geometry" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MotorDialog</class>
+ <widget class="QDialog" name="MotorDialog">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,11 +10,11 @@
     <height>437</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QWidget" name="verticalLayout" >
-   <property name="geometry" >
+  <widget class="QWidget" name="verticalLayout">
+   <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
@@ -21,18 +22,18 @@
      <height>431</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" >
+   <layout class="QVBoxLayout">
     <item>
-     <widget class="QTabWidget" name="motorTab" >
-      <property name="currentIndex" >
+     <widget class="QTabWidget" name="motorTab">
+      <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="Start" >
-       <attribute name="title" >
+      <widget class="QWidget" name="Start">
+       <attribute name="title">
         <string>Start</string>
        </attribute>
-       <widget class="QProgressBar" name="motorProgressBar" >
-        <property name="geometry" >
+       <widget class="QProgressBar" name="motorProgressBar">
+        <property name="geometry">
          <rect>
           <x>0</x>
           <y>160</y>
@@ -40,7 +41,7 @@
           <height>23</height>
          </rect>
         </property>
-        <property name="value" >
+        <property name="value">
          <number>0</number>
         </property>
        </widget>
@@ -48,21 +49,21 @@
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" >
+     <layout class="QHBoxLayout">
       <item>
-       <widget class="QPushButton" name="restore" >
-        <property name="text" >
+       <widget class="QPushButton" name="restore">
+        <property name="text">
          <string>Restore Default</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QDialogButtonBox" name="buttonBox" >
-        <property name="orientation" >
+       <widget class="QDialogButtonBox" name="buttonBox">
+        <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
-        <property name="standardButtons" >
-         <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+        <property name="standardButtons">
+         <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
         </property>
        </widget>
       </item>
@@ -76,14 +77,14 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>MotorDialog</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>175</x>
      <y>419</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>193</x>
      <y>438</y>
     </hint>
@@ -92,14 +93,14 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>MotorDialog</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>258</x>
      <y>412</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>292</x>
      <y>394</y>
     </hint>

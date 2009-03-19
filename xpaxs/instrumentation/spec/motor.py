@@ -1,32 +1,17 @@
 """
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
 import logging
 import os
 import sys
 
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
-
 from PyQt4 import QtCore
 from SpecClient import SpecMotor
 
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
+from . import TEST_SPEC
 
-from xpaxs.instrumentation.spec import TEST_SPEC
 
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
-
-logger = logging.getLogger('XPaXS.instrumentation.spec.client.motor')
+logger = logging.getLogger(__file__)
 
 [NOTINITIALIZED,UNUSABLE,READY,MOVESTARTED,MOVING,ONLIMIT]=[0,1,2,3,4,5]
 
