@@ -264,7 +264,8 @@ class DeadTime(Signal):
         format = kwargs.pop('dead_time_format', None)
         super(DeadTime, self).__init__(*args, **kwargs)
 
-        self.format = format
+        if format:
+            self.format = format
 
 registry.register(DeadTime)
 

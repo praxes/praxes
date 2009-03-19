@@ -29,7 +29,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     def __init__(self, scanData, parent=None):
         super(McaAnalysisWindow, self).__init__(parent)
         self.scanData = scanData['measurement']
-        self.mcaData = self.scanData.mcas().listobjects()[0]
+        self.mcaData = self.scanData.mcas.values()[0]
         self.setupUi(self)
 
         title = '%s: %s'%(
