@@ -137,16 +137,8 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
         xpaxs.application.registerService('ScanView', self.newScanWindow)
 
     def _setupDockWindows(self):
-#        self._setupPPJobStats()
         self._setFileInterface()
         self._setupEmailDlg()
-
-#    def _setupPPJobStats(self):
-#        self.ppJobStats = PPJobStats()
-#        self.ppJobStatsDock = self._createDockWindow('PPJobStatsDock')
-#        self._setupDockWindow(self.ppJobStatsDock,
-#                               QtCore.Qt.RightDockWidgetArea,
-#                               self.ppJobStats, 'Analysis Server Stats')
 
     def _setFileInterface(self):
         self.fileInterface = FileInterface(self)

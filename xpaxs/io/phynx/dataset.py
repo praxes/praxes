@@ -212,3 +212,91 @@ class Signal(Dataset):
             )
 
 registry.register(Signal)
+
+
+class DeadTime(Signal):
+
+    """
+    The native format of the dead time data needs to be specified. This can be
+    done when creating a new DeadTime dataset by passing a dead_time_format
+    keyword argument with one of the following values:
+
+    * 'percent'
+    * '%'
+    * 'fraction'
+    * 'normalization'
+    * 'correction'
+
+    Alternatively, the native format can be specified after the fact by setting
+    the format property to one of the values listed above.
+    """
+
+    @property
+    def correction(self):
+        return DeadTimeProxy(self, 'correction')
+
+    @property
+    def percent(self):
+        return DeadTimeProxy(self, 'percent')
+
+    @property
+    def fraction(self):
+        return DeadTimeProxy(self, 'fraction')
+
+    @property
+    def normalization(self):
+        return DeadTimeProxy(self, 'normalization')
+
+    def _get_format(self):
+        return self.attrs.get('dead_time_format', 'Format not specified')
+    def _set_format(self, format):
+        valid = ('percent', '%', 'fraction', 'normalization', 'correction')
+        try:
+            assert format in valid
+        except AssertionError:
+            raise ValueError(
+                'dead time format must one of: %r' % (', '.join(valid))
+            )
+        self.attrs['dead_time_format'] = format
+    format = property(_get_format, _set_format)
+
+    def __init__(self, *args, **kwargs):
+        format = kwargs.pop('dead_time_format', None)
+        super(DeadTime, self).__init__(*args, **kwargs)
+
+        self.format = format
+
+registry.register(DeadTime)
+
+
+class DeadTimeProxy(object):
+
+    _valid = ('percent', '%', 'fraction', 'normalization', 'correction')
+
+    def __init__(self, dset, format):
+        self._dset = dset
+
+        assert format in self._valid
+        self._format = format
+
+    def __getitem__(self, args):
+        if self._dset.format in ('percent', '%'):
+            fraction = self._dset.__getitem__(args) / 100.0
+        elif self._dset.format == 'correction':
+            fraction = self._dset.__getitem__(args) - 1
+        elif self._dset.format == 'normalization':
+            fraction = 1.0 / self._dset.__getitem__(args) - 1
+        elif self._dset.format == 'fraction':
+            fraction = self._dset.__getitem__(args)
+        else:
+            raise ValueError('Unrecognized dead time format')
+
+        if self._format in ('percent', '%'):
+            return 100 * fraction
+        elif self._format == 'correction':
+            return 1 + fraction
+        elif self._format == 'normalization':
+            return 1 / (1 + fraction)
+        else:
+            return fraction
+

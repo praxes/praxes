@@ -159,9 +159,13 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
             sys.stdout.flush()
 
         if process_scalars:
-            # assume all scalars to be signals
+            # assume all scalars to be signals, except dead_time
             for i, label in enumerate(scan.alllabels()):
                 kwargs = {'class':'Signal'}
+                if label == 'dead_time':
+                    kwargs['class'] = 'DeadTime'
+                    kwargs['units'] = '%'
+                    kwargs['dead_time_format'] = '%'
                 dset = mca.create_dataset(
                     label, data=scan.datacol(i+1), dtype='float32', **kwargs
                 )
@@ -269,6 +273,8 @@ def convert_scan(scan, sfile, h5file, spec_filename):
             kwargs = {'class':'Signal', 'signal':0}
             if label == 'dead_time':
                 kwargs['units'] = '%'
+                kwargs['class'] = 'DeadTime'
+                kwargs['dead_time_format'] = '%'
             try:
                 dset = mca.create_dataset(
                     label, data=scan.datacol(i+1), dtype='float32', **kwargs

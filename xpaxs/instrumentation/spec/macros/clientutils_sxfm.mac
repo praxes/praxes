@@ -147,7 +147,8 @@ def _client_setscanenv '{
             scan_desc[id] = sprintf(entry, npoints)
 
             id = sprintf("%s/dead_time", MCA_NAME)
-            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'\%\'})"
+            entry = "(\'DeadTime\', {\'shape\': (%d, ), \'dtype\': \'f\', \
+                \'dead_time_format\': \'\%\', \'units\': \'\%\'})"
             scan_desc[id] = sprintf(entry, npoints)
         }
     }
@@ -195,7 +196,8 @@ def _client_setscanenv '{
                 scan_desc[id] = sprintf(entry, npoints)
 
                 id = sprintf("%s/dead_time", mne)
-                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'\%\'})"
+                entry = "(\'DeadTime\', {\'shape\': (%d, ), \'dtype\': \'f\', \
+                    \'dead_time_format\': \'\%\', \'units\': \'\%\'})"
                 scan_desc[id] = sprintf(entry, npoints)
             }
         }

@@ -13,7 +13,7 @@ from .component import (
     Velocity_selector
 )
 from .data import Data, Event_data, Monitor
-from .dataset import Axis, Dataset, Signal
+from .dataset import Axis, Dataset, DeadTime, Signal
 from .detector import Detector
 from .entry import Entry
 from .environment import Environment

@@ -9,7 +9,7 @@ import threading
 import h5py
 import numpy as np
 
-from .dataset import AcquisitionIterator, Signal
+from .dataset import AcquisitionIterator, DeadTime, Signal
 from .detector import Detector
 from .registry import registry
 from .utils import simple_eval, sync
@@ -58,21 +58,22 @@ class MultiChannelAnalyzer(Detector):
             pass
 
         # TODO: this could eventually go away
-        if 'dead_time' not in self:
-            self._set_dead_time()
-
-    def _set_dead_time(self):
-        if 'dead' in self:
-            self['dead_time'] = self['dead']
-        elif 'dtn' in self:
-            data = 100*(1-self['dtn'].value)
-            self.create_dataset('dead_time', data=data)
-        elif 'vtxdtn' in self:
-            data = 100*(1-self['vtxdtn'].value)
-            self.create_dataset('dead_time', data=data)
+        if 'dead_time' in self:
+            dt = self['dead_time']
+            if not isinstance(dt, DeadTime):
+                dt.attrs['class'] = 'DeadTime'
         else:
-            return
-        self['dead_time'].attrs['units'] = '%'
+            if 'dead' in self:
+                self['dead_time'] = self['dead']
+                self['dead_time'].attrs['class'] = 'DeadTime'
+            elif 'dtn' in self:
+                data = 100*(1-self['dtn'].value)
+                self.create_dataset('dead_time', type='DeadTime', data=data)
+            elif 'vtxdtn' in self:
+                data = 100*(1-self['vtxdtn'].value)
+                self.create_dataset('dead_time', type='DeadTime', data=data)
+            else:
+                return
 
     @sync
     def set_calibration(self, cal, order=None):
@@ -131,13 +132,13 @@ class CorrectedDataProxy(object):
 
             # detector deadtime correction
             try:
-                dtn = 1-self._dataset.parent['dead_time'][key]/100
-                if isinstance(dtn, np.ndarray) \
-                        and len(dtn.shape) < len(data.shape):
+                dtc = self._dataset.parent['dead_time'].correction[key]
+                if isinstance(dtc, np.ndarray) \
+                        and len(dtc.shape) < len(data.shape):
                     newshape = [1]*len(data.shape)
-                    newshape[:len(dtn.shape)] = dtn.shape
+                    newshape[:len(dtc.shape)] = dtc.shape
                     dtn.shape = newshape
-                data /= dtn
+                data *= dtc
             except h5py.H5Error:
                 # fails if dead_time_correction is not defined
                 pass

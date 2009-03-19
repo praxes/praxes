@@ -29,6 +29,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     def __init__(self, scanData, parent=None):
         super(McaAnalysisWindow, self).__init__(parent)
         self.scanData = scanData['measurement']
+        self.mcaData = self.scanData.mcas().listobjects()[0]
         self.setupUi(self)
 
         title = '%s: %s'%(
@@ -37,7 +38,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         )
         self.setWindowTitle(title)
 
-#        self.scanData = scanData
 #        self.connect(
 #            self.scanData,
 #            QtCore.SIGNAL("dataInitialized"),
@@ -48,8 +48,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.splitter.addWidget(self.elementsView)
 
         self.xrfBandComboBox.addItems(self.availableElements)
-#        self.updateNormalizationChannels()
-#        self.updateDeadTimeChannels()
+        try:
+            self.deadTimeReport.setText(str(self.mcaData['dead_time'].format))
+        except H5Error:
+            self.deadTimeReport.setText('Not found')
 
         self._setupMcaDockWindows()
         self._setupPPJobStats()
@@ -64,8 +66,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         )
         # TODO: remove the window from the list of open windows when we close
 #        self.connect(scanView, QtCore.SIGNAL("scanClosed"), self.scanClosed)
-
-#        self.verticalLayout.addWidget(self.elementsView)
 
         self.fitParamDlg = FitParamDialog(parent=self)
         pymcaConfig = self.scanData.mcas.values()[0].pymca_config
@@ -200,8 +200,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             else:
                 return event.ignore()
 
-#        self.scanData.flush()
-
         # TODO: improve this to close scans in the file interface
         self.emit(QtCore.SIGNAL("scanClosed"), self)
 
@@ -210,7 +208,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
     def configurePymca(self):
         if self.fitParamDlg.exec_():
-            # TODO: is this needed?
             QtGui.qApp.processEvents()
 
             self.statusbar.showMessage('Reconfiguring PyMca ...')
@@ -298,8 +295,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self._resetPeaks()
 
         thread = XfsPPTaskManager(parent=self)
-#        config = copy.deepcopy(self.pymcaConfig)
-#        thread.setData(self.scanData, config)
         thread.setData(self.scanData, self.pymcaConfig)
 
         self.connect(
@@ -327,11 +322,11 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             QtCore.SIGNAL('percentComplete'),
             self.progressBar.setValue
         )
-#        self.connect(
-#            self.actionAbort,
-#            QtCore.SIGNAL('triggered(bool)'),
-#            thread.stop
-#        )
+        self.connect(
+            self.actionAbort,
+            QtCore.SIGNAL('triggered(bool)'),
+            thread.stop
+        )
 
         self.statusbar.showMessage('Analyzing spectra ...')
         self.statusbar.addPermanentWidget(self.progressBar)

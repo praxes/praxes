@@ -35,10 +35,6 @@ class ElementBaseFigure(QtMplCanvas):
         self._elementData = self.window().getElementMap()
         self._createInitialFigure()
 
-#        self.connect(self.scanData,
-#                     QtCore.SIGNAL("elementDataChanged"),
-#                     self.updateFigure)
-
     def _createInitialFigure(self):
         raise NotImplementedError
 
