@@ -119,10 +119,11 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
 
         self._configureDockArea()
 
-        self._specFileRegsitry = {}
+        self._specFileRegistry = {}
         self.fileModel = FileModel(self)
         self.fileView = QtGui.QTreeView(self)
         self.fileView.setModel(self.fileModel)
+        self.fileView.setColumnWidth(0, 250)
 
         self.setCentralWidget(self.fileView)
 

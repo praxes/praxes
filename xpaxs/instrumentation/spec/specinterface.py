@@ -164,7 +164,7 @@ class SpecInterface(QtCore.QObject):
                    QtCore.Qt.RightDockWidgetArea|
                    QtCore.Qt.TopDockWidgetArea|
                    QtCore.Qt.BottomDockWidgetArea,
-                   QtCore.Qt.BottomDockWidgetArea,
+                   QtCore.Qt.RightDockWidgetArea,
                    'SpecInterfaceWidget')
 
     def _configure(self):
@@ -185,7 +185,7 @@ class SpecInterface(QtCore.QObject):
         self._configureInterfaceWidget()
 
     def addDockWidget(
-        self, widget, title, allowedAreas, defaultArea, name = None
+        self, widget, title, allowedAreas, defaultArea, name=None
     ):
         dock = QtGui.QDockWidget(title)
         if name: dock.setObjectName(name)
