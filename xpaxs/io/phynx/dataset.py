@@ -221,11 +221,11 @@ class DeadTime(Signal):
     done when creating a new DeadTime dataset by passing a dead_time_format
     keyword argument with one of the following values:
 
-    * 'percent'
-    * '%'
-    * 'fraction'
-    * 'normalization'
-    * 'correction'
+    * 'percent' - the percent of the real time that the detector is not live
+    * '%' - same as 'percent'
+    * 'fraction' - the fraction of the real time that the detector is not live
+    * 'normalization' - data is corrected by dividing by the dead time value
+    * 'correction' - data is corrected by muliplying by the dead time value
 
     Alternatively, the native format can be specified after the fact by setting
     the format property to one of the values listed above.

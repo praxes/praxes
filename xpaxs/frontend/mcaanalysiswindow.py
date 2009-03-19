@@ -38,12 +38,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         )
         self.setWindowTitle(title)
 
-#        self.connect(
-#            self.scanData,
-#            QtCore.SIGNAL("dataInitialized"),
-#            self.updateNormalizationChannels
-#        )
-
         self.elementsView = ElementsView(self.scanData, self)
         self.splitter.addWidget(self.elementsView)
 
@@ -355,23 +349,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.actionConfigurePymca.setEnabled(enabled)
         self.actionCalibration.setEnabled(enabled)
 
-#    def updateNormalizationChannels(self):
-#        self.normalizationComboBox.clear()
-#        mca = self.scanData.mcas.values()[0]
-#        self.normalizationComboBox.addItems(
-#            ['', 'None'] + sorted(mca.signals.keys())
-#        )
-#        if 'normalization' not in mca:
-#            self.normalizationComboBox.setCurrentIndex(1)
-#
-#    def updateDeadTimeChannels(self):
-#        self.normalizationComboBox.clear()
-#        mca = self.scanData.mcas.values()[0]
-#        self.normalizationComboBox.addItems(
-#            ['', 'None'] + sorted(mca.signals.keys())
-#        )
-#        if 'normalization' not in mca:
-#            self.normalizationComboBox.setCurrentIndex(1)
 
 if __name__ == "__main__":
     import sys
