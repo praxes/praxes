@@ -143,15 +143,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
         xpaxs.application.registerService('FileInterface', self)
 
     def _setupDockWindows(self):
-#        self._setFileInterface()
         self._setupEmailDlg()
-
-#    def _setFileInterface(self):
-#        self.fileInterface = FileInterface(self)
-#        for key, (item, area, action) in \
-#                self.fileInterface.dockWidgets.iteritems():
-#            self.menuView.addAction(action)
-#            self.addDockWidget(area, item)
 
     def _setupEmailDlg(self):
         self.menuSettings.addAction("Email Settings",self._startEmailDlg )
@@ -299,7 +291,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
         settings.beginGroup("MainWindow")
         settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
         settings.setValue('State', QtCore.QVariant(self.saveState()))
-#        self.fileInterface.close()
         self.fileModel.close()
         if self.expInterface: self.expInterface.close()
         return event.accept()
@@ -370,11 +361,14 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                 )
             )
             if h5_filename:
+                self.statusBar.showMessage('Converting spec data...')
+                QtGui.qApp.processEvents()
                 from xpaxs.io.spec import convert_to_phynx
                 f = convert_to_phynx(f, h5_filename=h5_filename, force=True)
                 f.close()
                 del f
-                self.openDatafile(h5_filename)
+                self.statusBar.clearMessage()
+                self.openFile(h5_filename)
 
     def newScanWindow(self, scan):
         self.statusBar.showMessage('Configuring New Analysis Window ...')
