@@ -58,6 +58,7 @@ class MultiChannelAnalyzer(Detector):
             pass
 
         # TODO: this could eventually go away
+        # old files did not identify dead time properly
         if 'dead_time' in self:
             dt = self['dead_time']
             if not isinstance(dt, DeadTime):
@@ -74,6 +75,8 @@ class MultiChannelAnalyzer(Detector):
                 self.create_dataset('dead_time', type='DeadTime', data=data)
             else:
                 return
+            self['dead_time'].attrs['units'] = '%'
+            self['dead_time'].attrs['dead_time_format'] = '%'
 
     @sync
     def set_calibration(self, cal, order=None):
