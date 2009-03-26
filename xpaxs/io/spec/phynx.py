@@ -145,18 +145,20 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
             'counts', type='McaSpectrum', dtype='float32', shape=(scan.lines(), len(channels))
         )
 
-        i = 0
-        for line in xrange(scan.lines()):
-            i += 1
-            if i%10 == 0:
+        buff = []
+        for i in xrange(scan.lines()):
+            buff.append(scan.mca(num_mca * i + 1 + mca_index)[:len(channels)])
+            if i%100 == 0:
+                mca['counts'][i-len(buff):i] = buff
+                buff = []
                 sys.stdout.write('.')
                 sys.stdout.flush()
-            mca['counts'][line] = \
-                scan.mca(num_mca * line + 1 + mca_index)[:len(channels)]
-
-        if i>10:
-            sys.stdout.write('\n')
-            sys.stdout.flush()
+        else:
+            if len(buff):
+                mca['counts'][i-len(buff):i] = buff
+            if i>100:
+                sys.stdout.write('\n')
+                sys.stdout.flush()
 
         if process_scalars:
             # assume all scalars to be signals, except dead_time
@@ -186,7 +188,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     file_name = scan.fileheader('F')[0].split()[1]
     scan_number = '%d.%d'%(scan.number(), scan.order())
     scan_number = scan_number.replace('.1', '')
-    scan_name = 'entry_'+scan_number
+    scan_name = scan_number
 
     print 'converting %s'% scan_name
 
