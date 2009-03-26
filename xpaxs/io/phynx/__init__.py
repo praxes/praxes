@@ -14,7 +14,7 @@ from .component import (
 )
 from .data import Data, Event_data, Monitor
 from .dataset import Axis, Dataset, DeadTime, Signal
-from .detector import Detector
+from .detector import AreaDetector, Detector, LinearDetector, Mar345
 from .entry import Entry
 from .environment import Environment
 from .file import File

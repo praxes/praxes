@@ -134,11 +134,6 @@ class Group(h5py.Group, _PhynxProperties):
                     "Incompatible object (%s) already exists" % \
                     item.__class__.__name__
                 )
-            if args or kwargs:
-                raise RuntimeError(
-                    "Can not define data for existing %s object" % \
-                    item.__class__.__name__
-                )
             return item
 
     def create_group(self, name, type='Group', **data):
@@ -153,11 +148,6 @@ class Group(h5py.Group, _PhynxProperties):
             if not isinstance(item, registry[type]):
                 raise NameError(
                     "Incompatible object (%s) already exists" % \
-                    item.__class__.__name__
-                )
-            if data:
-                raise RuntimeError(
-                    "Can not define data for existing %s object" % \
                     item.__class__.__name__
                 )
             return item

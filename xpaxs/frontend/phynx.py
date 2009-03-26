@@ -74,6 +74,8 @@ class H5NodeProxy(object):
             return []
 
         if not self._children:
+            # obtaining the lock here is necessary, otherwise application can
+            # freeze if navigating tree while data is processing
             with self.file.plock:
                 self._children = [
                     H5NodeProxy(self.file, i, self)

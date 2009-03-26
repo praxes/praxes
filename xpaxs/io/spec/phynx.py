@@ -5,7 +5,9 @@
 # Stdlib imports
 #---------------------------------------------------------------------------
 
+from md5 import md5
 import os
+import subprocess
 import sys
 
 #---------------------------------------------------------------------------
@@ -17,7 +19,6 @@ try:
     import specfile
 except ImportError:
     from PyMca import specfile
-
 
 #---------------------------------------------------------------------------
 # xpaxs imports
@@ -158,7 +159,7 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
             if len(buff):
                 mca['counts'][i+1-len(buff):i+1] = buff
             if i+1 >= thresh:
-                sys.stdout.write('\n')
+                sys.stdout.write('.\n')
                 sys.stdout.flush()
 
         if process_scalars:
@@ -319,12 +320,47 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     if not dir:
         dir = os.getcwd()
     for f in os.listdir(dir):
-        if f.startswith(spec_filename+'.scan%s.'%scan_number) and \
-            f.endswith('.mca'):
+        # process mca device files:
+        if (
+            f.startswith(spec_filename+'.scan%s.'%scan_number) and
+            f.endswith('.mca')
+        ):
             print 'integrating %s'%f
             process_mca(
                 specfile.Specfile(f)[0], measurement, True, masked=masked
             )
+        elif (
+            f.startswith(spec_filename+'.%s_'%scan_number) and
+            f.endswith('.mar3450')
+        ):
+            try:
+                p = subprocess.Popen(
+                    ['marcvt', '-raw32', f],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
+                res = p.wait()
+                raw = p.stdout.readline().split()[-1]
+                d = np.fromfile(raw, dtype='uint32')
+                os.remove(raw)
+                d /= 2
+                p = int(np.sqrt(len(d)))
+                d.shape = (p, p)
+                mar = measurement.require_group('mar345', type='Mar345')
+                print mar
+                dset = mar.require_dataset(
+                    'counts', shape=(scan.lines(), p, p), dtype='uint16'
+                )
+                print dset
+                i = f.replace(spec_filename+'.%s_'%scan_number, '')
+                i = int(i.replace('.mar3450', ''))
+                dset[i] = d
+                if masked is not None and 'masked' not in mar:
+                    mar['masked'] = masked
+            except:
+                sys.stdout.write('Found mar image but unable to fetch it.')
+                sys.stdout.write('Perhaps marcvt is not installed.')
+
 
 def convert_to_phynx(spec_filename, h5_filename=None, force=False):
     """convert a spec data file to phynx and return the phynx file object"""
