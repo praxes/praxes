@@ -146,17 +146,18 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
         )
 
         buff = []
+        thresh = 500
         for i in xrange(scan.lines()):
             buff.append(scan.mca(num_mca * i + 1 + mca_index)[:len(channels)])
-            if i%100 == 0:
-                mca['counts'][i-len(buff):i] = buff
+            if len(buff) == thresh:
+                mca['counts'][i+1-len(buff):i+1] = buff
                 buff = []
                 sys.stdout.write('.')
                 sys.stdout.flush()
         else:
             if len(buff):
-                mca['counts'][i-len(buff):i] = buff
-            if i>100:
+                mca['counts'][i+1-len(buff):i+1] = buff
+            if i+1 >= thresh:
                 sys.stdout.write('\n')
                 sys.stdout.flush()
 
