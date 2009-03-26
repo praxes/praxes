@@ -20,7 +20,7 @@ import types
 
 (NOTINITIALIZED, UNUSABLE, READY, MOVESTARTED, MOVING, ONLIMIT) = (0,1,2,3,4,5)
 (NOLIMIT, LOWLIMIT, HIGHLIMIT) = (0,2,4)
-    
+
 class SpecMotorA:
     """SpecMotorA class"""
     def __init__(self, specName = None, specVersion = None):
@@ -35,7 +35,7 @@ class SpecMotorA:
         self.limits = (None, None)
         self.chanNamePrefix = ''
         self.connection = None
-        
+
         if specName is not None and specVersion is not None:
             self.connectToSpec(specName, specVersion)
         else:
@@ -50,12 +50,12 @@ class SpecMotorA:
 
         Arguments:
         specName -- name of the motor in Spec
-        specVersion -- 'host:port' string representing a Spec server to connect to 
+        specVersion -- 'host:port' string representing a Spec server to connect to
         """
         self.specName = specName
         self.specVersion = specVersion
         self.chanNamePrefix = 'motor/%s/%%s' % specName
-        
+
         self.connection = SpecConnectionsManager.SpecConnectionsManager().getConnection(specVersion)
         SpecEventsDispatcher.connect(self.connection, 'connected', self.__connected)
         SpecEventsDispatcher.connect(self.connection, 'disconnected', self.__disconnected)
@@ -83,7 +83,7 @@ class SpecMotorA:
         """Private callback triggered by a 'connected' event from Spec."""
         self.connected()
 
-        
+
     def connected(self):
         """Callback triggered by a 'connected' event from Spec
 
@@ -107,7 +107,7 @@ class SpecMotorA:
         To be extended by derivated classes.
         """
         pass
-    
+
 
     #def dialPositionChanged(self, dial_position):
     #    pass
@@ -120,7 +120,7 @@ class SpecMotorA:
     def motorOffsetChanged(self, offset):
         self.motorLimitsChanged()
 
-    
+
     def motorLimitsChanged(self):
         """Callback triggered by a 'low_limit' or a 'high_limit' channel update,
         or when the sign or offset for motor changes
@@ -128,8 +128,8 @@ class SpecMotorA:
         To be extended by derivated classes.
         """
         pass
-            
-            
+
+
     def motorMoveDone(self, channelValue):
         """Callback triggered when motor starts or stops moving
 
@@ -172,26 +172,26 @@ class SpecMotorA:
         """
         pass
 
-                
+
     def setOffset(self, offset):
         """Set the motor offset value"""
         c = self.connection.getChannel(self.chanNamePrefix % 'offset')
-                                                                
+
         c.write(offset)
-                                
-                                
+
+
     def getOffset(self):
         c = self.connection.getChannel(self.chanNamePrefix % 'offset')
-                                
-        return c.read()                        
-                        
+
+        return c.read()
+
 
     def getSign(self):
         c = self.connection.getChannel(self.chanNamePrefix % 'sign')
 
         return c.read()
-    
-        
+
+
     def __syncQuestion(self, channelValue):
         """Callback triggered by a 'sync_check' channel update
 
@@ -206,7 +206,7 @@ class SpecMotorA:
             controllerSteps = steps[1]
 
             a = self.syncQuestionAnswer(specSteps, controllerSteps)
-            
+
             if a is not None:
                 c = self.connection.getChannel(self.chanNamePrefix % 'sync_check')
                 c.write(a)
@@ -216,7 +216,7 @@ class SpecMotorA:
         """Answer to the sync. question
 
         Return either '1' (YES) or '0' (NO)
-        
+
         Arguments:
         specSteps -- steps measured by Spec
         controllerSteps -- steps indicated by the controller
@@ -258,7 +258,7 @@ class SpecMotorA:
         """
         pass
 
-            
+
     def move(self, absolutePosition):
         """Move the motor to the required position
 
@@ -267,7 +267,7 @@ class SpecMotorA:
         """
         if type(absolutePosition) != types.FloatType and type(absolutePosition) != types.IntType:
             logging.getLogger("SpecClient").error("Cannot move %s: position '%s' is not a number", self.specName, absolutePosition)
-            
+
         self.__changeMotorState(MOVESTARTED)
 
         c = self.connection.getChannel(self.chanNamePrefix % 'start_one')
@@ -287,8 +287,8 @@ class SpecMotorA:
                 cmdObject(1)
             else:
                 cmdObject(-1)
-            
-        
+
+
     def stop(self):
         """Stop the current motor
 
@@ -301,7 +301,7 @@ class SpecMotorA:
         c = self.connection.getChannel("var/_MVC_CONTINUE_MOVING")
         c.write(0)
 
-        
+
     def getParameter(self, param):
         c = self.connection.getChannel(self.chanNamePrefix % param)
         return c.read()
@@ -310,7 +310,7 @@ class SpecMotorA:
     def setParameter(self, param, value):
         c = self.connection.getChannel(self.chanNamePrefix % param)
         c.write(value)
-    
+
 
     def getPosition(self):
         """Return the current position of the motor."""
@@ -329,17 +329,17 @@ class SpecMotorA:
         lims = [x * self.getSign() + self.getOffset() for x in (self.connection.getChannel(self.chanNamePrefix % 'low_limit').read(), \
                                                                 self.connection.getChannel(self.chanNamePrefix % 'high_limit').read())]
         return (min(lims), max(lims))
-      
+
 
     def getDialPosition(self):
         """Return the motor dial position."""
         c = self.connection.getChannel(self.chanNamePrefix % 'dial_position')
 
         return c.read()
-    
+
 
 class SpecMotor:
-    """Spec Motor"""    
+    """Spec Motor"""
     def __init__(self, specName = None, specVersion = None, timeout = None):
         """Constructor
 
@@ -350,7 +350,7 @@ class SpecMotor:
         """
         self.chanNamePrefix = ''
         self.connection = None
-        
+
         if specName is not None and specVersion is not None:
             self.connectToSpec(specName, specVersion, timeout)
         else:
@@ -365,19 +365,19 @@ class SpecMotor:
 
         Arguments:
         specName -- name of the motor in Spec
-        specVersion -- 'host:port' string representing a Spec server to connect to 
+        specVersion -- 'host:port' string representing a Spec server to connect to
         timeout -- optional timeout for the connection (defaults to None)
         """
         self.specName = specName
         self.specVersion = specVersion
         self.chanNamePrefix = 'motor/%s/%%s' % specName
-        
+
         self.connection = SpecConnectionsManager.SpecConnectionsManager().getConnection(specVersion)
 
         w = SpecWaitObject.SpecWaitObject(self.connection)
         w.waitConnection(timeout)
 
-        
+
     def unusable(self):
         """Return whether the motor is unusable or not."""
         if self.connection is not None:
@@ -391,8 +391,8 @@ class SpecMotor:
         if self.connection is not None:
             c = self.connection.getChannel(self.chanNamePrefix % 'low_lim_hit')
 
-            return c.read() 
-        
+            return c.read()
+
 
     def highLimitHit(self):
         """Return if high limit has been hit."""
@@ -400,13 +400,13 @@ class SpecMotor:
             c = self.connection.getChannel(self.chanNamePrefix % 'high_lim_hit')
 
             return c.read()
-    
-        
+
+
     def move(self, absolutePosition):
         """Move the motor
 
         Block until the move is finished
-        
+
         Arguments:
         absolutePosition -- position where to move the motor to
         """
@@ -414,14 +414,14 @@ class SpecMotor:
             c = self.connection.getChannel(self.chanNamePrefix % 'start_one')
 
             c.write(absolutePosition)
-            
+
             w = SpecWaitObject.SpecWaitObject(self.connection)
             w.waitChannelUpdate(self.chanNamePrefix % 'move_done', waitValue = 0) #move_done is set to 0 when move has finished
 
 
     def moveRelative(self, relativePosition):
         self.move(self.getPosition() + relativePosition)
-        
+
 
     def moveToLimit(self, limit):
         if self.connection is not None:
@@ -432,8 +432,8 @@ class SpecMotor:
                     cmdObject(self.specName, 1)
                 else:
                     cmdObject(self.specName, -1)
-            
-        
+
+
     def stop(self):
         """Stop the current motor
 
@@ -446,8 +446,8 @@ class SpecMotor:
         if self.connection is not None:
             c = self.connection.getChannel("var/_MVC_CONTINUE_MOVING")
             c.write(0)
-        
-        
+
+
     def getPosition(self):
         """Return the current absolute position for the motor."""
         if self.connection is not None:
@@ -460,28 +460,28 @@ class SpecMotor:
         """Set the motor offset value"""
         if self.connection is not None:
              c = self.connection.getChannel(self.chanNamePrefix % 'offset')
-                                                                
+
              c.write(offset)
-                                
-                                
+
+
     def getOffset(self):
         if self.connection is not None:
             c = self.connection.getChannel(self.chanNamePrefix % 'offset')
-                                
+
             return c.read()
 
 
     def getSign(self):
         if self.connection is not None:
             c = self.connection.getChannel(self.chanNamePrefix % 'sign')
-                                
+
             return c.read()
 
 
     def getDialPosition(self):
         if self.connection is not None:
             c = self.connection.getChannel(self.chanNamePrefix % 'dial_position')
-                                
+
             return c.read()
 
 
@@ -490,7 +490,7 @@ class SpecMotor:
             lims = [x * self.getSign() + self.getOffset() for x in (self.connection.getChannel(self.chanNamePrefix % 'low_limit').read(), \
                                                                     self.connection.getChannel(self.chanNamePrefix % 'high_limit').read())]
             return (min(lims), max(lims))
-        
+
 
 
 

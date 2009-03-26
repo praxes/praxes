@@ -21,7 +21,7 @@ if len(logging.root.handlers) == 0:
     _hdlr = logging.StreamHandler(sys.stdout)
     _hdlr.setFormatter(_formatter)
     _logger.addHandler(_hdlr)
- 
+
 
 def removeLoggingHandlers():
     for handler in _logger.handlers:
@@ -36,15 +36,15 @@ def setLoggingOff():
 
 def setLoggingOn():
     _logger.setLevel(_oldLevel)
-    
+
 
 def addLoggingHandler(handler):
     _logger.addHandler(handler)
 
-    
+
 def setLoggingHandler(handler):
     global _hdlr
-    
+
     removeLoggingHandlers() #_logger.removeHandler(_hdlr)
 
     _hdlr = handler
@@ -57,17 +57,7 @@ def setLogFile(filename):
     #
     from logging.handlers import RotatingFileHandler
 
-    hdlr = RotatingFileHandler(filename, 'a', 1048576, 5) #1 MB by file, 5 files max.           
+    hdlr = RotatingFileHandler(filename, 'a', 1048576, 5) #1 MB by file, 5 files max.
     hdlr.setFormatter(_formatter)
-    
-    setLoggingHandler(hdlr) 
 
-
-
-
-
-
-
-
-
-
+    setLoggingHandler(hdlr)

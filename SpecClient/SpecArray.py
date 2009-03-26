@@ -12,7 +12,7 @@ except:
     Numeric = None
     #if numpy is None:
     #    logging.getLogger('SpecClient').warning('Cannot load numpy or Numeric: use Python array instead')
-        
+
 (ARRAY_DOUBLE, ARRAY_FLOAT, ARRAY_LONG, ARRAY_ULONG, ARRAY_SHORT, \
  ARRAY_USHORT, ARRAY_CHAR, ARRAY_UCHAR, \
  ARRAY_STRING, ARRAY_NUMERIC) = (5,6,7,8,9,10,11,12,13,14)
@@ -88,7 +88,7 @@ def SpecArray(data, datatype = ARRAY_CHAR, rows = 0, cols = 0):
         return newArray
     else:
         newArray = None
-        
+
     if numpy is not None or Numeric is not None:
         if (type(data) == numpy.ndarray) or (type(data) == Numeric.ArrayType):
             # convert from a Num* array to a SpecArrayData instance
@@ -114,8 +114,8 @@ def SpecArray(data, datatype = ARRAY_CHAR, rows = 0, cols = 0):
                     rows, cols = data.shape
                 else:
                     rows, cols = 1, data.shape[0]
-                data = data.tostring() 
-            
+                data = data.tostring()
+
             newArray = SpecArrayData(data, datatype, (rows, cols))
         else:
             # return a new Num* array from data
@@ -130,7 +130,7 @@ def SpecArray(data, datatype = ARRAY_CHAR, rows = 0, cols = 0):
                 else:
                     newArray = Numeric.fromstring(data, numtype)
 
-                if rows==1: 
+                if rows==1:
                   newArray.shape = (cols, )
                 else:
                   newArray.shape = (rows, cols)
@@ -152,17 +152,3 @@ class SpecArrayData:
 
     def tostring(self):
         return str(self.data)
-
-
-
-
-
-
-
-
-
-
-
-
-
-

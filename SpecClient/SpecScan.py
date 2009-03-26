@@ -69,18 +69,21 @@ def _atom(next, token):
         token = list(next())
         token[1] = "-" + token[1]
         return _atom(next, token)
+    elif token[0] is tokenize.NAME:
+        if token[1] == 'None':
+            return None
+        raise ValueError('tokenize NAME: %s unrecognized' % token[1])
     elif not token[0]:
         return
-    raise SyntaxError("malformed expression (%s)" % token[1])
+    for i, v in tokenize.__dict__.iteritems():
+        if v == token[0]:
+            raise ValueError("tokenize.%s unrecognized: %s" % (i, token[1]))
 
 def simple_eval(source):
     """a safe version of the builtin eval function, """
-    try:
-        src = cStringIO.StringIO(source).readline
-        src = tokenize.generate_tokens(src)
-        return _atom(src.next, src.next())
-    except SyntaxError:
-        raise SyntaxError("malformed expression (%s)" % source)
+    src = cStringIO.StringIO(source).readline
+    src = tokenize.generate_tokens(src)
+    return _atom(src.next, src.next())
 
 
 class SpecScanA:
@@ -93,6 +96,7 @@ class SpecScanA:
             self.connectToSpec(specVersion)
         else:
             self.connection = None
+
 
     def connectToSpec(self, specVersion):
         self.connection = SpecConnectionsManager().getConnection(specVersion)
@@ -114,14 +118,18 @@ class SpecScanA:
         if self.connection.isSpecConnected():
             self.connected()
 
+
     def isConnected(self):
         return self.connection and self.connection.isSpecConnected()
+
 
     def connected(self):
         pass
 
+
     def isScanning(self):
         return self.__scanning
+
 
     def __disconnected(self):
         self.scanCounterMne = None
@@ -130,8 +138,10 @@ class SpecScanA:
 
         self.disconnected()
 
+
     def disconnected(self):
         pass
+
 
     def __newScan(self, scanParams):
         if DEBUG: print "SpecScanA.__newScan", scanParams
@@ -160,15 +170,18 @@ class SpecScanA:
         self.__scanning = True
         self.scanStarted() # A.B
 
+
     def getScanType(self):
         try:
             return self.scanParams['scantype']
         except:
             return -1
 
+
     def newScan(self, scanParameters):
         if DEBUG: print "SpecScanA.newScan", scanParameters
         pass
+
 
     def __newScanData(self, scanData):
         if DEBUG: print "SpecScanA.__newScanData", scanData
@@ -177,9 +190,11 @@ class SpecScanA:
 
             self.newScanData(scanData)
 
+
     def newScanData(self, scanData):
         if DEBUG: print "SpecScanA.newScanData", scanData
         pass
+
 
     def __newScanPoint(self, scanData):
         if DEBUG: print "SpecScanA.__newScanPoint", scanData
@@ -197,15 +212,19 @@ class SpecScanA:
             else:
               self.newScanPoint(i, x, y)
 
+
     def newScanPoint(self, i, x, y, counters_value):
         if DEBUG: print "SpecScanA.newScanPoint", i, x, y, counters_value
         pass
 
+
     def scanFinished(self):
         pass
 
+
     def scanStarted(self): # A.B
         pass # A.B
+
 
     def ascan(self, motorMne, startPos, endPos, nbPoints, countTime):
         if self.connection.isSpecConnected():

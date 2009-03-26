@@ -30,7 +30,7 @@ class SpecCounter:
         self.channelName = ''
         self.connection = None
         self.type = UNKNOWN
-        
+
         if specName is not None and specVersion is not None:
             self.connectToSpec(specName, specVersion, timeout)
         else:
@@ -50,12 +50,12 @@ class SpecCounter:
         """
         self.specName = specName
         self.specVersion = specVersion
-                
+
         self.connection = SpecConnectionsManager.SpecConnectionsManager().getConnection(specVersion)
 
         w = SpecWaitObject.SpecWaitObject(self.connection)
         w.waitConnection(timeout)
-        
+
         c = self.connection.getChannel('var/%s' % self.specName)
         index = c.read()
         if index == 0:
@@ -68,7 +68,7 @@ class SpecCounter:
 
     def count(self, time):
         """Count up to a certain time or monitor count
-        
+
         Arguments:
         time -- count time
         """
@@ -78,20 +78,20 @@ class SpecCounter:
 
             if self.type == MONITOR:
                 time = -time
-                
+
             c1.write(time)
 
             w = SpecWaitObject.SpecWaitObject(self.connection)
             w.waitChannelUpdate('scaler/.all./count', waitValue = 0)
-            
+
             return c2.read()
 
 
     def getValue(self):
         """Return current counter value."""
         if self.connection is not None:
-            c = self.connection.getChannel('scaler/%s/value' % self.specName)  
-            
+            c = self.connection.getChannel('scaler/%s/value' % self.specName)
+
             return c.read()
 
 

@@ -47,7 +47,6 @@ def SpecConnectionsManager(pollingThread = True):
 
             # register _endSpecConnectionsManager() to be called on Python interpreter exit
             atexit.register(_endSpecConnectionsManager)
-
         else:
             _SpecConnectionsManagerInstance = _SpecConnectionsManager()
 

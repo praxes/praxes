@@ -18,12 +18,12 @@ class BaseSpecRequestHandler(asyncore.dispatcher):
         self.message = None
         self.clientVersion = None
         self.clientOrder = ""
-        
-        
+
+
     def handle_read(self):
         self.receivedStrings.append(self.recv(32768))
         s = ''.join(self.receivedStrings)
-        sbuffer = buffer(s) 
+        sbuffer = buffer(s)
         consumedBytes = 0
         offset = 0
 
@@ -32,7 +32,7 @@ class BaseSpecRequestHandler(asyncore.dispatcher):
                 self.message = SpecMessage.message(version = self.clientVersion, order=self.clientOrder)
 
             consumedBytes = self.message.readFromStream(sbuffer[offset:])
-            
+
             if consumedBytes == 0:
                 break
 
@@ -48,34 +48,34 @@ class BaseSpecRequestHandler(asyncore.dispatcher):
                 else:
                     if not self.dispatchIncomingMessage(self.message):
                         self.send_error(self.message.sn, '', 'unsupported command type : %d' % self.message.cmd)
-              
+
                 self.message = None
 
         self.receivedStrings = [ s[offset:] ]
-    
-                
+
+
     def writable(self):
         return len(self.sendq) > 0 or sum(map(len, self.outputStrings)) > 0
 
-         
+
     def handle_write(self):
         #
         # send all the messages from the queue
         #
         while len(self.sendq) > 0:
             self.outputStrings.append(self.sendq.pop().sendingString())
-        
+
         outputBuffer = ''.join(self.outputStrings)
-        
+
         sent = self.send(outputBuffer)
         self.outputStrings = [ outputBuffer[sent:] ]
-        
-        
+
+
     def handle_close(self):
         self.close()
         self.server.clients.remove(self)
-        
-        
+
+
     def dispatchIncomingMessage(self, message):
         pass
 
@@ -86,7 +86,7 @@ class BaseSpecRequestHandler(asyncore.dispatcher):
             command = cmdparts[0]
             args = tuple([ eval(cmdpart) for cmdpart in cmdparts[1:] ])
             return command, args
-        
+
         cmdpartLength = cmdstr.find('(')
 
         if cmdpartLength < 0:
@@ -101,14 +101,14 @@ class BaseSpecRequestHandler(asyncore.dispatcher):
         else:
             if not type(args) == types.TupleType:
                 args = (args, )
-                
+
             return command, args
-    
-        
+
+
     def executeCommandAndReply(self, replyID = None, cmd = '', *args):
         if len(cmd) == 0 or replyID is None:
             return
-        
+
         if len(args) == 0:
             cmdstr = str(cmd)
             command, args = self.parseCommandString(cmdstr)
@@ -134,7 +134,7 @@ class BaseSpecRequestHandler(asyncore.dispatcher):
             except:
                 import traceback
                 traceback.print_exc()
-                    
+
                 self.send_error(replyID, '', 'Failed to execute command "' + command)
             else:
                 if ret is None:
@@ -143,7 +143,7 @@ class BaseSpecRequestHandler(asyncore.dispatcher):
                     self.send_reply(replyID, '', ret)
         else:
             self.send_error(replyID, '',  command + ' is not callable on server.')
-                        
+
 
     def send_hello_reply(self, replyID, serverName):
         self.sendq.append(SpecMessage.msg_hello_reply(replyID, serverName, version = self.clientVersion, order=self.clientOrder))
@@ -176,7 +176,7 @@ class SpecServer(asyncore.dispatcher):
         if type(name) == type(''):
             for p in range(SpecConnection.MIN_PORT, SpecConnection.MAX_PORT):
                 self.server_address = ( host, p )
-            
+
                 try:
                     self.bind(self.server_address)
                 except:
@@ -186,10 +186,10 @@ class SpecServer(asyncore.dispatcher):
         else:
             self.server_address = (host, name)
             self.bind(self.server_address)
-    
+
         #print self.server_address
         self.listen(5)
-            
+
 
     def handle_accept(self):
         try:

@@ -29,13 +29,13 @@ class SpecVariable:
         """
         self.connection = None
         self.isConnected = self.isSpecConnected #alias
-        
+
         if varName is not None and specVersion is not None:
             self.connectToSpec(varName, specVersion, timeout, prefix)
         else:
             self.channelName = None
             self.specVersion = None
-        
+
 
     def connectToSpec(self, varName, specVersion, timeout = None, prefix=True):
         """Connect to a remote Spec
@@ -44,7 +44,7 @@ class SpecVariable:
 
         Arguments:
         varName -- the variable name in Spec
-        specVersion -- 'host:port' string representing a Spec server to connect to 
+        specVersion -- 'host:port' string representing a Spec server to connect to
         timeout -- optional timeout (defaults to None)
         """
         if prefix:
@@ -52,17 +52,17 @@ class SpecVariable:
         else:
           self.channelName = str(varName)
         self.specVersion = specVersion
-        
+
         self.connection = SpecConnectionsManager.SpecConnectionsManager().getConnection(specVersion)
-        
+
         w = SpecWaitObject.SpecWaitObject(self.connection)
         w.waitConnection(timeout)
-        
+
 
     def isSpecConnected(self):
         """Return whether the remote Spec version is connected or not."""
         return self.connection is not None and self.connection.isSpecConnected()
-        
+
 
     def getValue(self):
         """Return the watched variable current value."""
@@ -106,14 +106,14 @@ class SpecVariableA:
     """
     def __init__(self, varName = None, specVersion = None, dispatchMode = UPDATEVALUE, prefix=True):
         """Constructor
-        
+
         Keyword arguments:
         varName -- name of the variable to monitor (defaults to None)
         specVersion -- 'host:port' string representing a Spec server to connect to (defaults to None)
         """
         self.connection = None
         self.channelName = ''
-        
+
         if varName is not None and specVersion is not None:
             self.connectToSpec(varName, specVersion, dispatchMode = dispatchMode, prefix=prefix)
         else:
@@ -128,7 +128,7 @@ class SpecVariableA:
 
         Arguments:
         varName -- name of the variable
-        specVersion -- 'host:port' string representing a Spec server to connect to 
+        specVersion -- 'host:port' string representing a Spec server to connect to
         """
         self.varName = varName
         self.specVersion = specVersion
@@ -136,7 +136,7 @@ class SpecVariableA:
           self.channelName = 'var/%s' % varName
         else:
           self.channelName = varName
-        
+
         self.connection = SpecConnectionsManager.SpecConnectionsManager().getConnection(specVersion)
         SpecEventsDispatcher.connect(self.connection, 'connected', self.connected)
         SpecEventsDispatcher.connect(self.connection, 'disconnected', self.disconnected)
@@ -148,20 +148,20 @@ class SpecVariableA:
 
         if self.connection.isSpecConnected():
             self.connected()
-            
+
 
     def isSpecConnected(self):
         return self.connection is not None and self.connection.isSpecConnected()
 
-    
+
     def connected(self):
         """Callback triggered by a 'connected' event from Spec
 
         To be extended by derivated classes.
         """
         pass
-    
-        
+
+
     def disconnected(self):
         """Callback triggered by a 'disconnected' event from Spec
 
@@ -184,7 +184,7 @@ class SpecVariableA:
             chan = self.connection.getChannel(self.channelName)
 
             return chan.read()
-        
+
 
     def setValue(self, value):
         """Set the watched variable value

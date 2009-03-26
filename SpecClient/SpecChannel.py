@@ -139,29 +139,35 @@ class SpecChannel:
         if type(self.value) == types.DictType and type(channelValue) == types.DictType:
             # update dictionary
             if deleted:
-                  for key,val in channelValue.iteritems():
+                for key,val in channelValue.iteritems():
                     if type(val) == types.DictType:
-                      for k in val:
-                         del self.value[key][k]
-                         if len(self.value[key])==1 and None in self.value[key]:
-                           self.value[key]=self.value[key][None]
+                        for k in val:
+                            try:
+                                del self.value[key][k]
+                            except KeyError:
+                                pass
+                        if len(self.value[key])==1 and None in self.value[key]:
+                            self.value[key]=self.value[key][None]
                     else:
-                      del self.value[key]
+                        try:
+                            del self.value[key]
+                        except KeyError:
+                            pass
             else:
                 for k1,v1 in channelValue.iteritems():
-                  if type(v1)==types.DictType:
-                      try:
-                        self.value[k1].update(v1)
-                      except KeyError:
-                        self.value[k1]=v1
-                      except AttributeError:
-                        self.value[k1]={None: self.value[k1]}
-                        self.value[k1].update(v1)
-                  else:
-                      if self.value.has_key(k1) and type(self.value[k1]) == types.DictType:
-                          self.value[k1][None] = v1
-                      else:
-                        self.value[k1] = v1
+                    if type(v1)==types.DictType:
+                        try:
+                            self.value[k1].update(v1)
+                        except KeyError:
+                            self.value[k1]=v1
+                        except AttributeError:
+                            self.value[k1]={None: self.value[k1]}
+                            self.value[k1].update(v1)
+                    else:
+                        if self.value.has_key(k1) and type(self.value[k1]) == types.DictType:
+                            self.value[k1][None] = v1
+                        else:
+                            self.value[k1] = v1
             value2emit=self.value.copy()
         else:
             if deleted:

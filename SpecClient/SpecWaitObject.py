@@ -135,6 +135,7 @@ class SpecWaitObject:
                 if timeout is not None and t >= timeout:
                     raise SpecClientTimeoutError
 
+
     def wait(self, waitValue = None, timeout = None):
         """Block until the object's internal value gets updated
 

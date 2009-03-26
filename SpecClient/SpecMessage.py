@@ -32,13 +32,13 @@ NULL='\000'
 DELETED = 0x0001
 
 
-def message(*args, **kwargs):   
+def message(*args, **kwargs):
     """Return a new SpecMessage object
 
     The returned SpecMessage object can be of any of the available message
     class. You can specify the desired message class with the 'version' keyword
     argument. If not specified, defaults to NATIVE_HEADER_VERSION.
-    
+
     Arguments are passed to the appropriate message constructor.
 
     Keyword arguments:
@@ -51,7 +51,7 @@ def message(*args, **kwargs):
     order = kwargs.get('order', '<')
     if len(order) == 0:
       order = "<"
- 
+
     if version == 4:
         m = message4(*args)
     elif version == 3:
@@ -84,7 +84,7 @@ def rawtodictonary(rawstring):
         else:
             if keyel[0] in data and type(data[keyel[0]])!=types.DictType:
               data[keyel[0]]={ None: data[keyel[0]] }
-   
+
             try:
                 data[keyel[0]][keyel[1]] = val
             except TypeError:
@@ -105,12 +105,12 @@ def dictionarytoraw(dict):
                   data += str(key) + NULL + str(vval) + NULL
                 else:
                   data += ''.join([str(key), '\x1c', str(kkey), NULL, str(vval), NULL])
-        else:                   
+        else:
             data += str(key) + NULL + str(val) + NULL
 
     return (len(data) > 0 and data) or NULL
-    
-      
+
+
 class SpecMessage:
     """Base class for messages."""
     def __init__(self, packedHeader):
@@ -142,12 +142,12 @@ class SpecMessage:
         self.err = 0
         self.flags = 0
 
-                
+
     def isComplete(self):
         """Return wether a message read from stream has been fully received or not."""
         return self.bytesToRead == 0
 
-    
+
     def readFromStream(self, streamBuf):
         """Read buffer from stream and try to create a message from it
 
@@ -155,10 +155,10 @@ class SpecMessage:
         streamBuf - string buffer of the last bytes received from Spec
 
         Return value :
-        the number of consumed bytes 
+        the number of consumed bytes
         """
         consumedBytes = 0
-       
+
         while self.bytesToRead > 0 and len(streamBuf[consumedBytes:]) >= self.bytesToRead:
             if self.readheader:
                 self.readheader = False
@@ -168,15 +168,15 @@ class SpecMessage:
                 rawdata = streamBuf[consumedBytes:consumedBytes+self.bytesToRead]
                 consumedBytes += self.bytesToRead
                 self.bytesToRead = 0
-                
+
                 self.data = self.readData(rawdata, self.type)
-                               
+
         return consumedBytes
 
-    
+
     def readHeader(self, rawstring):
         """Read the header of the message coming from stream
- 
+
         Arguments:
         rawstring -- raw bytes of the header
 
@@ -197,7 +197,7 @@ class SpecMessage:
         the data read
         """
         data = rawstring[:-1] #remove last NULL byte
-        
+
         if datatype == ERROR:
             return data
         elif datatype == STRING or datatype == DOUBLE:
@@ -209,7 +209,7 @@ class SpecMessage:
                     data = float(data)
                 except:
                     pass
-                
+
             return data
         elif datatype == ASSOC:
             return rawtodictonary(rawstring)
@@ -233,12 +233,12 @@ class SpecMessage:
         elif type(data) == types.DictType:
             return ASSOC
         elif type(data) == types.IntType or type(data) == types.LongType or type(data) == types.FloatType:
-            return STRING 
+            return STRING
             #DOUBLE
         elif isinstance(data, SpecArray.SpecArrayData):
             self.rows, self.cols = data.shape
             return data.type
-        
+
 
     def sendingDataString(self, data, datatype):
         """Return the string representing the data part of the message."""
@@ -250,18 +250,18 @@ class SpecMessage:
             rawstring = dictionarytoraw(data)
         elif SpecArray.isArrayType(datatype):
             rawstring = data.tostring()
-        
+
         if len(rawstring) > 0:
             rawstring += NULL
 
         return rawstring
 
-    
+
     def sendingString(self):
-        """Create a string representing the message which can be send 
+        """Create a string representing the message which can be send
         over the socket."""
         return ''
-            
+
 
 class message2(SpecMessage):
     """Version 2 message class"""
@@ -286,13 +286,13 @@ class message2(SpecMessage):
         self.rows = rows
         self.cols = cols
         self.data = data
-        self.type = datatype or self.dataType(self.data)      
+        self.type = datatype or self.dataType(self.data)
         self.time = time.time()
         self.sec = int(self.time)
         self.usec = int((self.time-self.sec)*1E6)
         self.sn, self.cmd, self.name = ser, cmd, str(name)
 
-        
+
     def readHeader(self, rawstring):
         self.magic, self.vers, self.size, self.sn, \
                     self.sec, self.usec, self.cmd, \
@@ -307,9 +307,9 @@ class message2(SpecMessage):
         #rint 'READ header', self.magic, 'vers=', self.vers, 'size=', self.size, 'cmd=', self.cmd, 'type=', datatype, 'datalen=', datalen, 'err=', self.err, 'name=', str(self.name)
         self.time = self.sec + float(self.usec) / 1E6
         self.name = name.replace(NULL, '') #remove padding null bytes
-        
+
         return (datatype, datalen)
-        
+
 
     def sendingString(self):
         if self.type is None:
@@ -318,14 +318,14 @@ class message2(SpecMessage):
 
         data = self.sendingDataString(self.data, self.type)
         datalen = len(data)
-        
+
         header = struct.pack(self.packedHeaderDataFormat, self.magic, self.vers, self.size,
-                             self.sn, self.sec, self.usec, self.cmd, self.type, 
+                             self.sn, self.sec, self.usec, self.cmd, self.type,
                              self.rows, self.cols, datalen, str(self.name))
         #print 'WRITE header', self.magic, 'vers=', self.vers, 'size=', self.size, 'cmd=', self.cmd, 'type=', self.type, 'datalen=', datalen, 'err=', self.err, 'name=', str(self.name)
         #print 'WRITE data', data
         return header + data
-            
+
 
 class message3(SpecMessage):
     def __init__(self, *args, **kwargs):
@@ -342,14 +342,14 @@ class message3(SpecMessage):
         self.magic = MAGIC_NUMBER
         self.rows = rows
         self.cols = cols
-        self.data = data   
-        self.type = datatype or self.dataType(self.data)  
+        self.data = data
+        self.type = datatype or self.dataType(self.data)
         self.time = time.time()
         self.sec = int(self.time)
         self.usec = int((self.time-self.sec)*1E6)
         self.sn, self.cmd, self.name = ser, cmd, str(name)
-     
-        
+
+
     def readHeader(self, rawstring):
         self.magic, self.vers, self.size, self.sn, \
                     self.sec, self.usec, self.cmd, \
@@ -367,9 +367,9 @@ class message3(SpecMessage):
 
         if self.err > 0:
             datatype = ERROR #change message type to 'ERROR' for further processing
-        
+
         return (datatype, datalen)
-    
+
 
     def sendingString(self):
         if self.type is None:
@@ -380,9 +380,9 @@ class message3(SpecMessage):
         datalen = len(data)
 
         header = struct.pack(self.packedHeaderDataFormat, self.magic, self.vers, self.size,
-                             self.sn, self.sec, self.usec, self.cmd, self.type, 
+                             self.sn, self.sec, self.usec, self.cmd, self.type,
                              self.rows, self.cols, datalen, self.err, str(self.name))
-        
+
         #print 'WRITE header', self.magic, 'vers=', self.vers, 'size=', self.size, 'cmd=', self.cmd, 'type=', self.type, 'datalen=', datalen, 'err=', self.err, 'name=', str(self.name)
         #print 'WRITE data', data
         return header + data
@@ -391,7 +391,7 @@ class message3(SpecMessage):
 class message4(SpecMessage):
     def __init__(self, *args, **kwargs):
         SpecMessage.__init__(self, '<IiIIIIiiIIIii80s')
-       
+
         if len(args) > 0:
             self.init(*args, **kwargs)
 
@@ -403,14 +403,14 @@ class message4(SpecMessage):
         self.magic = MAGIC_NUMBER
         self.rows = rows
         self.cols = cols
-        self.data = data   
-        self.type = datatype or self.dataType(self.data)  
+        self.data = data
+        self.type = datatype or self.dataType(self.data)
         self.time = time.time()
         self.sec = int(self.time)
         self.usec = int((self.time-self.sec)*1E6)
         self.sn, self.cmd, self.name = ser, cmd, str(name)
-     
-        
+
+
     def readHeader(self, rawstring):
         self.magic, self.vers, self.size, self.sn, \
                     self.sec, self.usec, self.cmd, \
@@ -428,9 +428,9 @@ class message4(SpecMessage):
 
         if self.err > 0:
             datatype = ERROR #change message type to 'ERROR' for further processing
-        
+
         return (datatype, datalen)
-            
+
 
     def sendingString(self):
         if self.type is None:
@@ -443,17 +443,17 @@ class message4(SpecMessage):
         #print 'WRITE header', self.magic, 'vers=', self.vers, 'size=', self.size, 'cmd=', self.cmd, 'type=', self.type, 'datalen=', datalen, 'err=', self.err, 'flags=', self.flags, 'name=', str(self.name)
         #print 'WRITE data', data
         header = struct.pack(self.packedHeaderDataFormat, self.magic, self.vers, self.size,
-                             self.sn, self.sec, self.usec, self.cmd, self.type, 
+                             self.sn, self.sec, self.usec, self.cmd, self.type,
                              self.rows, self.cols, datalen, self.err, self.flags, str(self.name))
-        
+
         return header + data
-               
+
 
 class anymessage(SpecMessage):
     def __init__(self, *args, **kwargs):
-        SpecMessage.__init__(self, '<Ii') 
+        SpecMessage.__init__(self, '<Ii')
 
-        
+
     def readFromStream(self, streamBuf):
         if len(streamBuf) >= self.bytesToRead:
             magic, version = struct.unpack(self.packedHeaderDataFormat, streamBuf[:self.headerLength])
@@ -461,7 +461,7 @@ class anymessage(SpecMessage):
             if magic != MAGIC_NUMBER:
                 self.packedHeaderDataFormat=">"+self.packedHeaderDataFormat[1:]
                 magic, version = struct.unpack(self.packedHeaderDataFormat, streamBuf[:self.headerLength])
-      
+
             # try to guess which message class suits best
             if version == 2:
                 self.__class__ = message2
@@ -475,9 +475,9 @@ class anymessage(SpecMessage):
                 self.__class__ = message4
                 message4.__init__(self)
                 return self.readFromStream(streamBuf)
-            
+
         return 0
-                
+
 
 def commandListToCommandString(cmdlist):
     """Convert a command list to a Spec command string."""
@@ -496,7 +496,7 @@ def commandListToCommandString(cmdlist):
         return NULL.join(cmd)
     else:
         return ''
-    
+
 
 def msg_cmd_with_return(cmd, version = NATIVE_HEADER_VERSION, order="<"):
     """Return a command with return message"""
@@ -533,7 +533,7 @@ def msg_chan_send(channel, value, version = NATIVE_HEADER_VERSION, order="<"):
 def msg_event(channel, value, version = NATIVE_HEADER_VERSION, order="<"):
     """Return an event message"""
     return message_no_reply(EVENT, channel, value, version, order)
-    
+
 
 def msg_register(channel, version = NATIVE_HEADER_VERSION, order="<"):
     """Return a register message"""
@@ -554,7 +554,7 @@ def msg_abort(version = NATIVE_HEADER_VERSION, order="<"):
     """Return an abort message"""
     return message_no_reply(ABORT, "", "", version, order)
 
-    
+
 def msg_hello(version = NATIVE_HEADER_VERSION, order="<"):
     """Return a hello message"""
     return message_no_reply(HELLO, "python", "", version, order)
@@ -571,20 +571,20 @@ def message_with_reply(cmd, name, data, version = NATIVE_HEADER_VERSION, order="
     replyID = newReply.id
 
     m = message(replyID, cmd, name, data, version = version, order=order)
-        
+
     return (newReply, m)
 
-    
+
 def message_no_reply(cmd, name, data, version = NATIVE_HEADER_VERSION, order="<"):
     """ Send a message which will not result in a reply from the server.
     If a reply is sent depends only on the cmd and not on the method
     to send the message """
     return message(0, cmd, name, data, version = version, order=order)
-    
+
 
 def reply_message(replyID, name, data, version = NATIVE_HEADER_VERSION, order="<"):
     return message(replyID, REPLY, name, data, version = version, order=order)
 
-    
+
 def error_message(replyID, name, data, version = NATIVE_HEADER_VERSION, order="<"):
     return message(replyID, REPLY, name, data, ERROR, version = version, order=order)

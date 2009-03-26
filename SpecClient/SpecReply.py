@@ -26,21 +26,21 @@ class SpecReply:
 
     Signals:
     replyFromSpec(self) -- emitted on update
-    """    
+    """
     def __init__(self):
         """Constructor."""
         self.data = None
         self.error = False
         self.error_code = 0 #no error
         self.id = getNextReplyId()
-     
+
 
     def update(self, data, error, error_code):
         """Emit the 'replyFromSpec' signal."""
         self.data = data
         self.error = error
         self.error_code = error_code
-       
+
         SpecEventsDispatcher.emit(self, 'replyFromSpec', (self, ))
 
 
