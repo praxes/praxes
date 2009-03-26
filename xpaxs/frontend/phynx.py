@@ -74,13 +74,14 @@ class H5NodeProxy(object):
             return []
 
         if not self._children:
-            self._children = [
-                H5NodeProxy(self.file, i, self)
-                for i in sorted(
-                    self.getNode(self.path).listobjects(),
-                    key=operator.attrgetter('name')
-                )
-            ]
+            with self.file.plock:
+                self._children = [
+                    H5NodeProxy(self.file, i, self)
+                    for i in sorted(
+                        self.getNode(self.path).listobjects(),
+                        key=operator.attrgetter('name')
+                    )
+                ]
         return self._children
 
     @property

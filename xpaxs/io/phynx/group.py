@@ -61,7 +61,6 @@ class Group(h5py.Group, _PhynxProperties):
 
         """
         with parent_object.plock:
-
             try:
                 h5py.Group.__init__(self, parent_object, name)
             except h5py.H5Error:
