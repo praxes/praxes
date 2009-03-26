@@ -248,9 +248,7 @@ def _client_updateplotdata '{
     local x d i n plot_data
     global _SC_OLDX
 
-    n = _stype&8? _g1:NPTS
-
-    x = SCAN_D[n][0]
+    x = SCAN_D[LDT][0]
 
     if (_stype >= 257) {
         d = 1
@@ -267,7 +265,7 @@ def _client_updateplotdata '{
 
         for (i=PLOT_MOTS; i<(PLOT_CNTRS+PLOT_MOTS); i++) {
             plot_data = sprintf("%s\'%s\':%g, ", plot_data, PLOT_MNE[i], \
-                                SCAN_D[n][i])
+                                SCAN_D[LDT][i])
         }
 
         _SC_NEWPLOTDATA = sprintf("{%s}", plot_data)
