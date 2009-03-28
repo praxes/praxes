@@ -17,15 +17,6 @@ from xpaxs.dispatch.pptaskmanager import PPTaskManager
 logger = logging.getLogger(__file__)
 DEBUG = False
 
-def flat_to_nd(index, shape):
-    res = []
-    for i in xrange(1, len(shape)):
-        p = np.product(shape[i:])
-        res.append(index//p)
-        index = index % p
-    res.append(index)
-    return tuple(res)
-
 def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
     start = time.time()
     advancedFit.config['fit']['use_limit'] = 1
@@ -66,6 +57,10 @@ def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
 
 
 class XfsPPTaskManager(PPTaskManager):
+
+    def __del__(self):
+        self.scan = None
+        self.iterData = None
 
     def _submitJobs(self, numJobs):
         try:

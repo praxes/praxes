@@ -30,6 +30,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         super(McaAnalysisWindow, self).__init__(parent)
         self.scanData = scanData['measurement']
         self.mcaData = self.scanData.mcas.values()[0]
+        pymcaConfig = self.mcaData.pymca_config
         self.setupUi(self)
 
         title = '%s: %s'%(
@@ -59,10 +60,9 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             self.processAverageSpectrum
         )
         # TODO: remove the window from the list of open windows when we close
-#        self.connect(scanView, QtCore.SIGNAL("scanClosed"), self.scanClosed)
+#           self.connect(scanView, QtCore.SIGNAL("scanClosed"), self.scanClosed)
 
         self.fitParamDlg = FitParamDialog(parent=self)
-        pymcaConfig = self.scanData.mcas.values()[0].pymca_config
 
         if pymcaConfig:
             self.fitParamDlg.setParameters(pymcaConfig)
@@ -192,13 +192,13 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
                     self.analysisThread.wait()
                     QtGui.qApp.processEvents()
             else:
-                return event.ignore()
+                event.ignore()
+                return
 
+        MainWindowBase.closeEvent(self, event)
+        event.accept()
         # TODO: improve this to close scans in the file interface
         self.emit(QtCore.SIGNAL("scanClosed"), self)
-
-        if MainWindowBase.closeEvent(self, event):
-            return event.accept()
 
     def configurePymca(self):
         if self.fitParamDlg.exec_():
@@ -207,7 +207,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             self.statusbar.showMessage('Reconfiguring PyMca ...')
             configDict = self.fitParamDlg.getParameters()
             self.spectrumAnalysis.configure(configDict)
-            self.scanData.mcas.values()[0].pymca_config = configDict
+            self.mcaData.pymca_config = configDict
             self.statusbar.clearMessage()
 
     def elementMapUpdated(self):
@@ -288,7 +288,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
         self._resetPeaks()
 
-        thread = XfsPPTaskManager(parent=self)
+        thread = XfsPPTaskManager()
         thread.setData(self.scanData, self.pymcaConfig)
 
         self.connect(

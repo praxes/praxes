@@ -108,20 +108,22 @@ class H5NodeProxy(object):
 
     @property
     def row(self):
-        return self.parent.children.index(self)
+        with self.file.plock:
+            return self.parent.children.index(self)
 
     @property
     def type(self):
         return self._type
 
     def __init__(self, file, node, parent=None):
-        self._file = file
-        self._name = node.name
-        self._parent = parent
-        self._path = node.path
-        self._type = type(node).__name__
-        self._hasChildren = isinstance(node, phynx.Group)
-        self._children = []
+        with file.plock:
+            self._file = file
+            self._name = node.name
+            self._parent = parent
+            self._path = node.path
+            self._type = type(node).__name__
+            self._hasChildren = isinstance(node, phynx.Group)
+            self._children = []
 
     def clearChildren(self):
         self._children = []
@@ -145,7 +147,8 @@ class H5FileProxy(H5NodeProxy):
         super(H5FileProxy, self).__init__(file, file, parent)
 
     def close(self):
-        return self.file.close()
+        with self.file.plock:
+            return self.file.close()
 
 
 class FileModel(QtCore.QAbstractItemModel):

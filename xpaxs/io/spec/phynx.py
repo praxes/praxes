@@ -347,11 +347,9 @@ def convert_scan(scan, sfile, h5file, spec_filename):
                 p = int(np.sqrt(len(d)))
                 d.shape = (p, p)
                 mar = measurement.require_group('mar345', type='Mar345')
-                print mar
                 dset = mar.require_dataset(
                     'counts', shape=(scan.lines(), p, p), dtype='uint16'
                 )
-                print dset
                 i = f.replace(spec_filename+'.%s_'%scan_number, '')
                 i = int(i.replace('.mar3450', ''))
                 dset[i] = d

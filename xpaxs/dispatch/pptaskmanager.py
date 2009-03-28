@@ -33,7 +33,7 @@ class PPTaskManager(QtCore.QThread):
                             self.jobServer.get_active_nodes().itervalues()])
 
         self.dirty = False
-        self.stopped = False
+        self._stopped = False
 
         self.timer = QtCore.QTimer(self)
         self.connect(self.timer,
@@ -43,7 +43,7 @@ class PPTaskManager(QtCore.QThread):
     def isStopped(self):
         try:
             self.mutex.lock()
-            return self.stopped
+            return self._stopped
         finally:
             self.mutex.unlock()
 
@@ -82,7 +82,7 @@ class PPTaskManager(QtCore.QThread):
     def stop(self):
         try:
             self.mutex.lock()
-            self.stopped = True
+            self._stopped = True
         finally:
             self.mutex.unlock()
         self.timer.stop()

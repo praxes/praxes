@@ -100,7 +100,7 @@ class MainWindowBase(QtGui.QMainWindow):
         settings.beginGroup(str(self.__class__))
         settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
         settings.setValue('State', QtCore.QVariant(self.saveState()))
-        return event.accept()
+        event.accept()
 
 
 class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):

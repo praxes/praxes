@@ -155,7 +155,7 @@ class CorrectedDataProxy(object):
         return AcquisitionIterator(self)
 
     def get_averaged_counts(self, indices=[]):
-        with self._dataset._plock:
+        with self._dataset.plock:
             if not len(indices):
                 indices = range(len(self))
             if len(indices) == 0:
