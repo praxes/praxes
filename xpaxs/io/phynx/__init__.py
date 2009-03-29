@@ -36,4 +36,4 @@ from .registry import registry
 
 from .utils import simple_eval
 
-from h5py import H5Error
+from .exceptions import H5Error

@@ -13,6 +13,7 @@ except ImportError:
     class HasTraits(object):
         pass
 
+from .exceptions import H5Error
 from .utils import simple_eval
 
 

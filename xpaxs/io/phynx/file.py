@@ -11,6 +11,7 @@ import time
 
 import h5py
 
+from .exceptions import H5Error
 from .group import Group
 from .utils import sync
 
@@ -29,7 +30,7 @@ class File(Group, h5py.File):
     def creator(self):
         try:
             return self.attrs['creator']
-        except h5py.H5Error:
+        except H5Error:
             raise RuntimeError('unrecognized format')
 
     @property
@@ -66,8 +67,7 @@ class File(Group, h5py.File):
                     'lock must be a context manager, providing __enter__ and '
                     '__exit__ methods'
                 )
-#        self._plock = lock
-        self._plock = self._lock
+        self._plock = lock
 
         if self.mode != 'r' and len(self) == 0:
             if 'file_name' not in self.attrs:

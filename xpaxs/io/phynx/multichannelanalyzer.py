@@ -11,6 +11,7 @@ import numpy as np
 
 from .dataset import AcquisitionIterator, DeadTime, Signal
 from .detector import Detector
+from .exceptions import H5Error
 from .registry import registry
 from .utils import simple_eval, sync
 
@@ -29,7 +30,7 @@ class MultiChannelAnalyzer(Detector):
     def channels(self):
         try:
             return self['channels'].value
-        except h5py.H5Error:
+        except H5Error:
             return np.arange(self['counts'].shape[-1])
 
     @property
@@ -40,7 +41,7 @@ class MultiChannelAnalyzer(Detector):
         try:
             from PyMca.ConfigDict import ConfigDict
             return ConfigDict(simple_eval(self.attrs['pymca_config']))
-        except h5py.H5Error:
+        except H5Error:
             return None
     def _set_pymca_config(self, config):
         self.attrs['pymca_config'] = str(config)
@@ -54,7 +55,7 @@ class MultiChannelAnalyzer(Detector):
         try:
             if self['counts'].attrs['class'] != 'McaSpectrum':
                 self['counts'].attrs['class'] = 'McaSpectrum'
-        except h5py.H5Error:
+        except H5Error:
             pass
 
         # TODO: this could eventually go away
@@ -129,7 +130,7 @@ class CorrectedDataProxy(object):
                     newshape[:len(norm.shape)] = norm.shape
                     norm.shape = newshape
                 data /= norm
-            except h5py.H5Error:
+            except H5Error:
                 # fails if normalization is not defined
                 pass
 
@@ -142,7 +143,7 @@ class CorrectedDataProxy(object):
                     newshape[:len(dtc.shape)] = dtc.shape
                     dtn.shape = newshape
                 data *= dtc
-            except h5py.H5Error:
+            except H5Error:
                 # fails if dead_time_correction is not defined
                 pass
 

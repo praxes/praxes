@@ -9,6 +9,7 @@ import h5py
 import numpy as np
 
 from .base import _PhynxProperties
+from .exceptions import H5Error
 from .registry import registry
 from .utils import simple_eval, sync
 
@@ -70,7 +71,7 @@ class AcquisitionIterator(object):
                     self._total_skipped += 1
                     return self.next()
 
-            except h5py.H5Error:
+            except H5Error:
                 raise IndexError
 
 
@@ -171,7 +172,7 @@ class Axis(Dataset):
     def range(self):
         try:
             return simple_eval(self.attrs['range'])
-        except h5py.H5Error:
+        except H5Error:
             try:
                 return (self.value[[0, -1]])
             except IndexError:

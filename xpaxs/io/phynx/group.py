@@ -10,6 +10,7 @@ import numpy as np
 
 from .base import _PhynxProperties
 from .dataset import Axis, Dataset, Signal
+from .exceptions import H5Error
 from .registry import registry
 from .utils import sync
 
@@ -63,7 +64,7 @@ class Group(h5py.Group, _PhynxProperties):
         with parent_object.plock:
             try:
                 h5py.Group.__init__(self, parent_object, name)
-            except h5py.H5Error:
+            except H5Error:
                 h5py.Group.__init__(self, parent_object, name, create=True)
                 self.attrs['class'] = self.__class__.__name__
                 try:
