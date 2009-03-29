@@ -158,7 +158,6 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
         else:
             if len(buff):
                 mca['counts'][i+1-len(buff):i+1] = buff
-            if i+1 >= thresh:
                 sys.stdout.write('.\n')
                 sys.stdout.flush()
 
@@ -355,6 +354,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
                 dset[i] = d
                 if masked is not None and 'masked' not in mar:
                     mar['masked'] = masked
+                print 'integrated %s' % f
             except:
                 sys.stdout.write('Found mar image but unable to fetch it.')
                 sys.stdout.write('Perhaps marcvt is not installed.')
