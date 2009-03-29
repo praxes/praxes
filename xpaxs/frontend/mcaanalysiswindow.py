@@ -255,6 +255,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             indices = self.scanData['scalar_data']['i'].value
         if len(indices):
             self.statusbar.showMessage('Averaging spectra ...')
+            QtGui.qApp.processEvents()
             mca = self.scanData.mcas.values()[0]
             counts = mca['counts'].corrected.get_averaged_counts(indices)
             channels = mca.channels

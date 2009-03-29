@@ -251,22 +251,13 @@ class AcquisitionEnumerator(object):
 
         else:
             try:
-                try:
-                    valid = not self._dataset.masked[self._current_index]
-                except TypeError:
-                    valid = True
-                if valid:
-                    i = self._current_index
-                    data = self._dataset[i]
-                    self._current_index += 1
-
-                    return i, data
-
-                else:
-                    self._current_index += 1
+                i = self._current_index
+                self._current_index += 1
+                if self._dataset.masked[i]:
                     self._total_skipped += 1
                     return self.next()
 
+                return i, self._dataset[i]
             except H5Error:
                 raise IndexError
 
@@ -318,6 +309,6 @@ class MaskedProxy(object):
             if self._dset_mask is not None:
                 return self._dset_mask.__getitem__(args)
             else:
-                if len(args) == 1 and int(args[0]) == args[0]:
+                if isinstance(args, int):
                     return False
                 return np.zeros(len(self._dset), '?').__getitem__(args)
