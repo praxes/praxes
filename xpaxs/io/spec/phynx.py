@@ -318,7 +318,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     dir, spec_filename = os.path.split(spec_filename)
     if not dir:
         dir = os.getcwd()
-    for f in os.listdir(dir):
+    for f in sorted(os.listdir(dir)):
         # process mca device files:
         if (
             f.startswith(spec_filename+'.scan%s.'%scan_number) and
