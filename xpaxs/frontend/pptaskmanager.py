@@ -60,14 +60,14 @@ class XfsPPTaskManager(PPTaskManager):
 
     def __del__(self):
         self.scan = None
-        self.iterData = None
+        self.enumData = None
 
     def _submitJobs(self, numJobs):
         try:
             self.mutex.lock()
             for i in range(numJobs):
                 try:
-                    index, data = self.iterData.next()
+                    index, data = self.enumData.next()
                     args = (
                         index, data, self.tconf, self.advancedFit, self.mfTool
                     )
@@ -84,7 +84,7 @@ class XfsPPTaskManager(PPTaskManager):
 
     def setData(self, scan, config):
         self.scan = scan
-        self.iterData = scan.mcas.values()[0]['counts'].corrected.iteritems()
+        self.enumData = scan.mcas.values()[0]['counts'].corrected.enumerate_items()
         self._totalProcessed = 0
 
         self.config = config
@@ -132,7 +132,7 @@ class XfsPPTaskManager(PPTaskManager):
                         k = key.replace(' ', '_')
                         self.updateElementMap(k, 'mass_fraction', index, val)
                 self.dirty = True
-                track = self._totalProcessed + self.iterData.total_skipped
+                track = self._totalProcessed + self.enumData.total_skipped
                 self.emit(
                     QtCore.SIGNAL('percentComplete'),
                     (100.0 * track) / self.scan.npoints

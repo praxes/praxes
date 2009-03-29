@@ -9,7 +9,7 @@ import threading
 import h5py
 import numpy as np
 
-from .dataset import AcquisitionIterator, DeadTime, Signal
+from .dataset import AcquisitionEnumerator, DeadTime, Signal
 from .detector import Detector
 from .exceptions import H5Error
 from .registry import registry
@@ -109,22 +109,22 @@ class CorrectedDataProxy(object):
 
     @property
     def masked(self):
-        return self._dataset.masked
+        return self._dset.masked
 
     @property
     def npoints(self):
-        return self._dataset.npoints
+        return self._dset.npoints
 
     def __init__(self, dataset):
-        self._dataset = dataset
+        self._dset = dataset
 
     def __getitem__(self, key):
-        with self._dataset.plock:
-            data = self._dataset[key]
+        with self._dset.plock:
+            data = self._dset[key]
 
             # normalization may be something like ring current or monitor counts
             try:
-                norm = self._dataset.parent['normalization'][key]
+                norm = self._dset.parent['normalization'][key]
                 if norm.shape and len(norm.shape) < len(data.shape):
                     newshape = [1]*len(data.shape)
                     newshape[:len(norm.shape)] = norm.shape
@@ -136,7 +136,7 @@ class CorrectedDataProxy(object):
 
             # detector deadtime correction
             try:
-                dtc = self._dataset.parent['dead_time'].correction[key]
+                dtc = self._dset.parent['dead_time'].correction[key]
                 if isinstance(dtc, np.ndarray) \
                         and len(dtc.shape) < len(data.shape):
                     newshape = [1]*len(data.shape)
@@ -150,24 +150,24 @@ class CorrectedDataProxy(object):
             return data
 
     def __len__(self):
-        return len(self._dataset)
+        return len(self._dset)
 
-    def iteritems(self):
-        return AcquisitionIterator(self)
+    def enumerate_items(self):
+        return AcquisitionEnumerator(self)
 
     def get_averaged_counts(self, indices=[]):
-        with self._dataset.plock:
+        with self._dset.plock:
             if not len(indices):
                 indices = range(len(self))
             if len(indices) == 0:
                 return
 
-            result = np.zeros(len(self[indices[0]]), 'f')
+            result = np.zeros(self[indices[0]].shape, 'f')
             numIndices = len(indices)
             total_valid = 0
             for index in indices:
                 try:
-                    valid = not self._dataset.masked[index]
+                    valid = not self._dset.masked[index]
                 except TypeError:
                     valid = True
                 if valid:

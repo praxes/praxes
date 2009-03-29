@@ -14,67 +14,6 @@ from .registry import registry
 from .utils import simple_eval, sync
 
 
-class AcquisitionIterator(object):
-
-    """A class for iterating over datasets, even during data acquisition. The
-    dataset can either be a phynx dataset or a proxy to a phynx dataset.
-
-    If a datapoint is marked as invalid, it is skipped.
-
-    If the end of the current index is out of range, but smaller than the number
-    of points expected for the acquisition (npoints), an IndexError is raised
-    instead of StopIteration. This allows the code doing the iteration to assume
-    the acquisition is ongoing and continue attempts to iterate until
-    StopIteration is encountered. If a scan is aborted, the number of expected
-    points must be updated or AcquisitionIterator will never raise
-    StopIteration.
-
-    The iterator yields an index, item tuple.
-    """
-
-    @property
-    def current_index(self):
-        return self._current_index
-
-    @property
-    def total_skipped(self):
-        return self._total_skipped
-
-    def __init__(self, dataset):
-        self._dataset = dataset
-
-        self._current_index = 0
-        self._total_skipped = 0
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        if self._current_index >= self._dataset.npoints:
-            raise StopIteration()
-
-        else:
-            try:
-                try:
-                    valid = not self._dataset.masked[self._current_index]
-                except TypeError:
-                    valid = True
-                if valid:
-                    i = self._current_index
-                    data = self._dataset[i]
-                    self._current_index += 1
-
-                    return i, data
-
-                else:
-                    self._current_index += 1
-                    self._total_skipped += 1
-                    return self.next()
-
-            except H5Error:
-                raise IndexError
-
-
 class Dataset(h5py.Dataset, _PhynxProperties):
 
     """
@@ -88,7 +27,7 @@ class Dataset(h5py.Dataset, _PhynxProperties):
 
     @property
     def masked(self):
-        return self.parent.get('masked', None)
+        return MaskedProxy(self)
 
     @property
     @sync
@@ -149,8 +88,8 @@ class Dataset(h5py.Dataset, _PhynxProperties):
         except Exception:
             return "<Closed %s dataset>" % self.__class__.__name__
 
-    def iteritems(self):
-        return AcquisitionIterator(self)
+    def enumerate_items(self):
+        return AcquisitionEnumerator(self)
 
 registry.register(Dataset)
 
@@ -271,6 +210,67 @@ class DeadTime(Signal):
 registry.register(DeadTime)
 
 
+class AcquisitionEnumerator(object):
+
+    """A class for iterating over datasets, even during data acquisition. The
+    dataset can either be a phynx dataset or a proxy to a phynx dataset.
+
+    If a datapoint is marked as invalid, it is skipped.
+
+    If the end of the current index is out of range, but smaller than the number
+    of points expected for the acquisition (npoints), an IndexError is raised
+    instead of StopIteration. This allows the code doing the iteration to assume
+    the acquisition is ongoing and continue attempts to iterate until
+    StopIteration is encountered. If a scan is aborted, the number of expected
+    points must be updated or AcquisitionEnumerator will never raise
+    StopIteration.
+
+    The enumerator yields an index, item tuple.
+    """
+
+    @property
+    def current_index(self):
+        return self._current_index
+
+    @property
+    def total_skipped(self):
+        return self._total_skipped
+
+    def __init__(self, dataset):
+        self._dataset = dataset
+
+        self._current_index = 0
+        self._total_skipped = 0
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        if self._current_index >= self._dataset.npoints:
+            raise StopIteration()
+
+        else:
+            try:
+                try:
+                    valid = not self._dataset.masked[self._current_index]
+                except TypeError:
+                    valid = True
+                if valid:
+                    i = self._current_index
+                    data = self._dataset[i]
+                    self._current_index += 1
+
+                    return i, data
+
+                else:
+                    self._current_index += 1
+                    self._total_skipped += 1
+                    return self.next()
+
+            except H5Error:
+                raise IndexError
+
+
 class DeadTimeProxy(object):
 
     _valid = ('percent', '%', 'fraction', 'normalization', 'correction')
@@ -302,3 +302,22 @@ class DeadTimeProxy(object):
         else:
             return fraction
 
+
+class MaskedProxy(object):
+
+    def __init__(self, dset):
+        self._dset = dset
+
+        try:
+            self._dset_mask = dset.parent['masked']
+        except H5Error:
+            self._dset_mask = None
+
+    def __getitem__(self, args):
+        with self._dset.plock:
+            if self._dset_mask is not None:
+                return self._dset_mask.__getitem__(args)
+            else:
+                if len(args) == 1 and int(args[0]) == args[0]:
+                    return False
+                return np.zeros(len(self._dset), '?').__getitem__(args)

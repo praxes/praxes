@@ -244,7 +244,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         mon, thresh = skipmode[0].split()[2:]
         thresh = int(thresh)
         index = scan.alllabels().index(mon)+1
-        skipped = (scan.datacol(index) < thresh).astype('uint8')
+        skipped = scan.datacol(index) < thresh
         kwargs = {'class':'Signal', 'monitor':mon, 'threshold':thresh}
         masked = scalar_data.create_dataset(
             'masked', data=skipped, **kwargs
