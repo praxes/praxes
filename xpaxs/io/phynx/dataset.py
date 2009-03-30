@@ -280,6 +280,10 @@ class AcquisitionEnumerator(object):
 class DataProxy(object):
 
     @property
+    def masked(self):
+        return self._dset.masked
+
+    @property
     def npoints(self):
         return self._dset.npoints
 
@@ -310,10 +314,6 @@ class DataProxy(object):
 
 
 class CorrectedDataProxy(DataProxy):
-
-    @property
-    def masked(self):
-        return self._dset.masked
 
     @sync
     def __getitem__(self, key):
@@ -350,38 +350,52 @@ class CorrectedDataProxy(DataProxy):
 
 class DeadTimeProxy(DataProxy):
 
-    _valid = ('percent', '%', 'fraction', 'normalization', 'correction')
+    @property
+    def format(self):
+        return self._format
 
     def __init__(self, dataset, format):
         super(DeadTimeProxy, self).__init__(dataset)
 
-        assert format in self._valid
+        assert format in (
+            'percent', '%', 'fraction', 'normalization', 'correction'
+        )
         self._format = format
 
     @sync
     def __getitem__(self, args):
-        if self._dset.format in ('percent', '%'):
+        if self._dset.format == 'fraction':
+            fraction = self._dset.__getitem__(args)
+        elif self._dset.format in ('percent', '%'):
             fraction = self._dset.__getitem__(args) / 100.0
         elif self._dset.format == 'correction':
             fraction = self._dset.__getitem__(args) - 1
         elif self._dset.format == 'normalization':
             fraction = 1.0 / self._dset.__getitem__(args) - 1
-        elif self._dset.format == 'fraction':
-            fraction = self._dset.__getitem__(args)
         else:
-            raise ValueError('Unrecognized dead time format')
+            raise ValueError(
+                'Unrecognized dead time format: %s' % self._dset.format
+            )
 
-        if self._format in ('percent', '%'):
+        if self.format == 'fraction':
+            return fraction
+        elif self.format in ('percent', '%'):
             return 100 * fraction
-        elif self._format == 'correction':
+        elif self.format == 'correction':
             return 1 + fraction
-        elif self._format == 'normalization':
+        elif self.format == 'normalization':
             return 1 / (1 + fraction)
         else:
-            return fraction
+            raise ValueError(
+                'Unrecognized dead time format: %s' % self.format
+            )
 
 
 class MaskedProxy(DataProxy):
+
+    @property
+    def masked(self):
+        return self
 
     @sync
     def __getitem__(self, args):
