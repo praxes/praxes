@@ -355,9 +355,8 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                 QtGui.QFileDialog.getSaveFileName(
                     self,
                     'Save HDF5 File',
-                    '.',
-                    'HDF5 files (*.h5 *.hdf5)',
-                    f+'.h5'
+                    './'+f+'.h5',
+                    'HDF5 files (*.h5 *.hdf5)'
                 )
             )
             if h5_filename:
