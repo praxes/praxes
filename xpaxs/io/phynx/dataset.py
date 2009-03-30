@@ -89,7 +89,22 @@ class Dataset(h5py.Dataset, _PhynxProperties):
             return "<Closed %s dataset>" % self.__class__.__name__
 
     def enumerate_items(self):
+        """enumerate unmasked items"""
         return AcquisitionEnumerator(self)
+
+    @sync
+    def mean(self, indices=None):
+        if indices is None:
+            indices = range(len(self))
+
+        res = np.zeros(self.shape[1:], 'f')
+        nitems = 0
+        for i in indices:
+            if not self.masked[i]:
+                nitems += 1
+                res += self[i]
+
+        return res / nitems
 
 registry.register(Dataset)
 
@@ -262,16 +277,88 @@ class AcquisitionEnumerator(object):
                 raise IndexError
 
 
-class DeadTimeProxy(object):
+class DataProxy(object):
+
+    @property
+    def npoints(self):
+        return self._dset.npoints
+
+    @property
+    def plock(self):
+        return self._plock
+
+    def __init__(self, dataset):
+        self._dset = dataset
+        self._plock = dataset.plock
+
+    @sync
+    def __getitem__(self, args):
+        raise NotImplementedError(
+            '__getitem__ must be implemented by $s' % self.__class__.__name__
+        )
+
+
+    def __len__(self):
+        return len(self._dset)
+
+    def enumerate_items(self):
+        return AcquisitionEnumerator(self)
+
+    def mean(self, indices=None):
+        """return the mean for unmasked indices"""
+        return self._dset.mean(indices)
+
+
+class CorrectedDataProxy(DataProxy):
+
+    @property
+    def masked(self):
+        return self._dset.masked
+
+    @sync
+    def __getitem__(self, key):
+        with self._dset.plock:
+            data = self._dset.__getitem__(key)
+
+            # normalization may be something like ring current or monitor counts
+            try:
+                norm = self._dset.parent['normalization'].__getitem__(key)
+                if norm.shape and len(norm.shape) < len(data.shape):
+                    newshape = [1]*len(data.shape)
+                    newshape[:len(norm.shape)] = norm.shape
+                    norm.shape = newshape
+                data /= norm
+            except H5Error:
+                # fails if normalization is not defined
+                pass
+
+            # detector deadtime correction
+            try:
+                dtc = self._dset.parent['dead_time'].correction.__getitem__(key)
+                if isinstance(dtc, np.ndarray) \
+                        and len(dtc.shape) < len(data.shape):
+                    newshape = [1]*len(data.shape)
+                    newshape[:len(dtc.shape)] = dtc.shape
+                    dtn.shape = newshape
+                data *= dtc
+            except H5Error:
+                # fails if dead_time_correction is not defined
+                pass
+
+            return data
+
+
+class DeadTimeProxy(DataProxy):
 
     _valid = ('percent', '%', 'fraction', 'normalization', 'correction')
 
-    def __init__(self, dset, format):
-        self._dset = dset
+    def __init__(self, dataset, format):
+        super(DeadTimeProxy, self).__init__(dataset)
 
         assert format in self._valid
         self._format = format
 
+    @sync
     def __getitem__(self, args):
         if self._dset.format in ('percent', '%'):
             fraction = self._dset.__getitem__(args) / 100.0
@@ -294,21 +381,13 @@ class DeadTimeProxy(object):
             return fraction
 
 
-class MaskedProxy(object):
+class MaskedProxy(DataProxy):
 
-    def __init__(self, dset):
-        self._dset = dset
-
-        try:
-            self._dset_mask = dset.parent['masked']
-        except H5Error:
-            self._dset_mask = None
-
+    @sync
     def __getitem__(self, args):
-        with self._dset.plock:
-            if self._dset_mask is not None:
-                return self._dset_mask.__getitem__(args)
-            else:
-                if isinstance(args, int):
-                    return False
-                return np.zeros(len(self._dset), '?').__getitem__(args)
+        try:
+            return self._dset.parent['masked'].__getitem__(args)
+        except H5Error:
+            if isinstance(args, int):
+                return False
+            return np.zeros(len(self._dset), '?').__getitem__(args)

@@ -9,7 +9,7 @@ import threading
 import h5py
 import numpy as np
 
-from .dataset import AcquisitionEnumerator, DeadTime, Signal
+from .dataset import CorrectedDataProxy, DeadTime, Signal
 from .detector import Detector
 from .exceptions import H5Error
 from .registry import registry
@@ -103,79 +103,6 @@ class MultiChannelAnalyzer(Detector):
             self.attrs['calibration'] = str(tuple(cal))
 
 registry.register(MultiChannelAnalyzer)
-
-
-class CorrectedDataProxy(object):
-
-    @property
-    def masked(self):
-        return self._dset.masked
-
-    @property
-    def npoints(self):
-        return self._dset.npoints
-
-    def __init__(self, dataset):
-        self._dset = dataset
-
-    def __getitem__(self, key):
-        with self._dset.plock:
-            data = self._dset[key]
-
-            # normalization may be something like ring current or monitor counts
-            try:
-                norm = self._dset.parent['normalization'][key]
-                if norm.shape and len(norm.shape) < len(data.shape):
-                    newshape = [1]*len(data.shape)
-                    newshape[:len(norm.shape)] = norm.shape
-                    norm.shape = newshape
-                data /= norm
-            except H5Error:
-                # fails if normalization is not defined
-                pass
-
-            # detector deadtime correction
-            try:
-                dtc = self._dset.parent['dead_time'].correction[key]
-                if isinstance(dtc, np.ndarray) \
-                        and len(dtc.shape) < len(data.shape):
-                    newshape = [1]*len(data.shape)
-                    newshape[:len(dtc.shape)] = dtc.shape
-                    dtn.shape = newshape
-                data *= dtc
-            except H5Error:
-                # fails if dead_time_correction is not defined
-                pass
-
-            return data
-
-    def __len__(self):
-        return len(self._dset)
-
-    def enumerate_items(self):
-        return AcquisitionEnumerator(self)
-
-    def get_averaged_counts(self, indices=[]):
-        with self._dset.plock:
-            if not len(indices):
-                indices = range(len(self))
-            if len(indices) == 0:
-                return
-
-            result = np.zeros(self[indices[0]].shape, 'f')
-            numIndices = len(indices)
-            total_valid = 0
-            for index in indices:
-                try:
-                    valid = not self._dset.masked[index]
-                except TypeError:
-                    valid = True
-                if valid:
-                    temp = self[index]
-                    result += temp
-                    total_valid += 1
-
-            return result / total_valid
 
 
 class McaSpectrum(Signal):

@@ -1,18 +1,11 @@
 """
 """
 
-#---------------------------------------------------------------------------
-# Stdlib imports
-#---------------------------------------------------------------------------
-
+import gc
 from md5 import md5
 import os
 import subprocess
 import sys
-
-#---------------------------------------------------------------------------
-# Extlib imports
-#---------------------------------------------------------------------------
 
 import numpy as np
 try:
@@ -20,15 +13,8 @@ try:
 except ImportError:
     from PyMca import specfile
 
-#---------------------------------------------------------------------------
-# xpaxs imports
-#---------------------------------------------------------------------------
-
 from xpaxs.io.phynx import File
 
-#---------------------------------------------------------------------------
-# Normal code begins
-#---------------------------------------------------------------------------
 
 compression = {'compression':4, 'shuffle':True, 'fletcher32':True}
 
@@ -352,9 +338,11 @@ def convert_scan(scan, sfile, h5file, spec_filename):
                 i = f.replace(spec_filename+'.%s_'%scan_number, '')
                 i = int(i.replace('.mar3450', ''))
                 dset[i] = d
+                del d
                 if masked is not None and 'masked' not in mar:
                     mar['masked'] = masked
                 print 'integrated %s' % f
+                gc.collect()
             except:
                 sys.stdout.write('Found mar image but unable to fetch it.')
                 sys.stdout.write('Perhaps marcvt is not installed.')
