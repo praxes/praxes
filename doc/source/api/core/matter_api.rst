@@ -10,4 +10,3 @@ Give some intro...
 
 .. automodule:: xpaxs.core.matter
    :members:
-   :show-inheritance:

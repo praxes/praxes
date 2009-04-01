@@ -20,7 +20,7 @@ repository by doing::
 
 The documentation sources are found in the :file:`doc/` directory in the trunk.
 The output produced by Sphinx can be configured by editing the :file:`conf.py`
-file located in the :file:`doc/` directory. To build the users guide in html 
+file located in the :file:`doc/` directory. To build the users guide in html
 format, run from the main xpaxs directory::
 
   python setup.py build_sphinx
@@ -96,18 +96,18 @@ working with Sphinx in general. Here are a few additional things to keep in mind
 
     \int_{-\infty}^{\infty}\frac{e^{i\phi}}{1+x^2\frac{e^{i\phi}}{1+x^2}}
 
-* Interactive IPython sessions can be illustrated in the documentation using
-  the following directive::
+..  * Interactive IPython sessions can be illustrated in the documentation using
+      the following directive::
 
-    .. sourcecode:: ipython
+        .. sourcecode:: ipython
 
-      In [69]: lines = plot([1,2,3])
+          In [69]: lines = plot([1,2,3])
 
-  which would yield:
+      which would yield:
 
-  .. sourcecode:: ipython
+      .. sourcecode:: ipython
 
-    In [69]: lines = plot([1,2,3])
+        In [69]: lines = plot([1,2,3])
 
 * Footnotes [#]_ can be added using ``[#]_``, followed later by::
 

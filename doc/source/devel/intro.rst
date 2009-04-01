@@ -1,5 +1,9 @@
-Development
-===========
+************
+Introduction
+************
+
+Getting Started
+===============
 
 In order to work on xpaxs development, after installing the xpaxs dependencies,
 you will need to do the following:
@@ -13,3 +17,8 @@ extension code, which needs to be compiled, you will need to run
 "python setup.py develop" again. Also note that executable scripts are copied
 to their install directory, rather than being linked, so you need to run
 "python setup.py develop" after editing scripts.
+
+Organization
+============
+
+

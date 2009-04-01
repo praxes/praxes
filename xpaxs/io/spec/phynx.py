@@ -2,7 +2,7 @@
 """
 
 import gc
-from md5 import md5
+from hashlib import md5
 import os
 import subprocess
 import sys
@@ -15,8 +15,6 @@ except ImportError:
 
 from xpaxs.io.phynx import File
 
-
-compression = {'compression':4, 'shuffle':True, 'fletcher32':True}
 
 def get_spec_scan_info(commandList):
     scan_type, args = commandList[0], commandList[1:]

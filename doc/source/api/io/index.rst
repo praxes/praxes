@@ -5,7 +5,7 @@ XPaXS IO API
 .. _io-contents:
 
 .. toctree::
-   :maxdepth: 0
+   :maxdepth: 1
 
    introduction.rst
    spec.rst

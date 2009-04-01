@@ -1,8 +1,8 @@
 ******************
-XPaXS Dispatch API
+XPaXS Frontend API
 ******************
 
-.. _index-contents:
+.. _frontend-contents:
 
 .. toctree::
    :maxdepth: 2

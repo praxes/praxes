@@ -2,6 +2,6 @@
 Introduction
 ============
 
-.. automodule:: xpaxs.frontends
+.. automodule:: xpaxs.frontend
 
 

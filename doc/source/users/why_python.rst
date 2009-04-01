@@ -1,9 +1,3 @@
-************
-Installation
-************
-
-.. include:: ../INSTALL
-
 Why Python?
 ===========
 

@@ -8,4 +8,5 @@ User's Guide
    :maxdepth: 2
 
    installation.rst
+   why_python.rst
    phynx.rst

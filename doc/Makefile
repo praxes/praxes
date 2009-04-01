@@ -2,71 +2,87 @@
 #
 
 # You can set these variables from the command line.
-SPHINXOPTS   =
-SPHINXBUILD  = sphinx-build
-PAPER        =
+SPHINXOPTS    =
+SPHINXBUILD   = sphinx-build
+PAPER         =
 
-PAPEROPT_a4      = -D latex_paper_size=a4
-PAPEROPT_letter  = -D latex_paper_size=letter
-ALLSPHINXOPTS = -d _build/doctrees $(PAPEROPT_$(PAPER)) \
-                $(SPHINXOPTS) .
+# Internal variables.
+PAPEROPT_a4     = -D latex_paper_size=a4
+PAPEROPT_letter = -D latex_paper_size=letter
+ALLSPHINXOPTS   = -d build/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
 
-.PHONY: help clean html web htmlhelp latex changes linkcheck
+.PHONY: help clean html dirhtml pickle json htmlhelp qthelp latex changes linkcheck doctest
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  html      to make standalone HTML files"
-	@echo "  web       to make files usable by Sphinx.web"
+	@echo "  dirhtml   to make HTML files named index.html in directories"
+	@echo "  pickle    to make pickle files"
+	@echo "  json      to make JSON files"
 	@echo "  htmlhelp  to make HTML files and a HTML help project"
+	@echo "  qthelp    to make HTML files and a qthelp project"
 	@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
-	@echo "  changes   to make an overview over all changed/added/deprecated items"
+	@echo "  changes   to make an overview of all changed/added/deprecated items"
 	@echo "  linkcheck to check all external links for integrity"
+	@echo "  doctest   to run all doctests embedded in the documentation (if enabled)"
 
 clean:
-	-rm -rf _build/*
+	-rm -rf build/*
 
 html:
-	mkdir -p _build/html _build/doctrees
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) _build/html
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) build/html
 	@echo
-	@echo "Build finished. The HTML pages are in _build/html."
+	@echo "Build finished. The HTML pages are in build/html."
+
+dirhtml:
+	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) build/dirhtml
+	@echo
+	@echo "Build finished. The HTML pages are in build/dirhtml."
 
 pickle:
-	mkdir -p _build/pickle _build/doctrees
-	$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) _build/pickle
+	$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) build/pickle
 	@echo
-	@echo "Build finished; now you can run"
-	@echo "  python -m sphinx.web _build/pickle"
-	@echo "to start the server."
+	@echo "Build finished; now you can process the pickle files."
+
+json:
+	$(SPHINXBUILD) -b json $(ALLSPHINXOPTS) build/json
+	@echo
+	@echo "Build finished; now you can process the JSON files."
 
 htmlhelp:
-	mkdir -p _build/htmlhelp _build/doctrees
-	$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) _build/htmlhelp
+	$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) build/htmlhelp
 	@echo
 	@echo "Build finished; now you can run HTML Help Workshop with the" \
-	      ".hhp project file in _build/htmlhelp."
+	      ".hhp project file in build/htmlhelp."
+
+qthelp:
+	$(SPHINXBUILD) -b qthelp $(ALLSPHINXOPTS) build/qthelp
+	@echo
+	@echo "Build finished; now you can run "qcollectiongenerator" with the" \
+	      ".qhcp project file in build/qthelp, like this:"
+	@echo "# qcollectiongenerator build/qthelp/XPaXS.qhcp"
+	@echo "To view the help file:"
+	@echo "# assistant -collectionFile build/qthelp/XPaXS.qhc"
 
 latex:
-	mkdir -p _build/latex _build/doctrees
-	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) _build/latex
+	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) build/latex
 	@echo
-	@echo "Build finished; the LaTeX files are in _build/latex."
+	@echo "Build finished; the LaTeX files are in build/latex."
 	@echo "Run \`make all-pdf' or \`make all-ps' in that directory to" \
 	      "run these through (pdf)latex."
 
 changes:
-	mkdir -p _build/changes _build/doctrees
-	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) _build/changes
+	$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) build/changes
 	@echo
-	@echo "The overview file is in _build/changes."
+	@echo "The overview file is in build/changes."
 
 linkcheck:
-	mkdir -p _build/linkcheck _build/doctrees
-	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) _build/linkcheck
+	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) build/linkcheck
 	@echo
 	@echo "Link check complete; look for any errors in the above output " \
-	      "or in _build/linkcheck/output.txt."
+	      "or in build/linkcheck/output.txt."
 
 doctest:
-	mkdir -p _build/doctest _build/doctrees
-	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) _build/doctest
+	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) build/doctest
+	@echo "Testing of doctests in the sources finished, look at the " \
+	      "results in build/doctest/output.txt."
