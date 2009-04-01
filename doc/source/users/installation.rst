@@ -11,7 +11,7 @@ XPaXS requires several packages in order to run:
   version of python-2.5.4, even if your computer is 64-bit.
 * setuptools_ (version 0.6c8 or later)
 * NumPy_ (version 1.2 or later)
-* PyQt4_ (preferrably version 4.3.3 or later)
+* PyQt4_ (preferrably version 4.4.4 or later)
 * PyQwt_ (version 5.1.0 or later)
 * PyMca_ (version 4.3.0 or later) Please be sure to use the windows installer
   includes your python version in the name (like PyMca-4.3.0.win32-py2.5.exe).
@@ -19,11 +19,11 @@ XPaXS requires several packages in order to run:
   as administrator"
 * matplotlib_ (0.98 or later) Windows users: you may need to right-click on the
   installer and select "run as administrator"
-* ParallelPython_ (version 1.5.6 or later) Note: please install from one of the
+* ParallelPython_ (version 1.5.7 or later) Note: please install from one of the
   .zip or .tgz source files, **not** the .exe file and not using easy_install.
   There is a bug with the later two installers. Just unzip the sources, cd into
   the new directory and run "python setup.py install".
-* h5py_ (1.0.1 or later)
+* h5py_ (1.1 or later)
 * XPaXS_ Windows users: you may need to right-click on the installer and select
   "run as administrator".
 
