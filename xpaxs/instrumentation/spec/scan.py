@@ -100,11 +100,11 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
             if ScanView:
                 view = ScanView(entry)
 
-            self.connect(
-                self,
-                QtCore.SIGNAL('beginProcessing'),
-                view.processData
-            )
+                self.connect(
+                    self,
+                    QtCore.SIGNAL('beginProcessing'),
+                    view.processData
+                )
 
         self.emit(QtCore.SIGNAL("newScanLength"), info['npoints'])
 
