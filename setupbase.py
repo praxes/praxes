@@ -64,7 +64,7 @@ setup_args = dict(
 #---------------------------------------------------------------------------
 
 def ui_cvt(arg, dirname, fnames):
-    if os.path.split(dirname)[-1] in ('ui', 'resources'):
+    if os.path.split(dirname)[-1] in ('ui'):
         for fname in fnames:
             if fname.endswith('.ui'):
                 ui = '/'.join([dirname, fname])
@@ -76,7 +76,7 @@ def ui_cvt(arg, dirname, fnames):
                 print_raw('converted %s'%fname)
             elif fname.endswith('.qrc'):
                 rc = '/'.join([dirname, fname])
-                py = os.path.splitext(rc)[0]+'.py'
+                py = os.path.splitext(rc)[0]+'_rc.py'
                 if os.path.isfile(py):
                     if os.path.getmtime(rc) < os.path.getmtime(py):
                         continue

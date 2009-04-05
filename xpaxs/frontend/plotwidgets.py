@@ -16,7 +16,7 @@ from matplotlib.figure import Figure
 from matplotlib.widgets import Cursor
 import numpy as np
 
-from .ui.resources import icons, cursors
+from .ui import icons_rc, cursors_rc
 
 
 logger = logging.getLogger(__file__)

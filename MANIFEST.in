@@ -6,14 +6,11 @@ include SpecClient/doc/*
 include scripts/*
 include xpaxs/config/tests/*
 include xpaxs/dispatch/tests/*
-include xpaxs/frontends/base/tests/*
-include xpaxs/frontends/base/ui/*
-include xpaxs/frontends/base/ui/resources/*
-include xpaxs/frontends/xfs/tests/*
-include xpaxs/frontends/xfs/ui/*
+include xpaxs/frontends/tests/*
+include xpaxs/frontends/ui/*
 include xpaxs/instrumentation/spec/macros/*
 include xpaxs/instrumentation/spec/tests/*
 include xpaxs/instrumentation/spec/ui/*
-include xpaxs/instrumentation/spec/ui/resources/*
 include xpaxs/instrumentation/spec/ui/icons/*
+include xpaxs/instrumentation/webcam/ui/*
 include xpaxs/io/phynx/tests/*

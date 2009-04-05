@@ -39,7 +39,7 @@ def qrc2py(dir):
     case, convert .ui files to .py files.
     """
     for rc in glob.glob(dir+'/*.qrc'):
-        py = os.path.splitext(rc)[0]+'.py'
+        py = os.path.splitext(rc)[0]+'_rc.py'
         if os.path.isfile(py):
             convert = os.path.getmtime(rc) > os.path.getmtime(py)
         else:

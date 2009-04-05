@@ -64,8 +64,8 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="gamepad.qrc">
-            <normaloff>:/resources/gamepad/icons/Arrow_northwest.svg</normaloff>:/resources/gamepad/icons/Arrow_northwest.svg</iconset>
+           <iconset resource="icons.qrc">
+            <normaloff>:/icons/Arrow_northwest.svg</normaloff>:/icons/Arrow_northwest.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -111,8 +111,8 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="gamepad.qrc">
-            <normaloff>:/resources/gamepad/icons/Arrow_north.svg</normaloff>:/resources/gamepad/icons/Arrow_north.svg</iconset>
+           <iconset resource="icons.qrc">
+            <normaloff>:/icons/Arrow_north.svg</normaloff>:/icons/Arrow_north.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -167,8 +167,8 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="gamepad.qrc">
-            <normaloff>:/resources/gamepad/icons/Arrow_northeast.svg</normaloff>:/resources/gamepad/icons/Arrow_northeast.svg</iconset>
+           <iconset resource="icons.qrc">
+            <normaloff>:/icons/Arrow_northeast.svg</normaloff>:/icons/Arrow_northeast.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -214,8 +214,8 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="gamepad.qrc">
-            <normaloff>:/resources/gamepad/icons/Arrow_west.svg</normaloff>:/resources/gamepad/icons/Arrow_west.svg</iconset>
+           <iconset resource="icons.qrc">
+            <normaloff>:/icons/Arrow_west.svg</normaloff>:/icons/Arrow_west.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -297,8 +297,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="gamepad.qrc">
-             <normaloff>:/resources/gamepad/icons/Start.svg</normaloff>:/resources/gamepad/icons/Start.svg</iconset>
+            <iconset resource="icons.qrc">
+             <normaloff>:/icons/Start.svg</normaloff>:/icons/Start.svg</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -338,8 +338,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="gamepad.qrc">
-             <normaloff>:/resources/gamepad/icons/Stop.svg</normaloff>:/resources/gamepad/icons/Stop.svg</iconset>
+            <iconset resource="icons.qrc">
+             <normaloff>:/icons/Stop.svg</normaloff>:/icons/Stop.svg</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -380,8 +380,8 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="gamepad.qrc">
-            <normaloff>:/resources/gamepad/icons/Arrow_east.svg</normaloff>:/resources/gamepad/icons/Arrow_east.svg</iconset>
+           <iconset resource="icons.qrc">
+            <normaloff>:/icons/Arrow_east.svg</normaloff>:/icons/Arrow_east.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -430,8 +430,8 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="gamepad.qrc">
-            <normaloff>:/resources/gamepad/icons/Arrow_southwest.svg</normaloff>:/resources/gamepad/icons/Arrow_southwest.svg</iconset>
+           <iconset resource="icons.qrc">
+            <normaloff>:/icons/Arrow_southwest.svg</normaloff>:/icons/Arrow_southwest.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -477,8 +477,8 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="gamepad.qrc">
-            <normaloff>:/resources/gamepad/icons/Arrow_south.svg</normaloff>:/resources/gamepad/icons/Arrow_south.svg</iconset>
+           <iconset resource="icons.qrc">
+            <normaloff>:/icons/Arrow_south.svg</normaloff>:/icons/Arrow_south.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -527,8 +527,8 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="gamepad.qrc">
-            <normaloff>:/resources/gamepad/icons/Arrow_southeast.svg</normaloff>:/resources/gamepad/icons/Arrow_southeast.svg</iconset>
+           <iconset resource="icons.qrc">
+            <normaloff>:/icons/Arrow_southeast.svg</normaloff>:/icons/Arrow_southeast.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -617,7 +617,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="gamepad.qrc"/>
+  <include location="icons.qrc"/>
  </resources>
  <connections/>
 </ui>

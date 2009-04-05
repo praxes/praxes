@@ -3,8 +3,9 @@
 
 import os
 
-from xpaxs.config import ui2py
+from xpaxs.config import qrc2py, ui2py
 
+qrc2py(os.path.split(__file__)[0])
 ui2py(os.path.split(__file__)[0])
 
-del(os, ui2py)
+del(os, qrc2py, ui2py)
