@@ -1,6 +1,6 @@
 """
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, with_statement
 
 import posixpath
 import re
