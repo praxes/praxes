@@ -227,7 +227,8 @@ registry.register(DeadTime)
 
 class AcquisitionEnumerator(object):
 
-    """A class for iterating over datasets, even during data acquisition. The
+    """
+    A class for iterating over datasets, even during data acquisition. The
     dataset can either be a phynx dataset or a proxy to a phynx dataset.
 
     If a datapoint is marked as invalid, it is skipped.
@@ -267,12 +268,14 @@ class AcquisitionEnumerator(object):
         else:
             try:
                 i = self._current_index
-                self._current_index += 1
                 if self._dataset.masked[i]:
                     self._total_skipped += 1
+                    self._current_index += 1
                     return self.next()
 
-                return i, self._dataset[i]
+                res = self._dataset[i]
+                self._current_index += 1
+                return i, res
             except H5Error:
                 raise IndexError
 

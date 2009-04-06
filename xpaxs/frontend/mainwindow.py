@@ -395,13 +395,13 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
         if os.path.isfile(filename):
             return self.fileModel.openFile(filename)
         else:
-            newfilename = QtGui.QFileDialog.getSaveFileName(self.mainWindow,
+            newfilename = QtGui.QFileDialog.getSaveFileName(self,
                     "Save File", filename, "hdf5 files (*.h5 *.hdf5 *.nxs)")
             if newfilename:
                 newfilename = str(newfilename)
                 if newfilename.split('.')[-1] not in ('h5', 'hdf5', 'nxs'):
                     newfilename = newfilename + '.h5'
-                self.fileModel.openFile(newfilename)
+                return self.fileModel.openFile(newfilename)
             else: self.saveFile(filename)
 
     def scanClosed(self, scan):

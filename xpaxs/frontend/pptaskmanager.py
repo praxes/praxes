@@ -1,5 +1,6 @@
 """
 """
+from __future__ import with_statement
 
 import logging
 import time
@@ -58,55 +59,45 @@ def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
 
 class XfsPPTaskManager(PPTaskManager):
 
-    def __del__(self):
-        self.scan = None
-        self.enumData = None
+    def __init__(self, enumerator, config, scan, parent=None):
+        super(XfsPPTaskManager, self).__init__(enumerator, parent)
 
-    def _submitJobs(self, numJobs):
-        try:
-            self.mutex.lock()
-            for i in range(numJobs):
-                try:
-                    index, data = self.enumData.next()
-                    args = (
-                        index, data, self.tconf, self.advancedFit, self.mfTool
-                    )
-                    self.jobServer.submit(
-                        analyzeSpectrum,
-                        args,
-                        modules=("time", ),
-                        callback=self.updateRecords
-                    )
-                except (IndexError, ValueError):
-                    break
-        finally:
-            self.mutex.unlock()
+        with self.lock:
+            self.scan = scan
 
-    def setData(self, scan, config):
-        self.scan = scan
-        self.enumData = scan.mcas.values()[0]['counts'].corrected.enumerate_items()
-        self._totalProcessed = 0
+            self.config = config
 
-        self.config = config
+            self.advancedFit = ClassMcaTheory.McaTheory(config=config)
+            self.advancedFit.enableOptimizedLinearFit()
+            self.mfTool = None
+            if 'concentrations' in config:
+                self.mfTool = ConcentrationsTool(config)
+                self.tconf = self.mfTool.configure()
 
-        self.advancedFit = ClassMcaTheory.McaTheory(config=config)
-        self.advancedFit.enableOptimizedLinearFit()
-        self.mfTool = None
-        if 'concentrations' in config:
-            self.mfTool = ConcentrationsTool(config)
-            self.tconf = self.mfTool.configure()
+    def submitJob(self, index, data):
+        with self.lock:
+            args = (
+                index, data, self.tconf, self.advancedFit,
+                self.mfTool
+            )
+            self._jobServer.submit(
+                analyzeSpectrum,
+                args,
+                modules=("time", ),
+                callback=self.updateRecords
+            )
 
     def updateElementMap(self, element, mapType, index, val):
-        try:
-            entry = '%s_%s'%(element, mapType)
-            self.scan['element_maps'][entry][index] = val
-        except ValueError:
-            print index, node
+        with self.lock:
+            try:
+                entry = '%s_%s'%(element, mapType)
+                self.scan['element_maps'][entry][index] = val
+            except ValueError:
+                print index, node
 
     def updateRecords(self, data):
         if data:
-            try:
-                self.mutex.lock()
+            with self.lock:
                 if DEBUG: print 'Updating records'
 
                 self.advancedFit = data['advancedFit']
@@ -132,11 +123,5 @@ class XfsPPTaskManager(PPTaskManager):
                         k = key.replace(' ', '_')
                         self.updateElementMap(k, 'mass_fraction', index, val)
                 self.dirty = True
-                track = self._totalProcessed + self.enumData.total_skipped
-                self.emit(
-                    QtCore.SIGNAL('percentComplete'),
-                    (100.0 * track) / self.scan.npoints
-                )
                 if DEBUG: print 'records updated'
-            finally:
-                self.mutex.unlock()
+            self.report()

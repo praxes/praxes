@@ -289,8 +289,11 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
         self._resetPeaks()
 
-        thread = XfsPPTaskManager()
-        thread.setData(self.scanData, self.pymcaConfig)
+        thread = XfsPPTaskManager(
+            self.scanData.mcas.values()[0]['counts'].enumerate_items(),
+            self.pymcaConfig,
+            self.scanData
+        )
 
         self.connect(
             thread,
