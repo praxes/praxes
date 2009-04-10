@@ -35,7 +35,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
         title = '%s: %s: %s'%(
             scanData.file.name,
-            scanData.entry.name,
+            getattr(scanData.entry, 'name', ''),
             self.mcaData.name
         )
         self.setWindowTitle(title)

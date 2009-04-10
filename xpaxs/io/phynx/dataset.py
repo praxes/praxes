@@ -73,7 +73,7 @@ class Dataset(h5py.Dataset, _PhynxProperties):
         The following args and kwargs
         """
         with parent_object.plock:
-            if name in parent_object:
+            if data is None and shape is None:
                 h5py.Dataset.__init__(self, parent_object, name)
                 _PhynxProperties.__init__(self, parent_object)
             else:

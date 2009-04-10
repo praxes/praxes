@@ -71,7 +71,7 @@ class Group(h5py.Group, _PhynxProperties):
             [(a.name, a) for a in self.iterobjects() if isinstance(a, Axis)]
         )
 
-    def __init__(self, parent_object, name, **attrs):
+    def __init__(self, parent_object, name, create=False, **attrs):
         """
         Open an existing group or create a new one.
 
@@ -80,10 +80,8 @@ class Group(h5py.Group, _PhynxProperties):
 
         """
         with parent_object.plock:
-            try:
-                h5py.Group.__init__(self, parent_object, name)
-            except H5Error:
-                h5py.Group.__init__(self, parent_object, name, create=True)
+            h5py.Group.__init__(self, parent_object, name, create=create)
+            if create:
                 self.attrs['class'] = self.__class__.__name__
                 try:
                     self.attrs['NX_class'] = self.nx_class
@@ -156,12 +154,12 @@ class Group(h5py.Group, _PhynxProperties):
             return item
 
     def create_group(self, name, type='Group', **data):
-        return registry[type](self, name, **data)
+        return registry[type](self, name, create=True, **data)
 
     @sync
     def require_group(self, name, type='Group', **data):
         if not name in self:
-            return self.create_group(name, type, **data)
+            return self.create_group(name, type, create=True, **data)
         else:
             item = self[name]
             if not isinstance(item, registry[type]):

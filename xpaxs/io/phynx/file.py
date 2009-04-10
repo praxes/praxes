@@ -95,6 +95,22 @@ class File(Group, h5py.File):
                 self.attrs['format_version'] = '0.1'
 
     @sync
+    def create_entry(self, name, **data):
+        entry = self.create_group(name, type='Entry', **data)
+        measurement = entry.create_group('measurement', type='Measurement')
+        scalar_data = measurement.create_group('scalar_data', type='ScalarData')
+        pos = measurement.create_group('positioners', type='Positioners')
+        return entry
+
+    @sync
+    def require_entry(self, name, **data):
+        entry = self.require_group(name, type='Entry', **data)
+        measurement = entry.require_group('measurement', type='Measurement')
+        scalars = measurement.require_group('scalar_data', type='ScalarData')
+        pos = measurement.require_group('positioners', type='Positioners')
+        return entry
+
+    @sync
     def list_sorted_entries(self):
         return sorted(
             self.listobjects(), key=operator.attrgetter('acquisition_id')
