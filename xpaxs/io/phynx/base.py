@@ -107,18 +107,6 @@ class _PhynxProperties(HasTraits):
     """
 
     @property
-    def acquisition_command(self):
-        return self.attrs.get('acquisition_command', '')
-
-    @property
-    def acquisition_id(self):
-        return AcquisitionID(self.attrs.get('acquisition_id', '0'))
-
-    @property
-    def acquisition_name(self):
-        return self.attrs.get('acquisition_name', '')
-
-    @property
     def acquisition_shape(self):
         return simple_eval(self.attrs.get('acquisition_shape', '()'))
 
@@ -139,10 +127,7 @@ class _PhynxProperties(HasTraits):
         return self._plock
 
     def __init__(self, parent_object):
-        for attr in [
-            'acquisition_command', 'acquisition_id', 'acquisition_name',
-            'acquisition_shape', 'source_file', 'npoints'
-        ]:
+        for attr in ['acquisition_shape', 'source_file', 'npoints']:
             with parent_object.plock:
                 self._plock = parent_object.plock
                 self._file = parent_object.file

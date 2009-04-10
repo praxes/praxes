@@ -16,6 +16,14 @@ class Entry(Group):
     nx_class = 'NXentry'
 
     @property
+    def acquisition_command(self):
+        return self.attrs.get('acquisition_command', '')
+
+    @property
+    def acquisition_id(self):
+        return AcquisitionID(self.attrs.get('acquisition_id', '0'))
+
+    @property
     def entry(self):
         return self
 

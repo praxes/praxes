@@ -33,9 +33,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         pymcaConfig = self.mcaData.pymca_config
         self.setupUi(self)
 
-        title = '%s: %s'%(
+        title = '%s: %s: %s'%(
             scanData.file.name,
-            scanData.name
+            scanData.entry.name,
+            self.mcaData.name
         )
         self.setWindowTitle(title)
 
