@@ -96,6 +96,7 @@ class File(Group, h5py.File):
 
     @sync
     def create_entry(self, name, **data):
+        """A convenience function to build the most basic hierarchy"""
         entry = self.create_group(name, type='Entry', **data)
         measurement = entry.create_group('measurement', type='Measurement')
         scalar_data = measurement.create_group('scalar_data', type='ScalarData')
@@ -104,6 +105,7 @@ class File(Group, h5py.File):
 
     @sync
     def require_entry(self, name, **data):
+        """A convenience function to access or build the most basic hierarchy"""
         entry = self.require_group(name, type='Entry', **data)
         measurement = entry.require_group('measurement', type='Measurement')
         scalars = measurement.require_group('scalar_data', type='ScalarData')
