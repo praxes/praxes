@@ -87,6 +87,8 @@ def simple_eval(source):
 
 
 class SpecScanA:
+
+
     def __init__(self, specVersion = None):
         self.scanParams = {}
         self.scanCounterMne = None
@@ -106,6 +108,7 @@ class SpecScanA:
         SpecEventsDispatcher.connect(self.connection, 'disconnected',
                                      self.__disconnected)
 
+        self.connection.registerChannel('status/ready', self.__statusReady)
         self.connection.registerChannel('var/_SC_NEWSCAN', self.__newScan,
                                     dispatchMode=SpecEventsDispatcher.FIREEVENT)
         self.connection.registerChannel('var/_SC_NEWPLOTDATA',
@@ -141,6 +144,12 @@ class SpecScanA:
 
     def disconnected(self):
         pass
+
+
+    def __statusReady(self, status):
+        if self.__scanning and status == 1:
+            self.__scanning = False
+            self.scanAborted()
 
 
     def __newScan(self, scanParams):
@@ -224,6 +233,10 @@ class SpecScanA:
 
     def scanStarted(self): # A.B
         pass # A.B
+
+
+    def scanAborted(self):
+        pass
 
 
     def ascan(self, motorMne, startPos, endPos, nbPoints, countTime):

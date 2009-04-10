@@ -238,6 +238,7 @@ def clientploton '{
 
 def clientplotoff '{
     unglobal _SC_OLDX
+    _SC_PLOT_ACTIVE = 0
     _clientutils_off
 
     cdef("", "", "zzz_client_plot", "delete")
@@ -283,6 +284,7 @@ def clientdataon '{
 
 
 def clientdataoff '{
+    _SC_DATA_ACTIVE = 0
     _clientutils_off
 
     cdef("", "", "zzz_client_data", "delete")

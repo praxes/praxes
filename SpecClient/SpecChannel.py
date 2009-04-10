@@ -197,6 +197,9 @@ class SpecChannel:
 
             if connection is not None:
                 w = SpecWaitObject.SpecWaitObject(connection)
+                # make sure spec is connected, we give a short timeout
+                # because it is supposed to be the case already
+                w.waitConnection(timeout=500)                                 
                 w.waitReply('send_msg_chan_read', (self.spec_chan_name, ))
 
                 self.update(w.value)

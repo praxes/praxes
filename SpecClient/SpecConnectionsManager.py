@@ -22,6 +22,7 @@ import time
 import weakref
 import asyncore
 import sys
+import gc
 
 import SpecConnection
 import SpecEventsDispatcher
@@ -94,12 +95,11 @@ class _ThreadedSpecConnectionsManager(threading.Thread):
                 self.lock.release()
 
             if len(self.connectionDispatchers) > 0:
-                asyncore.poll3(0.01) #10 ms. timeout
+                asyncore.loop(0.01, False, None, 1)
             else:
-                #time.sleep(0.05)
                 time.sleep(0.01)
 
-        asyncore.poll3()
+        asyncore.loop(0.01, False, None, 1)
 
 
     def stop(self):
@@ -118,6 +118,8 @@ class _ThreadedSpecConnectionsManager(threading.Thread):
         Arguments:
         specVersion -- a string in the 'host:port' form
         """
+        gc.collect()
+
         try:
             con = self.connections[specVersion]()
         except KeyError:
@@ -177,7 +179,7 @@ class _SpecConnectionsManager:
         for connection in self.connectionDispatchers.itervalues():
             connection.makeConnection()
 
-        asyncore.poll3(timeout)
+        asyncore.loop(timeout, False, None, 1)
 
         SpecEventsDispatcher.dispatch()
 
@@ -193,6 +195,8 @@ class _SpecConnectionsManager:
         Arguments:
         specVersion -- a string in the 'host:port' form
         """
+        gc.collect()
+
         try:
             con = self.connections[specVersion]()
         except KeyError:

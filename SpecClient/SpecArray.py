@@ -45,6 +45,8 @@ if numpy is not None:
         numpy.float32 : ARRAY_FLOAT,
         numpy.float64 : ARRAY_DOUBLE
         }
+    def IS_ARRAY(data) :
+        return isinstance(data,numpy.ndarray)
 else:
     NUM_TO_SPEC = {
         '1' :  ARRAY_CHAR,
@@ -68,6 +70,8 @@ else:
         ARRAY_DOUBLE :  'd'
         }
 
+    def IS_ARRAY(data) :
+        return isinstance(data,Numeric.ArrayType)
 
 class SpecArrayError(Exception):
     pass
@@ -90,7 +94,7 @@ def SpecArray(data, datatype = ARRAY_CHAR, rows = 0, cols = 0):
         newArray = None
 
     if numpy is not None or Numeric is not None:
-        if (type(data) == numpy.ndarray) or (type(data) == Numeric.ArrayType):
+        if IS_ARRAY(data) :
             # convert from a Num* array to a SpecArrayData instance
             # (when you send)
             if len(data.shape) > 2:

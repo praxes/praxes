@@ -53,15 +53,33 @@ class Spec:
 
         return SpecCommand.SpecCommand(attr, self.connection)
 
-
-    def getMotorsMne(self):
-        """Return motors mnemonics list."""
+    def _getMotorsMneNames(self):
+        """Return motors mnemonics and names list."""
         if self.connection is not None and self.connection.isSpecConnected():
             get_motor_mnemonics = SpecCommand.SpecCommand('local md[]; for (i=0; i<MOTORS; i++) { md[i][motor_mne(i)]=motor_name(i) }; return md', self.connection)
 
-            return get_motor_mnemonics()
+            motorMne = get_motor_mnemonics()
+            motorList = [None]*len(motorMne)
+            for motor_index, motor_dict in motorMne.iteritems():
+                mne, name = motor_dict.items()[0]
+                motorList[int(motor_index)]={"mne": mne, "name": name }
+            return motorList
         else:
-            return {}
+            return []
+
+    def getMotorsMne(self):
+       """Return motor mnemonics list."""
+       motorMneList = []
+       for motor_dict in self._getMotorsMneNames():
+           motorMneList.append(motor_dict["mne"])
+       return motorMneList
+
+    def getMotorsNames(self):
+       """Return motors names list."""
+       motorNamesList = []
+       for motor_dict in self._getMotorsMneNames():
+           motorNamesList.append(motor_dict["name"])
+       return motorNamesList
 
 
     def getVersion(self):

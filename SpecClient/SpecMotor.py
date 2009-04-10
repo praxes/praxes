@@ -17,6 +17,7 @@ import SpecWaitObject
 import SpecCommand
 import logging
 import types
+import math
 
 (NOTINITIALIZED, UNUSABLE, READY, MOVESTARTED, MOVING, ONLIMIT) = (0,1,2,3,4,5)
 (NOLIMIT, LOWLIMIT, HIGHLIMIT) = (0,2,4)
@@ -35,6 +36,7 @@ class SpecMotorA:
         self.limits = (None, None)
         self.chanNamePrefix = ''
         self.connection = None
+        self.__old_position = None
 
         if specName is not None and specVersion is not None:
             self.connectToSpec(specName, specVersion)
@@ -65,10 +67,10 @@ class SpecMotorA:
         #
         self.connection.registerChannel(self.chanNamePrefix % 'low_limit', self.motorLimitsChanged)
         self.connection.registerChannel(self.chanNamePrefix % 'high_limit', self.motorLimitsChanged)
+        self.connection.registerChannel(self.chanNamePrefix % 'position', self.__motorPositionChanged, dispatchMode=SpecEventsDispatcher.FIREEVENT)
         self.connection.registerChannel(self.chanNamePrefix % 'move_done', self.motorMoveDone, dispatchMode = SpecEventsDispatcher.FIREEVENT)
         self.connection.registerChannel(self.chanNamePrefix % 'high_lim_hit', self.__motorLimitHit)
         self.connection.registerChannel(self.chanNamePrefix % 'low_lim_hit', self.__motorLimitHit)
-        self.connection.registerChannel(self.chanNamePrefix % 'position', self.motorPositionChanged)
         self.connection.registerChannel(self.chanNamePrefix % 'sync_check', self.__syncQuestion)
         self.connection.registerChannel(self.chanNamePrefix % 'unusable', self.__motorUnusable)
         self.connection.registerChannel(self.chanNamePrefix % 'offset', self.motorOffsetChanged)
@@ -160,6 +162,16 @@ class SpecMotorA:
             else:
                 self.limit = self.limit | HIGHLIMIT
                 self.__changeMotorState(ONLIMIT)
+
+
+    def __motorPositionChanged(self, absolutePosition):
+        if self.__old_position is None:
+           self.__old_position = absolutePosition
+           self.motorPositionChanged(absolutePosition)
+        else:
+           if math.fabs(absolutePosition - self.__old_position) > 1E-6:
+              self.__old_position = absolutePosition
+              self.motorPositionChanged(absolutePosition)
 
 
     def motorPositionChanged(self, absolutePosition):

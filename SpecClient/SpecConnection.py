@@ -46,7 +46,7 @@ class SpecConnection:
 
         SpecEventsDispatcher.connect(self.dispatcher, 'connected', self.connected)
         SpecEventsDispatcher.connect(self.dispatcher, 'disconnected', self.disconnected)
-        SpecEventsDispatcher.connect(self.dispatcher, 'replyFromSpec', self.replyFromSpec)
+        #SpecEventsDispatcher.connect(self.dispatcher, 'replyFromSpec', self.replyFromSpec)
         SpecEventsDispatcher.connect(self.dispatcher, 'error', self.error)
 
 
@@ -72,9 +72,9 @@ class SpecConnection:
         SpecEventsDispatcher.emit(self, 'disconnected', ())
 
 
-    def replyFromSpec(self, replyID, reply):
-        """Propagate 'reply from Spec' event"""
-        SpecEventsDispatcher.emit(self, 'replyFromSpec', (replyID, reply, ))
+    #def replyFromSpec(self, replyID, reply):
+    #    """Propagate 'reply from Spec' event"""
+    #    SpecEventsDispatcher.emit(self, 'replyFromSpec', (replyID, reply, ))
 
 
     def error(self, error):
@@ -254,23 +254,23 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
 
     def specConnected(self):
         """Emit the 'connected' signal when the remote Spec version is connected."""
-        if self.state != CONNECTED:
+        old_state = self.state
+        self.state = CONNECTED
+        if old_state != CONNECTED:
             logging.getLogger('SpecClient').info('Connected to %s:%s', self.host, (self.scanport and self.scanname) or self.port)
 
             SpecEventsDispatcher.emit(self, 'connected', ())
 
-        self.state = CONNECTED
-
-
     def specDisconnected(self):
         """Emit the 'disconnected' signal when the remote Spec version is disconnected."""
-        if self.state == CONNECTED:
+        SpecEventsDispatcher.dispatch()
+
+        old_state = self.state
+        self.state = DISCONNECTED
+        if old_state == CONNECTED:
             logging.getLogger('SpecClient').info('Disconnected from %s:%s', self.host, (self.scanport and self.scanname) or self.port)
 
             SpecEventsDispatcher.emit(self, 'disconnected', ())
-
-        self.state = DISCONNECTED
-
 
     def handle_close(self):
         """Handle 'close' event on socket."""
@@ -333,7 +333,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
 
                             reply.update(self.message.data, self.message.type == SpecMessage.ERROR, self.message.err)
 
-                            SpecEventsDispatcher.emit(self, 'replyFromSpec', (replyID, reply, ))
+                            #SpecEventsDispatcher.emit(self, 'replyFromSpec', (replyID, reply, ))
                 elif self.message.cmd == SpecMessage.EVENT:
                     for name in SpecChannel.SpecChannel.channel_aliases[self.message.name]:
                         self.registeredChannels[name].update(self.message.data, deleted=self.message.flags == SpecMessage.DELETED)
