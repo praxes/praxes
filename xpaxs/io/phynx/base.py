@@ -4,7 +4,6 @@ from __future__ import absolute_import, with_statement
 
 import posixpath
 import re
-from distutils import version
 
 import h5py
 try:
@@ -132,10 +131,6 @@ class _PhynxProperties(HasTraits):
         return self.attrs.get('source_file', self.file.name)
 
     @property
-    def format_version(self):
-        return version.LooseVersion(self.attrs.get('format_version', '0.0'))
-
-    @property
     def npoints(self):
         return self.attrs.get('npoints', 0)
 
@@ -146,7 +141,7 @@ class _PhynxProperties(HasTraits):
     def __init__(self, parent_object):
         for attr in [
             'acquisition_command', 'acquisition_id', 'acquisition_name',
-            'acquisition_shape', 'file_name', 'format_version', 'npoints'
+            'acquisition_shape', 'source_file', 'npoints'
         ]:
             with parent_object.plock:
                 self._plock = parent_object.plock

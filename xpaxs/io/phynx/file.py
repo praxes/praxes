@@ -3,6 +3,7 @@
 
 from __future__ import absolute_import, with_statement
 
+from distutils import version
 import operator
 import os
 import sys
@@ -36,6 +37,10 @@ class File(Group, h5py.File):
     @property
     def file(self):
         return self
+
+    @property
+    def format(self):
+        return version.LooseVersion(self.attrs.get('format_version', '0.0'))
 
     @property
     def parent(self):
