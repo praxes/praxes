@@ -15,6 +15,27 @@ class Entry(Group):
 
     nx_class = 'NXentry'
 
+    @property
+    def entry(self):
+        return self
+
+    @property
+    @sync
+    def measurement(self):
+        measurements = [
+            i for i in self.iterobjects()
+            if isinstance(i, registry['Measurement'])
+        ]
+        nm = len(measurements)
+        if nm == 1:
+            return measurements[0]
+        if nm == 0:
+            return None
+        else:
+            raise ValueError(
+                'There should be one Measurement group per entry, found %d' % nm
+            )
+
     def _get_npoints(self):
         return self.attrs.get('npoints', 0)
     @sync

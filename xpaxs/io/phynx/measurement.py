@@ -24,6 +24,38 @@ class Measurement(Group):
             if isinstance(a, registry['MultiChannelAnalyzer'])
         ])
 
+    @property
+    @sync
+    def positioners(self):
+        targets = [
+            i for i in self.iterobjects() if isinstance(i, Positioners)
+        ]
+        nt = len(targets)
+        if nt == 1:
+            return targets[0]
+        if nt == 0:
+            return None
+        else:
+            raise ValueError(
+                'There should be one Positioners group per entry, found %d' % nm
+            )
+
+    @property
+    @sync
+    def scalar_data(self):
+        targets = [
+            i for i in self.iterobjects() if isinstance(i, ScalarData)
+        ]
+        nt = len(targets)
+        if nt == 1:
+            return targets[0]
+        if nt == 0:
+            return None
+        else:
+            raise ValueError(
+                'There should be one ScalarData group per entry, found %d' % nm
+            )
+
 registry.register(Measurement)
 
 

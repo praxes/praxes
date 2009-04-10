@@ -52,7 +52,7 @@ def _client_setscanenv '{
     #######################################
 
     npoints = _stype&8? _n1*_n2:_n1
-    scan_info["file_name"] = sprintf("\'%s/%s\'", CWD, DATAFILE)
+    scan_info["source_file"] = sprintf("\'%s/%s\'", CWD, DATAFILE)
     scan_info["acquisition_command"] = sprintf("\'%s\'", HEADING)
     scan_info["acquisition_id"] = sprintf("%d", SCAN_N+1)
     scan_info["npoints"] = sprintf("%d", npoints)

@@ -20,6 +20,16 @@ class Dataset(h5py.Dataset, _PhynxProperties):
     """
 
     @property
+    @sync
+    def entry(self):
+        try:
+            target = self.parent['/'.join(self.parent.path.split('/')[:2])]
+            assert isinstance(target, registry['Entry'])
+            return target
+        except AssertionError:
+            return None
+
+    @property
     def map(self):
         res = np.zeros(self.acquisition_shape, 'f')
         res.flat[:len(self)] = self.value.flat[:]
@@ -28,6 +38,13 @@ class Dataset(h5py.Dataset, _PhynxProperties):
     @property
     def masked(self):
         return MaskedProxy(self)
+
+    @property
+    def measurement(self):
+        try:
+            return self.entry.measurement
+        except AttributeError:
+            return None
 
     @property
     @sync

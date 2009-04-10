@@ -199,6 +199,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     attrs['acquisition_id'] = scan_number
     attrs['npoints'] = scan.lines()
     attrs['acquisition_command'] = scan.command()
+    attrs['source_file'] = file_name
 #    attrs['scan_type'] = scanType
 #    attrs['scan_axes'] = scan_info['axes']
 #    attrs['scanRange'] = scanRange

@@ -26,6 +26,24 @@ class Group(h5py.Group, _PhynxProperties):
 
     @property
     @sync
+    def entry(self):
+        try:
+            target = self['/'.join(self.path.split('/')[:2])]
+            assert isinstance(target, registry['Entry'])
+            return target
+        except AssertionError:
+            return None
+
+    @property
+    @sync
+    def measurement(self):
+        try:
+            return self.entry.measurement
+        except AttributeError:
+            return None
+
+    @property
+    @sync
     def name(self):
         return posixpath.basename(super(Group, self).name)
 

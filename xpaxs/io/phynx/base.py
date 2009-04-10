@@ -124,8 +124,12 @@ class _PhynxProperties(HasTraits):
         return simple_eval(self.attrs.get('acquisition_shape', '()'))
 
     @property
-    def file_name(self):
-        return self.attrs.get('file_name', '')
+    def file(self):
+        return self._file
+
+    @property
+    def source_file(self):
+        return self.attrs.get('source_file', self.file.name)
 
     @property
     def format_version(self):
@@ -146,6 +150,7 @@ class _PhynxProperties(HasTraits):
         ]:
             with parent_object.plock:
                 self._plock = parent_object.plock
+                self._file = parent_object.file
                 if attr not in self.attrs:
                     try:
                         self.attrs[attr] = parent_object.attrs[attr]

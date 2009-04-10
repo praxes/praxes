@@ -34,6 +34,10 @@ class File(Group, h5py.File):
             raise RuntimeError('unrecognized format')
 
     @property
+    def file(self):
+        return self
+
+    @property
     def parent(self):
         return None
 

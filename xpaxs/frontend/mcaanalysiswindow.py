@@ -34,7 +34,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.setupUi(self)
 
         title = '%s: %s'%(
-            scanData.file_name,
+            scanData.file.name,
             scanData.name
         )
         self.setWindowTitle(title)
