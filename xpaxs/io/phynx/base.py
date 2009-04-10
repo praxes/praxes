@@ -50,3 +50,10 @@ class _PhynxProperties(HasTraits):
                         self.attrs[attr] = parent_object.attrs[attr]
                     except h5py.H5Error:
                         pass
+
+    def __enter__(self):
+        self.plock.__enter__()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.plock.__exit__(type, value, traceback)
