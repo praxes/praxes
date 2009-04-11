@@ -10,7 +10,6 @@ import numpy as np
 
 from .dataset import CorrectedDataProxy, DeadTime, Signal
 from .detector import Detector
-from .exceptions import H5Error
 from .registry import registry
 from .utils import simple_eval, sync
 
@@ -27,21 +26,17 @@ class MultiChannelAnalyzer(Detector):
 
     @property
     def channels(self):
-        try:
+        if 'channels' in self:
             return self['channels'].value
-        except H5Error:
-            return np.arange(self['counts'].shape[-1])
+        return np.arange(self['counts'].shape[-1])
 
     @property
     def energy(self):
         return np.polyval(self.calibration[::-1], self.channels)
 
     def _get_pymca_config(self):
-        try:
-            from PyMca.ConfigDict import ConfigDict
-            return ConfigDict(simple_eval(self.attrs['pymca_config']))
-        except H5Error:
-            return None
+        from PyMca.ConfigDict import ConfigDict
+        return ConfigDict(simple_eval(self.attrs.get('pymca_config', '{}')))
     def _set_pymca_config(self, config):
         self.attrs['pymca_config'] = str(config)
     pymca_config = property(_get_pymca_config, _set_pymca_config)
@@ -51,11 +46,9 @@ class MultiChannelAnalyzer(Detector):
         # from early in development of phynx
         super(MultiChannelAnalyzer, self).__init__(*args, **kwargs)
 
-        try:
+        if 'counts' in self:
             if self['counts'].attrs['class'] != 'McaSpectrum':
                 self['counts'].attrs['class'] = 'McaSpectrum'
-        except H5Error:
-            pass
 
         # TODO: this could eventually go away
         # old files did not identify dead time properly
