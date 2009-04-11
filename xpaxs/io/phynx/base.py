@@ -2,7 +2,6 @@
 """
 from __future__ import absolute_import, with_statement
 
-import h5py
 try:
     from enthought.traits.api import HasTraits_DISABLED
 except ImportError:
@@ -41,15 +40,12 @@ class _PhynxProperties(HasTraits):
         return self._plock
 
     def __init__(self, parent_object):
-        for attr in ['acquisition_shape', 'source_file', 'npoints']:
-            with parent_object.plock:
-                self._plock = parent_object.plock
-                self._file = parent_object.file
-                if attr not in self.attrs:
-                    try:
-                        self.attrs[attr] = parent_object.attrs[attr]
-                    except h5py.H5Error:
-                        pass
+        with parent_object.plock:
+            self._plock = parent_object.plock
+            self._file = parent_object.file
+            for attr in ['acquisition_shape', 'source_file', 'npoints']:
+                if (attr not in self.attrs) and (attr in parent_object.attrs):
+                    self.attrs[attr] = parent_object.attrs[attr]
 
     def __enter__(self):
         self.plock.__enter__()
