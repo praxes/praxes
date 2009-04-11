@@ -3,9 +3,6 @@
 
 from __future__ import absolute_import, with_statement
 
-import copy
-import threading
-
 import numpy as np
 
 from .dataset import CorrectedDataProxy, DeadTime, Signal
