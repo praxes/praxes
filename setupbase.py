@@ -1,26 +1,7 @@
 # encoding: utf-8
 
 """
-This module defines the things that are used in setup.py for building IPython
-
-This includes:
-
-    * The basic arguments to setup
-    * Functions for finding things like packages, package data, etc.
-    * A function for checking dependencies.
 """
-
-__docformat__ = "restructuredtext en"
-
-#-------------------------------------------------------------------------------
-#  Copyright (C) 2009  The XPaXS Development Team
-#
-#  Distributed under the terms of the GPL License.
-#-------------------------------------------------------------------------------
-
-#-------------------------------------------------------------------------------
-# Imports
-#-------------------------------------------------------------------------------
 
 from distutils.core import Extension
 import os

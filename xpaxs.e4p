@@ -93,7 +93,6 @@
     <Source>xpaxs/instrumentation/spec/scanmotorwidget.py</Source>
     <Source>xpaxs/instrumentation/spec/__init__.py</Source>
     <Source>xpaxs/instrumentation/spec/utils.py</Source>
-    <Source>xpaxs/instrumentation/webcam/ui/ui_viewer.py</Source>
     <Source>xpaxs/instrumentation/webcam/ui/__init__.py</Source>
     <Source>xpaxs/instrumentation/webcam/viewer.py</Source>
     <Source>xpaxs/instrumentation/webcam/__init__.py</Source>
