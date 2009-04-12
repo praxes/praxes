@@ -11,4 +11,112 @@
       <Linenumber>72</Linenumber>
     </Resource>
   </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this would be handled differently through the envisage framework:</Summary>
+    <Description></Description>
+    <Created>2009-04-12, 14:46:03</Created>
+    <Resource>
+      <Filename>scripts/sxfm</Filename>
+      <Linenumber>13</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this is an attempt to provide a services registry similar to that in</Summary>
+    <Description></Description>
+    <Created>2009-04-12, 14:48:00</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/application.py</Filename>
+      <Linenumber>12</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this should be a factory function, not a method of the main win:</Summary>
+    <Description></Description>
+    <Created>2009-04-12, 14:48:07</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/mainwindow.py</Filename>
+      <Linenumber>141</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: will acquisition work on other platforms?</Summary>
+    <Description></Description>
+    <Created>2009-04-12, 14:48:07</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/mainwindow.py</Filename>
+      <Linenumber>420</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this should eventually take an MCA entry</Summary>
+    <Description></Description>
+    <Created>2009-04-12, 14:48:09</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/mcaanalysiswindow.py</Filename>
+      <Linenumber>28</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: remove the window from the list of open windows when we close</Summary>
+    <Description></Description>
+    <Created>2009-04-12, 14:48:09</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/mcaanalysiswindow.py</Filename>
+      <Linenumber>63</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: improve this to close scans in the file interface</Summary>
+    <Description></Description>
+    <Created>2009-04-12, 14:48:09</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/mcaanalysiswindow.py</Filename>
+      <Linenumber>201</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: get the channels from the controller</Summary>
+    <Description></Description>
+    <Created>2009-04-12, 14:48:26</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/pptaskmanager.py</Filename>
+      <Linenumber>24</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this is an attempt to provide a services registry similar to that in</Summary>
+    <Description></Description>
+    <Created>2009-04-12, 14:48:28</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/serviceregistry.py</Filename>
+      <Linenumber>13</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: isnt there a way to do a stacked layout in Designer?</Summary>
+    <Description></Description>
+    <Created>2009-04-12, 14:48:55</Created>
+    <Resource>
+      <Filename>xpaxs/instrumentation/spec/gamepad.py</Filename>
+      <Linenumber>21</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this is all now contained in specrunner.datafile:</Summary>
+    <Description></Description>
+    <Created>2009-04-12, 14:49:09</Created>
+    <Resource>
+      <Filename>xpaxs/instrumentation/spec/scancontrols.py</Filename>
+      <Linenumber>309</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: default to previous motors using QSettings</Summary>
+    <Description></Description>
+    <Created>2009-04-12, 14:49:18</Created>
+    <Resource>
+      <Filename>xpaxs/instrumentation/spec/scanparameters.py</Filename>
+      <Linenumber>28</Linenumber>
+    </Resource>
+  </Task>
 </Tasks>
