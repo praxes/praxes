@@ -1,31 +1,333 @@
 
-# All globals to which SpecScan will connect need to be created before the
-# SpecScan is instantiated. DO NOT USE ASSOCIATIVE ARRAYS TO REPORT DATA!
-# They are not broadcast at the time they are set, but polled by SpecClient
-# at a later time. This means their values may have changed before SpecClient
-# could read them.
+###############################################################################
+#                             public functions                                #
+###############################################################################
 
-def _clientutils_on '{
-    global _SC_NEWSCAN _SC_NEWSCANDATA _SC_NEWPLOTDATA _SC_DATA_ACTIVE _SC_PLOT_ACTIVE
-    _SC_NEWSCAN = 0
+def client_plot '{
+    local set_state
 
-    cdef("user_prescan_head", "_client_setscanenv;", "zzz_clientutils", 0x20)
-    cdef("user_scan_tail", "_SC_NEWSCAN = 0;", "zzz_clientutils_", 0x20)
+    if ($# == 0) {
+        set_state = ! _SC_PLOT_ACTIVE
+    } else {
+        if (($1 != 0) || ($1 != 1)) {
+            print "Usage: client_plot 0/1"
+            exit
+        }
+        set_state = $1
+    }
+
+    _client_utils("plot", set_state)
 }'
 
 
-def _clientutils_off '{
-    if (_SC_PLOT_ACTIVE == 0 && _SC_DATA_ACTIVE == 0){
-        unglobal _SC_NEWSCAN _SC_NEWSCANDATA _SC_DATA_ACTIVE _SC_PLOT_ACTIVE
-        cdef("", "", "zzz_clientutils", "delete")
+def client_data '{
+    local set_state
+
+    if ($# == 0) {
+        set_state = ! _SC_DATA_ACTIVE
+    } else {
+        if (($1 != 0) || ($1 != 1)) {
+            print "Usage: client_data 0/1"
+            exit
+        }
+        set_state = $1
+    }
+
+    _client_utils("data", set_state)
+}'
+
+
+# creates a string representation of a python dictionary from an associative
+# array. Returns an empty dict if an array is not passed.
+# Any array values that are destined to be python strings must be escaped,
+# for example kwargs["dtype"] = "\'uint32\'"
+def array_to_dict(kwargs) '{
+    local dict
+
+    dict = ""
+
+    if (whatis("kwargs")&0x01000000) {
+        for (i in kwargs) {
+            dict = sprintf("%s\'%s\':%s, ", dict, i, kwargs[i])
+        }
+    }
+
+    return(sprintf("{%s}", dict))
+}'
+
+
+def clear_array(kwargs) '{
+    if (whatis("kwargs")&0x01000000) {
+        for (i in kwargs) {
+            delete kwargs[i]
+        }
     }
 }'
 
 
-def _client_setscanenv '{
+def client_set_scan_env(item, type, kwargs) '{
+    _SC_SCAN_DESC[item] = sprintf("('\%s\', %s)", type, array_to_dict(kwargs))
+}'
+
+
+def client_set_data(item, value) '{
+    _SC_DATA_DESC[item] = value
+}'
+
+###############################################################################
+#                         private, internal functions                         #
+###############################################################################
+
+# All globals to which SpecScan will connect need to be created before the
+# SpecScan is instantiated, so we define them here:
+global _SC_NEWSCAN _SC_NEWSCANDATA _SC_NEWPLOTDATA
+global _SC_CLIENT_ACTIVE _SC_DATA_ACTIVE _SC_PLOT_ACTIVE
+
+def _client_utils(mode, set_state) '{
+    if (set_state && ! _SC_CLIENT_ACTIVE) {
+        global _SC_SCAN_DESC[]
+
+        _SC_CLIENT_ACTIVE = 1
+        _SC_NEWSCAN = 0
+
+        cdef("user_prescan_head", "_client_report_scan_env;", "zzz_clientutils", 0x20)
+        cdef("user_scan_tail", "_SC_NEWSCAN = 0;", "zzz_clientutils", 0x20)
+    }
+
+    if (mode == "plot") {
+        if (set_state == _SC_PLOT_ACTIVE) {
+            exit
+        }
+
+        _SC_PLOT_ACTIVE = set_state
+
+        if (_SC_PLOT_ACTIVE) {
+            global _SC_OLDX
+            _SC_OLDX = 0
+
+            if (length(plotlist()) == 0) {
+                tty_cntl("md");
+                printf("\n- NO COUNTER SELECTED. Run plotselect\n");
+                tty_cntl("me")
+            }
+
+            cdef("user_scan_plot", "_client_report_plot;", "zzz_client_plot", 0x20)
+        } else {
+            unglobal _SC_OLDX
+
+            _client_utils("plot", "off")
+
+            cdef("", "", "zzz_client_plot", "delete")
+        }
+    } else if (mode == "data") {
+        if (set_state == _SC_DATA_ACTIVE) {
+            exit
+        }
+
+        _SC_DATA_ACTIVE = set_state
+
+        if (_SC_DATA_ACTIVE) {
+            global _SC_DATA_DESC[]
+
+            cdef("user_scan_loop", "_client_report_data;", "zzz_client_data", 0x20)
+        } else {
+            unglobal _SC_DATA_DESC
+
+            cdef("", "", "zzz_client_data", "delete")
+        }
+    }
+
+    if (! _SC_PLOT_ACTIVE && ! _SC_DATA_ACTIVE) {
+        unglobal _SC_SCAN_DESC
+
+        _SC_CLIENT_ACTIVE = 0
+        cdef("", "", "zzz_clientutils", "delete")
+    }
+}'
+
+def _sc_set_scan_env '{
+    unglobal _SC_SCAN_DESC
+    global _SC_SCAN_DESC
+
+    local scan_info[] npoints id entry kwargs[]
+
+    ###########################################################################
+    #   general information about the scan to be passed to the phynx entry    #
+    ###########################################################################
+
+    npoints = _stype&8? _n1*_n2:_n1
+    scan_info["source_file"] = sprintf("\'%s/%s\'", CWD, DATAFILE)
+    scan_info["acquisition_command"] = sprintf("\'%s\'", HEADING)
+    scan_info["acquisition_id"] = sprintf("%d", SCAN_N+1)
+    scan_info["npoints"] = sprintf("%d", npoints)
+    if (_stype&8) {
+        scan_info["acquisition_shape"] = sprintf("(%d, %d)", _n1, _n2)
+    } else {
+        scan_info["acquisition_shape"] = sprintf("(%d, )", _n1)
+    }
+    _SC_SCAN_DESC["info"] = array_to_dict(scan_info)
+
+    ###########################################################################
+    #           specify the phynx hierarchy under entry/measurement           #
+    ###########################################################################
+
+    kwargs["shape"] = sprintf("(%d,)", npoints)
+    kwargs["dtype"] = "\'uint32\'"
+    client_set_scan_env("scalar_data/i", "Dataset", kwargs)
+    clear_array(kwargs)
+
+    kwargs["shape"] = sprintf("(%d,)", npoints)
+    kwargs["dtype"] = "\'d\'"
+    client_set_scan_env("scalar_data/epoch", "Dataset", kwargs)
+    clear_array(kwargs)
+
+    for (i=0;i<COUNTERS;i++) {
+        kwargs["shape"] = sprintf("(%d,)", npoints)
+        kwargs["dtype"] = "\'d\'"
+        kwargs["signal"] = (i==DET)
+        id = sprintf("scalar_data/%s", cnt_mne(i))
+        client_set_scan_env(id, "Signal", kwargs)
+        clear_array(kwargs)
+    }
+
+# This should go in the skipmode macros:
+#    if (SKIPMODE_COUNTER) {
+#        kwargs["shape"] = sprintf("(%d,)", npoints)
+#        kwargs["dtype"] = "\'?\'"
+#        kwargs["monitor"] = cnt_mne(SKIPMODE_COUNTER)
+#        kwargs["threshold"] = SKIPMODE_THRESHOLD
+#        id = "scalar_data/masked"
+#        client_set_scan_env(id, "Signal", kwargs)
+#        clear_array(kwargs)
+#    }
+
+    for (i=0;i<MOTORS;i++) {
+        kwargs["data"] = A[i]
+        id = sprintf("positioners/%s", motor_mne(i))
+        client_set_scan_env(id, "Dataset", kwargs)
+        clear_array(kwargs)
+    }
+
+    if (_stype == (1|8|(2<<8))) {
+        # mesh does not save the limits the same way that a*scan and d*scan do
+        _s[0] = _s1
+        _s[1] = _s2
+        _f[0] = _f1
+        _f[1] = _f2
+    }
+    for (i=0;i<_nm;i++) {
+        kwargs["shape"] = sprintf("(%d,)", npoints)
+        kwargs["dtype"] = "\'f\'"
+        kwargs["axis"] = _stype&8? i+1:1
+        kwargs["range"] = sprintf("(%g,%g)", _s[i], _f[i])
+        # should add primary also for d3scan, but lets not worry about it now
+        id = sprintf("scalar_data/%s", motor_mne(_m[i]))
+        client_set_scan_env(id, "Axis", kwargs)
+        clear_array(kwargs)
+    }
+
+    if (MCA_CHAN > 0) {
+        # this block is executed for old-school MCA description
+        local mca_channels mca_cal
+
+        mca_cal = sprintf("(%g,%g,%g)", MCA_DATA_PARAM[0], MCA_DATA_PARAM[1], MCA_DATA_PARAM[2])
+        entry = "(\'MultiChannelAnalyzer\', {\'calibration\': %s})"
+        _SC_SCAN_DESC[MCA_NAME] = sprintf(entry, mca_cal)
+
+        id = sprintf("%s/counts", MCA_NAME)
+        entry = "(\'McaSpectrum\', {\'shape\': (%d, %d), \'dtype\': \'uint32\'})"
+        _SC_SCAN_DESC[id] = sprintf(entry, npoints, MCA_CHAN)
+
+        mca_channels = ""
+        for(i = 0; i < MCA_CHAN; i++){
+            mca_channels = sprintf("%s%g,", mca_channels, MCA_DATA[i][0])
+        }
+        id = sprintf("%s/channels", MCA_NAME)
+        _SC_SCAN_DESC[id] = sprintf("(\'Dataset\', {\'data\': [%s]})", mca_channels)
+
+        if (MCA_NAME == "vortex") {
+            id = sprintf("%s/icr", MCA_NAME)
+            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+            _SC_SCAN_DESC[id] = sprintf(entry, npoints)
+
+            id = sprintf("%s/ocr", MCA_NAME)
+            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+            _SC_SCAN_DESC[id] = sprintf(entry, npoints)
+
+            id = sprintf("%s/real", MCA_NAME)
+            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+            _SC_SCAN_DESC[id] = sprintf(entry, npoints)
+
+            id = sprintf("%s/live", MCA_NAME)
+            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+            _SC_SCAN_DESC[id] = sprintf(entry, npoints)
+
+            id = sprintf("%s/dead_time", MCA_NAME)
+            entry = "(\'DeadTime\', {\'shape\': (%d, ), \'dtype\': \'f\', \
+                \'dead_time_format\': \'percent\', \'units\': \'percent\'})"
+            _SC_SCAN_DESC[id] = sprintf(entry, npoints)
+        }
+    }
+
+    if (EPICS_MCAS > 0) {
+        # this block is used for MCAs under EPICS control
+        local uch mca_desc mca_channels mca_energy _oo _ss _qq mca_cal
+
+        for (mne in mca_pv) {
+            uch = epics_get(sprintf("%s.NUSE", mca_pv[mne]))
+            _oo = epics_get(sprintf("%s.CALO", mca_pv[mne]))
+            _ss = epics_get(sprintf("%s.CALS", mca_pv[mne]))
+            _qq = epics_get(sprintf("%s.CALQ", mca_pv[mne]))
+
+            mca_cal = sprintf("(%g,%g,%g)", _oo, _ss, _qq)
+            entry = "(\'MultiChannelAnalyzer\', {\'calibration\': %s})"
+            _SC_SCAN_DESC[mne] = sprintf(entry, mca_cal)
+
+            id = sprintf("%s/counts", mne)
+            entry = "(\'McaSpectrum\', {\'shape\': (%d, %d), \'dtype\': \'uint32\'})"
+            _SC_SCAN_DESC[id] = sprintf(entry, npoints, uch)
+
+            mca_channels = ""
+            for (i = 0; i < uch; i++) {
+                mca_channels = sprintf("%s%g,", mca_channels, i)
+            }
+            id = sprintf("%s/channels", mne)
+            _SC_SCAN_DESC[id] = sprintf("(\'Dataset\', {\'data\': [%s]})", mca_channels)
+
+            if (1) {
+                id = sprintf("%s/icr", mne)
+                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+                _SC_SCAN_DESC[id] = sprintf(entry, npoints)
+
+                id = sprintf("%s/ocr", mne)
+                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+                _SC_SCAN_DESC[id] = sprintf(entry, npoints)
+
+                id = sprintf("%s/real", mne)
+                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+                _SC_SCAN_DESC[id] = sprintf(entry, npoints)
+
+                id = sprintf("%s/live", mne)
+                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
+                _SC_SCAN_DESC[id] = sprintf(entry, npoints)
+
+                id = sprintf("%s/dead_time", mne)
+                entry = "(\'DeadTime\', {\'shape\': (%d, ), \'dtype\': \'f\', \
+                    \'dead_time_format\': \'percent\', \'units\': \'percent\'})"
+                _SC_SCAN_DESC[id] = sprintf(entry, npoints)
+            }
+        }
+    }
+}'
+
+# DO NOT USE ASSOCIATIVE ARRAYS TO REPORT DATA!
+# They are not broadcast at the time they are set, but polled by SpecClient
+# at a later time. This means their values may have changed before SpecClient
+# could read them.
+
+def _client_report_scan_env '{
     local scan_env phynx_env
-    local plot_desc[] scan_info[] scan_desc[]
-    local npoints id entry info_dict
+    local plot_desc[]
 
     scan_env = ""
 
@@ -47,205 +349,19 @@ def _client_setscanenv '{
     # and looking forward, the plot information should really be in a subdict:
     scan_env = sprintf("%s\'plot_desc\':{%s}, ", scan_env, plot_dict)
 
-    #######################################
-    # collect the scan metadata for phynx #
-    #######################################
-
-    npoints = _stype&8? _n1*_n2:_n1
-    scan_info["source_file"] = sprintf("\'%s/%s\'", CWD, DATAFILE)
-    scan_info["acquisition_command"] = sprintf("\'%s\'", HEADING)
-    scan_info["acquisition_id"] = sprintf("%d", SCAN_N+1)
-    scan_info["npoints"] = sprintf("%d", npoints)
-    if (_stype&8) {
-        scan_info["acquisition_shape"] = sprintf("(%d, %d)", _n1, _n2)
-    } else {
-        scan_info["acquisition_shape"] = sprintf("(%d, )", _n1)
-    }
-
-    info_dict = ""
-    for (i in scan_info) {
-        info_dict = sprintf("%s\'%s\':%s, ", info_dict, i, scan_info[i])
-    }
-    scan_desc["info"] = sprintf("{%s}", info_dict)
-
-    # create the phynx hierarchy under entry/measurement. SpecClient will take
-    # care of creating the entry and entry/measurement groups
-    scan_desc["scalar_data"] = "(\'ScalarData\', {})"
-    scan_desc["positioners"] = "(\'Positioners\', {})"
-
-    id = "scalar_data/i"
-    scan_desc[id] = sprintf("(\'Dataset\', {\'shape\': (%d,), \'dtype\': \'uint32\'})", npoints)
-    id = "scalar_data/epoch"
-    scan_desc[id] = sprintf("(\'Axis\', {\'shape\': (%d,), \'dtype\': \'d\'})", npoints)
-
-    entry = "(\'Signal\', {\'shape\': (%d,), \'dtype\': \'f\', \'signal\': %d})"
-    for (i=0;i<COUNTERS;i++) {
-        id = sprintf("scalar_data/%s", cnt_mne(i))
-        scan_desc[id] = sprintf(entry, npoints, (i==DET))
-    }
-
-    if (SKIPMODE_COUNTER) {
-        id = "scalar_data/masked"
-        entry = "(\'Signal\', {\'shape\': (%d,), \'dtype\': \'?\', \'monitor\': %s, \'threshold\': %d})"
-        scan_desc[id] = sprintf(entry, npoints, cnt_mne(SKIPMODE_COUNTER), \
-            SKIPMODE_THRESHOLD)
-    }
-
-    for (i=0;i<MOTORS;i++) {
-        id = sprintf("positioners/%s", motor_mne(i))
-        scan_desc[id] = sprintf("(\'Dataset\', {\'data\': %g})", A[i])
-    }
-
-    if (_stype == (1|8|(2<<8))) {
-        # mesh does not save the limits the same way that a*scan and d*scan do
-        _s[0] = _s1
-        _s[1] = _s2
-        _f[0] = _f1
-        _f[1] = _f2
-    }
-    for (i=0;i<_nm;i++) {
-        id = sprintf("scalar_data/%s", motor_mne(_m[i]))
-        # should add primary also for d3scan, but lets not worry about it now:
-        entry = "(\'Axis\', {\'shape\': (%d,), \'dtype\': \'f\', \'axis\': %d, \'range\': (%g,%g)})"
-        scan_desc[id] = sprintf(entry, npoints, _stype&8? i+1:1, _s[i], _f[i])
-    }
-
-    if (MCA_CHAN > 0) {
-        # this block is executed for old-school MCA description
-        local mca_channels mca_cal
-
-        mca_cal = sprintf("(%g,%g,%g)", MCA_DATA_PARAM[0], MCA_DATA_PARAM[1], MCA_DATA_PARAM[2])
-        entry = "(\'MultiChannelAnalyzer\', {\'calibration\': %s})"
-        scan_desc[MCA_NAME] = sprintf(entry, mca_cal)
-
-        id = sprintf("%s/counts", MCA_NAME)
-        entry = "(\'McaSpectrum\', {\'shape\': (%d, %d), \'dtype\': \'uint32\'})"
-        scan_desc[id] = sprintf(entry, npoints, MCA_CHAN)
-
-        mca_channels = ""
-        for(i = 0; i < MCA_CHAN; i++){
-            mca_channels = sprintf("%s%g,", mca_channels, MCA_DATA[i][0])
-        }
-        id = sprintf("%s/channels", MCA_NAME)
-        scan_desc[id] = sprintf("(\'Dataset\', {\'data\': [%s]})", mca_channels)
-
-        if (MCA_NAME == "vortex") {
-            id = sprintf("%s/icr", MCA_NAME)
-            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
-            scan_desc[id] = sprintf(entry, npoints)
-
-            id = sprintf("%s/ocr", MCA_NAME)
-            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
-            scan_desc[id] = sprintf(entry, npoints)
-
-            id = sprintf("%s/real", MCA_NAME)
-            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
-            scan_desc[id] = sprintf(entry, npoints)
-
-            id = sprintf("%s/live", MCA_NAME)
-            entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
-            scan_desc[id] = sprintf(entry, npoints)
-
-            id = sprintf("%s/dead_time", MCA_NAME)
-            entry = "(\'DeadTime\', {\'shape\': (%d, ), \'dtype\': \'f\', \
-                \'dead_time_format\': \'percent\', \'units\': \'percent\'})"
-            scan_desc[id] = sprintf(entry, npoints)
-        }
-    }
-
-    if (EPICS_MCAS > 0) {
-        # this block is used for MCAs under EPICS control
-        local uch mca_desc mca_channels mca_energy _oo _ss _qq mca_cal
-
-        for (mne in mca_pv) {
-            uch = epics_get(sprintf("%s.NUSE", mca_pv[mne]))
-            _oo = epics_get(sprintf("%s.CALO", mca_pv[mne]))
-            _ss = epics_get(sprintf("%s.CALS", mca_pv[mne]))
-            _qq = epics_get(sprintf("%s.CALQ", mca_pv[mne]))
-
-            mca_cal = sprintf("(%g,%g,%g)", _oo, _ss, _qq)
-            entry = "(\'MultiChannelAnalyzer\', {\'calibration\': %s})"
-            scan_desc[mne] = sprintf(entry, mca_cal)
-
-            id = sprintf("%s/counts", mne)
-            entry = "(\'McaSpectrum\', {\'shape\': (%d, %d), \'dtype\': \'uint32\'})"
-            scan_desc[id] = sprintf(entry, npoints, uch)
-
-            mca_channels = ""
-            for (i = 0; i < uch; i++) {
-                mca_channels = sprintf("%s%g,", mca_channels, i)
-            }
-            id = sprintf("%s/channels", mne)
-            scan_desc[id] = sprintf("(\'Dataset\', {\'data\': [%s]})", mca_channels)
-
-            if (1) {
-                id = sprintf("%s/icr", mne)
-                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
-                scan_desc[id] = sprintf(entry, npoints)
-
-                id = sprintf("%s/ocr", mne)
-                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
-                scan_desc[id] = sprintf(entry, npoints)
-
-                id = sprintf("%s/real", mne)
-                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
-                scan_desc[id] = sprintf(entry, npoints)
-
-                id = sprintf("%s/live", mne)
-                entry = "(\'Signal\', {\'shape\': (%d, ), \'dtype\': \'f\', \'units\': \'s\'})"
-                scan_desc[id] = sprintf(entry, npoints)
-
-                id = sprintf("%s/dead_time", mne)
-                entry = "(\'DeadTime\', {\'shape\': (%d, ), \'dtype\': \'f\', \
-                    \'dead_time_format\': \'percent\', \'units\': \'percent\'})"
-                scan_desc[id] = sprintf(entry, npoints)
-            }
-        }
-    }
-
+    # collect the scan metadata for phynx:
     phynx_env = ""
-    for (i in scan_desc) {
-        phynx_env = sprintf("%s\'%s\':%s, ", phynx_env, i, scan_desc[i])
+    for (i in _SC_SCAN_DESC) {
+        phynx_env = sprintf("%s\'%s\':%s, ", phynx_env, i, _SC_SCAN_DESC[i])
     }
 
     scan_env = sprintf("%s\'phynx\':{%s}, ", scan_env, phynx_env)
-
-    ##########################
-    # end metadata for phynx #
-    ##########################
 
     _SC_NEWSCAN = sprintf("{%s}", scan_env)
 }'
 
 
-def clientploton '{
-    _clientutils_on
-
-    global _SC_OLDX
-    _SC_PLOT_ACTIVE = 1
-
-    _SC_OLDX=0
-
-    if (length(plotlist()) == 0)  {
-        tty_cntl("md");
-        printf("\n- NO COUNTER SELECTED. Run plotselect\n");
-        tty_cntl("me")
-    }
-
-    cdef("user_scan_plot", "_client_updateplotdata;", "zzz_client_plot", 0x20)
-}'
-
-
-def clientplotoff '{
-    unglobal _SC_OLDX
-    _SC_PLOT_ACTIVE = 0
-    _clientutils_off
-
-    cdef("", "", "zzz_client_plot", "delete")
-}'
-
-
-def _client_updateplotdata '{
+def _client_report_plot '{
     local x d i n plot_data
     global _SC_OLDX
 
@@ -274,24 +390,7 @@ def _client_updateplotdata '{
 }'
 
 
-def clientdataon '{
-    _clientutils_on
-
-    _SC_DATA_ACTIVE = 1
-
-    cdef("user_scan_loop", "_client_updatescandata;", "zzz_client_data", 0x20)
-}'
-
-
-def clientdataoff '{
-    _SC_DATA_ACTIVE = 0
-    _clientutils_off
-
-    cdef("", "", "zzz_client_data", "delete")
-}'
-
-
-def _client_updatescandata '{
+def _client_report_data '{
     local i scan_data scalars[]
 
     scan_data = sprintf("\'i\':%d,", NPTS)
