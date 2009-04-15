@@ -4,7 +4,7 @@
 ###############################################################################
 
 #
-# client_plot [%0/1%]
+# client_plot [0/1]
 #   Enable, disable, or toggle the clientutils plot broadcast
 #
 def client_plot '{
@@ -24,7 +24,7 @@ def client_plot '{
 }'
 
 #
-# client_data [%0/1%]
+# client_data [0/1]
 #   Enable, disable, or toggle the clientutils data broadcast
 #
 def client_data '{
