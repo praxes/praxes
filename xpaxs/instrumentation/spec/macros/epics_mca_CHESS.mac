@@ -97,7 +97,7 @@ if (!(whatis("u_column_add")&0x2)) {
 #MCA arrays
 
 global mca_name[] mca_pv[] roi_pv[] dxp_pv[]
-global EPICS_MCAS USE_DXP
+global EPICS_MCAS USE_DXP MCA_SCAN
 
 #===============================================================================
 # user macros defined here
@@ -365,14 +365,6 @@ def mcasmode '{
     if($# < 1) {
         MCA_SCAN = yesno("Enable MCA scan mode", MCA_SCAN)
     }
-    if(MCA_SCAN) {
-        mca_on
-        cdef("user_scan_loop", "mca_scan_loop;", "epics_mcasmode", 0x20)
-    }
-    else {
-        mca_off
-        cdef("user_scan_loop", "", "epics_mcasmode", "delete")
-    }
 }'
 
 #===============================================================================
@@ -389,17 +381,14 @@ def setup_dxp '{
 
 def mca_on '{
     cdef("user_Fheader", "mca_specfile_Fheader;", "epics_mca", 0x10)
-    cdef("user_postscan_head", "mca_Fheader;", "epics_mca", 0x10)
-    cdef("user_precount", "mca_startcount", "epics_mca", 0x20)
-    cdef("user_getcounts", "mca_getcounts;", "epics_mcasmode", 0x10)
+    cdef("user_postscan_head", "mca_set_env;", "epics_mca")
+    cdef("user_precount", "mca_startcount;", "epics_mca", 0x20)
+    cdef("user_getcounts", "mca_getcounts;", "epics_mca", 0x10)
 
 }'
 
 def mca_off '{
-    cdef("user_Fheader", "", "mca", "delete")
-    cdef("user_postscan_head", "", "mca", "delete")
-    cdef("user_precount", "", "mca", "delete")
-    cdef("user_getcounts", "", "mca", "delete")
+    cdef("", "", "epics_mca", "delete")
 }'
 
 def mca_startcount '{
@@ -448,6 +437,10 @@ def mca_getcounts '{
     for (i in dxp_pv) {
         epics_put(sprintf(\"%s.READ_PARAMS\", dxp_pv[i]), 1)
     }
+
+    if (MCA_SCAN) {
+        mca_report_counts
+    }
 }'
 
 #----------------------------------------------------------------------
@@ -455,7 +448,7 @@ def mca_getcounts '{
 # need to move most print statements to mca_Fheader
 #----------------------------------------------------------------------
 
-def mca_scan_loop '{
+def mca_report_counts '{
     local device_file
 
     for(mne in mca_pv ) {
@@ -493,6 +486,18 @@ def mca_scan_loop '{
 
         close(device_file)
         ont
+
+        if (whatis("client_set_data")&0x2) {
+            client_set_data(sprintf("%s/counts", mne), @A_name[1])
+
+            if (MCA_NAME == "vortex") {
+                client_set_data(sprintf("%s/icr", mne), dxpICR)
+                client_set_data(sprintf("%s/ocr", mne), dxpOCR)
+                client_set_data(sprintf("%s/real", mne), mcaRtime)
+                client_set_data(sprintf("%s/live", mne), mcaLtime)
+                client_set_data(sprintf("%s/dead_time", mne), mcaDtime)
+            }
+        }
     }
 }'
 
@@ -505,7 +510,8 @@ def mca_specfile_Fheader '{
     printf(mca_getcalib())
 }'
 
-def mca_Fheader '{
+
+def mca_set_env '{
     local uch device_file
 
     for (mne in mca_pv) {
@@ -535,8 +541,52 @@ def mca_Fheader '{
         fprintf(device_file, "#@CALIB %g %g %g \n", _oo, _ss, _qq)
         fprintf(device_file, "#N 5\n")
         fprintf(device_file, "#L icr  ocr  real  live  dead_time\n")
+
+        if (whatis("client_set_scan_env")&0x2) {
+            local array mca_channels[uch]
+            array_op("fill", mca_channels, 1, 1)
+
+            kwargs["calibration"] = sprintf("(%g,%g,%g)", _oo, _ss, _qq)
+            client_set_scan_env(MCA_NAME, "MultiChannelAnalyzer", kwargs)
+
+            for (i in kwargs) delete kwargs[i]
+            kwargs["shape"] = sprintf("(%d, 2048)", SC_NPOINTS)
+            kwargs["dtype"] = "\'uint32\'"
+            id = sprintf("%s/counts", mne)
+            client_set_scan_env(id, "McaSpectrum", kwargs)
+
+            for (i in kwargs) delete kwargs[i]
+            kwargs["data"] = python_repr(mca_channels)
+            id = sprintf("%s/channels", mne)
+            client_set_scan_env(id, "Dataset", kwargs)
+
+            if (USE_DXP) {
+                local units[], type
+                units["icr"] = "\'s\'"
+                units["ocr"] = "\'s\'"
+                units["real"] = "\'s\'"
+                units["live"] = "\'s\'"
+                units["dead_time"] = "\'percent\'"
+
+                for (dset in units) {
+                    for (i in kwargs) delete kwargs[i]
+                    kwargs["shape"] = sprintf("(%d, )", SC_NPOINTS)
+                    kwargs["dtype"] = "\'f\'"
+                    kwargs["units"] = units[dset]
+                    if (dset == "dead_time") {
+                        type = "DeadTime"
+                        kwargs["dead_time_format"] = "\'percent\'"
+                    } else {
+                        type = "Dataset"
+                    }
+                    id = sprintf("%s/%s", mne, dset)
+                    client_set_scan_env(id, type, kwargs)
+                }
+            }
+        }
     }
 }'
+
 
 def get_device_file(mne) '{
     if (!index(DATAFILE,"/") && file_info(DATA_DIR,"-d")) {
@@ -545,6 +595,7 @@ def get_device_file(mne) '{
         return(sprintf("%s.scan%i.%s.mca", DATAFILE, SCAN_N, mne))
     }
 }'
+
 
 def mca_getcalib() '{
     local str
