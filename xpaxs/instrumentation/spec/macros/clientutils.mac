@@ -158,23 +158,23 @@ def python_repr(value) '{
 #
 def client_set_scan_env(key, type, kwargs) '{
     if (SC_CLIENT_ACTIVE) {
-        if (!(whatis("key")&0x00200004)) {
+        if (!(whatis("key")&0x00200000)) {
             eprint "key must be a string"
             exit
         }
-        if (!(whatis("type")&0x00200004)) {
+        if (!(whatis("type")&0x00200000)) {
             eprint "type must be a string"
             exit
         }
         if (!(kwargs)) {
             skwargs = "{}"
-        } else if (whatis("value")&0x01000004) {
+        } else if (whatis("value")&0x01000000) {
             skwargs = python_repr(kwargs)
         } else {
             eprint "kwargs must be an associative array, if specified"
             exit
         }
-        _SC_SCAN_DESC[key] = sprintf("(\'%s\', %s)", type, skwargs)
+        _SC_SCAN_DESC[key] = sprintf("(%s, %s)", python_repr(type), skwargs)
     }
 }'
 
@@ -208,14 +208,13 @@ def client_set_scan_env(key, type, kwargs) '{
 #
 def client_set_data(key, value) '{
     if (SC_DATA_ACTIVE) {
-        local sval
 
         if (!(whatis("key")&0x00200004)) {
             eprint "key must be a string"
             exit
         }
 
-        _SC_DATA_DESC[key] = sval
+        _SC_DATA_DESC[key] = python_repr(value)
     }
 }'
 
