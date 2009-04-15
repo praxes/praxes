@@ -45,11 +45,13 @@ def _skipmode_Fheader '{
 def _skipmode_postscan_head '{
     if (whatis("client_set_scan_env")&0x2) {
         local kwargs[]
+        local array shape[1]
+        shape[0] = SC_NPOINTS
 
-        kwargs["shape"] = sprintf("(%d,)", npoints)
-        kwargs["dtype"] = "\'?\'"
-        kwargs["monitor"] = cnt_mne(_SKIPMODE["counter"])
-        kwargs["threshold"] = _SKIPMODE["threshold"]
+        kwargs["shape"] = python_repr(shape)
+        kwargs["dtype"] = python_repr("?")
+        kwargs["monitor"] = python_repr(cnt_mne(_SKIPMODE["counter"]))
+        kwargs["threshold"] = python_repr(_SKIPMODE["threshold"])
         client_set_scan_env("scalar_data/masked", "Signal", kwargs)
     }
 }'
@@ -69,7 +71,7 @@ def _skipmode_getcounts '{
     if (whatis("client_set_data")&0x2) {
         local val
 
-        val = sprintf("%d", S[_SKIPMODE["counter"]] < _SKIPMODE["threshold"])
+        val = S[_SKIPMODE["counter"]] < _SKIPMODE["threshold"]
         client_set_data("scalar_data/masked", val)
     }
 }'

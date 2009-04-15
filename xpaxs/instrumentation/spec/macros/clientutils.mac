@@ -119,28 +119,29 @@ def python_repr(value) '{
 #         client_set_scan_env("mca", "MultiChannelAnalyzer", kwargs)
 #
 #         for (i in kwargs) delete kwargs[i]
-#         kwargs["shape"] = sprintf("(%d, 2048)", SC_NPOINTS)
-#         kwargs["dtype"] = "\'uint32\'"
+#         local array shape[2]
+#         shape[0] = SC_NPOINTS; shape[1] = 2048
+#         kwargs["shape"] = python_repr(shape)
+#         kwargs["dtype"] = python_repr("uint32")
 #         client_set_scan_env("mca/counts", "McaSpectrum", kwargs)
 #
 #         for (i in kwargs) delete kwargs[i]
-#         mca_channels = ""
-#         for(i = 0; i < 2048; i++){
-#             mca_channels = sprintf("%s%g,", mca_channels, i)
-#         }
-#         kwargs["data"] = sprintf("[%s]", mca_channels)
+#         # assume mca_channels is a 2048 element array
+#         kwargs["data"] = python_repr(mca_channels)
 #         client_set_scan_env("mca/channels", "Dataset", kwargs)
 #
 #         for (i in kwargs) delete kwargs[i]
-#         kwargs["shape"] = sprintf("(%d, )", SC_NPOINTS)
-#         kwargs["dtype"] = "\'f\'"
-#         kwargs["dead_time_format"] = "\'percent\'"
+#         local array shape[1]
+#         shape[0] = SC_NPOINTS
+#         kwargs["shape"] = python_repr(shape)
+#         kwargs["dtype"] = python_repr("f")
+#         kwargs["dead_time_format"] = python_repr("percent")
 #         client_set_scan_env("mca/dead_time", "DeadTime", kwargs)
 #     }
 #
 #   Note that these strings will be evaluated into valid python objects (using
-#   a safe alternative to python's built-in eval() function), so we needed an
-#   extra set of escaped quotation marks to specify uint32 as a python string.
+#   a safe alternative to python's built-in eval() function), and the
+#   python_repr function can be used to properly format various kinds of data.
 #   SC_NPOINTS is a global variable provided when clientutils is active, it is
 #   an attempt to guess how many data points will be reported in the scan.
 #
@@ -299,15 +300,19 @@ def _sc_set_scan_env '{
     ###########################################################################
 
     SC_NPOINTS = _stype&8? _n1*_n2:_n1
-    scan_info["source_file"] = sprintf("\'%s/%s\'", CWD, DATAFILE)
-    scan_info["acquisition_command"] = sprintf("\'%s\'", HEADING)
-    scan_info["acquisition_id"] = sprintf("%d", SCAN_N+1)
-    scan_info["npoints"] = sprintf("%d", SC_NPOINTS)
+    scan_info["source_file"] = python_repr(sprintf("%s/%s", CWD, DATAFILE))
+    scan_info["acquisition_command"] = python_repr(HEADING)
+    scan_info["acquisition_id"] = python_repr(SCAN_N+1)
+    scan_info["npoints"] = python_repr(SC_NPOINTS)
     if (_stype&8) {
-        scan_info["acquisition_shape"] = sprintf("(%d, %d)", _n1, _n2)
+        local array shape[2]
+        shape[0] = _n1; shape[1] = _n2
     } else {
-        scan_info["acquisition_shape"] = sprintf("(%d, )", _n1)
+        local array shape[1]
+        shape[0] = _n1
     }
+    scan_info["acquisition_shape"] = python_repr(shape)
+
     _SC_SCAN_DESC["info"] = python_repr(scan_info)
 
     ###########################################################################
@@ -315,27 +320,29 @@ def _sc_set_scan_env '{
     ###########################################################################
 
     for (i in kwargs) delete kwargs[i]
-    kwargs["shape"] = sprintf("(%d,)", SC_NPOINTS)
-    kwargs["dtype"] = "\'uint32\'"
+    local array shape[1]
+    shape[0] = SC_NPOINTS
+    kwargs["shape"] = python_repr(shape)
+    kwargs["dtype"] = python_repr("uint32")
     client_set_scan_env("scalar_data/i", "Dataset", kwargs)
 
     for (i in kwargs) delete kwargs[i]
-    kwargs["shape"] = sprintf("(%d,)", SC_NPOINTS)
-    kwargs["dtype"] = "\'d\'"
+    kwargs["shape"] = python_repr(shape)
+    kwargs["dtype"] = python_repr("d")
     client_set_scan_env("scalar_data/epoch", "Dataset", kwargs)
 
     for (i=0;i<COUNTERS;i++) {
         for (i in kwargs) delete kwargs[i]
-        kwargs["shape"] = sprintf("(%d,)", SC_NPOINTS)
-        kwargs["dtype"] = "\'d\'"
-        kwargs["signal"] = (i==DET)
+        kwargs["shape"] = python_repr(shape)
+        kwargs["dtype"] = python_repr("d")
+        kwargs["signal"] = python_repr(i==DET)
         id = sprintf("scalar_data/%s", cnt_mne(i))
         client_set_scan_env(id, "Signal", kwargs)
     }
 
     for (i=0;i<MOTORS;i++) {
         for (i in kwargs) delete kwargs[i]
-        kwargs["data"] = A[i]
+        kwargs["data"] = python_repr(A[i])
         id = sprintf("positioners/%s", motor_mne(i))
         client_set_scan_env(id, "Dataset", kwargs)
     }
@@ -349,10 +356,12 @@ def _sc_set_scan_env '{
     }
     for (i=0;i<_nm;i++) {
         for (i in kwargs) delete kwargs[i]
-        kwargs["shape"] = sprintf("(%d,)", SC_NPOINTS)
-        kwargs["dtype"] = "\'f\'"
-        kwargs["axis"] = _stype&8? i+1:1
-        kwargs["range"] = sprintf("(%g,%g)", _s[i], _f[i])
+        kwargs["shape"] = python_repr(shape)
+        kwargs["dtype"] = python_repr("f")
+        kwargs["axis"] = python_repr(_stype&8? i+1:1)
+        local array range[2]
+        range[0] = _s[i]; range[1] = _f[i]
+        kwargs["range"] = python_repr(range)
         # should add primary also for d3scan, but lets not worry about it now
         id = sprintf("scalar_data/%s", motor_mne(_m[i]))
         client_set_scan_env(id, "Axis", kwargs)
@@ -369,13 +378,13 @@ def _client_report_scan_env '{
     local scan_desc[]
 
     # Define the original variables for plotting
-    scan_desc["type"] = sprintf("\'%s\'", _stype)
-    scan_desc["title"] = sprintf("\'Scan %d\'", SCAN_N+1)
-    scan_desc["xlabel"] = sprintf("\'%s\'", X_L)
-    scan_desc["ylabel"] = sprintf("\'%s\'", cnt_mne(DET))
-    scan_desc["nb_motors"] = sprintf("\'%d\'", PLOT_MOTS)
-    scan_desc["motor"] = sprintf("\'%s\'", motor_mne(_m[0]))
-    scan_desc["counter"] = sprintf("\'%s\'", cnt_mne(DET))
+    scan_desc["type"] = python_repr(_stype)
+    scan_desc["title"] = python_repr(sprintf("Scan %d", SCAN_N+1))
+    scan_desc["xlabel"] = python_repr(sprintf("%s", X_L))
+    scan_desc["ylabel"] = python_repr(cnt_mne(DET))
+    scan_desc["nb_motors"] = python_repr(PLOT_MOTS)
+    scan_desc["motor"] = python_repr(motor_mne(_m[0]))
+    scan_desc["counter"] = python_repr(cnt_mne(DET))
 
     # collect the phynx data reported to client_set_scan_env:
     scan_desc["phynx"] = python_repr(_SC_SCAN_DESC)
@@ -399,11 +408,11 @@ def _client_report_plot '{
     if (d > 0) {
         _SC_OLDX = x
 
-        plot_data["i"] = sprintf("%d", NPTS)
-        plot_data["x"] = sprintf("%d", x)
+        plot_data["i"] = python_repr(NPTS)
+        plot_data["x"] = python_repr(x)
 
         for (i=PLOT_MOTS; i<(PLOT_CNTRS+PLOT_MOTS); i++) {
-            plot_data[PLOT_MNE[i]] = sprintf("%g", SCAN_D[LDT][i])
+            plot_data[PLOT_MNE[i]] = python_repr(SCAN_D[LDT][i])
         }
 
         _SC_NEWPLOTDATA = python_repr(plot_data)
