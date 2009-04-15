@@ -36,6 +36,9 @@ class ScanControlsInterface(QtGui.QTabWidget):
             self.setBusy
         )
 
+    def closeEvent(self,  event):
+        print 'alright'
+
     def setBusy(self, busy):
         self.skipMode.setBusy(busy)
         self.scanWidget.setBusy(busy)

@@ -11,10 +11,10 @@ def client_plot '{
     local set_state
 
     if ($# == 0) {
-        set_state = ! SC_PLOT_ACTIVE
+        set_state = !(SC_PLOT_ACTIVE)
     } else {
-        if (($1 != 0) || ($1 != 1)) {
-            print "Usage: client_plot 0/1"
+        if (($1 != 0) && ($1 != 1)) {
+            print "Usage: client_plot [0/1]"
             exit
         }
         set_state = $1
@@ -31,10 +31,10 @@ def client_data '{
     local set_state
 
     if ($# == 0) {
-        set_state = ! SC_DATA_ACTIVE
+        set_state = !(SC_DATA_ACTIVE)
     } else {
-        if (($1 != 0) || ($1 != 1)) {
-            print "Usage: client_data 0/1"
+        if (($1 != 0) && ($1 != 1)) {
+            print "Usage: client_data [0/1]"
             exit
         }
         set_state = $1
@@ -56,18 +56,18 @@ def client_data '{
 def python_repr(value) '{
     local sval
 
-    if ((whatis("value")&0x00010004)) {
+    if ((whatis("value")&0x00010000)) {
         local rows cols
         rows = array_op("rows", value)
         cols = array_op("cols", value)
         sval = ""
         if (rows == 1) {
-            for(i = 0; i < rows; i++){
-                sval = sprintf("%s%g,", sval, value[i][1])
+            for(i = 0; i < cols; i++){
+                sval = sprintf("%s%g,", sval, value[0][i])
             }
         } else if (cols == 1) {
-            for(i = 0; i < cols; i++){
-                sval = sprintf("%s%g,", sval, value[1][i])
+            for(i = 0; i < rows; i++){
+                sval = sprintf("%s%g,", sval, value[i][0])
             }
         } else {
             local row
@@ -76,18 +76,18 @@ def python_repr(value) '{
                 for(j = 0; j < cols; j++){
                     row = sprintf("%s%g,", row, value[i][j])
                 }
-                sval = sprintf("[%s],", sval, row)
+                sval = sprintf("%s[%s],", sval, row)
             }
         }
         sval = sprintf("[%s]", sval)
-    } else if ((whatis("value")&0x00100004)) {
+    } else if ((whatis("value")&0x00100000)) {
         sval = sprintf("%g", value)
-    } else if ((whatis("value")&0x00200004)) {
+    } else if ((whatis("value")&0x00200000)) {
         sval = sprintf("\'%s\'", value)
-    } else if (whatis("value")&0x01000004) {
+    } else if (whatis("value")&0x01000000) {
         sval = ""
-        for (i in kwargs) {
-            sval = sprintf("%s\'%s\':%s, ", sval, i, kwargs[i])
+        for (i in value) {
+            sval = sprintf("%s\'%s\':%s, ", sval, i, value[i])
         }
         sval = sprintf("{%s}", sval)
     } else {
@@ -173,7 +173,7 @@ def client_set_scan_env(key, type, kwargs) '{
             eprint "kwargs must be an associative array, if specified"
             exit
         }
-        _SC_SCAN_DESC[key] = sprintf("('\%s\', %s)", type, skwargs)
+        _SC_SCAN_DESC[key] = sprintf("(\'%s\', %s)", type, skwargs)
     }
 }'
 
@@ -259,8 +259,6 @@ def _client_utils(mode, set_state) '{
             cdef("user_scan_plot", "_client_report_plot;", "client_plot", 0x20)
         } else {
             unglobal _SC_OLDX
-
-            _client_utils("plot", "off")
 
             cdef("", "", "client_plot", "delete")
         }

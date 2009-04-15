@@ -94,20 +94,3 @@ class Spec:
             nameChannel = self.connection.getChannel('var/SPEC')
 
             return nameChannel.read()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

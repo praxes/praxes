@@ -77,8 +77,8 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
         """
         QtCore.QObject.__init__(self, parent)
         Spec.Spec.__init__(self, specVersion, timeout)
-        self._cmd = SpecCommand.SpecCommand('', specVersion, None)
-        self._acmd = SpecCommand.SpecCommandA('', specVersion)
+
+        self("client_data 1", asynchronous=False)
         self._datafile = SpecDatafile('DATAFILE', specVersion, self)
 
         self._motors = {}
@@ -109,15 +109,16 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
 
     def __call__(self, command, asynchronous=True):
         logger.debug("executing %s",command)
-
         if asynchronous:
-            return self._acmd.executeCommand(command)
-
+            cmd = SpecCommand.SpecCommandA(command, self.specVersion)
         else:
-            return self._cmd.executeCommand(command)
+            cmd = SpecCommand.SpecCommand(command, self.specVersion, None)
+
+        return cmd()
 
     def close(self):
         try:
+            self("client_data 0", asynchronous=False)
             self.dispatcher.exit()
             self.dispatcher.wait()
 #            self.connection.dispatcher.disconnect()
@@ -143,23 +144,6 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
             motor = QtSpecMotorA(motorMne, self.specVersion)
             self._motors[motorMne] = motor
             return motor
-
-    def getMotorMne(self, motorId):
-        motorMne = self.motor_mne(motorId, function = True)
-        if not motorMne in self._motorNames:
-            self._motorNames.append(motorMne)
-        return motorMne
-
-    def getMotorsMne(self):
-        if len(self._motorNames) != self.getNumMotors():
-            motorsMne = self(
-                "local md; for (i=0; i<MOTORS; i++) { md[i]=motor_mne(i); }; "
-                "return md", asynchronous=False
-            )
-            keys = [int(i) for i in motorsMne.keys()]
-            keys.sort()
-            self._motorNames = [motorsMne[str(i)] for i in keys]
-        return self._motorNames
 
     def getNumCounters(self):
         if self.connection is not None:
@@ -211,11 +195,6 @@ class TestSpecRunner(SpecRunnerBase):
             motor.end()
         print "ABORT"
 
-    def getMotorsMne(self):
-        motors = self.motordict.keys()
-        motors.sort()
-        return  motors
-
     def getCountersMne(self):
         pass
 
@@ -225,9 +204,6 @@ class TestSpecRunner(SpecRunnerBase):
 
     def getMotor(self, name):
         return self.motordict[name]
-
-    def getMotorMne(self, motorId):
-        return self.motorDict(motorId).specname
 
     def getNumCounters(self):
         pass

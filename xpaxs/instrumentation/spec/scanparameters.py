@@ -271,8 +271,6 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
         self.setupUi(self)
 
         self._specRunner = specRunner
-        self.specRunner('clientploton', asynchronous=False)
-        self.specRunner('clientdataon', asynchronous=False)
 
         from xpaxs.instrumentation.spec.scan import QtSpecScanA
         self._scan = QtSpecScanA(self.specRunner.specVersion, parent=self)
@@ -430,12 +428,6 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
         self.stackedLayout.setCurrentWidget(self.scanButton)
         self.scanParamsWidget.setEnabled(True)
         self.emit(QtCore.SIGNAL("specBusy"), False)
-
-    def closeEvent(self, event):
-        self.specRunner('clientplotoff', asynchronous=False)
-        self.specRunner('clientdataoff', asynchronous=False)
-
-        return event.accept()
 
 
 class ChangeSpecFileDialog(QtGui.QDialog):

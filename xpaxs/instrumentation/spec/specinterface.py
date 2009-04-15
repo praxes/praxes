@@ -183,7 +183,7 @@ class SpecInterface(QtCore.QObject):
         self.dockWidgets[title] = (dock, defaultArea, action)
 
     def close(self):
-        self.scanControls = None
+        self.interfaceWidget.close()
         self.dockWidgets = {}
         self.specRunner.close()
         self._specRunner = None
