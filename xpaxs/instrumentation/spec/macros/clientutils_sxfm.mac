@@ -241,7 +241,7 @@ def _client_utils(mode, set_state) '{
 
     if (mode == "plot") {
         if (set_state == SC_PLOT_ACTIVE) {
-            exit
+            return
         }
 
         SC_PLOT_ACTIVE = set_state
@@ -264,7 +264,7 @@ def _client_utils(mode, set_state) '{
         }
     } else if (mode == "data") {
         if (set_state == SC_DATA_ACTIVE) {
-            exit
+            return
         }
 
         SC_DATA_ACTIVE = set_state
