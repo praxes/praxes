@@ -87,7 +87,7 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
         self.getMotorsMne()
         self.getCountersMne()
 
-        self.runMacro('clientutils_sxfm.mac')
+        self.runMacro('clientutils.mac')
         self.runMacro('skipmode.mac')
 
 #        self.dispatcher = Dispatcher(self)
