@@ -543,39 +543,47 @@ def mca_set_env '{
         fprintf(device_file, "#L icr  ocr  real  live  dead_time\n")
 
         if (whatis("client_set_scan_env")&0x2) {
-            local array mca_channels[uch]
-            array_op("fill", mca_channels, 1, 1)
+            local kwargs[]
 
-            kwargs["calibration"] = sprintf("(%g,%g,%g)", _oo, _ss, _qq)
+            local array cal[3]
+            cal[0] = _oo; cal[0] = _oo; cal[0] = _oo
+            kwargs["calibration"] = python_repr(python_repr(cal))
             client_set_scan_env(MCA_NAME, "MultiChannelAnalyzer", kwargs)
 
             for (i in kwargs) delete kwargs[i]
-            kwargs["shape"] = sprintf("(%d, 2048)", SC_NPOINTS)
-            kwargs["dtype"] = "\'uint32\'"
+            local array shape[2]
+            shape[0] = SC_NPOINTS; shape[1] = uch
+            kwargs["shape"] = python_repr(shape)
+            kwargs["dtype"] = python_repr("uint32")
             id = sprintf("%s/counts", mne)
             client_set_scan_env(id, "McaSpectrum", kwargs)
 
             for (i in kwargs) delete kwargs[i]
+            local array mca_channels[uch]
+            array_op("fill", mca_channels, 1, 1)
             kwargs["data"] = python_repr(mca_channels)
             id = sprintf("%s/channels", mne)
             client_set_scan_env(id, "Dataset", kwargs)
 
             if (USE_DXP) {
                 local units[], type
-                units["icr"] = "\'s\'"
-                units["ocr"] = "\'s\'"
-                units["real"] = "\'s\'"
-                units["live"] = "\'s\'"
-                units["dead_time"] = "\'percent\'"
+                local array shape[1]
+                shape[0] = SC_NPOINTS
+
+                units["icr"] = "s"
+                units["ocr"] = "s"
+                units["real"] = "s"
+                units["live"] = "s"
+                units["dead_time"] = "percent"
 
                 for (dset in units) {
                     for (i in kwargs) delete kwargs[i]
-                    kwargs["shape"] = sprintf("(%d, )", SC_NPOINTS)
-                    kwargs["dtype"] = "\'f\'"
-                    kwargs["units"] = units[dset]
+                    kwargs["shape"] = python_repr(shape)
+                    kwargs["dtype"] = python_repr("f")
+                    kwargs["units"] = python_repr(units[dset])
                     if (dset == "dead_time") {
                         type = "DeadTime"
-                        kwargs["dead_time_format"] = "\'percent\'"
+                        kwargs["dead_time_format"] = python_repr(units[dset])
                     } else {
                         type = "Dataset"
                     }
