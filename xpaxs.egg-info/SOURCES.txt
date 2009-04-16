@@ -112,7 +112,6 @@ xpaxs/instrumentation/spec/specinterface.py
 xpaxs/instrumentation/spec/sshdialog.py
 xpaxs/instrumentation/spec/utils.py
 xpaxs/instrumentation/spec/macros/clientutils.mac
-xpaxs/instrumentation/spec/macros/clientutils_sxfm.mac
 xpaxs/instrumentation/spec/macros/epics_mca_CHESS.mac
 xpaxs/instrumentation/spec/macros/mmv.mac
 xpaxs/instrumentation/spec/macros/mmvr.mac

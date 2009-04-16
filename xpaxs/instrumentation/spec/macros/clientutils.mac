@@ -21,7 +21,7 @@ def client_plot '{
         set_state = $1
     }
 
-    _client_utils("plot", set_state)
+    _sc_setmode("plot", set_state)
 }'
 
 #
@@ -42,7 +42,7 @@ def client_data '{
         set_state = $1
     }
 
-    _client_utils("data", set_state)
+    _sc_setmode("data", set_state)
 }'
 
 #
@@ -54,7 +54,7 @@ def python_repr(value) '{
     local sval
 
     if ((whatis("value")&0x00010000)) {
-        local rows cols
+        local rows cols i j
         rows = array_op("rows", value)
         cols = array_op("cols", value)
         sval = ""
@@ -83,6 +83,7 @@ def python_repr(value) '{
         sval = sprintf("\'%s\'", value)
     } else if (whatis("value")&0x01000000) {
         sval = ""
+        local i
         for (i in value) {
             sval = sprintf("%s\'%s\':%s, ", sval, i, value[i])
         }
@@ -161,10 +162,11 @@ def client_set_scan_env(key, type, kwargs) '{
             eprint "type must be a string"
             exit
         }
-        if (!(kwargs)) {
-            skwargs = "{}"
-        } else if (whatis("value")&0x01000000) {
+
+        if (whatis("kwargs")&0x01000000) {
             skwargs = python_repr(kwargs)
+        } else if (whatis("kwargs")&0x00100000 && ! kwargs) {
+            skwargs = "{}"
         } else {
             eprint "kwargs must be an associative array, if specified"
             exit
@@ -222,14 +224,14 @@ def client_set_data(key, value) '{
 global _SC_NEWSCAN _SC_NEWSCANDATA _SC_NEWPLOTDATA
 global SC_DATA_ACTIVE SC_PLOT_ACTIVE
 
-def _client_utils(mode, set_state) '{
+def _sc_setmode(mode, set_state) '{
     if (set_state && ! (SC_DATA_ACTIVE || SC_PLOT_ACTIVE)) {
         global _SC_SCAN_DESC[] SC_NPOINTS
 
         _SC_NEWSCAN = 0
 
-        cdef("user_postscan_head", "_client_set_scan_env;", "clientutils", 0x10)
-        cdef("user_postscan_head", "_client_report_scan_env;", "clientutils", 0x20)
+        cdef("user_prescan_head", "_sc_set_scan_env();", "clientutils", 0x10)
+        cdef("user_postscan_head", "_sc_report_scan_env();", "clientutils", 0x20)
         cdef("user_scan_tail", "_SC_NEWSCAN = 0;", "clientutils", 0x20)
     }
 
@@ -250,7 +252,7 @@ def _client_utils(mode, set_state) '{
                 tty_cntl("me")
             }
 
-            cdef("user_scan_plot", "_client_report_plot;", "client_plot", 0x20)
+            cdef("user_scan_plot", "_sc_report_plot();", "client_plot", 0x20)
         } else {
             unglobal _SC_OLDX
 
@@ -266,8 +268,8 @@ def _client_utils(mode, set_state) '{
         if (SC_DATA_ACTIVE) {
             global _SC_DATA_DESC[]
 
-            cdef("user_getcounts", "_client_set_data;", "client_data", 0x10)
-            cdef("user_scan_loop", "_client_report_data;", "client_data", 0x20)
+            cdef("user_getcounts", "_sc_set_data();", "client_data", 0x10)
+            cdef("user_scan_loop", "_sc_report_data();", "client_data", 0x20)
         } else {
             unglobal _SC_DATA_DESC
 
@@ -282,10 +284,10 @@ def _client_utils(mode, set_state) '{
     }
 }'
 
-def _sc_set_scan_env '{
-    for (i in _SC_SCAN_DESC) delete _SC_SCAN_DESC[i]
+def _sc_set_scan_env() '{
+    local scan_info[] id kwargs[] i k
 
-    local scan_info[] id kwargs[]
+    for (i in _SC_SCAN_DESC) delete _SC_SCAN_DESC[i]
 
     ###########################################################################
     #   general information about the scan to be passed to the phynx entry    #
@@ -299,11 +301,12 @@ def _sc_set_scan_env '{
     if (_stype&8) {
         local array shape[2]
         shape[0] = _n1; shape[1] = _n2
+        scan_info["acquisition_shape"] = python_repr(shape)
     } else {
         local array shape[1]
         shape[0] = _n1
+        scan_info["acquisition_shape"] = python_repr(shape)
     }
-    scan_info["acquisition_shape"] = python_repr(shape)
 
     _SC_SCAN_DESC["info"] = python_repr(scan_info)
 
@@ -311,7 +314,6 @@ def _sc_set_scan_env '{
     #           specify the phynx hierarchy under entry/measurement           #
     ###########################################################################
 
-    for (i in kwargs) delete kwargs[i]
     local array shape[1]
     shape[0] = SC_NPOINTS
     kwargs["shape"] = python_repr(shape)
@@ -323,17 +325,17 @@ def _sc_set_scan_env '{
     kwargs["dtype"] = python_repr("d")
     client_set_scan_env("scalar_data/epoch", "Dataset", kwargs)
 
-    for (i=0;i<COUNTERS;i++) {
-        for (i in kwargs) delete kwargs[i]
+    for (i in S) {
+        for (k in kwargs) delete kwargs[k]
         kwargs["shape"] = python_repr(shape)
-        kwargs["dtype"] = python_repr("d")
+        kwargs["dtype"] = python_repr("f")
         kwargs["signal"] = python_repr(i==DET)
         id = sprintf("scalar_data/%s", cnt_mne(i))
         client_set_scan_env(id, "Signal", kwargs)
     }
 
-    for (i=0;i<MOTORS;i++) {
-        for (i in kwargs) delete kwargs[i]
+    for (i in A) {
+        for (k in kwargs) delete kwargs[k]
         kwargs["data"] = python_repr(A[i])
         id = sprintf("positioners/%s", motor_mne(i))
         client_set_scan_env(id, "Dataset", kwargs)
@@ -347,7 +349,7 @@ def _sc_set_scan_env '{
         _f[1] = _f2
     }
     for (i=0;i<_nm;i++) {
-        for (i in kwargs) delete kwargs[i]
+        for (k in kwargs) delete kwargs[k]
         kwargs["shape"] = python_repr(shape)
         kwargs["dtype"] = python_repr("f")
         kwargs["axis"] = python_repr(_stype&8? i+1:1)
@@ -355,6 +357,7 @@ def _sc_set_scan_env '{
         range[0] = _s[i]; range[1] = _f[i]
         kwargs["range"] = python_repr(range)
         # should add primary also for d3scan, but lets not worry about it now
+        p motor_mne(_m[i])
         id = sprintf("scalar_data/%s", motor_mne(_m[i]))
         client_set_scan_env(id, "Axis", kwargs)
     }
@@ -366,7 +369,7 @@ def _sc_set_scan_env '{
 # could read them. Instead, use python_repr to convert the associative array
 # to a string representation of a python dictionary.
 
-def _client_report_scan_env '{
+def _sc_report_scan_env() '{
     local scan_desc[]
 
     # Define the original variables for plotting
@@ -385,7 +388,7 @@ def _client_report_scan_env '{
 }'
 
 
-def _client_report_plot '{
+def _sc_report_plot() '{
     local x d i n plot_data[]
     global _SC_OLDX
 
@@ -412,8 +415,12 @@ def _client_report_plot '{
 }'
 
 
-def _client_report_data '{
-    local id scan_data
+def _sc_set_data() '{
+    local id scan_data i
+
+    for (i in _SC_DATA_DESC) {
+        delete _SC_DATA_DESC[i]
+    }
 
     client_set_data("scalar_data/i", NPTS)
     client_set_data("scalar_data/epoch", time())
@@ -427,6 +434,8 @@ def _client_report_data '{
         id = sprintf("scalar_data/%s", cnt_mne(i))
         client_set_data(id, S[i])
     }
+}'
 
+def _sc_report_data() '{
     _SC_NEWSCANDATA = python_repr(_SC_DATA_DESC)
 }'
