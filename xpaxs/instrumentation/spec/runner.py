@@ -78,7 +78,6 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
         QtCore.QObject.__init__(self, parent)
         Spec.Spec.__init__(self, specVersion, timeout)
 
-        self("client_data 1", asynchronous=False)
         self._datafile = SpecDatafile('DATAFILE', specVersion, self)
 
         self._motors = {}
@@ -87,7 +86,14 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
         self.getMotorsMne()
         self.getCountersMne()
 
-        self.runMacro('clientutils.mac')
+        clientLoaded = self(
+            'local sc; sc = whatis("client_set_data")&0x2; return md',
+            asynchronous=False
+        )
+        if not clientLoaded:
+            self.runMacro('clientutils.mac')
+        self("client_data 1", asynchronous=False)
+
         self.runMacro('skipmode.mac')
 
 #        self.dispatcher = Dispatcher(self)

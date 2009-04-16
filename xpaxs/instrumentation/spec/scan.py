@@ -27,7 +27,9 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         SpecScan.SpecScanA.__init__(self, specVersion)
 
         self._resume = SpecCommand.SpecCommandA('scan_on', specVersion)
-        self._scan_aborted = SpecCommand.SpecCommandA('_SC_NEWSCAN = 0', specVersion)
+        self._scan_aborted = SpecCommand.SpecCommandA(
+            '_SC_NEWSCAN = 0', specVersion
+        )
 
         self._scanData = None
         self._lastPoint = None
@@ -53,7 +55,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         pass
 
     def newScan(self, scanParameters):
-        logger.debug('newScan: %s', scanParameters)
+#        logger.debug('newScan: %s', scanParameters)
 
         tree = scanParameters['phynx']
         info = tree.pop('info')
@@ -62,7 +64,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         fileInterface = xpaxs.application.getService('FileInterface')
 
         if fileInterface:
-            specFile = info['file_name']
+            specFile = info['source_file']
             h5File = fileInterface.getH5FileFromKey(specFile)
             # It is possible for a scan number to appear multiple times in a
             # spec file. Booo!
@@ -75,10 +77,8 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
             name = name + acq_order
 
             # create the entry and measurement groups
-            entry = h5File.create_group(name, type='Entry', **info)
-            measurement = entry.create_group(
-                'measurement', type='Measurement'
-            )
+            entry = h5File.create_entry(name, **info)
+            measurement = entry.measurement
             # create all the groups under measurement, defined by clientutils:
             keys = sorted(tree.keys())
             for k in keys:
@@ -86,8 +86,8 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
                 if 'shape' in kwargs and 'dtype' in kwargs:
                     # these are empty datasets, lets start small and grow
                     kwargs['maxshape'] = kwargs['shape']
-                    kwargs['shape'] = (1, ) + kwargs['shape'][1:]
-                phynx.registry[t](measurement, k, **kwargs)
+                    kwargs['shape'] = (1, ) + tuple(kwargs['shape'][1:])
+                measurement.create_group(k, t, **kwargs)
 
             # make a few links:
             if 'masked' in measurement['scalar_data']:
@@ -109,9 +109,9 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         self.emit(QtCore.SIGNAL("newScanLength"), info['npoints'])
 
     def newScanData(self, scanData):
-        logger.debug( 'scanData: %s', scanData)
+#        logger.debug( 'scanData: %s', scanData)
 
-        i = int(scanData.pop('i'))
+        i = scanData['scalar_data/i']
 
         if self._scanData:
             with self._scanData.plock:
@@ -122,6 +122,8 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
                     except ValueError:
                         m[k].resize(i+1, axis=0)
                         m[k][i] = val
+                    except:
+                        print m.listitems(), k
 
         self._lastPoint = i
         if i == 0:
