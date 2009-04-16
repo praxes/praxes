@@ -96,8 +96,8 @@ if (!(whatis("u_column_add")&0x2)) {
 
 #MCA arrays
 
-global mca_name[] mca_pv[] roi_pv[] dxp_pv[]
-global EPICS_MCAS USE_DXP MCA_SCAN
+global mca_name[] mca_pv[] roi_pv[] dxp_pv[] mca_uses_dxp[]
+global MCA_SCAN
 
 #===============================================================================
 # user macros defined here
@@ -120,7 +120,8 @@ def setup_mca '{
             }
             mca_name[nme] = getval("MCA name:", "")
             mca_pv[nme] = getval("EPICS MCA PV:", "")
-            if (USE_DXP) {
+            mca_uses_dxp[nme] = yesno("\nUse a DXP with this MCA?", "0")
+            if (mca_uses_dxp[nme]) {
                 dxp_pv[nme] = getval("EPICS DXP PV:", "")
             }
             foo = epics_par(sprintf("%s.VAL",mca_pv[nme]), "count")
@@ -148,7 +149,6 @@ def setup_mca '{
         foo =  epics_get(sprintf("%s.NUSE", mca_pv[nme]))
         A_name =  sprintf("mcadat_%s", nme)
         array @A_name[2][foo]
-        EPICS_MCAS++
         mca_rois
         p "\n"
         show_mca
@@ -258,7 +258,7 @@ def save_rois '{
         }
 
         for (j in tmp) {
-            if (USE_DXP) {
+            if (mca_uses_dxp[j]) {
                 rname = sprintf("ICR%s", j)
                 cmd = sprintf("epics_get(\"%s.ICR\")", dxp_pv[j])
                 u_column_add(rname, "%.8g", cmd, "mcaroi")
@@ -371,14 +371,6 @@ def mcasmode '{
 # internal macros defined here
 #===============================================================================
 
-def setup_dxp '{
-    if (yesno("\nUse a DXP with this MCA?", "0")) {
-        USE_DXP = 1
-    } else {
-        USE_DXP = 0
-    }
-}'
-
 def mca_on '{
     cdef("user_Fheader", "mca_specfile_Fheader;", "epics_mca", 0x10)
     cdef("user_postscan_head", "mca_set_env;", "epics_mca")
@@ -456,9 +448,9 @@ def mca_report_counts '{
         on(device_file)
         offt
 
-        local mcaRtime mcaLtime dxpICr dxpOCR mcaDtime mcadtc
+        local mcaRtime mcaLtime dxpICr dxpOCR mcaDtime
 
-        if (USE_DXP) {
+        if (mca_uses_dxp[mne]) {
              dxpICR = epics_get(sprintf("%s.ICR", dxp_pv[mne]))
              dxpOCR = epics_get(sprintf("%s.OCR", dxp_pv[mne]))
         } else {
@@ -487,7 +479,7 @@ def mca_report_counts '{
         close(device_file)
         ont
 
-        if (whatis("client_set_data")&0x2) {
+        if (SC_DATA_ACTIVE) {
             client_set_data(sprintf("%s/counts", mne), @A_name[1])
 
             if (MCA_NAME == "vortex") {
@@ -542,7 +534,7 @@ def mca_set_env '{
         fprintf(device_file, "#N 5\n")
         fprintf(device_file, "#L icr  ocr  real  live  dead_time\n")
 
-        if (whatis("client_set_scan_env")&0x2) {
+        if (SC_DATA_ACTIVE) {
             local kwargs[]
 
             local array cal[3]
@@ -565,7 +557,7 @@ def mca_set_env '{
             id = sprintf("%s/channels", mne)
             client_set_scan_env(id, "Dataset", kwargs)
 
-            if (USE_DXP) {
+            if (mca_uses_dxp[mne]) {
                 local units[], type
                 local array shape[1]
                 shape[0] = SC_NPOINTS

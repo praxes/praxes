@@ -43,7 +43,7 @@ def _skipmode_Fheader '{
 
 
 def _skipmode_postscan_head '{
-    if (whatis("client_set_scan_env")&0x2) {
+    if (SC_DATA_ACTIVE) {
         local kwargs[]
         local array shape[1]
         shape[0] = SC_NPOINTS
@@ -68,7 +68,7 @@ def _skipmode_precount '{
 
 
 def _skipmode_getcounts '{
-    if (whatis("client_set_data")&0x2) {
+    if (SC_DATA_ACTIVE) {
         local val
 
         val = S[_SKIPMODE["counter"]] < _SKIPMODE["threshold"]

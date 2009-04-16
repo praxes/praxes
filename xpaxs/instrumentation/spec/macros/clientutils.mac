@@ -12,6 +12,7 @@ def client_plot '{
 
     if ($# == 0) {
         set_state = !(SC_PLOT_ACTIVE)
+        printf("%s client_plot", set_state?"enabling":"disabling")
     } else {
         if (($1 != 0) && ($1 != 1)) {
             print "Usage: client_plot [0/1]"
@@ -32,6 +33,7 @@ def client_data '{
 
     if ($# == 0) {
         set_state = !(SC_DATA_ACTIVE)
+        printf("%s client_data", set_state?"enabling":"disabling")
     } else {
         if (($1 != 0) && ($1 != 1)) {
             print "Usage: client_data [0/1]"
@@ -46,11 +48,6 @@ def client_data '{
 #
 # python_repr(value)
 #   creates a python-formatted string representation of a spec data object.
-#   Any values that are destined to be python strings must be escaped, for
-#   example:
-#
-#     python_repr("\'uint32\'")
-#
 #   Data arrays, associative arrays, numbers and strings are supported.
 #
 def python_repr(value) '{
@@ -113,10 +110,13 @@ def python_repr(value) '{
 #   of the keyword arguments to pass to the python class constructor.
 #
 #   examples:
-#     if (whatis("client_set_scan_env")&0x2) {
+#     if (SC_DATA_ACTIVE || SC_PLOT_ACTIVE) {
+#         client_set_scan_env("mca", "MultiChannelAnalyzer")
+#
 #         local kwargs[]
-#         kwargs["calibration"] = "(0, 0.01, 0)"
-#         client_set_scan_env("mca", "MultiChannelAnalyzer", kwargs)
+#         # assume mca_channels is a 2048 element array
+#         kwargs["data"] = python_repr(mca_channels)
+#         client_set_scan_env("mca/channels", "Dataset", kwargs)
 #
 #         for (i in kwargs) delete kwargs[i]
 #         local array shape[2]
@@ -124,11 +124,6 @@ def python_repr(value) '{
 #         kwargs["shape"] = python_repr(shape)
 #         kwargs["dtype"] = python_repr("uint32")
 #         client_set_scan_env("mca/counts", "McaSpectrum", kwargs)
-#
-#         for (i in kwargs) delete kwargs[i]
-#         # assume mca_channels is a 2048 element array
-#         kwargs["data"] = python_repr(mca_channels)
-#         client_set_scan_env("mca/channels", "Dataset", kwargs)
 #
 #         for (i in kwargs) delete kwargs[i]
 #         local array shape[1]
@@ -141,7 +136,7 @@ def python_repr(value) '{
 #
 #   Note that these strings will be evaluated into valid python objects (using
 #   a safe alternative to python's built-in eval() function), and the
-#   python_repr function can be used to properly format various kinds of data.
+#   python_repr function is used to properly format various kinds of data.
 #   SC_NPOINTS is a global variable provided when clientutils is active, it is
 #   an attempt to guess how many data points will be reported in the scan.
 #
@@ -157,7 +152,7 @@ def python_repr(value) '{
 #   must be called in between these two events.
 #
 def client_set_scan_env(key, type, kwargs) '{
-    if (SC_CLIENT_ACTIVE) {
+    if (SC_DATA_ACTIVE || SC_PLOT_ACTIVE) {
         if (!(whatis("key")&0x00200000)) {
             eprint "key must be a string"
             exit
@@ -185,17 +180,17 @@ def client_set_scan_env(key, type, kwargs) '{
 #   %key% must be a string, the name of the dataset, including its path relative
 #   to the hdf5 hierarchy for the scan entry.
 #
-#   %value% is a string representation of the data.
+#   %value% is the data.
 #
 #   examples:
-#     if (whatis("client_set_data")&0x2) {
+#     if (SC_DATA_ACTIVE) {
 #         client_set_data("mca/counts", counts)
 #         client_set_data("mca/dead_time", dead_time)
 #     }
 #
 #   Note that client_set_data will attempt to format the data into a valid
 #   string representation of a python data object, spec data arrays, ints and
-#   floats, strings, and associative arrays are supported.
+#   floats are supported by hdf5.
 #
 #   client_set_data should be called in your site macro code in the middle or at
 #   the end of user_getcounts, or during user_postcount. For example:
@@ -225,13 +220,12 @@ def client_set_data(key, value) '{
 # All globals to which SpecScan will connect need to be created before the
 # SpecScan is instantiated, so we define them here:
 global _SC_NEWSCAN _SC_NEWSCANDATA _SC_NEWPLOTDATA
-global SC_CLIENT_ACTIVE SC_DATA_ACTIVE SC_PLOT_ACTIVE
+global SC_DATA_ACTIVE SC_PLOT_ACTIVE
 
 def _client_utils(mode, set_state) '{
-    if (set_state && ! SC_CLIENT_ACTIVE) {
+    if (set_state && ! (SC_DATA_ACTIVE || SC_PLOT_ACTIVE)) {
         global _SC_SCAN_DESC[] SC_NPOINTS
 
-        SC_CLIENT_ACTIVE = 1
         _SC_NEWSCAN = 0
 
         cdef("user_postscan_head", "_client_set_scan_env;", "clientutils", 0x10)
@@ -281,10 +275,9 @@ def _client_utils(mode, set_state) '{
         }
     }
 
-    if (! SC_PLOT_ACTIVE && ! SC_DATA_ACTIVE) {
+    if (! (SC_PLOT_ACTIVE || SC_DATA_ACTIVE)) {
         unglobal _SC_SCAN_DESC SC_NPOINTS
 
-        SC_CLIENT_ACTIVE = 0
         cdef("", "", "clientutils", "delete")
     }
 }'
@@ -292,7 +285,7 @@ def _client_utils(mode, set_state) '{
 def _sc_set_scan_env '{
     for (i in _SC_SCAN_DESC) delete _SC_SCAN_DESC[i]
 
-    local scan_info[] id entry kwargs[]
+    local scan_info[] id kwargs[]
 
     ###########################################################################
     #   general information about the scan to be passed to the phynx entry    #
