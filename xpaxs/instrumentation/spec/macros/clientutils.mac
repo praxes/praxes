@@ -156,10 +156,12 @@ def client_set_scan_env(key, type, kwargs) '{
     if (SC_DATA_ACTIVE || SC_PLOT_ACTIVE) {
         if (!(whatis("key")&0x00200000)) {
             eprint "key must be a string"
+            eprint key, type, kwargs
             exit
         }
         if (!(whatis("type")&0x00200000)) {
             eprint "type must be a string"
+            eprint key, type, kwargs
             exit
         }
 
@@ -169,6 +171,7 @@ def client_set_scan_env(key, type, kwargs) '{
             skwargs = "{}"
         } else {
             eprint "kwargs must be an associative array, if specified"
+            eprint key, type, kwargs
             exit
         }
         _SC_SCAN_DESC[key] = sprintf("(%s, %s)", python_repr(type), skwargs)
@@ -208,6 +211,7 @@ def client_set_data(key, value) '{
 
         if (!(whatis("key")&0x00200004)) {
             eprint "key must be a string"
+            eprint key, value
             exit
         }
 
@@ -357,7 +361,6 @@ def _sc_set_scan_env() '{
         range[0] = _s[i]; range[1] = _f[i]
         kwargs["range"] = python_repr(range)
         # should add primary also for d3scan, but lets not worry about it now
-        p motor_mne(_m[i])
         id = sprintf("scalar_data/%s", motor_mne(_m[i]))
         client_set_scan_env(id, "Axis", kwargs)
     }

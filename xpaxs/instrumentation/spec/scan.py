@@ -97,8 +97,8 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
             self._scanData = entry
 
             ScanView = xpaxs.application.getService('ScanView')
-            if ScanView:
-                view = ScanView(entry)
+            view = ScanView(entry)
+            if view:
 
                 self.connect(
                     self,
