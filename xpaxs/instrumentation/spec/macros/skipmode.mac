@@ -44,16 +44,20 @@ def _skipmode_Fheader '{
 
 def _skipmode_postscan_head '{
     if (SC_DATA_ACTIVE) {
-        local kwargs[]
-        local array shape[1]
-        shape[0] = SC_NPOINTS
-
-        kwargs["shape"] = python_repr(shape)
-        kwargs["dtype"] = python_repr("?")
-        kwargs["monitor"] = python_repr(cnt_mne(_SKIPMODE["counter"]))
-        kwargs["threshold"] = python_repr(_SKIPMODE["threshold"])
-        client_set_scan_env("scalar_data/masked", "Signal", kwargs)
+        _skipmode_client_set_env()
     }
+}'
+
+def _skipmode_client_set_env() '{
+    local kwargs[]
+    local array shape[1]
+    shape[0] = SC_NPOINTS
+
+    kwargs["shape"] = python_repr(shape)
+    kwargs["dtype"] = python_repr("?")
+    kwargs["monitor"] = python_repr(cnt_mne(_SKIPMODE["counter"]))
+    kwargs["threshold"] = python_repr(_SKIPMODE["threshold"])
+    client_set_scan_env("scalar_data/masked", "Signal", kwargs)
 }'
 
 
@@ -69,9 +73,13 @@ def _skipmode_precount '{
 
 def _skipmode_getcounts '{
     if (SC_DATA_ACTIVE) {
-        local val
-
-        val = S[_SKIPMODE["counter"]] < _SKIPMODE["threshold"]
-        client_set_data("scalar_data/masked", val)
+        _skipmode_client_report_data()
     }
+}'
+
+def _skipmode_client_report_data() '{
+    local val
+
+    val = S[_SKIPMODE["counter"]] < _SKIPMODE["threshold"]
+    client_set_data("scalar_data/masked", val)
 }'
