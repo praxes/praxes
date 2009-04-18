@@ -13,7 +13,7 @@ try:
 except ImportError:
     from PyMca import specfile
 
-from xpaxs.io.phynx import File
+from xpaxs.io.phynx import File, H5Error
 
 
 def get_spec_scan_info(commandList):
@@ -217,7 +217,17 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     positioners = measurement.create_group('positioners', type='Positioners')
     try:
         for motor, pos in zip(sfile.allmotors(), scan.allmotorpos()):
-            positioners[motor] = pos
+            try:
+                positioners[motor] = pos
+            except H5Error:
+                print (
+    """
+    Invalid spec motor configuration:
+    "%s" is used to describe more than one positioner.
+    Only the first occurance will be saved. Please report
+    the problem to your beamline scientist
+    """ % motor
+                )
     except specfile.error:
         pass
 
@@ -319,7 +329,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         ):
             try:
                 p = subprocess.Popen(
-                    ['marcvt', '-raw32', f],
+                    ['marcvthaw', '-raw32', f],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE
                 )
@@ -342,9 +352,11 @@ def convert_scan(scan, sfile, h5file, spec_filename):
                     mar['masked'] = masked
                 print 'integrated %s' % f
                 gc.collect()
-            except:
-                sys.stdout.write('Found mar image but unable to fetch it.')
-                sys.stdout.write('Perhaps marcvt is not installed.')
+            except OSError:
+                sys.stdout.write(
+                    'Found mar image %s but unable to convert it.\n' % f
+                )
+                sys.stdout.write('marcvt must be installed to do so.\n')
 
 
 def convert_to_phynx(spec_filename, h5_filename=None, force=False):
