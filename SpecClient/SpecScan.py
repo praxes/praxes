@@ -221,6 +221,10 @@ class SpecScanA:
 
     def __newScanData(self, scanData):
         if DEBUG: print "SpecScanA.__newScanData", scanData
+        if self.paused and scanData:
+            self.__paused = False
+            self.__scanning = True
+            self.scanResumed()
         if self.scanning and scanData:
             scanData = simple_eval(scanData)
 
@@ -234,6 +238,10 @@ class SpecScanA:
 
     def __newScanPoint(self, scanData):
         if DEBUG: print "SpecScanA.__newScanPoint", scanData
+        if self.paused and scanData:
+            self.__paused = False
+            self.__scanning = True
+            self.scanResumed()
         if self.scanning and scanData:
             scanData = simple_eval(scanData)
 
@@ -299,10 +307,6 @@ class SpecScanA:
             self.__scanning = False
             self.__paused = True
             self.scanPaused()
-        elif self.paused:
-            self.__scanning = True
-            self.__paused = False
-            self.scanResumed()
 
 
     def ascan(self, motorMne, startPos, endPos, nbPoints, countTime):
