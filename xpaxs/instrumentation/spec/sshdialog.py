@@ -48,10 +48,10 @@ class SshDialog(ui_sshdialog.Ui_Dialog, QtGui.QDialog):
         self.SSH = pxssh.pxssh()
 
         if self.SSH.login(server, user, pwd):
-            logger.info('connected to %s@%s',user,server)
+#            logger.info('connected to %s@%s',user,server)
             self.SSH.sendline(cmd)
             self.SSH.prompt()
-            logger.debug(self.SSH.before)
+#            logger.debug(self.SSH.before)
 
             time.sleep(1)
             if not len(self.SSH.before) > 250:
@@ -61,12 +61,12 @@ class SshDialog(ui_sshdialog.Ui_Dialog, QtGui.QDialog):
                                 QtGui.QMessageBox.Cancel)
                 if warning == QtGui.QMessageBox.Yes:
                     self.SSH.sendline('killall %s'%spec)
-                    logger.info('killall %s'%spec)
+#                    logger.info('killall %s'%spec)
 
                     self.SSH = None
                     self.sshconnect()
         else:
-            logger.error('Connection Error')
+#            logger.error('Connection Error')
             error = QtGui.QMessageBox.warning(self, "Connection Error",
                                               str(self.SSH))
 

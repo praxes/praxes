@@ -282,8 +282,8 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
         )
         self.connect(
             self._scan,
-            QtCore.SIGNAL("newScanPoint"),
-            self._newScanPoint
+            QtCore.SIGNAL("newScanData"),
+            self._newScanData
         )
         self.connect(
             self._scan,
@@ -292,8 +292,23 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
         )
         self.connect(
             self._scan,
+            QtCore.SIGNAL("scanPaused()"),
+            self.scanPaused
+        )
+        self.connect(
+            self._scan,
+            QtCore.SIGNAL("scanResumed()"),
+            self.scanResumed
+        )
+        self.connect(
+            self._scan,
             QtCore.SIGNAL("scanFinished()"),
             self.scanFinished
+        )
+        self.connect(
+            self.specRunner,
+            QtCore.SIGNAL("specBusy"),
+            self.setBusy
         )
 
         self.scanTypeComboBox.addItems(self._scanTypes)
@@ -327,19 +342,14 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
 
     @QtCore.pyqtSignature("bool")
     def on_actionPause_triggered(self):
-        self.actionPause.setVisible(False)
-        self.actionResume.setVisible(True)
         self.scan.pause()
 
     @QtCore.pyqtSignature("bool")
     def on_actionResume_triggered(self):
-        self.actionPause.setVisible(True)
-        self.actionResume.setVisible(False)
         self.scan.resume()
 
     @QtCore.pyqtSignature("bool")
     def on_actionAbort_triggered(self):
-        self.stackedLayout.setCurrentWidget(self.scanButton)
         self.scan.abort()
 
     @QtCore.pyqtSignature("")
@@ -391,7 +401,7 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
         self.scanProgressBar.setValue(0)
         self.scanProgressBar.setMaximum(int(length)-1)
 
-    def _newScanPoint(self, i):
+    def _newScanData(self, i):
         self.scanProgressBar.setValue(i+1)
 
     def _specFileError(self, requested, current):
@@ -412,22 +422,27 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
 
         self.specFileNameEdit.setText(specCreated)
 
+    def scanPaused(self):
+        self.actionPause.setVisible(False)
+        self.actionResume.setVisible(True)
+
+    def scanResumed(self):
+        self.actionPause.setVisible(True)
+        self.actionResume.setVisible(False)
+
     def scanStarted(self):
         self.stackedLayout.setCurrentWidget(self.scanProgressBar)
         self.actionPause.setVisible(True)
         self.actionResume.setVisible(False)
         self.scanParamsWidget.setDisabled(True)
-        self.emit(QtCore.SIGNAL("specBusy"), True)
 
     def setBusy(self, busy):
         if not self._scan.isScanning():
             self.scanParamsWidget.setDisabled(busy)
-            self.scanButton.setDisabled(busy)
 
     def scanFinished(self):
         self.stackedLayout.setCurrentWidget(self.scanButton)
         self.scanParamsWidget.setEnabled(True)
-        self.emit(QtCore.SIGNAL("specBusy"), False)
 
 
 class ChangeSpecFileDialog(QtGui.QDialog):

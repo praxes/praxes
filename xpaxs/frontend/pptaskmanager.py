@@ -93,7 +93,9 @@ class XfsPPTaskManager(PPTaskManager):
                 entry = '%s_%s'%(element, mapType)
                 self.scan['element_maps'][entry][index] = val
             except ValueError:
-                print index, node
+                print "index %d out of range for %s", index, node
+            except H5Error:
+                print "%s not found in element_maps", node
 
     def updateRecords(self, data):
         if data:
@@ -123,5 +125,3 @@ class XfsPPTaskManager(PPTaskManager):
                         k = key.replace(' ', '_')
                         self.updateElementMap(k, 'mass_fraction', index, val)
                 self.dirty = True
-                if DEBUG: print 'records updated'
-            self.report()

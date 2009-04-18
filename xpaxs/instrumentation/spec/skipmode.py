@@ -34,6 +34,12 @@ class SkipModeWidget(ui_skipmode.Ui_SkipModeWidget, QtGui.QWidget):
         except ValueError:
             pass
 
+        self.connect(
+            self.specRunner,
+            QtCore.SIGNAL("specBusy"),
+            self.setBusy
+        )
+
     @QtCore.pyqtSignature("QString")
     def on_counterComboBox_currentIndexChanged(self, val):
         isEnabled = bool(val)

@@ -14,6 +14,11 @@ import SpecWaitObject
 
 class Spec:
     """Spec objects provide remote Spec facilities to the connected client."""
+
+    @property
+    def specVersion(self):
+        return self.__specVersion
+
     def __init__(self, specVersion = None, timeout = None):
         """Constructor
 
@@ -26,7 +31,7 @@ class Spec:
         if specVersion is not None:
             self.connectToSpec(specVersion, timeout = timeout)
         else:
-            self.specVersion = None
+            self.__specVersion = None
 
 
     def connectToSpec(self, specVersion, timeout = None):
@@ -39,7 +44,7 @@ class Spec:
         specVersion -- 'host:port' string representing the Spec version to connect to
         timeout -- optional connection timeout (defaults to None)
         """
-        self.specVersion = specVersion
+        self.__specVersion = specVersion
 
         self.connection = SpecConnectionsManager.SpecConnectionsManager().getConnection(specVersion)
 

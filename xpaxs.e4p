@@ -127,7 +127,6 @@
     <Source>xpaxs/instrumentation/spec/macros/mmvr.mac</Source>
     <Source>xpaxs/instrumentation/spec/macros/mmv.mac</Source>
     <Source>xpaxs/instrumentation/spec/macros/epics_mca_CHESS.mac</Source>
-    <Source>xpaxs/instrumentation/spec/macros/clientutils_sxfm.mac</Source>
     <Source>xpaxs/instrumentation/spec/macros/clientutils.mac</Source>
     <Source>xpaxs/frontend/notifications.py</Source>
     <Source>xpaxs/frontend/phynx.py</Source>
