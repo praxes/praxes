@@ -63,48 +63,51 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         import xpaxs
         fileInterface = xpaxs.application.getService('FileInterface')
 
-        if fileInterface:
-            specFile = info['source_file']
+        specFile = info['source_file']
+        while 1:
             h5File = fileInterface.getH5FileFromKey(specFile)
-            # It is possible for a scan number to appear multiple times in a
-            # spec file. Booo!
-            name = str(info['acquisition_id'])
-            acq_order = ''
-            i = 0
-            while (name + acq_order) in h5File:
-                i += 1
-                acq_order = '.%d'%i
-            name = name + acq_order
+            if h5File:
+                break
 
-            # create the entry and measurement groups
-            entry = h5File.create_entry(name, **info)
-            measurement = entry.measurement
-            # create all the groups under measurement, defined by clientutils:
-            keys = sorted(tree.keys())
-            for k in keys:
-                t, kwargs = tree.pop(k)
-                if 'shape' in kwargs and 'dtype' in kwargs:
-                    # these are empty datasets, lets start small and grow
-                    kwargs['maxshape'] = kwargs['shape']
-                    kwargs['shape'] = (1, ) + tuple(kwargs['shape'][1:])
-                measurement.create_group(k, t, **kwargs)
+        # It is possible for a scan number to appear multiple times in a
+        # spec file. Booo!
+        name = str(info['acquisition_id'])
+        acq_order = ''
+        i = 0
+        while (name + acq_order) in h5File:
+            i += 1
+            acq_order = '.%d'%i
+        name = name + acq_order
 
-            # make a few links:
-            if 'masked' in measurement['scalar_data']:
-                for k, val in measurement.mcas:
-                    val['masked'] = measurement['scalar_data/masked']
+        # create the entry and measurement groups
+        entry = h5File.create_entry(name, **info)
+        measurement = entry.measurement
+        # create all the groups under measurement, defined by clientutils:
+        keys = sorted(tree.keys())
+        for k in keys:
+            t, kwargs = tree.pop(k)
+            if 'shape' in kwargs and 'dtype' in kwargs:
+                # these are empty datasets, lets start small and grow
+                kwargs['maxshape'] = kwargs['shape']
+                kwargs['shape'] = (1, ) + tuple(kwargs['shape'][1:])
+            measurement.create_group(k, t, **kwargs)
 
-            self._scanData = entry
+        # make a few links:
+        if 'masked' in measurement['scalar_data']:
+            for k, val in measurement.mcas:
+                val['masked'] = measurement['scalar_data/masked']
 
-            ScanView = xpaxs.application.getService('ScanView')
-            view = ScanView(entry)
-            if view:
+        self._scanData = entry
 
-                self.connect(
-                    self,
-                    QtCore.SIGNAL('beginProcessing'),
-                    view.processData
-                )
+        ScanView = xpaxs.application.getService('ScanView')
+        view = ScanView(entry)
+        if view:
+
+            self.connect(
+                self,
+                QtCore.SIGNAL('beginProcessing'),
+                view.processData
+            )
 
         self.emit(QtCore.SIGNAL("newScanLength"), info['npoints'])
 

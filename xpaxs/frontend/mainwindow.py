@@ -330,7 +330,8 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
         if not h5File:
             default = key.split(os.path.sep)[-1] + '.h5'
             h5File = self.saveFile(default)
-            self._specFileRegistry[key] = h5File
+            if h5File:
+                self._specFileRegistry[key] = h5File
 
         return h5File
 
@@ -351,14 +352,28 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
         f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',
                     "Spec datafiles (*.dat *.mca);;All files (*)")
         if f:
-            h5_filename = str(
-                QtGui.QFileDialog.getSaveFileName(
-                    self,
-                    'Save HDF5 File',
-                    './'+f+'.h5',
-                    'HDF5 files (*.h5 *.hdf5)'
+            while 1:
+                h5_filename = str(
+                    QtGui.QFileDialog.getSaveFileName(
+                        self,
+                        'Save HDF5 File',
+                        './'+f+'.h5',
+                        'HDF5 files (*.h5 *.hdf5)'
+                    )
                 )
-            )
+                if h5_filename and os.path.isfile(h5_filename):
+                    res = QtGui.QMessageBox.question(
+                        self,
+                        'overwrite?',
+                        'Do you want to overwrite the existing file?',
+                        QtGui.QMessageBox.Yes,
+                        QtGui.QMessageBox.No
+                    )
+                    if res == QtGui.QMessageBox.Yes:
+                        os.path.remove(h5_filename)
+                    else:
+                        continue
+                break
             if h5_filename:
                 self.statusBar.showMessage('Converting spec data...')
                 QtGui.qApp.processEvents()
@@ -386,8 +401,12 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
 
     def openFile(self, filename=None):
         if filename is None:
-            filename = '%s'% QtGui.QFileDialog.getOpenFileName(self,
-                            'Open File', '.', "hdf5 files (*.h5 *.hdf5)")
+            filename = QtGui.QFileDialog.getOpenFileName(
+                self,
+                'Open File',
+                '.',
+                "hdf5 files (*.h5 *.hdf5)"
+            )
         if filename:
             self.fileModel.openFile(str(filename))
 
@@ -395,14 +414,17 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
         if os.path.isfile(filename):
             return self.fileModel.openFile(filename)
         else:
-            newfilename = QtGui.QFileDialog.getSaveFileName(self,
-                    "Save File", filename, "hdf5 files (*.h5 *.hdf5 *.nxs)")
+            newfilename = QtGui.QFileDialog.getSaveFileName(
+                self,
+                "Save File",
+                filename,
+                "hdf5 files (*.h5 *.hdf5)"
+            )
             if newfilename:
                 newfilename = str(newfilename)
-                if newfilename.split('.')[-1] not in ('h5', 'hdf5', 'nxs'):
+                if newfilename.split('.')[-1] not in ('h5', 'hdf5'):
                     newfilename = newfilename + '.h5'
                 return self.fileModel.openFile(newfilename)
-            else: self.saveFile(filename)
 
     def scanClosed(self, scan):
         self.openScans.remove(scan)
