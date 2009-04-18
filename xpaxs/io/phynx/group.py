@@ -159,7 +159,7 @@ class Group(h5py.Group, _PhynxProperties):
     @sync
     def require_group(self, name, type='Group', **data):
         if not name in self:
-            return self.create_group(name, type, create=True, **data)
+            return self.create_group(name, type, **data)
         else:
             item = self[name]
             if not isinstance(item, registry[type]):
