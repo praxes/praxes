@@ -68,15 +68,45 @@ class SpecDatafile(SpecVariable.SpecVariableA, QtCore.QObject):
 
 
 class SpecRunnerBase(Spec.Spec, QtCore.QObject):
-    """SpecRunner is our primary interface to Spec. Some caching is added,
+
+    """
+    SpecRunner is our primary interface to Spec. Some caching is added,
     to improve performance.
     """
+
+    @property
+    def busy(self):
+        return self.status == 'busy'
+
+    @property
+    def ready(self):
+        return self.status == 'ready'
+
+    @property
+    def specVersion(self):
+        return self.__specVersion
+
+    def _getStatus(self):
+        return self.__status
+    def _setStatus(self, status):
+        status = status.lower()
+        assert status in ('aborting', 'busy', 'cleanup', 'ready')
+        self.__status = status
+        self.emit(QtCore.SIGNAL('specBusy'), status != 'ready')
+    status = property(_getStatus, _setStatus)
 
     def __init__(self, specVersion=None, timeout=None, parent=None):
         """specVersion is a string like 'foo.bar:spec' or '127.0.0.1:fourc'
         """
         QtCore.QObject.__init__(self, parent)
         Spec.Spec.__init__(self, specVersion, timeout)
+        self.__specVersion = specVersion
+        self.__status = 'ready'
+        self.connection.registerChannel(
+            'status/ready',
+            self.__statusReady,
+            dispatchMode=SpecEventsDispatcher.FIREEVENT
+        )
 
         self._datafile = SpecDatafile('DATAFILE', specVersion, self)
 
@@ -100,6 +130,16 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
                      self.update)
         self.timer.start(20)
 
+    def __statusReady(self, status):
+        if status:
+            if self.status == 'aborting':
+                self.status = 'cleanup'
+            else:
+                self.status = 'ready'
+        else:
+            if self.ready:
+                self.status = 'busy'
+
     def update(self):
         SpecEventsDispatcher.dispatch()
 #########
@@ -109,7 +149,7 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
         return self._datafile
 
     def __call__(self, command, asynchronous=True):
-        logger.debug("executing %s",command)
+#        logger.debug("executing %s",command)
         if asynchronous:
             cmd = SpecCommand.SpecCommandA(command, self.specVersion)
         else:
@@ -162,7 +202,9 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
             return self.connection.getChannel('var/%s'%var).read()
 
     def abort(self):
-        self.connection.abort()
+        if self.busy:
+            self.connection.abort()
+            self.status = 'aborting'
 
 
 class TestSpecRunner(SpecRunnerBase):
@@ -175,7 +217,7 @@ class TestSpecRunner(SpecRunnerBase):
         self.specVersion = 'thiscomp:nospec'
 
     def __call__(self, command):
-        logger.debug( "executing %s",command)
+#        logger.debug( "executing %s",command)
         strings=QtCore.QString(command).split(' ')
         if str(strings[0]) in ('mvr','umvr','mmvr'):
             motorA = self.motordict[str(strings[1])]

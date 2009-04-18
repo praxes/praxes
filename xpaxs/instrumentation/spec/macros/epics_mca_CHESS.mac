@@ -296,6 +296,7 @@ def _mca_getcounts() '{
             epics_put(sprintf(\"%s.STOP\",MCA_PV[i]), 1)
         }
     }
+
     for (i in MCA_PV) {
         local _oo _ss _qq A_name pvlist[]
 
@@ -357,8 +358,9 @@ def _mca_report_counts() '{
         if (MCA_SMODE[mne]) {
             printf("@%s ", mne)
             if (MCA_SMODE[mne]) {
-                A_name=sprintf("mcadat_%s", mne)
-                array_dump(@A_name[1], "%25C")
+                A_name = sprintf("mcadat_%s", mne)
+                # scaling handles bad syncing between spec and epics:
+                array_dump(@A_name[1]*S[sec]/real, "%25C")
             }
         }
 
@@ -373,7 +375,7 @@ def _mca_report_counts() '{
 
 def _mca_client_report(mne, A_name, real, live, icr, ocr, dead) '{
     if (MCA_SMODE[mne]) {
-        client_set_data(sprintf("%s/counts", mne), @A_name[1])
+        client_set_data(sprintf("%s/counts", mne), @A_name[1]*S[sec]/real)
     }
     if (MCA_USES_DXP[mne]) {
         client_set_data(sprintf("%s/icr", mne), icr)

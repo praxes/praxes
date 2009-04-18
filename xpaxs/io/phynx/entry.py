@@ -129,6 +129,7 @@ class Entry(Group):
                 'There should be one Measurement group per entry, found %d' % nm
             )
 
+    @sync
     def _get_npoints(self):
         return self.attrs.get('npoints', 0)
     @sync

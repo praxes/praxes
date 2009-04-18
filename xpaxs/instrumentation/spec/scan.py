@@ -38,16 +38,6 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         if self.connection.isSpecConnected():
             self.connection.send_msg_cmd(cmd)
 
-    def abort(self):
-        if self.isScanning():
-            self.connection.abort()
-            self._scan_aborted()
-            try:
-                self._scanData.npoints = self._lastPoint
-            except (AttributeError, h5py.h5.H5Error, TypeError):
-                pass
-            self.scanAborted()
-
     def connected(self):
         pass
 
@@ -135,26 +125,29 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         scanData['i'] = i
         scanData['x'] = x
         scanData['y'] = y
-        logger.debug( "newScanPoint: %s", i)
+#        logger.debug( "newScanPoint: %s", i)
         self.emit(QtCore.SIGNAL("newScanPoint"), i)
 
-    def pause(self):
-        logger.info('Scan Paused')
-        self.connection.abort()
-
-    def resume(self):
-        logger.info('Scan Resumed')
-        self._resume()
-
     def scanAborted(self):
-        logger.info('Scan Aborted')
+#        logger.info('Scan Aborted')
+        try:
+            self._scanData.npoints = self._lastPoint
+        except (AttributeError, h5py.h5.H5Error, TypeError):
+            pass
         self.emit(QtCore.SIGNAL("scanAborted()"))
+        self.scanFinished()
 
     def scanFinished(self):
-        logger.info( 'scan finished')
+#        logger.info( 'scan finished')
         self._scanData = None
         self.emit(QtCore.SIGNAL("scanFinished()"))
 
+    def scanPaused(self):
+        self.emit(QtCore.SIGNAL("scanPaused()"))
+
+    def scanResumed(self):
+        self.emit(QtCore.SIGNAL("scanResumed()"))
+
     def scanStarted(self):
-        logger.info( 'scan started')
+#        logger.info('scan started')
         self.emit(QtCore.SIGNAL("scanStarted()"))

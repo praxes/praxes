@@ -23,7 +23,7 @@ class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
 
         self.setParent(parent)
         self.specRunner = parent.specRunner
-        logger.debug('getting motor')
+#        logger.debug('getting motor')
         motors = self.specRunner.getMotorsMne()
         try:
             ind = motors.index(motor)
@@ -31,7 +31,7 @@ class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
             logger.error(ValueError)
             motor = motors[0]
             ind = 0
-        logger.debug('setting motor')
+#        logger.debug('setting motor')
         self.setMotor(motor, self.specRunner.specVersion)
 
         self.motorComboBox.addItems(motors)

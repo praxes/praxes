@@ -102,6 +102,7 @@ class PPTaskManager(QtCore.QThread):
             except (IndexError, ValueError):
                 pass
             self._jobServer.wait()
+            self.report()
 
             time.sleep(0.1)
 

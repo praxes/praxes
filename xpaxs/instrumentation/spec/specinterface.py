@@ -53,8 +53,8 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def connectionError(self):
         host,port = self.getSpecVersion().split(':')
-        logger.error('Unabel to connect to the "%s" instance at "%s".',
-                     port, host)
+#        logger.error('Unabel to connect to the "%s" instance at "%s".',
+#                     port, host)
         error = QtGui.QErrorMessage()
         error.showMessage('''\
         Unabel to connect to the "%s" instance at "%s". Please \
@@ -71,7 +71,7 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
             if not self.ssh: return
         try:
             self._connectToSpec()
-            logger.debug('Connected to spec, specrunner created')
+#            logger.debug('Connected to spec, specrunner created')
         except SpecClientError.SpecClientTimeoutError:
             self.connectionError()
 
@@ -96,7 +96,7 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def startSSH(self):
         if not self.ssh:
-            logger.debug('Starting SSH')
+#            logger.debug('Starting SSH')
             sshdlg = sshdialog.SshDialog(self.parent())
             self.ssh = sshdlg.exec_()
 
@@ -155,7 +155,7 @@ class SpecInterface(QtCore.QObject):
                    'SpecInterfaceWidget')
 
     def _configure(self):
-        logger.debug('configuring Spec Interface')
+#        logger.debug('configuring Spec Interface')
 
         self.connect(
             self.mainWindow.actionConfigure,
@@ -203,17 +203,6 @@ class SpecInterfaceWidget(QtGui.QTabWidget):
 
         self.scanControls = ScanControlsInterface(specRunner, self)
         self.addTab(self.scanControls, 'Scan Controls')
-
-        self.connect(
-            self.scanControls,
-            QtCore.SIGNAL("specBusy"),
-            self.gamepad.setBusy
-        )
-        self.connect(
-            self.gamepad,
-            QtCore.SIGNAL("specBusy"),
-            self.scanControls.setBusy
-        )
 
 
 if __name__ == "__main__":

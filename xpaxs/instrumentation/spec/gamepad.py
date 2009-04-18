@@ -71,6 +71,11 @@ class GamePad(Ui_GamePad, QtGui.QWidget):
             QtCore.SIGNAL("nextPositionIsCurrent(PyQt_PyObject)"),
             self.startButton.setDisabled
         )
+        self.connect(
+            self.specRunner,
+            QtCore.SIGNAL("specBusy"),
+            self.setBusy
+        )
 
     @property
     def northSouthMotorWidget(self):
@@ -121,7 +126,8 @@ class GamePad(Ui_GamePad, QtGui.QWidget):
         self._relativeMove(*cmdArgs)
 
     def setBusy(self, busy):
-        self.setDisabled(busy)
+        pass
+#        self.setDisabled(busy)
 
     @QtCore.pyqtSignature("")
     def on_eastButton_clicked(self):
@@ -198,12 +204,10 @@ class GamePad(Ui_GamePad, QtGui.QWidget):
             self.startStopStackedLayout.setCurrentWidget(self.stopButton)
             self.stopButton.setEnabled(True)
             nsEnabled = ewEnabled = bothEnabled = False
-            self.emit(QtCore.SIGNAL("specBusy"), True)
 
         else:
             self.stopButton.setEnabled(False)
             self.startStopStackedLayout.setCurrentWidget(self.startButton)
-            self.emit(QtCore.SIGNAL("specBusy"), False)
 
         self.northButton.setEnabled(nsEnabled)
         self.southButton.setEnabled(nsEnabled)
