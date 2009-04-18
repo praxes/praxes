@@ -329,7 +329,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         ):
             try:
                 p = subprocess.Popen(
-                    ['marcvthaw', '-raw32', f],
+                    ['marcvt', '-raw32', f],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE
                 )
