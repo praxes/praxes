@@ -91,17 +91,17 @@ class SpecScanA:
     @property
     def paused(self):
         # False when a scan is running or has completed normally
-        return self.__paused
+        return self.__status == 'paused'
 
     @property
     def ready(self):
         # False when a scan starts, only True once a scan completes normally
-        return self.__ready
+        return self.__status == 'ready'
 
     @property
     def scanning(self):
         # True when a scan is running, False when scan completes or is paused
-        return self.__scanning
+        return self.__status == 'scanning'
 
     @property
     def specVersion(self):
@@ -110,9 +110,7 @@ class SpecScanA:
     def __init__(self, specVersion = None):
         self.scanParams = {}
         self.scanCounterMne = None
-        self.__scanning = False
-        self.__ready = True
-        self.__paused = False
+        self.__status = 'ready'
         self.__specVersion = None
 
         if specVersion is not None:
@@ -155,9 +153,7 @@ class SpecScanA:
 
     def __disconnected(self):
         self.scanCounterMne = None
-        self.__scanning = False
-        self.__ready = True
-        self.__paused = False
+        self.__status = 'ready'
         self.scanParams = {}
 
         self.disconnected()
@@ -184,7 +180,7 @@ class SpecScanA:
         if not scanParams:
             if self.scanning:
                 # receive 0 when scan ends normally
-                self.__ready = True
+                self.__status = 'ready'
                 self.scanFinished()
             return
 
@@ -193,9 +189,7 @@ class SpecScanA:
             # lets provide an opportunity to clean up
             self.scanAborted()
 
-        self.__scanning = True
-        self.__ready = False
-        self.__paused = False
+        self.__status = 'scanning'
 
         self.scanParams = simple_eval(scanParams)
 
@@ -222,8 +216,7 @@ class SpecScanA:
     def __newScanData(self, scanData):
         if DEBUG: print "SpecScanA.__newScanData", scanData
         if self.paused and scanData:
-            self.__paused = False
-            self.__scanning = True
+            self.__status = 'scanning'
             self.scanResumed()
         if self.scanning and scanData:
             scanData = simple_eval(scanData)
@@ -239,8 +232,7 @@ class SpecScanA:
     def __newScanPoint(self, scanData):
         if DEBUG: print "SpecScanA.__newScanPoint", scanData
         if self.paused and scanData:
-            self.__paused = False
-            self.__scanning = True
+            self.__status = 'scanning'
             self.scanResumed()
         if self.scanning and scanData:
             scanData = simple_eval(scanData)
@@ -266,9 +258,7 @@ class SpecScanA:
         if self.isConnected and (self.scanning or self.paused):
             if self.scanning:
                 self.connection.abort()
-            self.__scanning = False
-            self.__paused = False
-            self.__ready = True
+            self.__status = 'ready'
             self.scanAborted()
 
 
@@ -304,8 +294,7 @@ class SpecScanA:
 
     def __statusReady(self, status):
         if status and self.scanning:
-            self.__scanning = False
-            self.__paused = True
+            self.__status = 'paused'
             self.scanPaused()
 
 
