@@ -167,9 +167,24 @@ class Signal(Dataset):
     """
     """
 
+    def _get_efficiency(self):
+        return self.attrs.get('efficiency', None)
+    def _set_efficiency(self, value):
+        assert np.isscalar(value)
+        self.attrs['efficiency'] = value
+    efficiency = property(_get_efficiency, _set_efficiency)
+
+    @property
+    def monitor(self):
+        return self.attrs.get('monitor', 0)
+
     @property
     def signal(self):
         return self.attrs.get('signal', 0)
+
+    @property
+    def corrected_value(self):
+        return CorrectedDataProxy(self)
 
     @sync
     def __cmp__(self, other):
@@ -339,6 +354,13 @@ class CorrectedDataProxy(DataProxy):
     def __getitem__(self, key):
         with self._dset.plock:
             data = self._dset.__getitem__(key)
+
+            try:
+                norm = self._dset.efficiency
+                if norm is not None:
+                    data /= norm
+            except AttributeError:
+                pass
 
             # normalization may be something like ring current or monitor counts
             try:

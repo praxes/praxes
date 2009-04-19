@@ -334,6 +334,7 @@ def _sc_set_scan_env() '{
         kwargs["shape"] = python_repr(shape)
         kwargs["dtype"] = python_repr("f")
         kwargs["signal"] = python_repr(i==DET)
+        kwargs["monitor"] = python_repr(i==MON)
         id = sprintf("scalar_data/%s", cnt_mne(i))
         client_set_scan_env(id, "Signal", kwargs)
     }
