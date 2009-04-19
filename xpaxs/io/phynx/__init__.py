@@ -12,7 +12,7 @@ from .component import (
     Moderator, Monochromator, Polarizer, Positioner, Source,
     Velocity_selector
 )
-from .data import Data, Event_data, Monitor
+from .data import Data, EventData, Monitor
 from .dataset import Axis, Dataset, DeadTime, Signal
 from .detector import AreaDetector, Detector, LinearDetector, Mar345
 from .entry import Entry
