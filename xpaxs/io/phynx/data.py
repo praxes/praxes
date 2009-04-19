@@ -17,14 +17,14 @@ class Data(Group):
 registry.register(Data)
 
 
-class Event_data(Group):
+class EventData(Group):
 
     """
     """
 
     nx_class = 'NXevent_data'
 
-registry.register(Event_data)
+registry.register(EventData)
 
 
 class Monitor(Group):
