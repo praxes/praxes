@@ -73,7 +73,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             self.configurePymca()
 
         if (
-            (self.self.mcaData.monitor is not None) and
+            self.mcaData.monitor is not None and
             self.pymcaConfig.get('concentrations', {}).get('flux', None)
         ):
             self.normalizationReport.setText('intensity')

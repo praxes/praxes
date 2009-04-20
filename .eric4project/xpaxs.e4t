@@ -57,48 +57,12 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: this could eventually go away</Summary>
-    <Description></Description>
-    <Created>2009-04-20, 09:40:12</Created>
-    <Resource>
-      <Filename>xpaxs/io/phynx/multichannelanalyzer.py</Filename>
-      <Linenumber>53</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: this is an attempt to provide a services registry similar to that in</Summary>
     <Description></Description>
     <Created>2009-04-20, 10:43:34</Created>
     <Resource>
       <Filename>xpaxs/frontend/application.py</Filename>
       <Linenumber>12</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: this should eventually take an MCA entry</Summary>
-    <Description></Description>
-    <Created>2009-04-20, 10:44:18</Created>
-    <Resource>
-      <Filename>xpaxs/frontend/mcaanalysiswindow.py</Filename>
-      <Linenumber>28</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: remove the window from the list of open windows when we close</Summary>
-    <Description></Description>
-    <Created>2009-04-20, 10:44:18</Created>
-    <Resource>
-      <Filename>xpaxs/frontend/mcaanalysiswindow.py</Filename>
-      <Linenumber>63</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: improve this to close scans in the file interface</Summary>
-    <Description></Description>
-    <Created>2009-04-20, 10:44:18</Created>
-    <Resource>
-      <Filename>xpaxs/frontend/mcaanalysiswindow.py</Filename>
-      <Linenumber>201</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
@@ -111,9 +75,18 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: make this configurable</Summary>
+    <Description></Description>
+    <Created>2009-04-20, 13:24:58</Created>
+    <Resource>
+      <Filename>xpaxs/dispatch/pptaskmanager.py</Filename>
+      <Linenumber>75</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: would be better to check the attribute without having to</Summary>
     <Description></Description>
-    <Created>2009-04-20, 12:53:39</Created>
+    <Created>2009-04-20, 15:11:42</Created>
     <Resource>
       <Filename>xpaxs/io/phynx/group.py</Filename>
       <Linenumber>113</Linenumber>
@@ -122,19 +95,46 @@
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: get the channels from the controller</Summary>
     <Description></Description>
-    <Created>2009-04-20, 13:20:25</Created>
+    <Created>2009-04-20, 15:43:35</Created>
     <Resource>
       <Filename>xpaxs/frontend/pptaskmanager.py</Filename>
       <Linenumber>24</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: make this configurable</Summary>
+    <Summary>TODO: this could eventually go away</Summary>
     <Description></Description>
-    <Created>2009-04-20, 13:24:58</Created>
+    <Created>2009-04-20, 16:34:35</Created>
     <Resource>
-      <Filename>xpaxs/dispatch/pptaskmanager.py</Filename>
-      <Linenumber>75</Linenumber>
+      <Filename>xpaxs/io/phynx/multichannelanalyzer.py</Filename>
+      <Linenumber>71</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this should eventually take an MCA entry</Summary>
+    <Description></Description>
+    <Created>2009-04-20, 16:34:38</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/mcaanalysiswindow.py</Filename>
+      <Linenumber>28</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: remove the window from the list of open windows when we close</Summary>
+    <Description></Description>
+    <Created>2009-04-20, 16:34:38</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/mcaanalysiswindow.py</Filename>
+      <Linenumber>64</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: improve this to close scans in the file interface</Summary>
+    <Description></Description>
+    <Created>2009-04-20, 16:34:38</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/mcaanalysiswindow.py</Filename>
+      <Linenumber>208</Linenumber>
     </Resource>
   </Task>
 </Tasks>

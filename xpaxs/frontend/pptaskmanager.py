@@ -69,8 +69,6 @@ class XfsPPTaskManager(PPTaskManager):
             except IndexError:
                 self._intensity = None
 
-            self._monitor = monitor
-
             self._advancedFit = ClassMcaTheory.McaTheory(config=config)
             self._advancedFit.enableOptimizedLinearFit()
             self._mfTool = None
