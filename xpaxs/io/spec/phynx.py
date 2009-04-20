@@ -174,6 +174,10 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     scan_number = '%d.%d'%(scan.number(), scan.order())
     scan_number = scan_number.replace('.1', '')
     scan_name = scan_number
+    try:
+        monitor = scan.header('M')[0].split()[-1][1:-1]
+    except IndexError:
+        monitor = None
 
     print 'converting %s'% scan_name
 
@@ -239,7 +243,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         thresh = int(thresh)
         index = scan.alllabels().index(mon)+1
         skipped = scan.datacol(index) < thresh
-        kwargs = {'class':'Signal', 'monitor':mon, 'threshold':thresh}
+        kwargs = {'class':'Signal', 'counter':mon, 'threshold':thresh}
         masked = scalar_data.create_dataset(
             'masked', data=skipped, **kwargs
         )
@@ -298,6 +302,8 @@ def convert_scan(scan, sfile, h5file, spec_filename):
             )
         else:
             kwargs = {'class':'Signal'}
+            if label == monitor:
+                kwargs = {'monitor':1}
             dset = scalar_data.create_dataset(
                 label, data=scan.datacol(i+1), dtype='float32', **kwargs
             )

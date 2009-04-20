@@ -558,7 +558,7 @@ def _mca_client_set_env(mne, uch, _oo, _ss, _qq) '{
         local array shape[2]
         shape[0] = SC_NPOINTS; shape[1] = uch
         kwargs["shape"] = python_repr(shape)
-        kwargs["dtype"] = python_repr("uint32")
+        kwargs["dtype"] = python_repr("f")
         id = sprintf("%s/counts", mne)
         client_set_scan_env(id, "McaSpectrum", kwargs)
 

@@ -28,16 +28,16 @@ class _PhynxProperties(HasTraits):
         return self._file
 
     @property
-    def source_file(self):
-        return self.attrs.get('source_file', self.file.name)
-
-    @property
     def npoints(self):
         return self.attrs.get('npoints', 0)
 
     @property
     def plock(self):
         return self._plock
+
+    @property
+    def source_file(self):
+        return self.attrs.get('source_file', self.file.name)
 
     def __init__(self, parent_object):
         with parent_object.plock:
