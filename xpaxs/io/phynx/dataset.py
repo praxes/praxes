@@ -351,9 +351,19 @@ class DataProxy(object):
     def enumerate_items(self):
         return AcquisitionEnumerator(self)
 
+    @sync
     def mean(self, indices=None):
-        """return the mean for unmasked indices"""
-        return self._dset.mean(indices)
+        if indices is None:
+            indices = range(len(self))
+
+        res = np.zeros(self._dset.shape[1:], 'f')
+        nitems = 0
+        for i in indices:
+            if not self._dset.masked[i]:
+                nitems += 1
+                res += self[i]
+
+        return res / nitems
 
 
 class CorrectedDataProxy(DataProxy):

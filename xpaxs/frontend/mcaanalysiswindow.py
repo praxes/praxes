@@ -1,7 +1,7 @@
 """
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, with_statement
 
 import copy
 import gc
@@ -30,6 +30,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         super(McaAnalysisWindow, self).__init__(parent)
         self.scanData = scanData['measurement']
         self.mcaData = self.scanData.mcas.values()[0]
+
         pymcaConfig = self.mcaData.pymca_config
         self.setupUi(self)
 
@@ -70,6 +71,12 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             self.spectrumAnalysis.configure(pymcaConfig)
         else:
             self.configurePymca()
+
+        if (
+            (self.self.mcaData.monitor is not None) and
+            self.pymcaConfig.get('concentrations', {}).get('flux', None)
+        ):
+            self.normalizationReport.setText('intensity')
 
         self.progressBar = QtGui.QProgressBar(self)
         self.progressBar.setMaximumHeight(17)
@@ -294,7 +301,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         thread = XfsPPTaskManager(
             self.scanData,
             self.mcaData['counts'].corrected_value.enumerate_items(),
-            copy.deepcopy(self.pymcaConfig)
+            copy.deepcopy(self.pymcaConfig),
         )
 
         self.connect(

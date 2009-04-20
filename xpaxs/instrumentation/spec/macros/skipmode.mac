@@ -55,7 +55,7 @@ def _skipmode_client_set_env() '{
 
     kwargs["shape"] = python_repr(shape)
     kwargs["dtype"] = python_repr("?")
-    kwargs["monitor"] = python_repr(cnt_mne(_SKIPMODE["counter"]))
+    kwargs["counter"] = python_repr(cnt_mne(_SKIPMODE["counter"]))
     kwargs["threshold"] = python_repr(_SKIPMODE["threshold"])
     client_set_scan_env("scalar_data/masked", "Signal", kwargs)
 }'

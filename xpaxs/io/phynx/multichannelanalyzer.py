@@ -3,9 +3,11 @@
 
 from __future__ import absolute_import, with_statement
 
+import copy
+
 import numpy as np
 
-from .dataset import CorrectedDataProxy, DeadTime, Signal
+from .dataset import DataProxy, DeadTime, Signal
 from .detector import Detector
 from .registry import registry
 from .utils import simple_eval, sync
@@ -33,10 +35,26 @@ class MultiChannelAnalyzer(Detector):
     def energy(self):
         return np.polyval(self.calibration[::-1], self.channels)
 
+    @property
+    @sync
+    def monitor(self):
+        for i in self.measurement.scalar_data.signals.itervalues():
+            if i.monitor:
+                return i
+
+    @sync
     def _get_pymca_config(self):
-        from PyMca.ConfigDict import ConfigDict
-        return ConfigDict(simple_eval(self.attrs.get('pymca_config', '{}')))
+        try:
+            return self._pymca_config
+        except AttributeError:
+            from PyMca.ConfigDict import ConfigDict
+            self._pymca_config = ConfigDict(
+                simple_eval(self.attrs.get('pymca_config', '{}'))
+            )
+            return copy.deepcopy(self._pymca_config)
+    @sync
     def _set_pymca_config(self, config):
+        self._pymca_config = copy.deepcopy(config)
         self.attrs['pymca_config'] = str(config)
     pymca_config = property(_get_pymca_config, _set_pymca_config)
 
@@ -104,11 +122,56 @@ class McaSpectrum(Signal):
 
     @property
     @sync
-    def corrected_values(self):
-        return CorrectedDataProxy(self)
+    def corrected_value(self):
+        return CorrectedMcaSpectrumProxy(self)
 
     @property
     def map(self):
         raise TypeError('can not produce a map of a 3-dimensional dataset')
 
 registry.register(McaSpectrum)
+
+
+class CorrectedMcaSpectrumProxy(DataProxy):
+
+    @sync
+    def __getitem__(self, key):
+        with self._dset.plock:
+            data = self._dset.__getitem__(key)
+
+            try:
+                norm = self._dset.efficiency
+                if norm is not None:
+                    data /= norm
+            except AttributeError:
+                pass
+
+            try:
+                norm = (
+                    self._dset.parent.pymca_config['concentrations']['time'] *
+                    self._dset.parent.pymca_config['concentrations']['flux'] /
+                    self._dset.parent.monitor[key]
+                )
+                if not np.isscalar(norm) and len(norm.shape) < len(data.shape):
+                    newshape = [1]*len(data.shape)
+                    newshape[:len(norm.shape)] = norm.shape
+                    norm.shape = newshape
+                data *= norm
+            except (KeyError, TypeError):
+                # fails if monitor is None or modeled intensity can not be found
+                pass
+
+            # detector deadtime correction
+            try:
+                dtc = self._dset.parent['dead_time'].correction.__getitem__(key)
+                if isinstance(dtc, np.ndarray) \
+                        and len(dtc.shape) < len(data.shape):
+                    newshape = [1]*len(data.shape)
+                    newshape[:len(dtc.shape)] = dtc.shape
+                    dtn.shape = newshape
+                data *= dtc
+            except H5Error:
+                # fails if dead_time_correction is not defined
+                pass
+
+            return data

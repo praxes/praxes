@@ -119,7 +119,7 @@ Correction means the data are multiplied by the dead time values to yield correc
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
+           <item row="4" column="0" colspan="2">
             <spacer name="verticalSpacer">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -131,6 +131,34 @@ Correction means the data are multiplied by the dead time values to yield correc
               </size>
              </property>
             </spacer>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="normalizationReport">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>The normalization applied to the MCA counts, if any.
+
+Intensity renormalization means that a scaling factor is chosen such that the incident monitor counts are equal to the incident intensity specified in the PyMca config file. The scaling factor is applied to the MCA counts when they are passed to the fitting routines. The monitor counts must therefore be representative of the incident intensity in photons/second.</string>
+             </property>
+             <property name="readOnly">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Normalization</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
