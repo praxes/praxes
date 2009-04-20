@@ -50,14 +50,14 @@ class PPTaskManager(QtCore.QThread):
     @property
     def numCpus(self):
         with self.lock:
-            return self._numCpus
+            return copy.copy(self._numCpus)
 
     def _get_stopped(self):
         with self.lock:
-            return self.__stopped
+            return copy.copy(self.__stopped)
     def _set_stopped(self, val):
         with self.lock:
-            self.__stopped = val
+            self.__stopped = copy.copy(val)
     stopped = property(_get_stopped, _set_stopped)
 
     def __init__(self, scan, enumerator=None, parent=None):
@@ -82,6 +82,7 @@ class PPTaskManager(QtCore.QThread):
             self.__stopped = False
 
             self._totalProcessed = 0
+            self._lastReport = time.time()
 
             self._scan = scan
 
@@ -103,6 +104,7 @@ class PPTaskManager(QtCore.QThread):
                         break
                 else:
                     self._jobServer.wait()
+                    self.report(force=True)
                     return
             except (IndexError, ValueError):
                 pass
@@ -114,7 +116,7 @@ class PPTaskManager(QtCore.QThread):
     def submitJob(self, numJobs):
         raise NotImplementedError
 
-    def report(self):
+    def report(self, force=False):
         if DEBUG: print self
 
         if self.dirty:
@@ -127,9 +129,15 @@ class PPTaskManager(QtCore.QThread):
             )
 
             with self.lock:
-                stats = self._jobServer.get_stats()
+                stats = copy.deepcopy(self._jobServer.get_stats())
             self.emit(QtCore.SIGNAL("ppJobStats"), stats)
-            self.emit(QtCore.SIGNAL("dataProcessed"))
+
+            with self.lock:
+                reportNow = force or (time.time() - self._lastReport >= 2)
+
+            if reportNow:
+                self.emit(QtCore.SIGNAL("dataProcessed"))
+                self._lastReport = time.time()
 
             self.dirty = False
 

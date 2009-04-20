@@ -86,13 +86,14 @@ class XfsPPTaskManager(PPTaskManager):
             )
 
     def updateElementMap(self, element, mapType, index, val):
-        try:
-            entry = '%s_%s'%(element, mapType)
-            self._scan['element_maps'][entry][index] = val
-        except ValueError:
-            print "index %d out of range for %s", index, entry
-        except H5Error:
-            print "%s not found in element_maps", entry
+        with self.lock:
+            try:
+                entry = '%s_%s'%(element, mapType)
+                self._scan['element_maps'][entry][index] = val
+            except ValueError:
+                print "index %d out of range for %s", index, entry
+            except H5Error:
+                print "%s not found in element_maps", entry
 
     def updateRecords(self, data):
         if data:

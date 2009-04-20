@@ -228,6 +228,8 @@ def client_set_data(key, value) '{
 global _SC_NEWSCAN _SC_NEWSCANDATA _SC_NEWPLOTDATA
 global SC_DATA_ACTIVE SC_PLOT_ACTIVE
 
+_SC_NEWSCAN = 0
+
 def _sc_setmode(mode, set_state) '{
     if (set_state && ! (SC_DATA_ACTIVE || SC_PLOT_ACTIVE)) {
         global _SC_SCAN_DESC[] SC_NPOINTS

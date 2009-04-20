@@ -26,11 +26,6 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         QtCore.QObject.__init__(self, parent)
         SpecScan.SpecScanA.__init__(self, specVersion)
 
-        self._resume = SpecCommand.SpecCommandA('scan_on', specVersion)
-        self._scan_aborted = SpecCommand.SpecCommandA(
-            '_SC_NEWSCAN = 0', specVersion
-        )
-
         self._scanData = None
         self._lastPoint = None
 

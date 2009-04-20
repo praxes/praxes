@@ -14,15 +14,6 @@
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: this is an attempt to provide a services registry similar to that in</Summary>
     <Description></Description>
-    <Created>2009-04-12, 14:48:00</Created>
-    <Resource>
-      <Filename>xpaxs/frontend/application.py</Filename>
-      <Linenumber>12</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: this is an attempt to provide a services registry similar to that in</Summary>
-    <Description></Description>
     <Created>2009-04-12, 14:48:28</Created>
     <Resource>
       <Filename>xpaxs/frontend/serviceregistry.py</Filename>
@@ -30,18 +21,27 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: would be better to check the attribute without having to</Summary>
+    <Summary>TODO: isnt there a way to do a stacked layout in Designer?</Summary>
     <Description></Description>
-    <Created>2009-04-16, 14:47:31</Created>
+    <Created>2009-04-12, 14:48:55</Created>
     <Resource>
-      <Filename>xpaxs/io/phynx/group.py</Filename>
-      <Linenumber>113</Linenumber>
+      <Filename>xpaxs/instrumentation/spec/gamepad.py</Filename>
+      <Linenumber>21</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this is all now contained in specrunner.datafile:</Summary>
+    <Description></Description>
+    <Created>2009-04-12, 14:49:09</Created>
+    <Resource>
+      <Filename>xpaxs/instrumentation/spec/scancontrols.py</Filename>
+      <Linenumber>309</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: this should be a factory function, not a method of the main win:</Summary>
     <Description></Description>
-    <Created>2009-04-18, 11:44:35</Created>
+    <Created>2009-04-18, 10:21:23</Created>
     <Resource>
       <Filename>xpaxs/frontend/mainwindow.py</Filename>
       <Linenumber>141</Linenumber>
@@ -50,61 +50,34 @@
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: will acquisition work on other platforms?</Summary>
     <Description></Description>
-    <Created>2009-04-18, 11:44:35</Created>
+    <Created>2009-04-18, 10:21:23</Created>
     <Resource>
       <Filename>xpaxs/frontend/mainwindow.py</Filename>
-      <Linenumber>420</Linenumber>
+      <Linenumber>442</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: this is all now contained in specrunner.datafile:</Summary>
+    <Summary>TODO: this could eventually go away</Summary>
     <Description></Description>
-    <Created>2009-04-18, 11:53:52</Created>
+    <Created>2009-04-20, 09:40:12</Created>
     <Resource>
-      <Filename>xpaxs/instrumentation/spec/scancontrols.py</Filename>
-      <Linenumber>309</Linenumber>
+      <Filename>xpaxs/io/phynx/multichannelanalyzer.py</Filename>
+      <Linenumber>53</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: get the channels from the controller</Summary>
+    <Summary>TODO: this is an attempt to provide a services registry similar to that in</Summary>
     <Description></Description>
-    <Created>2009-04-18, 11:56:21</Created>
+    <Created>2009-04-20, 10:43:34</Created>
     <Resource>
-      <Filename>xpaxs/frontend/pptaskmanager.py</Filename>
-      <Linenumber>24</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: make this configurable</Summary>
-    <Description></Description>
-    <Created>2009-04-18, 11:56:28</Created>
-    <Resource>
-      <Filename>xpaxs/dispatch/pptaskmanager.py</Filename>
-      <Linenumber>72</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: isnt there a way to do a stacked layout in Designer?</Summary>
-    <Description></Description>
-    <Created>2009-04-18, 16:27:21</Created>
-    <Resource>
-      <Filename>xpaxs/instrumentation/spec/gamepad.py</Filename>
-      <Linenumber>21</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: default to previous motors using QSettings</Summary>
-    <Description></Description>
-    <Created>2009-04-18, 17:31:56</Created>
-    <Resource>
-      <Filename>xpaxs/instrumentation/spec/scanparameters.py</Filename>
-      <Linenumber>28</Linenumber>
+      <Filename>xpaxs/frontend/application.py</Filename>
+      <Linenumber>12</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: this should eventually take an MCA entry</Summary>
     <Description></Description>
-    <Created>2009-04-18, 17:33:07</Created>
+    <Created>2009-04-20, 10:44:18</Created>
     <Resource>
       <Filename>xpaxs/frontend/mcaanalysiswindow.py</Filename>
       <Linenumber>28</Linenumber>
@@ -113,7 +86,7 @@
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: remove the window from the list of open windows when we close</Summary>
     <Description></Description>
-    <Created>2009-04-18, 17:33:07</Created>
+    <Created>2009-04-20, 10:44:18</Created>
     <Resource>
       <Filename>xpaxs/frontend/mcaanalysiswindow.py</Filename>
       <Linenumber>63</Linenumber>
@@ -122,10 +95,46 @@
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: improve this to close scans in the file interface</Summary>
     <Description></Description>
-    <Created>2009-04-18, 17:33:07</Created>
+    <Created>2009-04-20, 10:44:18</Created>
     <Resource>
       <Filename>xpaxs/frontend/mcaanalysiswindow.py</Filename>
       <Linenumber>201</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: default to previous motors using QSettings</Summary>
+    <Description></Description>
+    <Created>2009-04-20, 10:54:51</Created>
+    <Resource>
+      <Filename>xpaxs/instrumentation/spec/scanparameters.py</Filename>
+      <Linenumber>28</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: would be better to check the attribute without having to</Summary>
+    <Description></Description>
+    <Created>2009-04-20, 12:53:39</Created>
+    <Resource>
+      <Filename>xpaxs/io/phynx/group.py</Filename>
+      <Linenumber>113</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: get the channels from the controller</Summary>
+    <Description></Description>
+    <Created>2009-04-20, 13:20:25</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/pptaskmanager.py</Filename>
+      <Linenumber>24</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: make this configurable</Summary>
+    <Description></Description>
+    <Created>2009-04-20, 13:24:58</Created>
+    <Resource>
+      <Filename>xpaxs/dispatch/pptaskmanager.py</Filename>
+      <Linenumber>75</Linenumber>
     </Resource>
   </Task>
 </Tasks>

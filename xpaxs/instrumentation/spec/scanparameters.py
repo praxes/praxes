@@ -305,11 +305,6 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
             QtCore.SIGNAL("scanFinished()"),
             self.scanFinished
         )
-        self.connect(
-            self.specRunner,
-            QtCore.SIGNAL("specBusy"),
-            self.setBusy
-        )
 
         self.scanTypeComboBox.addItems(self._scanTypes)
 
@@ -435,10 +430,6 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
         self.actionPause.setVisible(True)
         self.actionResume.setVisible(False)
         self.scanParamsWidget.setDisabled(True)
-
-    def setBusy(self, busy):
-        if not self._scan.isScanning():
-            self.scanParamsWidget.setDisabled(busy)
 
     def scanFinished(self):
         self.stackedLayout.setCurrentWidget(self.scanButton)
