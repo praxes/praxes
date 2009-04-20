@@ -22,12 +22,14 @@ class MultiChannelAnalyzer(Detector):
         return np.array(cal, 'f')
 
     @property
+    @sync
     def channels(self):
         if 'channels' in self:
             return self['channels'].value
         return np.arange(self['counts'].shape[-1])
 
     @property
+    @sync
     def energy(self):
         return np.polyval(self.calibration[::-1], self.channels)
 
@@ -43,30 +45,31 @@ class MultiChannelAnalyzer(Detector):
         # from early in development of phynx
         super(MultiChannelAnalyzer, self).__init__(*args, **kwargs)
 
-        if 'counts' in self:
-            if self['counts'].attrs['class'] != 'McaSpectrum':
-                self['counts'].attrs['class'] = 'McaSpectrum'
+        with self.plock:
+            if 'counts' in self:
+                if self['counts'].attrs['class'] != 'McaSpectrum':
+                    self['counts'].attrs['class'] = 'McaSpectrum'
 
-        # TODO: this could eventually go away
-        # old files did not identify dead time properly
-        if 'dead_time' in self:
-            dt = self['dead_time']
-            if not isinstance(dt, DeadTime):
-                dt.attrs['class'] = 'DeadTime'
-        else:
-            if 'dead' in self:
-                self['dead_time'] = self['dead']
-                self['dead_time'].attrs['class'] = 'DeadTime'
-            elif 'dtn' in self:
-                data = 100*(1-self['dtn'].value)
-                self.create_dataset('dead_time', type='DeadTime', data=data)
-            elif 'vtxdtn' in self:
-                data = 100*(1-self['vtxdtn'].value)
-                self.create_dataset('dead_time', type='DeadTime', data=data)
+            # TODO: this could eventually go away
+            # old files did not identify dead time properly
+            if 'dead_time' in self:
+                dt = self['dead_time']
+                if not isinstance(dt, DeadTime):
+                    dt.attrs['class'] = 'DeadTime'
             else:
-                return
-            self['dead_time'].attrs['units'] = '%'
-            self['dead_time'].attrs['dead_time_format'] = '%'
+                if 'dead' in self:
+                    self['dead_time'] = self['dead']
+                    self['dead_time'].attrs['class'] = 'DeadTime'
+                elif 'dtn' in self:
+                    data = 100*(1-self['dtn'].value)
+                    self.create_dataset('dead_time', type='DeadTime', data=data)
+                elif 'vtxdtn' in self:
+                    data = 100*(1-self['vtxdtn'].value)
+                    self.create_dataset('dead_time', type='DeadTime', data=data)
+                else:
+                    return
+                self['dead_time'].attrs['units'] = '%'
+                self['dead_time'].attrs['dead_time_format'] = '%'
 
     @sync
     def set_calibration(self, cal, order=None):
@@ -100,12 +103,9 @@ class McaSpectrum(Signal):
     """
 
     @property
-    def corrected(self):
-        try:
-            return self._corrected_data_proxy
-        except AttributeError:
-            self._corrected_data_proxy = CorrectedDataProxy(self)
-            return self._corrected_data_proxy
+    @sync
+    def corrected_values(self):
+        return CorrectedDataProxy(self)
 
     @property
     def map(self):

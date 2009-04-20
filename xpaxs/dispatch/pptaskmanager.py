@@ -2,6 +2,7 @@
 """
 from __future__ import with_statement
 
+import copy
 import gc
 import logging
 import time
@@ -35,9 +36,11 @@ class QRLock(QtCore.QMutex):
 class PPTaskManager(QtCore.QThread):
 
     def _get_dirty(self):
-        return self.__dirty
+        with self.lock:
+            return copy.copy(self.__dirty)
     def _set_dirty(self, val):
-        self.__dirty = val
+        with self.lock:
+            self.__dirty = copy.copy(val)
     dirty = property(_get_dirty, _set_dirty)
 
     @property
@@ -57,7 +60,7 @@ class PPTaskManager(QtCore.QThread):
             self.__stopped = val
     stopped = property(_get_stopped, _set_stopped)
 
-    def __init__(self, enumerator=None, parent=None):
+    def __init__(self, scan, enumerator=None, parent=None):
         super(PPTaskManager, self).__init__(parent)
 
         self.__lock = QRLock()
@@ -79,6 +82,8 @@ class PPTaskManager(QtCore.QThread):
             self.__stopped = False
 
             self._totalProcessed = 0
+
+            self._scan = scan
 
             if enumerator is None:
                 enumerator = enumerate([])
@@ -115,7 +120,7 @@ class PPTaskManager(QtCore.QThread):
         if self.dirty:
             with self.lock:
                 track = self._totalProcessed + self._enumerator.total_skipped
-                total = self.scan.npoints
+                total = self._scan.npoints
             self.emit(
                 QtCore.SIGNAL('percentComplete'),
                 (100.0 * track) / total

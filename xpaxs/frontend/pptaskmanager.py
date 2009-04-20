@@ -59,26 +59,24 @@ def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
 
 class XfsPPTaskManager(PPTaskManager):
 
-    def __init__(self, enumerator, config, scan, parent=None):
-        super(XfsPPTaskManager, self).__init__(enumerator, parent)
+    def __init__(self, scan, enumerator, config, parent=None):
+        super(XfsPPTaskManager, self).__init__(scan, enumerator, parent)
 
         with self.lock:
-            self.scan = scan
+            self._config = config
 
-            self.config = config
-
-            self.advancedFit = ClassMcaTheory.McaTheory(config=config)
-            self.advancedFit.enableOptimizedLinearFit()
-            self.mfTool = None
+            self._advancedFit = ClassMcaTheory.McaTheory(config=config)
+            self._advancedFit.enableOptimizedLinearFit()
+            self._mfTool = None
             if 'concentrations' in config:
-                self.mfTool = ConcentrationsTool(config)
-                self.tconf = self.mfTool.configure()
+                self._mfTool = ConcentrationsTool(config)
+                self._tconf = self._mfTool.configure()
 
     def submitJob(self, index, data):
         with self.lock:
             args = (
-                index, data, self.tconf, self.advancedFit,
-                self.mfTool
+                index, data, self._tconf, self._advancedFit,
+                self._mfTool
             )
             self._jobServer.submit(
                 analyzeSpectrum,
@@ -88,40 +86,39 @@ class XfsPPTaskManager(PPTaskManager):
             )
 
     def updateElementMap(self, element, mapType, index, val):
-        with self.lock:
-            try:
-                entry = '%s_%s'%(element, mapType)
-                self.scan['element_maps'][entry][index] = val
-            except ValueError:
-                print "index %d out of range for %s", index, node
-            except H5Error:
-                print "%s not found in element_maps", node
+        try:
+            entry = '%s_%s'%(element, mapType)
+            self._scan['element_maps'][entry][index] = val
+        except ValueError:
+            print "index %d out of range for %s", index, entry
+        except H5Error:
+            print "%s not found in element_maps", entry
 
     def updateRecords(self, data):
         if data:
+            if DEBUG: print 'Updating records'
+
+
+            index = data['index']
+
             with self.lock:
-                if DEBUG: print 'Updating records'
-
-                self.advancedFit = data['advancedFit']
-                shape = self.scan.acquisition_shape
-                index = data['index']
-
+                self._advancedFit = data['advancedFit']
                 self._totalProcessed += 1
 
-                result = data['result']
-                for group in result['groups']:
-                    g = group.replace(' ', '_')
+            result = data['result']
+            for group in result['groups']:
+                g = group.replace(' ', '_')
 
-                    fitArea = result[group]['fitarea']
-                    if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
-                    else: sigmaArea = np.nan
+                fitArea = result[group]['fitarea']
+                if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
+                else: sigmaArea = np.nan
 
-                    self.updateElementMap(g, 'fit', index, fitArea)
-                    self.updateElementMap(g, 'fit_error', index, sigmaArea)
+                self.updateElementMap(g, 'fit', index, fitArea)
+                self.updateElementMap(g, 'fit_error', index, sigmaArea)
 
-                if 'concentrations' in result:
-                    massFractions = result['concentrations']['mass fraction']
-                    for key, val in massFractions.iteritems():
-                        k = key.replace(' ', '_')
-                        self.updateElementMap(k, 'mass_fraction', index, val)
-                self.dirty = True
+            if 'concentrations' in result:
+                massFractions = result['concentrations']['mass fraction']
+                for key, val in massFractions.iteritems():
+                    k = key.replace(' ', '_')
+                    self.updateElementMap(k, 'mass_fraction', index, val)
+            self.dirty = True

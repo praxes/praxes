@@ -3,6 +3,7 @@
 
 from __future__ import absolute_import, with_statement
 
+import copy
 import posixpath
 
 import h5py
@@ -30,9 +31,10 @@ class Dataset(h5py.Dataset, _PhynxProperties):
             return None
 
     @property
+    @sync
     def map(self):
-        res = np.zeros(self.acquisition_shape, 'f')
-        res.flat[:len(self)] = self.value.flat[:]
+        res = np.zeros(self.acquisition_shape, self.dtype)
+        res.flat[:len(self)] = self.value.flatten()
         return res
 
     @property
@@ -144,10 +146,7 @@ class Axis(Dataset):
         try:
             return simple_eval(self.attrs['range'])
         except H5Error:
-            try:
-                return (self.value[[0, -1]])
-            except IndexError:
-                return (0, 0)
+            return (self.value[[0, -1]])
 
     @sync
     def __cmp__(self, other):
@@ -235,14 +234,15 @@ class DeadTime(Signal):
         return DeadTimeProxy(self, 'normalization')
 
     def _get_format(self):
-        return self.attrs.get('dead_time_format', 'Format not specified')
+        return self.attrs['dead_time_format']
     def _set_format(self, format):
         valid = ('percent', '%', 'fraction', 'normalization', 'correction')
         try:
             assert format in valid
         except AssertionError:
             raise ValueError(
-                'dead time format must one of: %r' % (', '.join(valid))
+                'dead time format must one of: %r, got %s'
+                % (', '.join(valid), format)
             )
         self.attrs['dead_time_format'] = format
     format = property(_get_format, _set_format)
@@ -277,29 +277,37 @@ class AcquisitionEnumerator(object):
     """
 
     @property
+    @sync
     def current_index(self):
-        return self._current_index
+        return copy.copy(self._current_index)
 
     @property
+    def plock(self):
+        return self._plock
+
+    @property
+    @sync
     def total_skipped(self):
-        return self._total_skipped
+        return copy.copy(self._total_skipped)
 
     def __init__(self, dataset):
-        self._dataset = dataset
+        with dataset.plock:
+            self._dataset = dataset
+            self._plock = dataset.plock
 
-        self._current_index = 0
-        self._total_skipped = 0
+            self._current_index = 0
+            self._total_skipped = 0
 
     def __iter__(self):
         return self
 
+    @sync
     def next(self):
-        if self._current_index >= self._dataset.npoints:
+        if self.current_index >= self._dataset.npoints:
             raise StopIteration()
-
         else:
             try:
-                i = self._current_index
+                i = self.current_index
                 if self._dataset.masked[i]:
                     self._total_skipped += 1
                     self._current_index += 1
@@ -327,15 +335,15 @@ class DataProxy(object):
         return self._plock
 
     def __init__(self, dataset):
-        self._dset = dataset
-        self._plock = dataset.plock
+        with dataset.plock:
+            self._dset = dataset
+            self._plock = dataset.plock
 
     @sync
     def __getitem__(self, args):
         raise NotImplementedError(
             '__getitem__ must be implemented by $s' % self.__class__.__name__
         )
-
 
     def __len__(self):
         return len(self._dset)
@@ -397,12 +405,13 @@ class DeadTimeProxy(DataProxy):
         return self._format
 
     def __init__(self, dataset, format):
-        super(DeadTimeProxy, self).__init__(dataset)
+        with dataset.plock:
+            super(DeadTimeProxy, self).__init__(dataset)
 
-        assert format in (
-            'percent', '%', 'fraction', 'normalization', 'correction'
-        )
-        self._format = format
+            assert format in (
+                'percent', '%', 'fraction', 'normalization', 'correction'
+            )
+            self._format = format
 
     @sync
     def __getitem__(self, args):

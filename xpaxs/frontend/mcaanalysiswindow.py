@@ -162,19 +162,19 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     def on_actionCalibration_triggered(self):
         self.processAverageSpectrum()
 
-    @QtCore.pyqtSignature("QString")
-    def on_deadTimeComboBox_currentIndexChanged(self):
-        self.scanData.mcas.values()[0]['dead_time_percent'] = \
-            self.scanData.mcas.values()[0][self.deadTimePercent]
+#    @QtCore.pyqtSignature("QString")
+#    def on_deadTimeComboBox_currentIndexChanged(self):
+#        self.scanData.mcas.values()[0]['dead_time_percent'] = \
+#            self.scanData.mcas.values()[0][self.deadTimePercent]
 
     @QtCore.pyqtSignature("QString")
     def on_mapTypeComboBox_currentIndexChanged(self):
         self.elementsView.updateFigure(self.getElementMap())
 
-    @QtCore.pyqtSignature("QString")
-    def on_normalizationComboBox_currentIndexChanged(self):
-        self.scanData.mcas.values()[0]['normalization'] = \
-            self.scanData.mcas.values()[0][self.normalization]
+#    @QtCore.pyqtSignature("QString")
+#    def on_normalizationComboBox_currentIndexChanged(self):
+#        self.scanData.mcas.values()[0]['normalization'] = \
+#            self.scanData.mcas.values()[0][self.normalization]
 
     @QtCore.pyqtSignature("QString")
     def on_xrfBandComboBox_currentIndexChanged(self):
@@ -231,36 +231,37 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             return np.zeros(self.scanData.acquisition_shape, dtype='f')
 
     def initializeElementMaps(self, elements):
-        if 'element_maps' in self.scanData:
-            del self.scanData['element_maps']
+        with self.scanData.plock:
+            if 'element_maps' in self.scanData:
+                del self.scanData['element_maps']
 
-        elementMaps = self.scanData.create_group(
-            'element_maps', type='ElementMaps'
-        )
+            elementMaps = self.scanData.create_group(
+                'element_maps', type='ElementMaps'
+            )
 
-        for mapType, cls in [
-            ('fit', 'Fit'),
-            ('fit_error', 'FitError'),
-            ('mass_fraction', 'MassFraction')
-        ]:
-            for element in elements:
-                entry = '%s_%s'%(element, mapType)
-                elementMaps.create_dataset(
-                    entry,
-                    type=cls,
-                    data=np.zeros(self.scanData.npoints, 'f')
-                )
+            for mapType, cls in [
+                ('fit', 'Fit'),
+                ('fit_error', 'FitError'),
+                ('mass_fraction', 'MassFraction')
+            ]:
+                for element in elements:
+                    entry = '%s_%s'%(element, mapType)
+                    elementMaps.create_dataset(
+                        entry,
+                        type=cls,
+                        data=np.zeros(self.scanData.npoints, 'f')
+                    )
 
     def processAverageSpectrum(self, indices=None):
         if indices is None:
             indices = self.scanData['scalar_data']['i'].value
         if len(indices):
+            indices = [i for i in indices if i < len(self.mcaData['counts'])]
             self.statusbar.showMessage('Averaging spectra ...')
             QtGui.qApp.processEvents()
-            mca = self.scanData.mcas.values()[0]
-            counts = mca['counts'].corrected.mean(indices)
-            channels = mca.channels
 
+            counts = self.mcaData['counts'].corrected_value.mean(indices)
+            channels = self.mcaData.channels
             self.spectrumAnalysis.setData(x=channels, y=counts)
 
             self.statusbar.showMessage('Performing Fit ...')
@@ -291,9 +292,9 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self._resetPeaks()
 
         thread = XfsPPTaskManager(
-            self.scanData.mcas.values()[0]['counts'].enumerate_items(),
-            self.pymcaConfig,
-            self.scanData
+            self.scanData,
+            self.mcaData['counts'].corrected_value.enumerate_items(),
+            copy.deepcopy(self.pymcaConfig)
         )
 
         self.connect(
