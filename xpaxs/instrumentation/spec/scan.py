@@ -101,9 +101,9 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
         i = scanData['scalar_data/i']
 
-        if self._scanData:
+        if self._scanData is not None:
             with self._scanData.plock:
-                m = self._scanData['measurement']
+                m = self._scanData.measurement
                 for k, val in scanData.iteritems():
                     try:
                         m[k][i] = val

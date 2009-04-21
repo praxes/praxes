@@ -69,8 +69,6 @@ class XfsPPTaskManager(PPTaskManager):
             except IndexError:
                 self._intensity = None
 
-            self._monitor = monitor
-
             self._advancedFit = ClassMcaTheory.McaTheory(config=config)
             self._advancedFit.enableOptimizedLinearFit()
             self._mfTool = None
@@ -92,7 +90,7 @@ class XfsPPTaskManager(PPTaskManager):
             )
 
     def updateElementMap(self, element, mapType, index, val):
-        with self.lock:
+        with self._scan.lock:
             try:
                 entry = '%s_%s'%(element, mapType)
                 self._scan['element_maps'][entry][index] = val
@@ -103,29 +101,31 @@ class XfsPPTaskManager(PPTaskManager):
 
     def updateRecords(self, data):
         if data:
-            if DEBUG: print 'Updating records'
+            # this lock shouldn't be necessary
+            with self._scan.plock:
+                if DEBUG: print 'Updating records'
 
 
-            index = data['index']
+                index = data['index']
 
-            with self.lock:
-                self._advancedFit = data['advancedFit']
-                self._totalProcessed += 1
+                with self.lock:
+                    self._advancedFit = data['advancedFit']
+                    self._totalProcessed += 1
 
-            result = data['result']
-            for group in result['groups']:
-                g = group.replace(' ', '_')
+                result = data['result']
+                for group in result['groups']:
+                    g = group.replace(' ', '_')
 
-                fitArea = result[group]['fitarea']
-                if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
-                else: sigmaArea = np.nan
+                    fitArea = result[group]['fitarea']
+                    if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
+                    else: sigmaArea = np.nan
 
-                self.updateElementMap(g, 'fit', index, fitArea)
-                self.updateElementMap(g, 'fit_error', index, sigmaArea)
+                    self.updateElementMap(g, 'fit', index, fitArea)
+                    self.updateElementMap(g, 'fit_error', index, sigmaArea)
 
-            if 'concentrations' in result:
-                massFractions = result['concentrations']['mass fraction']
-                for key, val in massFractions.iteritems():
-                    k = key.replace(' ', '_')
-                    self.updateElementMap(k, 'mass_fraction', index, val)
-            self.dirty = True
+                if 'concentrations' in result:
+                    massFractions = result['concentrations']['mass fraction']
+                    for key, val in massFractions.iteritems():
+                        k = key.replace(' ', '_')
+                        self.updateElementMap(k, 'mass_fraction', index, val)
+                self.dirty = True

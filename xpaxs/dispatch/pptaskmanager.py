@@ -92,24 +92,25 @@ class PPTaskManager(QtCore.QThread):
 
     def processData(self):
         while 1:
-            if self.stopped:
-                return
-
-            try:
-                numSubmitted = 0
-                for index, data in self._enumerator:
-                    self.submitJob(index, data)
-                    numSubmitted += 1
-                    if numSubmitted >= self.numCpus*3:
-                        break
-                else:
-                    self._jobServer.wait()
-                    self.report(force=True)
+            with self.lock:
+                if self.stopped:
                     return
-            except (IndexError, ValueError):
-                pass
-            self._jobServer.wait()
-            self.report()
+
+                try:
+                    numSubmitted = 0
+                    for index, data in self._enumerator:
+                        self.submitJob(index, data)
+                        numSubmitted += 1
+                        if numSubmitted >= self.numCpus*3:
+                            break
+                    else:
+                        self._jobServer.wait()
+                        self.report(force=True)
+                        return
+                except (IndexError, ValueError):
+                    pass
+                self._jobServer.wait()
+                self.report()
 
             time.sleep(0.1)
 
@@ -121,25 +122,24 @@ class PPTaskManager(QtCore.QThread):
 
         if self.dirty:
             with self.lock:
-                track = self._totalProcessed + self._enumerator.total_skipped
-                total = self._scan.npoints
-            self.emit(
-                QtCore.SIGNAL('percentComplete'),
-                (100.0 * track) / total
-            )
+                with self._scan.plock:
+                    track = self._totalProcessed + self._enumerator.total_skipped
+                    total = self._scan.npoints
+                self.emit(
+                    QtCore.SIGNAL('percentComplete'),
+                    (100.0 * track) / total
+                )
 
-            with self.lock:
                 stats = copy.deepcopy(self._jobServer.get_stats())
-            self.emit(QtCore.SIGNAL("ppJobStats"), stats)
+                self.emit(QtCore.SIGNAL("ppJobStats"), stats)
 
-            with self.lock:
                 reportNow = force or (time.time() - self._lastReport >= 2)
 
-            if reportNow:
-                self.emit(QtCore.SIGNAL("dataProcessed"))
-                self._lastReport = time.time()
+                if reportNow:
+                    self.emit(QtCore.SIGNAL("dataProcessed"))
+                    self._lastReport = time.time()
 
-            self.dirty = False
+                self.dirty = False
 
     def run(self):
         self.processData()

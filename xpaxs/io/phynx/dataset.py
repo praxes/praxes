@@ -332,12 +332,15 @@ class DataProxy(object):
 
     @property
     def plock(self):
-        return self._plock
+        return self._dset.plock
+
+    @property
+    def shape(self):
+        return self._dset.shape
 
     def __init__(self, dataset):
         with dataset.plock:
             self._dset = dataset
-            self._plock = dataset.plock
 
     @sync
     def __getitem__(self, args):
@@ -356,10 +359,10 @@ class DataProxy(object):
         if indices is None:
             indices = range(len(self))
 
-        res = np.zeros(self._dset.shape[1:], 'f')
+        res = np.zeros(self.shape[1:], 'f')
         nitems = 0
         for i in indices:
-            if not self._dset.masked[i]:
+            if not self.masked[i]:
                 nitems += 1
                 res += self[i]
 
@@ -370,42 +373,41 @@ class CorrectedDataProxy(DataProxy):
 
     @sync
     def __getitem__(self, key):
-        with self._dset.plock:
-            data = self._dset.__getitem__(key)
+        data = self._dset.__getitem__(key)
 
-            try:
-                norm = self._dset.efficiency
-                if norm is not None:
-                    data /= norm
-            except AttributeError:
-                pass
-
-            # normalization may be something like ring current or monitor counts
-            try:
-                norm = self._dset.parent['normalization'].__getitem__(key)
-                if norm.shape and len(norm.shape) < len(data.shape):
-                    newshape = [1]*len(data.shape)
-                    newshape[:len(norm.shape)] = norm.shape
-                    norm.shape = newshape
+        try:
+            norm = self._dset.efficiency
+            if norm is not None:
                 data /= norm
-            except H5Error:
-                # fails if normalization is not defined
-                pass
+        except AttributeError:
+            pass
 
-            # detector deadtime correction
-            try:
-                dtc = self._dset.parent['dead_time'].correction.__getitem__(key)
-                if isinstance(dtc, np.ndarray) \
-                        and len(dtc.shape) < len(data.shape):
-                    newshape = [1]*len(data.shape)
-                    newshape[:len(dtc.shape)] = dtc.shape
-                    dtn.shape = newshape
-                data *= dtc
-            except H5Error:
-                # fails if dead_time_correction is not defined
-                pass
+        # normalization may be something like ring current or monitor counts
+        try:
+            norm = self._dset.parent['normalization'].__getitem__(key)
+            if norm.shape and len(norm.shape) < len(data.shape):
+                newshape = [1]*len(data.shape)
+                newshape[:len(norm.shape)] = norm.shape
+                norm.shape = newshape
+            data /= norm
+        except H5Error:
+            # fails if normalization is not defined
+            pass
 
-            return data
+        # detector deadtime correction
+        try:
+            dtc = self._dset.parent['dead_time'].correction.__getitem__(key)
+            if isinstance(dtc, np.ndarray) \
+                    and len(dtc.shape) < len(data.shape):
+                newshape = [1]*len(data.shape)
+                newshape[:len(dtc.shape)] = dtc.shape
+                dtn.shape = newshape
+            data *= dtc
+        except H5Error:
+            # fails if dead_time_correction is not defined
+            pass
+
+        return data
 
 
 class DeadTimeProxy(DataProxy):
