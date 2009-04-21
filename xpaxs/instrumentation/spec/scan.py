@@ -99,10 +99,11 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
     def newScanData(self, scanData):
 #        logger.debug( 'scanData: %s', scanData)
 
-        i = scanData['scalar_data/i']
-
-        if self._scanData is not None:
+        try:
             with self._scanData.plock:
+                i = scanData['scalar_data/i']
+#                print 'received point', i
+
                 m = self._scanData.measurement
                 for k, val in scanData.iteritems():
                     try:
@@ -112,12 +113,15 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
                         m[k][i] = val
                     except:
                         print m.listitems(), k
+#                print 'updated data for point', i
 
-        self._lastPoint = i
-        if i == 0:
-            self.emit(QtCore.SIGNAL("beginProcessing"))
-        self.emit(QtCore.SIGNAL("newScanData"), i)
-
+                self._lastPoint = i
+            if i == 0:
+                self.emit(QtCore.SIGNAL("beginProcessing"))
+            self.emit(QtCore.SIGNAL("newScanData"), i)
+#            print 'exiting newScanData'
+        except AttributeError:
+            pass
 
     def newScanPoint(self, i, x, y, scanData):
         scanData['i'] = i

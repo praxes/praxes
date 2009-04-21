@@ -77,6 +77,7 @@ class File(Group, h5py.File):
                     '__exit__ methods'
                 )
         self._plock = lock
+#        self._plock = self._lock
 
         if self.mode != 'r' and len(self) == 0:
             if 'file_name' not in self.attrs:

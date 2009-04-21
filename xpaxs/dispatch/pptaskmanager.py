@@ -64,6 +64,7 @@ class PPTaskManager(QtCore.QThread):
         super(PPTaskManager, self).__init__(parent)
 
         self.__lock = QRLock()
+#        self.__lock = scan.plock
 
         with self.lock:
             settings = QtCore.QSettings()
@@ -85,6 +86,7 @@ class PPTaskManager(QtCore.QThread):
             self._lastReport = time.time()
 
             self._scan = scan
+            self._results = []
 
             if enumerator is None:
                 enumerator = enumerate([])
@@ -92,24 +94,29 @@ class PPTaskManager(QtCore.QThread):
 
     def processData(self):
         while 1:
-            with self.lock:
-                if self.stopped:
-                    return
+            if self.stopped:
+                return
 
-                try:
-                    numSubmitted = 0
-                    for index, data in self._enumerator:
-                        self.submitJob(index, data)
-                        numSubmitted += 1
-                        if numSubmitted >= self.numCpus*3:
-                            break
-                    else:
-                        self._jobServer.wait()
-                        self.report(force=True)
-                        return
-                except (IndexError, ValueError):
-                    pass
+            numSubmitted = 0
+            try:
+#                print 'try to find new data'
+                for index, data in self._enumerator:
+                    self.submitJob(index, data)
+                    numSubmitted += 1
+                    if numSubmitted <= self.numCpus*3:
+                        break
+                else:
+                    self._jobServer.wait()
+                    self.updateRecords()
+                    self.report(force=True)
+                    return
+            except (IndexError, ValueError):
+                pass
+            if numSubmitted > 0:
+#                print 'waiting'
                 self._jobServer.wait()
+#                print 'done waiting'
+                self.updateRecords()
                 self.report()
 
             time.sleep(0.1)
@@ -117,9 +124,12 @@ class PPTaskManager(QtCore.QThread):
     def submitJob(self, numJobs):
         raise NotImplementedError
 
-    def report(self, force=False):
-        if DEBUG: print self
+    def queueResults(self, res):
+        with self.lock:
+            self._results.append(res)
 
+    def report(self, force=False):
+#        print 'entering task manager report'
         if self.dirty:
             with self.lock:
                 with self._scan.plock:
@@ -127,7 +137,7 @@ class PPTaskManager(QtCore.QThread):
                     total = self._scan.npoints
                 self.emit(
                     QtCore.SIGNAL('percentComplete'),
-                    (100.0 * track) / total
+                    int((100.0 * track) / total)
                 )
 
                 stats = copy.deepcopy(self._jobServer.get_stats())
@@ -140,6 +150,7 @@ class PPTaskManager(QtCore.QThread):
                     self._lastReport = time.time()
 
                 self.dirty = False
+#        print 'exiting task manager report'
 
     def run(self):
         self.processData()

@@ -267,6 +267,14 @@ def rm_roi '{
 
 def _mca_startcount() '{
     local i
+    for (i in MCA_PV) {
+        # Stop is needed in case counting to monitor counts was aborted
+        # in which case the mca is waiting to receive a stop signal
+        epics_put(sprintf(\"%s.STOP\", MCA_PV[i]), 1)
+        # erase is necessary in case we are using skip mode, we wont count
+        # in that case and we want an empty array
+        epics_put(sprintf(\"%s.ERAS\", MCA_PV[i]), 1)
+    }
     if (COUNT_TIME != 0) {
         if (COUNT_TIME > 0) {
             for (i in MCA_PV) {
@@ -278,7 +286,7 @@ def _mca_startcount() '{
             }
         }
         for (i in MCA_PV) {
-            epics_put(sprintf(\"%s.ERST\", MCA_PV[i]), 1)
+            epics_put(sprintf(\"%s.STRT\", MCA_PV[i]), 1)
         }
     }
 }'
@@ -295,6 +303,8 @@ def _mca_getcounts() '{
         for(i in MCA_PV) {
             epics_put(sprintf(\"%s.STOP\",MCA_PV[i]), 1)
         }
+    } else {
+        sleep(0.1)
     }
 
     for (i in MCA_PV) {

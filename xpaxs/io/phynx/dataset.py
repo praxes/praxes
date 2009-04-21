@@ -303,6 +303,7 @@ class AcquisitionEnumerator(object):
 
     @sync
     def next(self):
+#        print 'entering next'
         if self.current_index >= self._dataset.npoints:
             raise StopIteration()
         else:
@@ -313,8 +314,11 @@ class AcquisitionEnumerator(object):
                     self._current_index += 1
                     return self.next()
 
+#                print 'getting data for point', i
                 res = self._dataset[i]
+#                print 'got data for point', i
                 self._current_index += 1
+#                print 'updated enum index, exiting next'
                 return i, res
             except H5Error:
                 raise IndexError
