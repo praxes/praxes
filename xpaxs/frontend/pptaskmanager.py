@@ -5,6 +5,7 @@ from __future__ import with_statement
 import logging
 import time
 
+import numpy as np
 import pp
 from PyMca import ClassMcaTheory
 from PyMca.ConcentrationsTool import ConcentrationsTool
@@ -77,6 +78,7 @@ class XfsPPTaskManager(PPTaskManager):
                 self._tconf = self._mfTool.configure()
 
     def submitJob(self, index, data):
+#        print 'submitting job', index
         with self.lock:
             args = (
                 index, data, self._tconf, self._advancedFit,
@@ -86,46 +88,57 @@ class XfsPPTaskManager(PPTaskManager):
                 analyzeSpectrum,
                 args,
                 modules=("time", ),
-                callback=self.updateRecords
+                callback=self.queueResults
             )
+#        print 'job %d submitted' % index
 
     def updateElementMap(self, element, mapType, index, val):
-        with self._scan.lock:
+#        print 'updating', element, mapType, index
+        with self._scan.plock:
+#            print 'updateElementMap acquired the lock'
             try:
                 entry = '%s_%s'%(element, mapType)
-                self._scan['element_maps'][entry][index] = val
+#                self._scan['element_maps'][entry][index] = val
+                print 'updating element map for', entry
+                self._scan['element_maps'][entry][index] = np.random.rand(1)
+                print entry, 'updated'
             except ValueError:
                 print "index %d out of range for %s", index, entry
             except H5Error:
                 print "%s not found in element_maps", entry
+#        print element, mapType, index, 'updated'
 
-    def updateRecords(self, data):
-        if data:
-            # this lock shouldn't be necessary
-            with self._scan.plock:
-                if DEBUG: print 'Updating records'
+    def updateRecords(self):
+#        print 'Updating records'
+        with self.lock:
+            while self._results:
+                data = self._results.pop(0)
+#                print 'I have data'
+                # this lock shouldn't be necessary
+                with self._scan.plock:
+#                    print 'I acquired the data lock'
+                    index = data['index']
 
+                    with self.lock:
+#                        print 'I acquired the thread lock'
+                        self._advancedFit = data['advancedFit']
+                        self._totalProcessed += 1
 
-                index = data['index']
+                    result = data['result']
+                    for group in result['groups']:
+                        g = group.replace(' ', '_')
 
-                with self.lock:
-                    self._advancedFit = data['advancedFit']
-                    self._totalProcessed += 1
+                        fitArea = result[group]['fitarea']
+                        if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
+                        else: sigmaArea = np.nan
 
-                result = data['result']
-                for group in result['groups']:
-                    g = group.replace(' ', '_')
+                        self.updateElementMap(g, 'fit', index, fitArea)
+                        self.updateElementMap(g, 'fit_error', index, sigmaArea)
 
-                    fitArea = result[group]['fitarea']
-                    if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
-                    else: sigmaArea = np.nan
-
-                    self.updateElementMap(g, 'fit', index, fitArea)
-                    self.updateElementMap(g, 'fit_error', index, sigmaArea)
-
-                if 'concentrations' in result:
-                    massFractions = result['concentrations']['mass fraction']
-                    for key, val in massFractions.iteritems():
-                        k = key.replace(' ', '_')
-                        self.updateElementMap(k, 'mass_fraction', index, val)
-                self.dirty = True
+                    if 'concentrations' in result:
+                        massFractions = result['concentrations']['mass fraction']
+                        for key, val in massFractions.iteritems():
+                            k = key.replace(' ', '_')
+                            self.updateElementMap(k, 'mass_fraction', index, val)
+                    self.dirty = True
+#        print 'records updated'
