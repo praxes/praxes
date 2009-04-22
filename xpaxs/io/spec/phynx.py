@@ -102,10 +102,22 @@ def get_spec_scan_info(commandList):
 def process_mca(scan, measurement, process_scalars=False, masked=None):
     num_mca = int(scan.nbmca()/scan.lines())
     mca_info = scan.header('@')
+
+    try:
+        monitor = scan.header('U monitor')[0].split()[-1]
+    except IndexError:
+        monitor = None
+    try:
+        monitor_efficiency = float(scan.header('U monitor efficiency')[0].split()[-1])
+    except IndexError:
+        monitor_efficiency = 1
+
     mca_names = []
     print 'Number of MCA:', num_mca
     for mca_index in xrange(num_mca):
         attrs = {}
+        if monitor:
+            attrs['monitor'] = monitor
         if len(mca_info)/3 == num_mca:
             item_info, mca_info = mca_info[:3], mca_info[3:]
             attrs['id'] = item_info[0].split()[0][2:]
@@ -153,6 +165,8 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
                     kwargs['class'] = 'DeadTime'
                     kwargs['units'] = '%'
                     kwargs['dead_time_format'] = '%'
+                if label == monitor:
+                    kwargs['efficiency'] = efficiency
                 dset = mca.create_dataset(
                     label, data=scan.datacol(i+1), dtype='float32', **kwargs
                 )
@@ -235,7 +249,12 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     except specfile.error:
         pass
 
-    scalar_data = measurement.create_group('scalar_data', type='ScalarData')
+    attrs = {}
+    if monitor:
+        attrs['monitor'] = monitor
+    scalar_data = measurement.create_group(
+        'scalar_data', type='ScalarData', **attrs
+    )
 
     skipmode = scan.header('C SKIPMODE')
     if skipmode:
@@ -302,8 +321,6 @@ def convert_scan(scan, sfile, h5file, spec_filename):
             )
         else:
             kwargs = {'class':'Signal'}
-            if label == monitor:
-                kwargs = {'monitor':1}
             dset = scalar_data.create_dataset(
                 label, data=scan.datacol(i+1), dtype='float32', **kwargs
             )
@@ -316,6 +333,8 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         'i', data=np.arange(len(dset)), dtype='i', **kwargs
     )
 
+    # we need to integrate external data files after processing the scan
+    # in the main file, since we may reference some of that data
     dir, spec_filename = os.path.split(spec_filename)
     if not dir:
         dir = os.getcwd()

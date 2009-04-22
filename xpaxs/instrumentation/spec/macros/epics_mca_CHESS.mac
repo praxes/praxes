@@ -54,6 +54,7 @@ def strjoin(s, delimiter) '{
 #MCA arrays
 
 global MCA_NAME[] MCA_PV[] ROI_PV[] DXP_PV[] MCA_USES_DXP[] MCA_SMODE[]
+global MCA_MONITOR_EFFICIENCY
 
 #===============================================================================
 # user macros defined here
@@ -98,6 +99,7 @@ def setup_mca '{
             EPICS_MCAS++
             printf("Created data array %s for MCA %s\n", A_name, nme)
         }
+        set_mca_monitor_efficiency MCA_MONITOR_EFFICIENCY
         p "New MCA Setup:"
         show_mca
         if (yesno("\nDo you want to setup the ROIS now", "0")) {
@@ -261,6 +263,13 @@ def rm_roi '{
     }
 }'
 
+def set_mca_monitor_efficiency '{
+    MCA_MONITOR_EFFICIENCY = $1
+    while (MCA_MONITOR_EFFICIENCY <= 0) {
+        MCA_MONITOR_EFFICIENCY = getval("enter monitor efficiency > 0", "1")
+    }
+}'
+
 #===============================================================================
 # internal macros defined here
 #===============================================================================
@@ -363,7 +372,7 @@ def _mca_report_counts() '{
             dead = 100 * (1 - ocr * live / dead)
         }
 
-        printf("%g %g %g %g %g\n", icr, ocr, real, live, dead)
+        printf("%g %g %g %g %g %g\n", S[MON], icr, ocr, real, live, dead)
 
         if (MCA_SMODE[mne]) {
             printf("@%s ", mne)
@@ -394,6 +403,7 @@ def _mca_client_report(mne, A_name, real, live, icr, ocr, dead) '{
     client_set_data(sprintf("%s/real", mne), real)
     client_set_data(sprintf("%s/live", mne), live)
     client_set_data(sprintf("%s/dead_time", mne), dead)
+    client_set_data(sprintf("%s/%s", mne, cnt_name(MON)), S[MON])
 }'
 
 #-------------------------------------------------------------------------------
@@ -512,6 +522,7 @@ def _mca_specfile_Fheader() '{
         printf("#U Saving data for mca %s in %s.scan%03d.%s.mca\n", \
             mne, DATAFILE, SCAN_N, mne)
     }
+    printf("#U monitor = %s\n", cnt_name(MON))
 }'
 
 
@@ -533,6 +544,8 @@ def _mca_set_env() '{
 
         if(_ctime<0) fprintf(device_file, "#M %g (%s)\n", -_ctime, cnt_name(MON))
         else fprintf(device_file, "#T %g (%s)\n", _ctime, cnt_name(sec))
+        fprintf(device_file, "#U monitor = %s\n", cnt_name(MON))
+        fprintf(device_file, "#U monitor efficiency = %g\n", MCA_MONITOR_EFFICIENCY)
 
         uch = epics_get(sprintf("%s.NUSE", MCA_PV[mne]))
 
@@ -545,8 +558,9 @@ def _mca_set_env() '{
             fprintf(device_file, "#@CHANN %i 0 %i 1\n", uch, uch-1)
             fprintf(device_file, "#@CALIB %g %g %g \n", _oo, _ss, _qq)
         }
-        fprintf(device_file, "#N 5\n")
-        fprintf(device_file, "#L icr  ocr  real  live  dead_time\n")
+        fprintf(device_file, "#N 6\n")
+        fprintf(device_file, \
+            sprintf("#L %s icr  ocr  real  live  dead_time\n", cnt_name(MON)))
         close(device_file)
 
         if (SC_DATA_ACTIVE) {
@@ -561,7 +575,17 @@ def _mca_client_set_env(mne, uch, _oo, _ss, _qq) '{
     local array cal[3]
     cal[0] = _oo; cal[0] = _ss; cal[0] = _qq
     kwargs["calibration"] = python_repr(python_repr(cal))
+    kwargs["monitor"] = python_repr(cnt_name(MON))
     client_set_scan_env(mne, "MultiChannelAnalyzer", kwargs)
+
+    for (i in kwargs) delete kwargs[i]
+    local array shape[1]
+    shape[0] = SC_NPOINTS
+    kwargs["shape"] = python_repr(shape)
+    kwargs["dtype"] = python_repr("f")
+    kwargs["efficiency"] = python_repr(MCA_MONITOR_EFFICIENCY? MCA_MONITOR_EFFICIENCY:1)
+    id = sprintf("%s/%s", mne, cnt_name(MON))
+    client_set_scan_env(id, "Signal", kwargs)
 
     if (MCA_SMODE[mne]) {
         for (i in kwargs) delete kwargs[i]

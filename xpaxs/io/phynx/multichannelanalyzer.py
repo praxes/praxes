@@ -38,9 +38,9 @@ class MultiChannelAnalyzer(Detector):
     @property
     @sync
     def monitor(self):
-        for i in self.measurement.scalar_data.signals.itervalues():
-            if i.monitor:
-                return i
+        id = self.attrs.get('monitor', None)
+        if id is not None:
+            return self[id]
 
     @sync
     def _get_pymca_config(self):
@@ -150,14 +150,14 @@ class CorrectedMcaSpectrumProxy(DataProxy):
                 norm = (
                     self._dset.parent.pymca_config['concentrations']['time'] *
                     self._dset.parent.pymca_config['concentrations']['flux'] /
-                    self._dset.parent.monitor[key]
+                    self._dset.parent.monitor.corrected_value.__getitem__(key)
                 )
                 if not np.isscalar(norm) and len(norm.shape) < len(data.shape):
                     newshape = [1]*len(data.shape)
                     newshape[:len(norm.shape)] = norm.shape
                     norm.shape = newshape
                 data *= norm
-            except (KeyError, TypeError):
+            except (KeyError, TypeError, AttributeError):
                 # fails if monitor is None or modeled intensity can not be found
                 pass
 

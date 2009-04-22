@@ -73,6 +73,13 @@ class ScalarData(Group):
 
     """
 
+    @property
+    @sync
+    def monitor(self):
+        id = self.attrs.get('monitor', None)
+        if id is not None:
+            return self[id]
+
 registry.register(ScalarData)
 
 

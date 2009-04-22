@@ -219,11 +219,11 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
             self.statusbar.clearMessage()
 
     def elementMapUpdated(self):
-        print 'emu', 1
+#        print 'emu', 1
         self.elementsView.updateFigure(self.getElementMap())
-        print 'emu', 2
+#        print 'emu', 2
         QtGui.qApp.processEvents()
-        print 'emu', 3
+#        print 'emu', 3
 
     def getElementMap(self, mapType=None, element=None):
         if element is None: element = self.xrfBand
@@ -285,22 +285,22 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.setMenuToolsActionsEnabled(True)
 
     def processComplete(self):
-        print 'pc', 1
+#        print 'pc', 1
         self.progressBar.hide()
-        print 'pc', 2
+#        print 'pc', 2
         self.progressBar.reset()
-        print 'pc', 3
+#        print 'pc', 3
         self.statusbar.removeWidget(self.progressBar)
-        print 'pc', 4
+#        print 'pc', 4
         self.statusbar.clearMessage()
-        print 'pc', 5
+#        print 'pc', 5
 
         self.analysisThread = None
-        print 'pc', 6
+#        print 'pc', 6
 
         self.setMenuToolsActionsEnabled(True)
         self.elementMapUpdated()
-        print 'pc', 7
+#        print 'pc', 7
 
     def processData(self):
         from .pptaskmanager import XfsPPTaskManager
