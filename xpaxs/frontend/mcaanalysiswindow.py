@@ -265,9 +265,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
     def processAverageSpectrum(self, indices=None):
         if indices is None:
-            indices = self.scanData['scalar_data']['i'].value
+            indices = range(self.mcaData['counts'].acquired)
         if len(indices):
-            indices = [i for i in indices if i < len(self.mcaData['counts'])]
             self.statusbar.showMessage('Averaging spectra ...')
             QtGui.qApp.processEvents()
 
