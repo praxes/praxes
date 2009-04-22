@@ -74,7 +74,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 #            if 'shape' in kwargs and 'dtype' in kwargs:
 #                # these are empty datasets, lets start small and grow
 #                kwargs['shape'] = (1, ) + tuple(kwargs['shape'][1:])
-            phynx.registry[t](m, k, create=True, **kwargs)
+            phynx.registry[t](measurement, k, create=True, **kwargs)
 #            measurement.create_group(k, t, **kwargs)
 
         # make a few links:
@@ -135,7 +135,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
     def scanAborted(self):
 #        logger.info('Scan Aborted')
         try:
-            self._scanData.npoints = self._lastPoint
+            self._scanData.npoints = self._lastPoint + 1
         except (AttributeError, h5py.h5.H5Error, TypeError):
             pass
         self.emit(QtCore.SIGNAL("scanAborted()"))

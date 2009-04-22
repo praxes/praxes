@@ -75,30 +75,12 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: make this configurable</Summary>
-    <Description></Description>
-    <Created>2009-04-20, 13:24:58</Created>
-    <Resource>
-      <Filename>xpaxs/dispatch/pptaskmanager.py</Filename>
-      <Linenumber>75</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: would be better to check the attribute without having to</Summary>
     <Description></Description>
     <Created>2009-04-20, 15:11:42</Created>
     <Resource>
       <Filename>xpaxs/io/phynx/group.py</Filename>
       <Linenumber>113</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: get the channels from the controller</Summary>
-    <Description></Description>
-    <Created>2009-04-20, 15:43:35</Created>
-    <Resource>
-      <Filename>xpaxs/frontend/pptaskmanager.py</Filename>
-      <Linenumber>24</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
@@ -113,7 +95,7 @@
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: this should eventually take an MCA entry</Summary>
     <Description></Description>
-    <Created>2009-04-20, 16:34:38</Created>
+    <Created>2009-04-22, 10:19:53</Created>
     <Resource>
       <Filename>xpaxs/frontend/mcaanalysiswindow.py</Filename>
       <Linenumber>28</Linenumber>
@@ -122,7 +104,7 @@
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: remove the window from the list of open windows when we close</Summary>
     <Description></Description>
-    <Created>2009-04-20, 16:34:38</Created>
+    <Created>2009-04-22, 10:19:53</Created>
     <Resource>
       <Filename>xpaxs/frontend/mcaanalysiswindow.py</Filename>
       <Linenumber>64</Linenumber>
@@ -131,10 +113,28 @@
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: improve this to close scans in the file interface</Summary>
     <Description></Description>
-    <Created>2009-04-20, 16:34:38</Created>
+    <Created>2009-04-22, 10:19:53</Created>
     <Resource>
       <Filename>xpaxs/frontend/mcaanalysiswindow.py</Filename>
       <Linenumber>208</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: make this configurable</Summary>
+    <Description></Description>
+    <Created>2009-04-22, 10:20:07</Created>
+    <Resource>
+      <Filename>xpaxs/dispatch/pptaskmanager.py</Filename>
+      <Linenumber>76</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: get the channels from the controller</Summary>
+    <Description></Description>
+    <Created>2009-04-22, 10:35:14</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/pptaskmanager.py</Filename>
+      <Linenumber>25</Linenumber>
     </Resource>
   </Task>
 </Tasks>

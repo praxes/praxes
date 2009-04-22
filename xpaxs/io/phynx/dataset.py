@@ -333,6 +333,10 @@ class AcquisitionEnumerator(object):
 class DataProxy(object):
 
     @property
+    def acquired(self):
+        return self._dset.acquired
+
+    @property
     def masked(self):
         return self._dset.masked
 

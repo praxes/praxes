@@ -111,6 +111,10 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
         monitor_efficiency = float(scan.header('U monitor efficiency')[0].split()[-1])
     except IndexError:
         monitor_efficiency = 1
+    try:
+        dead_time_format = float(scan.header('U dead_time format')[0].split()[-1])
+    except IndexError:
+        dead_time_format = "percent"
 
     mca_names = []
     print 'Number of MCA:', num_mca
@@ -163,8 +167,7 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
                 kwargs = {'class':'Signal'}
                 if label == 'dead_time':
                     kwargs['class'] = 'DeadTime'
-                    kwargs['units'] = '%'
-                    kwargs['dead_time_format'] = '%'
+                    kwargs['dead_time_format'] = dead_time_format
                 if label == monitor:
                     kwargs['efficiency'] = efficiency
                 dset = mca.create_dataset(
