@@ -378,8 +378,12 @@ def _mca_report_counts() '{
             printf("@%s ", mne)
             if (MCA_SMODE[mne]) {
                 A_name = sprintf("mcadat_%s", mne)
-                # scaling handles bad syncing between spec and epics:
-                array_dump(@A_name[1]*S[sec]/real, "%25C")
+                if (_ctime < 0) {
+                    # scaling handles bad syncing between spec and epics:
+                    array_dump(@A_name[1]*S[sec]/real, "%25C")
+                } else {
+                    array_dump(@A_name[1], "%25C")
+                }
             }
         }
 
@@ -394,7 +398,11 @@ def _mca_report_counts() '{
 
 def _mca_client_report(mne, A_name, real, live, icr, ocr, dead) '{
     if (MCA_SMODE[mne]) {
-        client_set_data(sprintf("%s/counts", mne), @A_name[1]*S[sec]/real)
+        if (_ctime < 0) {
+            client_set_data(sprintf("%s/counts", mne), @A_name[1]*S[sec]/real)
+        } else {
+            client_set_data(sprintf("%s/counts", mne), @A_name[1])
+        }
     }
     if (MCA_USES_DXP[mne]) {
         client_set_data(sprintf("%s/icr", mne), icr)
@@ -545,7 +553,8 @@ def _mca_set_env() '{
         if(_ctime<0) fprintf(device_file, "#M %g (%s)\n", -_ctime, cnt_name(MON))
         else fprintf(device_file, "#T %g (%s)\n", _ctime, cnt_name(sec))
         fprintf(device_file, "#U monitor = %s\n", cnt_name(MON))
-        fprintf(device_file, "#U monitor efficiency = %g\n", MCA_MONITOR_EFFICIENCY)
+        fprintf(device_file, "#U monitor efficiency = %g\n", \
+            MCA_MONITOR_EFFICIENCY? MCA_MONITOR_EFFICIENCY:1)
 
         uch = epics_get(sprintf("%s.NUSE", MCA_PV[mne]))
 

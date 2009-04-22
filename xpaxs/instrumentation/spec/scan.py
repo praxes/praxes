@@ -74,7 +74,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 #            if 'shape' in kwargs and 'dtype' in kwargs:
 #                # these are empty datasets, lets start small and grow
 #                kwargs['shape'] = (1, ) + tuple(kwargs['shape'][1:])
-            phynx.registry[t](m, k, create=True, **kwargs)
+            phynx.registry[t](measurement, k, create=True, **kwargs)
 #            measurement.create_group(k, t, **kwargs)
 
         # make a few links:
