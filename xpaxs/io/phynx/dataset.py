@@ -122,7 +122,9 @@ class Dataset(h5py.Dataset, _PhynxProperties):
     @sync
     def mean(self, indices=None):
         if indices is None:
-            indices = range(len(self))
+            indices = range(self.acquired)
+        elif len(indices):
+            indices = [i for i in indices if i < self.acquired]
 
         res = np.zeros(self.shape[1:], 'f')
         nitems = 0
@@ -130,8 +132,9 @@ class Dataset(h5py.Dataset, _PhynxProperties):
             if not self.masked[i]:
                 nitems += 1
                 res += self[i]
-
-        return res / nitems
+        if nitems:
+            return res / nitems
+        return res
 
 registry.register(Dataset)
 
@@ -371,7 +374,9 @@ class DataProxy(object):
     @sync
     def mean(self, indices=None):
         if indices is None:
-            indices = range(len(self))
+            indices = range(self.acquired)
+        elif len(indices):
+            indices = [i for i in indices if i < self.acquired]
 
         res = np.zeros(self.shape[1:], 'f')
         nitems = 0
@@ -379,8 +384,9 @@ class DataProxy(object):
             if not self.masked[i]:
                 nitems += 1
                 res += self[i]
-
-        return res / nitems
+        if nitems:
+            return res / nitems
+        return res
 
 
 class CorrectedDataProxy(DataProxy):
