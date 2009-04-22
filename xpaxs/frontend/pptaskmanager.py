@@ -98,9 +98,9 @@ class XfsPPTaskManager(PPTaskManager):
 #            print 'updateElementMap acquired the lock'
             try:
                 entry = '%s_%s'%(element, mapType)
-#                self._scan['element_maps'][entry][index] = val
                 print 'updating element map for', entry
-                self._scan['element_maps'][entry][index] = np.random.rand(1)
+                self._scan['element_maps'][entry][index] = val
+#                self._scan['element_maps'][entry][index] = np.random.rand(1)
                 print entry, 'updated'
             except ValueError:
                 print "index %d out of range for %s", index, entry

@@ -370,7 +370,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                         QtGui.QMessageBox.No
                     )
                     if res == QtGui.QMessageBox.Yes:
-                        os.path.remove(h5_filename)
+                        os.remove(h5_filename)
                     else:
                         continue
                 break

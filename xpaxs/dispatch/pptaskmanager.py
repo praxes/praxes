@@ -103,7 +103,7 @@ class PPTaskManager(QtCore.QThread):
                 for index, data in self._enumerator:
                     self.submitJob(index, data)
                     numSubmitted += 1
-                    if numSubmitted <= self.numCpus*3:
+                    if numSubmitted >= self.numCpus*3:
                         break
                 else:
                     self._jobServer.wait()
