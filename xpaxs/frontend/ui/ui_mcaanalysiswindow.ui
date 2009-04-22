@@ -133,7 +133,7 @@ Correction means the data are multiplied by the dead time values to yield correc
             </spacer>
            </item>
            <item row="3" column="1">
-            <widget class="QLineEdit" name="normalizationReport">
+            <widget class="QLineEdit" name="monitorEfficiency">
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -144,9 +144,10 @@ Correction means the data are multiplied by the dead time values to yield correc
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string>The normalization applied to the MCA counts, if any.
-
-Intensity renormalization means that a scaling factor is chosen such that the incident monitor counts are equal to the incident intensity specified in the PyMca config file. The scaling factor is applied to the MCA counts when they are passed to the fitting routines. The monitor counts must therefore be representative of the incident intensity in photons/second.</string>
+              <string>The quantum efficiency of the monitor, 0 &lt; efficiency &lt;= 1</string>
+             </property>
+             <property name="text">
+              <string>1</string>
              </property>
              <property name="readOnly">
               <bool>false</bool>
@@ -156,7 +157,7 @@ Intensity renormalization means that a scaling factor is chosen such that the in
            <item row="3" column="0">
             <widget class="QLabel" name="label_3">
              <property name="text">
-              <string>Normalization</string>
+              <string>Monitor Efficiency</string>
              </property>
             </widget>
            </item>

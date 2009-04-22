@@ -72,11 +72,12 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         else:
             self.configurePymca()
 
-        if (
-            self.mcaData.monitor is not None and
-            self.pymcaConfig.get('concentrations', {}).get('flux', None)
-        ):
-            self.normalizationReport.setText('intensity')
+        try:
+            eff = self.mcaData.monitor.efficiency
+            self.monitorEfficiency.setText(str(eff))
+            self.monitorEfficiency.setEnabled(True)
+        except AttributeError:
+            pass
 
         self.progressBar = QtGui.QProgressBar(self)
         self.progressBar.setMaximumHeight(17)
@@ -169,19 +170,19 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     def on_actionCalibration_triggered(self):
         self.processAverageSpectrum()
 
-#    @QtCore.pyqtSignature("QString")
-#    def on_deadTimeComboBox_currentIndexChanged(self):
-#        self.scanData.mcas.values()[0]['dead_time_percent'] = \
-#            self.scanData.mcas.values()[0][self.deadTimePercent]
-
     @QtCore.pyqtSignature("QString")
     def on_mapTypeComboBox_currentIndexChanged(self):
         self.elementsView.updateFigure(self.getElementMap())
 
-#    @QtCore.pyqtSignature("QString")
-#    def on_normalizationComboBox_currentIndexChanged(self):
-#        self.scanData.mcas.values()[0]['normalization'] = \
-#            self.scanData.mcas.values()[0][self.normalization]
+    @QtCore.pyqtSignature("")
+    def on_monitorEfficiency_editingFinished(self):
+        try:
+            value = float(self.monitorEfficiency.text())
+            assert (0 < value <= 1)
+            self.mcaData.monitor.efficiency = value
+        except (ValueError, AssertionError):
+            self.monitorEfficiency.setText(str(self.mcaData.monitor.efficiency))
+
 
     @QtCore.pyqtSignature("QString")
     def on_xrfBandComboBox_currentIndexChanged(self):
