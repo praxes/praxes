@@ -136,6 +136,10 @@ class Entry(Group):
     def _set_npoints(self, np):
         def func(name, obj):
             obj.attrs['npoints'] = np
+            try:
+                obj.resize(np, axis=0)
+            except (AttributeError, TypeError):
+                pass
         self.visititems(func)
     npoints = property(_get_npoints, _set_npoints)
 

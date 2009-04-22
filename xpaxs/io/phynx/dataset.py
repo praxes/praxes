@@ -20,6 +20,14 @@ class Dataset(h5py.Dataset, _PhynxProperties):
     """
     """
 
+    @sync
+    def _get_acquired(self):
+        return self.attrs.get('acquired', self.npoints)
+    @sync
+    def _set_acquired(self, value):
+        self.attrs['acquired'] = int(value)
+    acquired = property(_get_acquired, _set_acquired)
+
     @property
     @sync
     def entry(self):
@@ -302,6 +310,8 @@ class AcquisitionEnumerator(object):
 #        print 'entering next'
         if self.current_index >= self._dataset.npoints:
             raise StopIteration()
+        elif self.current_index + 1 > self._dataset.acquired:
+            raise IndexError()
         else:
             try:
                 i = self.current_index
@@ -317,7 +327,7 @@ class AcquisitionEnumerator(object):
 #                print 'updated enum index, exiting next'
                 return i, res
             except H5Error:
-                raise IndexError
+                raise IndexError()
 
 
 class DataProxy(object):

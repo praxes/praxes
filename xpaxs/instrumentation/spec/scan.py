@@ -71,11 +71,11 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         keys = sorted(tree.keys())
         for k in keys:
             t, kwargs = tree.pop(k)
-            if 'shape' in kwargs and 'dtype' in kwargs:
-                # these are empty datasets, lets start small and grow
-                kwargs['maxshape'] = kwargs['shape']
-                kwargs['shape'] = (1, ) + tuple(kwargs['shape'][1:])
-            measurement.create_group(k, t, **kwargs)
+#            if 'shape' in kwargs and 'dtype' in kwargs:
+#                # these are empty datasets, lets start small and grow
+#                kwargs['shape'] = (1, ) + tuple(kwargs['shape'][1:])
+            phynx.registry[t](m, k, create=True, **kwargs)
+#            measurement.create_group(k, t, **kwargs)
 
         # make a few links:
         if 'masked' in measurement['scalar_data']:
@@ -108,9 +108,11 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
                 for k, val in scanData.iteritems():
                     try:
                         m[k][i] = val
+                        m[k].acquired = i + 1
                     except ValueError:
                         m[k].resize(i+1, axis=0)
                         m[k][i] = val
+                        m[k].acquired = i + 1
                     except:
                         print m.listitems(), k
 #                print 'updated data for point', i
