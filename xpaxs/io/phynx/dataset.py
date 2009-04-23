@@ -132,6 +132,7 @@ class Dataset(h5py.Dataset, _PhynxProperties):
             if not self.masked[i]:
                 nitems += 1
                 res += self[i]
+            print i
         if nitems:
             return res / nitems
         return res
@@ -384,6 +385,7 @@ class DataProxy(object):
             if not self.masked[i]:
                 nitems += 1
                 res += self[i]
+            print i
         if nitems:
             return res / nitems
         return res

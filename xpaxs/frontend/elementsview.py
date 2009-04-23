@@ -155,9 +155,10 @@ class ElementPlotFigure(ElementBaseFigure):
 
     def _createInitialFigure(self):
         try:
-            x_axis = self.scanData['scalar_data'].get_sorted_axes_list(1)[0]
-            self._elementPlot, = self.axes.plot(x_axis.value, self._elementData)
+            self.x_data = self.scanData['scalar_data'].get_sorted_axes_list(1)[0]
+            self._elementPlot, = self.axes.plot(self.xdata, self._elementData)
             self.axes.set_xlabel(x_axis.name)
+            self.axes.set_xlim(self.x_data.range)
         except:
             self._elementPlot, = self.axes.plot(self._elementData)
 
@@ -188,7 +189,9 @@ class ElementPlotFigure(ElementBaseFigure):
         if elementData is None: elementData = self._elementData
         else: self._elementData = elementData
 
-        self._elementPlot.set_ydata(elementData)
+
+        self._elementPlot.set_xdata(self.x_data.value[:self.x_data.acquired])
+        self._elementPlot.set_ydata(elementData[:self.x_data.acquired])
         self.axes.relim()
         self.axes.autoscale_view()
 
