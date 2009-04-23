@@ -306,7 +306,7 @@ def _sc_set_scan_env() '{
     scan_info["npoints"] = python_repr(SC_NPOINTS)
     if (_stype&8) {
         local array shape[2]
-        shape[0] = _n1; shape[1] = _n2
+        shape[0] = _n2; shape[1] = _n1
         scan_info["acquisition_shape"] = python_repr(shape)
     } else {
         local array shape[1]

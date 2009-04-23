@@ -37,7 +37,7 @@ def skipmode '{
 
 
 def _skipmode_Fheader '{
-    printf("#C SKIPMODE %s %d\n", cnt_mne(_SKIPMODE["counter"]), \
+    printf("#U SKIPMODE %s %d\n", cnt_mne(_SKIPMODE["counter"]), \
         _SKIPMODE["threshold"])
 }'
 

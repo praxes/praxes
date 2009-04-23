@@ -14,6 +14,7 @@ import numpy as np
 np.seterr(all='ignore')
 
 from xpaxs.dispatch.pptaskmanager import PPTaskManager
+from xpaxs.io.phynx import H5Error
 
 
 logger = logging.getLogger(__file__)
