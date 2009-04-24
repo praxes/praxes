@@ -151,6 +151,12 @@ class H5FileProxy(H5NodeProxy):
         with self.file.plock:
             return self.file.close()
 
+    def __getitem__(self, path):
+        if path == '/':
+            return self
+        else:
+            return H5NodeProxy(self.file, self.file[path], self)
+
 
 class FileModel(QtCore.QAbstractItemModel):
 
@@ -160,54 +166,39 @@ class FileModel(QtCore.QAbstractItemModel):
     def __init__(self, parent=None):
         super(FileModel, self).__init__(parent)
         self.rootItem = RootItem(['File/Group/Dataset', 'Description'])
-
-    def canFetchMore(self, index):
-        parentItem = index.internalPointer()
-        if parentItem is not None and parentItem.hasChildren:
-            return len(parentItem) == 0
-        else:
-            return False
+        self._idMap = {QtCore.QModelIndex().internalId(): self.rootItem}
 
     def clearRows(self, index):
-        parent = index.internalPointer()
-        self.beginRemoveRows(index, 0, len(parent)-1)
-        parent.clearChildren()
-        self.endRemoveRows()
+        self.getItemFromIndex(index).clearChildren()
 
     def close(self):
         for item in self.rootItem:
             item.close()
+        self._idMap = {}
 
     def columnCount(self, parent):
         return 2
 
     def data(self, index, role):
-        if not index.isValid() or role != QtCore.Qt.DisplayRole:
+        if role != QtCore.Qt.DisplayRole:
             return QtCore.QVariant()
 
-        item = index.internalPointer()
+        item = self.getItemFromIndex(index)
         column = index.column()
-        try:
-            if column == 0:
-                return QtCore.QVariant(item.name)
-            if column == 1:
-                return QtCore.QVariant(item.type)
-            return QtCore.QVariant()
-        except AttributeError:
-            return QtCore.QVariant()
+        if column == 0:
+            return QtCore.QVariant(item.name)
+        if column == 1:
+            return QtCore.QVariant(item.type)
+        return QtCore.QVariant()
 
-    def fetchMore(self, index):
-        parent = index.internalPointer()
-        if parent is not None:
-            self.beginInsertRows(index, 0, len(parent))
-            parent.children
-            self.endInsertRows()
+    def getItemFromIndex(self, index):
+        try:
+            return self._idMap[index.internalId()]
+        except KeyError:
+            return self.rootItem
 
     def hasChildren(self, index):
-        parentItem = index.internalPointer()
-        if parentItem is None:
-            parentItem = self.rootItem
-        return parentItem.hasChildren
+        return self.getItemFromIndex(index).hasChildren
 
     def headerData(self, section, orientation, role):
         if orientation == QtCore.Qt.Horizontal and \
@@ -217,39 +208,23 @@ class FileModel(QtCore.QAbstractItemModel):
         return QtCore.QVariant()
 
     def index(self, row, column, parent):
-        if not self.hasIndex(row, column, parent):
-            return QtCore.QModelIndex()
-
-        if parent.isValid():
-            parentItem = parent.internalPointer()
-        else:
-            parentItem = self.rootItem
+        parentItem = self.getItemFromIndex(parent)
 
         child = parentItem.children[row]
-        return self.createIndex(row, column, child)
+        index = self.createIndex(row, column, id(child))
+        self._idMap.setdefault(index.internalId(), child)
+        return index
 
     def parent(self, index):
-        if not index.isValid():
-            return QtCore.QModelIndex()
-
-        child = index.internalPointer()
+        child = self.getItemFromIndex(index)
         parent = child.parent
-
         if parent == self.rootItem:
             return QtCore.QModelIndex()
 
-        return self.createIndex(parent.row, 0, parent)
+        return self.createIndex(parent.row, 0, id(parent))
 
-    def rowCount(self, parent):
-        if parent.column() > 0:
-            return 0
-
-        if not parent.isValid():
-            parentItem = self.rootItem
-        else:
-            parentItem = parent.internalPointer()
-
-        return len(parentItem)
+    def rowCount(self, index):
+        return len(self.getItemFromIndex(index))
 
     def _openFile(self, filename):
         f = phynx.File(filename, 'a', lock=QRLock())
@@ -294,5 +269,6 @@ class FileModel(QtCore.QAbstractItemModel):
         return phynxFile
 
     def itemActivated(self, index):
-        scanData = index.internalPointer().getNode()
+        scanData = self.getItemFromIndex(index).getNode()
+        print scanData.path
         self.emit(QtCore.SIGNAL('scanActivated'), scanData)
