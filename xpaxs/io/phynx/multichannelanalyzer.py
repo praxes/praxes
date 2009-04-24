@@ -9,6 +9,7 @@ import numpy as np
 
 from .dataset import DataProxy, DeadTime, Signal
 from .detector import Detector
+from .exceptions import H5Error
 from .registry import registry
 from .utils import simple_eval, sync
 
