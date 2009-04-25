@@ -267,7 +267,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         skipped = scan.datacol(index) < thresh
         kwargs = {'class':'Signal', 'counter':mon, 'threshold':thresh}
         masked = scalar_data.create_dataset(
-            'masked', data=skipped, **kwargs
+            'masked', dtype='uint8', data=skipped, **kwargs
         )
     else:
         masked = None

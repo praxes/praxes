@@ -50,13 +50,13 @@ class SkipModeWidget(ui_skipmode.Ui_SkipModeWidget, QtGui.QWidget):
 
         self.configure(channel=val)
 
-    @QtCore.pyqtSignature("double")
-    def on_precountSpinBox_valueChanged(self, val):
-        self.configure(precount=val)
+    @QtCore.pyqtSignature("")
+    def on_precountSpinBox_editingFinished(self):
+        self.configure(precount=self.precountSpinBox.value())
 
-    @QtCore.pyqtSignature("double")
-    def on_thresholdSpinBox_valueChanged(self, val):
-        self.configure(threshold=val)
+    @QtCore.pyqtSignature("")
+    def on_thresholdSpinBox_editingFinished(self):
+        self.configure(threshold=self.thresholdSpinBox.value())
 
     def closeEvent(self, event):
         settings = QtCore.QSettings()
