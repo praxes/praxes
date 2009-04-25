@@ -270,5 +270,4 @@ class FileModel(QtCore.QAbstractItemModel):
 
     def itemActivated(self, index):
         scanData = self.getItemFromIndex(index).getNode()
-        print scanData.path
         self.emit(QtCore.SIGNAL('scanActivated'), scanData)
