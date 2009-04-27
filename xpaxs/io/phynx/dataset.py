@@ -341,6 +341,12 @@ class DataProxy(object):
         return self._dset.acquired
 
     @property
+    def map(self):
+        res = np.zeros(self._dset.acquisition_shape, self._dset.dtype)
+        res.flat[:len(self)] = self[:].flatten()
+        return res
+
+    @property
     def masked(self):
         return self._dset.masked
 

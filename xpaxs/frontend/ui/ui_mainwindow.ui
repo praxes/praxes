@@ -1,190 +1,208 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow" >
-  <property name="geometry" >
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
    <rect>
     <x>0</x>
-    <y>0</y>
+    <y>188</y>
     <width>662</width>
-    <height>442</height>
+    <height>65</height>
    </rect>
   </property>
-  <property name="sizePolicy" >
-   <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>SXFM</string>
   </property>
-  <widget class="QWidget" name="centralwidget" >
-   <property name="sizePolicy" >
-    <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+  <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
   </widget>
-  <widget class="QMenuBar" name="mainToolBar" >
-   <property name="geometry" >
+  <widget class="QMenuBar" name="mainToolBar">
+   <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
      <width>662</width>
-     <height>27</height>
+     <height>26</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFile" >
-    <property name="title" >
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
      <string>File</string>
     </property>
-    <widget class="QMenu" name="menuImport" >
-     <property name="title" >
+    <widget class="QMenu" name="menuImport">
+     <property name="title">
       <string>Import</string>
      </property>
-     <addaction name="actionImportSpecFile" />
+     <addaction name="actionImportSpecFile"/>
     </widget>
-    <addaction name="actionOpen" />
-    <addaction name="menuImport" />
+    <addaction name="actionOpen"/>
+    <addaction name="menuImport"/>
    </widget>
-   <widget class="QMenu" name="menuHelp" >
-    <property name="title" >
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionAbout_SMP" />
-    <addaction name="actionAbout_Qt" />
+    <addaction name="actionAbout_SMP"/>
+    <addaction name="actionAbout_Qt"/>
    </widget>
-   <widget class="QMenu" name="menuAcquisition" >
-    <property name="title" >
+   <widget class="QMenu" name="menuAcquisition">
+    <property name="title">
      <string>Acquisition</string>
     </property>
-    <addaction name="actionOffline" />
-    <addaction name="actionSpec" />
-    <addaction name="separator" />
-    <addaction name="actionConfigure" />
+    <addaction name="actionOffline"/>
+    <addaction name="actionSpec"/>
+    <addaction name="separator"/>
+    <addaction name="actionConfigure"/>
    </widget>
-   <widget class="QMenu" name="menuView" >
-    <property name="title" >
+   <widget class="QMenu" name="menuView">
+    <property name="title">
      <string>View</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuTools" >
-    <property name="enabled" >
+   <widget class="QMenu" name="menuTools">
+    <property name="enabled">
      <bool>true</bool>
     </property>
-    <property name="title" >
+    <property name="title">
      <string>Tools</string>
     </property>
+    <widget class="QMenu" name="menuExport">
+     <property name="title">
+      <string>Export...</string>
+     </property>
+    </widget>
+    <addaction name="menuExport"/>
+    <addaction name="separator"/>
    </widget>
-   <widget class="QMenu" name="menuSettings" >
-    <property name="title" >
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
      <string>Settings</string>
     </property>
    </widget>
-   <addaction name="menuFile" />
-   <addaction name="menuAcquisition" />
-   <addaction name="menuTools" />
-   <addaction name="menuView" />
-   <addaction name="menuSettings" />
-   <addaction name="menuHelp" />
+   <addaction name="menuFile"/>
+   <addaction name="menuAcquisition"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuView"/>
+   <addaction name="menuSettings"/>
+   <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar" >
-   <property name="sizePolicy" >
-    <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+  <widget class="QStatusBar" name="statusBar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <property name="sizeGripEnabled" >
+   <property name="sizeGripEnabled">
     <bool>false</bool>
    </property>
   </widget>
-  <action name="actionAbout_SMP" >
-   <property name="text" >
+  <action name="actionAbout_SMP">
+   <property name="text">
     <string>About SMP</string>
    </property>
   </action>
-  <action name="actionSpec" >
-   <property name="checkable" >
+  <action name="actionSpec">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Spec</string>
    </property>
   </action>
-  <action name="actionDisconnect" >
-   <property name="enabled" >
+  <action name="actionDisconnect">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Disconnect</string>
    </property>
   </action>
-  <action name="actionAbout_Qt" >
-   <property name="text" >
+  <action name="actionAbout_Qt">
+   <property name="text">
     <string>About Qt</string>
    </property>
   </action>
-  <action name="actionSave" >
-   <property name="enabled" >
+  <action name="actionSave">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Save</string>
    </property>
   </action>
-  <action name="actionSave_All" >
-   <property name="enabled" >
+  <action name="actionSave_All">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Save All</string>
    </property>
   </action>
-  <action name="actionClose" >
-   <property name="enabled" >
+  <action name="actionClose">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Close</string>
    </property>
   </action>
-  <action name="actionClose_All" >
-   <property name="enabled" >
+  <action name="actionClose_All">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Close All</string>
    </property>
   </action>
-  <action name="actionOpen" >
-   <property name="enabled" >
+  <action name="actionOpen">
+   <property name="enabled">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Open</string>
    </property>
   </action>
-  <action name="actionImportSpecFile" >
-   <property name="text" >
+  <action name="actionImportSpecFile">
+   <property name="text">
     <string>Spec file</string>
    </property>
   </action>
-  <action name="actionConfigure" >
-   <property name="enabled" >
+  <action name="actionConfigure">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Configure</string>
    </property>
   </action>
-  <action name="actionOffline" >
-   <property name="checkable" >
+  <action name="actionOffline">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Offline</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Export...</string>
+   </property>
+  </action>
+  <action name="actionTest">
+   <property name="text">
+    <string>test</string>
    </property>
   </action>
  </widget>

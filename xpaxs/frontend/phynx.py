@@ -299,3 +299,75 @@ class FileView(QtGui.QTreeView):
             QtCore.SIGNAL('fileAppended'),
             self.doItemsLayout
         )
+
+
+class ExportRawCSV(QtCore.QObject):
+
+    def __init__(self, h5Node, parent=None):
+        QtCore.QObject.__init__(parent)
+        assert isinstance(h5Node, phynx.Dataset)
+        assert len(h5Node.shape) <= 2
+        assert hasattr(h5Node, "value")
+
+        filename = QtGui.QFileDialog.getSaveFileName(
+            parent,
+            "Export Dataset",
+            h5Node.name+'.txt',
+            "text files (*.txt *.dat *.csv)"
+        )
+        if filename:
+            self.exportData(str(filename), h5Node)
+
+    def exportData(self, filename, h5Node):
+        try:
+            data = h5Node.map
+        except TypeError:
+            data = h5Node.value
+        import numpy as np
+        np.savetxt(filename, data, fmt='%g', delimiter=',')
+
+    @classmethod
+    def offersService(cls, h5Node):
+        try:
+            assert isinstance(h5Node, phynx.Dataset)
+            assert len(h5Node.shape) <= 2
+            assert hasattr(h5Node, "value")
+            return True
+        except AssertionError:
+            return False
+
+
+class ExportCorrectedCSV(ExportRawCSV):
+
+    def __init__(self, h5Node, parent=None):
+        QtCore.QObject.__init__(parent)
+        assert isinstance(h5Node, phynx.Dataset)
+        assert len(h5Node.shape) <= 2
+        assert hasattr(h5Node, "corrected_value")
+
+        filename = QtGui.QFileDialog.getSaveFileName(
+            parent,
+            "Export Dataset",
+            h5Node.name+'_corr.txt',
+            "text files (*.txt *.dat *.csv)"
+        )
+        if filename:
+            self.exportData(str(filename), h5Node)
+
+    def exportData(self, filename, h5Node):
+        try:
+            data = h5Node.corrected_value.map
+        except TypeError:
+            data = h5Node.corrected_value[:]
+        import numpy as np
+        np.savetxt(filename, data, fmt='%g', delimiter=',')
+
+    @classmethod
+    def offersService(cls, h5Node):
+        try:
+            assert isinstance(h5Node, phynx.Dataset)
+            assert len(h5Node.shape) <= 2
+            assert hasattr(h5Node, "corrected_value")
+            return True
+        except AssertionError:
+            return False

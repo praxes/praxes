@@ -11,7 +11,7 @@ from PyQt4 import QtCore, QtGui
 
 from xpaxs import __version__
 from .ui import ui_mainwindow
-from .phynx import FileModel, FileView
+from .phynx import FileModel, FileView, ExportRawCSV, ExportCorrectedCSV
 from ..io import phynx
 from .notifications import NotificationsDialog
 
@@ -214,12 +214,20 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
             QtCore.SIGNAL('triggered()'),
             self.toolActionTriggered
         )
-
-        self.menuTools.addAction(action)
+        return action
 
     def _setupToolActions(self):
         from .mcaanalysiswindow import McaAnalysisWindow
-        self._createToolAction("Analyze MCA", McaAnalysisWindow)
+        self.menuTools.addAction(
+            self._createToolAction("Analyze MCA", McaAnalysisWindow)
+        )
+
+        self.menuExport.addAction(
+            self._createToolAction("Raw data", ExportRawCSV)
+        )
+        self.menuExport.addAction(
+            self._createToolAction("Corrected data", ExportCorrectedCSV)
+        )
 
     def _connectSignals(self):
         self.connect(
@@ -458,13 +466,15 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                 action.setVisible(tool.offersService(self._currentItem))
 
     def toolActionTriggered(self):
-        self.statusBar.showMessage('Configuring New Analysis Window ...')
+        self.statusBar.showMessage('Configuring...')
         action = self.sender()
         if action is not None and isinstance(action, QtGui.QAction):
             view = self._toolActions[action](self._currentItem, self)
-            self.connect(view, QtCore.SIGNAL("viewClosed"), self.viewClosed)
-            self.openViews.append(view)
-            view.show()
+            if isinstance(view, QtGui.QWidget):
+                # may be a simple QObject
+                self.connect(view, QtCore.SIGNAL("viewClosed"), self.viewClosed)
+                self.openViews.append(view)
+                view.show()
             self.statusBar.clearMessage()
 
 
