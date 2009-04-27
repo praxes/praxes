@@ -14,7 +14,7 @@ import numpy as np
 from .mainwindow import MainWindowBase
 from .ui.ui_mcaanalysiswindow import Ui_McaAnalysisWindow
 from .elementsview import ElementsView
-from xpaxs.io.phynx import H5Error
+from ..io import phynx
 
 
 logger = logging.getLogger(__file__)
@@ -28,7 +28,19 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     # TODO: this should eventually take an MCA entry
     def __init__(self, scanData, parent=None):
         super(McaAnalysisWindow, self).__init__(parent)
-        self.scanData = scanData['measurement']
+        if isinstance(scanData, phynx.Entry):
+            self.scanData = scanData.measurement
+        elif isinstance(scanData, phynx.Measurement):
+            self.scanData = scanData
+        elif isinstance(scanData, phynx.MultiChannelAnalyzer) and \
+                isinstance(scanData.parent, phynx.Measurement):
+            self.scanData = scanData.parent
+        else:
+            with scanData.plock:
+                raise TypeError(
+                    'H5 node type %s not recognized by McaAnalysisWindow'
+                    % scanData.__class__.__name__
+                )
         self.mcaData = self.scanData.mcas.values()[0]
 
         pymcaConfig = self.mcaData.pymca_config
@@ -47,7 +59,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.xrfBandComboBox.addItems(self.availableElements)
         try:
             self.deadTimeReport.setText(str(self.mcaData['dead_time'].format))
-        except H5Error:
+        except phynx.H5Error:
             self.deadTimeReport.setText('Not found')
 
         self._setupMcaDockWindows()
@@ -95,7 +107,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
     def availableElements(self):
         try:
             return sorted(self.scanData['element_maps'].fits.keys())
-        except (H5Error, AttributeError):
+        except (phynx.H5Error, AttributeError):
             return []
 
     @property
@@ -206,8 +218,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
 
         MainWindowBase.closeEvent(self, event)
         event.accept()
-        # TODO: improve this to close scans in the file interface
-        self.emit(QtCore.SIGNAL("scanClosed"), self)
+        self.emit(QtCore.SIGNAL("viewClosed"), self)
 
     def configurePymca(self):
         if self.fitParamDlg.exec_():
@@ -235,7 +246,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
                 entry = '%s_%s'%(element, mapType)
                 return self.scanData['element_maps'][entry].map
 
-            except H5Error:
+            except phynx.H5Error:
                 return np.zeros(self.scanData.acquisition_shape)
 
         else:
@@ -372,6 +383,12 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
         self.actionAnalyzeSpectra.setEnabled(enabled)
         self.actionConfigurePymca.setEnabled(enabled)
         self.actionCalibration.setEnabled(enabled)
+
+    @classmethod
+    def offersService(cls, h5Node):
+        return isinstance(
+            h5Node, (phynx.Entry, phynx.Measurement, phynx.MultiChannelAnalyzer)
+        )
 
 
 if __name__ == "__main__":

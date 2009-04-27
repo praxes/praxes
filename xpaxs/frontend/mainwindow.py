@@ -11,8 +11,8 @@ from PyQt4 import QtCore, QtGui
 
 from xpaxs import __version__
 from .ui import ui_mainwindow
-from .phynx import FileModel
-from xpaxs.io import phynx
+from .phynx import FileModel, FileView
+from ..io import phynx
 from .notifications import NotificationsDialog
 
 
@@ -121,19 +121,22 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
 
         self._specFileRegistry = {}
         self.fileModel = FileModel(self)
-        self.fileView = QtGui.QTreeView(self)
-        self.fileView.setModel(self.fileModel)
-        self.fileView.setColumnWidth(0, 250)
+        self.fileView = FileView(self.fileModel, self)
 
         self.setCentralWidget(self.fileView)
 
 
         self.expInterface = None
-        self.openScans = []
+        self.openViews = []
 
         self.statusBar.showMessage('Ready', 2000)
 
         self._setupDockWindows()
+
+        self._currentItem = None
+        self._toolActions = {}
+        self._setupToolActions()
+
         self._connectSignals()
         self._restoreSettings()
 
@@ -199,6 +202,25 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
         self.menuView.addAction(action)
         dock.show()
 
+    def _createToolAction(
+        self, name, target, helptext=None, icon=None
+    ):
+        assert hasattr(target, 'offersService')
+        action = QtGui.QAction(name, self)
+        action.setVisible(False)
+        self._toolActions[action] = target
+        self.connect(
+            action,
+            QtCore.SIGNAL('triggered()'),
+            self.toolActionTriggered
+        )
+
+        self.menuTools.addAction(action)
+
+    def _setupToolActions(self):
+        from .mcaanalysiswindow import McaAnalysisWindow
+        self._createToolAction("Analyze MCA", McaAnalysisWindow)
+
     def _connectSignals(self):
         self.connect(
             self.actionOpen,
@@ -241,26 +263,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
             QtCore.SIGNAL("triggered()"),
             self.setOffline
         )
-        self.connect(
-            self.fileView,
-            QtCore.SIGNAL('activated(QModelIndex)'),
-            self.fileModel.itemActivated
-        )
-        self.connect(
-            self.fileView,
-            QtCore.SIGNAL('collapsed(QModelIndex)'),
-            self.fileModel.clearRows
-        )
-        self.connect(
-            self.fileModel,
-            QtCore.SIGNAL('fileAppended'),
-            self.fileView.doItemsLayout
-        )
-        self.connect(
-            self.fileModel,
-            QtCore.SIGNAL('scanActivated'),
-            self.newScanWindow
-        )
 
     def about(self):
         QtGui.QMessageBox.about(self, self.tr("About XPaXS"),
@@ -274,13 +276,13 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                     "X-ray fluorescence spectra"%__version__))
 
     def closeEvent(self, event):
-        if self.openScans:
+        if self.openViews:
             warning = '''Are you sure you want to close all your open scans?'''
             res = QtGui.QMessageBox.question(self, 'closing...', warning,
                                              QtGui.QMessageBox.Yes,
                                              QtGui.QMessageBox.No)
             if res == QtGui.QMessageBox.Yes:
-                for i in self.openScans:
+                for i in self.openViews:
                     if not i.close():
                         return event.ignore()
             else:
@@ -390,9 +392,9 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
         if scanView is None:
             self.statusBar.clearMessage()
             return
-        self.connect(scanView, QtCore.SIGNAL("scanClosed"), self.scanClosed)
+        self.connect(scanView, QtCore.SIGNAL("viewClosed"), self.viewClosed)
 
-        self.openScans.append(scanView)
+        self.openViews.append(scanView)
 
         scanView.show()
         self.statusBar.clearMessage()
@@ -426,8 +428,8 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
                     newfilename = newfilename + '.h5'
                 return self.fileModel.openFile(newfilename)
 
-    def scanClosed(self, scan):
-        self.openScans.remove(scan)
+    def viewClosed(self, scan):
+        self.openViews.remove(scan)
 
     def setOffline(self):
         if self.expInterface is None: return
@@ -449,14 +451,21 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, MainWindowBase):
             self.actionSpec.setChecked(True)
 
     def updateToolsMenu(self):
-        self.menuTools.clear()
-#        try:
-#            window = self.mdi.currentSubWindow().widget()
-#            actions = window.getMenuToolsActions()
-#            for action in actions:
-#                self.menuTools.addAction(action)
-#        except AttributeError:
-#            pass
+        index = self.fileView.currentIndex()
+        self._currentItem = self.fileModel.getNodeFromIndex(index)
+        if self._currentItem is not None:
+            for action, tool in self._toolActions.iteritems():
+                action.setVisible(tool.offersService(self._currentItem))
+
+    def toolActionTriggered(self):
+        self.statusBar.showMessage('Configuring New Analysis Window ...')
+        action = self.sender()
+        if action is not None and isinstance(action, QtGui.QAction):
+            view = self._toolActions[action](self._currentItem, self)
+            self.connect(view, QtCore.SIGNAL("viewClosed"), self.viewClosed)
+            self.openViews.append(view)
+            view.show()
+            self.statusBar.clearMessage()
 
 
 def main():

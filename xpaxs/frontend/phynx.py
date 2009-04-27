@@ -169,7 +169,7 @@ class FileModel(QtCore.QAbstractItemModel):
         self._idMap = {QtCore.QModelIndex().internalId(): self.rootItem}
 
     def clearRows(self, index):
-        self.getItemFromIndex(index).clearChildren()
+        self.getProxyFromIndex(index).clearChildren()
 
     def close(self):
         for item in self.rootItem:
@@ -183,7 +183,7 @@ class FileModel(QtCore.QAbstractItemModel):
         if role != QtCore.Qt.DisplayRole:
             return QtCore.QVariant()
 
-        item = self.getItemFromIndex(index)
+        item = self.getProxyFromIndex(index)
         column = index.column()
         if column == 0:
             return QtCore.QVariant(item.name)
@@ -191,14 +191,20 @@ class FileModel(QtCore.QAbstractItemModel):
             return QtCore.QVariant(item.type)
         return QtCore.QVariant()
 
-    def getItemFromIndex(self, index):
+    def getNodeFromIndex(self, index):
+        try:
+            return self.getProxyFromIndex(index).getNode()
+        except AttributeError:
+            return None
+
+    def getProxyFromIndex(self, index):
         try:
             return self._idMap[index.internalId()]
         except KeyError:
             return self.rootItem
 
     def hasChildren(self, index):
-        return self.getItemFromIndex(index).hasChildren
+        return self.getProxyFromIndex(index).hasChildren
 
     def headerData(self, section, orientation, role):
         if orientation == QtCore.Qt.Horizontal and \
@@ -208,7 +214,7 @@ class FileModel(QtCore.QAbstractItemModel):
         return QtCore.QVariant()
 
     def index(self, row, column, parent):
-        parentItem = self.getItemFromIndex(parent)
+        parentItem = self.getProxyFromIndex(parent)
 
         child = parentItem.children[row]
         index = self.createIndex(row, column, id(child))
@@ -216,7 +222,7 @@ class FileModel(QtCore.QAbstractItemModel):
         return index
 
     def parent(self, index):
-        child = self.getItemFromIndex(index)
+        child = self.getProxyFromIndex(index)
         parent = child.parent
         if parent == self.rootItem:
             return QtCore.QModelIndex()
@@ -224,7 +230,7 @@ class FileModel(QtCore.QAbstractItemModel):
         return self.createIndex(parent.row, 0, id(parent))
 
     def rowCount(self, index):
-        return len(self.getItemFromIndex(index))
+        return len(self.getProxyFromIndex(index))
 
     def _convertFile(self, filename):
         print 'this is an old file whose format is no longer supported'
@@ -275,6 +281,21 @@ class FileModel(QtCore.QAbstractItemModel):
         self.emit(QtCore.SIGNAL('fileAppended'))
         return phynxFile
 
-    def itemActivated(self, index):
-        scanData = self.getItemFromIndex(index).getNode()
-        self.emit(QtCore.SIGNAL('scanActivated'), scanData)
+
+class FileView(QtGui.QTreeView):
+
+    def __init__(self, fileModel, parent=None):
+        QtGui.QTreeView.__init__(self, parent)
+        self.setModel(fileModel)
+        self.setColumnWidth(0, 250)
+
+        self.connect(
+            self,
+            QtCore.SIGNAL('collapsed(QModelIndex)'),
+            fileModel.clearRows
+        )
+        self.connect(
+            fileModel,
+            QtCore.SIGNAL('fileAppended'),
+            self.doItemsLayout
+        )
