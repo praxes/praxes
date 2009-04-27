@@ -226,15 +226,9 @@ class FileModel(QtCore.QAbstractItemModel):
     def rowCount(self, index):
         return len(self.getItemFromIndex(index))
 
-    def _openFile(self, filename):
-        f = phynx.File(filename, 'a', lock=QRLock())
-        try:
-            if f.creator == 'phynx':
-                return f
-        except RuntimeError:
-            pass
-
+    def _convertFile(self, filename):
         print 'this is an old file whose format is no longer supported'
+        f = phynx.File(filename, 'a', lock=QRLock())
         try:
             format = f.attrs['format']
             if format == 'h5py transitional':
@@ -256,6 +250,19 @@ class FileModel(QtCore.QAbstractItemModel):
         specfile = filename.rstrip('.hdf5').rstrip('.h5')
         f = convert_to_phynx(specfile)
         f.close()
+
+    def _openFile(self, filename):
+        f = phynx.File(filename, 'a', lock=QRLock())
+        try:
+            if f.creator == 'phynx':
+                return f
+        except RuntimeError:
+            pass
+
+        # if we got this far, the format is old and needs to be converted
+        f.close()
+        self._convertFile(filename)
+
         return phynx.File(filename, 'a', lock=QRLock())
 
     def openFile(self, filename):
