@@ -609,7 +609,7 @@ def _mca_client_set_env(mne, uch, _oo, _ss, _qq) '{
         kwargs["shape"] = python_repr(shape)
         kwargs["dtype"] = python_repr("f")
         id = sprintf("%s/counts", mne)
-        client_set_scan_env(id, "McaSpectrum", kwargs)
+        client_set_scan_env(id, "Spectrum", kwargs)
 
         for (i in kwargs) delete kwargs[i]
         local array mca_channels[uch]

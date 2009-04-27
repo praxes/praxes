@@ -127,7 +127,7 @@ def python_repr(value) '{
 #         shape[0] = SC_NPOINTS; shape[1] = 2048
 #         kwargs["shape"] = python_repr(shape)
 #         kwargs["dtype"] = python_repr("uint32")
-#         client_set_scan_env("mca/counts", "McaSpectrum", kwargs)
+#         client_set_scan_env("mca/counts", "Spectrum", kwargs)
 #
 #         for (i in kwargs) delete kwargs[i]
 #         local array shape[1]

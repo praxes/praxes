@@ -130,6 +130,7 @@
     <Source>xpaxs/instrumentation/spec/macros/clientutils.mac</Source>
     <Source>xpaxs/frontend/notifications.py</Source>
     <Source>xpaxs/frontend/phynx.py</Source>
+    <Source>SpecClient/clientutils.mac</Source>
   </Sources>
   <Forms>
     <Form>xpaxs/frontend/ui/ui_ppjobstats.ui</Form>

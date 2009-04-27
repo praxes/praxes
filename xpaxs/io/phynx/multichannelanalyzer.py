@@ -66,8 +66,8 @@ class MultiChannelAnalyzer(Detector):
 
         with self.plock:
             if 'counts' in self:
-                if self['counts'].attrs['class'] != 'McaSpectrum':
-                    self['counts'].attrs['class'] = 'McaSpectrum'
+                if self['counts'].attrs['class'] != 'Spectrum':
+                    self['counts'].attrs['class'] = 'Spectrum'
 
             # TODO: this could eventually go away
             # old files did not identify dead time properly
@@ -124,7 +124,7 @@ class Spectrum(Signal):
     @property
     @sync
     def corrected_value(self):
-        return CorrectedMcaSpectrumProxy(self)
+        return CorrectedSpectrumProxy(self)
 
     @property
     def map(self):
@@ -133,7 +133,7 @@ class Spectrum(Signal):
 registry.register(Spectrum, 'McaSpectrum')
 
 
-class CorrectedMcaSpectrumProxy(DataProxy):
+class CorrectedSpectrumProxy(DataProxy):
 
     @sync
     def __getitem__(self, key):
