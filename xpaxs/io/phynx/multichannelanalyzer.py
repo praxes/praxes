@@ -116,7 +116,7 @@ class MultiChannelAnalyzer(Detector):
 registry.register(MultiChannelAnalyzer)
 
 
-class McaSpectrum(Signal):
+class Spectrum(Signal):
 
     """
     """
@@ -130,7 +130,7 @@ class McaSpectrum(Signal):
     def map(self):
         raise TypeError('can not produce a map of a 3-dimensional dataset')
 
-registry.register(McaSpectrum)
+registry.register(Spectrum, 'McaSpectrum')
 
 
 class CorrectedMcaSpectrumProxy(DataProxy):

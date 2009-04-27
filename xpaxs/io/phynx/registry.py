@@ -41,8 +41,11 @@ class _Registry(object):
         self.__data[name] = value
 
     @sync
-    def register(self, value):
+    def register(self, value, *alt_keys):
         self.__data[value.__name__] = value
+        for k in alt_keys:
+            assert isinstance(k, str)
+            self.__data[k] = value
         try:
             self.__data[value.nx_class] = value
         except AttributeError:
