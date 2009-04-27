@@ -143,7 +143,10 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
         )
         mca['channels'] = channels
         mca.create_dataset(
-            'counts', type='McaSpectrum', dtype='float32', shape=(scan.lines(), len(channels))
+            'counts',
+            type='Spectrum',
+            dtype='float32',
+            shape=(scan.lines(), len(channels))
         )
 
         buff = []
