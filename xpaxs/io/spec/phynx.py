@@ -112,7 +112,7 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
     except IndexError:
         monitor_efficiency = 1
     try:
-        dead_time_format = float(scan.header('U dead_time format')[0].split()[-1])
+        dead_time_format = scan.header('U dead_time format')[0].split()[-1]
     except IndexError:
         dead_time_format = "percent"
 
