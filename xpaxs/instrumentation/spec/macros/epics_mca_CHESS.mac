@@ -569,13 +569,13 @@ def _mca_set_env() '{
             _oo = epics_get(sprintf("%s.CALO", MCA_PV[mne]))
             _ss = epics_get(sprintf("%s.CALS", MCA_PV[mne]))
             _qq = epics_get(sprintf("%s.CALQ", MCA_PV[mne]))
-            fprintf(device_file, "#@MCA %25C\n")
+            fprintf(device_file, sprintf("#@%s %25C\n", mne))
             fprintf(device_file, "#@CHANN %i 0 %i 1\n", uch, uch-1)
             fprintf(device_file, "#@CALIB %g %g %g \n", _oo, _ss, _qq)
         }
         fprintf(device_file, "#N 6\n")
         fprintf(device_file, \
-            sprintf("#L %s icr  ocr  real  live  dead_time\n", cnt_name(MON)))
+            sprintf("#L %s  icr  ocr  real  live  dead_time\n", cnt_name(MON)))
         close(device_file)
 
         if (SC_DATA_ACTIVE) {
