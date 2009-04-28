@@ -172,7 +172,7 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
                     kwargs['class'] = 'DeadTime'
                     kwargs['dead_time_format'] = dead_time_format
                 if label == monitor:
-                    kwargs['efficiency'] = efficiency
+                    kwargs['efficiency'] = monitor_efficiency
                 dset = mca.create_dataset(
                     label, data=scan.datacol(i+1), dtype='float32', **kwargs
                 )
@@ -262,7 +262,9 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         'scalar_data', type='ScalarData', **attrs
     )
 
-    skipmode = scan.header('C SKIPMODE')
+    skipmode = scan.header('U SKIPMODE')
+    if not skipmode:
+        skipmode = scan.header('C SKIPMODE')
     if skipmode:
         mon, thresh = skipmode[0].split()[2:]
         thresh = int(thresh)
@@ -270,7 +272,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         skipped = scan.datacol(index) < thresh
         kwargs = {'class':'Signal', 'counter':mon, 'threshold':thresh}
         masked = scalar_data.create_dataset(
-            'masked', dtype='uint8', data=skipped, **kwargs
+            'masked', dtype='uint8', data=skipped.astype('uint8'), **kwargs
         )
     else:
         masked = None
