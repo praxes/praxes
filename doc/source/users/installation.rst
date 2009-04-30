@@ -7,18 +7,17 @@ Prerequisites
 
 XPaXS requires several packages in order to run:
 
-* Python_ (version 2.5 or later) Windows users: Please install the 32 bit
-  version of python-2.5.4, even if your computer is 64-bit.
-* setuptools_ (version 0.6c8 or later)
-* NumPy_ (version 1.2 or later)
+* Python_ (2.5 ≤ version < 3.0) Windows users: Please install the 32 bit
+  version of python-2.6.x, even if your computer is 64-bit.
+* NumPy_ (version 1.3 or later)
 * PyQt4_ (preferrably version 4.4.4 or later)
-* PyQwt_ (version 5.1.0 or later)
-* PyMca_ (version 4.3.0 or later) Please be sure to use the windows installer
+* PyQwt_ (version 5.2.0 or later)
+* PyMca_ (version 4.3.1 or later) Please be sure to use the windows installer
   includes your python version in the name (like PyMca-4.3.0.win32-py2.5.exe).
   Windows users: You may need to right-click on the installer and select "run
   as administrator"
-* matplotlib_ (0.98 or later) Windows users: you may need to right-click on the
-  installer and select "run as administrator"
+* matplotlib_ (0.98.5.2 or later) Windows users: you may need to right-click on
+  the installer and select "run as administrator"
 * ParallelPython_ (version 1.5.7 or later) Note: please install from one of the
   .zip or .tgz source files, **not** the .exe file and not using easy_install.
   There is a bug with the later two installers. Just unzip the sources, cd into
@@ -29,6 +28,11 @@ XPaXS requires several packages in order to run:
 
 On several distributions, like Ubuntu, you may need to install the developer
 tools and -dev libraries in order to use XPaXS.
+
+XPaXS developers may also want to install:
+
+* setuptools_ (version 0.6c8 or later)
+* sphinx_ (version 0.6.1 or later)
 
 Linux and OSX
 =============
@@ -61,16 +65,14 @@ website.
 
 .. _Python: http://www.python.org/
 .. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
+.. _sphinx: http://sphinx.pocoo.org/
 .. _NumPy: http://www.scipy.org
 .. _PyQt4: http://www.riverbankcomputing.com/software/pyqt/intro
 .. _matplotlib: http://matplotlib.sourceforge.net/
-.. _PyMca: http://dale.chess.cornell.edu/chess-wiki/XPaXS
-.. _Pexpect: http://www.noah.org/wiki/Pexpect
+.. _PyMca: http://pymca.sourceforge.net/
 .. _PyQwt: http://pyqwt.sourceforge.net/
 .. _ParallelPython: http://www.parallelpython.com
 .. _h5py: http://code.google.com/p/h5py/
-.. _PyTables: http://www.pytables.org/moin
-.. _Pexpect: http://www.noah.org/wiki/Pexpect
 .. _PyPi: http://pypi.python.org/pypi/xpaxs
 .. _XPaXS: http://pypi.python.org/pypi/xpaxs
 .. _launchpad: https://launchpad.net/xpaxs
