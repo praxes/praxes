@@ -9,7 +9,7 @@ import os
 
 from PyQt4 import QtCore, QtGui
 
-from xpaxs import __version__
+import xpaxs
 from .ui import ui_mainwindow
 from .phynx import FileModel, FileView, ExportRawCSV, ExportCorrectedCSV
 from ..io import phynx
@@ -26,6 +26,7 @@ class AnalysisWindow(QtGui.QMainWindow):
 
     def __init__(self, parent=None):
         super(AnalysisWindow, self).__init__(parent)
+        xpaxs.application.openViews.append(self)
 
     def _setupDockWindows(self):
         pass
@@ -84,7 +85,6 @@ class AnalysisWindow(QtGui.QMainWindow):
 
     @QtCore.pyqtSignature("")
     def on_actionAboutXpaxs_triggered(self):
-        from xpaxs import __version__
         QtGui.QMessageBox.about(self, self.tr("About XPaXS"),
             self.tr("XPaXS Application, version %s\n\n"
                     "XPaXS is a user interface for controlling synchrotron "
@@ -93,9 +93,14 @@ class AnalysisWindow(QtGui.QMainWindow):
                     "    spec: for controlling hardware and data acquisition\n"
                     "    SpecClient: a python interface to the spec server\n"
                     "    PyMca: a set of programs and libraries for analyzing "
-                    "X-ray fluorescence spectra"%__version__))
+                    "X-ray fluorescence spectra"%xpaxs.__version__))
 
     def closeEvent(self, event):
+        try:
+            xpaxs.application.openViews.remove(self)
+        except ValueError:
+            # subclass may have already removed it
+            pass
         settings = QtCore.QSettings()
         settings.beginGroup(str(self.__class__))
         settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))

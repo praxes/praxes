@@ -28,6 +28,8 @@ class XpaxsApplication:
             from .serviceregistry import ServiceRegistry
             self._serviceRegistry = ServiceRegistry()
 
+            self.openViews = []
+
         @property
         def serviceRegistry(self):
             return self._serviceRegistry

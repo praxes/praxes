@@ -11,10 +11,10 @@ from PyQt4 import QtCore, QtGui
 from PyMca.FitParam import FitParamDialog
 import numpy as np
 
-from .analysiswindow import AnalysisWindow
+from xpaxs.frontend.analysiswindow import AnalysisWindow
 from .ui.ui_mcaanalysiswindow import Ui_McaAnalysisWindow
 from .elementsview import ElementsView
-from ..io import phynx
+from xpaxs.io import phynx
 
 
 logger = logging.getLogger(__file__)
@@ -155,7 +155,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         )
 
     def _setupPPJobStats(self):
-        from .ppjobstats import PPJobStats
+        from xpaxs.dispatch.ppjobstats import PPJobStats
 
         self.ppJobStats = PPJobStats()
         self.ppJobStatsDock = self._createDockWindow('PPJobStatsDock')
@@ -202,6 +202,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
     def closeEvent(self, event):
         if self.analysisThread:
+            self.showNormal()
+            self.raise_()
             warning = '''Data analysis is not yet complete.
             Are you sure you want to close?'''
             res = QtGui.QMessageBox.question(self, 'closing...', warning,
@@ -218,7 +220,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
         AnalysisWindow.closeEvent(self, event)
         event.accept()
-        self.emit(QtCore.SIGNAL("viewClosed"), self)
 
     def configurePymca(self):
         if self.fitParamDlg.exec_():
@@ -231,11 +232,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             self.statusbar.clearMessage()
 
     def elementMapUpdated(self):
-#        print 'emu', 1
         self.elementsView.updateFigure(self.getElementMap())
-#        print 'emu', 2
         QtGui.qApp.processEvents()
-#        print 'emu', 3
 
     def getElementMap(self, mapType=None, element=None):
         if element is None: element = self.xrfBand
@@ -296,22 +294,15 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         self.setMenuToolsActionsEnabled(True)
 
     def processComplete(self):
-#        print 'pc', 1
         self.progressBar.hide()
-#        print 'pc', 2
         self.progressBar.reset()
-#        print 'pc', 3
         self.statusbar.removeWidget(self.progressBar)
-#        print 'pc', 4
         self.statusbar.clearMessage()
-#        print 'pc', 5
 
         self.analysisThread = None
-#        print 'pc', 6
 
         self.setMenuToolsActionsEnabled(True)
         self.elementMapUpdated()
-#        print 'pc', 7
 
     def processData(self):
         from .pptaskmanager import XfsPPTaskManager
@@ -336,11 +327,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             QtCore.SIGNAL('ppJobStats'),
             self.ppJobStats.updateTable
         )
-#        self.connect(
-#            thread,
-#            QtCore.SIGNAL("finished()"),
-#            self.elementMapUpdated
-#        )
         self.connect(
             thread,
             QtCore.SIGNAL("finished()"),

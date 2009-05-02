@@ -9,7 +9,7 @@ import os
 
 from PyQt4 import QtCore, QtGui
 
-from xpaxs import __version__
+import xpaxs
 from .ui import ui_mainwindow
 from .phynx import FileModel, FileView, ExportRawCSV, ExportCorrectedCSV
 from ..io import phynx
@@ -28,7 +28,11 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
         self.setupUi(self)
 
-#        self._configureDockArea()
+        self.setCorner(QtCore.Qt.TopLeftCorner, QtCore.Qt.LeftDockWidgetArea)
+        self.setCorner(QtCore.Qt.BottomLeftCorner, QtCore.Qt.LeftDockWidgetArea)
+        self.setCorner(QtCore.Qt.TopRightCorner, QtCore.Qt.RightDockWidgetArea)
+        self.setCorner(QtCore.Qt.BottomRightCorner, QtCore.Qt.BottomDockWidgetArea)
+        self.setDockNestingEnabled(True)
 
         self._specFileRegistry = {}
         self.fileModel = FileModel(self)
@@ -36,9 +40,11 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
         self.setCentralWidget(self.fileView)
 
+        # TODO: will acquisition work on other platforms?
+        if sys.platform != 'linux2':
+            self.menuAcquisition.setEnabled(False)
 
         self.expInterface = None
-        self.openViews = []
 
         self.statusBar.showMessage('Ready', 2000)
 
@@ -46,61 +52,15 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self._toolActions = {}
         self._setupToolActions()
 
-#        self._connectSignals()
-        self._restoreSettings()
-
-        import xpaxs
-        # TODO: this should be a factory function, not a method of the main win:
-        xpaxs.application.registerService('ScanView', self.newScanWindow)
-        xpaxs.application.registerService('FileInterface', self)
-
-    def _restoreSettings(self):
         settings = QtCore.QSettings()
         settings.beginGroup('MainWindow')
         self.restoreGeometry(settings.value('Geometry').toByteArray())
         self.restoreState(settings.value('State').toByteArray())
 
-#    def _configureDockArea(self):
-#        """
-#        Private method to configure the usage of the dockarea corners.
-#        """
-#        self.setCorner(QtCore.Qt.TopLeftCorner, QtCore.Qt.LeftDockWidgetArea)
-#        self.setCorner(QtCore.Qt.BottomLeftCorner, QtCore.Qt.LeftDockWidgetArea)
-#        self.setCorner(QtCore.Qt.TopRightCorner, QtCore.Qt.RightDockWidgetArea)
-#        self.setCorner(QtCore.Qt.BottomRightCorner, QtCore.Qt.BottomDockWidgetArea)
-#        self.setDockNestingEnabled(True)
-#
-#    def _createDockWindow(self, name):
-#        """
-#        Private method to create a dock window with common properties.
-#
-#        @param name object name of the new dock window (string or QString)
-#        @return the generated dock window (QDockWindow)
-#        """
-#        dock = QtGui.QDockWidget()
-#        dock.setObjectName(name)
-#        dock.setFeatures(QtGui.QDockWidget.DockWidgetFeatures(\
-#                                    QtGui.QDockWidget.AllDockWidgetFeatures))
-#        return dock
-#
-#    def _setupDockWindow(self, dock, where, widget, caption):
-#        """
-#        Private method to configure the dock window created with _createDockWindow().
-#
-#        @param dock the dock window (QDockWindow)
-#        @param where dock area to be docked to (Qt.DockWidgetArea)
-#        @param widget widget to be shown in the dock window (QWidget)
-#        @param caption caption of the dock window (string or QString)
-#        """
-#        if caption is None:
-#            caption = QtCore.QString()
-#        self.addDockWidget(where, dock)
-#        dock.setWidget(widget)
-#        dock.setWindowTitle(caption)
-#        action = dock.toggleViewAction()
-#        action.setText(caption)
-#        self.menuView.addAction(action)
-#        dock.show()
+        import xpaxs
+        # TODO: this should be a factory function, not a method of the main win:
+        xpaxs.application.registerService('ScanView', self.newScanWindow)
+        xpaxs.application.registerService('FileInterface', self)
 
     def _createToolAction(
         self, name, target, helptext=None, icon=None
@@ -129,45 +89,12 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             self._createToolAction("Corrected data", ExportCorrectedCSV)
         )
 
-#    def _connectSignals(self):
-#        self.connect(
-#            self.actionOpen,
-#            QtCore.SIGNAL("triggered()"),
-#            self.openFile
-#        )
-#        self.connect(
-#            self.actionImportSpecFile,
-#            QtCore.SIGNAL("triggered()"),
-#            self.importSpecFile
-#        )
-#        self.connect(
-#            self.actionSpec,
-#            QtCore.SIGNAL("toggled(bool)"),
-#            self.connectToSpec
-#        )
-#        self.connect(
-#            self.menuTools,
-#            QtCore.SIGNAL("aboutToShow()"),
-#            self.updateToolsMenu
-#        )
-#        self.connect(
-#            self.menuAcquisition,
-#            QtCore.SIGNAL("aboutToShow()"),
-#            self.updateAcquisitionMenu
-#        )
-#        self.connect(
-#            self.actionOffline,
-#            QtCore.SIGNAL("triggered()"),
-#            self.setOffline
-#        )
-
     @QtCore.pyqtSignature("")
     def on_actionAboutQt_triggered(self):
         QtGui.qApp.aboutQt()
 
     @QtCore.pyqtSignature("")
     def on_actionAboutXpaxs_triggered(self):
-        from xpaxs import __version__
         QtGui.QMessageBox.about(self, self.tr("About XPaXS"),
             self.tr("XPaXS Application, version %s\n\n"
                     "XPaXS is a user interface for controlling synchrotron "
@@ -176,7 +103,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                     "    spec: for controlling hardware and data acquisition\n"
                     "    SpecClient: a python interface to the spec server\n"
                     "    PyMca: a set of programs and libraries for analyzing "
-                    "X-ray fluorescence spectra"%__version__))
+                    "X-ray fluorescence spectra"%xpaxs.__version__))
 
     @QtCore.pyqtSignature("")
     def on_actionImportSpecFile_triggered(self, force=False):
@@ -216,21 +143,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                 self.openFile(h5_filename)
 
     @QtCore.pyqtSignature("")
-    def on_menuAcquisition_aboutToShow(self):
-        self.menuAcquisition.clear()
-        acquisitionGroup = QtGui.QActionGroup(self)
-        acquisitionGroup.addAction(self.actionOffline)
-        self.menuAcquisition.addAction(self.actionOffline)
-        # TODO: will acquisition work on other platforms?
-        if sys.platform == 'linux2':
-            acquisitionGroup.addAction(self.actionSpec)
-            self.menuAcquisition.addAction(self.actionSpec)
-        if self.expInterface is None:
-            self.actionOffline.setChecked(True)
-        elif self.expInterface.name == 'spec':
-            self.actionSpec.setChecked(True)
-
-    @QtCore.pyqtSignature("")
     def on_menuTools_aboutToShow(self):
         index = self.fileView.currentIndex()
         self._currentItem = self.fileModel.getNodeFromIndex(index)
@@ -256,7 +168,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         if filename:
             self.fileModel.openFile(str(filename))
 
-    @QtCore.pyqtSignature("")
+    @QtCore.pyqtSignature("bool")
     def on_actionSpec_toggled(self, bool):
         self.connectToSpec(bool)
 
@@ -290,17 +202,12 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                 self.expInterface = None
 
     def closeEvent(self, event):
-        if self.openViews:
-            warning = '''Are you sure you want to close all your open scans?'''
-            res = QtGui.QMessageBox.question(self, 'closing...', warning,
-                                             QtGui.QMessageBox.Yes,
-                                             QtGui.QMessageBox.No)
-            if res == QtGui.QMessageBox.Yes:
-                for i in self.openViews:
-                    if not i.close():
-                        return event.ignore()
-            else:
-                return event.ignore()
+        for view in xpaxs.application.openViews:
+            view.close()
+
+        if xpaxs.application.openViews:
+            event.ignore()
+            return
 
         self.connectToSpec(False)
         settings = QtCore.QSettings()
@@ -308,7 +215,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
         settings.setValue('State', QtCore.QVariant(self.saveState()))
         self.fileModel.close()
-        if self.expInterface: self.expInterface.close()
         return event.accept()
 
     def getH5FileFromKey(self, key):
@@ -341,9 +247,6 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         if scanView is None:
             self.statusBar.clearMessage()
             return
-        self.connect(scanView, QtCore.SIGNAL("viewClosed"), self.viewClosed)
-
-        self.openViews.append(scanView)
 
         scanView.show()
         self.statusBar.clearMessage()
@@ -366,19 +269,13 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                     newfilename = newfilename + '.h5'
                 return self.fileModel.openFile(newfilename)
 
-    def viewClosed(self, scan):
-        self.openViews.remove(scan)
-
     def toolActionTriggered(self):
         self.statusBar.showMessage('Configuring...')
         action = self.sender()
         if action is not None and isinstance(action, QtGui.QAction):
-            view = self._toolActions[action](self._currentItem, self)
-            if isinstance(view, QtGui.QWidget):
-                # may be a simple QObject
-                self.connect(view, QtCore.SIGNAL("viewClosed"), self.viewClosed)
-                self.openViews.append(view)
-                view.show()
+            tool = self._toolActions[action](self._currentItem, self)
+            if isinstance(tool, QtGui.QWidget):
+                tool.show()
             self.statusBar.clearMessage()
 
 
