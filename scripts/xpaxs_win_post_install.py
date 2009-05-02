@@ -17,7 +17,7 @@ def install():
     # Lookup path to common startmenu ...
     ip_dir = get_special_folder_path('CSIDL_COMMON_PROGRAMS') + r'\XPaXS'
     lib_dir = prefix + r'\Lib\site-packages\xpaxs'
-    ip_filename="sxfm"
+    ip_filename="xpaxs"
 
     # Create entry ...
     if not os.path.isdir(ip_dir):
@@ -25,7 +25,7 @@ def install():
         directory_created(ip_dir)
 
     # Create program shortcuts ...
-    name = 'sxfm'
+    name = 'xpaxs'
 
     script = '"'+lib_dir+r'\%s.pyw"'%name
     f = ip_dir + r'\%s.lnk'%name
