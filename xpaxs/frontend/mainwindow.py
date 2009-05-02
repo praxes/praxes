@@ -77,7 +77,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         return action
 
     def _setupToolActions(self):
-        from .mcaanalysiswindow import McaAnalysisWindow
+        from xpaxs.core.fluorescence.mcaanalysiswindow import McaAnalysisWindow
         self.menuTools.addAction(
             self._createToolAction("Analyze MCA", McaAnalysisWindow)
         )

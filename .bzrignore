@@ -3,6 +3,7 @@ syntax: glob
 
 *.pyc
 ui_*.py
+*_rc.py
 *~
 .coverage
 .eric4project/
@@ -15,8 +16,3 @@ xpaxs.egg-info/
 *.so
 doc/math.*
 doc/_build
-xpaxs/frontend/ui/*_rc.py
-xpaxs/frontend/ui/ui_*.py
-xpaxs/instrumentation/spec/ui/*_rc.py
-xpaxs/instrumentation/spec/ui/ui_*.py
-xpaxs/instrumentation/webcam/ui/ui_*.py
