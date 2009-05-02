@@ -157,16 +157,8 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             self.connectToSpec(False)
 
     @QtCore.pyqtSignature("")
-    def on_actionOpen_triggered(self, filename=None):
-        if filename is None:
-            filename = QtGui.QFileDialog.getOpenFileName(
-                self,
-                'Open File',
-                '.',
-                "hdf5 files (*.h5 *.hdf5)"
-            )
-        if filename:
-            self.fileModel.openFile(str(filename))
+    def on_actionOpen_triggered(self):
+        self.openFile()
 
     @QtCore.pyqtSignature("bool")
     def on_actionSpec_toggled(self, bool):
@@ -228,6 +220,8 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
         return h5File
 
+## TODO: The following two methods needs to be generalized
+## given a scan, offer analyses options
     def getScanView(self, scan):
         # this is a shortcut for now, in the future the view would be
         # an overview of the entry with ability to open different analyses
@@ -252,6 +246,19 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.statusBar.clearMessage()
 
         return scanView
+##
+##
+
+    def openFile(self, filename=None):
+        if filename is None:
+            filename = QtGui.QFileDialog.getOpenFileName(
+                self,
+                'Open File',
+                '.',
+                "hdf5 files (*.h5 *.hdf5)"
+            )
+        if filename:
+            self.fileModel.openFile(str(filename))
 
     def saveFile(self, filename=None):
         if os.path.isfile(filename):
