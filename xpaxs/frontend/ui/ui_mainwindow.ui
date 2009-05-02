@@ -5,8 +5,8 @@
   <property name="geometry">
    <rect>
     <x>0</x>
-    <y>188</y>
-    <width>662</width>
+    <y>137</y>
+    <width>726</width>
     <height>65</height>
    </rect>
   </property>
@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>SXFM</string>
+   <string>XPaXS</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -32,7 +32,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>662</width>
+     <width>726</width>
      <height>26</height>
     </rect>
    </property>
@@ -189,6 +189,9 @@
   </action>
   <action name="actionOffline">
    <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
     <bool>true</bool>
    </property>
    <property name="text">

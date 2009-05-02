@@ -15,11 +15,11 @@ from xpaxs.frontend.application import XpaxsApplication
 
 app = XpaxsApplication(sys.argv)
 app.setOrganizationName('XPaXS')
-app.setApplicationName('SFXM')
+app.setApplicationName('xpaxs')
 myapp = mainwindow.MainWindow()
 myapp.show()
 
-logger = logging.getLogger('XPaXS.sxfm')
-logger.debug('sxfm started')
+logger = logging.getLogger('xpaxs')
+logger.debug('xpaxs started')
 
 sys.exit(app.exec_())
