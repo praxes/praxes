@@ -11,7 +11,7 @@ from PyQt4 import QtCore, QtGui
 from PyMca.FitParam import FitParamDialog
 import numpy as np
 
-from .mainwindow import MainWindowBase
+from .analysiswindow import AnalysisWindow
 from .ui.ui_mcaanalysiswindow import Ui_McaAnalysisWindow
 from .elementsview import ElementsView
 from ..io import phynx
@@ -20,7 +20,7 @@ from ..io import phynx
 logger = logging.getLogger(__file__)
 
 
-class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
+class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
     """
     """
@@ -216,7 +216,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, MainWindowBase):
                 event.ignore()
                 return
 
-        MainWindowBase.closeEvent(self, event)
+        AnalysisWindow.closeEvent(self, event)
         event.accept()
         self.emit(QtCore.SIGNAL("viewClosed"), self)
 
@@ -395,6 +395,6 @@ if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
     app.setOrganizationName('XPaXS')
-    form = MainWindowBase()
+    form = McaAnalysisWindow()
     form.show()
     sys.exit(app.exec_())

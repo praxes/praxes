@@ -110,7 +110,10 @@ class H5NodeProxy(object):
     @property
     def row(self):
         with self.file.plock:
-            return self.parent.children.index(self)
+            try:
+                return self.parent.children.index(self)
+            except ValueError:
+                return
 
     @property
     def type(self):
@@ -227,7 +230,10 @@ class FileModel(QtCore.QAbstractItemModel):
         if parent == self.rootItem:
             return QtCore.QModelIndex()
 
-        return self.createIndex(parent.row, 0, id(parent))
+        if parent.row is None:
+            return QtCore.QModelIndex()
+        else:
+            return self.createIndex(parent.row, 0, id(parent))
 
     def rowCount(self, index):
         return len(self.getProxyFromIndex(index))
