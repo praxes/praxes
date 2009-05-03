@@ -3,7 +3,9 @@
 
 from __future__ import absolute_import
 
+import hashlib
 import logging
+import time
 
 import numpy as np
 import pp
@@ -21,7 +23,14 @@ class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):
         super(PPJobStats, self).__init__(parent)
         self.setupUi(self)
 
-        self.server = pp.Server(ppservers=('*', ))
+        try:
+            self.server = pp.Server(ppservers=('*', ))
+        except ValueError:
+            # this should not be necessary with pp-1.5.6 and later:
+            secret = hashlib.md5(str(time.time())).hexdigest()
+            self.server = pp.Server(
+                ppservers=('*', ), secret=secret
+            )
         self.numCpusSpinBox.setMaximum(self.server.get_ncpus())
 
         self.updateTable()

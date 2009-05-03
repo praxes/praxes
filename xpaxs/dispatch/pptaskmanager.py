@@ -4,6 +4,7 @@ from __future__ import with_statement
 
 import copy
 import gc
+import hashlib
 import logging
 import time
 
@@ -72,8 +73,15 @@ class PPTaskManager(QtCore.QThread):
             ncpus, ok = settings.value(
                 'LocalProcesses', QtCore.QVariant(1)
             ).toInt()
-            self._jobServer = pp.Server(ncpus, ('*',))
-            # TODO: make this configurable
+            try:
+                self._jobServer = pp.Server(ncpus, ('*',))
+            except ValueError:
+                # this should not be necessary with pp-1.5.6 and later:
+                secret = hashlib.md5(str(time.time())).hexdigest()
+                self.server = pp.Server(
+                    ppservers=('*', ), secret=secret
+                )
+
             self._jobServer.set_ncpus(ncpus)
             self._numCpus = np.sum(
                 [i for i in self._jobServer.get_active_nodes().itervalues()]

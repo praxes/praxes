@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.6.dtd">
 <!-- eric4 project file for project xpaxs -->
+<!-- Saved: 2009-05-03, 12:42:17 -->
+<!-- Copyright (C) 2009 ,  -->
 <Project version="4.6">
   <Language></Language>
   <ProgLanguage mixed="0">Python</ProgLanguage>
@@ -64,17 +66,10 @@
     <Source>xpaxs/dispatch/pptaskmanager.py</Source>
     <Source>xpaxs/config/__init__.py</Source>
     <Source>xpaxs/frontend/ui/__init__.py</Source>
-    <Source>xpaxs/frontend/plotoptions.py</Source>
-    <Source>xpaxs/frontend/elementsview.py</Source>
-    <Source>xpaxs/frontend/ppjobstats.py</Source>
     <Source>xpaxs/frontend/serviceregistry.py</Source>
     <Source>xpaxs/frontend/mainwindow.py</Source>
-    <Source>xpaxs/frontend/mcaspectrum.py</Source>
     <Source>xpaxs/frontend/__init__.py</Source>
-    <Source>xpaxs/frontend/pptaskmanager.py</Source>
     <Source>xpaxs/frontend/application.py</Source>
-    <Source>xpaxs/frontend/plotwidgets.py</Source>
-    <Source>xpaxs/frontend/mcaanalysiswindow.py</Source>
     <Source>xpaxs/instrumentation/spec/ui/__init__.py</Source>
     <Source>xpaxs/instrumentation/spec/scanparameters.py</Source>
     <Source>xpaxs/instrumentation/spec/scancontrols.py</Source>
@@ -120,7 +115,6 @@
     <Source>SpecClient/SpecMotor.py</Source>
     <Source>SpecClient/SpecMessage.py</Source>
     <Source>setup.py</Source>
-    <Source>scripts/sxfm</Source>
     <Source>scripts/gamepad</Source>
     <Source>xpaxs/instrumentation/spec/macros/smp_mca.mac</Source>
     <Source>xpaxs/instrumentation/spec/macros/skipmode.mac</Source>
@@ -131,13 +125,16 @@
     <Source>xpaxs/frontend/notifications.py</Source>
     <Source>xpaxs/frontend/phynx.py</Source>
     <Source>SpecClient/clientutils.mac</Source>
+    <Source>xpaxs/core/fluorescence/pptaskmanager.py</Source>
+    <Source>xpaxs/core/fluorescence/elementsview.py</Source>
+    <Source>xpaxs/core/fluorescence/plotwidgets.py</Source>
+    <Source>xpaxs/core/fluorescence/mcaanalysiswindow.py</Source>
+    <Source>xpaxs/core/fluorescence/plotoptions.py</Source>
+    <Source>xpaxs/core/fluorescence/mcaspectrum.py</Source>
+    <Source>xpaxs/core/fluorescence/ui/__init__.py</Source>
   </Sources>
   <Forms>
-    <Form>xpaxs/frontend/ui/ui_ppjobstats.ui</Form>
-    <Form>xpaxs/frontend/ui/ui_mcaspectrum.ui</Form>
     <Form>xpaxs/frontend/ui/ui_mainwindow.ui</Form>
-    <Form>xpaxs/frontend/ui/ui_plotoptions.ui</Form>
-    <Form>xpaxs/frontend/ui/ui_mcaanalysiswindow.ui</Form>
     <Form>xpaxs/instrumentation/spec/ui/ui_scancontrols.ui</Form>
     <Form>xpaxs/instrumentation/spec/ui/ui_skipmode.ui</Form>
     <Form>xpaxs/instrumentation/spec/ui/ui_gamepad.ui</Form>
@@ -158,8 +155,6 @@
   <Translations>
   </Translations>
   <Resources>
-    <Resource>xpaxs/frontend/ui/cursors.qrc</Resource>
-    <Resource>xpaxs/frontend/ui/icons.qrc</Resource>
     <Resource>xpaxs/instrumentation/spec/ui/icons.qrc</Resource>
   </Resources>
   <Interfaces>
