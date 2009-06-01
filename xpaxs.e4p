@@ -133,6 +133,7 @@
     <Source>xpaxs/dispatch/ui/__init__.py</Source>
     <Source>scripts/xpaxs</Source>
     <Source>xpaxs/frontend/analysiswindow.py</Source>
+    <Source>scripts/xpaxs_reformat_file</Source>
   </Sources>
   <Forms>
     <Form>xpaxs/frontend/ui/ui_mainwindow.ui</Form>

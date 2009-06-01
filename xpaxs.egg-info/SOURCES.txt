@@ -54,6 +54,7 @@ SpecClient/doc/SpecServer.html
 SpecClient/doc/SpecWaitObject.html
 scripts/gamepad
 scripts/xpaxs
+scripts/xpaxs_reformat_file
 scripts/xpaxs_win_post_install.py
 specfile/include/Lists.h
 specfile/include/SpecFile.h
@@ -214,6 +215,7 @@ xpaxs/io/phynx/processeddata.py
 xpaxs/io/phynx/registry.py
 xpaxs/io/phynx/sample.py
 xpaxs/io/phynx/user.py
+xpaxs/io/phynx/version.py
 xpaxs/io/phynx/tests/citrus_leaves.dat
 xpaxs/io/phynx/tests/citrus_leaves.dat.h5
 xpaxs/io/phynx/tests/citrus_leaves.dat.scan1.vortex.mca

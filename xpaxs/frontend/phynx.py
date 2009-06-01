@@ -2,7 +2,6 @@
 """
 from __future__ import with_statement
 
-import logging
 import operator
 import os
 import shutil
@@ -10,10 +9,6 @@ import shutil
 from PyQt4 import QtCore, QtGui
 
 from xpaxs.io import phynx
-
-
-logger = logging.getLogger(__file__)
-
 
 
 class QRLock(QtCore.QMutex):
@@ -88,6 +83,10 @@ class H5NodeProxy(object):
         return self._children
 
     @property
+    def dtype(self):
+        return self._dtype
+
+    @property
     def file(self):
         return self._file
 
@@ -116,6 +115,20 @@ class H5NodeProxy(object):
                 return
 
     @property
+    def shape(self):
+        if type(self._shape) == type(""):
+            return self._shape
+        if len(self._shape) == 1:
+            return "%d" % self._shape[0]
+        elif len(self._shape) > 1:
+            text = "%d" % self._shape[0]
+            for a in range(1, len(self._shape)):
+                text += " x %d" % self._shape[a]
+            return text
+        else:
+            return ""
+
+    @property
     def type(self):
         return self._type
 
@@ -126,6 +139,15 @@ class H5NodeProxy(object):
             self._parent = parent
             self._path = node.path
             self._type = type(node).__name__
+            try:
+                self._dtype = str(node.dtype)
+            except AttributeError:
+                self._dtype = ""
+            try:
+                self._shape = str(node.shape)
+            except AttributeError:
+                self._shape = ""
+
             self._hasChildren = isinstance(node, phynx.Group)
             self._children = []
 
@@ -168,7 +190,7 @@ class FileModel(QtCore.QAbstractItemModel):
 
     def __init__(self, parent=None):
         super(FileModel, self).__init__(parent)
-        self.rootItem = RootItem(['File/Group/Dataset', 'Description'])
+        self.rootItem = RootItem(['File/Group/Dataset', 'Description', 'Shape', 'Data Type'])
         self._idMap = {QtCore.QModelIndex().internalId(): self.rootItem}
 
     def clearRows(self, index):
@@ -180,7 +202,7 @@ class FileModel(QtCore.QAbstractItemModel):
         self._idMap = {}
 
     def columnCount(self, parent):
-        return 2
+        return 4
 
     def data(self, index, role):
         if role != QtCore.Qt.DisplayRole:
@@ -192,6 +214,10 @@ class FileModel(QtCore.QAbstractItemModel):
             return QtCore.QVariant(item.name)
         if column == 1:
             return QtCore.QVariant(item.type)
+        if column == 2:
+            return QtCore.QVariant(item.shape)
+        if column == 3:
+            return QtCore.QVariant(item.dtype)
         return QtCore.QVariant()
 
     def getNodeFromIndex(self, index):
@@ -238,51 +264,12 @@ class FileModel(QtCore.QAbstractItemModel):
     def rowCount(self, index):
         return len(self.getProxyFromIndex(index))
 
-    def _convertFile(self, filename):
-        print 'this is an old file whose format is no longer supported'
-        f = phynx.File(filename, 'a', lock=QRLock())
-        try:
-            format = f.attrs['format']
-            if format == 'h5py transitional':
-                from xpaxs.io.compat.transitional import convert_to_phynx
-            else:
-                from xpaxs.io.compat.original import convert_to_phynx
-        except:
-            from xpaxs.io.compat.original import convert_to_phynx
-        f.close()
-
-        backup = '%s.old'%filename
-        if os.path.exists(backup):
-            backup = '%s.backup'%filename
-            print 'moving old file to %s'%backup
-            shutil.move(filename, backup)
-        else:
-            print 'moving old file to %s'%backup
-            shutil.move(filename, backup)
-        specfile = filename.rstrip('.hdf5').rstrip('.h5')
-        f = convert_to_phynx(specfile)
-        f.close()
-
-    def _openFile(self, filename):
-        f = phynx.File(filename, 'a', lock=QRLock())
-        try:
-            if f.creator == 'phynx':
-                return f
-        except RuntimeError:
-            pass
-
-        # if we got this far, the format is old and needs to be converted
-        f.close()
-        self._convertFile(filename)
-
-        return phynx.File(filename, 'a', lock=QRLock())
-
     def openFile(self, filename):
         for item in self.rootItem:
             if item.name == filename:
                 return item.file
 
-        phynxFile = self._openFile(filename)
+        phynxFile = phynx.File(filename, 'a', lock=QRLock())
         self.rootItem.appendChild(phynxFile)
         self.emit(QtCore.SIGNAL('fileAppended'))
         return phynxFile
@@ -377,3 +364,14 @@ class ExportCorrectedCSV(ExportRawCSV):
             return True
         except AssertionError:
             return False
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    fileModel = FileModel()
+    fileView = FileView(fileModel)
+#    fileModel.openFile('../io/phynx/tests/citrus_leaves.dat.h5')
+    fileView.show()
+
+    sys.exit(app.exec_())

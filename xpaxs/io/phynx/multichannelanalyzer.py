@@ -59,37 +59,6 @@ class MultiChannelAnalyzer(Detector):
         self.attrs['pymca_config'] = str(config)
     pymca_config = property(_get_pymca_config, _set_pymca_config)
 
-    def __init__(self, *args, **kwargs):
-        # this whole __init__ is only needed to fix some badly formatted data
-        # from early in development of phynx
-        super(MultiChannelAnalyzer, self).__init__(*args, **kwargs)
-
-        with self.plock:
-            if 'counts' in self:
-                if self['counts'].attrs['class'] != 'Spectrum':
-                    self['counts'].attrs['class'] = 'Spectrum'
-
-            # TODO: this could eventually go away
-            # old files did not identify dead time properly
-            if 'dead_time' in self:
-                dt = self['dead_time']
-                if not isinstance(dt, DeadTime):
-                    dt.attrs['class'] = 'DeadTime'
-            else:
-                if 'dead' in self:
-                    self['dead_time'] = self['dead']
-                    self['dead_time'].attrs['class'] = 'DeadTime'
-                elif 'dtn' in self:
-                    data = 100*(1-self['dtn'].value)
-                    self.create_dataset('dead_time', type='DeadTime', data=data)
-                elif 'vtxdtn' in self:
-                    data = 100*(1-self['vtxdtn'].value)
-                    self.create_dataset('dead_time', type='DeadTime', data=data)
-                else:
-                    return
-                self['dead_time'].attrs['units'] = '%'
-                self['dead_time'].attrs['dead_time_format'] = '%'
-
     @sync
     def set_calibration(self, cal, order=None):
         if order is not None:
@@ -130,7 +99,7 @@ class Spectrum(Signal):
     def map(self):
         raise TypeError('can not produce a map of a 3-dimensional dataset')
 
-registry.register(Spectrum, 'McaSpectrum')
+registry.register(Spectrum)
 
 
 class CorrectedSpectrumProxy(DataProxy):

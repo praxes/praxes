@@ -138,18 +138,9 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: this could eventually go away</Summary>
-    <Description></Description>
-    <Created>2009-05-29, 09:46:33</Created>
-    <Resource>
-      <Filename>xpaxs/io/phynx/multichannelanalyzer.py</Filename>
-      <Linenumber>72</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: will acquisition work on other platforms?</Summary>
     <Description></Description>
-    <Created>2009-05-29, 12:05:14</Created>
+    <Created>2009-06-01, 11:20:06</Created>
     <Resource>
       <Filename>xpaxs/frontend/mainwindow.py</Filename>
       <Linenumber>43</Linenumber>
@@ -158,7 +149,7 @@
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: this should be a factory function, not a method of the main win:</Summary>
     <Description></Description>
-    <Created>2009-05-29, 12:05:14</Created>
+    <Created>2009-06-01, 11:20:06</Created>
     <Resource>
       <Filename>xpaxs/frontend/mainwindow.py</Filename>
       <Linenumber>61</Linenumber>
@@ -167,7 +158,7 @@
   <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: The following two methods needs to be generalized</Summary>
     <Description></Description>
-    <Created>2009-05-29, 12:05:14</Created>
+    <Created>2009-06-01, 11:20:06</Created>
     <Resource>
       <Filename>xpaxs/frontend/mainwindow.py</Filename>
       <Linenumber>223</Linenumber>

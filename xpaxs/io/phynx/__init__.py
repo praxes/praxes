@@ -3,6 +3,8 @@
 
 from __future__ import absolute_import
 
+from .version import __version__
+
 from .beam import Beam
 from .characterization import Characterization
 from .component import (

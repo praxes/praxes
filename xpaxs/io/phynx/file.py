@@ -15,6 +15,7 @@ import h5py
 from .exceptions import H5Error
 from .group import Group
 from .utils import sync
+from .version import __format_version__
 
 
 def getLocalTime():
@@ -40,7 +41,7 @@ class File(Group, h5py.File):
 
     @property
     def format(self):
-        return version.LooseVersion(self.attrs.get('format_version', '0.0'))
+        return self.attrs.get('format_version', None)
 
     @property
     def parent(self):
@@ -77,7 +78,6 @@ class File(Group, h5py.File):
                     '__exit__ methods'
                 )
         self._plock = lock
-#        self._plock = self._lock
 
         if self.mode != 'r' and len(self) == 0:
             if 'file_name' not in self.attrs:
@@ -92,8 +92,8 @@ class File(Group, h5py.File):
                 self.attrs['h5py_version'] = h5py.version.version
             if 'creator' not in self.attrs:
                 self.attrs['creator'] = 'phynx'
-            if 'format_version' not in self.attrs:
-                self.attrs['format_version'] = '0.1'
+            if 'format_version' not in self.attrs and len(self) == 0:
+                self.attrs['format_version'] = __format_version__
 
     @sync
     def create_entry(self, name, **data):

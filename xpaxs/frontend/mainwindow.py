@@ -116,7 +116,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                         self,
                         'Save HDF5 File',
                         './'+f+'.h5',
-                        'HDF5 files (*.h5 *.hdf5)'
+                        'HDF5 files (*.h5 *.hdf5 *.hdf *.nxs)'
                     )
                 )
                 if h5_filename and os.path.isfile(h5_filename):
@@ -255,7 +255,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                 self,
                 'Open File',
                 '.',
-                "hdf5 files (*.h5 *.hdf5)"
+                "hdf5 files (*.h5 *.hdf5 *.hdf *.nxs)"
             )
         if filename:
             self.fileModel.openFile(str(filename))
@@ -268,11 +268,11 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                 self,
                 "Save File",
                 filename,
-                "hdf5 files (*.h5 *.hdf5)"
+                "hdf5 files (*.h5 *.hdf5 *.hdf *.nxs)"
             )
             if newfilename:
                 newfilename = str(newfilename)
-                if newfilename.split('.')[-1] not in ('h5', 'hdf5'):
+                if newfilename.split('.')[-1] not in ('h5', 'hdf5', 'hdf', 'nxs'):
                     newfilename = newfilename + '.h5'
                 return self.fileModel.openFile(newfilename)
 

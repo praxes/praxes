@@ -199,7 +199,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
     except IndexError:
         monitor = None
 
-    print 'converting %s'% scan_name
+    print 'converting scan #%s'% scan_name
 
     scan_info = get_spec_scan_info(scan.command().split())
     labels = [label.lower() for label in scan.alllabels()]
