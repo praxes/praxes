@@ -45,9 +45,11 @@ class _Registry(object):
         self.__data[value.__name__] = value
         for k in alt_keys:
             assert isinstance(k, str)
+            assert k not in self.__data
             self.__data[k] = value
         try:
-            self.__data[value.nx_class] = value
+            if value.nx_class not in self.__data:
+                self.__data[value.nx_class] = value
         except AttributeError:
             pass
 
