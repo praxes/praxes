@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.6.dtd">
 <!-- eric4 project file for project xpaxs -->
-<!-- Saved: 2009-05-03, 12:42:17 -->
-<!-- Copyright (C) 2009 ,  -->
 <Project version="4.6">
   <Language></Language>
   <ProgLanguage mixed="0">Python</ProgLanguage>
@@ -132,6 +130,9 @@
     <Source>xpaxs/core/fluorescence/plotoptions.py</Source>
     <Source>xpaxs/core/fluorescence/mcaspectrum.py</Source>
     <Source>xpaxs/core/fluorescence/ui/__init__.py</Source>
+    <Source>xpaxs/dispatch/ui/__init__.py</Source>
+    <Source>scripts/xpaxs</Source>
+    <Source>xpaxs/frontend/analysiswindow.py</Source>
   </Sources>
   <Forms>
     <Form>xpaxs/frontend/ui/ui_mainwindow.ui</Form>

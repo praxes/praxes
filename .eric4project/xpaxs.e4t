@@ -39,24 +39,6 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: this should be a factory function, not a method of the main win:</Summary>
-    <Description></Description>
-    <Created>2009-04-18, 10:21:23</Created>
-    <Resource>
-      <Filename>xpaxs/frontend/mainwindow.py</Filename>
-      <Linenumber>141</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: will acquisition work on other platforms?</Summary>
-    <Description></Description>
-    <Created>2009-04-18, 10:21:23</Created>
-    <Resource>
-      <Filename>xpaxs/frontend/mainwindow.py</Filename>
-      <Linenumber>442</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: this is an attempt to provide a services registry similar to that in</Summary>
     <Description></Description>
     <Created>2009-04-20, 10:43:34</Created>
@@ -72,24 +54,6 @@
     <Resource>
       <Filename>xpaxs/instrumentation/spec/scanparameters.py</Filename>
       <Linenumber>28</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: would be better to check the attribute without having to</Summary>
-    <Description></Description>
-    <Created>2009-04-20, 15:11:42</Created>
-    <Resource>
-      <Filename>xpaxs/io/phynx/group.py</Filename>
-      <Linenumber>113</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: this could eventually go away</Summary>
-    <Description></Description>
-    <Created>2009-04-20, 16:34:35</Created>
-    <Resource>
-      <Filename>xpaxs/io/phynx/multichannelanalyzer.py</Filename>
-      <Linenumber>71</Linenumber>
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
@@ -120,21 +84,93 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: make this configurable</Summary>
-    <Description></Description>
-    <Created>2009-04-22, 10:20:07</Created>
-    <Resource>
-      <Filename>xpaxs/dispatch/pptaskmanager.py</Filename>
-      <Linenumber>76</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: get the channels from the controller</Summary>
     <Description></Description>
     <Created>2009-04-22, 10:35:14</Created>
     <Resource>
       <Filename>xpaxs/frontend/pptaskmanager.py</Filename>
       <Linenumber>25</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this would be handled differently through the envisage framework:</Summary>
+    <Description></Description>
+    <Created>2009-05-11, 10:58:02</Created>
+    <Resource>
+      <Filename>scripts/xpaxs</Filename>
+      <Linenumber>13</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this should eventually take an MCA entry</Summary>
+    <Description></Description>
+    <Created>2009-05-11, 10:58:15</Created>
+    <Resource>
+      <Filename>xpaxs/core/fluorescence/mcaanalysiswindow.py</Filename>
+      <Linenumber>28</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: remove the window from the list of open windows when we close</Summary>
+    <Description></Description>
+    <Created>2009-05-11, 10:58:15</Created>
+    <Resource>
+      <Filename>xpaxs/core/fluorescence/mcaanalysiswindow.py</Filename>
+      <Linenumber>76</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: get the channels from the controller</Summary>
+    <Description></Description>
+    <Created>2009-05-11, 11:22:36</Created>
+    <Resource>
+      <Filename>xpaxs/core/fluorescence/pptaskmanager.py</Filename>
+      <Linenumber>26</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: would be better to check the attribute without having to</Summary>
+    <Description></Description>
+    <Created>2009-05-27, 10:14:53</Created>
+    <Resource>
+      <Filename>xpaxs/io/phynx/group.py</Filename>
+      <Linenumber>113</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this could eventually go away</Summary>
+    <Description></Description>
+    <Created>2009-05-29, 09:46:33</Created>
+    <Resource>
+      <Filename>xpaxs/io/phynx/multichannelanalyzer.py</Filename>
+      <Linenumber>72</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: will acquisition work on other platforms?</Summary>
+    <Description></Description>
+    <Created>2009-05-29, 12:05:14</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/mainwindow.py</Filename>
+      <Linenumber>43</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: this should be a factory function, not a method of the main win:</Summary>
+    <Description></Description>
+    <Created>2009-05-29, 12:05:14</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/mainwindow.py</Filename>
+      <Linenumber>61</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: The following two methods needs to be generalized</Summary>
+    <Description></Description>
+    <Created>2009-05-29, 12:05:14</Created>
+    <Resource>
+      <Filename>xpaxs/frontend/mainwindow.py</Filename>
+      <Linenumber>223</Linenumber>
     </Resource>
   </Task>
 </Tasks>
