@@ -10,7 +10,6 @@ import shutil
 from PyQt4 import QtCore, QtGui
 
 from xpaxs.io import phynx
-#import h5py as phynx
 
 
 class QRLock(QtCore.QMutex):
@@ -75,11 +74,10 @@ class H5NodeProxy(object):
             # obtaining the lock here is necessary, otherwise application can
             # freeze if navigating tree while data is processing
             with self.file.plock:
-#            with self.file._lock:
                 self._children = [
                     H5NodeProxy(self.file, i, self)
                     for i in sorted(
-                        self.getNode(self.path).listobjects(),
+                        self.getNode(self.name).listobjects(),
                         key=operator.attrgetter('name')
                     )
                 ]
@@ -99,20 +97,15 @@ class H5NodeProxy(object):
 
     @property
     def name(self):
-        return posixpath.split(self._path)[-1]
+        return self._name
 
     @property
     def parent(self):
         return self._parent
 
     @property
-    def path(self):
-        return self._path
-
-    @property
     def row(self):
         with self.file.plock:
-#        with self.file._lock:
             try:
                 return self.parent.children.index(self)
             except ValueError:
@@ -138,11 +131,9 @@ class H5NodeProxy(object):
 
     def __init__(self, file, node, parent=None):
         with file.plock:
-#        with file._lock:
             self._file = file
-#            self._name = node.name
             self._parent = parent
-            self._path = node.name
+            self._name = node.name
             self._type = type(node).__name__
             try:
                 self._dtype = str(node.dtype)
@@ -159,10 +150,10 @@ class H5NodeProxy(object):
     def clearChildren(self):
         self._children = []
 
-    def getNode(self, path=None):
-        if not path:
-            path = self.path
-        return self.file[path]
+    def getNode(self, name=None):
+        if not name:
+            name = self.name
+        return self.file[name]
 
     def __len__(self):
         return len(self.children)
@@ -171,15 +162,19 @@ class H5NodeProxy(object):
 class H5FileProxy(H5NodeProxy):
 
     @property
-    def path(self):
+    def name(self):
         return '/'
+    
+    @property
+    def filename(self):
+        return self.file.name
 
     def __init__(self, file, parent=None):
         super(H5FileProxy, self).__init__(file, file, parent)
+        self._name = file.name
 
     def close(self):
         with self.file.plock:
-#        with self.file._lock:
             return self.file.close()
 
     def __getitem__(self, path):
@@ -217,7 +212,10 @@ class FileModel(QtCore.QAbstractItemModel):
         item = self.getProxyFromIndex(index)
         column = index.column()
         if column == 0:
-            return QtCore.QVariant(item.name)
+            if isinstance(item, H5FileProxy):
+                return QtCore.QVariant(item.filename)
+            else:
+                return QtCore.QVariant(posixpath.split(item.name)[-1])
         if column == 1:
             return QtCore.QVariant(item.type)
         if column == 2:
