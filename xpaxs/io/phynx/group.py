@@ -28,7 +28,7 @@ class Group(h5py.Group, _PhynxProperties):
     @sync
     def entry(self):
         try:
-            target = self['/'.join(self.path.split('/')[:2])]
+            target = self['/'.join(self.name.split('/')[:2])]
             assert isinstance(target, registry['Entry'])
             return target
         except AssertionError:
@@ -43,24 +43,14 @@ class Group(h5py.Group, _PhynxProperties):
             return None
 
     @property
-    @sync
-    def name(self):
-        return posixpath.basename(super(Group, self).name)
-
-    @property
-    @sync
-    def path(self):
-        return super(Group, self).name
-
-    @property
     def parent(self):
-        return self[posixpath.split(self.path)[0]]
+        return self[posixpath.split(self.name)[0]]
 
     @property
     @sync
     def signals(self):
         return dict(
-            [(s.name, s) for s in self.iterobjects()
+            [(posixpath.split(s.name)[-1], s) for s in self.iterobjects()
                 if isinstance(s, Signal)]
         )
 
@@ -68,7 +58,8 @@ class Group(h5py.Group, _PhynxProperties):
     @sync
     def axes(self):
         return dict(
-            [(a.name, a) for a in self.iterobjects() if isinstance(a, Axis)]
+            [(posixpath.split(a.name)[-1], a) for a in self.iterobjects()
+                if isinstance(a, Axis)]
         )
 
     def __init__(self, parent_object, name, create=False, **attrs):

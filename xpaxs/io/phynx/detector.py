@@ -3,6 +3,8 @@
 
 from __future__ import absolute_import
 
+import posixpath
+
 from .group import Group
 from .registry import registry
 from .utils import simple_eval
@@ -17,7 +19,7 @@ class Detector(Group):
 
     @property
     def device_id(self):
-        return self.attrs.get('id', self.name)
+        return self.attrs.get('id', posixpath.split(self.name)[-1])
 
 registry.register(Detector)
 

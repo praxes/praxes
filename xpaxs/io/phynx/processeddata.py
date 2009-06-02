@@ -3,6 +3,8 @@
 
 from __future__ import absolute_import
 
+import posixpath
+
 from .dataset import Dataset
 from .group import Group
 from .registry import registry
@@ -18,16 +20,16 @@ class ProcessedData(Group):
     @sync
     def fits(self):
         return dict(
-            [(s.name.rstrip('_fit'), s) for s in self.iterobjects()
-                if isinstance(s, Fit)]
+            [(posixpath.split(s.name)[-1].rstrip('_fit'), s)
+                for s in self.iterobjects() if isinstance(s, Fit)]
         )
 
     @property
     @sync
     def fit_errors(self):
         return dict(
-            [(s.name.rstrip('_fit_error'), s) for s in self.iterobjects()
-                if isinstance(s, FitError)]
+            [(posixpath.split(s.name)[-1].rstrip('_fit_error'), s)
+                for s in self.iterobjects() if isinstance(s, FitError)]
         )
 
 registry.register(ProcessedData)
@@ -42,7 +44,7 @@ class ElementMaps(ProcessedData):
     @sync
     def mass_fractions(self):
         return dict(
-            [(s.name.rstrip('_mass_fraction'), s)
+            [(posixpath.split(s.name)[-1].rstrip('_mass_fraction'), s)
                 for s in self.iterobjects() if isinstance(s, MassFraction)]
         )
 
@@ -56,7 +58,9 @@ class FitResult(Dataset):
 
     @sync
     def __cmp__(self, other):
-        return cmp(self.name, other.name)
+        return cmp(
+            posixpath.split(self.name)[-1], posixpath.split(other.name)[-1]
+        )
 
 
 class Fit(FitResult):

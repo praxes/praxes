@@ -3,6 +3,8 @@
 
 from __future__ import absolute_import
 
+import posixpath
+
 from .group import Group
 from .registry import registry
 from .utils import sync
@@ -20,7 +22,7 @@ class Measurement(Group):
     @sync
     def mcas(self):
         return dict([
-            (a.name, a) for a in self.iterobjects()
+            (posixpath.split(a.name)[-1], a) for a in self.iterobjects()
             if isinstance(a, registry['MultiChannelAnalyzer'])
         ])
 

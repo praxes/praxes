@@ -4,11 +4,13 @@ from __future__ import with_statement
 
 import operator
 import os
+import posixpath
 import shutil
 
 from PyQt4 import QtCore, QtGui
 
 from xpaxs.io import phynx
+#import h5py as phynx
 
 
 class QRLock(QtCore.QMutex):
@@ -73,6 +75,7 @@ class H5NodeProxy(object):
             # obtaining the lock here is necessary, otherwise application can
             # freeze if navigating tree while data is processing
             with self.file.plock:
+#            with self.file._lock:
                 self._children = [
                     H5NodeProxy(self.file, i, self)
                     for i in sorted(
@@ -96,7 +99,7 @@ class H5NodeProxy(object):
 
     @property
     def name(self):
-        return self._name
+        return posixpath.split(self._path)[-1]
 
     @property
     def parent(self):
@@ -109,6 +112,7 @@ class H5NodeProxy(object):
     @property
     def row(self):
         with self.file.plock:
+#        with self.file._lock:
             try:
                 return self.parent.children.index(self)
             except ValueError:
@@ -134,10 +138,11 @@ class H5NodeProxy(object):
 
     def __init__(self, file, node, parent=None):
         with file.plock:
+#        with file._lock:
             self._file = file
-            self._name = node.name
+#            self._name = node.name
             self._parent = parent
-            self._path = node.path
+            self._path = node.name
             self._type = type(node).__name__
             try:
                 self._dtype = str(node.dtype)
@@ -174,6 +179,7 @@ class H5FileProxy(H5NodeProxy):
 
     def close(self):
         with self.file.plock:
+#        with self.file._lock:
             return self.file.close()
 
     def __getitem__(self, path):
@@ -305,7 +311,7 @@ class ExportRawCSV(QtCore.QObject):
         filename = QtGui.QFileDialog.getSaveFileName(
             parent,
             "Export Dataset",
-            h5Node.name+'.txt',
+            posixpath.split(h5Node.name)[-1] + '.txt',
             "text files (*.txt *.dat *.csv)"
         )
         if filename:
@@ -341,7 +347,7 @@ class ExportCorrectedCSV(ExportRawCSV):
         filename = QtGui.QFileDialog.getSaveFileName(
             parent,
             "Export Dataset",
-            h5Node.name+'_corr.txt',
+            posixpath.split(h5Node.name)[-1] + '_corr.txt',
             "text files (*.txt *.dat *.csv)"
         )
         if filename:

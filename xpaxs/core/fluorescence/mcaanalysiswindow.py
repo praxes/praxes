@@ -6,6 +6,7 @@ from __future__ import absolute_import, with_statement
 import copy
 import gc
 import logging
+import posixpath
 
 from PyQt4 import QtCore, QtGui
 from PyMca.FitParam import FitParamDialog
@@ -47,9 +48,9 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         self.setupUi(self)
 
         title = '%s: %s: %s'%(
-            scanData.file.name,
-            getattr(scanData.entry, 'name', ''),
-            self.mcaData.name
+            posixpath.split(scanData.file.name)[-1],
+            posixpath.split(getattr(scanData.entry, 'name', ''))[-1],
+            posixpath.split(self.mcaData.name)[-1]
         )
         self.setWindowTitle(title)
 

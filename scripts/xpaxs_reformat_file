@@ -33,7 +33,7 @@ def reformat_file(self, filename):
 def reformat_unknown(filename):
     certain = None
     while certain not in ('y', 'n'):
-        certain = raw_input('%s format not recognized, reformat? '%filename)
+        certain = raw_input('%s format not recognized, reformat (y/n)? '%filename)
     if certain == 'n':
         return
 

@@ -32,7 +32,7 @@ class Dataset(h5py.Dataset, _PhynxProperties):
     @sync
     def entry(self):
         try:
-            target = self.parent['/'.join(self.parent.path.split('/')[:2])]
+            target = self.parent['/'.join(self.parent.name.split('/')[:2])]
             assert isinstance(target, registry['Entry'])
             return target
         except AssertionError:
@@ -58,18 +58,8 @@ class Dataset(h5py.Dataset, _PhynxProperties):
 
     @property
     @sync
-    def name(self):
-        return posixpath.basename(super(Dataset, self).name)
-
-    @property
-    @sync
-    def path(self):
-        return super(Dataset, self).name
-
-    @property
-    @sync
     def parent(self):
-        p = posixpath.split(self.path)[0]
+        p = posixpath.split(self.name)[0]
         g = h5py.Group(self, p, create=False)
         t = g.attrs.get('class', 'Group')
         return registry[t](self, p)

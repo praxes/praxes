@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 
 import logging
+import posixpath
 
 import numpy as np
 from PyQt4 import QtCore, QtGui
@@ -105,8 +106,8 @@ class ElementImageFigure(ElementBaseFigure):
                                        origin='lower')
         self._colorbar = self.figure.colorbar(self.image)
 
-        self.axes.set_xlabel(x_axis.name)
-        try: self.axes.set_ylabel(y_axis.name)
+        self.axes.set_xlabel(posixpath.split(x_axis.name)[-1])
+        try: self.axes.set_ylabel(posixpath.split(y_axis.name)[-1])
         except IndexError: pass
 
     def enableAutoscale(self, val):
@@ -157,7 +158,7 @@ class ElementPlotFigure(ElementBaseFigure):
         try:
             self.x_data = self.scanData['scalar_data'].get_sorted_axes_list(1)[0]
             self._elementPlot, = self.axes.plot(self.xdata, self._elementData)
-            self.axes.set_xlabel(x_axis.name)
+            self.axes.set_xlabel(posixpath.split(x_axis.name)[-1])
             self.axes.set_xlim(self.x_data.range)
         except:
             self._elementPlot, = self.axes.plot(self._elementData)
