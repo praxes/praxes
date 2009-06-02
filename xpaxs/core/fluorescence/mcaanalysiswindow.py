@@ -48,7 +48,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         self.setupUi(self)
 
         title = '%s: %s: %s'%(
-            posixpath.split(scanData.file.name)[-1],
+            posixpath.split(scanData.file.filename)[-1],
             posixpath.split(getattr(scanData.entry, 'name', ''))[-1],
             posixpath.split(self.mcaData.name)[-1]
         )

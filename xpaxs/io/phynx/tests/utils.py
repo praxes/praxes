@@ -9,7 +9,6 @@ import shutil
 import tempfile
 
 from ..file import File
-#from h5py import File
 
 
 class TestCase(object):

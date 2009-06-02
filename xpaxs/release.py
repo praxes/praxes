@@ -19,7 +19,7 @@ name = 'xpaxs'
 # bdist_deb does not accept underscores (a Debian convention).
 
 development = False    # change this to False to do a release
-version_base = '0.9b1'
+version_base = '0.9b2'
 branch = 'xpaxs'
 revision = '696'
 

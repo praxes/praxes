@@ -37,7 +37,7 @@ class _PhynxProperties(HasTraits):
 
     @property
     def source_file(self):
-        return self.attrs.get('source_file', self.file.name)
+        return self.attrs.get('source_file', self.file.filename)
 
     def __init__(self, parent_object):
         with parent_object.plock:

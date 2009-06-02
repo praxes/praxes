@@ -72,7 +72,7 @@ def check_for_numpy():
             return True
 
 def check_for_h5py():
-    h5Req = '1.1'
+    h5Req = '1.2'
     try:
         from h5py.version import hdf5_version, version
     except ImportError:
@@ -148,7 +148,7 @@ def check_for_matplotlib():
 def check_for_pymca():
     pymcaReq = '4.3.1 20090202-snapshot'
     try:
-        from PyMca import PyMca
+        from PyMca import PyMcaMain
     except ImportError:
         print_status(
             "PyMca", "Not found"
@@ -159,8 +159,8 @@ def check_for_pymca():
         )
         return False
     else:
-        print_status("PyMca", PyMca.__version__)
-        if LooseVersion(PyMca.__version__) < LooseVersion(pymcaReq):
+        print_status("PyMca", PyMcaMain.__version__)
+        if LooseVersion(PyMcaMain.__version__) < LooseVersion(pymcaReq):
             print_message(
                 "WARNING: pymca-%s or later required for X-ray fluorescence "
                 "analysis" % pymcaReq

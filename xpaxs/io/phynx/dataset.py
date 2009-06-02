@@ -56,14 +56,6 @@ class Dataset(h5py.Dataset, _PhynxProperties):
         except AttributeError:
             return None
 
-    @property
-    @sync
-    def parent(self):
-        p = posixpath.split(self.name)[0]
-        g = h5py.Group(self, p, create=False)
-        t = g.attrs.get('class', 'Group')
-        return registry[t](self, p)
-
     def __init__(
         self, parent_object, name, shape=None, dtype=None, data=None,
         chunks=None, compression='gzip', shuffle=None, fletcher32=None,

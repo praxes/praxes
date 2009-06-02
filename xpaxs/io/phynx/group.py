@@ -43,10 +43,6 @@ class Group(h5py.Group, _PhynxProperties):
             return None
 
     @property
-    def parent(self):
-        return self[posixpath.split(self.name)[0]]
-
-    @property
     @sync
     def signals(self):
         return dict(

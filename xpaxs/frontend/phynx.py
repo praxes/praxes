@@ -162,12 +162,8 @@ class H5NodeProxy(object):
 class H5FileProxy(H5NodeProxy):
 
     @property
-    def name(self):
-        return '/'
-    
-    @property
     def filename(self):
-        return self.file.name
+        return self.file.filename
 
     def __init__(self, file, parent=None):
         super(H5FileProxy, self).__init__(file, file, parent)
@@ -270,7 +266,7 @@ class FileModel(QtCore.QAbstractItemModel):
 
     def openFile(self, filename):
         for item in self.rootItem:
-            if item.name == filename:
+            if item.filename == filename:
                 return item.file
 
         phynxFile = phynx.File(filename, 'a', lock=QRLock())

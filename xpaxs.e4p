@@ -137,6 +137,7 @@
     <Source>xpaxs/io/phynx/tests/__init__.py</Source>
     <Source>xpaxs/io/phynx/tests/utils.py</Source>
     <Source>xpaxs/io/phynx/exceptions.py</Source>
+    <Source>xpaxs/io/phynx/tests/test_file.py</Source>
   </Sources>
   <Forms>
     <Form>xpaxs/frontend/ui/ui_mainwindow.ui</Form>
