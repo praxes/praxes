@@ -11,6 +11,6 @@ class TestFile(TestCase):
 
     def test_File_init_r(self):
         with self.get_file('r') as f:
-            npt.assert_raises(H5Error, f.create_group, "foo")
+            npt.assert_raises(IOError, f.create_group, "foo")
             npt.assert_equal(f.mode, 'r')
             npt.assert_equal(f.filename, self.fname)
