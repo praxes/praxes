@@ -100,6 +100,7 @@ def check_for_h5py():
             return True
 
 def check_for_pyqt4():
+    pyqtReq = '4.5'
     try:
         from PyQt4 import pyqtconfig
     except ImportError:
@@ -108,7 +109,7 @@ def check_for_pyqt4():
         )
         print_message(
             "WARNING: PyQt4-%s or later required for graphical user interfaces"
-            % mplReq
+            % pyqtReq
         )
         return False
     else:
@@ -117,11 +118,19 @@ def check_for_pyqt4():
             qt_version = convert_qt_version(qt_version)
         except AttributeError:
             qt_version = "<unknown>"
-        print_status(
-            "PyQt4", "Qt: %s, PyQt: %s"
-            % (qt_version, pyqtconfig.Configuration().pyqt_version_str)
-        )
-        return True
+        pyqt_version = pyqtconfig.Configuration().pyqt_version_str
+        if LooseVersion(pyqt_version) < LooseVersion(pyqtReq):
+            print_message(
+                "WARNING: PyQt4-%s or later required for graphical user "
+                "interfaces" % pyqtReq
+            )
+            return False
+        else:
+            print_status(
+                "PyQt4", "Qt: %s, PyQt: %s"
+                % (qt_version, pyqtconfig.Configuration().pyqt_version_str)
+            )
+            return True
 
 def check_for_matplotlib():
     mplReq = '0.98.3'
