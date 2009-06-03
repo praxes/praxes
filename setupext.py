@@ -179,7 +179,7 @@ def check_for_pymca():
             return True
 
 def check_for_pyqwt():
-    pyqwtReq = '5.1.0'
+    pyqwtReq = '5.2.0'
     try:
         from PyQt4 import Qwt5
     except ImportError:
@@ -222,7 +222,7 @@ def check_for_parallelpython():
             return True
 
 def check_for_pytables():
-    ptReq = '2.0'
+    ptReq = '2.2'
     try:
         import tables
     except ImportError:
