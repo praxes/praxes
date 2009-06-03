@@ -24,10 +24,6 @@ class _PhynxProperties(HasTraits):
         return simple_eval(self.attrs.get('acquisition_shape', '()'))
 
     @property
-    def file(self):
-        return self._file
-
-    @property
     def npoints(self):
         return self.attrs.get('npoints', 0)
 
