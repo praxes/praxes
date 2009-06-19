@@ -113,17 +113,7 @@ class H5NodeProxy(object):
 
     @property
     def shape(self):
-        if type(self._shape) == type(""):
-            return self._shape
-        if len(self._shape) == 1:
-            return "%d" % self._shape[0]
-        elif len(self._shape) > 1:
-            text = "%d" % self._shape[0]
-            for a in range(1, len(self._shape)):
-                text += " x %d" % self._shape[a]
-            return text
-        else:
-            return ""
+        return self._shape
 
     @property
     def type(self):
@@ -246,7 +236,8 @@ class FileModel(QtCore.QAbstractItemModel):
         parentItem = self.getProxyFromIndex(parent)
 
         child = parentItem.children[row]
-        index = self.createIndex(row, column, id(child))
+        id = hash((child.file.filename, child.name))
+        index = self.createIndex(row, column, id)
         self._idMap.setdefault(index.internalId(), child)
         return index
 
@@ -259,7 +250,8 @@ class FileModel(QtCore.QAbstractItemModel):
         if parent.row is None:
             return QtCore.QModelIndex()
         else:
-            return self.createIndex(parent.row, 0, id(parent))
+            id = hash((parent.file.filename, parent.name))
+            return self.createIndex(parent.row, 0, id)
 
     def rowCount(self, index):
         return len(self.getProxyFromIndex(index))
@@ -371,7 +363,7 @@ if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     fileModel = FileModel()
     fileView = FileView(fileModel)
-#    fileModel.openFile('../io/phynx/tests/citrus_leaves.dat.h5')
+    fileModel.openFile('../io/phynx/tests/citrus_leaves.dat.h5')
     fileView.show()
 
     sys.exit(app.exec_())
