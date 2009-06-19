@@ -63,3 +63,8 @@ class TestSorting(TestCase):
             c.attrs['start_time'] = time.time()
 
             npt.assert_equal(f.keys(), ['c', 'b', 'a'])
+            npt.assert_array_equal(f.values(), [c, b, a])
+            npt.assert_array_equal(f.items(), [('c', c), ('b', b), ('a', a)])
+            npt.assert_array_equal(f.listnames(), ['c', 'b', 'a'])
+            npt.assert_array_equal(f.listobjects(), [c, b, a])
+            npt.assert_array_equal(f.listitems(), [('c', c), ('b', b), ('a', a)])

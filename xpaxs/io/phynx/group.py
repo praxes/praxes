@@ -21,10 +21,6 @@ class Group(h5py.Group, _PhynxProperties):
     """
 
     @property
-    def children(self):
-        return self.listobjects()
-
-    @property
     @sync
     def entry(self):
         try:

@@ -77,7 +77,7 @@ class H5NodeProxy(object):
                 self._children = [
                     H5NodeProxy(self.file, i, self)
                     for i in sorted(
-                        self.getNode(self.name).listobjects(),
+                        self.getNode(self.name).values(),
                         key=operator.attrgetter('name')
                     )
                 ]
