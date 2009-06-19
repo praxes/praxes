@@ -198,8 +198,8 @@ class FileModel(QtCore.QAbstractItemModel):
         item = self.getProxyFromIndex(index)
         column = index.column()
         if column == 0:
-            if isinstance(item, H5FileProxy):
-                return QtCore.QVariant(item.filename)
+            if item.name == '/':
+                return QtCore.QVariant(item.file.filename)
             else:
                 return QtCore.QVariant(posixpath.split(item.name)[-1])
         if column == 1:

@@ -25,6 +25,8 @@ class TestCase(object):
 
     @property
     def ref_fname(self):
+        if self._ref_fname is None:
+            return
         return '/'.join([posixpath.split(__file__)[0], self._ref_fname])
 
     def get_file(self, mode='a', lock=None):

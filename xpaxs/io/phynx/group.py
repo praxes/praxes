@@ -12,7 +12,7 @@ from .base import _PhynxProperties
 from .dataset import Axis, Dataset, Signal
 from .exceptions import H5Error
 from .registry import registry
-from .utils import sync
+from .utils import sorting, sync
 
 
 class Group(h5py.Group, _PhynxProperties):
@@ -155,5 +155,41 @@ class Group(h5py.Group, _PhynxProperties):
                     item.__class__.__name__
                 )
             return item
+
+    @sync
+    def listobjects(self):
+        print "listobjects is deprecated, use values"
+        return self.values()
+
+    @sync
+    def values(self):
+        try:
+            values = super(Group, self).values()
+        except AttributeError:
+            print "Please update to h5py-1.2"
+            values = super(Group, self).listobjects()
+        try:
+            return self.file._sorted(values)
+        except TypeError:
+            return values
+
+    @sync
+    def listnames(self):
+        print "listnames is deprecated, use keys"
+        return self.keys()
+
+    @sync
+    def keys(self):
+        return [posixpath.split(i.name)[-1] for i in self.values()]
+
+    @sync
+    def listitems(self):
+        print "listitems is deprecated, use items"
+        return self.items()
+
+    @sync
+    def items(self):
+        return [(posixpath.split(i.name)[-1], i) for i in self.values()]
+
 
 registry.register(Group)

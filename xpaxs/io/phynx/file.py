@@ -43,11 +43,7 @@ class File(Group, h5py.File):
     def parent(self):
         return None
 
-    @property
-    def path(self):
-        return '/'
-
-    def __init__(self, name, mode='a', lock=None):
+    def __init__(self, name, mode='a', lock=None, sorted_with=None):
         """
         Create a new file object.
 
@@ -58,7 +54,7 @@ class File(Group, h5py.File):
         - w-  Create file, fail if exists
         - a   Read/write if exists, create otherwise (default)
 
-        parent is used for used for GUI interfaces
+        sorting is a callable function like python's builtin sorted, or None
         """
 
         h5py.File.__init__(self, name, mode)
@@ -74,6 +70,9 @@ class File(Group, h5py.File):
                     '__exit__ methods'
                 )
         self._plock = lock
+
+        self._sorted = None
+        self.sorted_with(sorted_with)
 
         if self.mode != 'r' and len(self) == 0:
             if 'file_name' not in self.attrs:
@@ -109,8 +108,14 @@ class File(Group, h5py.File):
         pos = measurement.require_group('positioners', type='Positioners')
         return entry
 
-    @sync
-    def list_sorted_entries(self):
-        return sorted(
-            self.listobjects(), key=operator.attrgetter('acquisition_id')
-        )
+    def sorted_with(self, value):
+        """
+        Set the default sorting behavior for nodes with methods returning
+        lists. Accepts a callable or None. If a callable, the callable should
+        accept and reorganize a list of phynx nodes.
+        """
+        try:
+            assert value is None or callable(value)
+            self._sorted = value
+        except AssertionError:
+            raise AsserionError('value must be a callable or None')
