@@ -193,7 +193,7 @@ def check_for_pyqwt():
         if LooseVersion(Qwt5.QWT_VERSION_STR) < LooseVersion(pyqwtReq):
             print_message(
                 "PyQwt-%s or greater required for some X-ray "
-                "fluorescence capabilities" % pymcaReq
+                "fluorescence capabilities" % pyqwtReq
             )
             return False
         else:
