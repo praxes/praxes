@@ -114,7 +114,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
                         m[k][i] = val
                         m[k].acquired = i + 1
 #                    except:
-#                        print m.listitems(), k
+#                        print m.items(), k
 #                print 'updated data for point', i
 
                 self._lastPoint = i
