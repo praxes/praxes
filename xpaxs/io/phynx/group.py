@@ -163,11 +163,7 @@ class Group(h5py.Group, _PhynxProperties):
 
     @sync
     def values(self):
-        try:
-            values = super(Group, self).values()
-        except AttributeError:
-            print "Please update to h5py-1.2"
-            values = super(Group, self).listobjects()
+        values = super(Group, self).values()
         try:
             return self.file._sorted(values)
         except TypeError:

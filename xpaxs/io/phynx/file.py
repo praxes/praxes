@@ -39,10 +39,6 @@ class File(Group, h5py.File):
     def format(self):
         return self.attrs.get('format_version', None)
 
-    @property
-    def parent(self):
-        return None
-
     def __init__(self, name, mode='a', lock=None, sorted_with=None):
         """
         Create a new file object.
