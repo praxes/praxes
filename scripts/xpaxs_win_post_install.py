@@ -17,7 +17,7 @@ def install():
     # Lookup path to common startmenu ...
     ip_dir = get_special_folder_path('CSIDL_COMMON_PROGRAMS') + r'\XPaXS'
     lib_dir = prefix + r'\Lib\site-packages\xpaxs'
-    ip_filename="xpaxs"
+    ip_filename="xpaxs_exe"
 
     # Create entry ...
     if not os.path.isdir(ip_dir):
