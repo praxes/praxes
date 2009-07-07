@@ -18,10 +18,10 @@ name = 'xpaxs'
 # because bdist_rpm does not accept dashes (an RPM) convention, and
 # bdist_deb does not accept underscores (a Debian convention).
 
-development = False    # change this to False to do a release
-version_base = '0.9b2'
+development = True    # change this to False to do a release
+version_base = '0.10a1'
 branch = 'xpaxs'
-revision = '696'
+revision = '718'
 
 if development:
     if branch == 'xpaxs':
@@ -61,12 +61,12 @@ platforms = ['Linux', 'Mac OSX', 'Windows Vista/XP/2000']
 keywords = []
 
 requires = [
-    'numpy (>=1.2)',
-    'matplotlib (>=0.98.3)',
+    'python (>=2.6, <3.0)',
+    'numpy (>=1.3)',
+    'matplotlib (>=0.98.5.3)',
+    'PyQt4 (>=4.5.1)',
+    'PyQwt (>=5.2.0)',
     'PyMca (>=4.3.1)',
     'pp (>=1.5.6)',
-#    'pexpect>=2.3',
-    'h5py (>=1.1)',
-#    'TraitsBackendQt>=3.0',
-#    'EnvisagePlugins>=3.0',
+    'h5py (>=1.2)',
 ]
