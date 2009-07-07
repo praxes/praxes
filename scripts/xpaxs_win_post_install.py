@@ -2,10 +2,10 @@
 
 import os, sys, shutil
 
-def mkshortcut(target,description,link_file,*args,**kw):
+def mkshortcut(target, description, link_file, *args, **kw):
     """make a shortcut if it doesn't exist, and register its creation"""
 
-    create_shortcut(target, description, link_file,*args,**kw)
+    create_shortcut(target, description, link_file, *args, **kw)
     file_created(link_file)
 
 def install():
@@ -13,24 +13,23 @@ def install():
 
     # Get some system constants
     prefix = sys.prefix
-    python = prefix + r'/pythonw.exe'
+    python = os.path.join(prefix, 'python.exe')
     # Lookup path to common startmenu ...
-    ip_dir = get_special_folder_path('CSIDL_COMMON_PROGRAMS') + r'\XPaXS'
-    lib_dir = prefix + r'\Lib\site-packages\xpaxs'
-    ip_filename="xpaxs_exe"
+    start_dir = os.path.join(
+        get_special_folder_path('CSIDL_COMMON_PROGRAMS'),
+        'XPaXS'
+    )
+    scripts_dir = os.path.join(prefix, 'Scripts')
 
     # Create entry ...
-    if not os.path.isdir(ip_dir):
-        os.mkdir(ip_dir)
-        directory_created(ip_dir)
+    if not os.path.isdir(start_dir):
+        os.mkdir(start_dir)
+        directory_created(start_dir)
 
     # Create program shortcuts ...
-    name = 'xpaxs'
-
-    script = '"'+lib_dir+r'\%s.pyw"'%name
-    f = ip_dir + r'\%s.lnk'%name
-    shutil.copy(sys.prefix+r'\Scripts\%s'%name,lib_dir+'\%s.pyw'%ip_filename)
-    mkshortcut(python,name,f,script)
+    script = os.path.join(scripts_dir, 'xpaxs')
+    f = os.path.join(start_dir, 'xpaxs.lnk')
+    mkshortcut(python, 'xpaxs', f, '"%s"'%script)
 
     # Create documentation shortcuts ...
 #    t = prefix + r'\share\doc\ipython-%s\manual.pdf' % version
