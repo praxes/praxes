@@ -20,19 +20,16 @@ class Dataset(h5py.Dataset, _PhynxProperties):
     """
     """
 
-    @sync
     def _get_acquired(self):
         return self.attrs.get('acquired', self.npoints)
-    @sync
     def _set_acquired(self, value):
         self.attrs['acquired'] = int(value)
     acquired = property(_get_acquired, _set_acquired)
 
     @property
-    @sync
     def entry(self):
         try:
-            target = self.parent['/'.join(self.parent.name.split('/')[:2])]
+            target = self.file['/'.join(self.parent.name.split('/')[:2])]
             assert isinstance(target, registry['Entry'])
             return target
         except AssertionError:
@@ -61,28 +58,24 @@ class Dataset(h5py.Dataset, _PhynxProperties):
         chunks=None, compression='gzip', shuffle=None, fletcher32=None,
         maxshape=None, compression_opts=None, **kwargs
     ):
-        """
-        The following args and kwargs
-        """
-        with parent_object.plock:
-            if data is None and shape is None:
-                h5py.Dataset.__init__(self, parent_object, name)
-                _PhynxProperties.__init__(self, parent_object)
-            else:
-                h5py.Dataset.__init__(
-                    self, parent_object, name, shape=shape, dtype=dtype,
-                    data=data, chunks=chunks, compression=compression,
-                    shuffle=shuffle, fletcher32=fletcher32, maxshape=maxshape,
-                    compression_opts=compression_opts
-                )
-                _PhynxProperties.__init__(self, parent_object)
+        if data is None and shape is None:
+            h5py.Dataset.__init__(self, parent_object, name)
+            _PhynxProperties.__init__(self, parent_object)
+        else:
+            h5py.Dataset.__init__(
+                self, parent_object, name, shape=shape, dtype=dtype,
+                data=data, chunks=chunks, compression=compression,
+                shuffle=shuffle, fletcher32=fletcher32, maxshape=maxshape,
+                compression_opts=compression_opts
+            )
+            _PhynxProperties.__init__(self, parent_object)
 
-                self.attrs['class'] = self.__class__.__name__
+            self.attrs['class'] = self.__class__.__name__
 
-            for key, val in kwargs.iteritems():
-                if not np.isscalar(val):
-                    val = str(val)
-                self.attrs[key] = val
+        for key, val in kwargs.iteritems():
+            if not np.isscalar(val):
+                val = str(val)
+            self.attrs[key] = val
 
     @sync
     def __repr__(self):
@@ -119,8 +112,6 @@ class Dataset(h5py.Dataset, _PhynxProperties):
             return res / nitems
         return res
 
-registry.register(Dataset)
-
 
 class Axis(Dataset):
 
@@ -151,8 +142,6 @@ class Axis(Dataset):
             raise AssertionError(
                 'Cannot compare Axis and %s'%other.__class__.__name__
             )
-
-registry.register(Axis)
 
 
 class Signal(Dataset):
@@ -187,7 +176,11 @@ class Signal(Dataset):
                 'Cannot compare Signal and %s'%other.__class__.__name__
             )
 
-registry.register(Signal)
+
+class ImageData(Signal):
+
+    """
+    """
 
 
 class DeadTime(Signal):
@@ -244,8 +237,6 @@ class DeadTime(Signal):
         if format:
             self.format = format
 
-registry.register(DeadTime)
-
 
 class AcquisitionEnumerator(object):
 
@@ -253,67 +244,66 @@ class AcquisitionEnumerator(object):
     A class for iterating over datasets, even during data acquisition. The
     dataset can either be a phynx dataset or a proxy to a phynx dataset.
 
-    If a datapoint is marked as invalid, it is skipped.
+    If a datapoint is marked as masked or invalid, it is skipped and not
+    included in the enumeration.
 
-    If the end of the current index is out of range, but smaller than the number
-    of points expected for the acquisition (npoints), an IndexError is raised
-    instead of StopIteration. This allows the code doing the iteration to assume
-    the acquisition is ongoing and continue attempts to iterate until
-    StopIteration is encountered. If a scan is aborted, the number of expected
-    points must be updated or AcquisitionEnumerator will never raise
-    StopIteration.
+    If the current index is out of range, but smaller than the number of points
+    expected for the acquisition (npoints), an IndexError is raised instead of
+    StopIteration. This allows the code doing the iteration to assume the
+    acquisition is ongoing and continue attempts to iterate until StopIteration
+    is encountered. If a scan is aborted, the number of expected points must be
+    updated or AcquisitionEnumerator will never raise StopIteration.
 
     The enumerator yields an index, item tuple.
     """
 
-    @property
     @sync
-    def current_index(self):
-        return copy.copy(self._current_index)
+    def _get_current_index(self):
+        return self._current_index
+    @sync
+    def _set_current_index(self, val):
+        self._current_index = val
+    current_index = property(_get_current_index, _set_current_index)
 
     @property
     def plock(self):
         return self._plock
 
-    @property
     @sync
-    def total_skipped(self):
-        return copy.copy(self._total_skipped)
+    def _get_total_skipped(self):
+        return self._total_skipped
+    @sync
+    def _set_total_skipped(self, val):
+        self._total_skipped = val
+    total_skipped = property(_get_total_skipped, _set_total_skipped)
 
     def __init__(self, dataset):
-        with dataset.plock:
-            self._dataset = dataset
-            self._plock = dataset.plock
+        self._dataset = dataset
+        self._plock = dataset.plock
 
-            self._current_index = 0
-            self._total_skipped = 0
+        self._current_index = 0
+        self._total_skipped = 0
 
     def __iter__(self):
         return self
 
-    @sync
     def next(self):
-#        print 'entering next'
-        if self.current_index >= self._dataset.npoints:
-            raise StopIteration()
-        elif self.current_index + 1 > self._dataset.acquired:
-            raise IndexError()
-        else:
-            try:
-                i = self.current_index
-                if self._dataset.masked[i]:
-                    self._total_skipped += 1
-                    self._current_index += 1
-                    return self.next()
-
-#                print 'getting data for point', i
-                res = self._dataset[i]
-#                print 'got data for point', i
-                self._current_index += 1
-#                print 'updated enum index, exiting next'
-                return i, res
-            except H5Error:
+        while 1:
+            i = self.current_index
+            if i >= self._dataset.npoints:
+                raise StopIteration()
+            elif i + 1 > self._dataset.acquired:
+                # expected the datapoint, but not yet acquired
                 raise IndexError()
+
+            if self._dataset.masked[i]:
+                self.total_skipped = self.total_skipped + 1
+                self.current_index = i + 1
+                continue
+
+            res = self._dataset[i]
+            self.current_index = i + 1
+            return i, res
 
 
 class DataProxy(object):
@@ -383,7 +373,7 @@ class CorrectedDataProxy(DataProxy):
 
     @sync
     def __getitem__(self, key):
-        data = self._dset.__getitem__(key)
+        data = self._dset[key]
 
         try:
             data /= self._dset.efficiency
@@ -392,7 +382,7 @@ class CorrectedDataProxy(DataProxy):
 
         # normalization may be something like ring current or monitor counts
         try:
-            norm = self._dset.parent['normalization'].__getitem__(key)
+            norm = self._dset.parent['normalization'][key]
             if norm.shape and len(norm.shape) < len(data.shape):
                 newshape = [1]*len(data.shape)
                 newshape[:len(norm.shape)] = norm.shape
@@ -404,7 +394,7 @@ class CorrectedDataProxy(DataProxy):
 
         # detector deadtime correction
         try:
-            dtc = self._dset.parent['dead_time'].correction.__getitem__(key)
+            dtc = self._dset.parent['dead_time'].correction[key]
             if isinstance(dtc, np.ndarray) \
                     and len(dtc.shape) < len(data.shape):
                 newshape = [1]*len(data.shape)

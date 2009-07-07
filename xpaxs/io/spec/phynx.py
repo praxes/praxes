@@ -385,7 +385,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
                     mar['masked'] = masked
                 print 'integrated %s' % f
                 gc.collect()
-            except OSError:
+            except (OSError, ValueError):
                 sys.stdout.write(
                     'Found mar image %s but unable to convert it.\n' % f
                 )

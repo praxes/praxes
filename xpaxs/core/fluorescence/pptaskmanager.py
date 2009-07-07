@@ -61,85 +61,87 @@ def analyzeSpectrum(index, spectrum, tconf, advancedFit, mfTool):
 
 class XfsPPTaskManager(PPTaskManager):
 
+    def _get_advancedFit(self):
+        with self.lock:
+            return self._advancedFit
+    def _set_advancedFit(self, val):
+        with self.lock:
+            self._advancedFit = val
+    advancedFit = property(_get_advancedFit, _set_advancedFit)
+
+    def _get_mfTool(self):
+        with self.lock:
+            return self._mfTool
+    def _set_mfTool(self, val):
+        with self.lock:
+            self._mfTool = val
+    mfTool = property(_get_mfTool, _set_mfTool)
+
+    def _get_tconf(self):
+        with self.lock:
+            return self._tconf
+    def _set_tconf(self, val):
+        with self.lock:
+            self._tconf = val
+    tconf = property(_get_tconf, _set_tconf)
+
     def __init__(self, scan, enumerator, config, parent=None):
         super(XfsPPTaskManager, self).__init__(scan, enumerator, parent)
 
-        with self.lock:
-            self._config = config
-            try:
-                self._intensity = config['concentrations']['flux']
-            except IndexError:
-                self._intensity = None
-
-            self._advancedFit = ClassMcaTheory.McaTheory(config=config)
-            self._advancedFit.enableOptimizedLinearFit()
-            self._mfTool = None
-            if 'concentrations' in config:
-                self._mfTool = ConcentrationsTool(config)
-                self._tconf = self._mfTool.configure()
+        self.advancedFit = ClassMcaTheory.McaTheory(config=config)
+        self.advancedFit.enableOptimizedLinearFit()
+        self.mfTool = None
+        if 'concentrations' in config:
+            self.mfTool = ConcentrationsTool(config)
+            self.tconf = self.mfTool.configure()
 
     def submitJob(self, index, data):
-#        print 'submitting job', index
-        with self.lock:
-            args = (
-                index, data, self._tconf, self._advancedFit,
-                self._mfTool
-            )
-            self._jobServer.submit(
-                analyzeSpectrum,
-                args,
-                modules=("time", ),
-                callback=self.queueResults
-            )
-#        print 'job %d submitted' % index
+        args = (
+            index, data, self.tconf, self.advancedFit,
+            self.mfTool
+        )
+        self.jobServer.submit(
+            analyzeSpectrum,
+            args,
+            modules=("time", ),
+            callback=self.updateRecords
+        )
 
     def updateElementMap(self, element, mapType, index, val):
-#        print 'updating', element, mapType, index
-        with self._scan.plock:
-#            print 'updateElementMap acquired the lock'
-            try:
-                entry = '%s_%s'%(element, mapType)
-#                print 'updating element map for', entry
-                self._scan['element_maps'][entry][index] = val
-#                self._scan['element_maps'][entry][index] = np.random.rand(1)
-#                print entry, 'updated'
-            except ValueError:
-                print "index %d out of range for %s", index, entry
-            except H5Error:
-                print "%s not found in element_maps", entry
-#        print element, mapType, index, 'updated'
+        try:
+            entry = '%s_%s'%(element, mapType)
+            self.scan['element_maps'][entry][index] = val
+        except ValueError:
+            print "index %d out of range for %s", index, entry
+        except H5Error:
+            print "%s not found in element_maps", entry
 
-    def updateRecords(self):
-#        print 'Updating records'
+    def updateRecords(self, data):
         with self.lock:
-            while self._results:
-                data = self._results.pop(0)
-#                print 'I have data'
-                # this lock shouldn't be necessary
-                with self._scan.plock:
-#                    print 'I acquired the data lock'
-                    index = data['index']
+            index = data['index']
+            self.advancedFit = data['advancedFit']
+            self._totalProcessed += 1
 
-                    with self.lock:
-#                        print 'I acquired the thread lock'
-                        self._advancedFit = data['advancedFit']
-                        self._totalProcessed += 1
+            result = data['result']
+            for group in result['groups']:
+                g = group.replace(' ', '_')
 
-                    result = data['result']
-                    for group in result['groups']:
-                        g = group.replace(' ', '_')
+                fitArea = result[group]['fitarea']
+                if fitArea:
+                    sigmaArea = result[group]['sigmaarea']/fitArea
+                else:
+                    sigmaArea = np.nan
 
-                        fitArea = result[group]['fitarea']
-                        if fitArea: sigmaArea = result[group]['sigmaarea']/fitArea
-                        else: sigmaArea = np.nan
+                self.updateElementMap(g, 'fit', index, fitArea)
+                self.updateElementMap(g, 'fit_error', index, sigmaArea)
 
-                        self.updateElementMap(g, 'fit', index, fitArea)
-                        self.updateElementMap(g, 'fit_error', index, sigmaArea)
+            try:
+                massFractions = result['concentrations']['mass fraction']
+                for key, val in massFractions.iteritems():
+                    k = key.replace(' ', '_')
+                    self.updateElementMap(k, 'mass_fraction', index, val)
+            except KeyError:
+                pass
 
-                    if 'concentrations' in result:
-                        massFractions = result['concentrations']['mass fraction']
-                        for key, val in massFractions.iteritems():
-                            k = key.replace(' ', '_')
-                            self.updateElementMap(k, 'mass_fraction', index, val)
-                    self.dirty = True
-#        print 'records updated'
+            self.dirty = True
+            self.reportStats()

@@ -25,12 +25,7 @@ class _Registry(object):
 
     @sync
     def __getitem__(self, name):
-        try:
-            return self.__data[name]
-        except KeyError:
-            warnings.warn("there is no registered class named `%s`, "
-                          "defaulting to Group"% name)
-            return self.__data['Group']
+        return self.__data[name]
 
     @sync
     def __iter__(self):
@@ -41,12 +36,8 @@ class _Registry(object):
         self.__data[name] = value
 
     @sync
-    def register(self, value, *alt_keys):
+    def register(self, value):
         self.__data[value.__name__] = value
-        for k in alt_keys:
-            assert isinstance(k, str)
-            assert k not in self.__data
-            self.__data[k] = value
         try:
             if value.nx_class not in self.__data:
                 self.__data[value.nx_class] = value

@@ -21,7 +21,6 @@ class Group(h5py.Group, _PhynxProperties):
     """
 
     @property
-    @sync
     def entry(self):
         try:
             target = self['/'.join(self.name.split('/')[:2])]
@@ -31,13 +30,13 @@ class Group(h5py.Group, _PhynxProperties):
             return None
 
     @property
-    @sync
     def measurement(self):
         try:
             return self.entry.measurement
         except AttributeError:
             return None
 
+    # TODO: remove for h5py-1.2:
     @property
     @sync
     def signals(self):
@@ -62,22 +61,21 @@ class Group(h5py.Group, _PhynxProperties):
         attributes of the group.
 
         """
-        with parent_object.plock:
-            h5py.Group.__init__(self, parent_object, name, create=create)
-            if create:
-                self.attrs['class'] = self.__class__.__name__
-                try:
-                    self.attrs['NX_class'] = self.nx_class
-                except AttributeError:
-                    pass
+        h5py.Group.__init__(self, parent_object, name, create=create)
+        if create:
+            self.attrs['class'] = self.__class__.__name__
+            try:
+                self.attrs['NX_class'] = self.nx_class
+            except AttributeError:
+                pass
 
-            _PhynxProperties.__init__(self, parent_object)
+        _PhynxProperties.__init__(self, parent_object)
 
-            if attrs:
-                for attr, val in attrs.iteritems():
-                    if not np.isscalar(val):
-                        val = str(val)
-                    self.attrs[attr] = val
+        if attrs:
+            for attr, val in attrs.iteritems():
+                if not np.isscalar(val):
+                    val = str(val)
+                self.attrs[attr] = val
 
     @sync
     def __repr__(self):
@@ -91,22 +89,22 @@ class Group(h5py.Group, _PhynxProperties):
         except Exception:
             return "<Closed %s group>" % self.__class__.__name__
 
-    @sync
     def __getitem__(self, name):
         # TODO: would be better to check the attribute without having to
         # create create the group twice. This might be possible with the
-        # 1.8 API.
+        # 1.8 API. If we simply returned item here,
         item = super(Group, self).__getitem__(name)
-        if 'class' in item.attrs:
+        attrs = item.attrs
+        if 'class' in attrs:
             return registry[item.attrs['class']](self, name)
-        elif 'NX_class' in item.attrs:
-            return registry[item.attrs['NX_class']](self, name)
-        elif isinstance(item, h5py.Dataset):
+        elif 'NX_class' in attrs:
+            return registry[attrs['NX_class']](self, name)
+
+        if isinstance(item, h5py.Dataset):
             return Dataset(self, name)
         else:
             return Group(self, name)
 
-    @sync
     def __setitem__(self, name, value):
         super(Group, self).__setitem__(name, value)
 
@@ -152,7 +150,6 @@ class Group(h5py.Group, _PhynxProperties):
                 )
             return item
 
-    @sync
     def listobjects(self):
         print "listobjects is deprecated, use values"
         return self.values()
@@ -165,7 +162,6 @@ class Group(h5py.Group, _PhynxProperties):
         except TypeError:
             return values
 
-    @sync
     def listnames(self):
         print "listnames is deprecated, use keys"
         return self.keys()
@@ -174,7 +170,6 @@ class Group(h5py.Group, _PhynxProperties):
     def keys(self):
         return [posixpath.split(i.name)[-1] for i in self.values()]
 
-    @sync
     def listitems(self):
         print "listitems is deprecated, use items"
         return self.items()
@@ -182,6 +177,3 @@ class Group(h5py.Group, _PhynxProperties):
     @sync
     def items(self):
         return [(posixpath.split(i.name)[-1], i) for i in self.values()]
-
-
-registry.register(Group)

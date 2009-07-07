@@ -10,7 +10,6 @@ import numpy as np
 from .dataset import DataProxy, DeadTime, Signal
 from .detector import Detector
 from .exceptions import H5Error
-from .registry import registry
 from .utils import simple_eval, sync
 
 
@@ -82,8 +81,6 @@ class MultiChannelAnalyzer(Detector):
                 )
             self.attrs['calibration'] = str(tuple(cal))
 
-registry.register(MultiChannelAnalyzer)
-
 
 class Spectrum(Signal):
 
@@ -99,7 +96,12 @@ class Spectrum(Signal):
     def map(self):
         raise TypeError('can not produce a map of a 3-dimensional dataset')
 
-registry.register(Spectrum)
+
+class McaSpectrum(Spectrum):
+
+    """
+    This is just a compatibility class, Spectrum should be used instead
+    """
 
 
 class CorrectedSpectrumProxy(DataProxy):

@@ -7,7 +7,6 @@ import posixpath
 
 from .dataset import Dataset
 from .group import Group
-from .registry import registry
 from .utils import sync
 
 
@@ -32,8 +31,6 @@ class ProcessedData(Group):
                 for s in self.iterobjects() if isinstance(s, FitError)]
         )
 
-registry.register(ProcessedData)
-
 
 class ElementMaps(ProcessedData):
 
@@ -47,8 +44,6 @@ class ElementMaps(ProcessedData):
             [(posixpath.split(s.name)[-1].rstrip('_mass_fraction'), s)
                 for s in self.iterobjects() if isinstance(s, MassFraction)]
         )
-
-registry.register(ElementMaps)
 
 
 class FitResult(Dataset):
@@ -70,8 +65,6 @@ class Fit(FitResult):
 
     pass
 
-registry.register(Fit)
-
 
 class FitError(FitResult):
 
@@ -80,8 +73,6 @@ class FitError(FitResult):
 
     pass
 
-registry.register(FitError)
-
 
 class MassFraction(FitResult):
 
@@ -89,6 +80,3 @@ class MassFraction(FitResult):
     """
 
     pass
-
-registry.register(MassFraction)
-

@@ -12,12 +12,22 @@ from .exceptions import H5Error
 from .utils import simple_eval
 
 
+class _RegisterPhynxClass(type):
+
+    def __init__(cls, name, bases, attrs):
+        if cls.__name__ != '_PhynxProperties':
+            from .registry import registry
+            registry.register(cls)
+
+
 class _PhynxProperties(HasTraits):
 
     """A mix-in class to propagate attributes from the parent object to
     the new HDF5 group or dataset, and to expose those attributes via
     python properties.
     """
+
+    __metaclass__ = _RegisterPhynxClass
 
     @property
     def acquisition_shape(self):
@@ -36,7 +46,8 @@ class _PhynxProperties(HasTraits):
         return self.attrs.get('source_file', self.file.filename)
 
     def __init__(self, parent_object):
-        with parent_object.plock:
+        if 1:
+#        with parent_object.plock:
             self._plock = parent_object.plock
             self._file = parent_object.file
             for attr in ['acquisition_shape', 'source_file', 'npoints']:

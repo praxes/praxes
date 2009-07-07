@@ -129,15 +129,6 @@
     </Resource>
   </Task>
   <Task priority="1" completed="False" bugfix="False">
-    <Summary>TODO: would be better to check the attribute without having to</Summary>
-    <Description></Description>
-    <Created>2009-05-27, 10:14:53</Created>
-    <Resource>
-      <Filename>xpaxs/io/phynx/group.py</Filename>
-      <Linenumber>113</Linenumber>
-    </Resource>
-  </Task>
-  <Task priority="1" completed="False" bugfix="False">
     <Summary>TODO: will acquisition work on other platforms?</Summary>
     <Description></Description>
     <Created>2009-06-01, 11:20:06</Created>
@@ -162,6 +153,15 @@
     <Resource>
       <Filename>xpaxs/frontend/mainwindow.py</Filename>
       <Linenumber>223</Linenumber>
+    </Resource>
+  </Task>
+  <Task priority="1" completed="False" bugfix="False">
+    <Summary>TODO: would be better to check the attribute without having to</Summary>
+    <Description></Description>
+    <Created>2009-06-25, 14:38:32</Created>
+    <Resource>
+      <Filename>xpaxs/io/phynx/group.py</Filename>
+      <Linenumber>100</Linenumber>
     </Resource>
   </Task>
 </Tasks>

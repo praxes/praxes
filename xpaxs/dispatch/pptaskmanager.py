@@ -45,6 +45,10 @@ class PPTaskManager(QtCore.QThread):
     dirty = property(_get_dirty, _set_dirty)
 
     @property
+    def jobServer(self):
+        return self._jobServer
+
+    @property
     def lock(self):
         return self.__lock
 
@@ -52,6 +56,10 @@ class PPTaskManager(QtCore.QThread):
     def numCpus(self):
         with self.lock:
             return copy.copy(self._numCpus)
+
+    @property
+    def scan(self):
+        return self._scan
 
     def _get_stopped(self):
         with self.lock:
@@ -65,7 +73,6 @@ class PPTaskManager(QtCore.QThread):
         super(PPTaskManager, self).__init__(parent)
 
         self.__lock = QRLock()
-#        self.__lock = scan.plock
 
         with self.lock:
             settings = QtCore.QSettings()
@@ -78,13 +85,13 @@ class PPTaskManager(QtCore.QThread):
             except ValueError:
                 # this should not be necessary with pp-1.5.6 and later:
                 secret = hashlib.md5(str(time.time())).hexdigest()
-                self.server = pp.Server(
+                self._jobServer = pp.Server(
                     ppservers=('*', ), secret=secret
                 )
 
-            self._jobServer.set_ncpus(ncpus)
+            self.jobServer.set_ncpus(ncpus)
             self._numCpus = np.sum(
-                [i for i in self._jobServer.get_active_nodes().itervalues()]
+                [i for i in self.jobServer.get_active_nodes().itervalues()]
             )
 
             self.__dirty = False
@@ -94,7 +101,6 @@ class PPTaskManager(QtCore.QThread):
             self._lastReport = time.time()
 
             self._scan = scan
-            self._results = []
 
             if enumerator is None:
                 enumerator = enumerate([])
@@ -107,7 +113,6 @@ class PPTaskManager(QtCore.QThread):
 
             numSubmitted = 0
             try:
-#                print 'try to find new data'
                 for index, data in self._enumerator:
                     self.submitJob(index, data)
                     numSubmitted += 1
@@ -115,54 +120,41 @@ class PPTaskManager(QtCore.QThread):
                         break
                 else:
                     self._jobServer.wait()
-                    self.updateRecords()
-                    self.report(force=True)
+                    self._scan.file.flush()
+                    if self.dirty:
+                        self.emit(QtCore.SIGNAL("dataProcessed"))
+                        self.dirty = False
                     return
             except (IndexError, ValueError):
                 pass
-            if numSubmitted > 0:
-#                print 'waiting'
-                self._jobServer.wait()
-#                print 'done waiting'
-                self.updateRecords()
-                self.report()
 
-            time.sleep(0.1)
+            if numSubmitted > 0:
+                self.jobServer.wait()
+                self._scan.file.flush()
+                if self.dirty:
+                    self.emit(QtCore.SIGNAL("dataProcessed"))
+                    self.dirty = False
+            else:
+                time.sleep(0.1)
 
     def submitJob(self, numJobs):
         raise NotImplementedError
 
-    def queueResults(self, res):
+    def reportStats(self):
         with self.lock:
-            self._results.append(res)
+            track = self._totalProcessed + self._enumerator.total_skipped
+            total = self.scan.npoints
+            self.emit(
+                QtCore.SIGNAL('percentComplete'),
+                int((100.0 * track) / total)
+            )
 
-    def report(self, force=False):
-#        print 'entering task manager report'
-        if self.dirty:
-            with self.lock:
-                with self._scan.plock:
-                    track = self._totalProcessed + self._enumerator.total_skipped
-                    total = self._scan.npoints
-                self.emit(
-                    QtCore.SIGNAL('percentComplete'),
-                    int((100.0 * track) / total)
-                )
-
-                stats = copy.deepcopy(self._jobServer.get_stats())
-                self.emit(QtCore.SIGNAL("ppJobStats"), stats)
-
-                reportNow = force or (time.time() - self._lastReport >= 2)
-
-                if reportNow:
-                    self.emit(QtCore.SIGNAL("dataProcessed"))
-                    self._lastReport = time.time()
-
-                self.dirty = False
-#        print 'exiting task manager report'
+            stats = copy.deepcopy(self.jobServer.get_stats())
+            self.emit(QtCore.SIGNAL("ppJobStats"), stats)
 
     def run(self):
         self.processData()
-        self._jobServer.destroy()
+        self.jobServer.destroy()
 
     def setData(self, *args, **kwargs):
         raise NotImplementedError

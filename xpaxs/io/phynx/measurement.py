@@ -58,8 +58,6 @@ class Measurement(Group):
                 'There should be one ScalarData group per entry, found %d' % nm
             )
 
-registry.register(Measurement)
-
 
 class ScalarData(Group):
 
@@ -82,8 +80,6 @@ class ScalarData(Group):
         if id is not None:
             return self[id]
 
-registry.register(ScalarData)
-
 
 class Positioners(Group):
 
@@ -91,5 +87,3 @@ class Positioners(Group):
     A group containing the reference positions of the various axes in the
     measurement.
     """
-
-registry.register(Positioners)

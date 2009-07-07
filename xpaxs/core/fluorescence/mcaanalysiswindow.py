@@ -29,6 +29,9 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
     # TODO: this should eventually take an MCA entry
     def __init__(self, scanData, parent=None):
         super(McaAnalysisWindow, self).__init__(parent)
+
+        self.analysisThread = None
+
         if isinstance(scanData, phynx.Entry):
             self.scanData = scanData.measurement
         elif isinstance(scanData, phynx.Measurement):

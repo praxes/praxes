@@ -6,8 +6,6 @@ from __future__ import absolute_import
 import posixpath
 
 from .group import Group
-from .registry import registry
-from .utils import simple_eval
 
 
 class Detector(Group):
@@ -21,8 +19,6 @@ class Detector(Group):
     def device_id(self):
         return self.attrs.get('id', posixpath.split(self.name)[-1])
 
-registry.register(Detector)
-
 
 class LinearDetector(Detector):
 
@@ -32,8 +28,6 @@ class LinearDetector(Detector):
     @property
     def pixels(self):
         return self['counts'].shape[-1:]
-
-registry.register(LinearDetector)
 
 
 class AreaDetector(Detector):
@@ -45,12 +39,8 @@ class AreaDetector(Detector):
     def pixels(self):
         return self['counts'].shape[-2:]
 
-registry.register(AreaDetector)
-
 
 class Mar345(AreaDetector):
 
     """
     """
-
-registry.register(Mar345)

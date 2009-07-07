@@ -142,5 +142,3 @@ class Entry(Group):
                 pass
         self.visititems(func)
     npoints = property(_get_npoints, _set_npoints)
-
-registry.register(Entry)
