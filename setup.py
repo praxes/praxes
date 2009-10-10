@@ -48,14 +48,13 @@ Operating System :: Microsoft :: Windows
 setup(
     packages = packages,
     name = 'phynx',
-    version = version,
+    version = __version__,
     description = description,
     long_description = long_description,
     author = 'The Phynx Development Team',
     author_email = '"python-phynx-developers" at the domain "lists.launchpad.net"',
     url = 'http://packages.python.org/phynx/',
     download_url = 'http://pypi.python.org/pypi/phynx/',
-    keywords = keywords,
     classifiers = [x for x in classifiers.split("\n") if x],
     requires = ['numpy (>=1.3)', 'h5py (>=1.2)'],
 )
