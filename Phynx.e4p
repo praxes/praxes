@@ -58,6 +58,8 @@
   <Interfaces>
   </Interfaces>
   <Others>
+    <Other>doc</Other>
+    <Other>doc/glossary.rst</Other>
   </Others>
   <Vcs>
     <VcsType>None</VcsType>
