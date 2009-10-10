@@ -9,4 +9,3 @@ User's Guide
 
    installation.rst
    why_python.rst
-   intro.rst
