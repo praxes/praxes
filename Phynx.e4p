@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Project SYSTEM "Project-4.6.dtd">
+<!-- eric4 project file for project Phynx -->
+<Project version="4.6">
+  <Language>en</Language>
+  <ProgLanguage mixed="0">Python</ProgLanguage>
+  <ProjectType>Console</ProjectType>
+  <Description></Description>
+  <Version>0.1</Version>
+  <Author>Darren Dale</Author>
+  <Email>darren.dale@cornell.edu</Email>
+  <Sources>
+    <Source>setup.py</Source>
+    <Source>phynx/entry.py</Source>
+    <Source>phynx/user.py</Source>
+    <Source>phynx/data.py</Source>
+    <Source>phynx/multichannelanalyzer.py</Source>
+    <Source>phynx/log.py</Source>
+    <Source>phynx/ui/traits/phynxfile_poc.py</Source>
+    <Source>phynx/ui/traits/treeview.py</Source>
+    <Source>phynx/ui/traits/__init__.py</Source>
+    <Source>phynx/ui/__init__.py</Source>
+    <Source>phynx/beam.py</Source>
+    <Source>phynx/registry.py</Source>
+    <Source>phynx/processeddata.py</Source>
+    <Source>phynx/base.py</Source>
+    <Source>phynx/file.py</Source>
+    <Source>phynx/characterization.py</Source>
+    <Source>phynx/exceptions.py</Source>
+    <Source>phynx/measurement.py</Source>
+    <Source>phynx/tests/test_file.py</Source>
+    <Source>phynx/tests/utils.py</Source>
+    <Source>phynx/tests/__init__.py</Source>
+    <Source>phynx/tests/test_listing.py</Source>
+    <Source>phynx/__init__.py</Source>
+    <Source>phynx/environment.py</Source>
+    <Source>phynx/utils/eval.py</Source>
+    <Source>phynx/utils/decorators.py</Source>
+    <Source>phynx/utils/__init__.py</Source>
+    <Source>phynx/utils/sorting.py</Source>
+    <Source>phynx/group.py</Source>
+    <Source>phynx/detector.py</Source>
+    <Source>phynx/geometry.py</Source>
+    <Source>phynx/instrument.py</Source>
+    <Source>phynx/version.py</Source>
+    <Source>phynx/process.py</Source>
+    <Source>phynx/dataset.py</Source>
+    <Source>phynx/component.py</Source>
+    <Source>phynx/sample.py</Source>
+    <Source>phynx/note.py</Source>
+  </Sources>
+  <Forms>
+  </Forms>
+  <Translations>
+  </Translations>
+  <Resources>
+  </Resources>
+  <Interfaces>
+  </Interfaces>
+  <Others>
+  </Others>
+  <Vcs>
+    <VcsType>None</VcsType>
+  </Vcs>
+  <FiletypeAssociations>
+    <FiletypeAssociation pattern="*.pyw" type="SOURCES" />
+    <FiletypeAssociation pattern="*.idl" type="INTERFACES" />
+    <FiletypeAssociation pattern="*.py" type="SOURCES" />
+    <FiletypeAssociation pattern="*.ptl" type="SOURCES" />
+  </FiletypeAssociations>
+</Project>
