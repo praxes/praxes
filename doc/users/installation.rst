@@ -41,4 +41,4 @@ launchpad_ website.
 
 
 .. _bzr: http://bazaar-vcs.org/en/
-.. _launchpad: https://launchpad.net/xpaxs
+.. _launchpad: https://launchpad.net/phynx

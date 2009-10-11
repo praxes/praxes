@@ -17,7 +17,7 @@ doing::
 The documentation sources are found in the :file:`doc/` directory in
 the trunk. The output produced by Sphinx can be configured by editing
 the :file:`conf.py` file located in the :file:`doc/` directory. To
-build the users guide in html format, run from the main xpaxs
+build the users guide in html format, run from the main phynx
 directory::
 
   python setup.py build_sphinx

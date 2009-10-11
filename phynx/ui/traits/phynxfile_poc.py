@@ -1,6 +1,8 @@
 
-from xpaxs.io.phynx import File
-from xpaxs.io.phynx.ui.traits.treeview import MainInterface
+from __future__ import absolute_import
+
+from ...phynx import File
+from .treeview import MainInterface
 
 
 if __name__ == '__main__':
