@@ -7,5 +7,6 @@ User's Guide
 .. toctree::
    :maxdepth: 2
 
-   installation.rst
-   why_python.rst
+   installation
+   import_export
+   why_python

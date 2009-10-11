@@ -59,6 +59,7 @@
   </Interfaces>
   <Others>
     <Other>doc</Other>
+    <Other>doc/users/import_export.rst</Other>
   </Others>
   <Vcs>
     <VcsType>None</VcsType>

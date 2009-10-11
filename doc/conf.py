@@ -16,7 +16,7 @@ import sys, os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.append(os.path.abspath('.'))
+sys.path.append(os.path.abspath('./sphinxext'))
 
 # -- General configuration -----------------------------------------------------
 
@@ -24,7 +24,7 @@ import sys, os
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.coverage',
-    'sphinx.ext.pngmath', 'sphinx.ext.ifconfig'
+    'sphinx.ext.pngmath', 'sphinx.ext.ifconfig', 'ipython_console_highlighting'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -34,7 +34,7 @@ templates_path = ['_templates']
 source_suffix = '.rst'
 
 # The encoding of source files.
-#source_encoding = 'utf-8'
+source_encoding = 'utf-8'
 
 # The master toctree document.
 master_doc = 'index'
@@ -136,7 +136,7 @@ html_static_path = ['_static']
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
-#html_use_smartypants = True
+html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
 html_sidebars = {'index': 'indexsidebar.html'}
