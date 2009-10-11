@@ -9,4 +9,3 @@ User's Guide
 
    installation
    exporting_data
-   why_python
