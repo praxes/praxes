@@ -8,5 +8,5 @@ User's Guide
    :maxdepth: 2
 
    installation
-   import_export
+   exporting_data
    why_python

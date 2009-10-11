@@ -48,6 +48,7 @@
     <Source>phynx/component.py</Source>
     <Source>phynx/sample.py</Source>
     <Source>phynx/note.py</Source>
+    <Source>doc/conf.py</Source>
   </Sources>
   <Forms>
   </Forms>
@@ -59,7 +60,7 @@
   </Interfaces>
   <Others>
     <Other>doc</Other>
-    <Other>doc/users/import_export.rst</Other>
+    <Other>doc/users/exporting_data.rst</Other>
   </Others>
   <Vcs>
     <VcsType>None</VcsType>

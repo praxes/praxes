@@ -91,6 +91,8 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
+intersphinx_mapping = {'http://h5py.alfven.org/docs/': None}
+
 
 # -- Options for HTML output ---------------------------------------------------
 
