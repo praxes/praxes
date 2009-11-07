@@ -4,7 +4,7 @@ import os
 import shutil
 import sys
 
-from xpaxs.io import phynx
+import phynx
 
 # from frontend.mainwindow:
 def reformat_file(self, filename):

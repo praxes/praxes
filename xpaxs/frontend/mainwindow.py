@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 import xpaxs
 from .ui import ui_mainwindow
 from .phynx import FileModel, FileView, ExportRawCSV, ExportCorrectedCSV
-from ..io import phynx
+import phynx
 
 
 logger = logging.getLogger(__file__)

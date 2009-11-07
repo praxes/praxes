@@ -9,7 +9,7 @@ import shutil
 
 from PyQt4 import QtCore, QtGui
 
-from xpaxs.io import phynx
+import phynx
 
 
 class QRLock(QtCore.QMutex):

@@ -14,7 +14,7 @@ from SpecClient import SpecScan, SpecCommand, SpecConnectionsManager, \
 import h5py
 
 from . import TEST_SPEC
-from xpaxs.io import phynx
+import phynx
 
 
 logger = logging.getLogger(__file__)

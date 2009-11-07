@@ -1,5 +1,6 @@
 """
 """
+from __future__ import absolute_import
 
 import gc
 from hashlib import md5
@@ -13,7 +14,7 @@ try:
 except ImportError:
     from PyMca import specfile
 
-from xpaxs.io.phynx import File, H5Error
+from phynx import File, H5Error
 
 
 def get_spec_scan_info(commandList):

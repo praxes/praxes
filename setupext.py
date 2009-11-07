@@ -99,6 +99,28 @@ def check_for_h5py():
         else:
             return True
 
+def check_for_phynx():
+    phynxreq = '0.10.0'
+    try:
+        import phynx
+        print_status("phynx", phynx.__version__)
+        assert LooseVersion(phynx.__version__) >= LooseVersion('0.10.0')
+        return True
+    except ImportError:
+        print_status("phynx", "Not found")
+        print_message(
+            "WARNING: phynx-%s or greater required for reading and writing "
+            "data" % phynx_req
+        )
+        return False
+    except AssertionError:
+        print_status("phynx", phynx.version)
+        print_message(
+            "WARNING: phynx-%s or greater required for reading and writing "
+            "data" % phynxreq
+        )
+        return False
+
 def check_for_pyqt4():
     pyqtReq = '4.5'
     try:

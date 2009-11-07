@@ -16,36 +16,6 @@
     <Source>xpaxs/io/edf/__init__.py</Source>
     <Source>xpaxs/io/spec/phynx.py</Source>
     <Source>xpaxs/io/spec/__init__.py</Source>
-    <Source>xpaxs/io/phynx/ui/traits/treeview.py</Source>
-    <Source>xpaxs/io/phynx/ui/traits/phynxfile_poc.py</Source>
-    <Source>xpaxs/io/phynx/ui/traits/__init__.py</Source>
-    <Source>xpaxs/io/phynx/ui/__init__.py</Source>
-    <Source>xpaxs/io/phynx/data.py</Source>
-    <Source>xpaxs/io/phynx/sample.py</Source>
-    <Source>xpaxs/io/phynx/measurement.py</Source>
-    <Source>xpaxs/io/phynx/detector.py</Source>
-    <Source>xpaxs/io/phynx/utils/decorators.py</Source>
-    <Source>xpaxs/io/phynx/utils/eval.py</Source>
-    <Source>xpaxs/io/phynx/utils/__init__.py</Source>
-    <Source>xpaxs/io/phynx/processeddata.py</Source>
-    <Source>xpaxs/io/phynx/component.py</Source>
-    <Source>xpaxs/io/phynx/instrument.py</Source>
-    <Source>xpaxs/io/phynx/group.py</Source>
-    <Source>xpaxs/io/phynx/file.py</Source>
-    <Source>xpaxs/io/phynx/geometry.py</Source>
-    <Source>xpaxs/io/phynx/registry.py</Source>
-    <Source>xpaxs/io/phynx/log.py</Source>
-    <Source>xpaxs/io/phynx/entry.py</Source>
-    <Source>xpaxs/io/phynx/note.py</Source>
-    <Source>xpaxs/io/phynx/process.py</Source>
-    <Source>xpaxs/io/phynx/user.py</Source>
-    <Source>xpaxs/io/phynx/base.py</Source>
-    <Source>xpaxs/io/phynx/beam.py</Source>
-    <Source>xpaxs/io/phynx/environment.py</Source>
-    <Source>xpaxs/io/phynx/dataset.py</Source>
-    <Source>xpaxs/io/phynx/__init__.py</Source>
-    <Source>xpaxs/io/phynx/characterization.py</Source>
-    <Source>xpaxs/io/phynx/multichannelanalyzer.py</Source>
     <Source>xpaxs/io/compat/original.py</Source>
     <Source>xpaxs/io/compat/transitional.py</Source>
     <Source>xpaxs/io/compat/__init__.py</Source>
@@ -134,10 +104,6 @@
     <Source>scripts/xpaxs</Source>
     <Source>xpaxs/frontend/analysiswindow.py</Source>
     <Source>scripts/xpaxs_reformat_file</Source>
-    <Source>xpaxs/io/phynx/tests/__init__.py</Source>
-    <Source>xpaxs/io/phynx/tests/utils.py</Source>
-    <Source>xpaxs/io/phynx/exceptions.py</Source>
-    <Source>xpaxs/io/phynx/tests/test_file.py</Source>
   </Sources>
   <Forms>
     <Form>xpaxs/frontend/ui/ui_mainwindow.ui</Form>
