@@ -1,5 +1,6 @@
 """
 """
+from __future__ import absolute_import
 
 import gc
 from hashlib import md5
