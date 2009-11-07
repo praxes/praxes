@@ -14,7 +14,6 @@ import numpy as np
 np.seterr(all='ignore')
 
 from xpaxs.dispatch.pptaskmanager import PPTaskManager
-from xpaxs.io.phynx import H5Error
 
 
 logger = logging.getLogger(__file__)
@@ -113,7 +112,7 @@ class XfsPPTaskManager(PPTaskManager):
             self.scan['element_maps'][entry][index] = val
         except ValueError:
             print "index %d out of range for %s", index, entry
-        except H5Error:
+        except KeyError:
             print "%s not found in element_maps", entry
 
     def updateRecords(self, data):

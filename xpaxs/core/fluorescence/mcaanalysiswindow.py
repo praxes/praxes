@@ -15,7 +15,7 @@ import numpy as np
 from xpaxs.frontend.analysiswindow import AnalysisWindow
 from .ui.ui_mcaanalysiswindow import Ui_McaAnalysisWindow
 from .elementsview import ElementsView
-from xpaxs.io import phynx
+import phynx
 
 
 logger = logging.getLogger(__file__)
