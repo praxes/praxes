@@ -19,29 +19,6 @@ from setupext import (
 )
 
 #---------------------------------------------------------------------------
-# Basic project information
-#---------------------------------------------------------------------------
-
-# Release.py contains version, authors, license, url, keywords, etc.
-execfile(os.path.join('xpaxs','release.py'))
-
-# Create a dict with the basic information
-# This dict is eventually passed to setup after additional keys are added.
-setup_args = dict(
-      name = name,
-      version = version,
-      description = description,
-      long_description = long_description,
-      author = author,
-      author_email = author_email,
-      url = url,
-      download_url = download_url,
-      license = license,
-      platforms = platforms,
-      keywords = keywords,
-)
-
-#---------------------------------------------------------------------------
 # Find packages
 #---------------------------------------------------------------------------
 

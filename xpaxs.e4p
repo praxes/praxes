@@ -10,9 +10,6 @@
   <Author></Author>
   <Email></Email>
   <Sources>
-    <Source>doc/ext/only_directives.py</Source>
-    <Source>doc/ext/ipython_console_highlighting.py</Source>
-    <Source>doc/ext/plot_directive.py</Source>
     <Source>xpaxs/io/edf/__init__.py</Source>
     <Source>xpaxs/io/spec/phynx.py</Source>
     <Source>xpaxs/io/spec/__init__.py</Source>
@@ -29,7 +26,6 @@
     <Source>xpaxs/core/optics/__init__.py</Source>
     <Source>xpaxs/core/imaging/__init__.py</Source>
     <Source>xpaxs/core/__init__.py</Source>
-    <Source>xpaxs/release.py</Source>
     <Source>xpaxs/dispatch/__init__.py</Source>
     <Source>xpaxs/dispatch/pptaskmanager.py</Source>
     <Source>xpaxs/config/__init__.py</Source>
@@ -104,6 +100,7 @@
     <Source>scripts/xpaxs</Source>
     <Source>xpaxs/frontend/analysiswindow.py</Source>
     <Source>scripts/xpaxs_reformat_file</Source>
+    <Source>xpaxs/version.py</Source>
   </Sources>
   <Forms>
     <Form>xpaxs/frontend/ui/ui_mainwindow.ui</Form>
