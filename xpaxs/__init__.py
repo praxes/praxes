@@ -60,7 +60,7 @@ import os
 
 from xpaxs import config
 
-from xpaxs.release import __version__
+from xpaxs.version import __version__
 
 # One of DEBUG, INFO, WARNING, ERROR, CRITICAL:
 logLevel = DEBUG
