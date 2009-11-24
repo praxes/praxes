@@ -325,7 +325,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         elif label.lower() == 'epoch':
             kwargs = {'class':'Axis'}
             dset = scalar_data.create_dataset(
-                label, data=scan.datacol(i+1)+sfile.epoch(), dtype='float32',
+                label, data=scan.datacol(i+1)+sfile.epoch(), dtype='float64',
                 **kwargs
             )
         else:
