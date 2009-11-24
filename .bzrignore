@@ -16,3 +16,4 @@ xpaxs.egg-info/
 *.so
 doc/math.*
 doc/_build
+.DS_Store/
