@@ -77,10 +77,13 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         return action
 
     def _setupToolActions(self):
-        from xpaxs.core.fluorescence.mcaanalysiswindow import McaAnalysisWindow
-        self.menuTools.addAction(
-            self._createToolAction("Analyze MCA", McaAnalysisWindow)
-        )
+        try:
+            from xpaxs.core.fluorescence.mcaanalysiswindow import McaAnalysisWindow
+            self.menuTools.addAction(
+                self._createToolAction("Analyze MCA", McaAnalysisWindow)
+            )
+        except ImportError:
+            pass
 
         self.menuExport.addAction(
             self._createToolAction("Raw data", ExportRawCSV)
