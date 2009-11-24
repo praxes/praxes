@@ -13,7 +13,7 @@ else:
     from distutils.core import setup
 
 from setupbase import check_for_dependencies, find_scripts, find_package_data, \
-    find_packages, convert_ui, setup_args, find_extensions
+    find_packages, convert_ui, find_extensions
 
 if 'build' in sys.argv or 'install' in sys.argv:
     check_for_dependencies()
