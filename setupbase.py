@@ -13,9 +13,8 @@ from setupext import (
     print_line, print_raw, print_status, print_message,
     check_for_python, check_for_numpy, check_for_h5py,
     check_for_pyqt4, check_for_matplotlib,
-    check_for_pymca, check_for_pyqwt,
-    check_for_parallelpython, check_for_pytables,
-    check_for_phynx
+    check_for_pymca, check_for_parallelpython, 
+    check_for_pytables, check_for_phynx
 )
 
 #---------------------------------------------------------------------------
@@ -159,7 +158,6 @@ def check_for_dependencies():
     check_for_pyqt4()
     check_for_matplotlib()
     check_for_pymca()
-    check_for_pyqwt()
 
     print_raw("")
     print_raw("OPTIONAL DEPENDENCIES")
