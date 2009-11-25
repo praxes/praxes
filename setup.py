@@ -43,10 +43,10 @@ setup(
         'numpy (>=1.3)',
         'matplotlib (>=0.99.1)',
         'PyQt4 (>=4.5.1)',
-        'PyQwt (>=5.2.0)',
         'PyMca (>=4.3.1)',
         'pp (>=1.5.7)',
         'h5py (>=1.2.0)',
+        'phynx (>=0.10.0)'
     ],
     packages = find_packages(),
     package_data = find_package_data(),

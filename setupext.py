@@ -200,27 +200,6 @@ def check_for_pymca():
         else:
             return True
 
-def check_for_pyqwt():
-    pyqwtReq = '5.2.0'
-    try:
-        from PyQt4 import Qwt5
-    except ImportError:
-        print_status(
-            "PyQwt",
-            "Not found (required for some X-ray fluorescence capabilities)"
-        )
-        return False
-    else:
-        print_status("PyQwt", Qwt5.QWT_VERSION_STR)
-        if LooseVersion(Qwt5.QWT_VERSION_STR) < LooseVersion(pyqwtReq):
-            print_message(
-                "PyQwt-%s or greater required for some X-ray "
-                "fluorescence capabilities" % pyqwtReq
-            )
-            return False
-        else:
-            return True
-
 def check_for_parallelpython():
     ppReq = '1.5.6'
     try:
