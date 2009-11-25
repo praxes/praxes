@@ -2,43 +2,31 @@
 Installation
 ************
 
-Prerequisites
-=============
-
 XPaXS requires several packages in order to run. Many of these
-packages can be easily installed on Linux using the distributions
+packages can be easily installed on Linux using the distribution's
 package manager, which will also take care of dependencies. Note
-to windows users: you need to install the 32-bit python and
-32-bit package installers, and you may need to run .exe files as
+to windows users: you need to install the 32-bit python and 32-bit
+package installers, and you may need to run .exe files as
 administrator (just right-click on them and choose "run as
 Administrator"). Install in the following order:
 
-#. Python_ (version 2.5 or 2.6)
+#. Python_ (version 2.6)
 #. NumPy_ (version 1.3 or later)
 #. PyQt4_ (version 4.6.2 or later) [#f1]_
-#. PyQwt_ (version 5.2.1 or later, Required by PyMca.)
-#. PyMca_ (version 4.3.1 or later)
+#. PyMca_ (version 4.3.1 or later) [#f2]_
 #. matplotlib_ (0.99.1 or later)
 #. ParallelPython_ (version 1.5.7 or later)
-#. h5py_ (1.2.0 or later) [#f2]_
+#. h5py_ (1.2.0 or later) [#f3]_
 #. phynx_ (0.10.0 or later)
 #. XPaXS_
 
-To install XPaXS on linux, the easiest approach is to use your
-distribution's package manager to install the dependencies. On
-several linux distributions, like Ubuntu, you may need to install the
-developer tools and -dev packages in order to use XPaXS, for example
-pyqt4-dev and pyqt4-dev-tools. You may also need to install
-hdf5-1.8.3 and the hdf5-dev packages before installing h5py and phynx.
-If you have trouble installing python-qwt5-qt4 on debian/ubuntu, see
-this comment_ at the bug report or contact D.Dale for assistance. To
-install XPaXS itself, download the source, unpack it, and run the
-following in the source directory::
+To install XPaXS on OS X or Linux, download the source, unpack it, and
+run the following in the source directory::
 
   python setup.py build && sudo python setup.py install
 
-Developers installation
-=======================
+Developer's installation
+========================
 
 XPaXS developers may also want to install:
 
@@ -70,10 +58,15 @@ Bugs, feature requests, and questions can be directed to the
 .. rubric:: Footnotes
 
 .. [#f1] May require installing Qt_ on Mac, and development tools
-   like pyqt4-dev-tools through the package manager on Linux
-.. [#f2] May require installing hdf5-1.8.3 or later on linux and Mac,
+   like pyqt4-dev and pyqt4-dev-tools through the package manager on
+   Linux.
+.. [#f2] Windows users, please install
+   the file that includes the python version in the name: e.g.
+   PyMca-4.4.0.win32-py2.6.exe. Mac and linux users please install
+   from source: e.g. pymca4.4.0-src.tgz.
+.. [#f3] May require installing hdf5-1.8.3 or later on lLnux and OS X,
    and development libraries like libhdf5-dev through the package
-   manager on linux
+   manager on linux.
 
 
 .. _Python: http://www.python.org/
@@ -93,5 +86,3 @@ Bugs, feature requests, and questions can be directed to the
 .. _phynx: http://pypi.python.org/pypi/phynx
 .. _XPaXS: http://pypi.python.org/pypi/xpaxs
 .. _`xpaxs development page`: https://launchpad.net/xpaxs
-.. _comment: https://bugs.edge.launchpad.net/ubuntu/+source/pyqwt5/+bug/342782/comments/12
-
