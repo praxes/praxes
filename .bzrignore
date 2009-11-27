@@ -12,7 +12,6 @@ build/
 dist/
 MANIFEST
 *.e4*
-xpaxs.egg-info/
 *.so
 doc/math.*
 doc/_build

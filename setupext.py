@@ -50,7 +50,7 @@ def check_for_python():
         )
 
 def check_for_numpy():
-    npReq = '1.2'
+    npReq = '1.2.0'
     try:
         import numpy
     except ImportError:
@@ -72,7 +72,7 @@ def check_for_numpy():
             return True
 
 def check_for_h5py():
-    h5Req = '1.2'
+    h5Req = '1.2.0'
     try:
         from h5py.version import hdf5_version, version
     except ImportError:
@@ -122,7 +122,7 @@ def check_for_phynx():
         return False
 
 def check_for_pyqt4():
-    pyqtReq = '4.5'
+    pyqtReq = '4.5.2'
     try:
         from PyQt4 import pyqtconfig
     except ImportError:
@@ -177,7 +177,7 @@ def check_for_matplotlib():
             return True
 
 def check_for_pymca():
-    pymcaReq = '4.3.1 20090202-snapshot'
+    pymcaReq = '4.4.0'
     try:
         from PyMca import PyMcaMain
     except ImportError:
