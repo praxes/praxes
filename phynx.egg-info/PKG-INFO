@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: phynx
-Version: 0.10
+Version: 0.10.96
 Summary: An extensible high-level interface for complex HDF5 data
 Home-page: http://packages.python.org/phynx/
 Author: The Phynx Development Team

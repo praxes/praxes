@@ -21,6 +21,10 @@ class Group(h5py.Group, _PhynxProperties):
     """
 
     @property
+    def children(self):
+        return self.values()
+
+    @property
     def entry(self):
         try:
             target = self['/'.join(self.name.split('/')[:2])]

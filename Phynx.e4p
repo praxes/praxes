@@ -16,9 +16,6 @@
     <Source>phynx/data.py</Source>
     <Source>phynx/multichannelanalyzer.py</Source>
     <Source>phynx/log.py</Source>
-    <Source>phynx/ui/traits/phynxfile_poc.py</Source>
-    <Source>phynx/ui/traits/treeview.py</Source>
-    <Source>phynx/ui/traits/__init__.py</Source>
     <Source>phynx/ui/__init__.py</Source>
     <Source>phynx/beam.py</Source>
     <Source>phynx/registry.py</Source>
@@ -49,6 +46,8 @@
     <Source>phynx/sample.py</Source>
     <Source>phynx/note.py</Source>
     <Source>doc/conf.py</Source>
+    <Source>phynx/ui/phynxfile_poc.py</Source>
+    <Source>phynx/ui/treeview.py</Source>
   </Sources>
   <Forms>
   </Forms>
