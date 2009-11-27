@@ -1,8 +1,8 @@
 
 from __future__ import absolute_import
 
-from ...phynx import File
-from .treeview import MainInterface
+from phynx import File
+from phynx.ui.traits.treeview import MainInterface
 
 
 if __name__ == '__main__':

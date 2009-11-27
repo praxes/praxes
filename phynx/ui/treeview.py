@@ -27,7 +27,7 @@ main_tree_editor = TreeEditor(
                  ),
         TreeNode(node_for=[File],
                  children ='children',
-                 label='name',
+                 label='filename',
                  view = View(['name']),
                  ),
         TreeNode(node_for=[Group],
