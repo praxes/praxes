@@ -9,7 +9,6 @@ from PyQt4 import QtCore, QtGui
 from SpecClient import SpecClientError
 
 from .ui import ui_specconnect
-from . import configdialog, sshdialog
 from .scancontrols import ScanControls
 from .runner import SpecRunner
 
@@ -67,7 +66,11 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def connectToSpec(self):
         if USESSH and not self.ssh:
-            self.ssh = sshdialog.SshDialog(self.parent()).exec_()
+            try:
+                from . import sshdialog
+                self.ssh = sshdialog.SshDialog(self.parent()).exec_()
+            except ImportError:
+                pass
             if not self.ssh: return
         try:
             self._connectToSpec()
@@ -155,7 +158,7 @@ class SpecInterface(QtCore.QObject):
                    'SpecInterfaceWidget')
 
     def _configure(self):
-#        logger.debug('configuring Spec Interface')
+        from . import configdialog
 
         self.connect(
             self.mainWindow.actionConfigure,

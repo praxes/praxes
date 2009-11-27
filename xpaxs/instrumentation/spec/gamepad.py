@@ -30,7 +30,7 @@ class GamePad(Ui_GamePad, QtGui.QWidget):
             self.specRunner = specRunner
 
         elif not TEST_SPEC:
-            from xpaxs.instrumentation.spec.specconnect import SpecConnect
+            from xpaxs.instrumentation.spec.specinterface import SpecConnect
             self.specRunner = SpecConnect()#.exec_()
 
         else:
