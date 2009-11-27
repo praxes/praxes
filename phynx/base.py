@@ -3,8 +3,10 @@
 from __future__ import absolute_import, with_statement
 
 try:
-    from enthought.traits.api import HasTraits_DISABLED
+    from enthought.traits.api import HasTraits, MetaHasTraits
 except ImportError:
+    MetaHasTraits = type
+
     class HasTraits(object):
         pass
 
@@ -12,7 +14,7 @@ from .exceptions import H5Error
 from .utils import simple_eval
 
 
-class _RegisterPhynxClass(type):
+class _RegisterPhynxClass(MetaHasTraits):
 
     def __init__(cls, name, bases, attrs):
         if cls.__name__ != '_PhynxProperties':
@@ -32,6 +34,10 @@ class _PhynxProperties(HasTraits):
     @property
     def acquisition_shape(self):
         return simple_eval(self.attrs.get('acquisition_shape', '()'))
+
+    @property
+    def children(self):
+        return self.values()
 
     @property
     def npoints(self):
