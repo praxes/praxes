@@ -8,15 +8,17 @@ package manager, which will also take care of dependencies. Note
 to windows users: you need to install the 32-bit python and 32-bit
 package installers, and you may need to run .exe files as
 administrator (just right-click on them and choose "run as
-Administrator"). Install in the following order:
+Administrator"). Check that you have the following installed:
 
 #. Python_ (version 2.6)
-#. NumPy_ (version 1.3 or later)
-#. PyQt4_ (version 4.6.2 or later) [#f1]_
-#. PyMca_ (version 4.3.1 or later) [#f2]_
-#. matplotlib_ (0.99.1 or later)
-#. ParallelPython_ (version 1.5.7 or later)
-#. h5py_ (1.2.0 or later) [#f3]_
+#. Distribute_ (version 0.6.8 or later) 
+   or Setuptools (0.6c9 or later) [#f1]_
+#. PyQt4_ (version 4.5.2 or later) [#f2]_
+#. NumPy_ (version 1.2.0 or later)
+#. PyMca_ (version 4.4.0 or later) [#f3]_
+#. matplotlib_ (0.98.3 or later)
+#. ParallelPython_ (version 1.5.6 or later)
+#. h5py_ (1.2.0 or later) [#f4]_
 #. phynx_ (0.10.0 or later)
 #. XPaXS_
 
@@ -31,8 +33,7 @@ Developer's installation
 XPaXS developers may also want to install:
 
 * bzr_ (version 2.0.0 or later)
-* distribute_ (version 0.6.8 or later)
-* sphinx_ (version 0.6.3 or later)
+* Sphinx_ (version 0.6.3 or later)
 * nose_ (version 0.11 or later)
 
 You can follow and contribute to XPaXS' development by obtaining a
@@ -57,30 +58,31 @@ Bugs, feature requests, and questions can be directed to the
 
 .. rubric:: Footnotes
 
-.. [#f1] May require installing Qt_ on Mac, and development tools
+.. [#f1] Distribute is a fork of the setuptools project. Some Linux
+   package managers have not transitioned from setuptools to
+   distribute. XPaXS will also work with setuptools.
+.. [#f2] May require installing Qt_ on Mac, and development tools
    like pyqt4-dev and pyqt4-dev-tools through the package manager on
    Linux.
-.. [#f2] Windows users, please install
+.. [#f3] Windows users, please install
    the file that includes the python version in the name: e.g.
    PyMca-4.4.0.win32-py2.6.exe. Mac and linux users please install
    from source: e.g. pymca4.4.0-src.tgz.
-.. [#f3] May require installing hdf5-1.8.3 or later on lLnux and OS X,
+.. [#f4] May require installing hdf5-1.8.3 or later on lLnux and OS X,
    and development libraries like libhdf5-dev through the package
    manager on linux.
 
 
 .. _Python: http://www.python.org/
 .. _bzr: http://bazaar-vcs.org/en/
-.. _distribute: http://pypi.python.org/pypi/distribute
-.. _sphinx: http://pypi.python.org/pypi/Sphinx
+.. _Distribute: http://pypi.python.org/pypi/distribute
+.. _Sphinx: http://pypi.python.org/pypi/Sphinx
 .. _nose: http://pypi.python.org/pypi/nose
 .. _NumPy: http://pypi.python.org/pypi/numpy
 .. _PyQt4: http://pypi.python.org/pypi/PyQt
-.. _SIP: http://pypi.python.org/pypi/SIP
 .. _Qt: http://qt.nokia.com/
 .. _matplotlib: http://pypi.python.org/pypi/matplotlib
 .. _PyMca: http://pypi.python.org/pypi/PyMca
-.. _PyQwt: http://pyqwt.sourceforge.net/
 .. _ParallelPython: http://pypi.python.org/pypi/pp
 .. _h5py: http://pypi.python.org/pypi/h5py
 .. _phynx: http://pypi.python.org/pypi/phynx

@@ -57,7 +57,6 @@ class Viewer(ui_viewer.Ui_viewer, QtGui.QWidget):
 
 
 if __name__ == "__main__":
-    print __file__
     app = QtGui.QApplication(sys.argv)
     app.setOrganizationName('test')
     myapp = Viewer()
