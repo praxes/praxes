@@ -1,8 +1,0 @@
-numpy >= 1.2.0
-h5py >=1.2.0
-
-[traits]
-Traits >= 3.2.0
-
-[traits_qt4]
-Traits[qt4] >= 3.2.0
