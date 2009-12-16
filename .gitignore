@@ -1,4 +1,5 @@
 build
 dist
+phynx.egg-info
 .coverage
 *.pyc
