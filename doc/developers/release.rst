@@ -3,20 +3,18 @@ Releases
 ********
 
 Before creating a release, the version number needs to be updated in
-`xpaxs/__init__.py`. Then XPaXS needs to be installed either with::
+`xpaxs/release.py`. The next step is to create a source distribution,
+which will serve as the foundation for the eggs and other
+installers::
 
-  python setup.py install
+  python setup.py sdist
 
-or::
+This sdist needs to be unpacked and checked to make sure that no
+files are missing from the source distribution (using `diff -uR`) and
+that the tests pass.
 
-  python setup.py develop
-
-in order proceed with building the release, so the package version numbers will
-be advertised correctly for the installers and the documentation.
-
-
-Creating Source Releases
-========================
+Distributing Source Releases
+============================
 
 XPaXS is distributed as a source release for Linux and OS-X. To create a source
 release, just do::
@@ -24,19 +22,13 @@ release, just do::
   python setup.py register
   python setup.py sdist --formats=zip,gztar upload --sign
 
-This will create the tgz source file and upload it to the Python Package Index.
-Uploading to PyPi requires a .pypirc file in your home directory, something
-like::
+This will create the tgz source file and upload it to the Python
+Package Index. Uploading to PyPi requires a .pypirc file in your home
+directory, something like::
 
   [server-login]
   username: <username>
   password: <password>
-
-You can create a source distribution without uploading by doing::
-
-  python setup.py sdist
-
-This creates a source distribution in the `dist/` directory.
 
 
 Creating Windows Installers
@@ -44,19 +36,16 @@ Creating Windows Installers
 
 open a DOS window, cd into the xpaxs source directory and run::
 
-  python setup.py bdist_wininst --install-script=xpaxs_win_post_install.py
+  python setup.py bdist_msi --install-script=win_install.py
 
-.. We distribute binary installers for the windows platform. In order to build the
-   windows installer, you need to install MinGW_ (tested with MinGW-5.1.4). Then
-   open a DOS window, cd into the xpaxs source directory and run::
+.. We distribute binary installers for the windows platform. Run the
+following in the xpaxs source directory::
 
-     python setup.py build -c mingw32
-     python setup.py bdist_wininst --skip-build --install-script xpaxs_win_post_install.py
+     python setup.py bdist_msi --skip-build \
+         --install-script postinstall_win.py upload --sign
 
-   This creates the executable windows installer in the `dist/` directory.
-
-   .. _MinGW: http://www.mingw.org/
-
+This creates the executable windows installer in the `dist/`
+directory. 
 
 Building XPaXS documentation
 ============================
