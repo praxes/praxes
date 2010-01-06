@@ -1,16 +1,4 @@
-include setup*
-include specfile/src/*
-include specfile/include/*
-include SpecClient/*
-include SpecClient/doc/*
-include scripts/*
-include xpaxs/config/tests/*
-include xpaxs/core/fluorescence/tests/*
-include xpaxs/core/fluorescence/ui/cursors/*
-include xpaxs/core/fluorescence/ui/icons/*
-include xpaxs/dispatch/tests/*
-include xpaxs/frontend/tests/*
-include xpaxs/instrumentation/spec/macros/*
-include xpaxs/instrumentation/spec/tests/*
-include xpaxs/instrumentation/spec/ui/icons/*
-include xpaxs/io/phynx/tests/*
+prune *
+recursive-include xpaxs *.py *.svg *.png
+recursive-include SpecClient *.py
+include distribute_setup.py

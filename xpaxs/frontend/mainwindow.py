@@ -291,10 +291,14 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
 def main():
     import sys
-    app = QtGui.QApplication(sys.argv)
+    from .application import XpaxsApplication
+
+    app = XpaxsApplication(sys.argv)
     app.setOrganizationName('XPaXS')
-    form = MainWindowBase()
-    form.show()
+    app.setApplicationName('xpaxs')
+    mainwindow = MainWindow()
+    mainwindow.show()
+
     sys.exit(app.exec_())
 
 

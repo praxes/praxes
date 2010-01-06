@@ -1,8 +1,0 @@
-matplotlib >=0.98.3
-phynx >=0.10.0
-
-[parallel]
-pp >=1.5.6
-
-[fluorescence]
-PyMca >=4.4.0
