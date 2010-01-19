@@ -20,6 +20,9 @@ class Group(h5py.Group, _PhynxProperties):
     """
     """
 
+    __nx_unrecognized = []
+    __px_unrecognized = []
+
     @property
     def children(self):
         return self.values()
@@ -96,20 +99,31 @@ class Group(h5py.Group, _PhynxProperties):
     def __getitem__(self, name):
         # TODO: would be better to check the attribute without having to
         # create create the group twice. This might be possible with the
-        # 1.8 API. If we simply returned item here,
+        # 1.8 API.
         item = super(Group, self).__getitem__(name)
         attrs = item.attrs
 
         if 'class' in attrs:
-            return registry[item.attrs['class']](self, name)
+            try:
+                registry[attrs['class']](self, name)
+            except KeyError:
+                if attrs['class'] not in self.__px_unrecognized:
+                    self.__px_unrecognized.append(attrs['class'])
+                    print (
+                        'phynx does not recognize the "%s" class and will '
+                        'use a default interface instead.' % attrs['class']
+                    )
         elif 'NX_class' in attrs:
             try:
                 registry[attrs['NX_class']](self, name)
             except KeyError:
-                print (
-                    '%s not recognized, please file a bug report to phynx!' 
-                    % attrs['NX_class']
-                )
+                if attrs['NX_class'] not in self.__nx_unrecognized:
+                    self.__nx_unrecognized.append(attrs['NX_class'])
+                    print (
+                        'phynx does not recognize the "%s" nexus class '
+                        'and will use a default interface instead. '
+                        'Please file a bug report.' % attrs['NX_class']
+                    )
 
         if isinstance(item, h5py.Dataset):
             return Dataset(self, name)

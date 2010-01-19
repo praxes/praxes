@@ -32,14 +32,17 @@ class _Registry(object):
         return self.__data.__iter__()
 
     @sync
-    def __setitem__(self, name, value):
-        self.__data[name] = value
-
-    @sync
     def register(self, value):
+        try:
+            assert value.__name__ not in self.__data
+        except AssertionError:
+            raise KeyError(
+                'The registry already contains a "%s" entry' % value.__name__
+            )
         self.__data[value.__name__] = value
         try:
             if value.nx_class not in self.__data:
+                # this is the base nx_class
                 self.__data[value.nx_class] = value
         except AttributeError:
             pass

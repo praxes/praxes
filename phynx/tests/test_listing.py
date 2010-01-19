@@ -12,7 +12,7 @@ from .. import sorting
 class TestSorting(TestCase):
 
     def test_defaults(self):
-        with self.get_file() as f:
+        with self.file as f:
             a=f.create_group('a')
             b=f.create_group('b')
             c=f.create_group('c')
@@ -24,7 +24,7 @@ class TestSorting(TestCase):
             npt.assert_array_equal(f.listitems(), [('a', a), ('b', b), ('c', c)])
 
     def test_sequential_name(self):
-        with self.get_file() as f:
+        with self.file as f:
             f.sorted_with(sorting.sequential)
 
             f.create_group('a')
@@ -33,7 +33,7 @@ class TestSorting(TestCase):
             npt.assert_equal(f.keys(), ['a', 'b', 'c'])
 
     def test_default_start_time(self):
-        with self.get_file() as f:
+        with self.file as f:
             a = f.create_group('c')
             a.attrs['start_time'] = time.time()
             time.sleep(.01)
@@ -48,7 +48,7 @@ class TestSorting(TestCase):
             npt.assert_equal(f.keys(), ['a', 'b', 'c'])
 
     def test_sequential_start_time(self):
-        with self.get_file() as f:
+        with self.file as f:
             f.sorted_with(sorting.sequential)
 
             a = f.create_group('c')

@@ -6,6 +6,7 @@ use_setuptools()
 
 from setuptools import setup, find_packages
 
+
 cfg = ConfigParser.ConfigParser()
 cfg.read('setup.cfg')
 
