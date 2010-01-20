@@ -31,3 +31,14 @@ class TestSorting(TestCase):
             a = f.create_group('a')
             a.attrs['class'] = np.array(['Foo'])
             assert isinstance(f['a'], phynx.Group)
+
+    def test_class_attribute_respected(self):
+        with self.file as f:
+            a = f.create_group('a')
+            a.attrs['class'] = 'Measurement'
+            assert isinstance(f['a'], phynx.Measurement)
+
+    def test_class_attribute_saved(self):
+        with self.file as f:
+            a = f.create_group('a', type='Entry')
+            assert isinstance(f['a'], phynx.Entry)
