@@ -26,3 +26,8 @@ class TestSorting(TestCase):
             a.attrs['nx_class'] = np.array('Foo')
             assert isinstance(f['a'], phynx.Group)
 
+    def test_class_attribute_array(self):
+        with self.file as f:
+            a = f.create_group('a')
+            a.attrs['class'] = np.array(['Foo'])
+            assert isinstance(f['a'], phynx.Group)

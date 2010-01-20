@@ -20,7 +20,6 @@ class Group(h5py.Group, _PhynxProperties):
     """
     """
 
-    __nx_unrecognized = []
     __px_unrecognized = []
 
     @property
@@ -96,6 +95,7 @@ class Group(h5py.Group, _PhynxProperties):
         except Exception:
             return "<Closed %s group>" % self.__class__.__name__
 
+    @sync
     def __getitem__(self, name):
         # TODO: would be better to check the attribute without having to
         # create create the group twice. This might be possible with the
@@ -104,26 +104,22 @@ class Group(h5py.Group, _PhynxProperties):
         attrs = item.attrs
 
         if 'class' in attrs:
-            try:
-                registry[attrs['class']](self, name)
-            except KeyError:
-                if attrs['class'] not in self.__px_unrecognized:
-                    self.__px_unrecognized.append(attrs['class'])
-                    print (
-                        'phynx does not recognize the "%s" class and will '
-                        'use a default interface instead.' % attrs['class']
-                    )
+            cls = attrs['class']
         elif 'NX_class' in attrs:
-            try:
-                registry[attrs['NX_class']](self, name)
-            except KeyError:
-                if attrs['NX_class'] not in self.__nx_unrecognized:
-                    self.__nx_unrecognized.append(attrs['NX_class'])
-                    print (
-                        'phynx does not recognize the "%s" nexus class '
-                        'and will use a default interface instead. '
-                        'Please file a bug report.' % attrs['NX_class']
-                    )
+            cls = attrs['class']
+        else:
+            cls = None
+
+        try:
+            return registry[cls](self, name)
+        except (KeyError, TypeError):
+            if cls not in self.__px_unrecognized:
+                print (
+                    'phynx does not recognize the "%r" class and will '
+                    'provide a default interface instead. If this is an '
+                    'official phynx or NeXus class, please file a bug report '
+                    'with the phynx project.' % attrs['class']
+                )
 
         if isinstance(item, h5py.Dataset):
             return Dataset(self, name)
