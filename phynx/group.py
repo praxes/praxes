@@ -106,7 +106,7 @@ class Group(h5py.Group, _PhynxProperties):
         if 'class' in attrs:
             cls = attrs['class']
         elif 'NX_class' in attrs:
-            cls = attrs['class']
+            cls = attrs['NX_class']
         else:
             cls = None
 

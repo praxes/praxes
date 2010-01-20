@@ -42,3 +42,17 @@ class TestSorting(TestCase):
         with self.file as f:
             a = f.create_group('a', type='Entry')
             assert isinstance(f['a'], phynx.Entry)
+
+    def test_use_nxclass(self):
+        with self.file as f:
+            a = f.create_group('a', type='Entry')
+            del a.attrs['class']
+            assert isinstance(f['a'], phynx.Entry)
+
+    def test_use_default_interface(self):
+        with self.file as f:
+            a = f.create_group('a', type='Entry')
+            del a.attrs['class']
+            del a.attrs['NX_class']
+            assert not isinstance(f['a'], phynx.Entry)
+            assert isinstance(f['a'], phynx.Group)
