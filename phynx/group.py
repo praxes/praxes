@@ -113,12 +113,13 @@ class Group(h5py.Group, _PhynxProperties):
         try:
             return registry[cls](self, name)
         except (KeyError, TypeError):
-            if cls not in self.__px_unrecognized:
+            if (cls is not None) and (cls not in self.__px_unrecognized):
+                self.__px_unrecognized.append(cls)
                 print (
                     'phynx does not recognize the "%r" class and will '
                     'provide a default interface instead. If this is an '
                     'official phynx or NeXus class, please file a bug report '
-                    'with the phynx project.' % attrs['class']
+                    'with the phynx project.' % cls
                 )
 
         if isinstance(item, h5py.Dataset):
