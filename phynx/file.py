@@ -36,10 +36,14 @@ class File(Group, h5py.File):
             raise RuntimeError('unrecognized format')
 
     @property
+    def file(self):
+        return self
+
+    @property
     def format(self):
         return self.attrs.get('format_version', None)
 
-    def __init__(self, name, mode='a', lock=None, sorted_with=None):
+    def __init__(self, name, mode='a', lock=None, sorted_with=None, **kwargs):
         """
         Create a new file object.
 
@@ -50,10 +54,11 @@ class File(Group, h5py.File):
         - w-  Create file, fail if exists
         - a   Read/write if exists, create otherwise (default)
 
-        sorting is a callable function like python's builtin sorted, or None
+        sorted_with is a callable function like python's builtin sorted, or
+        None.
         """
 
-        h5py.File.__init__(self, name, mode)
+        h5py.File.__init__(self, name, mode, **kwargs)
         if lock is None:
             lock = threading.RLock()
         else:

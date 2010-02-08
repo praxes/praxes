@@ -17,3 +17,8 @@ class TestFile(TestCase):
 
         from ..file import File
         npt.assert_raises(IOError, File, '.', 'r')
+
+    def test_file_property(self):
+        with self.get_file('r') as f:
+            npt.assert_equal(f, f.file)
+            npt.assert_equal(f.file, f['/'].file)

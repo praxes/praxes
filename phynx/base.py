@@ -36,6 +36,13 @@ class _PhynxProperties(HasTraits):
         return simple_eval(self.attrs.get('acquisition_shape', '()'))
 
     @property
+    def file(self):
+        from h5py import h5i
+        fid = h5i.get_file_id(self.id)
+        from .file import File
+        return File(None, bind=fid)
+
+    @property
     def npoints(self):
         return self.attrs.get('npoints', 0)
 
