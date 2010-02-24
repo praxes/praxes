@@ -4,6 +4,8 @@ from __future__ import absolute_import, with_statement
 from numpy import testing as npt
 from .utils import TestCase
 from ..exceptions import H5Error
+from .. import File
+
 
 class TestFile(TestCase):
 
@@ -19,6 +21,11 @@ class TestFile(TestCase):
         npt.assert_raises(IOError, File, '.', 'r')
 
     def test_file_property(self):
-        with self.get_file('r') as f:
+        with self.get_file('w') as f:
             npt.assert_equal(f, f.file)
             npt.assert_equal(f.file, f['/'].file)
+
+            f['foo']=[1,2]
+            assert isinstance(f.file, File)
+            assert isinstance(f['/'].file, File)
+            assert isinstance(f['/foo'].file, File)

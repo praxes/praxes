@@ -15,7 +15,7 @@ from .registry import registry
 from .utils import simple_eval, sync
 
 
-class Dataset(h5py.Dataset, _PhynxProperties):
+class Dataset(_PhynxProperties, h5py.Dataset):
 
     """
     """

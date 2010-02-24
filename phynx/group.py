@@ -15,7 +15,7 @@ from .registry import registry
 from .utils import sorting, sync
 
 
-class Group(h5py.Group, _PhynxProperties):
+class Group(_PhynxProperties, h5py.Group):
 
     """
     """
