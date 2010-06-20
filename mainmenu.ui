@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainMenu</class>
+ <widget class="QMainWindow" name="MainMenu">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1029</width>
+    <height>412</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>XRD analysis for mar345: tools for composition spread phase mapping</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../../../.designer/backup/CUicon.bmp</normaloff>../../../.designer/backup/CUicon.bmp</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="bodywidget">
+   <widget class="QLabel" name="tasklistLabel">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>10</y>
+      <width>1006</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>tasks to be performed</string>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="taskTextBrowser">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>28</y>
+      <width>1006</width>
+      <height>231</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>This is a list of commands for data analysis. The commands can be entered manually but will be entered for you through the selection of the above menu items. In the execution of these tasks, ACTIVEPATH and ACTIVEGRP are string objects that will initially be the path and group associated with the below &quot;Active path enabled&quot; section, but these objects can be redefined as needed. The command ACTIVEGRP=DEFAULT will make ACTIVEGRP be the default spec group for the present ACTIVEPATH.</string>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOn</enum>
+    </property>
+    <property name="horizontalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOn</enum>
+    </property>
+    <property name="lineWrapMode">
+     <enum>QTextEdit::NoWrap</enum>
+    </property>
+    <property name="readOnly">
+     <bool>false</bool>
+    </property>
+    <property name="html">
+     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="performPushButton">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>264</y>
+      <width>1006</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;When this is clicked, the commands in the above text editor will be performed. During these operations, this window will be inactive. You will be notified with a message box when the commands have been completed.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: lightblue
+</string>
+    </property>
+    <property name="text">
+     <string>Perform Above Commands</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="active_file_lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>293</y>
+      <width>1006</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="activepathcheckBox">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>319</y>
+      <width>166</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>If this is checked and the above field contains a valid .h5 and group name, then that group will aotumatically be used when a routine is activated through the above menus. If you wish to access data from a different experiment, uncheck this box.</string>
+    </property>
+    <property name="text">
+     <string>Active path enabled</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="default_scan_checkBox">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>320</y>
+      <width>241</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>If both this checkbox and &quot;Active path enabled&quot; are unchecked, then when a new .h5 is opened, you will have the choice of choosing a new spec measurement scan for analysis.</string>
+    </property>
+    <property name="text">
+     <string>use default measurement scan</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="navchoiceComboBox">
+    <property name="geometry">
+     <rect>
+      <x>725</x>
+      <y>320</y>
+      <width>121</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>This specifies the style fot he navigator for applications that have a clickable naviagtor for spec index selection. &quot;Posn&quot; style navigator has an outline of the substrate with measurement point indiciated by the spec x,z position. A &quot;Comp&quot; style navigator will be a ternary composition plot - these require that the composition data be available.</string>
+    </property>
+    <item>
+     <property name="text">
+      <string>x,z Posn</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>DepProf comp.</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>XRF comp.</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>580</x>
+      <y>320</y>
+      <width>136</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Plot Navigator Style:</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="main_menu_pulldown">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1029</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuXRD_analysis_for_MAR345">
+    <property name="title">
+     <string>Data &amp;Import</string>
+    </property>
+    <addaction name="action_initialize_scan"/>
+    <addaction name="action_edit_DAQ_params"/>
+    <addaction name="action_change_active_scan"/>
+    <addaction name="action_buildnewscan"/>
+    <addaction name="action_import_int_kill_map"/>
+    <addaction name="action_import_sample_info"/>
+    <addaction name="action_synthimport"/>
+    <addaction name="action_import_txt_XRD_data"/>
+   </widget>
+   <widget class="QMenu" name="menuData_Analysis">
+    <property name="title">
+     <string>&amp;Diffraction Analysis</string>
+    </property>
+    <widget class="QMenu" name="menuPerform_integration">
+     <property name="title">
+      <string>perform &amp;integration</string>
+     </property>
+     <addaction name="action_integrate_single_image"/>
+     <addaction name="action_integrate_entire_dataset"/>
+    </widget>
+    <widget class="QMenu" name="menu1d_peak_search">
+     <property name="title">
+      <string>1D wavelet peak search</string>
+     </property>
+     <addaction name="action_1d_peak_search_single"/>
+     <addaction name="action_1d_peak_search_all"/>
+    </widget>
+    <widget class="QMenu" name="menuAssociate_1d_peaks_with_qqpeaks">
+     <property name="title">
+      <string>associate 1d peaks with qqpeaks</string>
+     </property>
+     <addaction name="action_associate_1d_qqpeaks_single"/>
+     <addaction name="action_associate_1d_qqpeaks_all"/>
+    </widget>
+    <addaction name="action_choose_data_subset"/>
+    <addaction name="action_calc_bcknd"/>
+    <addaction name="menuPerform_integration"/>
+    <addaction name="action_process_1d"/>
+    <addaction name="action_wavetrans1d"/>
+    <addaction name="menu1d_peak_search"/>
+    <addaction name="action_fit_1d_peaks"/>
+    <addaction name="action_addpeaks"/>
+    <addaction name="action_removepeaks"/>
+    <addaction name="action_fix1dbcknd"/>
+    <addaction name="action_calcqq"/>
+    <addaction name="action_analyze_qq"/>
+    <addaction name="menuAssociate_1d_peaks_with_qqpeaks"/>
+    <addaction name="action_group_into_phases"/>
+    <addaction name="action_spatial_phases"/>
+    <addaction name="action_neighbor_calculation"/>
+   </widget>
+   <widget class="QMenu" name="menuVisualization">
+    <property name="title">
+     <string>&amp;Visualization</string>
+    </property>
+    <addaction name="action_plot_2D_intensity"/>
+    <addaction name="action_plot_1D_intensity"/>
+    <addaction name="action_plot1dwavetrans"/>
+    <addaction name="action_plot_1D_texture"/>
+    <addaction name="action_plotinterpimageof1ddata"/>
+    <addaction name="action_plot_sample_info"/>
+    <addaction name="action_plot_qq"/>
+    <addaction name="action_association_trees"/>
+    <addaction name="action_plot_imap"/>
+    <addaction name="action_plot_dat"/>
+    <addaction name="action_image_histogram"/>
+    <addaction name="action_H5file_info"/>
+   </widget>
+   <widget class="QMenu" name="menuExit">
+    <property name="title">
+     <string>Exit</string>
+    </property>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuData_Export">
+    <property name="title">
+     <string>Data Export</string>
+    </property>
+    <addaction name="action_save_all_1d_plt"/>
+    <addaction name="action_save_2d_image_dataset"/>
+    <addaction name="action_export_XRDSuite_files"/>
+    <addaction name="action_exportpeak"/>
+   </widget>
+   <widget class="QMenu" name="menuCHESSrun">
+    <property name="title">
+     <string>CHESSrun Setup</string>
+    </property>
+    <addaction name="action_createchessrun"/>
+    <addaction name="action_calcqchiimages"/>
+    <addaction name="action_build_integration_map"/>
+    <addaction name="action_build_chi_map"/>
+    <addaction name="actionBinImapChimap"/>
+    <addaction name="separator"/>
+    <addaction name="action_plot_chessrun_arrays"/>
+   </widget>
+   <widget class="QMenu" name="menuWavelets">
+    <property name="title">
+     <string>Wavelets Setup</string>
+    </property>
+    <addaction name="action_calc_waveset1d"/>
+   </widget>
+   <widget class="QMenu" name="menuComposition">
+    <property name="title">
+     <string>&amp;Composition</string>
+    </property>
+    <addaction name="actionDeposition_Profiling"/>
+    <addaction name="actionXRF_analysis"/>
+    <addaction name="action_export_cfg"/>
+   </widget>
+   <widget class="QMenu" name="menuMiniPrograms">
+    <property name="title">
+     <string>Batch Analysis</string>
+    </property>
+    <addaction name="action_mini_program_txt"/>
+   </widget>
+   <widget class="QMenu" name="menuTexture_analysis">
+    <property name="title">
+     <string>&amp;Texture Analysis</string>
+    </property>
+    <addaction name="action_textureanalysis"/>
+    <addaction name="action_wavetranstex"/>
+    <addaction name="action_1d_peak_search_tex"/>
+    <addaction name="action_process_texture"/>
+    <addaction name="action_fit_1d_peaks_tex"/>
+   </widget>
+   <addaction name="menuXRD_analysis_for_MAR345"/>
+   <addaction name="menuData_Analysis"/>
+   <addaction name="menuTexture_analysis"/>
+   <addaction name="menuComposition"/>
+   <addaction name="menuVisualization"/>
+   <addaction name="menuData_Export"/>
+   <addaction name="menuCHESSrun"/>
+   <addaction name="menuWavelets"/>
+   <addaction name="menuMiniPrograms"/>
+   <addaction name="menuExit"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+  </widget>
+  <action name="action_import_single_image">
+   <property name="text">
+    <string>&amp;single image</string>
+   </property>
+  </action>
+  <action name="action_import_entire_dataset">
+   <property name="text">
+    <string>&amp;entire dataset</string>
+   </property>
+  </action>
+  <action name="action_edit_DAQ_params">
+   <property name="text">
+    <string>&amp;edit DAQ parameters</string>
+   </property>
+  </action>
+  <action name="action_choose_background">
+   <property name="text">
+    <string>choose &amp;background</string>
+   </property>
+  </action>
+  <action name="action_choose_data_subset">
+   <property name="text">
+    <string>&amp;edit point list for analysis and killmap</string>
+   </property>
+  </action>
+  <action name="action_choose_excluded_pixels">
+   <property name="text">
+    <string>choose &amp;excluded pixels</string>
+   </property>
+  </action>
+  <action name="action_build_integration_map">
+   <property name="text">
+    <string>build integration &amp;map</string>
+   </property>
+  </action>
+  <action name="action_integrate_single_image">
+   <property name="text">
+    <string>&amp;single image</string>
+   </property>
+  </action>
+  <action name="action_integrate_entire_dataset">
+   <property name="text">
+    <string>&amp;entire dataset</string>
+   </property>
+  </action>
+  <action name="action_qq_single_image">
+   <property name="text">
+    <string>&amp;single image</string>
+   </property>
+  </action>
+  <action name="action_qq_entire_dataset">
+   <property name="text">
+    <string>&amp;entire dataset</string>
+   </property>
+  </action>
+  <action name="action_analyze_qq">
+   <property name="text">
+    <string>&amp;analyze QQ (find peaks, qqnorm)</string>
+   </property>
+  </action>
+  <action name="action_plot_2D_intensity">
+   <property name="text">
+    <string>plot &amp;2D intensity</string>
+   </property>
+  </action>
+  <action name="action_plot_1D_intensity">
+   <property name="text">
+    <string>plot &amp;1D intensity</string>
+   </property>
+  </action>
+  <action name="action_plot_1D_texture">
+   <property name="text">
+    <string>plot 1D &amp;texture</string>
+   </property>
+  </action>
+  <action name="action_plot_qq">
+   <property name="text">
+    <string>plot qq</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>exit</string>
+   </property>
+  </action>
+  <action name="action_calc_background">
+   <property name="text">
+    <string>(re)calculate &amp;background</string>
+   </property>
+  </action>
+  <action name="action_import_int_kill_map">
+   <property name="text">
+    <string>import integration map, etc. from library</string>
+   </property>
+  </action>
+  <action name="action_plot_imap">
+   <property name="text">
+    <string>plot &amp;integration map</string>
+   </property>
+  </action>
+  <action name="action_save_all_1d_plt">
+   <property name="text">
+    <string>save all &amp;1d Int as .plt</string>
+   </property>
+  </action>
+  <action name="action_calc_bcknd">
+   <property name="text">
+    <string>(re)calculate &amp;background</string>
+   </property>
+  </action>
+  <action name="action_plot_dat">
+   <property name="text">
+    <string>plot .dat binary images</string>
+   </property>
+  </action>
+  <action name="action_image_histogram">
+   <property name="text">
+    <string>image histogram</string>
+   </property>
+  </action>
+  <action name="action_H5file_info">
+   <property name="text">
+    <string>h5file info</string>
+   </property>
+  </action>
+  <action name="action_process_1d">
+   <property name="text">
+    <string>process 1D intensity</string>
+   </property>
+  </action>
+  <action name="action_group_into_phases">
+   <property name="text">
+    <string>group 1d peaks</string>
+   </property>
+  </action>
+  <action name="action_1d_peak_search_single">
+   <property name="text">
+    <string>single image</string>
+   </property>
+  </action>
+  <action name="action_1d_peak_search_all">
+   <property name="text">
+    <string>entire dataset</string>
+   </property>
+  </action>
+  <action name="action_associate_1d_qqpeaks_single">
+   <property name="text">
+    <string>single image</string>
+   </property>
+  </action>
+  <action name="action_associate_1d_qqpeaks_all">
+   <property name="text">
+    <string>entire dataset</string>
+   </property>
+  </action>
+  <action name="action_association_trees">
+   <property name="text">
+    <string>qqpeak-ipeak association</string>
+   </property>
+  </action>
+  <action name="action_save_2d_image_dataset">
+   <property name="text">
+    <string>save 2d image dataset</string>
+   </property>
+  </action>
+  <action name="action_build_chi_map">
+   <property name="text">
+    <string>build chi map</string>
+   </property>
+  </action>
+  <action name="action_spatial_phases">
+   <property name="text">
+    <string>spatial analysis of phases</string>
+   </property>
+  </action>
+  <action name="actionBinImapChimap">
+   <property name="text">
+    <string>bin imap, chimap, killmap</string>
+   </property>
+  </action>
+  <action name="action_import_sample_info">
+   <property name="text">
+    <string>import &quot;other&quot; sample data (.txt with spec indeces)</string>
+   </property>
+  </action>
+  <action name="action_export_XRDSuite_files">
+   <property name="text">
+    <string>export XRDSuite files</string>
+   </property>
+  </action>
+  <action name="action_initialize_scan">
+   <property name="text">
+    <string>initialize measurement scan</string>
+   </property>
+  </action>
+  <action name="action_change_active_scan">
+   <property name="text">
+    <string>change active analysis scan#</string>
+   </property>
+  </action>
+  <action name="action_createchessrun">
+   <property name="text">
+    <string>Create CHESSrun group</string>
+   </property>
+  </action>
+  <action name="action_calcqchiimages">
+   <property name="text">
+    <string>calculate q,chi,dqchi images</string>
+   </property>
+  </action>
+  <action name="action_calcqq">
+   <property name="text">
+    <string>calc QQ</string>
+   </property>
+  </action>
+  <action name="action_calc_waveset1d">
+   <property name="text">
+    <string>calc 1d wavelet set</string>
+   </property>
+  </action>
+  <action name="action_wavetrans1d">
+   <property name="text">
+    <string>wavelet transform 1d data</string>
+   </property>
+  </action>
+  <action name="action_plot1dwavetrans">
+   <property name="text">
+    <string>plot 1D wavetrans</string>
+   </property>
+  </action>
+  <action name="action_fit_1d_peaks">
+   <property name="text">
+    <string>fit 1D peaks</string>
+   </property>
+  </action>
+  <action name="action_fix1dbcknd">
+   <property name="text">
+    <string>edit 1D bcknd using existing peaks</string>
+   </property>
+  </action>
+  <action name="action_addpeaks">
+   <property name="text">
+    <string>add peaks to peak-fit-list</string>
+   </property>
+  </action>
+  <action name="action_plotinterpimageof1ddata">
+   <property name="text">
+    <string>interp 2dimage. diffraction vs info</string>
+   </property>
+  </action>
+  <action name="action_removepeaks">
+   <property name="text">
+    <string>remove peaks from post-fitted list</string>
+   </property>
+  </action>
+  <action name="actionDeposition_Profiling">
+   <property name="text">
+    <string>Deposition Profiling</string>
+   </property>
+  </action>
+  <action name="actionXRF_analysis">
+   <property name="text">
+    <string>XRF analysis</string>
+   </property>
+  </action>
+  <action name="action_plot_sample_info">
+   <property name="text">
+    <string>plot sample info / metadata</string>
+   </property>
+  </action>
+  <action name="action_synthimport">
+   <property name="text">
+    <string>import synthetic XRD data (.txt with peaks)</string>
+   </property>
+  </action>
+  <action name="action_exportpeak">
+   <property name="text">
+    <string>export peak list</string>
+   </property>
+  </action>
+  <action name="action_neighbor_calculation">
+   <property name="text">
+    <string>neighboring points calculation</string>
+   </property>
+  </action>
+  <action name="action_plot_chessrun_arrays">
+   <property name="text">
+    <string>plot arrays</string>
+   </property>
+  </action>
+  <action name="action_buildnewscan">
+   <property name="text">
+    <string>compile new measurement scan</string>
+   </property>
+  </action>
+  <action name="action_mini_program_txt">
+   <property name="text">
+    <string>load from txt</string>
+   </property>
+  </action>
+  <action name="action_import_txt_XRD_data">
+   <property name="text">
+    <string>import txt XRD data</string>
+   </property>
+  </action>
+  <action name="action_export_cfg">
+   <property name="text">
+    <string>Export pymca cfg as .cfg</string>
+   </property>
+  </action>
+  <action name="action_textureanalysis">
+   <property name="text">
+    <string>get PHI-distribution of peak</string>
+   </property>
+  </action>
+  <action name="action_wavetranstex">
+   <property name="text">
+    <string>wavelet tranform PHI-dist</string>
+   </property>
+  </action>
+  <action name="action_1d_peak_search_tex">
+   <property name="text">
+    <string>wavelet peak search PHI-dist</string>
+   </property>
+  </action>
+  <action name="action_process_texture">
+   <property name="text">
+    <string>process PHI-dist</string>
+   </property>
+  </action>
+  <action name="action_fit_1d_peaks_tex">
+   <property name="text">
+    <string>fit peaks</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
