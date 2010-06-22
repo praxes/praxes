@@ -144,8 +144,10 @@ class MainMenu(QMainWindow,
                     errorstr+='ERROR in '+cmdstr+ '\n\n'+errormsg
         if len(errorstr)>0:
             QMessageBox.warning(self,"ERROR REPORT",  errorstr)
-        QMessageBox.information(self, 'tasks Complete!', 'click "OK" to clear task list and continue program')
-        self.taskTextBrowser.setPlainText('')
+
+        else:
+            QMessageBox.information(self, 'tasks Complete!', 'click "OK" to clear task list and continue program')
+            self.taskTextBrowser.setPlainText('')
         self.setallowedtasks()
 
     @pyqtSignature("")
@@ -6942,7 +6944,7 @@ class plotinterpimageof1ddatawindow(QDialog):
         self.includeallimages()
         self.tooltips()
         self.Ygetinfominmax()
-        
+
 #END OF __init__~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     def clearplots(self):
@@ -7228,6 +7230,7 @@ class plotinterpimageof1ddatawindow(QDialog):
 #on 17Mar2009 discover problem with Hanjong's BiTiO sample where if interp vs x or z the interp uses the 1st value at a given q for all of info axis. Plotting vs IND is ok and plotting vs -x or -z is ok. But reversing the infovals doesnt change anything. the below sorting solved the problem for some unknown reason
         sortmap=numpy.argsort(self.infovalsarr)
         self.infovalsarr=self.infovalsarr[sortmap]
+        normarray=normarray[sortmap]
         counts=counts[sortmap]
 
         if self.interpCheckBox.isChecked():

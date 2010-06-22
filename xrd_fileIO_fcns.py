@@ -891,7 +891,7 @@ def wavepeaksearch1d(h5path, h5groupstr, minridgelength=3, minchildlength=0, wav
     errormsg=peaks_ridges1d(h5path, wtgrpstr, minridgelength=minridgelength, minchildlength=minchildlength, maxqscale_localmax=maxqscale_localmax, minridgewtsum=minridgewtsum, minchildwtsum=minchildwtsum, pointlist=pointlist, verbose=verbose)
     if not errormsg is None:
         return errormsg
-        
+
     h5file=h5py.File(h5path, mode='r+')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
     h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
@@ -936,7 +936,6 @@ def ridges_wavetrans1d(h5path, h5wtgrpstr, noiselevel=None, numscalesskippedinar
     h5file.close()
 
 def peaks_ridges1d(h5path, h5wtgrpstr, minridgelength=3, minchildlength=0., maxqscale_localmax=1.5, minridgewtsum=100., minchildwtsum=0., pointlist=[], verbose=False): #the qwidthrange is in /nm and the ridge must have a local maximum in that range
-    return '234234234'
     minridgelength=max(1, minridgelength)
     h5file=h5py.File(h5path, mode='r+')
     wtgrp=h5file[h5wtgrpstr]
@@ -949,7 +948,7 @@ def peaks_ridges1d(h5path, h5wtgrpstr, minridgelength=3, minchildlength=0., maxq
         h5file.close()
         print 'aborted: the set of qscales does not include more than 1 point in the specified qwidthrange'
         return 'aborted: the set of qscales does not include more than 1 point in the specified qwidthrange'
-        
+
     ridgescalecritind=ridgescalecritind[0] #takes the last because these are in decreasing order now
 
     wtpoint=wtgrp['wavetrans']
