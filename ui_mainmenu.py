@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\JohnnyG\Documents\CHESS\XRDproject_Python_11June2010Release\mainmenu.ui'
+# Form implementation generated from reading ui file 'C:\Users\JohnnyG\Documents\CHESS\XRDproject_Python\mainmenu.ui'
 #
-# Created: Fri Jun 18 10:18:00 2010
+# Created: Tue Jun 29 13:23:20 2010
 #      by: PyQt4 UI code generator 4.5.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_MainMenu(object):
     def setupUi(self, MainMenu):
         MainMenu.setObjectName("MainMenu")
-        MainMenu.resize(1029, 412)
+        MainMenu.resize(1025, 412)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("../../../.designer/backup/CUicon.bmp"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainMenu.setWindowIcon(icon)
@@ -55,7 +55,7 @@ class Ui_MainMenu(object):
         self.label.setObjectName("label")
         MainMenu.setCentralWidget(self.bodywidget)
         self.main_menu_pulldown = QtGui.QMenuBar(MainMenu)
-        self.main_menu_pulldown.setGeometry(QtCore.QRect(0, 0, 1029, 27))
+        self.main_menu_pulldown.setGeometry(QtCore.QRect(0, 0, 1025, 27))
         self.main_menu_pulldown.setObjectName("main_menu_pulldown")
         self.menuXRD_analysis_for_MAR345 = QtGui.QMenu(self.main_menu_pulldown)
         self.menuXRD_analysis_for_MAR345.setObjectName("menuXRD_analysis_for_MAR345")
@@ -65,8 +65,6 @@ class Ui_MainMenu(object):
         self.menuPerform_integration.setObjectName("menuPerform_integration")
         self.menu1d_peak_search = QtGui.QMenu(self.menuData_Analysis)
         self.menu1d_peak_search.setObjectName("menu1d_peak_search")
-        self.menuAssociate_1d_peaks_with_qqpeaks = QtGui.QMenu(self.menuData_Analysis)
-        self.menuAssociate_1d_peaks_with_qqpeaks.setObjectName("menuAssociate_1d_peaks_with_qqpeaks")
         self.menuVisualization = QtGui.QMenu(self.main_menu_pulldown)
         self.menuVisualization.setObjectName("menuVisualization")
         self.menuExit = QtGui.QMenu(self.main_menu_pulldown)
@@ -83,6 +81,10 @@ class Ui_MainMenu(object):
         self.menuMiniPrograms.setObjectName("menuMiniPrograms")
         self.menuTexture_analysis = QtGui.QMenu(self.main_menu_pulldown)
         self.menuTexture_analysis.setObjectName("menuTexture_analysis")
+        self.menuInDevelopment = QtGui.QMenu(self.main_menu_pulldown)
+        self.menuInDevelopment.setObjectName("menuInDevelopment")
+        self.menuAssociate_1d_peaks_with_qqpeaks_2 = QtGui.QMenu(self.menuInDevelopment)
+        self.menuAssociate_1d_peaks_with_qqpeaks_2.setObjectName("menuAssociate_1d_peaks_with_qqpeaks_2")
         MainMenu.setMenuBar(self.main_menu_pulldown)
         self.statusbar = QtGui.QStatusBar(MainMenu)
         self.statusbar.setEnabled(False)
@@ -234,8 +236,6 @@ class Ui_MainMenu(object):
         self.menuPerform_integration.addAction(self.action_integrate_entire_dataset)
         self.menu1d_peak_search.addAction(self.action_1d_peak_search_single)
         self.menu1d_peak_search.addAction(self.action_1d_peak_search_all)
-        self.menuAssociate_1d_peaks_with_qqpeaks.addAction(self.action_associate_1d_qqpeaks_single)
-        self.menuAssociate_1d_peaks_with_qqpeaks.addAction(self.action_associate_1d_qqpeaks_all)
         self.menuData_Analysis.addAction(self.action_choose_data_subset)
         self.menuData_Analysis.addAction(self.action_calc_bcknd)
         self.menuData_Analysis.addAction(self.menuPerform_integration.menuAction())
@@ -246,12 +246,6 @@ class Ui_MainMenu(object):
         self.menuData_Analysis.addAction(self.action_addpeaks)
         self.menuData_Analysis.addAction(self.action_removepeaks)
         self.menuData_Analysis.addAction(self.action_fix1dbcknd)
-        self.menuData_Analysis.addAction(self.action_calcqq)
-        self.menuData_Analysis.addAction(self.action_analyze_qq)
-        self.menuData_Analysis.addAction(self.menuAssociate_1d_peaks_with_qqpeaks.menuAction())
-        self.menuData_Analysis.addAction(self.action_group_into_phases)
-        self.menuData_Analysis.addAction(self.action_spatial_phases)
-        self.menuData_Analysis.addAction(self.action_neighbor_calculation)
         self.menuVisualization.addAction(self.action_plot_2D_intensity)
         self.menuVisualization.addAction(self.action_plot_1D_intensity)
         self.menuVisualization.addAction(self.action_plot1dwavetrans)
@@ -286,6 +280,14 @@ class Ui_MainMenu(object):
         self.menuTexture_analysis.addAction(self.action_1d_peak_search_tex)
         self.menuTexture_analysis.addAction(self.action_process_texture)
         self.menuTexture_analysis.addAction(self.action_fit_1d_peaks_tex)
+        self.menuAssociate_1d_peaks_with_qqpeaks_2.addAction(self.action_associate_1d_qqpeaks_single)
+        self.menuAssociate_1d_peaks_with_qqpeaks_2.addAction(self.action_associate_1d_qqpeaks_all)
+        self.menuInDevelopment.addAction(self.action_calcqq)
+        self.menuInDevelopment.addAction(self.action_analyze_qq)
+        self.menuInDevelopment.addAction(self.action_group_into_phases)
+        self.menuInDevelopment.addAction(self.action_spatial_phases)
+        self.menuInDevelopment.addAction(self.action_neighbor_calculation)
+        self.menuInDevelopment.addAction(self.menuAssociate_1d_peaks_with_qqpeaks_2.menuAction())
         self.main_menu_pulldown.addAction(self.menuXRD_analysis_for_MAR345.menuAction())
         self.main_menu_pulldown.addAction(self.menuData_Analysis.menuAction())
         self.main_menu_pulldown.addAction(self.menuTexture_analysis.menuAction())
@@ -295,6 +297,7 @@ class Ui_MainMenu(object):
         self.main_menu_pulldown.addAction(self.menuCHESSrun.menuAction())
         self.main_menu_pulldown.addAction(self.menuWavelets.menuAction())
         self.main_menu_pulldown.addAction(self.menuMiniPrograms.menuAction())
+        self.main_menu_pulldown.addAction(self.menuInDevelopment.menuAction())
         self.main_menu_pulldown.addAction(self.menuExit.menuAction())
 
         self.retranslateUi(MainMenu)
@@ -328,7 +331,6 @@ class Ui_MainMenu(object):
         self.menuData_Analysis.setTitle(QtGui.QApplication.translate("MainMenu", "&Diffraction Analysis", None, QtGui.QApplication.UnicodeUTF8))
         self.menuPerform_integration.setTitle(QtGui.QApplication.translate("MainMenu", "perform &integration", None, QtGui.QApplication.UnicodeUTF8))
         self.menu1d_peak_search.setTitle(QtGui.QApplication.translate("MainMenu", "1D wavelet peak search", None, QtGui.QApplication.UnicodeUTF8))
-        self.menuAssociate_1d_peaks_with_qqpeaks.setTitle(QtGui.QApplication.translate("MainMenu", "associate 1d peaks with qqpeaks", None, QtGui.QApplication.UnicodeUTF8))
         self.menuVisualization.setTitle(QtGui.QApplication.translate("MainMenu", "&Visualization", None, QtGui.QApplication.UnicodeUTF8))
         self.menuExit.setTitle(QtGui.QApplication.translate("MainMenu", "Exit", None, QtGui.QApplication.UnicodeUTF8))
         self.menuData_Export.setTitle(QtGui.QApplication.translate("MainMenu", "Data Export", None, QtGui.QApplication.UnicodeUTF8))
@@ -337,6 +339,8 @@ class Ui_MainMenu(object):
         self.menuComposition.setTitle(QtGui.QApplication.translate("MainMenu", "&Composition", None, QtGui.QApplication.UnicodeUTF8))
         self.menuMiniPrograms.setTitle(QtGui.QApplication.translate("MainMenu", "Batch Analysis", None, QtGui.QApplication.UnicodeUTF8))
         self.menuTexture_analysis.setTitle(QtGui.QApplication.translate("MainMenu", "&Texture Analysis", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuInDevelopment.setTitle(QtGui.QApplication.translate("MainMenu", "InDevelopment", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuAssociate_1d_peaks_with_qqpeaks_2.setTitle(QtGui.QApplication.translate("MainMenu", "associate 1d peaks with qqpeaks", None, QtGui.QApplication.UnicodeUTF8))
         self.action_import_single_image.setText(QtGui.QApplication.translate("MainMenu", "&single image", None, QtGui.QApplication.UnicodeUTF8))
         self.action_import_entire_dataset.setText(QtGui.QApplication.translate("MainMenu", "&entire dataset", None, QtGui.QApplication.UnicodeUTF8))
         self.action_edit_DAQ_params.setText(QtGui.QApplication.translate("MainMenu", "&edit DAQ parameters", None, QtGui.QApplication.UnicodeUTF8))

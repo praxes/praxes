@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1029</width>
+    <width>1025</width>
     <height>412</height>
    </rect>
   </property>
@@ -185,7 +185,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1029</width>
+     <width>1025</width>
      <height>27</height>
     </rect>
    </property>
@@ -220,13 +220,6 @@ p, li { white-space: pre-wrap; }
      <addaction name="action_1d_peak_search_single"/>
      <addaction name="action_1d_peak_search_all"/>
     </widget>
-    <widget class="QMenu" name="menuAssociate_1d_peaks_with_qqpeaks">
-     <property name="title">
-      <string>associate 1d peaks with qqpeaks</string>
-     </property>
-     <addaction name="action_associate_1d_qqpeaks_single"/>
-     <addaction name="action_associate_1d_qqpeaks_all"/>
-    </widget>
     <addaction name="action_choose_data_subset"/>
     <addaction name="action_calc_bcknd"/>
     <addaction name="menuPerform_integration"/>
@@ -237,12 +230,6 @@ p, li { white-space: pre-wrap; }
     <addaction name="action_addpeaks"/>
     <addaction name="action_removepeaks"/>
     <addaction name="action_fix1dbcknd"/>
-    <addaction name="action_calcqq"/>
-    <addaction name="action_analyze_qq"/>
-    <addaction name="menuAssociate_1d_peaks_with_qqpeaks"/>
-    <addaction name="action_group_into_phases"/>
-    <addaction name="action_spatial_phases"/>
-    <addaction name="action_neighbor_calculation"/>
    </widget>
    <widget class="QMenu" name="menuVisualization">
     <property name="title">
@@ -318,6 +305,24 @@ p, li { white-space: pre-wrap; }
     <addaction name="action_process_texture"/>
     <addaction name="action_fit_1d_peaks_tex"/>
    </widget>
+   <widget class="QMenu" name="menuInDevelopment">
+    <property name="title">
+     <string>InDevelopment</string>
+    </property>
+    <widget class="QMenu" name="menuAssociate_1d_peaks_with_qqpeaks_2">
+     <property name="title">
+      <string>associate 1d peaks with qqpeaks</string>
+     </property>
+     <addaction name="action_associate_1d_qqpeaks_single"/>
+     <addaction name="action_associate_1d_qqpeaks_all"/>
+    </widget>
+    <addaction name="action_calcqq"/>
+    <addaction name="action_analyze_qq"/>
+    <addaction name="action_group_into_phases"/>
+    <addaction name="action_spatial_phases"/>
+    <addaction name="action_neighbor_calculation"/>
+    <addaction name="menuAssociate_1d_peaks_with_qqpeaks_2"/>
+   </widget>
    <addaction name="menuXRD_analysis_for_MAR345"/>
    <addaction name="menuData_Analysis"/>
    <addaction name="menuTexture_analysis"/>
@@ -327,6 +332,7 @@ p, li { white-space: pre-wrap; }
    <addaction name="menuCHESSrun"/>
    <addaction name="menuWavelets"/>
    <addaction name="menuMiniPrograms"/>
+   <addaction name="menuInDevelopment"/>
    <addaction name="menuExit"/>
   </widget>
   <widget class="QStatusBar" name="statusbar">
