@@ -152,8 +152,7 @@ class Signal(Dataset):
     def _get_efficiency(self):
         return self.attrs.get('efficiency', 1)
     def _set_efficiency(self, value):
-        assert np.isscalar(value)
-        self.attrs['efficiency'] = value
+        self.attrs['efficiency'] = float(value)
     efficiency = property(_get_efficiency, _set_efficiency)
 
     @property
@@ -288,22 +287,21 @@ class AcquisitionEnumerator(object):
         return self
 
     def next(self):
-        while 1:
-            i = self.current_index
-            if i >= self._dataset.npoints:
-                raise StopIteration()
-            elif i + 1 > self._dataset.acquired:
-                # expected the datapoint, but not yet acquired
-                raise IndexError()
+        i = self.current_index
+        if i >= self._dataset.npoints:
+            raise StopIteration()
+        elif i + 1 > self._dataset.acquired:
+            # expected the datapoint, but not yet acquired
+            raise IndexError()
 
-            if self._dataset.masked[i]:
-                self.total_skipped = self.total_skipped + 1
-                self.current_index = i + 1
-                continue
-
-            res = self._dataset[i]
+        if self._dataset.masked[i]:
+            self.total_skipped = self.total_skipped + 1
             self.current_index = i + 1
-            return i, res
+            return i, None
+
+        res = self._dataset[i]
+        self.current_index = i + 1
+        return i, res
 
 
 class DataProxy(object):
