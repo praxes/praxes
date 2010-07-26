@@ -114,6 +114,8 @@ class PPTaskManager(QtCore.QThread):
             numSubmitted = 0
             try:
                 for index, data in self._enumerator:
+                    if data is None:
+                        continue
                     self.submitJob(index, data)
                     numSubmitted += 1
                     if numSubmitted >= self.numCpus*3:
