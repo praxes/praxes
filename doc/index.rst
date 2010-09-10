@@ -1,5 +1,5 @@
-User Guide
-==========
+Users' Guide
+============
 
 .. toctree::
    :maxdepth: 2
@@ -14,8 +14,8 @@ Module Reference
    :maxdepth: 2
 
 
-Developers Guide
-================
+Developers' Guide
+=================
 
 .. toctree::
    :maxdepth: 2
