@@ -1,0 +1,5 @@
+*.pyc
+xpaxs.egg-info
+build
+dist
+.DS_Store
