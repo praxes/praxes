@@ -1,6 +1,7 @@
 import os
 from distutils.core import setup
 
+
 packages = []
 for dirpath, dirnames, filenames in os.walk('praxis'):
     if '__init__.py' in filenames:
