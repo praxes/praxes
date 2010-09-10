@@ -1,6 +1,7 @@
 *.pyc
 xpaxs.egg-info
 build
+doc/_build
 dist
 MANIFEST
 .DS_Store
