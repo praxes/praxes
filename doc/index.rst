@@ -1,21 +1,10 @@
-Users' Guide
-============
+####################
+Praxis Documentation
+####################
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   introduction.rst
-
-
-Module Reference
-================
-
-.. toctree::
-   :maxdepth: 2
-
-
-Developers' Guide
-=================
-
-.. toctree::
-   :maxdepth: 2
+   users/index.rst
+   api/index.rst
+   devel/index.rst
