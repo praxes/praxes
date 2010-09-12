@@ -3,7 +3,7 @@ from distutils.core import setup
 
 
 packages = []
-for dirpath, dirnames, filenames in os.walk('praxis'):
+for dirpath, dirnames, filenames in os.walk('praxes'):
     if '__init__.py' in filenames:
         packages.append('.'.join(dirpath.split(os.sep)))
     else:
@@ -13,7 +13,7 @@ for dirpath, dirnames, filenames in os.walk('praxis'):
 setup(
     author = 'Darren Dale',
     author_email = 'darren.dale@cornell.edu',
-    description = 'Praxis framework for scientific analysis',
-    name = 'praxis',
+    description = 'Praxes framework for scientific analysis',
+    name = 'praxes',
     packages = packages,
 )

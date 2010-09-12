@@ -2,4 +2,4 @@
 Introduction
 ============
 
-This is the user guide for praxis.
+This is the user guide for praxes.

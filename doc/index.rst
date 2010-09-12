@@ -1,5 +1,5 @@
 ####################
-Praxis Documentation
+Praxes Documentation
 ####################
 
 .. toctree::

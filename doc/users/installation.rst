@@ -2,7 +2,7 @@
 Installation
 ============
 
-Praxis requires several packages in order to run. Many of these
+Praxes requires several packages in order to run. Many of these
 packages can be easily installed on Linux using the distribution's
 package manager, which will also take care of dependencies. Note
 to windows users: you need to install the 32-bit python and 32-bit
@@ -17,9 +17,9 @@ Administrator"). Check that you have the following installed:
 #. PyMca_ (version 4.5.0 or later) [#f2]_
 #. matplotlib_ (0.98.3 or later)
 #. h5py_ (1.3.1 or later) [#f3]_
-#. Praxis_
+#. Praxes_
 
-To install Praxis on OS X or Linux, download the source, unpack it, and
+To install Praxes on OS X or Linux, download the source, unpack it, and
 run the following in the source directory::
 
   python setup.py build && sudo python setup.py install
@@ -46,4 +46,4 @@ run the following in the source directory::
 .. _matplotlib: http://pypi.python.org/pypi/matplotlib
 .. _PyMca: http://pypi.python.org/pypi/PyMca
 .. _h5py: http://pypi.python.org/pypi/h5py
-.. _Praxis: http://pypi.python.org/pypi/praxis
+.. _Praxes: http://pypi.python.org/pypi/praxes
