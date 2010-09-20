@@ -8,3 +8,4 @@ Praxes Documentation
    users/index.rst
    api/index.rst
    devel/index.rst
+   about/index.rst
