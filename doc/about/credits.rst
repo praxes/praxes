@@ -23,7 +23,7 @@ Special thanks
 The Praxes project is also very grateful to:
 
 Guido van Rossum and the Python development team
-  For an incredible programming language
+  For an incredible programming language.
 
 The Scientific Python community
   especially the developers of NumPy, SciPy, Matplotlib, IPython, h5py, and

@@ -75,7 +75,7 @@ Miscellaneous
 Praxes is built upon PyQt4 and dip, which are provided by Riverbank Computing
 (http://www.riverbankcomputing.com/news) under the terms of the GNU Public
 License. Riverbank Computing explicitly grants additional rights to license
-derived work under the terms of the BSD license (among others). This
+such derived work under the terms of the BSD license (among others). This
 allows Praxes to be developed and distributed under the terms of the BSD
 license. Commercial projects can be derived from Praxes, but if such a project
 continues to derive from PyQt4, a commercial license is required from
