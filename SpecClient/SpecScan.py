@@ -15,7 +15,7 @@ from SpecClient import SpecEventsDispatcher
 from SpecClient import SpecWaitObject
 
 
-__author__ = 'Matias Guijarro'
+__author__ = 'Matias Guijarro (ESRF) / Darren Dale (CHESS)'
 __version__ = 1
 
 

@@ -104,7 +104,7 @@ class SpecVariableA:
     Thin wrapper around SpecChannel objects, to make
     variables watching, setting and getting values easier.
     """
-    def __init__(self, varName = None, specVersion = None, dispatchMode = UPDATEVALUE, prefix=True):
+    def __init__(self, varName = None, specVersion = None, dispatchMode = UPDATEVALUE, prefix=True, callbacks={}):
         """Constructor
 
         Keyword arguments:
@@ -113,6 +113,15 @@ class SpecVariableA:
         """
         self.connection = None
         self.channelName = ''
+        self.__callbacks = {
+          'connected': None,
+          'disconnected': None,
+          'update': None,
+        }
+        for cb_name in self.__callbacks.iterkeys():
+          if callable(callbacks.get(cb_name)):
+            self.__callbacks[cb_name] = SpecEventsDispatcher.callableObjectRef(callbacks[cb_name])
+
 
         if varName is not None and specVersion is not None:
             self.connectToSpec(varName, specVersion, dispatchMode = dispatchMode, prefix=prefix)
@@ -138,13 +147,17 @@ class SpecVariableA:
           self.channelName = varName
 
         self.connection = SpecConnectionsManager.SpecConnectionsManager().getConnection(specVersion)
-        SpecEventsDispatcher.connect(self.connection, 'connected', self.connected)
-        SpecEventsDispatcher.connect(self.connection, 'disconnected', self.disconnected)
+        SpecEventsDispatcher.connect(self.connection, 'connected', self._connected)
+        SpecEventsDispatcher.connect(self.connection, 'disconnected', self._disconnected)
 
         #
         # register channel
         #
         self.connection.registerChannel(self.channelName, self.update, dispatchMode = dispatchMode)
+        cb = self.__callbacks.get("update")
+        if cb is not None:
+          cb = cb()
+        self.connection.registerChannel(self.channelName, cb, dispatchMode = dispatchMode)
 
         if self.connection.isSpecConnected():
             self.connected()
@@ -154,12 +167,28 @@ class SpecVariableA:
         return self.connection is not None and self.connection.isSpecConnected()
 
 
+    def _connected(self):
+        self.connected()
+        if self.__callbacks.get("connected"):
+          cb = self.__callbacks["connected"]()
+          if cb is not None:
+            cb()
+
+
     def connected(self):
         """Callback triggered by a 'connected' event from Spec
 
         To be extended by derivated classes.
         """
         pass
+
+
+    def _disconnected(self):
+        self.disconnected()
+        if self.__callbacks.get("disconnected"):
+          cb = self.__callbacks["disconnected"]()
+          if cb is not None:
+            cb()
 
 
     def disconnected(self):

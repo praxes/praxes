@@ -31,13 +31,13 @@ import SpecEventsDispatcher
 _SpecConnectionsManagerInstance = None #keep a reference to the Singleton instance
 
 
-def SpecConnectionsManager(pollingThread = True):
+def SpecConnectionsManager(pollingThread = True, also_dispatch_events=False):
     """Return the Singleton Spec connections manager instance"""
     global _SpecConnectionsManagerInstance
 
     if _SpecConnectionsManagerInstance is None:
         if pollingThread:
-            _SpecConnectionsManagerInstance = _ThreadedSpecConnectionsManager()
+            _SpecConnectionsManagerInstance = _ThreadedSpecConnectionsManager(also_dispatch_events)
 
             def _endSpecConnectionsManager():
                 global _SpecConnectionsManagerInstance
@@ -62,7 +62,7 @@ class _ThreadedSpecConnectionsManager(threading.Thread):
     Warning: should never be instanciated directly ; use the module level SpecConnectionsManager()
     function instead.
     """
-    def __init__(self):
+    def __init__(self, dispatch_events):
         """Constructor"""
         threading.Thread.__init__(self)
 
@@ -71,6 +71,7 @@ class _ThreadedSpecConnectionsManager(threading.Thread):
         self.connectionDispatchers = {}
         self.stopEvent = threading.Event()
         self.__started = False
+        self.doEventsDispatching = dispatch_events
         self.setDaemon(True)
 
 
@@ -86,7 +87,10 @@ class _ThreadedSpecConnectionsManager(threading.Thread):
         while not self.stopEvent.isSet():
             self.lock.acquire()
             try:
-                for connection in self.connectionDispatchers.itervalues():
+                connection_dispatcher_keys = self.connectionDispatchers.keys()
+                for k in connection_dispatcher_keys:
+                  connection = self.connectionDispatchers.get(k)
+                  if connection is not None:
                     connection.makeConnection()
 
                 if self.stopEvent.isSet():
@@ -96,6 +100,8 @@ class _ThreadedSpecConnectionsManager(threading.Thread):
 
             if len(self.connectionDispatchers) > 0:
                 asyncore.loop(0.01, False, None, 1)
+                if self.doEventsDispatching:
+                  SpecEventsDispatcher.dispatch()
             else:
                 time.sleep(0.01)
 
@@ -176,7 +182,10 @@ class _SpecConnectionsManager:
 
     def poll(self, timeout=0.01):
         """Poll the asynchronous socket connections and dispatch incomming events"""
-        for connection in self.connectionDispatchers.itervalues():
+        connection_dispatcher_keys = self.connectionDispatchers.keys()
+        for k in connection_dispatcher_keys:
+          connection = self.connectionDispatchers.get(k)
+          if connection is not None:
             connection.makeConnection()
 
         asyncore.loop(timeout, False, None, 1)
@@ -195,11 +204,8 @@ class _SpecConnectionsManager:
         Arguments:
         specVersion -- a string in the 'host:port' form
         """
-        gc.collect()
-
-        try:
-            con = self.connections[specVersion]()
-        except KeyError:
+        con = self.connections.get(specVersion)
+        if con is None or con() is None:
             con = SpecConnection.SpecConnection(specVersion)
 
             def removeConnection(ref, connectionName = specVersion):
@@ -207,9 +213,11 @@ class _SpecConnectionsManager:
 
             self.connections[specVersion] = weakref.ref(con, removeConnection)
             self.connectionDispatchers[specVersion] = con.dispatcher
+        else:
+            con = con()
 
         return con
-
+    
 
     def closeConnection(self, specVersion):
         try:

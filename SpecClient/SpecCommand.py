@@ -22,7 +22,7 @@ import SpecWaitObject
 
 class BaseSpecCommand:
     """Base class for SpecCommand objects"""
-    def __init__(self, command = None, connection = None):
+    def __init__(self, command = None, connection = None, callbacks = None):
         self.command = None
         self.connection = None
         self.specVersion = None
@@ -139,11 +139,20 @@ class SpecCommandA(BaseSpecCommand):
     def __init__(self, *args, **kwargs):
         self.__callback = None
         self.__error_callback = None
+        self.__callbacks = {
+          'connected': None,
+          'disconnected': None,
+          'statusChanged': None,
+        }
+        callbacks = kwargs.get("callbacks", {})
+        for cb_name in self.__callbacks.iterkeys():
+          if callable(callbacks.get(cb_name)):
+            self.__callbacks[cb_name] = SpecEventsDispatcher.callableObjectRef(callbacks[cb_name])
 
         BaseSpecCommand.__init__(self, *args, **kwargs)
 
 
-    def connectToSpec(self, specVersion):
+    def connectToSpec(self, specVersion, timeout=1000):
         if self.connection is not None:
             SpecEventsDispatcher.disconnect(self.connection, 'connected', self.connected)
             SpecEventsDispatcher.disconnect(self.connection, 'disconnected', self.disconnected)
@@ -152,11 +161,26 @@ class SpecCommandA(BaseSpecCommand):
         self.specVersion = specVersion
 
         SpecEventsDispatcher.connect(self.connection, 'connected', self.connected)
+        cb = self.__callbacks.get("connected")
+        if cb is not None:
+          cb = cb()
+          SpecEventsDispatcher.connect(self.connection, 'connected', cb)
         SpecEventsDispatcher.connect(self.connection, 'disconnected', self.disconnected)
+        cb = self.__callbacks.get("disconnected")
+        if cb is not None:
+          cb = cb()
+          SpecEventsDispatcher.connect(self.connection, 'disconnected', cb)
         self.connection.registerChannel("status/ready", self.statusChanged)
+        cb = self.__callbacks.get("statusChanged")
+        if cb is not None:
+          cb = cb()
+          SpecEventsDispatcher.connect(self.connection, 'statusChanged', cb)
 
         if self.connection.isSpecConnected():
             self.connected()
+        else:
+            SpecWaitObject.waitConnection(self.connection, timeout)
+            SpecEventsDispatcher.dispatch()
 
 
     def connected(self):
@@ -194,7 +218,7 @@ class SpecCommandA(BaseSpecCommand):
         if reply.error:
             if callable(self.__error_callback):
                 try:
-                    self.__error_callback()
+                    self.__error_callback(reply.error)
                 except:
                     logging.getLogger("SpecClient").exception("Error while calling error callback (command=%s,spec version=%s)", self.command, self.specVersion)
                 self.__error_callback = None
@@ -203,7 +227,7 @@ class SpecCommandA(BaseSpecCommand):
                 try:
                     self.__callback(reply.data)
                 except:
-                    logging.getLogger("SpecClient").exception("Error while calling error callback (command=%s,spec version=%s)", self.command, self.specVersion)
+                    logging.getLogger("SpecClient").exception("Error while calling reply callback (command=%s,spec version=%s)", self.command, self.specVersion)
                 self.__callback = None
 
 

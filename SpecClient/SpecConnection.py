@@ -19,7 +19,6 @@ import weakref
 import string
 import logging
 import time
-
 from SpecClient.SpecClientError import SpecClientNotConnectedError
 import SpecEventsDispatcher
 import SpecChannel
@@ -111,7 +110,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         self.sendq = []
         self.outputStrings = []
         self.simulationMode = False
-
+        self.valid_socket = False
 
         # some shortcuts
         self.macro       = self.send_msg_cmd_with_return
@@ -139,10 +138,12 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         self.registerChannel('error', self.error, dispatchMode = SpecEventsDispatcher.FIREEVENT)
         self.registerChannel('status/simulate', self.simulationStatusChanged)
 
-
     def __str__(self):
         return '<connection to Spec, host=%s, port=%s>' % (self.host, self.port or self.scanname)
 
+    def set_socket(self, s):
+      self.valid_socket = True
+      asyncore.dispatcher.set_socket(self, s)
 
     def makeConnection(self):
         """Establish a connection to Spec
@@ -153,21 +154,25 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         a port defined in the range from MIN_PORT to MAX_PORT
         """
         if not self.connected:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.settimeout(0.2)
-
             if self.scanport:
-                if self.port is None or self.port > MAX_PORT:
-                    self.port = MIN_PORT
-                else:
-                    self.port += 1
-
-            try:
-                if s.connect_ex( (self.host, self.port) ) == 0:
-                    self.set_socket(s)
-            except socket.error, err:
-                pass #exception could be 'host not found' for example, we ignore it
-
+              if self.port is None or self.port > MAX_PORT:
+                self.port = MIN_PORT
+              else:
+                self.port += 1
+            while not self.scanport or self.port < MAX_PORT:
+              s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+              s.settimeout(0.2)
+              try:
+                 if s.connect_ex( (self.host, self.port) ) == 0:
+                   self.set_socket(s)
+                   self.handle_connect()
+                   break
+              except socket.error, err:
+                 pass #exception could be 'host not found' for example, we ignore it
+              if self.scanport:
+                self.port += 1 
+              else:
+                break
 
     def registerChannel(self, chanName, receiverSlot, registrationFlag = SpecChannel.DOREG, dispatchMode = SpecEventsDispatcher.UPDATEVALUE):
         """Register a channel
@@ -278,6 +283,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         self.serverVersion = None
         if self.socket:
             self.close()
+        self.valid_socket = False
         self.specDisconnected()
 
 
@@ -288,12 +294,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
 
     def handle_error(self):
         """Handle an uncaught error."""
-        logging.getLogger('SpecClient').exception('Closing connection to Spec')
-
-        self.serverVersion = None
-        self.connected = False
-        self.close()
-        self.specDisconnected()
+        return
 
 
     def handle_read(self):
@@ -369,9 +370,15 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
             return True
 
 
+    def readable(self):
+        return self.valid_socket
+
+
     def writable(self):
         """Return True if socket should be written."""
-        return len(self.sendq) > 0 or sum(map(len, self.outputStrings)) > 0 or self.state == DISCONNECTED
+        ret = self.readable() and (len(self.sendq) > 0 or sum(map(len, self.outputStrings)) > 0)
+        #print 'writable?', str(self), ret
+        return ret
 
 
     def handle_connect(self):

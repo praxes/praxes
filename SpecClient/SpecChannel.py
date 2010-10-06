@@ -125,15 +125,17 @@ class SpecChannel:
                     SpecEventsDispatcher.emit(self, 'valueChanged', (None, self.name, ))
                 else:
                     if self.access2 is None:
-                        self.value = channelValue[self.access1]
-                        SpecEventsDispatcher.emit(self, 'valueChanged', (self.value, self.name, ))
+                        if self.value is None or self.value != channelValue[self.access1]: 
+                            self.value = channelValue[self.access1]
+                            SpecEventsDispatcher.emit(self, 'valueChanged', (self.value, self.name, ))
                     else:
                         if self.access2 in channelValue[self.access1]:
                             if deleted:
                                 SpecEventsDispatcher.emit(self, 'valueChanged', (None, self.name, ))
                             else:
-                                self.value = channelValue[self.access1][self.access2]
-                                SpecEventsDispatcher.emit(self, 'valueChanged', (self.value, self.name, ))
+                                if self.value is None or self.value != channelValue[self.access1][self.access2]:
+                                    self.value = channelValue[self.access1][self.access2]
+                                    SpecEventsDispatcher.emit(self, 'valueChanged', (self.value, self.name, ))
             return
 
         if type(self.value) == types.DictType and type(channelValue) == types.DictType:
