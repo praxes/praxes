@@ -104,9 +104,10 @@ class Dataset(_PhynxProperties, h5py.Dataset):
         res = np.zeros(self.shape[1:], 'f')
         nitems = 0
         for i in indices:
-            if not self.masked[i]:
+            # i:i+1 to work around hdf5 bug, speedup
+            if not self.masked[i:i+1][0]:
                 nitems += 1
-                res += self[i]
+                res += self[i:i+1][0]
             print i
         if nitems:
             return res / nitems
@@ -294,12 +295,12 @@ class AcquisitionEnumerator(object):
             # expected the datapoint, but not yet acquired
             raise IndexError()
 
-        if self._dataset.masked[i]:
+        if self._dataset.masked[i:i+1][0]:
             self.total_skipped = self.total_skipped + 1
             self.current_index = i + 1
             return i, None
 
-        res = self._dataset[i]
+        res = self._dataset[i:i+1][0]
         self.current_index = i + 1
         return i, res
 
@@ -358,9 +359,9 @@ class DataProxy(object):
         res = np.zeros(self.shape[1:], 'f')
         nitems = 0
         for i in indices:
-            if not self.masked[i]:
+            if not self.masked[i:i+1][0]:
                 nitems += 1
-                res += self[i]
+                res += self[i:i+1][0]
             print i
         if nitems:
             return res / nitems
