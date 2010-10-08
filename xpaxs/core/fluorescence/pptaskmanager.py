@@ -119,7 +119,7 @@ class XfsPPTaskManager(PPTaskManager):
         with self.lock:
             index = data['index']
             self.advancedFit = data['advancedFit']
-            self._totalProcessed += 1
+            self._total_processed += 1
 
             result = data['result']
             for group in result['groups']:

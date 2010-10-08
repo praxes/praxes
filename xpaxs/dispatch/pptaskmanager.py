@@ -97,7 +97,7 @@ class PPTaskManager(QtCore.QThread):
             self.__dirty = False
             self.__stopped = False
 
-            self._totalProcessed = 0
+            self._total_processed = 0
             self._lastReport = time.time()
 
             self._scan = scan
@@ -148,11 +148,9 @@ class PPTaskManager(QtCore.QThread):
 
     def reportStats(self):
         with self.lock:
-            track = self._totalProcessed + self._enumerator.total_skipped
-            total = self.scan.npoints
             self.emit(
                 QtCore.SIGNAL('percentComplete'),
-                int((100.0 * track) / total)
+                int((100.0 * self._total_processed) / self.scan.npoints)
             )
 
             stats = copy.deepcopy(self.jobServer.get_stats())
