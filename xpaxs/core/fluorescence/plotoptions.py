@@ -9,13 +9,13 @@ from .ui.ui_plotoptions import Ui_PlotOptions
 
 class PlotOptions(Ui_PlotOptions, QtGui.QGroupBox):
 
-    def __init__(self, scanData, figure, parent=None):
+    def __init__(self, scan_data, figure, parent=None):
         super(PlotOptions, self).__init__(parent)
         self.setupUi(self)
 
         self._figure = figure
 
-        if len(scanData.acquisition_shape) != 2:
+        if len(scan_data.acquisition_shape) != 2:
             self.imageSettingsWidget.setVisible(False)
 
         self.connect(

@@ -81,7 +81,10 @@ class MultiMcaAcquisitionEnumerator(object):
 
     def __init__(self, measurement):
         self._measurement = measurement
-        self._mcas = measurement.mcas.values()
+        try:
+            self._mcas = measurement.mcas.values()
+        except AttributeError:
+            self._mcas = [self]
         self._next_index = 0
 
     def __iter__(self):

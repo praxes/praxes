@@ -27,42 +27,42 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
     """
 
     # TODO: this should eventually take an MCA entry
-    def __init__(self, scanData, parent=None):
+    def __init__(self, scan_data, parent=None):
         super(McaAnalysisWindow, self).__init__(parent)
 
         self.analysisThread = None
 
-        if isinstance(scanData, phynx.Entry):
-            self.scanData = scanData.measurement
-        elif isinstance(scanData, phynx.Measurement):
-            self.scanData = scanData
-        elif isinstance(scanData, phynx.MultiChannelAnalyzer) and \
-                isinstance(scanData.parent, phynx.Measurement):
-            self.scanData = scanData.parent
+        if isinstance(scan_data, phynx.Entry):
+            self.scan_data = scan_data.measurement
+        elif isinstance(scan_data, phynx.Measurement):
+            self.scan_data = scan_data
+        elif isinstance(scan_data, phynx.MultiChannelAnalyzer):
+            self.scan_data = scan_data
         else:
-            with scanData.plock:
+            with scan_data.plock:
                 raise TypeError(
                     'H5 node type %s not recognized by McaAnalysisWindow'
-                    % scanData.__class__.__name__
+                    % scan_data.__class__.__name__
                 )
-        self.mcasData = self.scanData.mcas.values()[0]
 
-        pymcaConfig = self.mcasData[0].pymca_config
+        pymcaConfig = self.scan_data.pymca_config
         self.setupUi(self)
 
         title = '%s: %s: %s'%(
-            posixpath.split(scanData.file.filename)[-1],
-            posixpath.split(getattr(scanData.entry, 'name', ''))[-1],
-            posixpath.split(self.mcasData[0].name)[-1]
+            posixpath.split(scan_data.file.filename)[-1],
+            posixpath.split(getattr(scan_data.entry, 'name', ''))[-1],
+            posixpath.split(self.scan_data.name)[-1]
         )
         self.setWindowTitle(title)
 
-        self.elementsView = ElementsView(self.scanData, self)
+        self.elementsView = ElementsView(self.scan_data, self)
         self.splitter.addWidget(self.elementsView)
 
         self.xrfBandComboBox.addItems(self.availableElements)
         try:
-            self.deadTimeReport.setText(str(self.mcasData[0]['dead_time'].format))
+            self.deadTimeReport.setText(
+                str(self.scan_data.mcas.values()[0]['dead_time'].format)
+                )
         except phynx.H5Error:
             self.deadTimeReport.setText('Not found')
 
@@ -89,7 +89,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             self.configurePymca()
 
         try:
-            eff = self.mcasData[0].monitor.efficiency
+            eff = self.scan_data.measurement.mcas.values()[0].monitor.efficiency
             self.monitorEfficiency.setText(str(eff))
             self.monitorEfficiency.setEnabled(True)
         except AttributeError:
@@ -110,7 +110,9 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
     @property
     def availableElements(self):
         try:
-            return sorted(self.scanData['element_maps'].fits.keys())
+            return sorted(
+                self.scan_data['element_maps'].fits.keys()
+                )
         except (phynx.H5Error, AttributeError):
             return []
 
@@ -195,11 +197,11 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         try:
             value = float(self.monitorEfficiency.text())
             assert (0 < value <= 1)
-            for mca in self.mcasData:
+            for mca in self.scan_data.measurement.mcas.values():
                 mca.monitor.efficiency = value
         except (ValueError, AssertionError):
             self.monitorEfficiency.setText(
-                str(self.mcasData[0].monitor.efficiency)
+                str(self.scan_data.measurement.mcas.values()[0].monitor.efficiency)
                 )
 
 
@@ -235,8 +237,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             self.statusbar.showMessage('Reconfiguring PyMca ...')
             configDict = self.fitParamDlg.getParameters()
             self.spectrumAnalysis.configure(configDict)
-            for mca in self.mcasData:
-                mca.pymca_config = configDict
+            self.scan_data.pymca_config = configDict
             self.statusbar.clearMessage()
 
     def elementMapUpdated(self):
@@ -250,20 +251,20 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         if mapType and element:
             try:
                 entry = '%s_%s'%(element, mapType)
-                return self.scanData['element_maps'][entry].map
+                return self.scan_data['element_maps'][entry].map
 
             except phynx.H5Error:
-                return np.zeros(self.scanData.acquisition_shape)
+                return np.zeros(self.scan_data.acquisition_shape)
 
         else:
-            return np.zeros(self.scanData.acquisition_shape, dtype='f')
+            return np.zeros(self.scan_data.acquisition_shape, dtype='f')
 
     def initializeElementMaps(self, elements):
-        with self.scanData.plock:
-            if 'element_maps' in self.scanData:
-                del self.scanData['element_maps']
+        with self.scan_data.plock:
+            if 'element_maps' in self.scan_data.measurement:
+                del self.scan_data['element_maps']
 
-            elementMaps = self.scanData.create_group(
+            elementMaps = self.scan_data.create_group(
                 'element_maps', type='ElementMaps'
             )
 
@@ -277,20 +278,27 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                     elementMaps.create_dataset(
                         entry,
                         type=cls,
-                        data=np.zeros(self.scanData.npoints, 'f')
+                        data=np.zeros(self.scan_data.npoints, 'f')
                     )
 
     def processAverageSpectrum(self, indices=None):
         if indices is None:
-            indices = range(self.mcasData[0]['counts'].acquired)
+            indices = range(self.scan_data.measurement.acquired)
         if len(indices):
             self.statusbar.showMessage('Averaging spectra ...')
             QtGui.qApp.processEvents()
 
-            channels = self.mcasData[0].channels
-            counts = channels.astype('float32') * 0
-            for mca in self.mcasData:
-                counts += mca['counts'].corrected_value.mean(indices)
+            try:
+                # looking at individual element
+                channels = self.scan_data.channels
+                counts = self.scan_data['counts'].corrected_value.mean(indices)
+            except AttributeError:
+                # looking at multiple elements
+                mcas = self.scan_data.mcas.values()
+                channels = mcas[0].channels
+                counts = channels.astype('float32') * 0
+                for mca in mcas:
+                    counts += mca['counts'].corrected_value.mean(indices)
 
             self.spectrumAnalysis.setData(x=channels, y=counts)
 
@@ -323,7 +331,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         self._resetPeaks()
 
         thread = XfsPPTaskManager(
-            self.scanData,
+            self.scan_data,
             copy.deepcopy(self.pymcaConfig),
         )
 

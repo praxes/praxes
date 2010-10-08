@@ -25,10 +25,10 @@ class ElementBaseFigure(QtMplCanvas):
     """
     """
 
-    def __init__(self, scanData, parent=None):
+    def __init__(self, scan_data, parent=None):
         super(ElementBaseFigure, self).__init__(parent)
 
-        self.scanData = scanData
+        self.scan_data = scan_data
         self.autoscale = True
 
         self.axes = self.figure.add_axes([0.1, 0.1, 0.8, 0.8])
@@ -73,8 +73,8 @@ class ElementBaseFigure(QtMplCanvas):
 
 class ElementImageFigure(ElementBaseFigure):
 
-    def __init__(self, scanData, parent=None):
-        super(ElementImageFigure, self).__init__(scanData, parent)
+    def __init__(self, scan_data, parent=None):
+        super(ElementImageFigure, self).__init__(scan_data, parent)
 
         min, max = self._elementData.min(), self._elementData.max()
         self._clim = [min, max or float(max==0)]
@@ -96,7 +96,7 @@ class ElementImageFigure(ElementBaseFigure):
 
     def _createInitialFigure(self):
         extent = []
-        sd = self.scanData['scalar_data']
+        sd = self.scan_data.measurement.scalar_data
         x_axis = sd.get_sorted_axes_list(1)[0]
         y_axis = sd.get_sorted_axes_list(2)[0]
         extent.extend(x_axis.range)
@@ -149,14 +149,15 @@ class ElementImageFigure(ElementBaseFigure):
 
 class ElementPlotFigure(ElementBaseFigure):
 
-    def __init__(self, scanData, parent=None):
-        super(ElementPlotFigure, self).__init__(scanData, parent)
+    def __init__(self, scan_data, parent=None):
+        super(ElementPlotFigure, self).__init__(scan_data, parent)
 
         self._updatePixelMap()
 
     def _createInitialFigure(self):
         try:
-            self.x_data = self.scanData['scalar_data'].get_sorted_axes_list(1)[0]
+            sd = self.scan_data.measurement.scalar_data
+            self.x_data = sd.get_sorted_axes_list(1)[0]
             self._elementPlot, = self.axes.plot(self.xdata, self._elementData)
             self.axes.set_xlabel(posixpath.split(x_axis.name)[-1])
             self.axes.set_xlim(self.x_data.range)
@@ -208,25 +209,25 @@ class ElementPlotFigure(ElementBaseFigure):
 
 class ElementsView(QtGui.QGroupBox):
 
-    def __init__(self, scanData, parent=None):
+    def __init__(self, scan_data, parent=None):
         super(ElementsView, self).__init__(parent)
         self.setObjectName("elementsView")
         self.setTitle('Elements View')
 
         layout = QtGui.QVBoxLayout()
 
-        if len(scanData.acquisition_shape) == 2:
-            self.figure = ElementImageFigure(scanData, self)
+        if len(scan_data.acquisition_shape) == 2:
+            self.figure = ElementImageFigure(scan_data, self)
 
         else:
-            self.figure = ElementPlotFigure(scanData, self)
+            self.figure = ElementPlotFigure(scan_data, self)
 
         self.toolbar = Toolbar(self.figure, self)
         layout.addWidget(self.toolbar)
         layout.addWidget(self.figure)
         self.setLayout(layout)
 
-        self._plotOptions = PlotOptions(scanData, self.figure)
+        self._plotOptions = PlotOptions(scan_data, self.figure)
 
         self.connect(
             self.toolbar,
