@@ -69,7 +69,7 @@ class PPTaskManager(QtCore.QThread):
             self.__stopped = copy.copy(val)
     stopped = property(_get_stopped, _set_stopped)
 
-    def __init__(self, scan, enumerator=None, parent=None):
+    def __init__(self, scan, enumerators=None, parent=None):
         super(PPTaskManager, self).__init__(parent)
 
         self.__lock = QRLock()
@@ -102,9 +102,9 @@ class PPTaskManager(QtCore.QThread):
 
             self._scan = scan
 
-            if enumerator is None:
-                enumerator = enumerate([])
-            self._enumerator = enumerator
+            if enumerators is None:
+                enumerators = [enumerate([])]
+            self._enumerators = enumerators
 
     def processData(self):
         while 1:
@@ -113,9 +113,13 @@ class PPTaskManager(QtCore.QThread):
 
             numSubmitted = 0
             try:
-                for index, data in self._enumerator:
+                while True:
+                    temp = [i.next() for i in self._enumerators]
+                    index, data = temp[0][0], temp[0][1]
                     if data is None:
                         continue
+                    for i, d in temp[1:]:
+                        data += d
                     self.submitJob(index, data)
                     numSubmitted += 1
                     if numSubmitted >= self.numCpus*3:

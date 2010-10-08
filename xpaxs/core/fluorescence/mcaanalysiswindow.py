@@ -45,15 +45,15 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                     'H5 node type %s not recognized by McaAnalysisWindow'
                     % scanData.__class__.__name__
                 )
-        self.mcaData = self.scanData.mcas.values()[0]
+        self.mcasData = self.scanData.mcas.values()[0]
 
-        pymcaConfig = self.mcaData.pymca_config
+        pymcaConfig = self.mcasData[0].pymca_config
         self.setupUi(self)
 
         title = '%s: %s: %s'%(
             posixpath.split(scanData.file.filename)[-1],
             posixpath.split(getattr(scanData.entry, 'name', ''))[-1],
-            posixpath.split(self.mcaData.name)[-1]
+            posixpath.split(self.mcasData[0].name)[-1]
         )
         self.setWindowTitle(title)
 
@@ -62,7 +62,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
         self.xrfBandComboBox.addItems(self.availableElements)
         try:
-            self.deadTimeReport.setText(str(self.mcaData['dead_time'].format))
+            self.deadTimeReport.setText(str(self.mcasData[0]['dead_time'].format))
         except phynx.H5Error:
             self.deadTimeReport.setText('Not found')
 
@@ -89,7 +89,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             self.configurePymca()
 
         try:
-            eff = self.mcaData.monitor.efficiency
+            eff = self.mcasData[0].monitor.efficiency
             self.monitorEfficiency.setText(str(eff))
             self.monitorEfficiency.setEnabled(True)
         except AttributeError:
@@ -195,9 +195,12 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         try:
             value = float(self.monitorEfficiency.text())
             assert (0 < value <= 1)
-            self.mcaData.monitor.efficiency = value
+            for mca in self.mcasData:
+                mca.monitor.efficiency = value
         except (ValueError, AssertionError):
-            self.monitorEfficiency.setText(str(self.mcaData.monitor.efficiency))
+            self.monitorEfficiency.setText(
+                str(self.mcasData[0].monitor.efficiency)
+                )
 
 
     @QtCore.pyqtSignature("QString")
@@ -232,7 +235,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             self.statusbar.showMessage('Reconfiguring PyMca ...')
             configDict = self.fitParamDlg.getParameters()
             self.spectrumAnalysis.configure(configDict)
-            self.mcaData.pymca_config = configDict
+            for mca in self.mcasData:
+                mca.pymca_config = configDict
             self.statusbar.clearMessage()
 
     def elementMapUpdated(self):
@@ -278,13 +282,16 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
     def processAverageSpectrum(self, indices=None):
         if indices is None:
-            indices = range(self.mcaData['counts'].acquired)
+            indices = range(self.mcasData[0]['counts'].acquired)
         if len(indices):
             self.statusbar.showMessage('Averaging spectra ...')
             QtGui.qApp.processEvents()
 
-            counts = self.mcaData['counts'].corrected_value.mean(indices)
-            channels = self.mcaData.channels
+            channels = self.mcasData[0].channels
+            counts = channels.astype('float32') * 0
+            for mca in self.mcasData:
+                counts += mca['counts'].corrected_value.mean(indices)
+
             self.spectrumAnalysis.setData(x=channels, y=counts)
 
             self.statusbar.showMessage('Performing Fit ...')
@@ -315,9 +322,14 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
         self._resetPeaks()
 
+        acquisition_enumerators = [
+            mca['counts'].corrected_value.enumerate_items()
+            for mca in self.mcasData
+            ]
+
         thread = XfsPPTaskManager(
             self.scanData,
-            self.mcaData['counts'].corrected_value.enumerate_items(),
+            acquisition_enumerators,
             copy.deepcopy(self.pymcaConfig),
         )
 

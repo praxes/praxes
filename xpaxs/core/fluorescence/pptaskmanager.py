@@ -84,8 +84,8 @@ class XfsPPTaskManager(PPTaskManager):
             self._tconf = val
     tconf = property(_get_tconf, _set_tconf)
 
-    def __init__(self, scan, enumerator, config, parent=None):
-        super(XfsPPTaskManager, self).__init__(scan, enumerator, parent)
+    def __init__(self, scan, enumerators, config, parent=None):
+        super(XfsPPTaskManager, self).__init__(scan, enumerators, parent)
 
         self.advancedFit = ClassMcaTheory.McaTheory(config=config)
         self.advancedFit.enableOptimizedLinearFit()
