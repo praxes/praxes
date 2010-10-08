@@ -257,29 +257,15 @@ class AcquisitionEnumerator(object):
     The enumerator yields an index, item tuple.
     """
 
-    @sync
-    def _get_current_index(self):
-        return self._current_index
-    @sync
-    def _set_current_index(self, val):
-        self._current_index = val
-    current_index = property(_get_current_index, _set_current_index)
-
-    @property
-    def plock(self):
-        return self._plock
-
     def __init__(self, dataset):
         self._dataset = dataset
-        self._plock = dataset.plock
-
         self._current_index = 0
 
     def __iter__(self):
         return self
 
     def next(self):
-        i = self.current_index
+        i = self._current_index
         if i >= self._dataset.npoints:
             raise StopIteration()
         elif i + 1 > self._dataset.acquired:
@@ -287,11 +273,11 @@ class AcquisitionEnumerator(object):
             raise IndexError()
 
         if self._dataset.masked[i:i+1][0]:
-            self.current_index = i + 1
+            self._current_index = i + 1
             return i, None
 
         res = self._dataset[i:i+1][0]
-        self.current_index = i + 1
+        self._current_index = i + 1
         return i, res
 
 
