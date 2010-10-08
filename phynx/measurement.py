@@ -57,6 +57,22 @@ class Measurement(Group):
 
     @property
     @sync
+    def pymca_config(self):
+        try:
+            return self._pymca_config
+        except AttributeError:
+            from PyMca.ConfigDict import ConfigDict
+            config = self.attrs.get('pymca_config', '{}')
+            self._pymca_config = ConfigDict(simple_eval(config))
+            return copy.deepcopy(self._pymca_config)
+    @pymca_config.setter
+    @sync
+    def _set_pymca_config(self, config):
+        self._pymca_config = copy.deepcopy(config)
+        self.attrs['pymca_config'] = str(config)
+
+    @property
+    @sync
     def scalar_data(self):
         targets = [
             i for i in self.iterobjects() if isinstance(i, ScalarData)

@@ -42,21 +42,26 @@ class MultiChannelAnalyzer(Detector):
         if id is not None:
             return self[id]
 
+    @property
     @sync
-    def _get_pymca_config(self):
+    def pymca_config(self):
         try:
             return self._pymca_config
         except AttributeError:
-            from PyMca.ConfigDict import ConfigDict
-            self._pymca_config = ConfigDict(
-                simple_eval(self.attrs.get('pymca_config', '{}'))
-            )
-            return copy.deepcopy(self._pymca_config)
+            config = self.attrs.get('pymca_config', None)
+            if config is not None:
+                from PyMca.ConfigDict import ConfigDict
+                self._pymca_config = ConfigDict(simple_eval(config))
+                return copy.deepcopy(self._pymca_config)
+            else:
+                config = self.measurement.pymca_config
+                self.attrs['pymca_config'] = str(config)
+                return config
+    @pymca_config.setter
     @sync
     def _set_pymca_config(self, config):
         self._pymca_config = copy.deepcopy(config)
         self.attrs['pymca_config'] = str(config)
-    pymca_config = property(_get_pymca_config, _set_pymca_config)
 
     @sync
     def set_calibration(self, cal, order=None):
