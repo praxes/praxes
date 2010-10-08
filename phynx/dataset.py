@@ -269,20 +269,11 @@ class AcquisitionEnumerator(object):
     def plock(self):
         return self._plock
 
-    @sync
-    def _get_total_skipped(self):
-        return self._total_skipped
-    @sync
-    def _set_total_skipped(self, val):
-        self._total_skipped = val
-    total_skipped = property(_get_total_skipped, _set_total_skipped)
-
     def __init__(self, dataset):
         self._dataset = dataset
         self._plock = dataset.plock
 
         self._current_index = 0
-        self._total_skipped = 0
 
     def __iter__(self):
         return self
@@ -296,7 +287,6 @@ class AcquisitionEnumerator(object):
             raise IndexError()
 
         if self._dataset.masked[i:i+1][0]:
-            self.total_skipped = self.total_skipped + 1
             self.current_index = i + 1
             return i, None
 
