@@ -36,40 +36,56 @@ class QRLock(QtCore.QMutex):
 
 class PPTaskManager(QtCore.QThread):
 
-    def _get_dirty(self):
+    @property
+    def dirty(self):
         with self.lock:
             return copy.copy(self.__dirty)
-    def _set_dirty(self, val):
+    @dirty.setter
+    def dirty(self, val):
         with self.lock:
             self.__dirty = copy.copy(val)
-    dirty = property(_get_dirty, _set_dirty)
 
     @property
-    def jobServer(self):
-        return self._jobServer
+    def job_server(self):
+        return self._job_server
 
     @property
     def lock(self):
         return self.__lock
 
     @property
-    def numCpus(self):
+    def n_cpus(self):
         with self.lock:
-            return copy.copy(self._numCpus)
+            return copy.copy(self._n_cpus)
+
+    @property
+    def n_processed(self):
+        return self._n_processed
+    @n_processed.setter
+    def n_processed(self, val):
+        self._n_processed = val
+
+    @property
+    def n_submitted(self):
+        return self._n_submitted
+    @n_submitted.setter
+    def n_submitted(self, val):
+        self._n_submitted = val
 
     @property
     def scan(self):
         return self._scan
 
-    def _get_stopped(self):
+    @property
+    def stopped(self):
         with self.lock:
             return copy.copy(self.__stopped)
-    def _set_stopped(self, val):
+    @stopped.setter
+    def stopped(self, val):
         with self.lock:
             self.__stopped = copy.copy(val)
-    stopped = property(_get_stopped, _set_stopped)
 
-    def __init__(self, scan, enumerators=None, parent=None):
+    def __init__(self, scan, parent=None):
         super(PPTaskManager, self).__init__(parent)
 
         self.__lock = QRLock()
@@ -81,90 +97,92 @@ class PPTaskManager(QtCore.QThread):
                 'LocalProcesses', QtCore.QVariant(1)
             ).toInt()
             try:
-                self._jobServer = pp.Server(ncpus, ('*',))
+                self._job_server = pp.Server(ncpus, ('*',))
             except ValueError:
                 # this should not be necessary with pp-1.5.6 and later:
                 secret = hashlib.md5(str(time.time())).hexdigest()
-                self._jobServer = pp.Server(
+                self._job_server = pp.Server(
                     ppservers=('*', ), secret=secret
                 )
 
-            self.jobServer.set_ncpus(ncpus)
-            self._numCpus = np.sum(
+            self.job_server.set_ncpus(ncpus)
+            self._n_cpus = np.sum(
                 [i for i in self.jobServer.get_active_nodes().itervalues()]
             )
 
             self.__dirty = False
             self.__stopped = False
 
-            self._total_processed = 0
-            self._lastReport = time.time()
+            self._n_processed = 0
+            self._n_submitted = 0
+
+            self._last_report = time.time()
 
             self._scan = scan
 
-            if enumerators is None:
-                enumerators = [enumerate([])]
-            self._enumerators = enumerators
-
-    def processData(self):
-        while 1:
-            if self.stopped:
-                return
-
-            numSubmitted = 0
-            try:
-                while True:
-                    temp = [i.next() for i in self._enumerators]
-                    index, data = temp[0][0], temp[0][1]
-                    if data is None:
-                        continue
-                    for i, d in temp[1:]:
-                        data += d
-                    self.submitJob(index, data)
-                    numSubmitted += 1
-                    if numSubmitted >= self.numCpus*3:
-                        break
-                else:
-                    self._jobServer.wait()
-                    self._scan.file.flush()
-                    if self.dirty:
-                        self.emit(QtCore.SIGNAL("dataProcessed"))
-                        self.dirty = False
-                    return
-            except (IndexError, ValueError):
-                pass
-
-            if numSubmitted > 0:
-                self.jobServer.wait()
-                self._scan.file.flush()
-                if self.dirty:
-                    self.emit(QtCore.SIGNAL("dataProcessed"))
-                    self.dirty = False
-            else:
-                time.sleep(0.1)
-
-    def submitJob(self, numJobs):
+    def __iter__(self):
+        """
+        The iterator returned by this method must yield an (index, data) tuple,
+        or None to signify that the acquisition is ongoing and the next data
+        point is not yet available.
+        """
         raise NotImplementedError
 
-    def reportStats(self):
+    def flush(self):
+        self._job_server.wait()
+        self._n_submitted = 0
+        if self.dirty:
+            self.emit(QtCore.SIGNAL("dataProcessed"))
+            self.dirty = False
+
+    def process_data(self):
+        for item in self:
+            if self.stopped:
+                break
+
+            if item is None:
+                # next data point is not yet available
+                if self.n_submitted > 0:
+                    self.flush()
+                else:
+                    time.sleep(0.1)
+            else:
+                i, data = item
+                self.n_processed += 1
+
+                if data is None:
+                    # this point was masked, no data to process
+                    continue
+
+                self.submit_job(i, data)
+                self.n_submitted += 1
+
+            if self.n_submitted >= self.n_cpus*3:
+                self.flush()
+
+        if self.n_submitted > 1:
+            self.flush()
+
+    def submit_job(self, num_jobs):
+        raise NotImplementedError
+
+    def report_stats(self):
         with self.lock:
             self.emit(
                 QtCore.SIGNAL('percentComplete'),
                 int((100.0 * self._total_processed) / self.scan.npoints)
             )
 
-            stats = copy.deepcopy(self.jobServer.get_stats())
+            stats = copy.deepcopy(self.job_server.get_stats())
             self.emit(QtCore.SIGNAL("ppJobStats"), stats)
 
     def run(self):
-        self.processData()
-        self.jobServer.destroy()
-
-    def setData(self, *args, **kwargs):
-        raise NotImplementedError
+        self.process_data()
+        self.scan.file.flush()
+        self.job_server.destroy()
 
     def stop(self):
         self.stopped = True
 
-    def updateRecords(self, data):
-        raise NotImplementedError
+    def update_records(self, data):
+        raise NotImplementedError()

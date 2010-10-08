@@ -322,14 +322,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
         self._resetPeaks()
 
-        acquisition_enumerators = [
-            mca['counts'].corrected_value.enumerate_items()
-            for mca in self.mcasData
-            ]
-
         thread = XfsPPTaskManager(
             self.scanData,
-            acquisition_enumerators,
             copy.deepcopy(self.pymcaConfig),
         )
 
