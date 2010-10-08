@@ -20,6 +20,19 @@ class Measurement(Group):
 
     @property
     @sync
+    def acquired(self):
+        return self.attrs.get('acquired', self.npoints)
+    @acquired.setter
+    @sync
+    def acquired(self, value):
+        self.attrs['acquired'] = int(value)
+
+    @property
+    def masked(self):
+        return MaskedProxy(self)
+
+    @property
+    @sync
     def mcas(self):
         return dict([
             (posixpath.split(a.name)[-1], a) for a in self.iterobjects()
@@ -87,3 +100,35 @@ class Positioners(Group):
     A group containing the reference positions of the various axes in the
     measurement.
     """
+
+
+
+class MaskedProxy(object):
+
+    @property
+    def acquired(self):
+        return self._measurement.acquired
+
+    @property
+    def masked(self):
+        return self
+
+    @property
+    def npoints(self):
+        return self._measurement.npoints
+
+    @property
+    def plock(self):
+        return self._measurement.plock
+
+    def __init__(self, measurement):
+        self._measurement = measurement
+
+    @sync
+    def __getitem__(self, args):
+        try:
+            return self._measurement.scalar_data['masked'].__getitem__(args)
+        except H5Error:
+            if isinstance(args, int):
+                return False
+            return np.zeros(self._measurement.npoints, '?').__getitem__(args)

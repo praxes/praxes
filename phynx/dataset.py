@@ -43,10 +43,6 @@ class Dataset(_PhynxProperties, h5py.Dataset):
         return res
 
     @property
-    def masked(self):
-        return MaskedProxy(self)
-
-    @property
     def measurement(self):
         try:
             return self.entry.measurement
@@ -77,6 +73,13 @@ class Dataset(_PhynxProperties, h5py.Dataset):
                 val = str(val)
             self.attrs[key] = val
 
+    def __getitem__(self, args):
+        if isinstance(args, int):
+            # this is a speedup to workaround an hdf5 indexing bug
+            return super(Dataset, self).__getitem__(slice(args, args+1))[0]
+        else:
+            return super(Dataset, self).__getitem__(args)
+
     @sync
     def __repr__(self):
         try:
@@ -90,10 +93,6 @@ class Dataset(_PhynxProperties, h5py.Dataset):
         except Exception:
             return "<Closed %s dataset>" % self.__class__.__name__
 
-    def enumerate_items(self):
-        """enumerate unmasked items"""
-        return AcquisitionEnumerator(self)
-
     @sync
     def mean(self, indices=None):
         if indices is None:
@@ -104,11 +103,9 @@ class Dataset(_PhynxProperties, h5py.Dataset):
         res = np.zeros(self.shape[1:], 'f')
         nitems = 0
         for i in indices:
-            # i:i+1 to work around hdf5 bug, speedup
-            if not self.masked[i:i+1][0]:
+            if not self.measurement.masked[i]:
                 nitems += 1
-                res += self[i:i+1][0]
-            print i
+                res += self[i]
         if nitems:
             return res / nitems
         return res
@@ -238,49 +235,6 @@ class DeadTime(Signal):
             self.format = format
 
 
-class AcquisitionEnumerator(object):
-
-    """
-    A class for iterating over datasets, even during data acquisition. The
-    dataset can either be a phynx dataset or a proxy to a phynx dataset.
-
-    If a datapoint is marked as masked or invalid, it is skipped and not
-    included in the enumeration.
-
-    If the current index is out of range, but smaller than the number of points
-    expected for the acquisition (npoints), an IndexError is raised instead of
-    StopIteration. This allows the code doing the iteration to assume the
-    acquisition is ongoing and continue attempts to iterate until StopIteration
-    is encountered. If a scan is aborted, the number of expected points must be
-    updated or AcquisitionEnumerator will never raise StopIteration.
-
-    The enumerator yields an index, item tuple.
-    """
-
-    def __init__(self, dataset):
-        self._dataset = dataset
-        self._current_index = 0
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        i = self._current_index
-        if i >= self._dataset.npoints:
-            raise StopIteration()
-        elif i + 1 > self._dataset.acquired:
-            # expected the datapoint, but not yet acquired
-            raise IndexError()
-
-        if self._dataset.masked[i:i+1][0]:
-            self._current_index = i + 1
-            return i, None
-
-        res = self._dataset[i:i+1][0]
-        self._current_index = i + 1
-        return i, res
-
-
 class DataProxy(object):
 
     @property
@@ -294,8 +248,8 @@ class DataProxy(object):
         return res
 
     @property
-    def masked(self):
-        return self._dset.masked
+    def measurement(self):
+        return self._dset.measurement
 
     @property
     def npoints(self):
@@ -322,9 +276,6 @@ class DataProxy(object):
     def __len__(self):
         return len(self._dset)
 
-    def enumerate_items(self):
-        return AcquisitionEnumerator(self)
-
     @sync
     def mean(self, indices=None):
         if indices is None:
@@ -335,10 +286,9 @@ class DataProxy(object):
         res = np.zeros(self.shape[1:], 'f')
         nitems = 0
         for i in indices:
-            if not self.masked[i:i+1][0]:
+            if not self.masked[i]:
                 nitems += 1
-                res += self[i:i+1][0]
-            print i
+                res += self[i]
         if nitems:
             return res / nitems
         return res
@@ -425,19 +375,3 @@ class DeadTimeProxy(DataProxy):
             raise ValueError(
                 'Unrecognized dead time format: %s' % self.format
             )
-
-
-class MaskedProxy(DataProxy):
-
-    @property
-    def masked(self):
-        return self
-
-    @sync
-    def __getitem__(self, args):
-        try:
-            return self._dset.parent['masked'].__getitem__(args)
-        except H5Error:
-            if isinstance(args, int):
-                return False
-            return np.zeros(len(self._dset), '?').__getitem__(args)
