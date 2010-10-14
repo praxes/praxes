@@ -1,0 +1,6 @@
+*_rc.py
+ui_*.py
+*.pyc
+build
+dist
+*.egg-info
