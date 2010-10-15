@@ -81,6 +81,7 @@ class MultiMcaAcquisitionEnumerator(object):
 
     def __init__(self, measurement):
         self._measurement = measurement
+        self._npoints = measurement.npoints
         try:
             self._mcas = measurement.mcas.values()
         except AttributeError:
@@ -89,9 +90,11 @@ class MultiMcaAcquisitionEnumerator(object):
 
     def next(self):
         i = self._next_index
-        if i >= self._measurement.npoints:
+        if i >= self._npoints:
             raise StopIteration()
-        elif i >= self._measurement.acquired:
+        elif i != self._measurement.scalar_data['i'][i]:
+            if i >= self._measurement.acquired:
+                raise StopIteration()
             # expected the datapoint, but not yet acquired
             return None
 
