@@ -3,11 +3,12 @@
 
 from __future__ import absolute_import
 
+import copy
 import posixpath
 
 from .group import Group
 from .registry import registry
-from .utils import sync
+from .utils import simple_eval, sync
 
 
 class Measurement(Group):
@@ -67,7 +68,7 @@ class Measurement(Group):
             return copy.deepcopy(self._pymca_config)
     @pymca_config.setter
     @sync
-    def _set_pymca_config(self, config):
+    def pymca_config(self, config):
         self._pymca_config = copy.deepcopy(config)
         self.attrs['pymca_config'] = str(config)
 
@@ -144,7 +145,7 @@ class MaskedProxy(object):
     def __getitem__(self, args):
         try:
             return self._measurement.scalar_data['masked'].__getitem__(args)
-        except H5Error:
+        except KeyError:
             if isinstance(args, int):
                 return False
             return np.zeros(self._measurement.npoints, '?').__getitem__(args)

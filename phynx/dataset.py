@@ -286,7 +286,7 @@ class DataProxy(object):
         res = np.zeros(self.shape[1:], 'f')
         nitems = 0
         for i in indices:
-            if not self.masked[i]:
+            if not self.measurement.masked[i]:
                 nitems += 1
                 res += self[i]
         if nitems:
