@@ -87,14 +87,11 @@ class MultiMcaAcquisitionEnumerator(object):
             self._mcas = [self]
         self._next_index = 0
 
-    def __iter__(self):
-        return self
-
     def next(self):
         i = self._next_index
         if i >= self._measurement.npoints:
             raise StopIteration()
-        elif i + 1 > self._measurement.acquired:
+        elif i >= self._measurement.acquired:
             # expected the datapoint, but not yet acquired
             return None
 
@@ -103,7 +100,9 @@ class MultiMcaAcquisitionEnumerator(object):
         if self._measurement.masked[i]:
             return i, None
 
-        return i, np.sum([mca.corrected_value[i] for mca in self._mcas], 0)
+        return i, np.sum(
+            [mca['counts'].corrected_value[i] for mca in self._mcas], 0
+            )
 
 
 class XfsPPTaskManager(PPTaskManager):
@@ -170,6 +169,8 @@ class XfsPPTaskManager(PPTaskManager):
             print "%s not found in element_maps", entry
 
     def update_records(self, data):
+        if data is None:
+            return
         with self.lock:
             index = data['index']
             self.advanced_fit = data['advanced_fit']

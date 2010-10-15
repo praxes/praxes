@@ -60,17 +60,21 @@ class PPTaskManager(QtCore.QThread):
 
     @property
     def n_processed(self):
-        return self._n_processed
+        with self.lock:
+            return copy.copy(self._n_processed)
     @n_processed.setter
     def n_processed(self, val):
-        self._n_processed = val
+        with self.lock:
+            self._n_processed = copy.copy(val)
 
     @property
     def n_submitted(self):
-        return self._n_submitted
+        with self.lock:
+            return copy.copy(self._n_submitted)
     @n_submitted.setter
     def n_submitted(self, val):
-        self._n_submitted = val
+        with self.lock:
+            self._n_submitted = copy.copy(val)
 
     @property
     def scan(self):
@@ -107,7 +111,7 @@ class PPTaskManager(QtCore.QThread):
 
             self.job_server.set_ncpus(ncpus)
             self._n_cpus = np.sum(
-                [i for i in self.jobServer.get_active_nodes().itervalues()]
+                [i for i in self.job_server.get_active_nodes().itervalues()]
             )
 
             self.__dirty = False
@@ -129,8 +133,8 @@ class PPTaskManager(QtCore.QThread):
         raise NotImplementedError
 
     def flush(self):
-        self._job_server.wait()
-        self._n_submitted = 0
+        self.job_server.wait()
+        self.n_submitted = 0
         if self.dirty:
             self.emit(QtCore.SIGNAL("dataProcessed"))
             self.dirty = False
@@ -160,6 +164,7 @@ class PPTaskManager(QtCore.QThread):
             if self.n_submitted >= self.n_cpus*3:
                 self.flush()
 
+        self.sleep(1)
         if self.n_submitted > 1:
             self.flush()
 
@@ -170,7 +175,7 @@ class PPTaskManager(QtCore.QThread):
         with self.lock:
             self.emit(
                 QtCore.SIGNAL('percentComplete'),
-                int((100.0 * self._total_processed) / self.scan.npoints)
+                int((100.0 * self.n_processed) / self.scan.npoints)
             )
 
             stats = copy.deepcopy(self.job_server.get_stats())
@@ -179,7 +184,6 @@ class PPTaskManager(QtCore.QThread):
     def run(self):
         self.process_data()
         self.scan.file.flush()
-        self.job_server.destroy()
 
     def stop(self):
         self.stopped = True

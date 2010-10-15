@@ -78,7 +78,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
     def _setupToolActions(self):
         try:
-            from xpaxs.core.fluorescence.mcaanalysiswindow import McaAnalysisWindow
+            from ..core.fluorescence.mcaanalysiswindow import McaAnalysisWindow
             self.menuTools.addAction(
                 self._createToolAction("Analyze MCA", McaAnalysisWindow)
             )
@@ -229,7 +229,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         # this is a shortcut for now, in the future the view would be
         # an overview of the entry with ability to open different analyses
         if isinstance(scan, phynx.registry['Entry']):
-            from .mcaanalysiswindow import McaAnalysisWindow
+            from ..core.fluorescence.mcaanalysiswindow import McaAnalysisWindow
             if len(scan['measurement'].mcas) > 0:
                 return McaAnalysisWindow(scan, self)
             else:
