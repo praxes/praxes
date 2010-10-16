@@ -156,9 +156,6 @@ class XfsPPTaskManager(PPTaskManager):
 
     def submit_job(self, index, data):
         with self.lock:
-            sys.stdout.write("submit job:")
-            sys.stdout.flush()
-            d = time.time()
             args = (
                 index, data, self.tconf, self.advanced_fit,
                 self.mass_fraction_tool
@@ -171,8 +168,6 @@ class XfsPPTaskManager(PPTaskManager):
             #)
             res = analyze_spectrum(*args)
 
-            sys.stdout.write("%g\n"%(time.time()-d))
-            sys.stdout.flush()
             self.update_records(res)
 
     def update_element_map(self, element, map_type, index, val):
@@ -188,9 +183,6 @@ class XfsPPTaskManager(PPTaskManager):
 
     def update_records(self, data):
         with self.lock:
-            sys.stdout.write("update records:")
-            sys.stdout.flush()
-            d = time.time()
             if data is None:
                 return
         with self.lock:
@@ -221,5 +213,3 @@ class XfsPPTaskManager(PPTaskManager):
 
             self.dirty = True
 #            self.report_stats()
-            sys.stdout.write("%g\n"%(time.time()-d))
-            sys.stdout.flush()
