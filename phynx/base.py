@@ -7,7 +7,7 @@ from distutils.version import LooseVersion
 import h5py
 
 from .exceptions import H5Error
-from .utils import simple_eval
+from .utils import memoize, simple_eval
 
 
 class _RegisterPhynxClass(type):
@@ -32,8 +32,10 @@ class _PhynxProperties(object):
         return simple_eval(self.attrs.get('acquisition_shape', '()'))
 
     @property
+    @memoize
     def file(self):
-        return self._file
+        from .file import File
+        return File(None, bind=h5py.h5i.get_file_id(self.id))
 
     @property
     def npoints(self):
@@ -50,7 +52,6 @@ class _PhynxProperties(object):
     def __init__(self, parent_object):
         with parent_object.plock:
             self._plock = parent_object.plock
-            self._file = parent_object.file
             for attr in ['acquisition_shape', 'source_file', 'npoints']:
                 if (attr not in self.attrs) and (attr in parent_object.attrs):
                     self.attrs[attr] = parent_object.attrs[attr]
