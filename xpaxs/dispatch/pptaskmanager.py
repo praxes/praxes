@@ -45,9 +45,9 @@ class PPTaskManager(QtCore.QThread):
         with self.lock:
             self.__dirty = copy.copy(val)
 
-    @property
-    def job_server(self):
-        return self._job_server
+#    @property
+#    def job_server(self):
+#        return self._job_server
 
     @property
     def lock(self):
@@ -55,6 +55,7 @@ class PPTaskManager(QtCore.QThread):
 
     @property
     def n_cpus(self):
+        return 1
         with self.lock:
             return copy.copy(self._n_cpus)
 
@@ -100,19 +101,19 @@ class PPTaskManager(QtCore.QThread):
             ncpus, ok = settings.value(
                 'LocalProcesses', QtCore.QVariant(1)
             ).toInt()
-            try:
-                self._job_server = pp.Server(ncpus, ('*',))
-            except ValueError:
-                # this should not be necessary with pp-1.5.6 and later:
-                secret = hashlib.md5(str(time.time())).hexdigest()
-                self._job_server = pp.Server(
-                    ppservers=('*', ), secret=secret
-                )
+            #try:
+            #    self._job_server = pp.Server(ncpus, ('*',))
+            #except ValueError:
+            #    # this should not be necessary with pp-1.5.6 and later:
+            #    secret = hashlib.md5(str(time.time())).hexdigest()
+            #    self._job_server = pp.Server(
+            #        ppservers=('*', ), secret=secret
+            #    )
 
-            self.job_server.set_ncpus(ncpus)
-            self._n_cpus = np.sum(
-                [i for i in self.job_server.get_active_nodes().itervalues()]
-            )
+            #self.job_server.set_ncpus(ncpus)
+            #self._n_cpus = np.sum(
+            #    [i for i in self.job_server.get_active_nodes().itervalues()]
+            #)
 
             self.__dirty = False
             self.__stopped = False
@@ -133,11 +134,12 @@ class PPTaskManager(QtCore.QThread):
         raise NotImplementedError
 
     def flush(self):
-        self.job_server.wait()
+#        self.job_server.wait()
         self.n_submitted = 0
         if self.dirty:
             self.emit(QtCore.SIGNAL("dataProcessed"))
             self.dirty = False
+        self.report_stats()
 
     def process_data(self):
         for item in self:
@@ -178,8 +180,8 @@ class PPTaskManager(QtCore.QThread):
                 int((100.0 * self.n_processed) / self.scan.npoints)
             )
 
-            stats = copy.deepcopy(self.job_server.get_stats())
-            self.emit(QtCore.SIGNAL("ppJobStats"), stats)
+            #stats = copy.deepcopy(self.job_server.get_stats())
+            #self.emit(QtCore.SIGNAL("ppJobStats"), stats)
 
     def run(self):
         self.process_data()

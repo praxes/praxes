@@ -2,7 +2,9 @@
 """
 from __future__ import with_statement
 
+import copy
 import logging
+import sys
 import time
 
 import numpy as np
@@ -113,7 +115,7 @@ class XfsPPTaskManager(PPTaskManager):
     @property
     def advanced_fit(self):
         with self.lock:
-            return self._advanced_fit
+            return copy.deepcopy(self._advanced_fit)
     @advanced_fit.setter
     def advanced_fit(self, val):
         with self.lock:
@@ -122,7 +124,7 @@ class XfsPPTaskManager(PPTaskManager):
     @property
     def mass_fraction_tool(self):
         with self.lock:
-            return self._mass_fraction_tool
+            return copy.copy(self._mass_fraction_tool)
     @mass_fraction_tool.setter
     def mass_fraction_tool(self, val):
         with self.lock:
@@ -131,7 +133,7 @@ class XfsPPTaskManager(PPTaskManager):
     @property
     def tconf(self):
         with self.lock:
-            return self._tconf
+            return copy.deepcopy(self._tconf)
     @tconf.setter
     def tconf(self, val):
         with self.lock:
@@ -140,41 +142,57 @@ class XfsPPTaskManager(PPTaskManager):
     def __init__(self, scan, config, parent=None):
         super(XfsPPTaskManager, self).__init__(scan, parent)
 
-        self.advanced_fit = ClassMcaTheory.McaTheory(config=config)
-        self.advanced_fit.enableOptimizedLinearFit()
-        self.mass_fraction_tool = None
+        self._advanced_fit = ClassMcaTheory.McaTheory(config=config)
+        self._advanced_fit.enableOptimizedLinearFit()
+        self._mass_fraction_tool = None
         if 'concentrations' in config:
-            self.mass_fraction_tool = ConcentrationsTool(config)
-            self.tconf = self.mass_fraction_tool.configure()
+            self._mass_fraction_tool = ConcentrationsTool(config)
+            self._tconf = self.mass_fraction_tool.configure()
 
     def __iter__(self):
         return MultiMcaAcquisitionEnumerator(self.scan)
 
     def submit_job(self, index, data):
-        args = (
-            index, data, self.tconf, self.advanced_fit,
-            self.mass_fraction_tool
-        )
-        self.job_server.submit(
-            analyze_spectrum,
-            args,
-            modules=("time", ),
-            callback=self.update_records
-        )
+        with self.lock:
+            sys.stdout.write("submit job:")
+            sys.stdout.flush()
+            d = time.time()
+            args = (
+                index, data, self.tconf, self.advanced_fit,
+                self.mass_fraction_tool
+            )
+            #self.job_server.submit(
+            #    analyze_spectrum,
+            #    args,
+            #    modules=("time", ),
+            #    callback=self.update_records
+            #)
+            res = analyze_spectrum(*args)
+
+            sys.stdout.write("%g\n"%(time.time()-d))
+            sys.stdout.flush()
+            self.update_records(res)
 
     def update_element_map(self, element, map_type, index, val):
         try:
             entry = '%s_%s'%(element, map_type)
             self.scan['element_maps'][entry][index] = val
         except ValueError:
-            print "index %d out of range for %s", index, entry
+            print "index %d out of range for %s" % (index, entry)
         except KeyError:
-            print "%s not found in element_maps", entry
+            print "%s not found in element_maps" % entry
+        except TypeError:
+            print entry, index, val
 
     def update_records(self, data):
-        if data is None:
-            return
         with self.lock:
+            sys.stdout.write("update records:")
+            sys.stdout.flush()
+            d = time.time()
+            if data is None:
+                return
+        with self.lock:
+#        if True:
             index = data['index']
             self.advanced_fit = data['advanced_fit']
 
@@ -200,4 +218,6 @@ class XfsPPTaskManager(PPTaskManager):
                 pass
 
             self.dirty = True
-            self.report_stats()
+#            self.report_stats()
+            sys.stdout.write("%g\n"%(time.time()-d))
+            sys.stdout.flush()
