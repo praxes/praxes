@@ -76,7 +76,9 @@ class Dataset(_PhynxProperties, h5py.Dataset):
     def __getitem__(self, args):
         if isinstance(args, int):
             # this is a speedup to workaround an hdf5 indexing bug
-            return super(Dataset, self).__getitem__(slice(args, args+1))[0]
+            res = super(Dataset, self).__getitem__(slice(args, args+1))
+            res.shape = res.shape[1:]
+            return res
         else:
             return super(Dataset, self).__getitem__(args)
 
