@@ -81,15 +81,17 @@ class MultiMcaAcquisitionEnumerator(object):
     The enumerator yields an index, item_list tuple.
     """
 
-    def __init__(self, measurement):
-        self._measurement = measurement
-        self._indices = measurement.scalar_data['i']
-        self._masked = measurement.masked
-        self._npoints = measurement.npoints
+    def __init__(self, g):
+        self._measurement = g.measurement
+        self._indices = self._measurement.scalar_data['i']
+        self._masked = self._measurement.masked
+        self._npoints = g.npoints
         try:
-            self._mcas = measurement.mcas.values()
+            # are we processing a group of mca elements...
+            self._counts = [mca['counts'] for mca in g.mcas.values()]
         except AttributeError:
-            self._mcas = [self]
+            # or a single element?
+            self._counts = [g['counts']]
         self._next_index = 0
 
     def next(self):
@@ -108,7 +110,7 @@ class MultiMcaAcquisitionEnumerator(object):
             return i, None
 
         return i, np.sum(
-            [mca['counts'].corrected_value[i] for mca in self._mcas], 0
+            [counts.corrected_value[i] for counts in self._counts], 0
             )
 
 
