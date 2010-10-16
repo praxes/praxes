@@ -83,6 +83,8 @@ class MultiMcaAcquisitionEnumerator(object):
 
     def __init__(self, measurement):
         self._measurement = measurement
+        self._indices = measurement.scalar_data['i']
+        self._masked = measurement.masked
         self._npoints = measurement.npoints
         try:
             self._mcas = measurement.mcas.values()
@@ -94,7 +96,7 @@ class MultiMcaAcquisitionEnumerator(object):
         i = self._next_index
         if i >= self._npoints:
             raise StopIteration()
-        elif i != self._measurement.scalar_data['i'][i]:
+        elif i != self._indices[i]:
             if i >= self._measurement.acquired:
                 raise StopIteration()
             # expected the datapoint, but not yet acquired
@@ -102,7 +104,7 @@ class MultiMcaAcquisitionEnumerator(object):
 
         self._next_index = i + 1
 
-        if self._measurement.masked[i]:
+        if self._masked[i]:
             return i, None
 
         return i, np.sum(
