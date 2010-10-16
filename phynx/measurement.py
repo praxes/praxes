@@ -8,7 +8,7 @@ import posixpath
 
 from .group import Group
 from .registry import registry
-from .utils import simple_eval, sync
+from .utils import memoize, simple_eval, sync
 
 
 class Measurement(Group):
@@ -29,6 +29,7 @@ class Measurement(Group):
         self.attrs['acquired'] = int(value)
 
     @property
+    @memoize
     def masked(self):
         return MaskedProxy(self)
 
@@ -41,6 +42,7 @@ class Measurement(Group):
         ])
 
     @property
+    @memoize
     @sync
     def positioners(self):
         targets = [
@@ -73,6 +75,7 @@ class Measurement(Group):
         self.attrs['pymca_config'] = str(config)
 
     @property
+    @memoize
     @sync
     def scalar_data(self):
         targets = [
@@ -131,10 +134,12 @@ class MaskedProxy(object):
         return self
 
     @property
+    @memoize
     def npoints(self):
         return self._measurement.npoints
 
     @property
+    @memoize
     def plock(self):
         return self._measurement.plock
 

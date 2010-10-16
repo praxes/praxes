@@ -4,20 +4,13 @@ from __future__ import absolute_import, with_statement
 
 from distutils.version import LooseVersion
 
-try:
-    from enthought.traits.api import HasTraits, MetaHasTraits
-except ImportError:
-    MetaHasTraits = type
-
-    class HasTraits(object):
-        pass
 import h5py
 
 from .exceptions import H5Error
 from .utils import simple_eval
 
 
-class _RegisterPhynxClass(MetaHasTraits):
+class _RegisterPhynxClass(type):
 
     def __init__(cls, name, bases, attrs):
         if cls.__name__ != '_PhynxProperties':
@@ -25,7 +18,7 @@ class _RegisterPhynxClass(MetaHasTraits):
             registry.register(cls)
 
 
-class _PhynxProperties(HasTraits):
+class _PhynxProperties(object):
 
     """A mix-in class to propagate attributes from the parent object to
     the new HDF5 group or dataset, and to expose those attributes via
@@ -38,12 +31,9 @@ class _PhynxProperties(HasTraits):
     def acquisition_shape(self):
         return simple_eval(self.attrs.get('acquisition_shape', '()'))
 
-    if LooseVersion(h5py.version.version) >= LooseVersion('1.3.0'):
-        @property
-        def file(self):
-            fid = h5py.h5i.get_file_id(self.id)
-            from .file import File
-            return File(None, bind=fid)
+    @property
+    def file(self):
+        return self._file
 
     @property
     def npoints(self):
@@ -58,8 +48,7 @@ class _PhynxProperties(HasTraits):
         return self.attrs.get('source_file', self.file.filename)
 
     def __init__(self, parent_object):
-        if 1:
-#        with parent_object.plock:
+        with parent_object.plock:
             self._plock = parent_object.plock
             self._file = parent_object.file
             for attr in ['acquisition_shape', 'source_file', 'npoints']:
