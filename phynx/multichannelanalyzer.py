@@ -10,7 +10,7 @@ import numpy as np
 from .dataset import DataProxy, DeadTime, Signal
 from .detector import Detector
 from .exceptions import H5Error
-from .utils import simple_eval, sync
+from .utils import memoize, simple_eval, sync
 
 
 class MultiChannelAnalyzer(Detector):
@@ -36,6 +36,7 @@ class MultiChannelAnalyzer(Detector):
         return np.polyval(self.calibration[::-1], self.channels)
 
     @property
+    @memoize
     @sync
     def monitor(self):
         id = self.attrs.get('monitor', None)
@@ -93,6 +94,7 @@ class Spectrum(Signal):
     """
 
     @property
+    @memoize
     @sync
     def corrected_value(self):
         return CorrectedSpectrumProxy(self)

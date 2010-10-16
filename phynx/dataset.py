@@ -12,7 +12,7 @@ import numpy as np
 from .base import _PhynxProperties
 from .exceptions import H5Error
 from .registry import registry
-from .utils import simple_eval, sync
+from .utils import memoize, simple_eval, sync
 
 
 class Dataset(_PhynxProperties, h5py.Dataset):
@@ -160,6 +160,7 @@ class Signal(Dataset):
         return self.attrs.get('signal', 0)
 
     @property
+    @memoize
     def corrected_value(self):
         return CorrectedDataProxy(self)
 
@@ -200,41 +201,42 @@ class DeadTime(Signal):
     """
 
     @property
+    @memoize
     def correction(self):
         return DeadTimeProxy(self, 'correction')
 
     @property
+    @memoize
     def percent(self):
         return DeadTimeProxy(self, 'percent')
 
     @property
+    @memoize
     def fraction(self):
         return DeadTimeProxy(self, 'fraction')
 
     @property
+    @memoize
     def normalization(self):
         return DeadTimeProxy(self, 'normalization')
 
-    def _get_format(self):
+    @property
+    @memoize
+    def format(self):
         return self.attrs['dead_time_format']
-    def _set_format(self, format):
-        valid = ('percent', '%', 'fraction', 'normalization', 'correction')
-        try:
-            assert format in valid
-        except AssertionError:
-            raise ValueError(
-                'dead time format must one of: %r, got %s'
-                % (', '.join(valid), format)
-            )
-        self.attrs['dead_time_format'] = format
-    format = property(_get_format, _set_format)
 
     def __init__(self, *args, **kwargs):
         format = kwargs.pop('dead_time_format', None)
         super(DeadTime, self).__init__(*args, **kwargs)
 
         if format:
-            self.format = format
+            valid = ('percent', '%', 'fraction', 'normalization', 'correction')
+            if format not in valid:
+                raise ValueError(
+                    'dead time format must one of: %r, got %s'
+                    % (', '.join(valid), format)
+                    )
+            self.attrs['dead_time_format'] = format
 
 
 class DataProxy(object):
@@ -338,6 +340,7 @@ class CorrectedDataProxy(DataProxy):
 class DeadTimeProxy(DataProxy):
 
     @property
+    @memoize
     def format(self):
         return self._format
 
