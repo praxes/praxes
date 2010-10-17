@@ -34,7 +34,6 @@ DEBUG = False
 #    def __exit__(self, type, value, traceback):
 #        self.unlock()
 
-
 class PPTaskManager(threading.Thread):
 
     @property
@@ -47,7 +46,6 @@ class PPTaskManager(threading.Thread):
 
     @property
     def n_cpus(self):
-        return 1
         with self.lock:
             return copy.copy(self._n_cpus)
 
@@ -100,9 +98,10 @@ class PPTaskManager(threading.Thread):
 
         self._job_server = pp.Server(ppservers=('*',))
 
-        n_active_nodes = self.job_server.get_active_nodes()['local']
-        n_local_cpus = kwargs.get('local_processes', n_active_nodes)
-        self.job_server.set_ncpus(n_local_cpus)
+        n_cpus = self.job_server.get_ncpus()
+        n_local_processes = kwargs.get('n_local_processes', n_cpus)
+        self.job_server.set_ncpus(n_local_processes)
+        print self.job_server.get_ncpus()
 
         # total cpus, including local and remote:
         self._n_cpus = np.sum(
@@ -111,26 +110,28 @@ class PPTaskManager(threading.Thread):
 
         self.__stopped = False
 
+        self._next_index = 0
         self._n_processed = 0
         self._n_submitted = 0
 
     def __iter__(self):
+        return self
+
+    def next(self):
         """
-        The iterator returned by this method must yield an (index, data) tuple,
-        or None to signify that the acquisition is ongoing and the next data
-        point is not yet available.
+        This needs to return a (func, args) tuple
         """
         raise NotImplementedError
 
     def flush(self):
+        #self.job_server.wait()
         while True:
             try:
-                job = self.job_queue.pop(0)
-                result = job()
-                self.update_records(result)
+                res = self.job_queue.pop(0)()
+                if res is not None:
+                    self.update_records(res)
             except IndexError:
                 break
-        
         self.n_submitted = 0
         self.queue_results()
 
@@ -145,25 +146,25 @@ class PPTaskManager(threading.Thread):
                     self.flush()
                 else:
                     time.sleep(0.1)
-            else:
-                i, data = item
-                self.n_processed += 1
 
-                if data is None:
-                    # this point was masked, no data to process
-                    continue
+            self.n_processed += 1
 
-                self.job_queue.append(self.submit_job(i, data))
-                self.n_submitted += 1
+            if item == 0:
+                # this point was masked, no data to process
+                continue
+
+            f, args = item
+            job = self.job_server.submit(
+                f, args, modules=("time", )
+                )
+            self.job_queue.append(job)
+            self.n_submitted += 1
 
             if self.n_submitted >= self.n_cpus*3:
                 self.flush()
 
         if self.n_submitted > 0:
             self.flush()
-
-    def submit_job(self, num_jobs):
-        raise NotImplementedError
 
     def queue_results(self):
         stats = copy.deepcopy(self.job_server.get_stats())

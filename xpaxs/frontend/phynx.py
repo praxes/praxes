@@ -12,22 +12,6 @@ from PyQt4 import QtCore, QtGui
 import phynx
 
 
-class QRLock(QtCore.QMutex):
-
-    """
-    """
-
-    def __init__(self):
-        QtCore.QMutex.__init__(self, QtCore.QMutex.Recursive)
-
-    def __enter__(self):
-        self.lock()
-        return self
-
-    def __exit__(self, type, value, traceback):
-        self.unlock()
-
-
 class RootItem(object):
 
     @property
@@ -261,7 +245,7 @@ class FileModel(QtCore.QAbstractItemModel):
             if item.filename == filename:
                 return item.file
 
-        phynxFile = phynx.File(filename, 'a', lock=QRLock())
+        phynxFile = phynx.File(filename, 'a')
         self.rootItem.appendChild(phynxFile)
         self.emit(QtCore.SIGNAL('fileAppended'))
         return phynxFile

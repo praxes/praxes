@@ -262,7 +262,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         if mapType and element:
             try:
                 entry = '%s_%s'%(element, mapType)
-                return self.scan_data['element_maps'][entry].map
+                with self.scan_data.plock:
+                    return self.scan_data['element_maps'][entry].map
 
             except phynx.H5Error:
                 return np.zeros(self.scan_data.acquisition_shape)
@@ -342,10 +343,17 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
         self._resetPeaks()
 
+        settings = QtCore.QSettings()
+        settings.beginGroup('PPJobServers')
+        n_local_processes, ok = settings.value(
+            'LocalProcesses', QtCore.QVariant(1)
+        ).toInt()
+
         thread = XfsPPTaskManager(
             self.scan_data,
             copy.deepcopy(self.pymcaConfig),
-            self.progress_queue
+            self.progress_queue,
+            n_local_processes=n_local_processes
         )
 
 #        self.connect(
