@@ -7,6 +7,7 @@ import copy
 import gc
 import logging
 import posixpath
+import Queue
 
 from PyQt4 import QtCore, QtGui
 from PyMca.FitParam import FitParamDialog
@@ -26,11 +27,13 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
     """
     """
 
+    @property
+    def n_points(self):
+        return self._n_points
+
     # TODO: this should eventually take an MCA entry
     def __init__(self, scan_data, parent=None):
         super(McaAnalysisWindow, self).__init__(parent)
-
-        self.analysisThread = None
 
         if isinstance(scan_data, phynx.Entry):
             self.scan_data = scan_data.measurement
@@ -44,6 +47,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                     'H5 node type %s not recognized by McaAnalysisWindow'
                     % scan_data.__class__.__name__
                 )
+        self._n_points = scan_data.npoints
 
         pymcaConfig = self.scan_data.pymca_config
         self.setupUi(self)
@@ -101,7 +105,14 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         self.progressBar.addAction(self.actionAbort)
         self.progressBar.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 
+        self.progress_queue = Queue.Queue()
         self.analysisThread = None
+        self.timer = QtCore.QTimer(self)
+        self.connect(
+            self.timer,  
+            QtCore.SIGNAL('timeout()'),
+            self.update
+        )
 
         self.elementsView.updateFigure()
 
@@ -221,7 +232,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             if res == QtGui.QMessageBox.Yes:
                 if self.analysisThread:
                     self.analysisThread.stop()
-                    self.analysisThread.wait()
+                    self.analysisThread.join()
                     QtGui.qApp.processEvents()
             else:
                 event.ignore()
@@ -317,6 +328,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         self.progressBar.reset()
         self.statusbar.removeWidget(self.progressBar)
         self.statusbar.clearMessage()
+        self.timer.stop()
 
         self.analysisThread = None
 
@@ -333,32 +345,34 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         thread = XfsPPTaskManager(
             self.scan_data,
             copy.deepcopy(self.pymcaConfig),
+            self.progress_queue
         )
 
-        self.connect(
-            thread,
-            QtCore.SIGNAL('dataProcessed'),
-            self.elementMapUpdated
-        )
-        self.connect(
-            thread,
-            QtCore.SIGNAL('ppJobStats'),
-            self.ppJobStats.updateTable
-        )
-        self.connect(
-            thread,
-            QtCore.SIGNAL("finished()"),
-            self.processComplete
-        )
-        self.connect(
-            thread,
-            QtCore.SIGNAL('percentComplete'),
-            self.progressBar.setValue
-        )
+#        self.connect(
+#            thread,
+#            QtCore.SIGNAL('dataProcessed'),
+#            self.elementMapUpdated
+#        )
+#        self.connect(
+#            thread,
+#            QtCore.SIGNAL('ppJobStats'),
+#            self.ppJobStats.updateTable
+#        )
+#        self.connect(
+#            thread,
+#            QtCore.SIGNAL("finished()"),
+#            self.processComplete
+#        )
+#        self.connect(
+#            thread,
+#            QtCore.SIGNAL('percentComplete'),
+#            self.progressBar.setValue
+#        )
         self.connect(
             self.actionAbort,
             QtCore.SIGNAL('triggered(bool)'),
-            thread.stop
+            self.abort,
+            #thread.stop
         )
 
         self.statusbar.showMessage('Analyzing spectra ...')
@@ -367,7 +381,32 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
         self.analysisThread = thread
 
-        thread.start(QtCore.QThread.NormalPriority)
+        thread.start()
+        self.timer.start(1000)
+
+    def abort(self):
+        self.analysisThread.stop()
+        self.processComplete()
+
+    def update(self):
+        item = None
+        while True:
+            try:
+                item = self.progress_queue.get(False)
+            except Queue.Empty:
+                break
+        if item is None:
+            return
+
+        self.elementMapUpdated()
+
+        n_processed = item.pop('n_processed')
+        progress = int((100.0 * n_processed) / self.n_points)
+        self.progressBar.setValue(progress)
+        self.ppJobStats.updateTable(item)
+
+        if n_processed >= self.n_points:
+            self.processComplete()
 
     def _resetPeaks(self):
         peaks = []

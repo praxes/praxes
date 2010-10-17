@@ -6,10 +6,11 @@ import copy
 import gc
 import hashlib
 import logging
+import threading
 import time
 
 import pp
-from PyQt4 import QtCore
+#from PyQt4 import QtCore
 import numpy as np
 np.seterr(all='ignore')
 
@@ -18,36 +19,27 @@ logger = logging.getLogger(__file__)
 DEBUG = False
 
 
-class QRLock(QtCore.QMutex):
+#class QRLock(QtCore.QMutex):
+#
+#    """
+#    """
+#
+#    def __init__(self):
+#        QtCore.QMutex.__init__(self, QtCore.QMutex.Recursive)
+#
+#    def __enter__(self):
+#        self.lock()
+#        return self
+#
+#    def __exit__(self, type, value, traceback):
+#        self.unlock()
 
-    """
-    """
 
-    def __init__(self):
-        QtCore.QMutex.__init__(self, QtCore.QMutex.Recursive)
-
-    def __enter__(self):
-        self.lock()
-        return self
-
-    def __exit__(self, type, value, traceback):
-        self.unlock()
-
-
-class PPTaskManager(QtCore.QThread):
+class PPTaskManager(threading.Thread):
 
     @property
-    def dirty(self):
-        with self.lock:
-            return copy.copy(self.__dirty)
-    @dirty.setter
-    def dirty(self, val):
-        with self.lock:
-            self.__dirty = copy.copy(val)
-
-#    @property
-#    def job_server(self):
-#        return self._job_server
+    def job_server(self):
+        return self._job_server
 
     @property
     def lock(self):
@@ -58,6 +50,11 @@ class PPTaskManager(QtCore.QThread):
         return 1
         with self.lock:
             return copy.copy(self._n_cpus)
+
+    @property
+    def n_points(self):
+        with self.lock:
+            return copy.copy(self._n_points)
 
     @property
     def n_processed(self):
@@ -90,40 +87,32 @@ class PPTaskManager(QtCore.QThread):
         with self.lock:
             self.__stopped = copy.copy(val)
 
-    def __init__(self, scan, parent=None):
-        super(PPTaskManager, self).__init__(parent)
+    def __init__(self, scan, progress_queue, **kwargs):
+        super(PPTaskManager, self).__init__()
 
-        self.__lock = QRLock()
+        self.__lock = threading.RLock()
 
-        with self.lock:
-            settings = QtCore.QSettings()
-            settings.beginGroup('PPJobServers')
-            ncpus, ok = settings.value(
-                'LocalProcesses', QtCore.QVariant(1)
-            ).toInt()
-            #try:
-            #    self._job_server = pp.Server(ncpus, ('*',))
-            #except ValueError:
-            #    # this should not be necessary with pp-1.5.6 and later:
-            #    secret = hashlib.md5(str(time.time())).hexdigest()
-            #    self._job_server = pp.Server(
-            #        ppservers=('*', ), secret=secret
-            #    )
+        self._scan = scan
+        self._n_points = scan.npoints
 
-            #self.job_server.set_ncpus(ncpus)
-            #self._n_cpus = np.sum(
-            #    [i for i in self.job_server.get_active_nodes().itervalues()]
-            #)
+        self.progress_queue = progress_queue
+        self.job_queue = []
 
-            self.__dirty = False
-            self.__stopped = False
+        self._job_server = pp.Server(ppservers=('*',))
 
-            self._n_processed = 0
-            self._n_submitted = 0
+        n_active_nodes = self.job_server.get_active_nodes()['local']
+        n_local_cpus = kwargs.get('local_processes', n_active_nodes)
+        self.job_server.set_ncpus(n_local_cpus)
 
-            self._last_report = time.time()
+        # total cpus, including local and remote:
+        self._n_cpus = np.sum(
+            [i for i in self.job_server.get_active_nodes().itervalues()]
+        )
 
-            self._scan = scan
+        self.__stopped = False
+
+        self._n_processed = 0
+        self._n_submitted = 0
 
     def __iter__(self):
         """
@@ -134,12 +123,16 @@ class PPTaskManager(QtCore.QThread):
         raise NotImplementedError
 
     def flush(self):
-#        self.job_server.wait()
+        while True:
+            try:
+                job = self.job_queue.pop(0)
+                result = job()
+                self.update_records(result)
+            except IndexError:
+                break
+        
         self.n_submitted = 0
-        if self.dirty:
-            self.emit(QtCore.SIGNAL("dataProcessed"))
-            self.dirty = False
-        self.report_stats()
+        self.queue_results()
 
     def process_data(self):
         for item in self:
@@ -160,29 +153,23 @@ class PPTaskManager(QtCore.QThread):
                     # this point was masked, no data to process
                     continue
 
-                self.submit_job(i, data)
+                self.job_queue.append(self.submit_job(i, data))
                 self.n_submitted += 1
 
             if self.n_submitted >= self.n_cpus*3:
                 self.flush()
 
-        self.sleep(1)
-        if self.n_submitted > 1:
+        if self.n_submitted > 0:
             self.flush()
 
     def submit_job(self, num_jobs):
         raise NotImplementedError
 
-    def report_stats(self):
-        with self.lock:
-            self.emit(
-                QtCore.SIGNAL('percentComplete'),
-                int((100.0 * self.n_processed) / self.scan.npoints)
-            )
-
-            #stats = copy.deepcopy(self.job_server.get_stats())
-            #self.emit(QtCore.SIGNAL("ppJobStats"), stats)
-
+    def queue_results(self):
+        stats = copy.deepcopy(self.job_server.get_stats())
+        stats['n_processed'] = self.n_processed
+        self.progress_queue.put(stats)
+        
     def run(self):
         self.process_data()
         self.scan.file.flush()

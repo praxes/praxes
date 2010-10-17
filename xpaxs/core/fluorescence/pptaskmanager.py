@@ -11,7 +11,6 @@ import numpy as np
 import pp
 from PyMca import ClassMcaTheory
 from PyMca.ConcentrationsTool import ConcentrationsTool
-from PyQt4 import QtCore
 import numpy as np
 np.seterr(all='ignore')
 
@@ -157,20 +156,16 @@ class XfsPPTaskManager(PPTaskManager):
         return MultiMcaAcquisitionEnumerator(self.scan)
 
     def submit_job(self, index, data):
-        with self.lock:
-            args = (
-                index, data, self.tconf, self.advanced_fit,
-                self.mass_fraction_tool
+        args = (
+            index, data, self.tconf, self.advanced_fit,
+            self.mass_fraction_tool
             )
-            #self.job_server.submit(
-            #    analyze_spectrum,
-            #    args,
-            #    modules=("time", ),
-            #    callback=self.update_records
-            #)
-            res = analyze_spectrum(*args)
-
-            self.update_records(res)
+        job = self.job_server.submit(
+            analyze_spectrum,
+            args,
+            modules=("time", ),
+            )
+        return job
 
     def update_element_map(self, element, map_type, index, val):
         try:
@@ -185,10 +180,6 @@ class XfsPPTaskManager(PPTaskManager):
 
     def update_records(self, data):
         with self.lock:
-            if data is None:
-                return
-        with self.lock:
-#        if True:
             index = data['index']
             self.advanced_fit = data['advanced_fit']
 
@@ -212,6 +203,3 @@ class XfsPPTaskManager(PPTaskManager):
                     self.update_element_map(k, 'mass_fraction', index, val)
             except KeyError:
                 pass
-
-            self.dirty = True
-#            self.report_stats()
