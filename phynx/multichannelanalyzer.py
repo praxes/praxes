@@ -4,6 +4,7 @@
 from __future__ import absolute_import, with_statement
 
 import copy
+import time
 
 import numpy as np
 
@@ -47,13 +48,13 @@ class MultiChannelAnalyzer(Detector):
     @sync
     def pymca_config(self):
         try:
-            return self._pymca_config
+            return copy.deepcopy(self._pymca_config)
         except AttributeError:
             config = self.attrs.get('pymca_config', None)
             if config is not None:
                 from PyMca.ConfigDict import ConfigDict
                 self._pymca_config = ConfigDict(simple_eval(config))
-                return copy.deepcopy(self._pymca_config)
+                return self._pymca_config
             else:
                 config = self.measurement.pymca_config
                 self.attrs['pymca_config'] = str(config)
@@ -113,23 +114,28 @@ class McaSpectrum(Spectrum):
 
 class CorrectedSpectrumProxy(DataProxy):
 
-    @sync
+    @property
+    @memoize
+    def monitor(self):
+        return self._dset.parent.monitor.corrected_value
+
     def __getitem__(self, key):
         with self._dset.plock:
             data = self._dset.__getitem__(key)
 
-            try:
-                norm = self._dset.efficiency
-                if norm is not None:
-                    data /= norm
-            except AttributeError:
-                pass
+            #try:
+            #    norm = self._dset.efficiency
+            #    if norm is not None:
+            #        data /= norm
+            #except AttributeError:
+            #    pass
 
             try:
+                cfg = self._dset.parent.pymca_config
                 norm = (
-                    self._dset.parent.pymca_config['concentrations']['time'] *
-                    self._dset.parent.pymca_config['concentrations']['flux'] /
-                    self._dset.parent.monitor.corrected_value.__getitem__(key)
+                    cfg['concentrations']['time'] *
+                    cfg['concentrations']['flux'] /
+                    self.monitor.__getitem__(key)
                 )
                 if not np.isscalar(norm) and len(norm.shape) < len(data.shape):
                     newshape = [1]*len(data.shape)
