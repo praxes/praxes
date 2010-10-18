@@ -101,7 +101,6 @@ class PPTaskManager(threading.Thread):
         n_cpus = self.job_server.get_ncpus()
         n_local_processes = kwargs.get('n_local_processes', n_cpus)
         self.job_server.set_ncpus(n_local_processes)
-        print self.job_server.get_ncpus()
 
         # total cpus, including local and remote:
         self._n_cpus = np.sum(
