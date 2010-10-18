@@ -98,11 +98,11 @@ setup(
             'xpaxs = xpaxs.frontend.mainwindow:main',
         ],
     },
-    extras_require = dict(
-        [(k,v.split('\n')) for (k,v) in cfg.items('metadata.extras_require')]
-    ),
+#    extras_require = dict(
+#        [(k,v.split('\n')) for (k,v) in cfg.items('metadata.extras_require')]
+#    ),
     include_package_data = True,
-    install_requires = cfg.get('metadata', 'install_requires').split('\n'),
+#    install_requires = cfg.get('metadata', 'install_requires').split('\n'),
     license = cfg.get('metadata', 'license'),
     long_description = cfg.get('metadata', 'long_description'),
     name = cfg.get('metadata', 'name'),
@@ -113,7 +113,7 @@ setup(
     #},
     packages = find_packages(),
     platforms = cfg.get('metadata', 'platforms'),
-    requires = cfg.get('metadata', 'requires').split('\n'),
+#    requires = cfg.get('metadata', 'requires').split('\n'),
 #    scripts = ['scripts/postinstall_win.py'] if 'bdist_msi' in sys.argv else [],
     test_suite = 'nose.collector',
     url = cfg.get('metadata', 'url'),
