@@ -119,7 +119,11 @@ class PPTaskManager(threading.Thread):
 
     def next(self):
         """
-        This needs to return a (func, args) tuple
+        This needs to be reimplemented to return either:
+
+        * (func, args) tuple such that func(*args) will work
+        * 0 if the point was masked
+        * None if the data is not yet available
         """
         raise NotImplementedError
 
@@ -146,6 +150,7 @@ class PPTaskManager(threading.Thread):
                     self.flush()
                 else:
                     time.sleep(0.1)
+                continue
 
             self.n_processed += 1
 
