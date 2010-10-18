@@ -188,7 +188,8 @@ class _SpecConnectionsManager:
           if connection is not None:
             connection.makeConnection()
 
-        asyncore.loop(timeout, False, None, 1)
+        connection_dispatchers = dict([(condis.socket.fileno(), condis) for condis in self.connectionDispatchers.itervalues() if condis.socket is not None]) 
+        asyncore.loop(timeout, False, connection_dispatchers, 1)
 
         SpecEventsDispatcher.dispatch()
 
@@ -217,7 +218,7 @@ class _SpecConnectionsManager:
             con = con()
 
         return con
-    
+
 
     def closeConnection(self, specVersion):
         try:
