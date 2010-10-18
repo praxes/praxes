@@ -114,6 +114,10 @@ class ElementImageFigure(ElementBaseFigure):
         self.autoscale = val
         self.updateFigure()
 
+    def setColorMap(self, val):
+        self.image.set_cmap(val)
+        self.draw()
+
     def setDataMax(self, val):
         self._clim[1] = val
         self.updateFigure()
