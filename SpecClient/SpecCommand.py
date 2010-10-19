@@ -19,6 +19,7 @@ from SpecReply import SpecReply
 import SpecConnectionsManager
 import SpecEventsDispatcher
 import SpecWaitObject
+from SpecClient.SpecClientError import SpecClientTimeoutError
 
 class BaseSpecCommand:
     """Base class for SpecCommand objects"""
@@ -152,7 +153,7 @@ class SpecCommandA(BaseSpecCommand):
         BaseSpecCommand.__init__(self, *args, **kwargs)
 
 
-    def connectToSpec(self, specVersion, timeout=1000):
+    def connectToSpec(self, specVersion, timeout=200):
         if self.connection is not None:
             SpecEventsDispatcher.disconnect(self.connection, 'connected', self.connected)
             SpecEventsDispatcher.disconnect(self.connection, 'disconnected', self.disconnected)
@@ -179,7 +180,10 @@ class SpecCommandA(BaseSpecCommand):
         if self.connection.isSpecConnected():
             self.connected()
         else:
-            SpecWaitObject.waitConnection(self.connection, timeout)
+            try:
+              SpecWaitObject.waitConnection(self.connection, timeout)
+            except SpecClientTimeoutError:
+              pass
             SpecEventsDispatcher.dispatch()
 
 

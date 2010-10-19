@@ -188,7 +188,15 @@ class _SpecConnectionsManager:
           if connection is not None:
             connection.makeConnection()
 
-        connection_dispatchers = dict([(condis.socket.fileno(), condis) for condis in self.connectionDispatchers.itervalues() if condis.socket is not None]) 
+        connection_dispatchers = {}
+        for condis in self.connectionDispatchers.itervalues():
+          if condis.socket is not None:
+            try:
+              connection_dispatchers[condis.socket.fileno()]=condis
+            except:
+              # BAD FILE DESCRIPTOR?
+              continue
+        
         asyncore.loop(timeout, False, connection_dispatchers, 1)
 
         SpecEventsDispatcher.dispatch()
