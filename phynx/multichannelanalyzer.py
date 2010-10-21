@@ -116,8 +116,19 @@ class CorrectedSpectrumProxy(DataProxy):
 
     @property
     @memoize
-    def monitor(self):
-        return self._dset.parent.monitor.corrected_value
+    def _monitor(self):
+        try:
+            return self._dset.parent.monitor.corrected_value
+        except:
+            return None
+
+    @property
+    @memoize
+    def _deadtime(self):
+        try:
+            dtc = self._dset.parent['dead_time'].correction
+        except H5Error:
+            return None
 
     def __getitem__(self, key):
         with self._dset.plock:
@@ -131,12 +142,9 @@ class CorrectedSpectrumProxy(DataProxy):
             #    pass
 
             try:
-                cfg = self._dset.parent.pymca_config
-                norm = (
-                    cfg['concentrations']['time'] *
-                    cfg['concentrations']['flux'] /
-                    self.monitor.__getitem__(key)
-                )
+                mon = self._monitor.__getitem__[key]
+                cfg = self._dset.parent.pymca_config['concentrations']
+                norm = cfg['time'] * cfg['flux'] / mon
                 if not np.isscalar(norm) and len(norm.shape) < len(data.shape):
                     newshape = [1]*len(data.shape)
                     newshape[:len(norm.shape)] = norm.shape
@@ -148,14 +156,14 @@ class CorrectedSpectrumProxy(DataProxy):
 
             # detector deadtime correction
             try:
-                dtc = self._dset.parent['dead_time'].correction.__getitem__(key)
+                dtc = self._deadtime.__getitem__(key)
                 if isinstance(dtc, np.ndarray) \
                         and len(dtc.shape) < len(data.shape):
                     newshape = [1]*len(data.shape)
                     newshape[:len(dtc.shape)] = dtc.shape
-                    dtn.shape = newshape
+                    dtc.shape = newshape
                 data *= dtc
-            except H5Error:
+            except (AttributeError, TypeError):
                 # fails if dead_time_correction is not defined
                 pass
 

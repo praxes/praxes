@@ -373,9 +373,9 @@ class DeadTimeProxy(DataProxy):
         elif self.format in ('percent', '%'):
             return 100 * fraction
         elif self.format == 'correction':
-            return 1 + fraction
+            return 1 / (1 - fraction)
         elif self.format == 'normalization':
-            return 1 / (1 + fraction)
+            return 1 - fraction
         else:
             raise ValueError(
                 'Unrecognized dead time format: %s' % self.format
