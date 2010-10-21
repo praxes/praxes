@@ -62,8 +62,16 @@ def _skipmode_client_set_env() '{
 
 
 def _skipmode_precount '{
+    # if added for skipmode with epics ROIS
+    if (MCA_SKIP > 0){
+        _mca_startcount()
+    }
     tcount(_SKIPMODE["precount"])
-    sleep(.2)
+    wait(2)
+    # this if also added for skipmode with epics rois
+    if (MCA_SKIP > 0){
+        _mca_stopcount()
+    }
     getcounts
     if(S[_SKIPMODE["counter"]] < _SKIPMODE["threshold"]){
         COUNT_TIME = 0
