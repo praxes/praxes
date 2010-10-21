@@ -328,7 +328,7 @@ class CorrectedDataProxy(DataProxy):
                     and len(dtc.shape) < len(data.shape):
                 newshape = [1]*len(data.shape)
                 newshape[:len(dtc.shape)] = dtc.shape
-                dtn.shape = newshape
+                dtc.shape = newshape
             data *= dtc
         except H5Error:
             # fails if dead_time_correction is not defined
@@ -355,27 +355,34 @@ class DeadTimeProxy(DataProxy):
 
     @sync
     def __getitem__(self, args):
-        if self._dset.format == 'fraction':
-            fraction = self._dset.__getitem__(args)
-        elif self._dset.format in ('percent', '%'):
-            fraction = self._dset.__getitem__(args) / 100.0
-        elif self._dset.format == 'correction':
-            fraction = self._dset.__getitem__(args) - 1
-        elif self._dset.format == 'normalization':
-            fraction = 1.0 / self._dset.__getitem__(args) - 1
+        in_format = self._dset.format
+        out_format = self.format
+
+        data = self._dset.__getitem__(args)
+        if in_format == out_format:
+            return data
+
+        if in_format == 'fraction':
+            fraction = data
+        elif in_format in ('percent', '%'):
+            fraction = data / 100.0
+        elif in_format == 'correction':
+            fraction = 1.0 - 1.0 / data
+        elif in_format == 'normalization':
+            fraction = 1.0 - data
         else:
             raise ValueError(
                 'Unrecognized dead time format: %s' % self._dset.format
             )
 
-        if self.format == 'fraction':
+        if out_format == 'fraction':
             return fraction
-        elif self.format in ('percent', '%'):
+        elif out_format in ('percent', '%'):
             return 100 * fraction
-        elif self.format == 'correction':
-            return 1 / (1 - fraction)
-        elif self.format == 'normalization':
-            return 1 - fraction
+        elif out_format == 'correction':
+            return 1.0 / (1.0 - fraction)
+        elif out_format == 'normalization':
+            return 1.0 - fraction
         else:
             raise ValueError(
                 'Unrecognized dead time format: %s' % self.format

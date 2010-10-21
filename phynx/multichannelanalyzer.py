@@ -120,14 +120,16 @@ class CorrectedSpectrumProxy(DataProxy):
         try:
             return self._dset.parent.monitor.corrected_value
         except:
+            print "No monitor available"
             return None
 
     @property
     @memoize
     def _deadtime(self):
         try:
-            dtc = self._dset.parent['dead_time'].correction
+            return self._dset.parent['dead_time'].correction
         except H5Error:
+            print "No deadtime available"
             return None
 
     def __getitem__(self, key):
@@ -142,7 +144,7 @@ class CorrectedSpectrumProxy(DataProxy):
             #    pass
 
             try:
-                mon = self._monitor.__getitem__[key]
+                mon = self._monitor.__getitem__(key)
                 cfg = self._dset.parent.pymca_config['concentrations']
                 norm = cfg['time'] * cfg['flux'] / mon
                 if not np.isscalar(norm) and len(norm.shape) < len(data.shape):
