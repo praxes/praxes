@@ -152,6 +152,7 @@ class PPTaskManager(threading.Thread):
                 continue
 
             self.n_processed += 1
+            self.n_submitted += 1
 
             if item == 0:
                 # this point was masked, no data to process
@@ -174,7 +175,7 @@ class PPTaskManager(threading.Thread):
         stats = copy.deepcopy(self.job_server.get_stats())
         stats['n_processed'] = self.n_processed
         self.progress_queue.put(stats)
-        
+
     def run(self):
         self.process_data()
         self.scan.file.flush()

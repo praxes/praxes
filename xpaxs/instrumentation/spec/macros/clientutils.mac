@@ -252,9 +252,6 @@ def _sc_setmode(mode, set_state) '{
         SC_PLOT_ACTIVE = set_state
 
         if (SC_PLOT_ACTIVE) {
-            global _SC_OLDX
-            _SC_OLDX = 0
-
             if (length(plotlist()) == 0) {
                 tty_cntl("md");
                 printf("\n- NO COUNTER SELECTED. Run plotselect\n");
@@ -263,8 +260,6 @@ def _sc_setmode(mode, set_state) '{
 
             cdef("user_scan_plot", "_sc_report_plot();", "client_plot", 0x20)
         } else {
-            unglobal _SC_OLDX
-
             cdef("", "", "client_plot", "delete")
         }
     } else if (mode == "data") {
@@ -384,10 +379,10 @@ def _sc_report_scan_env() '{
     scan_desc["type"] = python_repr(_stype)
     scan_desc["title"] = python_repr(sprintf("Scan %d", SCAN_N+1))
     scan_desc["xlabel"] = python_repr(sprintf("%s", X_L))
-    scan_desc["ylabel"] = python_repr(cnt_mne(DET))
+    scan_desc["ylabel"] = python_repr(cnt_name(cnt_num(PLOT_SEL[0])))
     scan_desc["nb_motors"] = python_repr(PLOT_MOTS)
     scan_desc["motor"] = python_repr(motor_mne(_m[0]))
-    scan_desc["counter"] = python_repr(cnt_mne(DET))
+    scan_desc["counter"] = python_repr(PLOT_SEL[0])
 
     # collect the phynx data reported to client_set_scan_env:
     scan_desc["phynx"] = python_repr(_SC_SCAN_DESC)
@@ -398,28 +393,17 @@ def _sc_report_scan_env() '{
 
 def _sc_report_plot() '{
     local x d i n plot_data[]
-    global _SC_OLDX
 
     x = SCAN_D[LDT][0]
 
-    if (_stype >= 257) {
-        d = 1
-    } else {
-        d = x - _SC_OLDX
+    plot_data["i"] = python_repr(NPTS)
+    plot_data["x"] = python_repr(x)
+
+    for (i=PLOT_MOTS; i<(PLOT_CNTRS+PLOT_MOTS); i++) {
+        plot_data[PLOT_MNE[i]] = python_repr(SCAN_D[LDT][i])
     }
 
-    if (d > 0) {
-        _SC_OLDX = x
-
-        plot_data["i"] = python_repr(NPTS)
-        plot_data["x"] = python_repr(x)
-
-        for (i=PLOT_MOTS; i<(PLOT_CNTRS+PLOT_MOTS); i++) {
-            plot_data[PLOT_MNE[i]] = python_repr(SCAN_D[LDT][i])
-        }
-
-        _SC_NEWPLOTDATA = python_repr(plot_data)
-    }
+    _SC_NEWPLOTDATA = python_repr(plot_data)
 }'
 
 
