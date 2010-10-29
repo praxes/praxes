@@ -26,6 +26,7 @@ class BaseSpecRequestHandler(asyncore.dispatcher):
         sbuffer = buffer(s)
         consumedBytes = 0
         offset = 0
+        received_messages = []
 
         while offset < len(sbuffer):
             if self.message is None:
@@ -46,12 +47,16 @@ class BaseSpecRequestHandler(asyncore.dispatcher):
                     self.clientVersion = self.message.vers
                     self.send_hello_reply(self.message.sn, str(self.server.name))
                 else:
-                    if not self.dispatchIncomingMessage(self.message):
-                        self.send_error(self.message.sn, '', 'unsupported command type : %d' % self.message.cmd)
+                    received_messages.append(self.message)
 
                 self.message = None
 
         self.receivedStrings = [ s[offset:] ]
+
+        for message in received_messages:
+          if not self.dispatchIncomingMessage(message):
+            self.send_error(message.sn, '', 'unsupported command type : %d' % message.cmd)
+
 
 
     def writable(self):
