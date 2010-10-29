@@ -10,16 +10,16 @@ package installers, and you may need to run .exe files as
 administrator (just right-click on them and choose "run as
 Administrator"). Check that you have the following installed:
 
-#. Python_ (version 2.6)
-#. Distribute_ (version 0.6.8 or later) 
+#. Python_ (version 2.6 on windows, 2.6 or 2.7 for linux/mac)
+#. Distribute_ (version 0.6.10 or later)
    or Setuptools (0.6c9 or later) [#f1]_
 #. PyQt4_ (version 4.5.2 or later) [#f2]_
 #. NumPy_ (version 1.2.0 or later)
 #. PyMca_ (version 4.4.0 or later) [#f3]_
 #. matplotlib_ (0.98.3 or later)
-#. ParallelPython_ (version 1.5.6 or later)
-#. h5py_ (1.2.0 or later) [#f4]_
-#. phynx_ (0.10.0 or later)
+#. ParallelPython_ (version 1.6.0 or later)
+#. h5py_ (1.3.0 or later) [#f4]_
+#. phynx_ (0.11.0 or later)
 #. XPaXS_
 
 To install XPaXS on OS X or Linux, download the source, unpack it, and
@@ -32,23 +32,23 @@ Developer's installation
 
 XPaXS developers may also want to install:
 
-* bzr_ (version 2.0.0 or later)
-* Sphinx_ (version 0.6.3 or later)
+* git_ (version 2.0.0 or later)
+* Sphinx_ (version 1.0.4 or later)
 * nose_ (version 0.11 or later)
 
 You can follow and contribute to XPaXS' development by obtaining a
 bzr version control branch with the following command::
 
-  bzr branch lp:xpaxs
+  git clone git://github.com/darrendale/xpaxs-legacy.git
 
-That will create an xpaxs project directory for you. Python-2.6 will
+That will create an xpaxs project directory for you. Python will
 run code right from that directory if you run the following command::
 
   python setup.py develop --user
 
 then periodically bring your branch up to date::
 
-  bzr pull
+  git pull
 
 and the changes are immediately available to you without having to
 reinstall anything.
@@ -74,7 +74,7 @@ Bugs, feature requests, and questions can be directed to the
 
 
 .. _Python: http://www.python.org/
-.. _bzr: http://bazaar-vcs.org/en/
+.. _git: http://git-scm.com
 .. _Distribute: http://pypi.python.org/pypi/distribute
 .. _Sphinx: http://pypi.python.org/pypi/Sphinx
 .. _nose: http://pypi.python.org/pypi/nose
@@ -87,4 +87,4 @@ Bugs, feature requests, and questions can be directed to the
 .. _h5py: http://pypi.python.org/pypi/h5py
 .. _phynx: http://pypi.python.org/pypi/phynx
 .. _XPaXS: http://pypi.python.org/pypi/xpaxs
-.. _`xpaxs development page`: https://launchpad.net/xpaxs
+.. _`xpaxs development page`: http://github.com/darrendale/xpaxs-legacy

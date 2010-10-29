@@ -34,29 +34,24 @@ directory, something like::
 Creating Windows Installers
 ===========================
 
-open a DOS window, cd into the xpaxs source directory and run::
+Once the source distributions have been created, which converts the pyqt UI and
+resource files, run the following in the xpaxs source directory::
 
-  python setup.py bdist_msi --install-script=win_install.py
+  python setup.py bdist_wininst \
+  --install-script=xpaxs_win_post_install.py upload --sign
 
-.. We distribute binary installers for the windows platform. Run the
-following in the xpaxs source directory::
-
-     python setup.py bdist_msi --skip-build \
-         --install-script postinstall_win.py upload --sign
-
-This creates the executable windows installer in the `dist/`
-directory. 
+This creates the executable windows installer in the `dist/` directory. 
 
 Building XPaXS documentation
 ============================
 
 When publishing a new release, the XPaXS doumentation needs to be generated and
-published as well. Sphinx_, LaTeX_ (preferably TeX-Live_), and dvipng_ are
-required to build the documentation. Once these are installed, do::
+published as well. Sphinx_, LaTeX_ is required to build the documentation. Once
+these are installed, do the following in the doc directory::
 
-  python setup.py build_sphinx
+  make html
 
-which will produce the html output and save it in build/sphinx/html. Then run::
+which will produce the html output and save it in _build::
 
   python setup.py build_sphinx -b latex
   cd build/sphinx/latex
