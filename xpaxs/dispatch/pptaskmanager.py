@@ -163,7 +163,6 @@ class PPTaskManager(threading.Thread):
                 f, args, modules=("time", )
                 )
             self.job_queue.append(job)
-            self.n_submitted += 1
 
             if self.n_submitted >= self.n_cpus*3:
                 self.flush()
