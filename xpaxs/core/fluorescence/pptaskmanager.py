@@ -20,7 +20,7 @@ from xpaxs.dispatch.pptaskmanager import PPTaskManager
 logger = logging.getLogger(__file__)
 DEBUG = False
 
-def analyze_spectrum(index, spectrum, tconf, advanced_fit, mass_fraction_tool):
+def analyze_spectrum(index, spectrum, advanced_fit, mass_fraction_tool):
     start = time.time()
     advanced_fit.config['fit']['use_limit'] = 1
     # TODO: get the channels from the controller
@@ -41,9 +41,7 @@ def analyze_spectrum(index, spectrum, tconf, advanced_fit, mass_fraction_tool):
         temp['fitresult'] = fitresult
         temp['result'] = result
         temp['result']['config'] = advanced_fit.config
-        tconf.update(advanced_fit.configure()['concentrations'])
         conc = mass_fraction_tool.processFitResult(
-            config=tconf,
             fitresult=temp,
             elementsfrommatrix=False,
             fluorates=advanced_fit._fluoRates
@@ -82,15 +80,6 @@ class XfsPPTaskManager(PPTaskManager):
         with self.lock:
             self._mass_fraction_tool = val
 
-    @property
-    def tconf(self):
-        with self.lock:
-            return copy.deepcopy(self._tconf)
-    @tconf.setter
-    def tconf(self, val):
-        with self.lock:
-            self._tconf = val
-
     def __init__(self, scan, config, progress_queue, **kwargs):
         super(XfsPPTaskManager, self).__init__(scan, progress_queue, **kwargs)
 
@@ -99,17 +88,20 @@ class XfsPPTaskManager(PPTaskManager):
         self._masked = self._measurement.masked
         try:
             # are we processing a group of mca elements...
-            self._counts = [mca['counts'] for mca in scan.mcas.values()]
+            mcas = scan.mcas.values()
+            self._counts = [mca['counts'] for mca in mcas]
+            self._monitor = mcas[0].monitor.corrected_value
         except AttributeError:
             # or a single element?
             self._counts = [scan['counts']]
+            self._monitor = scan.monitor.corrected_value
 
         self._advanced_fit = ClassMcaTheory.McaTheory(config=config)
         self._advanced_fit.enableOptimizedLinearFit()
         self._mass_fraction_tool = None
         if 'concentrations' in config:
-            self._mass_fraction_tool = ConcentrationsTool(config)
-            self._tconf = self.mass_fraction_tool.configure()
+            self._mass_fraction_tool = ConcentrationsTool(config['concentrations'])
+            self._mass_fraction_tool.config['time'] = 1
 
     def next(self):
         i = self._next_index
@@ -122,7 +114,7 @@ class XfsPPTaskManager(PPTaskManager):
                     raise StopIteration()
                 # expected the datapoint, but not yet acquired
                 return None
-    
+
             self._next_index = i + 1
 
             if self._masked[i]:
@@ -131,8 +123,11 @@ class XfsPPTaskManager(PPTaskManager):
             cts = [counts.corrected_value[i] for counts in self._counts]
 
         spectrum = np.sum(cts, 0)
+        mft = self.mass_fraction_tool
+        if self._monitor is not None:
+            mft.config['flux'] = self._monitor[i]
         args = (
-            i, spectrum, self.tconf, self.advanced_fit, self.mass_fraction_tool
+            i, spectrum, self.advanced_fit, self.mass_fraction_tool
             )
         return analyze_spectrum, args
 
