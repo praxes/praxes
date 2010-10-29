@@ -136,26 +136,6 @@ class CorrectedSpectrumProxy(DataProxy):
         with self._dset.plock:
             data = self._dset.__getitem__(key)
 
-            #try:
-            #    norm = self._dset.efficiency
-            #    if norm is not None:
-            #        data /= norm
-            #except AttributeError:
-            #    pass
-
-            try:
-                mon = self._monitor.__getitem__(key)
-                cfg = self._dset.parent.pymca_config['concentrations']
-                norm = cfg['time'] * cfg['flux'] / mon
-                if not np.isscalar(norm) and len(norm.shape) < len(data.shape):
-                    newshape = [1]*len(data.shape)
-                    newshape[:len(norm.shape)] = norm.shape
-                    norm.shape = newshape
-                data *= norm
-            except (KeyError, TypeError, AttributeError):
-                # fails if monitor is None or modeled intensity can not be found
-                pass
-
             # detector deadtime correction
             try:
                 dtc = self._deadtime.__getitem__(key)
