@@ -19,21 +19,6 @@ logger = logging.getLogger(__file__)
 DEBUG = False
 
 
-#class QRLock(QtCore.QMutex):
-#
-#    """
-#    """
-#
-#    def __init__(self):
-#        QtCore.QMutex.__init__(self, QtCore.QMutex.Recursive)
-#
-#    def __enter__(self):
-#        self.lock()
-#        return self
-#
-#    def __exit__(self, type, value, traceback):
-#        self.unlock()
-
 class PPTaskManager(threading.Thread):
 
     @property
@@ -151,18 +136,15 @@ class PPTaskManager(threading.Thread):
                     time.sleep(0.1)
                 continue
 
+            if item:
+                f, args = item
+                job = self.job_server.submit(
+                    f, args, modules=("time", )
+                    )
+                self.job_queue.append(job)
+
             self.n_processed += 1
             self.n_submitted += 1
-
-            if item == 0:
-                # this point was masked, no data to process
-                continue
-
-            f, args = item
-            job = self.job_server.submit(
-                f, args, modules=("time", )
-                )
-            self.job_queue.append(job)
 
             if self.n_submitted >= self.n_cpus*3:
                 self.flush()
