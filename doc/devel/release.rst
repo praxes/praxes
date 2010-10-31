@@ -3,7 +3,7 @@ Releases
 ********
 
 Before creating a release, the version number needs to be updated in
-`phynx/version.py`. Then Phynx needs to be installed either with::
+:file:`phynx/version.py`. Then Phynx needs to be installed either with::
 
   python setup.py install
 
@@ -23,21 +23,16 @@ Phynx is distributed as a source release for Linux and OS-X. To create
 a source release, just do::
 
   python setup.py register
-  python setup.py sdist --formats=zip,gztar upload --sign
+  python setup.py sdist --formats=zip,gztar
 
-This will create the tgz source file and upload it to the Python
-Package Index. Uploading to PyPI requires a .pypirc file in your home
-directory, something like::
-
-  [server-login]
-  username: <username>
-  password: <password>
+This will create the tgz and zip files that can be uploaded at the
+`phynx project page`_ by selecting the "Downloads" button. 
 
 You can create a source distribution without uploading by doing::
 
-  python setup.py sdist
+  python setup.py sdist --formats=zip,gztar
 
-This creates a source distribution in the `dist/` directory.
+This creates a source distribution in the :file:`dist/` directory.
 
 
 Creating Windows Installers
@@ -45,7 +40,7 @@ Creating Windows Installers
 
 Open a DOS window, cd into the phynx source directory and run::
 
-  python setup.py bdist_wininst
+  python setup.py bdist_msi upload --sign
 
 
 Building Phynx documentation
@@ -54,23 +49,23 @@ Building Phynx documentation
 When publishing a new release, the Phynx doumentation needs to be
 generated and published as well::
 
-  python setup.py build_sphinx
+  cd doc
+  make html
+  sphinxtogithub _build/html
 
-which will produce the html output and save it in build/sphinx/html.
-Then run::
+which will produce the html output and save it in :file:`_build/sphinx/html`.
 
-  python setup.py build_sphinx -b latex
-  cd build/sphinx/latex
-  make all-pdf
+To upload the documentation to the phynx project page::
 
-which will generate a pdf file in the latex directory. Finally, copy
-the `html/` directory and the `latex/XPaXS.pdf` file to the webserver.
-To upload the documentation to the Phynx website::
+  cd ..
+  cp -r _build/html ..
+  git checkout gh-pages
+  cp -rf ../html/* .
+  git add .
+  git commit -a -m "update documentation for version x"
+  git push
 
-  cd build/sphinx/html
-  zip -r phynx *
+It may take a few minutes for the documentation_ to update.
 
-Then visit the `Phynx page at the Python Package Index`_ to upload the
-documentation.
-
-.. _`Phynx page at the Python Package Index`: http://pypi.python.org/pypi?%3Aaction=pkg_edit&name=phynx
+.. _`phynx project page`: github.com/darrendale/phynx
+.. _documentation: darrendale.github.com/phynx
