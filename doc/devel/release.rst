@@ -47,7 +47,7 @@ generated and published as well::
   make html
   sphinxtogithub _build/html
 
-which will produce the html output and save it in :file:`_build/sphinx/html`.
+which will produce the html output and save it in :file:`_build/html`.
 
 To upload the documentation to the phynx project page::
 
