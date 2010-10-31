@@ -22,7 +22,6 @@ Creating Source Releases
 Phynx is distributed as a source release for Linux and OS-X. To create
 a source release, just do::
 
-  python setup.py register
   python setup.py sdist --formats=zip,gztar
 
 This will create the tgz and zip files that can be uploaded at the
