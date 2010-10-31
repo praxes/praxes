@@ -91,21 +91,6 @@ class ElementImageFigure(ElementBaseFigure):
 
         min, max = self._elementData.min(), self._elementData.max()
         self._clim = [min, max or float(max==0)]
-        self._updatePixelMap()
-
-    def _updatePixelMap(self):
-        xmin, xmax, ymin, ymax = self.image.get_extent()
-        if self.image.origin == 'upper': ymin, ymax = ymax, ymin
-
-        imarray = self.image.get_array()
-
-
-        self.indices = np.arange(len(self.image.get_array().flatten()))
-        self.indices.shape = self.image.get_array().shape
-
-        yshape, xshape = self.image.get_size()
-        self.xPixelLocs = np.linspace(xmin, xmax, xshape)
-        self.yPixelLocs = np.linspace(ymin, ymax, yshape)
 
     def _createInitialFigure(self):
         extent = []
@@ -145,7 +130,6 @@ class ElementImageFigure(ElementBaseFigure):
 
     def setImageOrigin(self, val):
         self.image.origin = '%s'%val
-        self._updatePixelMap()
         self.updateFigure()
 
     def updateFigure(self, elementData=None):
@@ -166,31 +150,14 @@ class ElementImageFigure(ElementBaseFigure):
 
 class ElementPlotFigure(ElementBaseFigure):
 
-    def __init__(self, scan_data, parent=None):
-        super(ElementPlotFigure, self).__init__(scan_data, parent)
-
-        self._updatePixelMap()
-
     def _createInitialFigure(self):
         try:
             sd = self.scan_data.measurement.scalar_data
-            self.x_data = sd.get_sorted_axes_list(1)[0]
-            self._elementPlot, = self.axes.plot(self.xdata, self._elementData)
-            self.axes.set_xlabel(posixpath.split(x_axis.name)[-1])
-            self.axes.set_xlim(self.x_data.range)
+            self._elementPlot, = self.axes.plot(self._x_data, self._elementData)
+            self.axes.set_xlabel(posixpath.split(self._x_data.name)[-1])
+            self.axes.set_xlim(self._x_data.range)
         except:
             self._elementPlot, = self.axes.plot(self._elementData)
-
-    def _updatePixelMap(self):
-        xmin, xmax = self.axes.get_xlim()
-
-        data = self.axes.get_lines()[0].get_xdata()
-
-        self.indices = np.arange(len(data))
-        self.indices.shape = (1, len(data))
-
-        self.xPixelLocs = np.linspace(xmin, xmax, len(data))
-        self.yPixelLocs = [0]
 
     def enableAutoscale(self, val):
         self.axes.set_autoscale_on(val)
@@ -209,8 +176,8 @@ class ElementPlotFigure(ElementBaseFigure):
         else: self._elementData = elementData
 
 
-        self._elementPlot.set_xdata(self.x_data.value[:self.x_data.acquired])
-        self._elementPlot.set_ydata(elementData[:self.x_data.acquired])
+        self._elementPlot.set_xdata(self._x_data.value[:self._x_data.acquired])
+        self._elementPlot.set_ydata(elementData[:self._x_data.acquired])
         self.axes.relim()
         self.axes.autoscale_view()
 
