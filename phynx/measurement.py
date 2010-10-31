@@ -6,6 +6,8 @@ from __future__ import absolute_import
 import copy
 import posixpath
 
+import numpy as np
+
 from .group import Group
 from .registry import registry
 from .utils import memoize, simple_eval, sync
