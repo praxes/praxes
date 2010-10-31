@@ -300,6 +300,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             indices = range(self.scan_data.measurement.acquired)
         n_indices = len(indices)
         if n_indices:
+            masked = self.scan_data.measurement.masked[...][indices]
+            indices = indices[np.logical_not(masked)]
+            n_indices = len(indices)
+        if n_indices:
             self.statusbar.showMessage('Averaging spectra ...')
             QtGui.qApp.processEvents()
 
