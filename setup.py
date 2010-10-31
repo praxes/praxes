@@ -54,7 +54,7 @@ setup(
     packages = find_packages(),
     platforms = 'Any',
     requires = [
-        'python (>=2.5.0)',
+        'python (>=2.5.0, <3.0)',
         'hdf5 (>=1.8.4)'
         ],
     url = 'http://darrendale.github.com/phynx',
