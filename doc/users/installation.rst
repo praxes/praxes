@@ -8,8 +8,8 @@ Prerequisites
 Phynx requires several packages in order to run:
 
 * Python_ (version 2.5 or 2.6)
-* h5py_ (1.2.1 or later)
-* Phynx_
+* h5py_ (1.3.0 or later)
+* phynx_
 
 Phynx developers should also install:
 
@@ -19,7 +19,7 @@ Phynx developers should also install:
 
 .. _Python: http://www.python.org/
 .. _h5py: http://code.google.com/p/h5py/
-.. _Phynx: http://pypi.python.org/pypi/phynx
+.. _phynx: http://github.com/darrendale/phynx/downloads
 .. _Distribute: http://pypi.python.org/pypi/distribute
 .. _sphinx: http://sphinx.pocoo.org/
 .. _nose: http://pypi.python.org/pypi/nose
