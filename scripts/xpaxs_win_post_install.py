@@ -27,7 +27,7 @@ def install():
         directory_created(start_dir)
 
     # Create program shortcuts ...
-    script = os.path.join(scripts_dir, 'xpaxs')
+    script = os.path.join(scripts_dir, 'xpaxs-script.pyw')
     f = os.path.join(start_dir, 'xpaxs.lnk')
     mkshortcut(python, 'xpaxs', f, '"%s"'%script)
 
