@@ -107,7 +107,8 @@ class Toolbar(MplToolbar):
                 if self._lastCursor != mplCursors.SELECT_POINT:
                     QtGui.QApplication.restoreOverrideCursor()
                     QtGui.QApplication.setOverrideCursor(
-                                            QtGui.QCursor(mplCursors.SELECT_POINT))
+                        QtGui.QCursor(mplCursors.SELECT_POINT)
+                        )
                     self._lastCursor = mplCursors.SELECT_POINT
 
         if event.inaxes and event.inaxes.get_navigate():

@@ -35,6 +35,9 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
     def __init__(self, scan_data, parent=None):
         super(McaAnalysisWindow, self).__init__(parent)
 
+
+        self.analysisThread = None
+
         if isinstance(scan_data, phynx.Entry):
             self.scan_data = scan_data.measurement
         elif isinstance(scan_data, phynx.Measurement):
@@ -106,7 +109,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         self.progressBar.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 
         self.progress_queue = Queue.Queue()
-        self.analysisThread = None
         self.timer = QtCore.QTimer(self)
         self.connect(
             self.timer,

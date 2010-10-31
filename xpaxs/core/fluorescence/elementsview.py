@@ -15,10 +15,6 @@ from .plotoptions import PlotOptions
 logger = logging.getLogger(__file__)
 DEBUG = False
 
-def locateClosest(point, points):
-    compare = np.abs(points-point)
-    return np.nonzero(np.ravel(compare==compare.min()))[0]
-
 
 class ElementBaseFigure(QtMplCanvas):
 
@@ -29,6 +25,13 @@ class ElementBaseFigure(QtMplCanvas):
         super(ElementBaseFigure, self).__init__(parent)
 
         self.scan_data = scan_data
+        sd = scan_data.measurement.scalar_data
+        self._x_data = sd.get_sorted_axes_list(1)[0]
+        try:
+            self._y_data = sd.get_sorted_axes_list(2)[0]
+        except:
+            self._y_data = None
+
         self.autoscale = True
 
         self.axes = self.figure.add_axes([0.1, 0.1, 0.8, 0.8])
@@ -39,24 +42,34 @@ class ElementBaseFigure(QtMplCanvas):
     def _createInitialFigure(self):
         raise NotImplementedError
 
-    def getIndices(self, xdata, ydata):
-        xIndex = locateClosest(xdata, self.xPixelLocs)
-        yIndex = locateClosest(ydata, self.yPixelLocs)
-        return xIndex, yIndex
-
     def onPick(self, xstart, ystart, xend, yend):
-        xstart_i, ystart_i = self.getIndices(xstart, ystart)
-        xend_i, yend_i = self.getIndices(xend, yend)
+        # first find closest actual values:
+        x_data = self._x_data[...]
+        start_diffs = np.abs(x_data - xstart)
+        end_diffs = np.abs(self._x_data - xend)
+        if self._y_data is not None:
+            y_data = self._y_data[...]
+            start_diffs += np.abs(y_data - ystart)
+            end_diffs += np.abs(y_data - yend)
+        i_start = np.nonzero(np.ravel(start_diffs==start_diffs.min()))[0][0]
+        i_end = np.nonzero(np.ravel(end_diffs==end_diffs.min()))[0][0]
+        xstart = x_data[i_start]
+        xend = x_data[i_end]
+        if xstart > xend:
+            xstart, xend = xend, xstart
+        if self._y_data is not None:
+            ystart = y_data[i_start]
+            yend = y_data[i_end]
+            if ystart > yend:
+                ystart, yend = yend, ystart
 
-        if xstart_i > xend_i: xstart_i, xend_i = xend_i, xstart_i
-        if ystart_i > yend_i: ystart_i, yend_i = yend_i, ystart_i
-
-        try:
-            indices = self.indices[ystart_i:yend_i+1, xstart_i:xend_i+1]
-            self.emit(QtCore.SIGNAL('pickEvent'), indices.flatten())
-        except TypeError:
-            # This occurs when args to onPick are len > 1. How can this happen?
-            pass
+        # now find the indices contained therein:
+        items = np.logical_and(x_data >= xstart, x_data <= xend)
+        if self._y_data is not None:
+            temp = np.logical_and(y_data >= ystart, y_data <= yend)
+            items = np.logical_and(temp, items)
+        indices = np.nonzero(items)[0]
+        self.emit(QtCore.SIGNAL('pickEvent'), indices)
 
     def setXLabel(self, label):
         self._xlabel = label
