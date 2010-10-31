@@ -3,15 +3,12 @@ Releases
 ********
 
 Before creating a release, the version number needs to be updated in
-`xpaxs/release.py`. The next step is to create a source distribution,
+:file:`xpaxs/release.py`. The next step is to create a source distribution,
 which will serve as the foundation for the eggs and other
 installers::
 
-  python setup.py sdist
+  python setup.py develop --user
 
-This sdist needs to be unpacked and checked to make sure that no
-files are missing from the source distribution (using `diff -uR`) and
-that the tests pass.
 
 Distributing Source Releases
 ============================
@@ -19,16 +16,10 @@ Distributing Source Releases
 XPaXS is distributed as a source release for Linux and OS-X. To create a source
 release, just do::
 
-  python setup.py register
-  python setup.py sdist --formats=zip,gztar upload --sign
+  python setup.py sdist --formats=zip,gztar
 
-This will create the tgz source file and upload it to the Python
-Package Index. Uploading to PyPi requires a .pypirc file in your home
-directory, something like::
-
-  [server-login]
-  username: <username>
-  password: <password>
+This will create the tgz and zip source files that can be uploaded to the
+`xpaxs project page`_ by selecting the "Downloads" button.
 
 
 Creating Windows Installers
@@ -37,30 +28,34 @@ Creating Windows Installers
 Once the source distributions have been created, which converts the pyqt UI and
 resource files, run the following in the xpaxs source directory::
 
-  python setup.py bdist_wininst \
-  --install-script=xpaxs_win_post_install.py upload --sign
+  python setup.py bdist_wininst --install-script=xpaxs_win_post_install.py
 
-This creates the executable windows installer in the `dist/` directory. 
+This creates the executable windows installer in the :file:`dist/` directory. 
 
 Building XPaXS documentation
 ============================
 
 When publishing a new release, the XPaXS doumentation needs to be generated and
-published as well. Sphinx_, LaTeX_ is required to build the documentation. Once
-these are installed, do the following in the doc directory::
+published as well. Sphinx_ is required to build the documentation::
 
+  cd doc
   make html
+  sphinxtogithub _build/html
 
-which will produce the html output and save it in _build::
+which will produce the html output and save it in :file:`_build/html`.
 
-  python setup.py build_sphinx -b latex
-  cd build/sphinx/latex
-  make all-pdf
+To upload the documentation to the xpaxs project page::
 
-which will generate a pdf file in the latex directory. Finally, copy the `html/`
-directory and the `latex/XPaXS.pdf` file to the webserver.
-
+  cd .. 
+  cp -rf doc/_build/html ../
+  git clean -fxd
+  git checkout gh-pages
+  cp -rf doc/_build/html/* .
+  git commit -a -m "update documentation for version x"
+  git push
+  
+It may take a few minutes for the documentation_ to update.
+    
+.. _`xpaxs project page`: github.com/darrendale/xpaxs-legacy
+.. _documentation: darrendale.github.com/xpaxs-legacy
 .. _Sphinx: http://sphinx.pocoo.org/
-.. _LaTeX: http://www.latex-project.org/
-.. _TeX-Live: http://www.tug.org/texlive/
-.. _dvipng: http://savannah.nongnu.org/projects/dvipng/
