@@ -85,6 +85,6 @@ Bugs, feature requests, and questions can be directed to the
 .. _PyMca: http://pypi.python.org/pypi/PyMca
 .. _ParallelPython: http://pypi.python.org/pypi/pp
 .. _h5py: http://pypi.python.org/pypi/h5py
-.. _phynx: http://pypi.python.org/pypi/phynx
-.. _XPaXS: http://pypi.python.org/pypi/xpaxs
+.. _phynx: http://github.com/darrendale/phynx/downloads
+.. _XPaXS: http://github.com/darrendale/xpaxs-legacy/downloads
 .. _`xpaxs development page`: http://github.com/darrendale/xpaxs-legacy
