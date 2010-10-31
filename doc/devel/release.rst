@@ -28,19 +28,13 @@ a source release, just do::
 This will create the tgz and zip files that can be uploaded at the
 `phynx project page`_ by selecting the "Downloads" button. 
 
-You can create a source distribution without uploading by doing::
-
-  python setup.py sdist --formats=zip,gztar
-
-This creates a source distribution in the :file:`dist/` directory.
-
 
 Creating Windows Installers
 ===========================
 
 Open a DOS window, cd into the phynx source directory and run::
 
-  python setup.py bdist_msi upload --sign
+  python setup.py bdist_msi
 
 
 Building Phynx documentation
@@ -58,10 +52,10 @@ which will produce the html output and save it in :file:`_build/sphinx/html`.
 To upload the documentation to the phynx project page::
 
   cd ..
-  cp -r _build/html ..
+  cp -rf doc/_build/html ../
+  git clean -fxd
   git checkout gh-pages
-  cp -rf ../html/* .
-  git add .
+  cp -rf doc/_build/html/* .
   git commit -a -m "update documentation for version x"
   git push
 
