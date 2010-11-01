@@ -28,17 +28,16 @@ Development Branch
 ==================
 
 You can follow and contribute to Phynx's development by obtaining a
-bzr version control branch. Just install bzr and type::
+git version control clone::
 
-  bzr branch lp:phynx
+  git clone git://github.com/darrendale/phynx.git
 
 and then periodically bring your branch up to date::
 
-  bzr pull
+  git pull
 
 Bugs, feature requests, and questions can be directed to the
-launchpad_ website.
+project_ website.
 
 
-.. _bzr: http://bazaar-vcs.org/en/
-.. _launchpad: https://launchpad.net/phynx
+.. _project: http://github.com/darrendale/phynx
