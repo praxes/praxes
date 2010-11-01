@@ -11,8 +11,8 @@ administrator (just right-click on them and choose "run as
 Administrator"). Check that you have the following installed:
 
 #. Python_ (version 2.6 on windows, 2.6 or 2.7 for linux/mac)
-#. Distribute_ (version 0.6.10 or later)
-   or Setuptools (0.6c9 or later) [#f1]_
+#. Setuptools_ (version 0.6c9 or later)
+   or Distribute_ (0.6.10 or later) [#f1]_
 #. PyQt4_ (version 4.5.2 or later) [#f2]_
 #. NumPy_ (version 1.2.0 or later)
 #. PyMca_ (version 4.4.0 or later) [#f3]_
@@ -58,9 +58,8 @@ Bugs, feature requests, and questions can be directed to the
 
 .. rubric:: Footnotes
 
-.. [#f1] Distribute is a fork of the setuptools project. Some Linux
-   package managers have not transitioned from setuptools to
-   distribute. XPaXS will also work with setuptools.
+.. [#f1] Distribute is a fork of the setuptools project. Either package
+   is sufficient.
 .. [#f2] May require installing Qt_ on Mac, and development tools
    like pyqt4-dev and pyqt4-dev-tools through the package manager on
    Linux.
@@ -75,6 +74,7 @@ Bugs, feature requests, and questions can be directed to the
 
 .. _Python: http://www.python.org/
 .. _git: http://git-scm.com
+.. _Setuptools: http://pypi.python.org/pypi/setuptools
 .. _Distribute: http://pypi.python.org/pypi/distribute
 .. _Sphinx: http://pypi.python.org/pypi/Sphinx
 .. _nose: http://pypi.python.org/pypi/nose

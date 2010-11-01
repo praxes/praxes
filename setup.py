@@ -80,6 +80,7 @@ setup(
         'phynx >= 0.11.0',
         'PyMca >= 4.4.0',
         'pp >= 1.6.0',
+        'setuptools'
         ],
     license = 'BSD',
     long_description = """
