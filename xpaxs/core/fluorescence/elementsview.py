@@ -181,7 +181,7 @@ class ElementPlotFigure(ElementBaseFigure):
         self.axes.relim()
         self.axes.autoscale_view()
 
-        if self.axes.get_autoscale_on():
+        if self.autoscale:
             self._ylims = list(self.axes.get_ylim())
             self.emit(QtCore.SIGNAL("minValueChanged"), self._ylims[0])
             self.emit(QtCore.SIGNAL("maxValueChanged"), self._ylims[1])
