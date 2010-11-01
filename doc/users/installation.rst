@@ -67,7 +67,7 @@ Bugs, feature requests, and questions can be directed to the
    the file that includes the python version in the name: e.g.
    PyMca-4.4.0.win32-py2.6.exe. Mac and linux users please install
    from source: e.g. pymca4.4.0-src.tgz.
-.. [#f4] May require installing hdf5-1.8.3 or later on lLnux and OS X,
+.. [#f4] May require installing hdf5-1.8.3 or later on Linux and OS X,
    and development libraries like libhdf5-dev through the package
    manager on linux.
 
