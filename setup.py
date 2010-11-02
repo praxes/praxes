@@ -77,7 +77,6 @@ setup(
     include_package_data = True,
     install_requires = [
         'matplotlib >= 0.98.3',
-        'phynx >= 0.11.0',
         'PyMca >= 4.4.0',
         'pp >= 1.6.0',
         'setuptools'
