@@ -47,7 +47,7 @@ class Group(_PhynxProperties, h5py.Group):
     @sync
     def signals(self):
         return dict(
-            [(posixpath.split(s.name)[-1], s) for s in self.iterobjects()
+            [(posixpath.split(s.name)[-1], s) for s in self.itervalues()
                 if isinstance(s, Signal)]
         )
 
@@ -55,7 +55,7 @@ class Group(_PhynxProperties, h5py.Group):
     @sync
     def axes(self):
         return dict(
-            [(posixpath.split(a.name)[-1], a) for a in self.iterobjects()
+            [(posixpath.split(a.name)[-1], a) for a in self.itervalues()
                 if isinstance(a, Axis)]
         )
 

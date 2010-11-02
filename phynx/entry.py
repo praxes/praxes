@@ -116,7 +116,7 @@ class Entry(Group):
     @sync
     def measurement(self):
         measurements = [
-            i for i in self.iterobjects()
+            i for i in self.itervalues()
             if isinstance(i, registry['Measurement'])
         ]
         nm = len(measurements)

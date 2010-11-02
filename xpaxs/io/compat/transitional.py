@@ -55,12 +55,12 @@ def convert_to_phynx(
         try:
             edict = dict(
                 [(entry.attrs['scan number'], entry)
-                    for entry in oldf.iterobjects()]
+                    for entry in oldf.itervalues()]
             )
         except h5py.H5Error:
             edict = dict(
                 [(entry.attrs['scanNumber'], entry)
-                    for entry in oldf.iterobjects()]
+                    for entry in oldf.itervalues()]
             )
 
         for k, oldentry in edict.iteritems():
