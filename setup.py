@@ -76,9 +76,11 @@ setup(
         },
     include_package_data = True,
     install_requires = [
+        'h5py >= 1.3.0',
         'matplotlib >= 0.98.3',
-        'PyMca >= 4.4.0',
+        'numpy >= 1.3.0',
         'pp >= 1.6.0',
+        'PyMca >= 4.4.0',
         'setuptools'
         ],
     license = 'BSD',
