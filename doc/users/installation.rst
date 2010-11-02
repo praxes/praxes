@@ -15,11 +15,10 @@ Administrator"). Check that you have the following installed:
    or Distribute_ (0.6.10 or later) [#f1]_
 #. PyQt4_ (version 4.5.2 or later) [#f2]_
 #. NumPy_ (version 1.2.0 or later)
-#. PyMca_ (version 4.4.0 or later) [#f3]_
+#. PyMca_ (version 4.4.0 or later, Windows users, please see footnote) [#f3]_
 #. matplotlib_ (0.98.3 or later)
 #. ParallelPython_ (version 1.6.0 or later)
 #. h5py_ (1.3.0 or later) [#f4]_
-#. phynx_ (0.11.0 or later)
 #. XPaXS_
 
 To install XPaXS on OS X or Linux, download the source, unpack it, and
@@ -85,6 +84,5 @@ Bugs, feature requests, and questions can be directed to the
 .. _PyMca: http://pypi.python.org/pypi/PyMca
 .. _ParallelPython: http://pypi.python.org/pypi/pp
 .. _h5py: http://pypi.python.org/pypi/h5py
-.. _phynx: http://github.com/darrendale/phynx/downloads
 .. _XPaXS: http://github.com/darrendale/xpaxs-legacy/downloads
 .. _`xpaxs development page`: http://github.com/darrendale/xpaxs-legacy
