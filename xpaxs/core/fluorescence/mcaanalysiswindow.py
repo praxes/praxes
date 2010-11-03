@@ -297,7 +297,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
     def processAverageSpectrum(self, indices=None):
         if indices is None:
-            indices = range(self.scan_data.measurement.acquired)
+            indices = np.arange(self.scan_data.measurement.acquired)
         n_indices = len(indices)
         if n_indices:
             masked = self.scan_data.measurement.masked[...][indices]
