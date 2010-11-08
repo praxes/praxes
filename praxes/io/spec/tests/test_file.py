@@ -5,39 +5,57 @@ import unittest2
 from praxes.testing import TestCase
 from praxes.io import spec
 
-class TestSequenceFunctions(TestCase):
+
+reference_data = \
+"""#F testfile.dat  
+#E 1000
+#D Sat Jan 1 00:00:00 2010
+#C spec  User = specuser
+#O0     samx      samy      samz
+
+#S 1  dscan  samx -1 1 2 1
+#D Sat Jan 1 00:01:00 2010
+#M 1000  (I0)
+#G0 0
+#G1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+#G3 0 0 0 0 0 0 0 0 0
+#G4 0
+#Q   
+#P0 0 10 -10                
+#U Saving mca spectra for each scan pt
+#@vortex %25C    
+#@CHANN 30 0 29 1
+#@CALIB 0 0.01 0  
+#N 4    
+#L samx  Epoch  I0  I1                                
+-1 100 1000 100 
+@vortex 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\
+ 0 0 0 0 0 
+0 200 1000 200
+@vortex 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\
+ 0 0 0 0 0 
+1 300 1000 300
+@vortex 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\
+ 0 0 0 0 0  
+"""
+
+
+class TestSpecFileInterface(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.seq = (
-            "#F testfile.dat\n",
-            "\n",
-            )
-        
         with tempfile.NamedTemporaryFile(delete=False) as f:
             cls.filename = f.name
-            f.file.writelines(cls.seq)
+            f.file.write(reference_data)
 
     @classmethod
     def tearDownClass(cls):
         if os.path.exists(cls.filename):
             os.remove(cls.filename)
 
-    def test_open(self):
-        # make sure the shuffled sequence does not lose any elements
-        with spec.open(self.filename) as f:
-            self.assertEqual(tuple(f.readlines()), self.seq)
+    def test_builtin_open(self):
+        "test file contents are identical to the original data"
+        with open(self.filename) as f:
+            self.assertEqual(f.read(), reference_data)
             self.assertRaises(IOError, f.write, 'an additional line')
 
-    def test_array(self):
-        self.assertArrayEqual(1, 1.0)
-
-#    def test_choice(self):
-#        element = random.choice(self.seq)
-#        self.assertTrue(element in self.seq)
-
-#    def test_sample(self):
-#        with self.assertRaises(ValueError):
-#            random.sample(self.seq, 20)
-#        for element in random.sample(self.seq, 5):
-#            self.assertTrue(element in self.seq)
