@@ -1,12 +1,11 @@
 import __builtin__
 
-from .index import FileIndex
+from .fileindex import FileIndex
 from .scan import SpecScan
 
 
 def open(file_name):
     return SpecFile(file_name)
-
 
 
 class SpecFile(object):
