@@ -1,1 +1,1 @@
-from file import open
+from .file import open
