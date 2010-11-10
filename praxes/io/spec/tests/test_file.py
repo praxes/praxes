@@ -1,9 +1,4 @@
-import os
-import tempfile
-import unittest2
-
-from praxes.testing import TestCase
-from praxes.io import spec
+from .common import TestCase
 
 
 reference_data = \
@@ -42,24 +37,9 @@ reference_data = \
 
 class TestSpecFileInterface(TestCase):
 
-    file_name = None
-
     @classmethod
-    def setUpClass(cls):
-        with tempfile.NamedTemporaryFile(delete=False) as f:
-            cls.file_name = f.name
-            f.file.write(reference_data)
-
-    @classmethod
-    def tearDownClass(cls):
-        if os.path.exists(cls.file_name):
-            os.remove(cls.file_name)
-
-    def setUp(self):
-        self.f = spec.open(self.file_name)
-
-    def tearDown(self):
-        del(self.f)
+    def get_reference_data(cls):
+        return reference_data
 
     def test_0_open(self):
         "test file contents are identical to the original data"
