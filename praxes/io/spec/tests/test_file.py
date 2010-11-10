@@ -98,3 +98,10 @@ class TestSpecFileInterface(TestCase):
         self.assertEqual(
             [index.name for index in self.f.itervalues()][0], '1'
             )
+
+    def test_update(self):
+        with open(self.file_name, 'r+') as f:
+            f.seek(0,2)
+            f.write('\n'.join(reference_data.split('\n')[5:]))
+        self.f.update()
+        self.assertEqual(self.f.keys()[1], '1.2')

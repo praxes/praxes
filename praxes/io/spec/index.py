@@ -56,7 +56,7 @@ class FileIndex(object):
                     dup = 1
                     while scan_id in self._scan_dict:
                         dup += 1
-                        scan_id = '%d.%d' % (scan_name, dup)
+                        scan_id = '%s.%d' % (scan_name, dup)
                     scan_index = ScanIndex(
                         scan_name,
                         scan_id,

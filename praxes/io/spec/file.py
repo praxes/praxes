@@ -55,5 +55,8 @@ class SpecFile(object):
     def keys(self):
         return self._index.keys()
 
+    def update(self):
+        self._index.update()
+
     def values(self):
         return [SpecScan(self, index) for index in self._index.values()]
