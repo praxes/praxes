@@ -1,6 +1,6 @@
 from copy import copy
 
-# this could be a subclass of ordered dict, requiring python-2.7:
+
 class FileIndex(object):
 
     def __init__(self, file_name):
@@ -20,6 +20,25 @@ class FileIndex(object):
 
     def __iter__(self):
         return iter(self._id_list)
+
+    def _create_scan_index(self, scan_name, file_offset):
+        scan_id = self.get_unique_id(scan_name)
+        scan_index = ScanIndex(
+            scan_name,
+            scan_id,
+            self._file_name,
+            file_offset
+            )
+        self._scan_dict[scan_id] = scan_index
+        self._id_list.append(scan_id)
+
+    def get_unique_id(self, scan_name):
+        scan_id = scan_name
+        dup = 1
+        while scan_id in self._scan_dict:
+            dup += 1
+            scan_id = '%s.%d' % (scan_name, dup)
+        return scan_id
 
     def iteritems(self):
         def g(file_index):
@@ -43,29 +62,24 @@ class FileIndex(object):
         return copy(self._id_list)
 
     def update(self):
-        # go to last line read, and continue
-        # if additional lines have been added to the previous scan since
-        # the last read, need to mark the scan index as dirty so it
-        # knows to refresh
         with open(self._file_name, 'r+b') as f:
+            if len(self._id_list):
+                # updating an existing file index, will probably have
+                # to mark the last scan index as dirty so the data can
+                # be updated
+                f.seek(0, 2)
+                if f.tell() > self._bytes_read:
+                    # assume new data has been appended to the previous scan
+                    # might be able to improve this
+                    self._scan_dict[self._id_list[-1]].dirty = True
+
             f.seek(self._bytes_read)
             file_offset = f.tell()
             for line in f:
                 if line[:2] == '#S':
-                    scan_name = scan_id = line.split()[1]
-                    dup = 1
-                    while scan_id in self._scan_dict:
-                        dup += 1
-                        scan_id = '%s.%d' % (scan_name, dup)
-                    scan_index = ScanIndex(
-                        scan_name,
-                        scan_id,
-                        self._file_name,
-                        file_offset
-                        )
-                    self._scan_dict[scan_id] = scan_index
-                    self._id_list.append(scan_id)
+                    self._create_scan_index(line.split()[1], file_offset)
                 file_offset += len(line)
+
             self._bytes_read = file_offset
 
     def values(self):
@@ -74,13 +88,21 @@ class FileIndex(object):
 
 class ScanIndex(object):
 
+    _dirty = True
     @property
-    def name(self):
-        return self._scan_name
+    def dirty(self):
+        return self._dirty
+    @dirty.setter
+    def dirty(self, val):
+        self._dirty = val
 
     @property
     def id(self):
         return self._scan_id
+
+    @property
+    def name(self):
+        return self._scan_name
 
     def __init__(self, scan_name, scan_id, file_name, file_offset):
         self._scan_name = scan_name
@@ -88,4 +110,5 @@ class ScanIndex(object):
         self._file_name = file_name
         self._file_offset = file_offset
 
-
+    def update(self):
+        self.dirty = False
