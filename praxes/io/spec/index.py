@@ -1,25 +1,46 @@
+from copy import copy
 
-
+# this could be a subclass of ordered dict, requiring python-2.7:
 class FileIndex(object):
 
     def __init__(self, file_name):
         self._file_name = file_name
         self._bytes_read = 0
         # would be nice to use python-2.7's ordered dict:
-        self._scan_list = []
+        self._id_list = []
         self._scan_dict = {}
 
         self.update()
 
-    def __getitem__(self, item):
-        "should accept either a string or an integer"
-        raise NotImplementedError
+    def __getitem__(self, id):
+        return self._scan_dict[id]
 
     def __len__(self):
-        return len(self._scan_list)
+        return len(self._id_list)
 
     def __iter__(self):
-        return iter(self._scan_list)
+        return iter(self._id_list)
+
+    def iteritems(self):
+        def g(file_index):
+            for id in file_index._id_list:
+                yield (id, file_index._scan_dict[id])
+        return g(self)
+
+    def iterkeys(self):
+        return iter(self._id_list)
+
+    def itervalues(self):
+        def g(file_index):
+            for id in file_index._id_list:
+                yield file_index._scan_dict[id]
+        return g(self)
+
+    def items(self):
+        return [(id, self._scan_dict[id]) for id in self._id_list]
+
+    def keys(self):
+        return copy(self._id_list)
 
     def update(self):
         # go to last line read, and continue
@@ -43,9 +64,12 @@ class FileIndex(object):
                         file_offset
                         )
                     self._scan_dict[scan_id] = scan_index
-                    self._scan_list.append(scan_index)
+                    self._id_list.append(scan_id)
                 file_offset += len(line)
             self._bytes_read = file_offset
+
+    def values(self):
+        return [self._scan_dict[i] for i in self._id_list]
 
 
 class ScanIndex(object):
