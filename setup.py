@@ -36,7 +36,7 @@ for dirpath, dirnames, filenames in os.walk('praxes'):
     if '__init__.py' in filenames:
         packages.append('.'.join(dirpath.split(os.sep)))
     else:
-        del(dirnames[:])        
+        del(dirnames[:])
 
 
 setup(
@@ -46,4 +46,5 @@ setup(
     description = 'Praxes framework for scientific analysis',
     name = 'praxes',
     packages = packages,
+    requires = (python (>=2.7)),
 )
