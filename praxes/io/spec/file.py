@@ -1,15 +1,11 @@
-import __builtin__
-
 import collections
 
 from .scan import SpecScan
 
 
-def open(file_name):
-    return SpecFile(file_name)
-
-
 class SpecFile(object):
+
+    "An OrderedDict-like interface to scans contained in spec data files."
 
     __slots__ = ['__weakref__', '_name', '__index', '__bytes_read']
 
@@ -37,14 +33,17 @@ class SpecFile(object):
         return len(self.__index)
 
     def items(self):
+        "Return a new view of the file’s ``(key, scan)`` pairs."
         return self.__index.viewitems()
 
     def keys(self):
+        "Return a new view of the file's scan keys."
         return self.__index.viewkeys()
 
     def update(self):
+        "Update the file index based on any data appended to the file."
         index = self.__index
-        with __builtin__.open(self._name, 'r+b') as f:
+        with open(self._name, 'r+b') as f:
             if len(self):
                 # updating an existing file index...
                 f.seek(0, 2)
@@ -71,4 +70,5 @@ class SpecFile(object):
             self.__bytes_read = file_offset
 
     def values(self):
+        "Return a new view of the file's scans."
         return self.__index.viewvalues()
