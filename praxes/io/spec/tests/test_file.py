@@ -43,7 +43,7 @@ class TestSpecFileInterface(TestCase):
 
     def test_0_open(self):
         "test file contents are identical to the original data"
-        with self.f.file as f:
+        with open(self.f.name) as f:
             self.assertEqual(f.read(), reference_data)
             self.assertRaises(IOError, f.write, 'an additional line')
 
@@ -53,30 +53,34 @@ class TestSpecFileInterface(TestCase):
         "test that the file length is equal to the number of scans"
         self.assertEqual(len(self.f), reference_data.count('#S'))
 
+    def test_contains(self):
+        self.assertIn('1', self.f)
+
     def test_getitem(self):
         self.assertEqual(self.f['1'].name, '1')
 
     def test_iter(self):
-        self.assertEqual([id for id in self.f][0], '1')
+        self.assertEqual([key for key in self.f][0], '1')
 
     def test_keys(self):
-        self.assertEqual(self.f.keys()[0], '1')
+        self.assertEqual(list(self.f.keys())[0], '1')
 
     def test_items(self):
-        self.assertEqual([id for (id, index) in self.f.items()][0], '1')
+        key, val = list(self.f.items())[0]
+        self.assertEqual((key, val.key), ('1', '1'))
 
     def test_values(self):
-        self.assertEqual([index.name for index in self.f.values()][0], '1')
+        self.assertEqual(list(self.f.values())[0].key, '1')
 
     def test_iterkeys(self):
-        self.assertEqual([i for i in self.f.iterkeys()][0], '1')
+        self.assertEqual([key for key in self.f.keys()][0], '1')
 
     def test_iteritems(self):
-        self.assertEqual([id for (id, index) in self.f.iteritems()][0], '1')
+        self.assertEqual([id for (id, index) in self.f.items()][0], '1')
 
     def test_itervalues(self):
         self.assertEqual(
-            [index.name for index in self.f.itervalues()][0], '1'
+            [index.name for index in self.f.values()][0], '1'
             )
 
     def test_update(self):
@@ -84,4 +88,4 @@ class TestSpecFileInterface(TestCase):
             f.seek(0,2)
             f.write('\n'.join(reference_data.split('\n')[5:]))
         self.f.update()
-        self.assertEqual(self.f.keys()[1], '1.2')
+        self.assertEqual(list(self.f.keys())[1], '1.2')

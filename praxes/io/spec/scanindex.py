@@ -8,17 +8,7 @@ class ScanIndex(object):
     def dirty(self, val):
         self._dirty = val
 
-    @property
-    def id(self):
-        return self._scan_id
-
-    @property
-    def name(self):
-        return self._scan_name
-
-    def __init__(self, scan_name, scan_id, file_name, file_offset):
-        self._scan_name = scan_name
-        self._scan_id = scan_id
+    def __init__(self, file_name, file_offset):
         self._file_name = file_name
         self._file_offset = file_offset
 
