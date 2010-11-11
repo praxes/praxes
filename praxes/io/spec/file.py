@@ -33,7 +33,7 @@ class SpecFile(object):
         return len(self.__index)
 
     def items(self):
-        "Return a new view of the file’s ``(key, scan)`` pairs."
+        "Return a new view of the file's ``(key, scan)`` pairs."
         return self.__index.viewitems()
 
     def keys(self):
