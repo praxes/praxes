@@ -43,34 +43,29 @@ class SpecFile(object):
         return self.__index.viewkeys()
 
     def update(self):
+        index = self.__index
         with __builtin__.open(self._name, 'r+b') as f:
             if len(self):
-                # updating an existing file index, will probably have
-                # to mark the last scan index as dirty so the data can
-                # be updated
+                # updating an existing file index...
                 f.seek(0, 2)
                 if f.tell() > self.__bytes_read:
-                    # assume new data has been appended to the previous scan
-                    # might be able to improve this
-                    self.__index.values()[-1].dirty = True
+                    # may need to update the last scan
+                    index.values()[-1].update()
 
             f.seek(self.__bytes_read)
             file_offset = f.tell()
             for line in f:
                 if line[:2] == '#S':
-                    scan_name = scan_key = line.split()[1]
+                    name = key = line.split()[1]
+
                     # need to assure that scan_key is unique:
                     dup = 1
-                    while scan_key in self:
+                    while key in index:
                         dup += 1
-                        scan_key = '%s.%d' % (scan_name, dup)
-                    scan = SpecScan(
-                        scan_name,
-                        scan_key,
-                        self,
-                        file_offset
-                        )
-                    self.__index[scan_key] = scan
+                        key = '%s.%d' % (name, dup)
+
+                    index[key] = SpecScan(name, key, self, file_offset)
+
                 file_offset += len(line)
 
             self.__bytes_read = file_offset

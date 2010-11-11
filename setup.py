@@ -46,5 +46,5 @@ setup(
     description = 'Praxes framework for scientific analysis',
     name = 'praxes',
     packages = packages,
-    requires = (python (>=2.7)),
+    requires = ('python (>=2.7)',),
 )

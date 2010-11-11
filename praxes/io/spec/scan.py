@@ -19,3 +19,5 @@ class SpecScan(object):
         self.__file_name = file.name
         self.__index = ScanIndex(file.name, offset)
 
+    def update(self):
+        pass
