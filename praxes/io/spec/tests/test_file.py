@@ -49,39 +49,36 @@ class TestSpecFileInterface(TestCase):
 
         self.assertEqual(self.f.name, self.file_name)
 
-    def test_len(self):
-        "test that the file length is equal to the number of scans"
-        self.assertEqual(len(self.f), reference_data.count('#S'))
-
     def test_contains(self):
         self.assertIn('1', self.f)
 
     def test_getitem(self):
         self.assertEqual(self.f['1'].name, '1')
 
+    def test_items(self):
+        key, val = list(self.f.items())[0]
+        self.assertEqual((key, val.id), ('1', '1'))
+
     def test_iter(self):
         self.assertEqual([key for key in self.f][0], '1')
 
-    def test_keys(self):
-        self.assertEqual(list(self.f.keys())[0], '1')
-
-    def test_items(self):
-        key, val = list(self.f.items())[0]
-        self.assertEqual((key, val.key), ('1', '1'))
-
-    def test_values(self):
-        self.assertEqual(list(self.f.values())[0].key, '1')
+    def test_iteritems(self):
+        self.assertEqual([id for (id, index) in self.f.items()][0], '1')
 
     def test_iterkeys(self):
         self.assertEqual([key for key in self.f.keys()][0], '1')
-
-    def test_iteritems(self):
-        self.assertEqual([id for (id, index) in self.f.items()][0], '1')
 
     def test_itervalues(self):
         self.assertEqual(
             [index.name for index in self.f.values()][0], '1'
             )
+
+    def test_keys(self):
+        self.assertEqual(list(self.f.keys())[0], '1')
+
+    def test_len(self):
+        "test that the file length is equal to the number of scans"
+        self.assertEqual(len(self.f), reference_data.count('#S'))
 
     def test_update(self):
         with open(self.file_name, 'r+') as f:
@@ -89,3 +86,6 @@ class TestSpecFileInterface(TestCase):
             f.write('\n'.join(reference_data.split('\n')[5:]))
         self.f.update()
         self.assertEqual(list(self.f.keys())[1], '1.2')
+
+    def test_values(self):
+        self.assertEqual(list(self.f.values())[0].id, '1')

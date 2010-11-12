@@ -1,4 +1,7 @@
 import collections
+import copy
+import os
+import re
 
 from .scan import SpecScan
 
@@ -7,7 +10,7 @@ class SpecFile(object):
 
     "An OrderedDict-like interface to scans contained in spec data files."
 
-    __slots__ = ['__weakref__', '_name', '__index', '__bytes_read']
+    __slots__ = ['__bytes_read', '__headers', '__index', '_name']
 
     @property
     def name(self):
@@ -17,6 +20,7 @@ class SpecFile(object):
         self._name = file_name
         self.__bytes_read = 0
         self.__index = collections.OrderedDict()
+        self.__headers = {}
 
         self.update()
 
@@ -42,32 +46,54 @@ class SpecFile(object):
 
     def update(self):
         "Update the file index based on any data appended to the file."
+        if os.stat(self._name).st_size == self.__bytes_read:
+            return
+
         index = self.__index
-        with open(self._name, 'r+b') as f:
+        with open(self._name, 'rb') as f:
             if len(self):
-                # updating an existing file index...
-                f.seek(0, 2)
-                if f.tell() > self.__bytes_read:
-                    # may need to update the last scan
-                    index.values()[-1].update()
+                # updating an existing file index, may need to update last scan
+                index.values()[-1].update()
 
             f.seek(self.__bytes_read)
             file_offset = f.tell()
-            for line in f:
+            line = f.readline()
+            while line:
                 if line[:2] == '#S':
-                    name = key = line.split()[1]
-
-                    # need to assure that scan_key is unique:
+                    name = id = line.split()[1]
+                    # need to assure that id is unique:
                     dup = 1
-                    while key in index:
+                    while id in index:
                         dup += 1
-                        key = '%s.%d' % (name, dup)
+                        id = '%s.%d' % (name, dup)
+                    scan = SpecScan(
+                        name, id, self, file_offset,
+                        **copy.copy(self.__headers)
+                        )
+                    index[id] = scan
+                    f.seek(scan.file_offsets[1])
+                elif line[:2] == '#F':
+                    self.__headers['file_origin'] = line.split()[1]
+                elif line[:2] == '#E':
+                    self.__headers['epoch_offset'] = int(line.split()[1])
+                elif line[:2] == '#D':
+                    self.__headers['file_origin'] = line.split(None, 1)[1][:-1]
+                elif line[:2] == '#C' and line.split()[2] == 'User':
+                    temp = line.split()
+                    program, user = temp[1], temp[-1]
+                    self.__headers['program'] = program
+                    self.__headers['user'] = user
+                elif line[:2] == '#O':
+                    if line[2] == '0':
+                        self.__headers['positioners'] = []
+                    self.__headers['positioners'].extend(
+                        re.split('  +', line.split(None, 1)[1][:-1])
+                        )
 
-                    index[key] = SpecScan(name, key, self, file_offset)
+                file_offset = f.tell()
+                line = f.readline()
 
-                file_offset += len(line)
-
-            self.__bytes_read = file_offset
+            self.__bytes_read = f.tell()
 
     def values(self):
         "Return a new view of the file's scans."
