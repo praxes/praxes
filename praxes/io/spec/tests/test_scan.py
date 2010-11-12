@@ -1,3 +1,5 @@
+import numpy as np
+
 from .common import TestCase
 
 
@@ -67,12 +69,26 @@ class TestSpecScanInterface(TestCase):
     def test_epoch_offset(self):
         self.assertEqual(self.f['1'].attrs['epoch_offset'], 1000)
 
+    def test_get_item(self):
+        self.assertEqual(self.f['1']['samx'][0], -1)
+        self.assertArrayEqual(self.f['1']['samx'][:], np.array([-1, 0, 1]))
+        self.assertArrayEqual(self.f['1']['samx'][...], np.array([-1, 0, 1]))
+        self.assertArrayEqual(self.f['1']['samx'][:2], np.array([-1, 0]))
+        self.assertArrayEqual(self.f['1']['samx'][1:], np.array([0, 1]))
+        self.assertArrayEqual(self.f['1']['samx'][1:2], np.array([0]))
+        self.assertArrayEqual(self.f['1']['Epoch'][...], np.array([100, 200, 300]))
+        self.assertArrayEqual(self.f['1']['I0'][...], np.array([1000, 1000, 1000]))
+        self.assertArrayEqual(self.f['1']['I1'][...], np.array([100, 200, 300]))
+
     def test_labels(self):
         self.assertEqual(self.f['1'].attrs['labels'], ['samx', 'Epoch', 'I0', 'I1'])
 
     def test_len(self):
-        "test that the scan length is equal to the number of points"
-        self.assertEqual(len(self.f['1']), 3)
+        "test that the scan length is equal to the number of columns"
+        self.assertEqual(len(self.f['1']), 4)
+
+    def test_monitor(self):
+        self.assertEqual(self.f['1'].attrs['monitor'], 'I0')
 
     def test_positions(self):
         self.assertEqual(
@@ -89,7 +105,7 @@ class TestSpecScanInterface(TestCase):
             f.seek(0,2)
             f.write('\n'.join(reference_data.split('\n')[5:]))
         self.f.update()
-        self.assertEqual(len(self.f['1.2']), 3)
+        self.assertEqual(len(self.f['1.2']), 4)
 
     def test_user(self):
         self.assertEqual(self.f['1'].attrs['user'], 'specuser')

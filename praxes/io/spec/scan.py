@@ -1,3 +1,5 @@
+import numpy as np
+
 class Index(object):
 
     def __init__(self, **kwargs):
@@ -70,8 +72,30 @@ class SpecScan(object):
 
         self.update()
 
+    def __contains__(self, item):
+        return item in self.__index
+
+    def __getitem__(self, item):
+        return self.__index[item]
+
+    def __iter__(self):
+        return iter(self.__index)
+
     def __len__(self):
-        return len(self.__data_index)
+        return len(self.__index)
+
+    def items(self):
+        "Return a new view of the scan's attributes' ``(key, val)`` pairs."
+        return self.__index.viewitems()
+
+    def keys(self):
+        "Return a new view of the scan's attributes' keys."
+        return self.__index.viewkeys()
+
+    def values(self):
+        "Return a new view of the scan's attributes' values."
+        return self.__index.viewvalues()
+
 
     def update(self):
         if self.__index_finalized:
@@ -123,7 +147,14 @@ class SpecScan(object):
                     user_comments = attrs.setdefault('user_comments', [])
                     user_comments.append(line[3:-1])
                 elif line[:2] == '#L':
-                    attrs['labels'] = line.split()[1:]
+                    attrs['labels'] = labels = line.split()[1:]
+                    for column, label in enumerate(labels):
+                        # TODO: Need to write the proxy interface for the data
+                        # the proxy constructor should accept the data_index and
+                        # the column index
+                        self.__index[label] = ScalarProxy(
+                            self.__file_name, label, column, self.__data_index
+                            )
 
                 file_offset = f.tell()
                 line = f.readline()
@@ -134,3 +165,39 @@ class SpecScan(object):
             positioners = attrs.pop('positioners')
             positions = attrs.pop('positions')
             attrs['positions'] = dict(zip(positioners, positions))
+
+
+class ScalarProxy(object):
+
+    @property
+    def name(self):
+        return self.__name
+
+    def __init__(self, file_name, name, column, data_index):
+        self.__file_name = file_name
+        self.__name = name
+        self.__column = column
+        self.__data_index = data_index
+
+    def __len__(self):
+        return len(self.__data_index)
+
+    def __iter__(self):
+        raise NotImplementedError
+
+    def __getitem__(self, args):
+        with open(self.__file_name) as f:
+            if isinstance(args, int):
+                f.seek(self.__data_index[args])
+                l = f.readline()
+                return np.fromstring(l, dtype='d', sep=' ')[self.__column]
+            if isinstance(args, slice):
+                args = xrange(args.start or 0, args.stop or len(self), args.step or 1)
+            elif args is Ellipsis:
+                args = xrange(len(self))
+            temp = []
+            for i in args:
+                f.seek(self.__data_index[i])
+                l = f.readline()
+                temp.append(np.fromstring(l, dtype='f', sep=' ')[self.__column])
+            return np.asarray(temp)

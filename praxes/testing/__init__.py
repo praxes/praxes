@@ -26,5 +26,5 @@ class TestCase(unittest2.TestCase):
                 )
         if not np.all(np.abs(a1 - a2) < delta):
             raise self.failureException(
-                "Arrays differ by more than %.3f%s" % (delta, msg)
+                "Arrays differ by more than %g%s" % (delta, msg)
                 )
