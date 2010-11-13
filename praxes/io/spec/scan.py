@@ -19,6 +19,9 @@ class Index(object):
     def __len__(self):
         return len(self._index)
 
+    def get(self, key, default=None):
+        return self._index.get(key, default)
+
     def items(self):
         "Return a new view of the index's ``(key, value)`` pairs."
         return self._index.viewitems()
@@ -49,10 +52,6 @@ class SpecScan(object):
         return self.__id
 
     @property
-    def mcas(self):
-        return copy.copy(self.__mcas)
-
-    @property
     def name(self):
         return self.__name
 
@@ -64,13 +63,7 @@ class SpecScan(object):
         self.__bytes_read = offset
 
         self.__attrs = Index(**kwargs)
-        attrs = self.__attrs._index
-
-        attrs['epoch_offset'] = kwargs.get('epoch_offset', 0)
-        attrs['file_origin'] = kwargs.get('file_origin', '')
-        attrs['positioners'] = kwargs.get('positioners', [])
-        attrs['program'] = kwargs.get('program', '')
-        attrs['user'] = kwargs.get('user', '')
+        self.__attrs._index.update(kwargs)
 
         self.__scalar_data_index = []
         self.__scalar_data = Index()
@@ -91,6 +84,9 @@ class SpecScan(object):
 
     def __len__(self):
         return len(self.__index)
+
+    def get(self, key, default=None):
+        return self.__index.get(key, default)
 
     def items(self):
         "Return a new view of the scan's attributes' ``(key, val)`` pairs."
@@ -122,7 +118,7 @@ class SpecScan(object):
                 elif line[0] == '@':
                     if 'mcas' not in self.__index:
                         self.__index['mcas'] = self.__mca_data
-                    key = line.split()[0][1:]
+                    key = line.split(None, 1)[0][1:]
                     index = self.__mca_data_indices.setdefault(key, [])
                     index.append(file_offset)
                     if key not in self.__mca_data:
@@ -162,9 +158,6 @@ class SpecScan(object):
                 elif line[:2] == '#L':
                     attrs['labels'] = labels = line.split()[1:]
                     for column, label in enumerate(labels):
-                        # TODO: Need to write the proxy interface for the data
-                        # the proxy constructor should accept the data_index and
-                        # the column index
                         self.__scalar_data._index[label] = ScalarProxy(
                             self.__file_name, label, column, self.__scalar_data_index
                             )

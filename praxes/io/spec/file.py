@@ -36,6 +36,9 @@ class SpecFile(object):
     def __len__(self):
         return len(self.__index)
 
+    def get(self, key, default=None):
+        return self.__index.get(key, default)
+
     def items(self):
         "Return a new view of the file's ``(key, scan)`` pairs."
         return self.__index.viewitems()
@@ -77,7 +80,7 @@ class SpecFile(object):
                 elif line[:2] == '#E':
                     self.__headers['epoch_offset'] = int(line.split()[1])
                 elif line[:2] == '#D':
-                    self.__headers['file_origin'] = line.split(None, 1)[1][:-1]
+                    self.__headers['date'] = line.split(None, 1)[1][:-1]
                 elif line[:2] == '#C' and line.split()[2] == 'User':
                     temp = line.split()
                     program, user = temp[1], temp[-1]
