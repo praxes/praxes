@@ -92,6 +92,10 @@ class TestSpecScanInterface(TestCase):
             np.array([0])
             )
         self.assertArrayEqual(
+            self.f['1']['scalar_data']['samx'][[0, 1, 2]],
+            np.array([-1, 0, 1])
+            )
+        self.assertArrayEqual(
             self.f['1']['scalar_data']['Epoch'][...],
             np.array([100, 200, 300])
             )
@@ -126,7 +130,7 @@ class TestSpecScanInterface(TestCase):
             np.array([[0]*30, [1]+[0]*29, [2]+[0]*29])
             )
         self.assertArrayEqual(
-            self.f['1']['mcas']['vortex'][0,1,2],
+            self.f['1']['mcas']['vortex'][[0,1,2]],
             np.array([[0]*30, [1]+[0]*29, [2]+[0]*29])
             )
         self.assertArrayEqual(

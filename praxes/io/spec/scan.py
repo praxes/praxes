@@ -196,14 +196,20 @@ class ScalarProxy(object):
 
     def __getitem__(self, args):
         with open(self.__file_name) as f:
+            if isinstance(args, slice):
+                args = xrange(
+                    args.start or 0,
+                    args.stop or len(self),
+                    args.step or 1
+                    )
+            elif args is Ellipsis:
+                args = xrange(len(self))
+            elif isinstance(args, tuple):
+                raise IndexError('Invalid index')
             if isinstance(args, int):
                 f.seek(self.__data_index[args])
                 l = f.readline()
                 return np.fromstring(l, dtype='d', sep=' ')[self.__column]
-            if isinstance(args, slice):
-                args = xrange(args.start or 0, args.stop or len(self), args.step or 1)
-            elif args is Ellipsis:
-                args = xrange(len(self))
             temp = []
             for i in args:
                 f.seek(self.__data_index[i])
@@ -234,21 +240,25 @@ class McaProxy(object):
 
     def __getitem__(self, args):
         with open(self.__file_name) as f:
+            extent = Ellipsis
+            if isinstance(args, tuple):
+                extent = args[1:]
+                args = args[0]
+            if isinstance(args, slice):
+                args = xrange(
+                    args.start or 0,
+                    args.stop or len(self),
+                    args.step or 1
+                    )
+            elif args is Ellipsis:
+                args = xrange(len(self))
+
             if isinstance(args, int):
                 f.seek(self.__data_index[args])
                 l = f.readline().split(None, 1)[1].rstrip()
                 while l[-1] == '\\':
                     l = l[:-1] + f.readline.rstrip()
-                return np.fromstring(l, dtype='d', sep=' ')
-            extent = Ellipsis
-            if isinstance(args, tuple) and isinstance(args[0], slice):
-                extent = args[1]
-                args = args[0]
-                args = xrange(args.start or 0, args.stop or len(self), args.step or 1)
-            if isinstance(args, slice):
-                args = xrange(args.start or 0, args.stop or len(self), args.step or 1)
-            elif args is Ellipsis:
-                args = xrange(len(self))
+                return np.fromstring(l, dtype='d', sep=' ')[extent]
             temp = []
             for i in args:
                 f.seek(self.__data_index[i])
