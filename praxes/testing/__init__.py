@@ -6,10 +6,9 @@ import numpy as np
 class TestCase(unittest2.TestCase):
 
     def assertArrayEqual(self, a1, a2, msg=None, delta=None):
-        """ Make sure dset and arr have the same shape, dtype and contents, to
-            within the given precision.
-
-            Note that dset may be a NumPy array or an HDF5 dataset.
+        """
+        Make sure a1 and a2 have the same shape and contents to within the
+        given precision.
         """
         if delta is None:
             delta = 1e-5
