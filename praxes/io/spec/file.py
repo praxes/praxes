@@ -2,14 +2,15 @@ import collections
 import os
 import re
 
+from .readonlydict import ReadOnlyDict
 from .scan import SpecScan
 
 
-class SpecFile(object):
+class SpecFile(ReadOnlyDict):
 
     "An OrderedDict-like interface to scans contained in spec data files."
 
-    __slots__ = ['__bytes_read', '__headers', '__index', '_name']
+    __slots__ = ['__bytes_read', '__headers', '_index', '_name']
 
     @property
     def name(self):
@@ -18,40 +19,17 @@ class SpecFile(object):
     def __init__(self, file_name):
         self._name = file_name
         self.__bytes_read = 0
-        self.__index = collections.OrderedDict()
+        self._index = collections.OrderedDict()
         self.__headers = {}
 
         self.update()
-
-    def __contains__(self, item):
-        return item in self.__index
-
-    def __getitem__(self, item):
-        return self.__index[item]
-
-    def __iter__(self):
-        return iter(self.__index)
-
-    def __len__(self):
-        return len(self.__index)
-
-    def get(self, key, default=None):
-        return self.__index.get(key, default)
-
-    def items(self):
-        "Return a new view of the file's ``(key, scan)`` pairs."
-        return self.__index.viewitems()
-
-    def keys(self):
-        "Return a new view of the file's scan keys."
-        return self.__index.viewkeys()
 
     def update(self):
         "Update the file index based on any data appended to the file."
         if os.stat(self._name).st_size == self.__bytes_read:
             return
 
-        index = self.__index
+        index = self._index
         with open(self._name, 'rb') as f:
             if len(self):
                 # updating an existing file index, may need to update last scan
@@ -95,7 +73,3 @@ class SpecFile(object):
                 line = f.readline()
 
             self.__bytes_read = f.tell()
-
-    def values(self):
-        "Return a new view of the file's scans."
-        return self.__index.viewvalues()

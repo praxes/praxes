@@ -2,15 +2,15 @@ import collections
 
 import numpy as np
 
-from .attributes import AttributeIndex
+from .readonlydict import ReadOnlyDict
 from .proxies import McaProxy, ScalarProxy
 
 
-class SpecScan(object):
+class SpecScan(ReadOnlyDict):
 
     __slots__ = [
         '__attrs', '__bytes_read', '__file_name', '__file_offset', '__id',
-        '__index', '__index_finalized', '__mca_data_indices', '__name',
+        '_index', '__index_finalized', '__mca_data_indices', '__name',
         '__scalar_data_index'
         ]
 
@@ -37,43 +37,15 @@ class SpecScan(object):
         self.__file_offset = offset
         self.__bytes_read = offset
 
-        self.__attrs = AttributeIndex(**kwargs)
+        self.__attrs = ReadOnlyDict(**kwargs)
         self.__attrs._index.update(kwargs)
 
         self.__scalar_data_index = []
         self.__mca_data_indices = {}
-        self.__index = collections.OrderedDict()
+        self._index = collections.OrderedDict()
         self.__index_finalized = False
 
         self.update()
-
-    def __contains__(self, item):
-        return item in self.__index
-
-    def __getitem__(self, item):
-        return self.__index[item]
-
-    def __iter__(self):
-        return iter(self.__index)
-
-    def __len__(self):
-        return len(self.__index)
-
-    def get(self, key, default=None):
-        return self.__index.get(key, default)
-
-    def items(self):
-        "Return a new view of the scan's attributes' ``(key, val)`` pairs."
-        return self.__index.viewitems()
-
-    def keys(self):
-        "Return a new view of the scan's attributes' keys."
-        return self.__index.viewkeys()
-
-    def values(self):
-        "Return a new view of the scan's attributes' values."
-        return self.__index.viewvalues()
-
 
     def update(self):
         if self.__index_finalized:
@@ -128,7 +100,7 @@ class SpecScan(object):
                 elif line[:2] == '#L':
                     attrs['labels'] = labels = line.split()[1:]
                     for column, label in enumerate(labels):
-                        self.__index[label] = ScalarProxy(
+                        self._index[label] = ScalarProxy(
                             self.__file_name,
                             label,
                             column,
@@ -146,5 +118,5 @@ class SpecScan(object):
             attrs['positions'] = dict(zip(positioners, positions))
 
         for key, index in self.__mca_data_indices.items():
-            if key not in self.__index:
-                self.__index[key] = McaProxy(self.__file_name, key, index)
+            if key not in self._index:
+                self._index[key] = McaProxy(self.__file_name, key, index)

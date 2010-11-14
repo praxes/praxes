@@ -1,4 +1,4 @@
-class AttributeIndex(object):
+class ReadOnlyDict(object):
 
     __slots__ = ['_index']
 

@@ -1,22 +1,25 @@
 import numpy as np
 
 
-class ScalarProxy(object):
+class DataProxy(object):
 
-    __slots__ = ['__column', '__data_index', '__file_name', '__name']
+    __slots__ = ['_index', '__file_name', '__name']
+
+    @property
+    def file_name(self):
+        return self.__file_name
 
     @property
     def name(self):
         return self.__name
 
-    def __init__(self, file_name, name, column, data_index):
+    def __init__(self, file_name, name, index):
         self.__file_name = file_name
         self.__name = name
-        self.__column = column
-        self.__data_index = data_index
+        self._index = index
 
     def __len__(self):
-        return len(self.__data_index)
+        return len(self._index)
 
     def __iter__(self):
         def g(f):
@@ -25,7 +28,19 @@ class ScalarProxy(object):
         return g(self)
 
     def __getitem__(self, args):
-        with open(self.__file_name) as f:
+        raise NotImplementedError
+
+
+class ScalarProxy(DataProxy):
+
+    __slots__ = ['__column']
+
+    def __init__(self, file_name, name, column, index):
+        super(ScalarProxy, self).__init__(file_name, name, index)
+        self.__column = column
+
+    def __getitem__(self, args):
+        with open(self.file_name) as f:
             if isinstance(args, slice):
                 args = xrange(
                     args.start or 0,
@@ -37,41 +52,21 @@ class ScalarProxy(object):
             elif isinstance(args, tuple):
                 raise IndexError('Invalid index')
             if isinstance(args, int):
-                f.seek(self.__data_index[args])
+                f.seek(self._index[args])
                 l = f.readline()
                 return np.fromstring(l, dtype='d', sep=' ')[self.__column]
             temp = []
             for i in args:
-                f.seek(self.__data_index[i])
+                f.seek(self._index[i])
                 l = f.readline()
                 temp.append(np.fromstring(l, dtype='f', sep=' ')[self.__column])
             return np.asarray(temp)
 
 
-class McaProxy(object):
-
-    __slots__ = ['__file_name', '__data_index', '__name']
-
-    @property
-    def name(self):
-        return self.__name
-
-    def __init__(self, file_name, name, data_index):
-        self.__file_name = file_name
-        self.__name = name
-        self.__data_index = data_index
-
-    def __len__(self):
-        return len(self.__data_index)
-
-    def __iter__(self):
-        def g(f):
-            for i in xrange(len(f)):
-                yield(f[i])
-        return g(self)
+class McaProxy(DataProxy):
 
     def __getitem__(self, args):
-        with open(self.__file_name) as f:
+        with open(self.file_name) as f:
             extent = Ellipsis
             if isinstance(args, tuple):
                 extent = args[1:]
@@ -86,14 +81,14 @@ class McaProxy(object):
                 args = xrange(len(self))
 
             if isinstance(args, int):
-                f.seek(self.__data_index[args])
+                f.seek(self._index[args])
                 l = f.readline().split(None, 1)[1].rstrip()
                 while l[-1] == '\\':
                     l = l[:-1] + f.readline.rstrip()
                 return np.fromstring(l, dtype='d', sep=' ')[extent]
             temp = []
             for i in args:
-                f.seek(self.__data_index[i])
+                f.seek(self._index[i])
                 l = f.readline().split(None, 1)[1].rstrip()
                 while l[-1] == '\\':
                     l = l[:-1] + f.readline.rstrip()
