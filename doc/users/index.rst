@@ -10,3 +10,4 @@ Users' Guide
    introduction.rst
    why_python.rst
    installation.rst
+   io/index.rst
