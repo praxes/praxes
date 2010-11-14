@@ -4,6 +4,8 @@ import numpy as np
 
 class Index(object):
 
+    __slots__ = ['_index']
+
     def __init__(self, **kwargs):
         self._index = dict(**kwargs)
 
@@ -37,7 +39,13 @@ class Index(object):
 
 class SpecScan(object):
 
-    __index_finalized = False
+
+
+    __slots__ = [
+        '__attrs', '__bytes_read', '__file_name', '__file_offset', '__id',
+        '__index', '__index_finalized', '__mca_data_indices', '__name',
+        '__scalar_data_index'
+        ]
 
     @property
     def attrs(self):
@@ -68,6 +76,7 @@ class SpecScan(object):
         self.__scalar_data_index = []
         self.__mca_data_indices = {}
         self.__index = collections.OrderedDict()
+        self.__index_finalized = False
 
         self.update()
 
@@ -176,6 +185,8 @@ class SpecScan(object):
 
 class ScalarProxy(object):
 
+    __slots__ = ['__column', '__data_index', '__file_name', '__name']
+
     @property
     def name(self):
         return self.__name
@@ -220,6 +231,8 @@ class ScalarProxy(object):
 
 
 class McaProxy(object):
+
+    __slots__ = ['__file_name', '__data_index', '__name']
 
     @property
     def name(self):
