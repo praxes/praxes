@@ -1,4 +1,4 @@
-import copy
+import collections
 
 import numpy as np
 
@@ -66,10 +66,8 @@ class SpecScan(object):
         self.__attrs._index.update(kwargs)
 
         self.__scalar_data_index = []
-        self.__scalar_data = Index()
-        self.__mca_data = Index()
         self.__mca_data_indices = {}
-        self.__index = {}
+        self.__index = collections.OrderedDict()
 
         self.update()
 
@@ -112,18 +110,14 @@ class SpecScan(object):
             line = f.readline()
             while line:
                 if line[0].isdigit() or line[0] == '-':
-                    if 'scalar_data' not in self.__index:
-                        self.__index['scalar_data'] = self.__scalar_data
                     self.__scalar_data_index.append(file_offset)
                 elif line[0] == '@':
-                    if 'mcas' not in self.__index:
-                        self.__index['mcas'] = self.__mca_data
-                    key = line.split(None, 1)[0][1:]
-                    index = self.__mca_data_indices.setdefault(key, [])
+                    key = line.split(None, 1)[0]
+                    try:
+                        index = self.__mca_data_indices[key]
+                    except KeyError:
+                        index = self.__mca_data_indices.setdefault(key, [])
                     index.append(file_offset)
-                    if key not in self.__mca_data:
-                        mca_data = McaProxy(self.__file_name, key, index)
-                        self.__mca_data._index[key] = mca_data
                 elif line[:2] == '#S':
                     if 'command' in attrs:
                         self.__index_finalized = True
@@ -158,8 +152,11 @@ class SpecScan(object):
                 elif line[:2] == '#L':
                     attrs['labels'] = labels = line.split()[1:]
                     for column, label in enumerate(labels):
-                        self.__scalar_data._index[label] = ScalarProxy(
-                            self.__file_name, label, column, self.__scalar_data_index
+                        self.__index[label] = ScalarProxy(
+                            self.__file_name,
+                            label,
+                            column,
+                            self.__scalar_data_index
                             )
 
                 file_offset = f.tell()
@@ -171,6 +168,10 @@ class SpecScan(object):
             positioners = attrs.pop('positioners')
             positions = attrs.pop('positions')
             attrs['positions'] = dict(zip(positioners, positions))
+
+        for key, index in self.__mca_data_indices.items():
+            if key not in self.__index:
+                self.__index[key] = McaProxy(self.__file_name, key, index)
 
 
 class ScalarProxy(object):

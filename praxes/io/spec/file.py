@@ -1,5 +1,4 @@
 import collections
-import copy
 import os
 import re
 
@@ -70,8 +69,7 @@ class SpecFile(object):
                         dup += 1
                         id = '%s.%d' % (name, dup)
                     scan = SpecScan(
-                        name, id, self, file_offset,
-                        **copy.copy(self.__headers)
+                        name, id, self, file_offset, **self.__headers
                         )
                     index[id] = scan
                     f.seek(scan.file_offsets[1])
