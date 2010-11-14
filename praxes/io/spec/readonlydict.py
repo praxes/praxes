@@ -21,14 +21,14 @@ class ReadOnlyDict(object):
         return self._index.get(key, default)
 
     def items(self):
-        "Return a new view of the attributes' ``(key, value)`` pairs."
+        "Return a new view of the ``(key, value)`` pairs."
         return self._index.viewitems()
 
     def keys(self):
-        "Return a new view of the attributes' keys."
+        "Return a new view of the keys."
         return self._index.viewkeys()
 
     def values(self):
-        "Return a new view of the attributes' values."
+        "Return a new view of the values."
         return self._index.viewvalues()
 
