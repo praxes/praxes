@@ -1,3 +1,5 @@
+import io
+
 import numpy as np
 
 
@@ -40,7 +42,7 @@ class ScalarProxy(DataProxy):
         self.__column = column
 
     def __getitem__(self, args):
-        with open(self.file_name) as f:
+        with io.open(self.file_name, 'rb') as f:
             if isinstance(args, slice):
                 args = xrange(
                     args.start or 0,
@@ -66,7 +68,7 @@ class ScalarProxy(DataProxy):
 class McaProxy(DataProxy):
 
     def __getitem__(self, args):
-        with open(self.file_name) as f:
+        with io.open(self.file_name, 'rb') as f:
             extent = Ellipsis
             if isinstance(args, tuple):
                 extent = args[1:]

@@ -27,7 +27,7 @@ class test(Command):
         except ImportError:
             raise ImportError('unittest2 is required to run the test suite')
 
-        suite = unittest2.TestLoader().discover('praxes')
+        suite = unittest2.TestLoader().discover('.')
         unittest2.TextTestRunner(verbosity=self.verbosity+1).run(suite)
 
 

@@ -1,4 +1,5 @@
 import collections
+import io
 
 import numpy as np
 
@@ -51,7 +52,7 @@ class SpecScan(ReadOnlyDict):
         if self.__index_finalized:
             return
 
-        with open(self.__file_name, 'rb') as f:
+        with io.open(self.__file_name, 'rb') as f:
             attrs = self.__attrs._index
             f.seek(self.__bytes_read)
             file_offset = f.tell()

@@ -1,4 +1,5 @@
 import collections
+import io
 import os
 import re
 
@@ -30,7 +31,7 @@ class SpecFile(ReadOnlyDict):
             return
 
         index = self._index
-        with open(self._name, 'rb') as f:
+        with io.open(self._name, 'rb') as f:
             if len(self):
                 # updating an existing file index, may need to update last scan
                 index.values()[-1].update()
