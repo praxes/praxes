@@ -42,6 +42,9 @@ setup(
     author_email = 'darren.dale@cornell.edu',
     cmdclass = {'test': test, 'build_ext': build_ext},
     description = 'Praxes framework for scientific analysis',
+#    ext_modules = [
+#        Extension('praxes.io.spec.scan', ['praxes/io/spec/scan.pyx']),
+#        ],
     name = 'praxes',
     packages = packages,
     requires = ('python (>=2.7)',),
