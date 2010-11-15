@@ -74,7 +74,7 @@ class SpecScan(ReadOnlyDict):
                     index = self.__mca_data_indices[key]
                 except KeyError:
                     index = self.__mca_data_indices.setdefault(key, [])
-                index.append(file_offset)
+                index.append(file_offset + len(key) + 1)
             elif tag == b'#':
                 tag = line[1]
                 if tag == b'S':

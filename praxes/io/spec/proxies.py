@@ -87,15 +87,15 @@ class McaProxy(DataProxy):
             readline = f.readline
             if isinstance(args, int):
                 f.seek(self._index[args])
-                l = readline().split(None, 1)[1].rstrip()
-                while l[-1] == '\\':
-                    l = l[:-1] + readline().rstrip()
+                l = readline()
+                while l[-2] == '\\':
+                    l = l[:-2] + readline()
                 return np.fromstring(l, dtype='d', sep=' ')[extent]
             temp = []
             for i in args:
                 f.seek(self._index[i])
-                l = readline().split(None, 1)[1].rstrip()
-                while l[-1] == '\\':
-                    l = l[:-1] + readline().rstrip()
-                temp.append(np.fromstring(l, dtype='f', sep=' ')[extent])
+                l = readline()
+                while l[-2] == '\\':
+                    l = l[:-2] + readline()
+                temp.append(np.fromstring(l, dtype='d', sep=' ')[extent])
             return np.asarray(temp)
