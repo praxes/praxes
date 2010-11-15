@@ -53,14 +53,16 @@ class ScalarProxy(DataProxy):
                 args = xrange(len(self))
             elif isinstance(args, tuple):
                 raise IndexError('Invalid index')
+
+            readline = f.readline
             if isinstance(args, int):
                 f.seek(self._index[args])
-                l = f.readline()
+                l = readline()
                 return np.fromstring(l, dtype='d', sep=' ')[self.__column]
             temp = []
             for i in args:
                 f.seek(self._index[i])
-                l = f.readline()
+                l = readline()
                 temp.append(np.fromstring(l, dtype='f', sep=' ')[self.__column])
             return np.asarray(temp)
 
@@ -82,17 +84,18 @@ class McaProxy(DataProxy):
             elif args is Ellipsis:
                 args = xrange(len(self))
 
+            readline = f.readline
             if isinstance(args, int):
                 f.seek(self._index[args])
-                l = f.readline().split(None, 1)[1].rstrip()
+                l = readline().split(None, 1)[1].rstrip()
                 while l[-1] == '\\':
-                    l = l[:-1] + f.readline.rstrip()
+                    l = l[:-1] + readline().rstrip()
                 return np.fromstring(l, dtype='d', sep=' ')[extent]
             temp = []
             for i in args:
                 f.seek(self._index[i])
-                l = f.readline().split(None, 1)[1].rstrip()
+                l = readline().split(None, 1)[1].rstrip()
                 while l[-1] == '\\':
-                    l = l[:-1] + f.readline.rstrip()
+                    l = l[:-1] + readline().rstrip()
                 temp.append(np.fromstring(l, dtype='f', sep=' ')[extent])
             return np.asarray(temp)
