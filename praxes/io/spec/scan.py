@@ -56,7 +56,8 @@ class SpecScan(ReadOnlyDict):
             attrs = self.__attrs._index
             f.seek(self.__bytes_read)
             file_offset = f.tell()
-            line = f.readline()
+            readline = f.readline
+            line = readline()
             while line:
                 if line[0].isdigit() or line[0] == '-':
                     self.__scalar_data_index.append(file_offset)
@@ -108,8 +109,8 @@ class SpecScan(ReadOnlyDict):
                             self.__scalar_data_index
                             )
 
-                file_offset = f.tell()
-                line = f.readline()
+                file_offset += len(line)
+                line = readline()
 
             self.__bytes_read = f.tell()
 
