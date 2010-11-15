@@ -1,6 +1,5 @@
 import os
 import tempfile
-import unittest2
 
 from praxes import testing
 from praxes.io import spec

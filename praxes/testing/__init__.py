@@ -1,9 +1,9 @@
-import unittest2
+import unittest
 
 import numpy as np
 
 
-class TestCase(unittest2.TestCase):
+class TestCase(unittest.TestCase):
 
     def assertArrayEqual(self, a1, a2, msg=None, delta=None):
         """
