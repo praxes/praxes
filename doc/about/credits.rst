@@ -17,6 +17,18 @@ Darren Dale <darren.dale-AT-cornell.edu>
   manager.
 
 
+Contributors
+============
+
+And last but not least, all the kind Praxes contributors who have contributed
+new code, bug reports, fixes, comments and ideas. A brief list follows, please
+let us know if we have omitted your name by accident:
+
+Jeffrey Lipton
+  Preliminary development of graphical user interfaces for plotting and
+  moving motors via specclient.
+
+
 Special thanks
 ==============
 
@@ -31,15 +43,3 @@ The Scientific Python community
 
 Phil Thompson and Riverbank Computing
   For PyQt4 and dip. 
-
-
-Contributors
-============
-
-And last but not least, all the kind Praxes contributors who have contributed
-new code, bug reports, fixes, comments and ideas. A brief list follows, please
-let us know if we have omitted your name by accident:
-
-Jeffrey Lipton
-  Preliminary development of graphical user interfaces for plotting and
-  moving motors via specclient.
