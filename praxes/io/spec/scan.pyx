@@ -56,7 +56,7 @@ class SpecScan(ReadOnlyDict):
         cdef bytes line
         cdef bytes tag
 
-        f = io.open(self.__file_name, 'rb')
+        f = io.open(self.__file_name, 'rb', buffering=1024*1024*2)
         attrs = self.__attrs._index
         f.seek(self.__bytes_read)
         file_offset = f.tell()
