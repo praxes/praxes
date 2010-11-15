@@ -59,47 +59,50 @@ class SpecScan(ReadOnlyDict):
             readline = f.readline
             line = readline()
             while line:
-                if line[0].isdigit() or line[0] == '-':
+                tag = line[:2]
+                if tag[0] == ' ':
+                    pass
+                elif tag[0].isdigit() or tag[0] == '-':
                     self.__scalar_data_index.append(file_offset)
-                elif line[0] == '@':
+                elif tag[0] == '@':
                     key = line.split(None, 1)[0]
                     try:
                         index = self.__mca_data_indices[key]
                     except KeyError:
                         index = self.__mca_data_indices.setdefault(key, [])
                     index.append(file_offset)
-                elif line[:2] == '#S':
+                elif tag == '#S':
                     if 'command' in attrs:
                         self.__index_finalized = True
                         break
                     attrs['command'] = ' '.join(line.split()[2:])
-                elif line[:2] == '#D':
+                elif tag == '#D':
                     attrs['date'] = line[3:-1]
-                elif line[:2] in ('#T', '#M'):
+                elif tag == '#T' or tag == '#M':
                     x, val, key = line.split()
                     key = key[1:-1]
                     attrs['duration'] = (key, float(val))
                     if x == '#M':
                         attrs['monitor'] = key
-                elif line[:2] == '#G':
+                elif tag == '#G':
                     orientations = attrs.setdefault('orientations', [])
                     orientations.append(
                         [float(i) for i in line.split()[1:]]
                         )
-                elif line[:2] == '#Q':
+                elif tag == '#Q':
                     attrs['hkl'] = [float(i) for i in line.split()[1:]]
-                elif line[:2] == '#P':
+                elif tag == '#P':
                     positions = attrs.setdefault('positions', [])
                     positions.extend(
                         [float(i) for i in line.split()[1:]]
                         )
-                elif line[:2] == '#C':
+                elif tag == '#C':
                     comments = attrs.setdefault('comments', [])
                     comments.append(line[3:-1])
-                elif line[:2] == '#U':
+                elif tag == '#U':
                     user_comments = attrs.setdefault('user_comments', [])
                     user_comments.append(line[3:-1])
-                elif line[:2] == '#L':
+                elif tag == '#L':
                     attrs['labels'] = labels = line.split()[1:]
                     for column, label in enumerate(labels):
                         self._index[label] = ScalarProxy(

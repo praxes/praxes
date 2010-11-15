@@ -1,6 +1,9 @@
-import os
 from distutils.core import setup
 from distutils.cmd import Command
+from distutils.extension import Extension
+import os
+
+from Cython.Distutils import build_ext
 
 
 class test(Command):
@@ -37,7 +40,7 @@ for dirpath, dirnames, filenames in os.walk('praxes'):
 setup(
     author = 'Darren Dale',
     author_email = 'darren.dale@cornell.edu',
-    cmdclass = {'test': test},
+    cmdclass = {'test': test, 'build_ext': build_ext},
     description = 'Praxes framework for scientific analysis',
     name = 'praxes',
     packages = packages,
