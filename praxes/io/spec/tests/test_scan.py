@@ -139,6 +139,7 @@ class TestSpecScanInterface(TestCase):
             self.f['1']['@vortex'][0:3, :15],
             np.array([[1]+[0]*14, [2]+[0]*14, [3]+[0]*14])
             )
+        self.assertEqual(self.f['1']['@vortex'][0, 0], 1)
 
     def test_monitor(self):
         self.assertEqual(self.f['1'].attrs['monitor'], 'I0')

@@ -51,14 +51,15 @@ class DataProxy(object):
         raise NotImplementedError
 
     def _get_data(self, item, extent=None):
-        cdef bytes b
+        b = bytearray()
         with io.open(self.file_name, 'rb') as f:
             f.seek(self._index[item])
-            b = f.readline()
-            while b[-2] == b'\\':
-                b = b[:-2] + f.readline()
+            b.extend(f.readline())
+            while b[-2] == 92: #b'\\'
+                del(b[-2])
+                b.extend(f.readline())
 
-        l = b.split()
+        l = bytes(b).split()
         if isinstance(extent, int):
             return [l[extent]]
         if extent is None or extent is Ellipsis or extent == ALL:
