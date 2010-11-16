@@ -18,6 +18,7 @@ class ReadOnlyDict(object):
         return len(self._index)
 
     def get(self, key, default=None):
+        "Return the value for key, or return default"
         return self._index.get(key, default)
 
     def items(self):
