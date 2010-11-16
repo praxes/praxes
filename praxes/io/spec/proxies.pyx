@@ -79,6 +79,10 @@ class ScalarProxy(DataProxy):
 
     __slots__ = ['__column']
 
+    @property
+    def shape(self):
+        return (len(self),)
+
     def __init__(self, file_name, name, column, index):
         super(ScalarProxy, self).__init__(file_name, name, index)
         self.__column = column
@@ -91,6 +95,8 @@ class ScalarProxy(DataProxy):
 
         if isinstance(args, tuple):
             raise IndexError('Invalid index')
+        if isinstance(args, int) and args > len(self):
+                raise IndexError('Invalid index')
         if isinstance(args, slice):
             args = xrange(
                 args.start or 0,
@@ -142,7 +148,11 @@ class McaProxy(DataProxy):
                 raise IndexError('Invalid index')
             extent = args[1]
             args = args[0]
-        if isinstance(args, slice):
+        if isinstance(args, int) and args > len(self):
+                raise IndexError('Invalid index')
+        elif isinstance(args, slice):
+            if args.stop is not None and args.stop > len(self):
+                raise IndexError('Invalid index')
             args = xrange(
                 args.start or 0,
                 args.stop or len(self),
@@ -157,8 +167,12 @@ class McaProxy(DataProxy):
         if extent is Ellipsis:
             n_x = self.__n_cols
         elif isinstance(extent, int):
+            if extent > self.__n_cols:
+                raise IndexError('Invalid index')
             n_x = 1
         elif isinstance(extent, slice):
+            if extent.stop is not None and extent.stop > self.__n_cols:
+                raise IndexError('Invalid index')
             extent = xrange(
                 extent.start or 0,
                 extent.stop or self.__n_cols,
@@ -183,7 +197,7 @@ class McaProxy(DataProxy):
                 j += 1
         ret_arr.shape = (n_y, n_x)
         if isinstance(args, int):
-            ret_arr = ret_arr[args]
+            ret_arr = ret_arr[0]
         if isinstance(extent, int):
-            ret_arr = ret_arr[extent]
+            ret_arr = ret_arr[0]
         return ret_arr

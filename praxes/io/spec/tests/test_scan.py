@@ -1,3 +1,5 @@
+import operator as op
+
 import numpy as np
 
 from .common import TestCase
@@ -124,6 +126,10 @@ class TestSpecScanInterface(TestCase):
             np.array([1]+[0]*29)
             )
         self.assertArrayEqual(
+            self.f['1']['@vortex'][1],
+            np.array([2]+[0]*29)
+            )
+        self.assertArrayEqual(
             self.f['1']['@vortex'][:],
             np.array([[1]+[0]*29, [2]+[0]*29, [3]+[0]*29])
             )
@@ -140,6 +146,19 @@ class TestSpecScanInterface(TestCase):
             np.array([[1]+[0]*14, [2]+[0]*14, [3]+[0]*14])
             )
         self.assertEqual(self.f['1']['@vortex'][0, 0], 1)
+        self.assertRaises(IndexError, op.getitem, self.f['1']['@vortex'], 3)
+        self.assertRaises(
+            IndexError, op.getitem, self.f['1']['@vortex'], (2, 35)
+            )
+        self.assertRaises(
+            IndexError, op.getitem, self.f['1']['@vortex'], slice(0, 10)
+            )
+        self.assertRaises(
+            IndexError, op.getitem, self.f['1']['@vortex'], (0, slice(50))
+            )
+        self.assertRaises(
+            IndexError, op.getitem, self.f['1']['@vortex'], (slice(0, 10), 0)
+            )
 
     def test_monitor(self):
         self.assertEqual(self.f['1'].attrs['monitor'], 'I0')
