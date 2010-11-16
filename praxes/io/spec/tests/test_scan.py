@@ -29,13 +29,13 @@ reference_data = \
 #N 4
 #L samx  Epoch  I0  I1
 -1 100 1000 100
-@vortex 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\
- 0 0 0 0 0
-0 200 1000 200
 @vortex 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\
  0 0 0 0 0
-1 300 1000 300
+0 200 1000 200
 @vortex 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\
+ 0 0 0 0 0
+1 300 1000 300
+@vortex 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\
  0 0 0 0 0
 """
 
@@ -119,22 +119,25 @@ class TestSpecScanInterface(TestCase):
         self.assertEqual(len(self.f['1']), 5)
 
     def test_mcas(self):
-        self.assertArrayEqual(self.f['1']['@vortex'][0], np.array([0]*30))
+        self.assertArrayEqual(
+            self.f['1']['@vortex'][0],
+            np.array([1]+[0]*29)
+            )
         self.assertArrayEqual(
             self.f['1']['@vortex'][:],
-            np.array([[0]*30, [1]+[0]*29, [2]+[0]*29])
+            np.array([[1]+[0]*29, [2]+[0]*29, [3]+[0]*29])
             )
         self.assertArrayEqual(
             self.f['1']['@vortex'][...],
-            np.array([[0]*30, [1]+[0]*29, [2]+[0]*29])
+            np.array([[1]+[0]*29, [2]+[0]*29, [3]+[0]*29])
             )
         self.assertArrayEqual(
             self.f['1']['@vortex'][[0,1,2]],
-            np.array([[0]*30, [1]+[0]*29, [2]+[0]*29])
+            np.array([[1]+[0]*29, [2]+[0]*29, [3]+[0]*29])
             )
         self.assertArrayEqual(
             self.f['1']['@vortex'][0:3, :15],
-            np.array([[0]*15, [1]+[0]*14, [2]+[0]*14])
+            np.array([[1]+[0]*14, [2]+[0]*14, [3]+[0]*14])
             )
 
     def test_monitor(self):

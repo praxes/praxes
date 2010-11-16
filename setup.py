@@ -4,7 +4,7 @@ from distutils.extension import Extension
 import os
 
 from Cython.Distutils import build_ext
-
+import numpy
 
 class test(Command):
 
@@ -44,6 +44,10 @@ setup(
     description = 'Praxes framework for scientific analysis',
     ext_modules = [
         Extension('praxes.io.spec.scan', ['praxes/io/spec/scan.pyx']),
+        Extension(
+            'praxes.io.spec.proxies', ['praxes/io/spec/proxies.pyx'],
+            include_dirs=[numpy.get_include()]
+            ),
         ],
     name = 'praxes',
     packages = packages,
