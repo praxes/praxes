@@ -79,6 +79,21 @@ Module Interface
 
 .. class:: ReadOnlyDict
 
+   The base class for all :mod:`spec` dictionary-like access to read-only data.
+
+   .. describe:: len(d)
+
+      Return the number of items in the dictionary *d*
+
+   .. describe:: d[key]
+
+      Return the item of *d* with key *key*. Raises a :exc:`KeyError` if *key*
+      is not in *d*.
+
+   .. describe:: key in d
+
+      return ``True`` if *d* has a key *key*, else ``False``.
+
    .. method:: get(key[, default=None])
 
       Return the value for *key*, or return *default*
@@ -98,6 +113,9 @@ Module Interface
 
 .. class:: SpecFile
 
+   A class providing high-level access to scans stored in a "spec" data file.
+   It inherits :class:`ReadOnlyDict`.
+
    .. method:: update()
 
       Updates the file's index of scans in the file, if necessary. Also updates
@@ -105,6 +123,9 @@ Module Interface
 
 
 .. class:: SpecScan
+
+   A class providing high-level access to datasets associated with a scan in a
+   "spec" data file. It inherits :class:`ReadOnlyDict`.
 
    .. attribute:: attrs
 
