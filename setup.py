@@ -51,5 +51,9 @@ setup(
         ],
     name = 'praxes',
     packages = packages,
-    requires = ('python (>=2.7)',),
+    requires = (
+        'python (>=2.7)',
+        'cython (>=0.13)',
+        'numpy (>=1.3.0)',
+        ),
 )

@@ -10,6 +10,7 @@ administrator by right-clicking on them and choose "run as Administrator").
 Check that you have the following installed:
 
 #. Python_ (version 2.7)
+#. Cython_ (version 0.13 or later, only required for Mac OS X and Linux)
 #. NumPy_ (version 1.4.1 or later)
 #. Praxes_
 
@@ -20,5 +21,6 @@ and run the following in the source directory::
 
 
 .. _Python: http://www.python.org/
+.. _Cython: http://pypi.python.org/pypi/Cython
 .. _NumPy: http://pypi.python.org/pypi/numpy
 .. _Praxes: http://github.com/praxes/praxes/downloads
