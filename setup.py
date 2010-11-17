@@ -54,6 +54,6 @@ setup(
     requires = (
         'python (>=2.7)',
         'cython (>=0.13)',
-        'numpy (>=1.3.0)',
+        'numpy (>=1.5.1)',
         ),
 )

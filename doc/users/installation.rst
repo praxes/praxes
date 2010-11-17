@@ -11,7 +11,7 @@ Check that you have the following installed:
 
 #. Python_ (version 2.7)
 #. Cython_ (version 0.13 or later, only required for Mac OS X and Linux)
-#. NumPy_ (version 1.4.1 or later)
+#. NumPy_ (version 1.5.1 or later)
 #. Praxes_
 
 To install Praxes on OS X or Linux, download the source tar.gz file, unpack it,

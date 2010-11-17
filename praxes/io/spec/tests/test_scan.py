@@ -72,40 +72,17 @@ class TestSpecScanInterface(TestCase):
         self.assertEqual(self.f['1'].attrs['epoch_offset'], 1000)
 
     def test_get_item(self):
-        self.assertEqual(self.f['1']['samx'][0], -1)
-        self.assertArrayEqual(self.f['1']['samx'][:], np.array([-1, 0, 1]))
-        self.assertArrayEqual(
-            self.f['1']['samx'][...],
-            np.array([-1, 0, 1])
-            )
-        self.assertArrayEqual(
-            self.f['1']['samx'][:2],
-            np.array([-1, 0])
-            )
-        self.assertArrayEqual(
-            self.f['1']['samx'][1:],
-            np.array([0, 1])
-            )
-        self.assertArrayEqual(
-            self.f['1']['samx'][1:2],
-            np.array([0])
-            )
-        self.assertArrayEqual(
-            self.f['1']['samx'][[0, 1, 2]],
-            np.array([-1, 0, 1])
-            )
-        self.assertArrayEqual(
-            self.f['1']['Epoch'][...],
-            np.array([100, 200, 300])
-            )
-        self.assertArrayEqual(
-            self.f['1']['I0'][...],
-            np.array([1000, 1000, 1000])
-            )
-        self.assertArrayEqual(
-            self.f['1']['I1'][...],
-            np.array([100, 200, 300])
-            )
+        scan = self.f['1']
+        self.assertEqual(scan['samx'][0], -1)
+        self.assertArrayEqual(scan['samx'][:], np.array([-1, 0, 1]))
+        self.assertArrayEqual(scan['samx'][...], np.array([-1, 0, 1]))
+        self.assertArrayEqual(scan['samx'][:2], np.array([-1, 0]))
+        self.assertArrayEqual(scan['samx'][1:], np.array([0, 1]))
+        self.assertArrayEqual(scan['samx'][1:2], np.array([0]))
+        self.assertArrayEqual(scan['samx'][[0, 1, 2]], np.array([-1, 0, 1]))
+        self.assertArrayEqual(scan['Epoch'][...], np.array([100, 200, 300]))
+        self.assertArrayEqual(scan['I0'][...], np.array([1000, 1000, 1000]))
+        self.assertArrayEqual(scan['I1'][...], np.array([100, 200, 300]))
 
     def test_iter_item(self):
         self.assertEqual([i for i in self.f['1']['samx']], [-1, 0, 1])
@@ -121,44 +98,20 @@ class TestSpecScanInterface(TestCase):
         self.assertEqual(len(self.f['1']), 5)
 
     def test_mcas(self):
-        self.assertArrayEqual(
-            self.f['1']['@vortex'][0],
-            np.array([1]+[0]*29)
-            )
-        self.assertArrayEqual(
-            self.f['1']['@vortex'][1],
-            np.array([2]+[0]*29)
-            )
-        self.assertArrayEqual(
-            self.f['1']['@vortex'][:],
-            np.array([[1]+[0]*29, [2]+[0]*29, [3]+[0]*29])
-            )
-        self.assertArrayEqual(
-            self.f['1']['@vortex'][...],
-            np.array([[1]+[0]*29, [2]+[0]*29, [3]+[0]*29])
-            )
-        self.assertArrayEqual(
-            self.f['1']['@vortex'][[0,1,2]],
-            np.array([[1]+[0]*29, [2]+[0]*29, [3]+[0]*29])
-            )
-        self.assertArrayEqual(
-            self.f['1']['@vortex'][0:3, :15],
-            np.array([[1]+[0]*14, [2]+[0]*14, [3]+[0]*14])
-            )
-        self.assertEqual(self.f['1']['@vortex'][0, 0], 1)
-        self.assertRaises(IndexError, op.getitem, self.f['1']['@vortex'], 3)
-        self.assertRaises(
-            IndexError, op.getitem, self.f['1']['@vortex'], (2, 35)
-            )
-        self.assertRaises(
-            IndexError, op.getitem, self.f['1']['@vortex'], slice(0, 10)
-            )
-        self.assertRaises(
-            IndexError, op.getitem, self.f['1']['@vortex'], (0, slice(50))
-            )
-        self.assertRaises(
-            IndexError, op.getitem, self.f['1']['@vortex'], (slice(0, 10), 0)
-            )
+        data = self.f['1']['@vortex']
+        ref = np.array([[1]+[0]*29, [2]+[0]*29, [3]+[0]*29], dtype='d')
+        self.assertArrayEqual(data[0], ref[0])
+        self.assertArrayEqual(data[1], ref[1])
+        self.assertArrayEqual(data[:], ref[:])
+        self.assertArrayEqual(data[...], ref[...])
+        self.assertArrayEqual(data[[0,1,2]], ref[[0,1,2]])
+        self.assertArrayEqual(data[0:3, :15], ref[0:3, :15])
+        self.assertEqual(data[0, 0], ref[0, 0])
+        self.assertRaises(IndexError, op.getitem, data, 3)
+        self.assertRaises(IndexError, op.getitem, data, (2, 35))
+        self.assertRaises(IndexError, op.getitem, data, slice(0, 10))
+        self.assertRaises(IndexError, op.getitem, data, (0, slice(50)))
+        self.assertRaises(IndexError, op.getitem, data, (slice(0, 10), 0))
 
     def test_monitor(self):
         self.assertEqual(self.f['1'].attrs['monitor'], 'I0')
@@ -174,11 +127,17 @@ class TestSpecScanInterface(TestCase):
         self.assertEqual(self.f['1'].attrs['program'], 'spec')
 
     def test_update(self):
-        with open(self.file_name, 'r+') as f:
-            f.seek(0,2)
-            f.write('\n'.join(reference_data.split('\n')[5:]))
+        ref = reference_data.split('\n')
+
+        with open(self.file_name, 'a') as f:
+            f.write('\n'.join(ref[5:]))
         self.f.update()
         self.assertEqual(len(self.f['1.2']), 5)
+
+        with open(self.file_name, 'a') as f:
+            f.write('\n'.join(ref[-3:]))
+        self.f.update()
+        self.assertArrayEqual(self.f['1.2']['samx'][...], np.array([-1,0,1,1]))
 
     def test_user(self):
         self.assertEqual(self.f['1'].attrs['user'], 'specuser')
