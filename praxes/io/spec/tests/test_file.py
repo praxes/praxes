@@ -2,7 +2,7 @@ from .common import TestCase
 
 
 reference_data = \
-"""#F testfile.dat
+r"""#F testfile.dat
 #E 1000
 #D Sat Jan 1 00:00:00 2010
 #C spec  User = specuser

@@ -6,7 +6,7 @@ from .common import TestCase
 
 
 reference_data = \
-"""#F testfile.dat
+r"""#F testfile.dat
 #E 1000
 #D Sat Jan 1 00:00:00 2010
 #C spec  User = specuser
@@ -135,7 +135,7 @@ class TestSpecScanInterface(TestCase):
         self.assertEqual(len(self.f['1.2']), 5)
 
         with open(self.file_name, 'a') as f:
-            f.write('\n'.join(ref[-3:]))
+            f.write('\n'.join(ref[-4:]))
         self.f.update()
         self.assertArrayEqual(self.f['1.2']['samx'][...], np.array([-1,0,1,1]))
 
