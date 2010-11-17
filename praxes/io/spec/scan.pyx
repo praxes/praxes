@@ -1,3 +1,6 @@
+cdef extern from 'ctype.h':
+    int isdigit(char)
+
 import collections
 import io
 
@@ -54,7 +57,8 @@ class SpecScan(ReadOnlyDict):
 
         cdef int file_offset
         cdef bytes line
-        cdef bytes tag
+        cdef char* c_line
+        cdef char ctag
 
         f = io.open(self.__file_name, 'rb', buffering=1024*1024*2)
         attrs = self.__attrs._index
@@ -62,53 +66,56 @@ class SpecScan(ReadOnlyDict):
         file_offset = f.tell()
         readline = f.readline
         line = readline()
+        c_line = line
         while line:
             tag = line[0]
-            if tag == b' ':
+            ctag = c_line[0]
+            if ctag == 32: # b' ':
                 pass
-            elif tag.isdigit() or tag == b'-':
+            elif isdigit(ctag) or ctag == 45:# b'-':
                 self.__scalar_data_index.append(file_offset)
-            elif tag == b'@':
+            elif ctag == 64: # b'@':
                 key = line.split(None, 1)[0]
                 try:
                     index = self.__mca_data_indices[key]
                 except KeyError:
                     index = self.__mca_data_indices.setdefault(key, [])
                 index.append(file_offset + len(key) + 1)
-            elif tag == b'#':
+            elif ctag == 35: #b'#':
                 tag = line[1]
-                if tag == b'S':
+                ctag = c_line[1]
+                if ctag == 83: # b'S':
                     if 'command' in attrs:
                         self.__index_finalized = True
                         break
                     attrs['command'] = ' '.join(line.split()[2:])
-                elif tag == b'D':
+                elif ctag == 68: # b'D':
                     attrs['date'] = line[3:-1]
-                elif tag in (b'T', b'M'):
+                elif ctag in (84, 77): # (b'T', b'M'):
                     x, val, key = line[1:].split()
                     key = key[1:-1]
                     attrs['duration'] = (key, float(val))
                     if x == b'M':
                         attrs['monitor'] = key
-                elif tag == b'G':
+                elif ctag == 71: # b'G':
                     orientations = attrs.setdefault('orientations', [])
                     orientations.append(
                         [float(i) for i in line.split()[1:]]
                         )
-                elif tag == b'Q':
+                elif ctag == 81: # b'Q':
                     attrs['hkl'] = [float(i) for i in line.split()[1:]]
-                elif tag == b'P':
+                elif ctag == 80: # b'P':
                     positions = attrs.setdefault('positions', [])
                     positions.extend(
                         [float(i) for i in line.split()[1:]]
                         )
-                elif tag == b'C':
+                elif ctag == 67: # b'C':
                     comments = attrs.setdefault('comments', [])
                     comments.append(line[3:-1])
-                elif tag == b'U':
+                elif ctag == 85: # b'U':
                     user_comments = attrs.setdefault('user_comments', [])
                     user_comments.append(line[3:-1])
-                elif tag == b'L':
+                elif ctag == 76: # b'L':
                     attrs['labels'] = labels = line.split()[1:]
                     if 'monitor' not in attrs:
                         attrs['monitor'] = labels[-1]
@@ -122,6 +129,7 @@ class SpecScan(ReadOnlyDict):
 
             file_offset += len(line)
             line = readline()
+            c_line = line
 
         self.__bytes_read = f.tell()
         f.close()
