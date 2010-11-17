@@ -3,9 +3,9 @@ Releases
 ========
 
 Before creating a release, the version number needs to be updated in
-:file:`praxes/__init__.py`. Then Praxes then needs to be installed in order
-proceed with building the release, so the package version numbers will be
-advertised correctly for the installers and the documentation.
+:file:`praxes/__init__.py`. Ensure that the Praxes source directory appears
+on the $PYTHONPATH, so the package version numbers will be advertised correctly
+for the installers and the documentation.
 
 
 Creating Source Releases
@@ -14,49 +14,59 @@ Creating Source Releases
 Praxes is distributed as a source release for Linux and OS-X. To create a
 source release, just do::
 
-  python setup.py register
-  python setup.py sdist --formats=zip,gztar upload --sign
+  git tag v{X}
+  git push --tags
 
-This will create the tgz source file and upload it to the Python Package Index.
-Uploading to PyPi requires a .pypirc file in your home directory, something
-like::
-
-  [server-login]
-  username: <username>
-  password: <password>
-
-You can create a source distribution without uploading by doing::
-
-  python setup.py sdist
-
-This creates a source distribution in the :file:`dist/` directory.
+This automatically creates links to download the source release at the
+`Praxes downloads page`_. 
 
 
 Creating Windows Installers
 ===========================
 
-open a DOS window, cd into the praxes source directory and run::
+Open a DOS window, cd into the praxes source directory and run::
 
-  python setup.py bdist_wininst --install-script=praxes_win_post_install.py
+  python setup.py bdist_msi
 
-   This creates the executable windows installer in the `dist/` directory.
+This creates the windows installer in the `dist/` directory, which can then be
+uploaded to the `Praxes downloads page`_.
+
+.. Note that in the future, if items are to be added to the Windows start menu,
+   the command should be::
+
+      python setup.py bdist_wininst --install-script=praxes_win_post_install.py 
 
 
 Publishing Praxes' documentation
 ================================
 
 When publishing a new release, the Praxes doumentation needs to be generated
-and published as well. Sphinx_ is required to build the documentation. In the
-`doc/` directory, run::
+and published as well. Sphinx_ and `sphinx-to-github`_ required to build the
+documentation. First, run::
 
-  make html
+   git clean -fdx
 
-which will save the documentation in `doc/_build/html`. Changing into that new
-directory, run::
+In the :file:`doc/` directory, run::
 
-  zip -r praxes *
+   make html
+   sphinxtogithub _build/html
 
-and visit the `Praxes project page`_ to upload the documentation 
+Next, move back to the root directory of the praxes repository, and run::
 
+   git checkout gh-pages
+   cp -r doc/_build/html/* .
+   rm -rf doc
+   git status
+
+Use ``git add`` to add any new files to the repository, and then commit and push
+the changes to the upstream praxes repository::
+
+   git commit -a -m "meaningful commit message"
+   git push upstream
+
+and visit the `Praxes documentation page`_ to view the documentation. 
+
+.. _`Praxes downloads page`: https://github.com/praxes/praxes/downloads
 .. _Sphinx: http://sphinx.pocoo.org/
-.. _`Praxes project page`: http://pypi.python.org/pypi?:action=pkg_edit&name=praxes
+.. _`sphinx-to-github`: https://github.com/michaeljones/sphinx-to-github
+.. _`Praxes documentation page`: http://praxes.github.com/praxes/

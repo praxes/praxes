@@ -7,7 +7,7 @@ Developer's Guide
 .. toctree::
    :maxdepth: 2
 
-   common_exchange_format.rst
-   documenting.rst
-   coding_style_guide.rst
-   release.rst
+   common_exchange_format
+   documenting
+   coding_style_guide
+   release
