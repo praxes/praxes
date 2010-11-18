@@ -46,10 +46,9 @@ documentation. First, run::
 
    git clean -fdx
 
-In the :file:`doc/` directory, run::
+Then, in the :file:`doc/` directory, run::
 
    make html
-   sphinxtogithub _build/html
 
 Next, move back to the root directory of the praxes repository, and run::
 
