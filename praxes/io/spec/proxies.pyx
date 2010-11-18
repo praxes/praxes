@@ -1,6 +1,9 @@
 cdef extern from 'stdlib.h':
     double atof(char*)
 
+cdef extern from 'ctype.h':
+    int isdigit(char)
+
 import io
 
 cimport numpy as np
@@ -26,7 +29,7 @@ class DataProxyIterator(object):
 
 class DataProxy(object):
 
-    __slots__ = ['_index', '__file_name', '__name']
+    __slots__ = ['_index', '__file_name', '__name', '__n_cols']
 
     @property
     def file_name(self):
@@ -35,6 +38,22 @@ class DataProxy(object):
     @property
     def name(self):
         return self.__name
+
+    @property
+    def _n_cols(self):
+        try:
+            return self.__n_cols
+        except AttributeError:
+            # determine the number of columns
+            b = bytearray()
+            with io.open(self.file_name, 'rb') as f:
+                f.seek(self._index[0])
+                b.extend(f.readline())
+                while b[-2] == 92: #b'\\'
+                    del(b[-2])
+                    b.extend(f.readline())
+            self.__n_cols = len(bytes(b).split(b' '))
+            return self.__n_cols
 
     def __init__(self, file_name, name, index):
         self.__file_name = file_name
@@ -50,29 +69,58 @@ class DataProxy(object):
     def __getitem__(self, args):
         raise NotImplementedError
 
-    def _get_data(self, item, extent=None):
-        b = bytearray()
-        with io.open(self.file_name, 'rb') as f:
-            f.seek(self._index[item])
-            b.extend(f.readline())
-            while b[-2] == 92: #b'\\'
-                del(b[-2])
-                b.extend(f.readline())
+    def _get_data(
+        self,
+        np.ndarray[np.int64_t, ndim=1] indices,
+        np.ndarray[np.int64_t, ndim=1] subindices
+        ):
+        cdef int i, j, n_x, n_y, t_n_x, val_n
+        cdef char* cdata
+        cdef char c
+        cdef char val[20]
+        cdef np.ndarray[np.float64_t, ndim=1] temp
+        cdef np.ndarray[np.float64_t, ndim=2] ret
 
-        l = bytes(b).split()
-        if isinstance(extent, int):
-            return [l[extent]]
-        if extent is None or extent is Ellipsis or extent == ALL:
-            return l
-        elif isinstance(extent, slice):
-            if extent.stop is None:
-                raise ValueError('slice must declare stop value')
-            extent = xrange(
-                extent.start or 0,
-                extent.stop,
-                extent.step or 1
-                )
-        return [l[i] for i in extent]
+        n_y = len(indices)
+        n_x = len(subindices)
+
+        t_n_x = self._n_cols
+        temp_arr = np.empty((t_n_x, ), dtype=np.float64)
+        temp = temp_arr
+
+        ret_arr = np.empty((n_y, n_x), dtype=np.float64)
+        ret = ret_arr
+
+        for i in range(len(indices)):
+            # get the data string
+            b = bytearray()
+            with io.open(self.file_name, 'rb') as f:
+                f.seek(self._index[indices[i]])
+                b.extend(f.readline())
+                while b[-2] == 92: #b'\\'
+                    del(b[-2])
+                    b.extend(f.readline())
+            data = bytes(b)
+            c_data = data
+
+            # convert the string to a temp array
+            j = 0
+            val_n = 0
+            for c in c_data:
+                if isdigit(c) or c == '-':
+                    val[j] = c
+                    j += 1
+                elif j and (c == b' ' or c == b'\t' or c == b'\n'):
+                    val[j] = b'\0'
+                    j = 0
+                    temp[val_n] = atof(val)
+                    val_n += 1
+
+            # update the return array
+            for j in range(len(subindices)):
+                ret[i, j] = temp[subindices[j]]
+
+        return ret_arr
 
 
 class ScalarProxy(DataProxy):
@@ -88,116 +136,73 @@ class ScalarProxy(DataProxy):
         self.__column = column
 
     def __getitem__(self, args):
-        cdef char* c_string
-        cdef bytes py_string
-        cdef int i, j, n_x
-        cdef np.ndarray[np.float64_t, ndim=1] ret
-
         if isinstance(args, tuple):
             raise IndexError('Invalid index')
-        if isinstance(args, int) and args > len(self):
+        elif isinstance(args, int):
+            if args > len(self):
                 raise IndexError('Invalid index')
-        if isinstance(args, slice):
-            args = xrange(
+            items = np.array([args])
+        elif isinstance(args, slice):
+            items = np.arange(
                 args.start or 0,
                 args.stop or len(self),
                 args.step or 1
                 )
         elif args is Ellipsis:
-            args = xrange(len(self))
-        n_x = 1 if isinstance(args, int) else len(args)
+            items = np.arange(len(self))
+        else:
+            items = np.asarray(args)
 
-        ret_arr = np.empty((n_x,), dtype=np.float64)
-        ret = ret_arr
-
-        # This lets us write a single loop:
-        nargs = [args] if isinstance(args, int) else args
-
-        j = 0
-        column = self.__column
-        for i in nargs:
-            l = self._get_data(i, column)
-            for py_string in l:
-                c_string = py_string
-                ret[j] = atof(c_string)
-                j += 1
+        res = self._get_data(items, np.asarray([self.__column]))
+        res.shape = (len(items),)
         if isinstance(args, int):
-            ret_arr = ret_arr[0]
-        return ret_arr
+            return res[0]
+        return res
 
 
 class McaProxy(DataProxy):
 
     @property
     def shape(self):
-        return len(self), self.__n_cols
-
-    def __init__(self, file_name, name, index):
-        super(McaProxy, self).__init__(file_name, name, index)
-        self.__n_cols = len(self._get_data(0))
+        return len(self), self._n_cols
 
     def __getitem__(self, args):
-        cdef char* c_string
-        cdef bytes py_string
-        cdef int i, j, n_x, n_y
-        cdef np.ndarray[np.float64_t, ndim=1] ret
-
         extent = Ellipsis
         if isinstance(args, tuple):
-            if len(args) > 2:
+            args, extent = args
+        if args is Ellipsis:
+            items = np.arange(len(self))
+        elif isinstance(args, int):
+            if args > len(self):
                 raise IndexError('Invalid index')
-            extent = args[1]
-            args = args[0]
-        if isinstance(args, int) and args > len(self):
-                raise IndexError('Invalid index')
+            items = np.array([args])
         elif isinstance(args, slice):
-            if args.stop is not None and args.stop > len(self):
-                raise IndexError('Invalid index')
-            args = xrange(
+            items = np.arange(
                 args.start or 0,
                 args.stop or len(self),
                 args.step or 1
                 )
-        elif args is Ellipsis:
-            args = xrange(len(self))
-        n_y = 1 if isinstance(args, int) else len(args)
+        else:
+            items = np.asarray(args)
 
-        if extent == ALL:
-            extent = Ellipsis
         if extent is Ellipsis:
-            n_x = self.__n_cols
+            subitems = np.arange(self._n_cols)
         elif isinstance(extent, int):
-            if extent > self.__n_cols:
-                raise IndexError('Invalid index')
-            n_x = 1
+            subitems = np.array([extent])
         elif isinstance(extent, slice):
-            if extent.stop is not None and extent.stop > self.__n_cols:
-                raise IndexError('Invalid index')
-            extent = xrange(
+            subitems = np.arange(
                 extent.start or 0,
-                extent.stop or self.__n_cols,
+                extent.stop or self._n_cols,
                 extent.step or 1
                 )
-            n_x = len(extent)
-        elif isinstance(extent, list):
-            n_x = len(extent)
+        else:
+            subitems = np.asarray(extent)
 
-        ret_arr = np.empty((n_y * n_x,), dtype=np.float64)
-        ret = ret_arr
-
-        # This lets us write a single loop:
-        nargs = [args] if isinstance(args, int) else args
-
-        j = 0
-        for i in nargs:
-            l = self._get_data(i, extent)
-            for py_string in l:
-                c_string = py_string
-                ret[j] = atof(c_string)
-                j += 1
-        ret_arr.shape = (n_y, n_x)
-        if isinstance(args, int):
-            ret_arr = ret_arr[0]
-        if isinstance(extent, int):
-            ret_arr = ret_arr[0]
-        return ret_arr
+        res = self._get_data(items, subitems)
+        cdef int x_int, y_int
+        y_int, x_int = isinstance(args, int), isinstance(extent, int)
+        if y_int or x_int:
+            if y_int and x_int:
+                return res[0,0]
+            res.shape = (np.prod(res.shape),)
+        return res
