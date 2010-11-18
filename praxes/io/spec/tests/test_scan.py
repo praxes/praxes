@@ -32,13 +32,13 @@ r"""#F testfile.dat
 #L samx  Epoch  I0  I1
 -1 100 1000 100
 @vortex 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\
- 0 0 0 0 0
+ 0 0 0 0 1e4
 0 200 1000 200
 @vortex 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\
- 0 0 0 0 0
+ 0 0 0 0 1.5e5
 1 300 1000 300
 @vortex 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\
- 0 0 0 0 0
+ 0 0 0 0 10000
 """
 
 
@@ -99,7 +99,10 @@ class TestSpecScanInterface(TestCase):
 
     def test_mcas(self):
         data = self.f['1']['@vortex']
-        ref = np.array([[1]+[0]*29, [2]+[0]*29, [3]+[0]*29], dtype='d')
+        ref = np.array(
+            [[1]+[0]*28+[1e4], [2]+[0]*28+[1.5e5], [3]+[0]*28+[10000]],
+            dtype='d'
+            )
         self.assertArrayEqual(data[0], ref[0])
         self.assertArrayEqual(data[1], ref[1])
         self.assertArrayEqual(data[:], ref[:])

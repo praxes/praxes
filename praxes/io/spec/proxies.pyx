@@ -75,6 +75,7 @@ class DataProxy(object):
         np.ndarray[np.int64_t, ndim=1] subindices
         ):
         cdef int i, j, n_x, n_y, t_n_x, val_n
+        cdef bytes data
         cdef char* cdata
         cdef char c
         cdef char val[20]
@@ -91,33 +92,31 @@ class DataProxy(object):
         ret_arr = np.empty((n_y, n_x), dtype=np.float64)
         ret = ret_arr
 
-        for i in range(len(indices)):
+        for i in range(n_y):
             # get the data string
-            b = bytearray()
             with io.open(self.file_name, 'rb') as f:
                 f.seek(self._index[indices[i]])
-                b.extend(f.readline())
-                while b[-2] == 92: #b'\\'
-                    del(b[-2])
-                    b.extend(f.readline())
-            data = bytes(b)
-            c_data = data
+                b = [f.readline()]
+                while b[-1][-2] == b'\\':
+                    b.append(f.readline())
+            data = ''.join(b)
+            cdata = data
 
             # convert the string to a temp array
             j = 0
             val_n = 0
-            for c in c_data:
-                if isdigit(c) or c == '-':
+            for c in cdata:
+                if isdigit(c) or c in (b'-', b'.', b'e', b'E'):
                     val[j] = c
                     j += 1
-                elif j and (c == b' ' or c == b'\t' or c == b'\n'):
+                elif j and c in (b' ', b'\t', b'\n', b'\\'):
                     val[j] = b'\0'
                     j = 0
                     temp[val_n] = atof(val)
                     val_n += 1
 
             # update the return array
-            for j in range(len(subindices)):
+            for j in range(n_x):
                 ret[i, j] = temp[subindices[j]]
 
         return ret_arr
