@@ -62,6 +62,20 @@ class TestSpecScanInterface(TestCase):
     def test_comments(self):
         self.assertEqual(self.f['1'].attrs['comments'], ['A gratuitous comment'])
 
+    def test_data(self):
+        data = self.f['1'].data
+        self.assertEqual(data[0, 0], -1)
+        self.assertArrayEqual(data[:, 0], np.array([-1, 0, 1]))
+        self.assertArrayEqual(data[..., 0], np.array([-1, 0, 1]))
+        self.assertArrayEqual(data[:2, 0], np.array([-1, 0]))
+        self.assertArrayEqual(data[1:, 0], np.array([0, 1]))
+        self.assertArrayEqual(data[1:2, 0], np.array([0]))
+        self.assertArrayEqual(data[[0, 1, 2], 0], np.array([-1, 0, 1]))
+        self.assertArrayEqual(data[..., 1], np.array([100, 200, 300]))
+        self.assertArrayEqual(data[..., 2], np.array([1000, 1000, 1000]))
+        self.assertArrayEqual(data[..., 3], np.array([100, 200, 300]))
+        self.assertArrayEqual(data[0, ...], np.array([-1, 100, 1000, 100]))
+
     def test_date(self):
         self.assertEqual(self.f['1'].attrs['date'], 'Sat Jan 1 00:01:00 2010')
 

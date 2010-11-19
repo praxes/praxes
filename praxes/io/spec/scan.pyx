@@ -7,7 +7,7 @@ import io
 import numpy as np
 
 from praxes.io.spec.readonlydict import ReadOnlyDict
-from praxes.io.spec.proxies import McaProxy, ScalarProxy
+from praxes.io.spec.proxies import ScalarProxy, VectorProxy
 
 
 class SpecScan(ReadOnlyDict):
@@ -21,6 +21,10 @@ class SpecScan(ReadOnlyDict):
     @property
     def attrs(self):
         return self.__attrs
+
+    @property
+    def data(self):
+        return self.__data_proxy
 
     @property
     def file_offsets(self):
@@ -48,6 +52,10 @@ class SpecScan(ReadOnlyDict):
         self.__mca_data_indices = {}
         self._index = collections.OrderedDict()
         self.__index_finalized = False
+
+        self.__data_proxy = VectorProxy(
+            self.__file_name, id, self.__scalar_data_index
+            )
 
         self.update()
 
@@ -141,4 +149,4 @@ class SpecScan(ReadOnlyDict):
 
         for key, index in self.__mca_data_indices.items():
             if key not in self._index:
-                self._index[key] = McaProxy(self.__file_name, key, index)
+                self._index[key] = VectorProxy(self.__file_name, key, index)

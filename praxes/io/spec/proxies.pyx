@@ -159,7 +159,7 @@ class ScalarProxy(DataProxy):
         return res
 
 
-class McaProxy(DataProxy):
+class VectorProxy(DataProxy):
 
     @property
     def shape(self):

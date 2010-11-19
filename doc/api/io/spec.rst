@@ -47,6 +47,14 @@ underlying data, which can be indexed to yield in-memory copies of the data::
    >>> counter[0]
    100
 
+:attr:`SpecScan.data` provides another means of accessing the scalar data::
+
+   >>> scan.data[:, 0] # return the first column of data
+   >>> scan.data[3, :] # return the fourth row of data
+
+Note that vector data (keys starting with "@") is not accessible using this
+mechanism.
+
 If data has been appended to the file, the existing proxies will reflect this
 change::
 
@@ -130,6 +138,10 @@ Module Interface
    .. attribute:: attrs
 
       A :class:`ReadOnlyDict` instance containing the metadata for the scan.
+
+   .. attribute:: data
+
+      A proxy providing access to the scan's scalar data.
 
    .. method:: update()
 
