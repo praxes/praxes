@@ -2,6 +2,7 @@ import operator as op
 
 import numpy as np
 
+from praxes.io import spec
 from .common import TestCase
 
 
@@ -161,3 +162,9 @@ class TestSpecScanInterface(TestCase):
 
     def test_user_comments(self):
         self.assertEqual(self.f['1'].attrs['user_comments'], ['A user comment'])
+
+
+class TestThreadedSpecScanInterface(TestSpecScanInterface):
+
+    def setUp(self):
+        self.f = spec.open(self.file_name, lock=True)

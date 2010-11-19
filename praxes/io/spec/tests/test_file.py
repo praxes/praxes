@@ -1,3 +1,4 @@
+from praxes.io import spec
 from .common import TestCase
 
 
@@ -89,3 +90,9 @@ class TestSpecFileInterface(TestCase):
 
     def test_values(self):
         self.assertEqual(list(self.f.values())[0].id, '1')
+
+
+class TestThreadedSpecFileInterface(TestSpecFileInterface):
+
+    def setUp(self):
+        self.f = spec.open(self.file_name, lock=True)
