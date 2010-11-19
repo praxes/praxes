@@ -109,7 +109,7 @@ class DataProxy(object):
                 if isdigit(c) or c in (b'-', b'.', b'e', b'E'):
                     val[j] = c
                     j += 1
-                elif j and c in (b' ', b'\t', b'\n', b'\\'):
+                elif j:
                     val[j] = b'\0'
                     j = 0
                     temp[val_n] = atof(val)
