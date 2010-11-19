@@ -92,7 +92,7 @@ class SpecFile(ReadOnlyDict):
                             re.split('  +', line.split(None, 1)[1][:-1])
                             )
 
-                    file_offset = f.tell()
+                    file_offset += len(line)
                     line = f.readline()
 
                 self.__bytes_read = f.tell()
