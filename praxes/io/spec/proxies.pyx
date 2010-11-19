@@ -104,7 +104,7 @@ class DataProxy(object):
                 # get the data string
                 f.seek(index[indices[i]])
                 b = [f.readline()]
-                while b[-1][-2] == b'\\':
+                while b[-1][-2] == '\\':
                     b.append(f.readline())
                 data = b''.join(b)
                 cdata = data
@@ -113,7 +113,7 @@ class DataProxy(object):
                 j = 0
                 val_n = 0
                 for c in cdata:
-                    if isdigit(c) or c in (b'-', b'.', b'e', b'E'):
+                    if isdigit(c) or c in ('-', '.', 'e', 'E'):
                         val[j] = c
                         j += 1
                     elif j:

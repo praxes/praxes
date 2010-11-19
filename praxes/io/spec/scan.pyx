@@ -79,52 +79,52 @@ class SpecScan(ReadOnlyDict):
             while line:
                 tag = line[0]
                 ctag = c_line[0]
-                if ctag == 32: # b' ':
+                if ctag == ' ':
                     pass
-                elif isdigit(ctag) or ctag == 45:# b'-':
+                elif isdigit(ctag) or ctag == '-':
                     self.__scalar_data_index.append(file_offset)
-                elif ctag == 64: # b'@':
+                elif ctag == '@':
                     key = line.split(None, 1)[0]
                     try:
                         index = self.__mca_data_indices[key]
                     except KeyError:
                         index = self.__mca_data_indices.setdefault(key, [])
                     index.append(file_offset + len(key) + 1)
-                elif ctag == 35: #b'#':
+                elif ctag == '#':
                     tag = line[1]
                     ctag = c_line[1]
-                    if ctag == 83: # b'S':
+                    if ctag == 'S':
                         if 'command' in attrs:
                             self.__index_finalized = True
                             break
                         attrs['command'] = ' '.join(line.split()[2:])
-                    elif ctag == 68: # b'D':
+                    elif ctag == 'D':
                         attrs['date'] = line[3:-1]
-                    elif ctag in (84, 77): # (b'T', b'M'):
+                    elif ctag in ('T', 'M'):
                         x, val, key = line[1:].split()
                         key = key[1:-1]
                         attrs['duration'] = (key, float(val))
-                        if x == b'M':
+                        if x == 'M':
                             attrs['monitor'] = key
-                    elif ctag == 71: # b'G':
+                    elif ctag == 'G':
                         orientations = attrs.setdefault('orientations', [])
                         orientations.append(
                             [float(i) for i in line.split()[1:]]
                             )
-                    elif ctag == 81: # b'Q':
+                    elif ctag == 'Q':
                         attrs['hkl'] = [float(i) for i in line.split()[1:]]
-                    elif ctag == 80: # b'P':
+                    elif ctag == 'P':
                         positions = attrs.setdefault('positions', [])
                         positions.extend(
                             [float(i) for i in line.split()[1:]]
                             )
-                    elif ctag == 67: # b'C':
+                    elif ctag == 'C':
                         comments = attrs.setdefault('comments', [])
                         comments.append(line[3:-1])
-                    elif ctag == 85: # b'U':
+                    elif ctag == 'U':
                         user_comments = attrs.setdefault('user_comments', [])
                         user_comments.append(line[3:-1])
-                    elif ctag == 76: # b'L':
+                    elif ctag == 'L':
                         attrs['labels'] = labels = line.split()[1:]
                         if 'monitor' not in attrs:
                             attrs['monitor'] = labels[-1]
