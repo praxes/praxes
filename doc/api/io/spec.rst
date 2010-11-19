@@ -84,6 +84,12 @@ Module Interface
    Open *file_name* and return a read-only dictionary-like interface.  If the
    file cannot be opened, an :exc:`IOError` is raised.
 
+   *lock* can be *True* to protect access with a recursive lock from python's
+   threading library. An instance of an alternative recursive lock implementation can
+   be provided, but it must have acquire() and release() methods, and must support
+   python's context management protocol (must have __enter__() and __exit__()
+   methods).
+
 
 .. class:: ReadOnlyDict
 

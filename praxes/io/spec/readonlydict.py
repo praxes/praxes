@@ -1,9 +1,13 @@
+from collections import OrderedDict
+
+
 class ReadOnlyDict(object):
 
-    __slots__ = ['_index']
+    __slots__ = ['_index', '_lock']
 
-    def __init__(self, **kwargs):
-        self._index = dict(**kwargs)
+    def __init__(self, lock, ordered=False, **kwargs):
+        self._lock = lock
+        self._index = OrderedDict(**kwargs) if ordered else dict(**kwargs)
 
     def __contains__(self, item):
         return item in self._index

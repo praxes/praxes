@@ -4,6 +4,7 @@ cdef extern from 'stdlib.h':
 cdef extern from 'ctype.h':
     int isdigit(char)
 
+import copy
 import io
 
 cimport numpy as np
@@ -55,13 +56,15 @@ class DataProxy(object):
             self.__n_cols = len(bytes(b).split(b' '))
             return self.__n_cols
 
-    def __init__(self, file_name, name, index):
+    def __init__(self, file_name, name, index, lock):
+        self._lock = lock
         self.__file_name = file_name
         self.__name = name
         self._index = index
 
     def __len__(self):
-        return len(self._index)
+        with self._lock:
+            return len(self._index)
 
     def __iter__(self):
         return DataProxyIterator(self)
@@ -92,32 +95,38 @@ class DataProxy(object):
         ret_arr = np.empty((n_y, n_x), dtype=np.float64)
         ret = ret_arr
 
-        for i in range(n_y):
-            # get the data string
-            with io.open(self.file_name, 'rb') as f:
-                f.seek(self._index[indices[i]])
+        with self._lock:
+            index = copy.copy(self._index)
+            fname = self.file_name
+        try:
+            f = io.open(fname, 'rb')
+            for i in range(n_y):
+                # get the data string
+                f.seek(index[indices[i]])
                 b = [f.readline()]
                 while b[-1][-2] == b'\\':
                     b.append(f.readline())
-            data = ''.join(b)
-            cdata = data
+                data = b''.join(b)
+                cdata = data
 
-            # convert the string to a temp array
-            j = 0
-            val_n = 0
-            for c in cdata:
-                if isdigit(c) or c in (b'-', b'.', b'e', b'E'):
-                    val[j] = c
-                    j += 1
-                elif j:
-                    val[j] = b'\0'
-                    j = 0
-                    temp[val_n] = atof(val)
-                    val_n += 1
+                # convert the string to a temp array
+                j = 0
+                val_n = 0
+                for c in cdata:
+                    if isdigit(c) or c in (b'-', b'.', b'e', b'E'):
+                        val[j] = c
+                        j += 1
+                    elif j:
+                        val[j] = b'\0'
+                        j = 0
+                        temp[val_n] = atof(val)
+                        val_n += 1
 
-            # update the return array
-            for j in range(n_x):
-                ret[i, j] = temp[subindices[j]]
+                # update the return array
+                for j in range(n_x):
+                    ret[i, j] = temp[subindices[j]]
+        finally:
+            f.close()
 
         return ret_arr
 
@@ -130,8 +139,8 @@ class ScalarProxy(DataProxy):
     def shape(self):
         return (len(self),)
 
-    def __init__(self, file_name, name, column, index):
-        super(ScalarProxy, self).__init__(file_name, name, index)
+    def __init__(self, file_name, name, column, index, lock):
+        super(ScalarProxy, self).__init__(file_name, name, index, lock)
         self.__column = column
 
     def __getitem__(self, args):
@@ -163,7 +172,8 @@ class VectorProxy(DataProxy):
 
     @property
     def shape(self):
-        return len(self), self._n_cols
+        with self._lock:
+            return len(self), self._n_cols
 
     def __getitem__(self, args):
         extent = Ellipsis
@@ -189,11 +199,12 @@ class VectorProxy(DataProxy):
         elif isinstance(extent, int):
             subitems = np.array([extent])
         elif isinstance(extent, slice):
-            subitems = np.arange(
-                extent.start or 0,
-                extent.stop or self._n_cols,
-                extent.step or 1
-                )
+            with self._lock:
+                subitems = np.arange(
+                    extent.start or 0,
+                    extent.stop or self._n_cols,
+                    extent.step or 1
+                    )
         else:
             subitems = np.asarray(extent)
 
