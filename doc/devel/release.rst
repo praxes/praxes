@@ -68,4 +68,4 @@ and visit the `Praxes documentation page`_ to view the documentation.
 .. _`Praxes downloads page`: https://github.com/praxes/praxes/downloads
 .. _Sphinx: http://sphinx.pocoo.org/
 .. _`sphinx-to-github`: https://github.com/michaeljones/sphinx-to-github
-.. _`Praxes documentation page`: http://praxes.github.com/praxes/
+.. _`Praxes documentation page`: http://praxes.github.com/documentation/
