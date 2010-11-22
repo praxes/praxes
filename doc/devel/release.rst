@@ -41,8 +41,8 @@ Publishing Praxes' documentation
 ================================
 
 When publishing a new release, the Praxes doumentation needs to be generated
-and published as well. Sphinx_ and `sphinx-to-github`_ required to build the
-documentation. First, run::
+and published as well. Sphinx_ is required to build the documentation. First,
+run::
 
    git clean -fdx
 
@@ -50,22 +50,19 @@ Then, in the :file:`doc/` directory, run::
 
    make html
 
-Next, move back to the root directory of the praxes repository, and run::
+Next, move to the master branch of the praxes.github.com repository, and run::
 
-   git checkout gh-pages
-   cp -r doc/_build/html/* .
-   rm -rf doc
+   cp -r ../praxes/doc/_build/html/* .
    git status
 
-Use ``git add`` to add any new files to the repository, and then commit and push
-the changes to the upstream praxes repository::
+Use ``git add`` to add any new files to the repository, and then commit and
+push the changes to the upstream praxes repository::
 
    git commit -a -m "meaningful commit message"
-   git push upstream
+   git push
 
 and visit the `Praxes documentation page`_ to view the documentation. 
 
 .. _`Praxes downloads page`: https://github.com/praxes/praxes/downloads
 .. _Sphinx: http://sphinx.pocoo.org/
-.. _`sphinx-to-github`: https://github.com/michaeljones/sphinx-to-github
-.. _`Praxes documentation page`: http://praxes.github.com/documentation/
+.. _`Praxes documentation page`: http://praxes.github.com
