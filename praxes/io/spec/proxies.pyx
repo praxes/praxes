@@ -64,16 +64,16 @@ cdef class DataProxy:
 
     cdef object _get_data(
         self,
-        np.ndarray[np.int64_t, ndim=1] indices,
-        np.ndarray[np.int64_t, ndim=1] subindices
+        np.ndarray[np.int64_t, ndim=1, mode=u'strided'] indices,
+        np.ndarray[np.int64_t, ndim=1, mode=u'strided'] subindices
         ):
         cdef int i, j, n_x, n_y, t_n_x, val_n
         cdef bytes data
         cdef char* cdata
         cdef char c
         cdef char val[20]
-        cdef np.ndarray[np.float64_t, ndim=1] temp
-        cdef np.ndarray[np.float64_t, ndim=2] ret
+        cdef np.ndarray[np.float64_t, ndim=1, mode=u'strided'] temp
+        cdef np.ndarray[np.float64_t, ndim=2, mode=u'strided'] ret
 
         n_y = len(indices)
         n_x = len(subindices)

@@ -7,7 +7,7 @@ from .common import TestCase
 
 
 reference_data = \
-r"""#F testfile.dat
+b"""#F testfile.dat
 #E 1000
 #D Sat Jan 1 00:00:00 2010
 #C spec  User = specuser
@@ -32,13 +32,13 @@ r"""#F testfile.dat
 #N 4
 #L samx  Epoch  I0  I1
 -1 100 1000 100
-@vortex 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\
+@vortex 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\\
  0 0 0 0 1e4
 0 200 1000 200
-@vortex 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\
+@vortex 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\\
  0 0 0 0 1.5e5
 1 300 1000 300
-@vortex 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\
+@vortex 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\\
  0 0 0 0 10000
 """
 
@@ -51,7 +51,7 @@ class TestSpecScanInterface(TestCase):
 
     def test_0_open(self):
         "test file contents are identical to the original data"
-        with open(self.f.name) as f:
+        with open(self.f.name, 'rb') as f:
             self.assertEqual(f.read(), reference_data)
             self.assertRaises(IOError, f.write, 'an additional line')
 
