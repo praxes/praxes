@@ -56,7 +56,7 @@ cdef class DataProxy:
             with io.open(self.file_name, 'rb') as f:
                 f.seek(self._index[0])
                 b = [f.readline()]
-                while b[-1][-2] == '\\':
+                while b[-1][-2] == b'\\':
                     b.append(f.readline())
                 data = b''.join(b)
             self._n_cols = len(b''.join(b).split(b' '))
@@ -93,7 +93,7 @@ cdef class DataProxy:
                 # get the data string
                 f.seek(index[indices[i]])
                 b = [f.readline()]
-                while b[-1][-2] == '\\':
+                while b[-1][-2] == b'\\':
                     b.append(f.readline())
                 data = b''.join(b)
                 cdata = data
@@ -102,7 +102,7 @@ cdef class DataProxy:
                 j = 0
                 val_n = 0
                 for c in cdata:
-                    if isdigit(c) or c in ('-', '.', 'e', 'E'):
+                    if isdigit(c) or c in (b'-', b'.', b'e', b'E'):
                         val[j] = c
                         j += 1
                     elif j:

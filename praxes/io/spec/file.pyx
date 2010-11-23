@@ -59,8 +59,8 @@ cdef class SpecFile(ReadOnlyDict):
                 file_offset = f.tell()
                 line = f.readline()
                 while line:
-                    if line[:2] == '#S':
-                        name = id = line.split()[1]
+                    if line[:2] == b'#S':
+                        name = id = line.split()[1].decode('ascii')
                         # need to assure that id is unique:
                         dup = 1
                         while id in index:
@@ -72,22 +72,25 @@ cdef class SpecFile(ReadOnlyDict):
                             )
                         index[id] = scan
                         f.seek(scan.file_offsets[1])
-                    elif line[:2] == '#F':
-                        self._headers['file_origin'] = line.split()[1]
-                    elif line[:2] == '#E':
+                    elif line[:2] == b'#F':
+                        self._headers['file_origin'] = \
+                            line.split()[1].decode('ascii')
+                    elif line[:2] == b'#E':
                         self._headers['epoch_offset'] = int(line.split()[1])
-                    elif line[:2] == '#D':
-                        self._headers['date'] = line.split(None, 1)[1][:-1]
-                    elif line[:2] == '#C' and line.split()[2] == 'User':
-                        temp = line.split()
+                    elif line[:2] == b'#D':
+                        self._headers['date'] = \
+                            line.split(None, 1)[1][:-1].decode('ascii')
+                    elif line[:2] == b'#C' and line.split()[2] == b'User':
+                        temp = line.decode('ascii').split()
                         program, user = temp[1], temp[-1]
                         self._headers['program'] = program
                         self._headers['user'] = user
-                    elif line[:2] == '#O':
-                        if line[2] == '0':
+                    elif line[:2] == b'#O':
+                        if line[2] == b'0':
                             self._headers['positioners'] = []
+                        positioners = line.split(None, 1)[1][:-1]
                         self._headers['positioners'].extend(
-                            re.split('  +', line.split(None, 1)[1][:-1])
+                            re.split('  +', positioners.decode('ascii'))
                             )
 
                     file_offset += len(line)

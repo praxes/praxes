@@ -63,53 +63,58 @@ cdef class SpecScan(ReadOnlyDict):
             while line:
                 tag = line[0]
                 ctag = c_line[0]
-                if ctag == ' ':
+                if ctag == b' ':
                     pass
-                elif isdigit(ctag) or ctag == '-':
+                elif isdigit(ctag) or ctag == b'-':
                     self._scalar_data_index.append(file_offset)
-                elif ctag == '@':
-                    key = line.split(None, 1)[0]
+                elif ctag == b'@':
+                    key = line.split(None, 1)[0].decode('ascii')
                     try:
                         index = self._mca_data_indices[key]
                     except KeyError:
                         index = self._mca_data_indices.setdefault(key, [])
                     index.append(file_offset + len(key) + 1)
-                elif ctag == '#':
+                elif ctag == b'#':
                     tag = line[1]
                     ctag = c_line[1]
-                    if ctag == 'S':
+                    if ctag == b'S':
                         if 'command' in attrs:
                             self._index_finalized = True
                             break
-                        attrs['command'] = ' '.join(line.split()[2:])
-                    elif ctag == 'D':
+                        attrs['command'] = \
+                            ' '.join(line.decode('ascii').split()[2:])
+                    elif ctag == b'D':
                         attrs['date'] = line[3:-1]
-                    elif ctag in ('T', 'M'):
-                        x, val, key = line[1:].split()
+                    elif ctag in (b'T', b'M'):
+                        x, val, key = line[1:].decode('ascii').split()
                         key = key[1:-1]
                         attrs['duration'] = (key, float(val))
-                        if x == 'M':
+                        if x == b'M':
                             attrs['monitor'] = key
-                    elif ctag == 'G':
+                    elif ctag == b'G':
                         orientations = attrs.setdefault('orientations', [])
+                        temp = line.decode('ascii').split()[1:]
                         orientations.append(
-                            [float(i) for i in line.split()[1:]]
+                            [float(i) for i in temp]
                             )
-                    elif ctag == 'Q':
-                        attrs['hkl'] = [float(i) for i in line.split()[1:]]
-                    elif ctag == 'P':
+                    elif ctag == b'Q':
+                        temp = line.decode('ascii').split()[1:]
+                        attrs['hkl'] = [float(i) for i in temp]
+                    elif ctag == b'P':
                         positions = attrs.setdefault('positions', [])
+                        temp = line.decode('ascii').split()[1:]
                         positions.extend(
-                            [float(i) for i in line.split()[1:]]
+                            [float(i) for i in temp]
                             )
-                    elif ctag == 'C':
+                    elif ctag == b'C':
                         comments = attrs.setdefault('comments', [])
-                        comments.append(line[3:-1])
-                    elif ctag == 'U':
+                        comments.append(line[3:-1].decode('ascii'))
+                    elif ctag == b'U':
                         user_comments = attrs.setdefault('user_comments', [])
-                        user_comments.append(line[3:-1])
-                    elif ctag == 'L':
-                        attrs['labels'] = labels = line.split()[1:]
+                        user_comments.append(line[3:-1].decode('ascii'))
+                    elif ctag == b'L':
+                        labels = line.decode('ascii').split()[1:]
+                        attrs['labels'] = labels
                         if 'monitor' not in attrs:
                             attrs['monitor'] = labels[-1]
                         for column, label in enumerate(labels):
