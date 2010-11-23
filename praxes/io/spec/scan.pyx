@@ -5,55 +5,39 @@ import io
 
 import numpy as np
 
-from praxes.io.spec.readonlydict import ReadOnlyDict
+from praxes.io.spec.readonlydict cimport ReadOnlyDict
 from praxes.io.spec.proxies import ScalarProxy, VectorProxy
 
 
-class SpecScan(ReadOnlyDict):
+cdef class SpecScan(ReadOnlyDict):
 
-    __slots__ = [
-        '__attrs', '__bytes_read', '__file_name', '__file_offset', '__id',
-        '__index_finalized', '__mca_data_indices', '__name', '__scalar_data_index'
-        ]
+    cdef readonly object attrs, data, file_name, id, name
+    cdef int _bytes_read, _file_offset
+    cdef object _mca_data_indices, _scalar_data_index
+    cdef char _index_finalized
 
-    @property
-    def attrs(self):
-        return self.__attrs
-
-    @property
-    def data(self):
-        return self.__data_proxy
-
-    @property
-    def file_offsets(self):
-        with self._lock:
-            return self.__file_offset, self.__bytes_read
-
-    @property
-    def id(self):
-        return self.__id
-
-    @property
-    def name(self):
-        return self.__name
+    property file_offsets:
+        def __get__(self):
+            with self._lock:
+                return self._file_offset, self._bytes_read
 
     def __init__(self, name, id, file, offset, lock, **kwargs):
         super(SpecScan, self).__init__(lock, ordered=True)
-        self.__name = name
-        self.__id = id
-        self.__file_name = file.name
-        self.__file_offset = offset
-        self.__bytes_read = offset
+        self.name = name
+        self.id = id
+        self.file_name = file.name
+        self._file_offset = offset
+        self._bytes_read = offset
 
-        self.__attrs = ReadOnlyDict(lock, **kwargs)
-        self.__attrs._index.update(kwargs)
+        self.attrs = ReadOnlyDict(lock, **kwargs)
+        self.attrs._index.update(kwargs)
 
-        self.__scalar_data_index = []
-        self.__mca_data_indices = {}
-        self.__index_finalized = False
+        self._scalar_data_index = []
+        self._mca_data_indices = {}
+        self._index_finalized = False
 
-        self.__data_proxy = VectorProxy(
-            self.__file_name, id, self.__scalar_data_index, lock
+        self.data = VectorProxy(
+            self.file_name, id, self._scalar_data_index, lock
             )
 
         self.update()
@@ -66,12 +50,12 @@ class SpecScan(ReadOnlyDict):
 
         try:
             self._lock.acquire()
-            if self.__index_finalized:
+            if self._index_finalized:
                 return
 
-            f = io.open(self.__file_name, 'rb', buffering=1024*1024*2)
-            attrs = self.__attrs._index
-            f.seek(self.__bytes_read)
+            f = io.open(self.file_name, 'rb', buffering=1024*1024*2)
+            attrs = self.attrs._index
+            f.seek(self._bytes_read)
             file_offset = f.tell()
             readline = f.readline
             line = readline()
@@ -82,20 +66,20 @@ class SpecScan(ReadOnlyDict):
                 if ctag == ' ':
                     pass
                 elif isdigit(ctag) or ctag == '-':
-                    self.__scalar_data_index.append(file_offset)
+                    self._scalar_data_index.append(file_offset)
                 elif ctag == '@':
                     key = line.split(None, 1)[0]
                     try:
-                        index = self.__mca_data_indices[key]
+                        index = self._mca_data_indices[key]
                     except KeyError:
-                        index = self.__mca_data_indices.setdefault(key, [])
+                        index = self._mca_data_indices.setdefault(key, [])
                     index.append(file_offset + len(key) + 1)
                 elif ctag == '#':
                     tag = line[1]
                     ctag = c_line[1]
                     if ctag == 'S':
                         if 'command' in attrs:
-                            self.__index_finalized = True
+                            self._index_finalized = True
                             break
                         attrs['command'] = ' '.join(line.split()[2:])
                     elif ctag == 'D':
@@ -130,10 +114,10 @@ class SpecScan(ReadOnlyDict):
                             attrs['monitor'] = labels[-1]
                         for column, label in enumerate(labels):
                             self._index[label] = ScalarProxy(
-                                self.__file_name,
+                                self.file_name,
                                 label,
                                 column,
-                                self.__scalar_data_index,
+                                self._scalar_data_index,
                                 self._lock
                                 )
 
@@ -141,7 +125,7 @@ class SpecScan(ReadOnlyDict):
                 line = readline()
                 c_line = line
 
-            self.__bytes_read = f.tell()
+            self._bytes_read = f.tell()
             f.close()
 
             if 'positioners' in attrs:
@@ -149,10 +133,10 @@ class SpecScan(ReadOnlyDict):
                 positions = attrs.pop('positions')
                 attrs['positions'] = dict(zip(positioners, positions))
 
-            for key, index in self.__mca_data_indices.items():
+            for key, index in self._mca_data_indices.items():
                 if key not in self._index:
                     self._index[key] = VectorProxy(
-                        self.__file_name, key, index, self._lock
+                        self.file_name, key, index, self._lock
                         )
         finally:
             self._lock.release()

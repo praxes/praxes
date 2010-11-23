@@ -43,11 +43,15 @@ setup(
     cmdclass = {'test': test, 'build_ext': build_ext},
     description = 'Praxes framework for scientific analysis',
     ext_modules = [
-        Extension('praxes.io.spec.scan', ['praxes/io/spec/scan.pyx']),
+        Extension('praxes.io.spec.file', ['praxes/io/spec/file.pyx']),
         Extension(
             'praxes.io.spec.proxies', ['praxes/io/spec/proxies.pyx'],
             include_dirs=[numpy.get_include()]
             ),
+        Extension(
+            'praxes.io.spec.readonlydict', ['praxes/io/spec/readonlydict.pyx']
+            ),
+        Extension('praxes.io.spec.scan', ['praxes/io/spec/scan.pyx']),
         ],
     name = 'praxes',
     packages = packages,

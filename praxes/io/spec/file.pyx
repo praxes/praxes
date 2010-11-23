@@ -2,8 +2,8 @@ import io
 import os
 import re
 
-from .readonlydict import ReadOnlyDict
-from .scan import SpecScan
+from praxes.io.spec.readonlydict cimport ReadOnlyDict
+from praxes.io.spec.scan import SpecScan
 
 
 class DummyRLock(object):
@@ -21,15 +21,13 @@ class DummyRLock(object):
         pass
 
 
-class SpecFile(ReadOnlyDict):
+cdef class SpecFile(ReadOnlyDict):
 
     "An OrderedDict-like interface to scans contained in spec data files."
 
-    __slots__ = ['__bytes_read', '__headers', '__name']
-
-    @property
-    def name(self):
-        return self.__name
+    cdef readonly object name
+    cdef int _bytes_read
+    cdef object _headers
 
     def __init__(self, file_name, lock=None):
         if lock is True:
@@ -38,26 +36,26 @@ class SpecFile(ReadOnlyDict):
         lock = lock or DummyRLock()
         super(SpecFile, self).__init__(lock, ordered=True)
 
-        self.__name = file_name
-        self.__bytes_read = 0
-        self.__headers = {}
+        self.name = file_name
+        self._bytes_read = 0
+        self._headers = {}
 
         self.update()
 
     def update(self):
         with self._lock:
             "Update the file index based on any data appended to the file."
-            if os.stat(self.__name).st_size == self.__bytes_read:
+            if os.stat(self.name).st_size == self._bytes_read:
                 return
 
             index = self._index
-            with io.open(self.__name, 'rb') as f:
+            with io.open(self.name, 'rb') as f:
                 if len(self):
                     # updating an existing file index,
                     # may need to update last scan
                     index.values()[-1].update()
 
-                f.seek(self.__bytes_read)
+                f.seek(self._bytes_read)
                 file_offset = f.tell()
                 line = f.readline()
                 while line:
@@ -70,29 +68,29 @@ class SpecFile(ReadOnlyDict):
                             id = '%s.%d' % (name, dup)
                         scan = SpecScan(
                             name, id, self, file_offset, lock=self._lock,
-                            **self.__headers
+                            **self._headers
                             )
                         index[id] = scan
                         f.seek(scan.file_offsets[1])
                     elif line[:2] == '#F':
-                        self.__headers['file_origin'] = line.split()[1]
+                        self._headers['file_origin'] = line.split()[1]
                     elif line[:2] == '#E':
-                        self.__headers['epoch_offset'] = int(line.split()[1])
+                        self._headers['epoch_offset'] = int(line.split()[1])
                     elif line[:2] == '#D':
-                        self.__headers['date'] = line.split(None, 1)[1][:-1]
+                        self._headers['date'] = line.split(None, 1)[1][:-1]
                     elif line[:2] == '#C' and line.split()[2] == 'User':
                         temp = line.split()
                         program, user = temp[1], temp[-1]
-                        self.__headers['program'] = program
-                        self.__headers['user'] = user
+                        self._headers['program'] = program
+                        self._headers['user'] = user
                     elif line[:2] == '#O':
                         if line[2] == '0':
-                            self.__headers['positioners'] = []
-                        self.__headers['positioners'].extend(
+                            self._headers['positioners'] = []
+                        self._headers['positioners'].extend(
                             re.split('  +', line.split(None, 1)[1][:-1])
                             )
 
                     file_offset += len(line)
                     line = f.readline()
 
-                self.__bytes_read = f.tell()
+                self._bytes_read = f.tell()

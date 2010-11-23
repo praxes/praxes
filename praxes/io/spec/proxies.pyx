@@ -28,38 +28,16 @@ class DataProxyIterator(object):
         return self.__proxy[i]
 
 
-class DataProxy(object):
+cdef class DataProxy:
 
-    __slots__ = ['_index', '__file_name', '__name', '__n_cols']
-
-    @property
-    def file_name(self):
-        return self.__file_name
-
-    @property
-    def name(self):
-        return self.__name
-
-    @property
-    def _n_cols(self):
-        try:
-            return self.__n_cols
-        except AttributeError:
-            # determine the number of columns
-            b = bytearray()
-            with io.open(self.file_name, 'rb') as f:
-                f.seek(self._index[0])
-                b.extend(f.readline())
-                while b[-2] == 92: #b'\\'
-                    del(b[-2])
-                    b.extend(f.readline())
-            self.__n_cols = len(bytes(b).split(b' '))
-            return self.__n_cols
+    cdef object _index, _lock
+    cdef int _n_cols
+    cdef readonly object file_name, name
 
     def __init__(self, file_name, name, index, lock):
         self._lock = lock
-        self.__file_name = file_name
-        self.__name = name
+        self.file_name = file_name
+        self.name = name
         self._index = index
 
     def __len__(self):
@@ -72,7 +50,19 @@ class DataProxy(object):
     def __getitem__(self, args):
         raise NotImplementedError
 
-    def _get_data(
+    cdef int n_cols(self) except -1:
+        if self._n_cols is 0:
+            # determine the number of columns
+            with io.open(self.file_name, 'rb') as f:
+                f.seek(self._index[0])
+                b = [f.readline()]
+                while b[-1][-2] == '\\':
+                    b.append(f.readline())
+                data = b''.join(b)
+            self._n_cols = len(b''.join(b).split(b' '))
+        return self._n_cols
+
+    cdef object _get_data(
         self,
         np.ndarray[np.int64_t, ndim=1] indices,
         np.ndarray[np.int64_t, ndim=1] subindices
@@ -88,7 +78,7 @@ class DataProxy(object):
         n_y = len(indices)
         n_x = len(subindices)
 
-        t_n_x = self._n_cols
+        t_n_x = self.n_cols()
         temp_arr = np.empty((t_n_x, ), dtype=np.float64)
         temp = temp_arr
 
@@ -97,9 +87,8 @@ class DataProxy(object):
 
         with self._lock:
             index = copy.copy(self._index)
-            fname = self.file_name
         try:
-            f = io.open(fname, 'rb')
+            f = io.open(self.file_name, 'rb')
             for i in range(n_y):
                 # get the data string
                 f.seek(index[indices[i]])
@@ -131,17 +120,17 @@ class DataProxy(object):
         return ret_arr
 
 
-class ScalarProxy(DataProxy):
+cdef class ScalarProxy(DataProxy):
 
-    __slots__ = ['__column']
+    cdef int _column
 
-    @property
-    def shape(self):
-        return (len(self),)
+    property shape:
+        def __get__(self):
+            return (len(self),)
 
     def __init__(self, file_name, name, column, index, lock):
         super(ScalarProxy, self).__init__(file_name, name, index, lock)
-        self.__column = column
+        self._column = column
 
     def __getitem__(self, args):
         if isinstance(args, tuple):
@@ -161,19 +150,19 @@ class ScalarProxy(DataProxy):
         else:
             items = np.asarray(args)
 
-        res = self._get_data(items, np.asarray([self.__column]))
+        res = self._get_data(items, np.asarray([self._column]))
         res.shape = (len(items),)
         if isinstance(args, int):
             return res[0]
         return res
 
 
-class VectorProxy(DataProxy):
+cdef class VectorProxy(DataProxy):
 
-    @property
-    def shape(self):
-        with self._lock:
-            return len(self), self._n_cols
+    property shape:
+        def __get__(self):
+            with self._lock:
+                return len(self), self.n_cols()
 
     def __getitem__(self, args):
         extent = Ellipsis
@@ -195,14 +184,14 @@ class VectorProxy(DataProxy):
             items = np.asarray(args)
 
         if extent is Ellipsis:
-            subitems = np.arange(self._n_cols)
+            subitems = np.arange(self.n_cols())
         elif isinstance(extent, int):
             subitems = np.array([extent])
         elif isinstance(extent, slice):
             with self._lock:
                 subitems = np.arange(
                     extent.start or 0,
-                    extent.stop or self._n_cols,
+                    extent.stop or self.n_cols(),
                     extent.step or 1
                     )
         else:

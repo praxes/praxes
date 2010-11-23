@@ -1,9 +1,7 @@
 from collections import OrderedDict
 
 
-class ReadOnlyDict(object):
-
-    __slots__ = ['_index', '_lock']
+cdef class ReadOnlyDict:
 
     def __init__(self, lock, ordered=False, **kwargs):
         self._lock = lock
@@ -36,4 +34,3 @@ class ReadOnlyDict(object):
     def values(self):
         "Return a new view of the values."
         return self._index.viewvalues()
-
