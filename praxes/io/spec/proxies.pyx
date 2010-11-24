@@ -20,12 +20,15 @@ class DataProxyIterator(object):
         self.__proxy = proxy
         self.__next = 0
 
-    def next(self):
+    def __next__(self):
         i = self.__next
         if i >= len(self.__proxy):
             raise StopIteration
         self.__next += 1
         return self.__proxy[i]
+
+    def next(self):
+        return self.__next__()
 
 
 cdef class DataProxy:
@@ -50,16 +53,23 @@ cdef class DataProxy:
     def __getitem__(self, args):
         raise NotImplementedError
 
+    cdef object _get_item_string(self, object f, int offset):
+        f.seek(offset)
+        s = f.readline()
+        while s[-2] == b'\\':
+            s = ''.join([s, f.readline()])
+        return s
+
     cdef int n_cols(self) except -1:
-        if self._n_cols is 0:
-            # determine the number of columns
-            with io.open(self.file_name, 'rb') as f:
-                f.seek(self._index[0])
-                b = [f.readline()]
-                while b[-1][-2] == b'\\':
-                    b.append(f.readline())
-                data = b''.join(b)
-            self._n_cols = len(b''.join(b).split(b' '))
+        tag = b'\\'
+        with self._lock:
+            if self._n_cols is 0:
+                with io.open(self.file_name, 'rb', buffering=1024*1024*2) as f:
+                    f.seek(self._index[0])
+                    s = f.readline()
+                    while s[-2:-1] == tag:
+                        s = b''.join([s, f.readline()])
+                    self._n_cols = len(s.split(b' '))
         return self._n_cols
 
     cdef object _get_data(
@@ -68,9 +78,10 @@ cdef class DataProxy:
         np.ndarray[np.int64_t, ndim=1, mode=u'strided'] subindices
         ):
         cdef int i, j, n_x, n_y, t_n_x, val_n
-        cdef bytes data
-        cdef char* cdata
+        cdef bytes s
+        cdef char* cstring
         cdef char c
+        tag = b'\\'
         cdef char val[20]
         cdef np.ndarray[np.float64_t, ndim=1, mode=u'strided'] temp
         cdef np.ndarray[np.float64_t, ndim=2, mode=u'strided'] ret
@@ -85,23 +96,21 @@ cdef class DataProxy:
         ret_arr = np.empty((n_y, n_x), dtype=np.float64)
         ret = ret_arr
 
-        with self._lock:
-            index = copy.copy(self._index)
         try:
-            f = io.open(self.file_name, 'rb')
+            # acquire lock to protect access to self._index
+            self._lock.acquire()
+            f = io.open(self.file_name, 'rb', buffering=1024*1024*2)
             for i in range(n_y):
-                # get the data string
-                f.seek(index[indices[i]])
-                b = [f.readline()]
-                while b[-1][-2] == b'\\':
-                    b.append(f.readline())
-                data = b''.join(b)
-                cdata = data
+                f.seek(self._index[indices[i]])
+                s = f.readline()
+                while s[-2:-1] == tag:
+                    s = b''.join([s, f.readline()])
+                cstring = s
 
                 # convert the string to a temp array
                 j = 0
                 val_n = 0
-                for c in cdata:
+                for c in cstring:
                     if isdigit(c) or c in (b'-', b'.', b'e', b'E'):
                         val[j] = c
                         j += 1
@@ -116,6 +125,7 @@ cdef class DataProxy:
                     ret[i, j] = temp[subindices[j]]
         finally:
             f.close()
+            self._lock.release
 
         return ret_arr
 

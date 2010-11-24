@@ -79,12 +79,12 @@ class TestSpecFileInterface(TestCase):
 
     def test_len(self):
         "test that the file length is equal to the number of scans"
-        self.assertEqual(len(self.f), reference_data.count('#S'))
+        self.assertEqual(len(self.f), reference_data.count(b'#S'))
 
     def test_update(self):
-        with open(self.file_name, 'r+') as f:
+        with open(self.file_name, 'ab') as f:
             f.seek(0,2)
-            f.write('\n'.join(reference_data.split('\n')[5:]))
+            f.write(b'\n'.join(reference_data.split(b'\n')[5:]))
         self.f.update()
         self.assertEqual(list(self.f.keys())[1], '1.2')
 

@@ -25,12 +25,12 @@ cdef class ReadOnlyDict:
 
     def items(self):
         "Return a new view of the ``(key, value)`` pairs."
-        return self._index.viewitems()
+        return self._index.items()
 
     def keys(self):
         "Return a new view of the keys."
-        return self._index.viewkeys()
+        return self._index.keys()
 
     def values(self):
         "Return a new view of the values."
-        return self._index.viewvalues()
+        return self._index.values()

@@ -24,7 +24,11 @@ class test(Command):
             raise ValueError('Verbosity must be an integer.')
 
     def run(self):
-        import unittest
+        import sys
+        if sys.version.startswith('3.1'):
+            import unittest2 as unittest
+        else:
+            import unittest
         suite = unittest.TestLoader().discover('.')
         unittest.TextTestRunner(verbosity=self.verbosity+1).run(suite)
 

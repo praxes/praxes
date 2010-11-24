@@ -84,12 +84,12 @@ cdef class SpecScan(ReadOnlyDict):
                         attrs['command'] = \
                             ' '.join(line.decode('ascii').split()[2:])
                     elif ctag == b'D':
-                        attrs['date'] = line[3:-1]
+                        attrs['date'] = line[3:-1].decode('ascii')
                     elif ctag in (b'T', b'M'):
                         x, val, key = line[1:].decode('ascii').split()
                         key = key[1:-1]
                         attrs['duration'] = (key, float(val))
-                        if x == b'M':
+                        if x == 'M':
                             attrs['monitor'] = key
                     elif ctag == b'G':
                         orientations = attrs.setdefault('orientations', [])

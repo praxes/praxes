@@ -145,15 +145,15 @@ class TestSpecScanInterface(TestCase):
         self.assertEqual(self.f['1'].attrs['program'], 'spec')
 
     def test_update(self):
-        ref = reference_data.split('\n')
+        ref = reference_data.split(b'\n')
 
-        with open(self.file_name, 'a') as f:
-            f.write('\n'.join(ref[5:]))
+        with open(self.file_name, 'ab') as f:
+            f.write(b'\n'.join(ref[5:]))
         self.f.update()
         self.assertEqual(len(self.f['1.2']), 5)
 
-        with open(self.file_name, 'a') as f:
-            f.write('\n'.join(ref[-4:]))
+        with open(self.file_name, 'ab') as f:
+            f.write(b'\n'.join(ref[-4:]))
         self.f.update()
         self.assertArrayEqual(self.f['1.2']['samx'][...], np.array([-1,0,1,1]))
 
