@@ -151,7 +151,7 @@ def writeattr(h5path, h5groupstr, attrdict):
 
 
 
-getxrdname=lambda h5an: ('xrdname' in h5analysis.attrs.keys() and h5analysis.attrs['xrdname']) or 'mar345'
+getxrdname=lambda h5an: ('xrdname' in h5an.attrs.keys() and h5an.attrs['xrdname']) or 'mar345'
 
 def getattr(h5path, h5groupstr):
     h5file=h5py.File(h5path, mode='r')
@@ -161,9 +161,9 @@ def getattr(h5path, h5groupstr):
     for key in keys:
         if key in h5analysis.attrs:
             attrdict[key]=h5analysis.attrs[key]
-    if not 'psize' in attrdict.keys():
+    if (not 'psize' in attrdict.keys()) and ('chessrunstr' in attrdict.keys()):
         h5chess=CHESSRUNFILE()
-        h5grp=h5chess['chessrunstr']
+        h5grp=h5chess[attrdict['chessrunstr']]
         attrdict['psize']=h5grp.attrs['psize']
         h5chess.close()
     h5file.close()
@@ -1144,7 +1144,8 @@ def pointinfodictkeysort(d):
 def binmapsinh5chess(chessh5grpstr, bin=3):
         h5chess=CHESSRUNFILE('r+')
         h5grp=h5chess[chessh5grpstr]
-        grps=[h5grp['/imap'], h5grp['/chimap'], h5grp['/killmap']]
+        print chessh5grpstr, h5grp.listitems()
+        grps=[h5grp['imap'], h5grp['chimap'], h5grp['killmap']]
         cmdstr=['binimage(arr, bin=bin, zerokill=True)', 'binimage(arr, bin=bin, zerokill=True)', 'binboolimage(arr, bin=bin)']
         for grp, cs in zip(grps, cmdstr):
             for dset in grp.iterobjects():
@@ -1154,7 +1155,7 @@ def binmapsinh5chess(chessh5grpstr, bin=3):
                         arr=readh5pyarray(dset)
                         h5grp.create_dataset(binname, data=eval(cs))
 
-        h5file.close()
+        h5chess.close()
 
 def buildwaveset1d(qscalegrid, qposngrid, qgrid, maxfixenfrac=0.12, enfractol=0.0, maxoverenergy=None):
     ENERGY=0.57457 #this is constant fro all scales and translations

@@ -54,11 +54,11 @@ def integration_params():
 
 def defaultdir(st):
     d={\
-    'runlog' : 'C:/Users/JohnnyG/Documents/CHESS/CHESS2010/CHESS2010runlogs', \
-    'h5' : 'C:/Users/JohnnyG/Documents/CHESS/CHESS2010/CHESS2010h5analysis', \
-    'dataimport' : 'C:/Users/JohnnyG/Document/CHESS/CHESS2010/CHESS2010h5analysis',  \
-    'otherdata' : 'C:/Users/JohnnyG/Documents/CHESS/CHESS2010',  \
-    'pdfentries': 'C:/Users/JohnnyG/Documents/CHESS/CHESSANALYSISARRAYS' \
+    'runlog' : '/mnt/hgfs/HostDocuments/CHESS/CHESS2010/CHESS2010runlogs', \
+    'h5' : '/mnt/hgfs/HostDocuments/CHESS/CHESS2010/CHESS2010h5analysis', \
+    'dataimport' : '/mnt/hgfs/HostDocuments/CHESS/CHESS2010/CHESS2010h5analysis',  \
+    'otherdata' : '/mnt/hgfs/HostDocuments/CHESS/CHESS2010',  \
+    'pdfentries': '/mnt/hgfs/HostDocuments/CHESS/CHESSANALYSISARRAYS' \
     }
 
     if st in d.keys() and os.path.isdir(d[st]):
@@ -72,7 +72,7 @@ def chessrun_def():
 def CHESSRUNFILE(mode='r', returnpathonly=False):
     if mode!='r':
         mode='r+'#to avoid 'w'
-    path='C:/Users/JohnnyG/Documents/CHESS/CHESSANALYSISARRAYS/attrs_maps.h5'
+    path='/mnt/hgfs/HostDocuments/CHESS/CHESSANALYSISARRAYS/attrs_maps.h5'
     if returnpathonly:
         return path
     return h5py.File(path,mode=mode)
@@ -80,23 +80,23 @@ def CHESSRUNFILE(mode='r', returnpathonly=False):
 def WAVESET1dFILE(mode='r'):
     if mode!='r':
         mode='r+'#to avoid 'w'
-    return h5py.File('C:/Users/JohnnyG/Documents/CHESS/CHESSANALYSISARRAYS/waveset1d.h5',mode=mode)
+    return h5py.File('/mnt/hgfs/HostDocuments/CHESS/CHESSANALYSISARRAYS/waveset1d.h5',mode=mode)
 
 def DEPPROFILETXT():
-    return open('C:/Users/JohnnyG/Documents/CHESS/CHESSANALYSISARRAYS/parameter database.txt', "r")
+    return open('/mnt/hgfs/HostDocuments/CHESS/CHESSANALYSISARRAYS/parameter database.txt', "r")
 
 
 def PYMCACFGpath(temp=False):
     if temp:
-        return 'C:/Users/JohnnyG/Documents/CHESS/CHESSANALYSISARRAYS/temppymca.cfg'
+        return '/mnt/hgfs/HostDocuments/CHESS/CHESSANALYSISARRAYS/temppymca.cfg'
     else:
-        return 'C:/Users/JohnnyG/Documents/CHESS/CHESSANALYSISARRAYS/pymca.cfg'
+        return '/mnt/hgfs/HostDocuments/CHESS/CHESSANALYSISARRAYS/pymca.cfg'
 
 def ETHRESHYSTARTXT():
-    return open('C:/Users/JohnnyG/Documents/CHESS/CHESSANALYSISARRAYS/ElementEthreshYstar.txt', "r")
+    return open('/mnt/hgfs/HostDocuments/CHESS/CHESSANALYSISARRAYS/ElementEthreshYstar.txt', "r")
 
 def MINIPROGRAMpath():
-    return 'C:/Users/JohnnyG/Documents/CHESS/CHESSANALYSISARRAYS/miniprogramdatabase.txt'
+    return '/mnt/hgfs/HostDocuments/CHESS/CHESSANALYSISARRAYS/miniprogramdatabase.txt'
 
 def XRFINFOpath():
-    return 'C:/Users/JohnnyG/Documents/CHESS/CHESSANALYSISARRAYS/xrfinfodatabase.txt'
+    return '/mnt/hgfs/HostDocuments/CHESS/CHESSANALYSISARRAYS/xrfinfodatabase.txt'

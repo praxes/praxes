@@ -807,7 +807,7 @@ class MainMenu(QMainWindow,
         h5chess.close()
         idialog=selectorDialog(self, itemnames, title='select a CHESSrun group')
         if idialog.exec_():
-            self.addtask(''.join(("binmapsinh5chess(",str(unicode(idialog.groupsComboBox.currentText())),", bin=3)")))
+            self.addtask(''.join(("binmapsinh5chess('",str(unicode(idialog.groupsComboBox.currentText())),"', bin=3)")))
 
 
     @pyqtSignature("")
@@ -1690,7 +1690,7 @@ class MainMenu(QMainWindow,
             'alpha':idialog.alphaSpinBox.value(),
             'detectorshape':(idialog.shape0SpinBox.value(),idialog.shape1SpinBox.value()), #also fit2D style horixzontal,vertical which is transpose of indeces
             'tiltdirection':str(idialog.tiltdirectionComboBox.currentText()), 
-            'xrdname':str(xrdnameLineEdit.text()), 
+            'xrdname':str(idialog.xrdnameLineEdit.text()), 
             'psize':idialog.psizeSpinBox.value(), 
             }
             h5chess=CHESSRUNFILE('r+')
@@ -1917,7 +1917,7 @@ class MainMenu(QMainWindow,
         
         writeattr(self.h5path, self.h5groupstr, attrdicttemp)
         h5file=h5py.File(self.h5path, mode='r+')
-        h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
+        h5analysis=h5file['/'.join((self.h5groupstr, 'analysis'))]
         xrdname=getxrdname(h5analysis)
         if not 'xrdname' in h5analysis:
             h5analysis.create_group(xrdname)
