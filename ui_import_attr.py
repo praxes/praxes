@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\JohnnyG\Documents\CHESS\XRDproject_Python_11June2010Release\import_attr.ui'
+# Form implementation generated from reading ui file 'C:\Users\JohnnyG\Documents\CHESS\XRDproject_Python\import_attr.ui'
 #
-# Created: Fri Jun 18 10:18:00 2010
+# Created: Fri Nov 26 23:20:33 2010
 #      by: PyQt4 UI code generator 4.5.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_importattrDialog(object):
     def setupUi(self, importattrDialog):
         importattrDialog.setObjectName("importattrDialog")
-        importattrDialog.resize(711, 329)
+        importattrDialog.resize(753, 336)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("../../../.designer/backup/CUIcon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         importattrDialog.setWindowIcon(icon)
@@ -23,7 +23,7 @@ class Ui_importattrDialog(object):
         self.cmdLineEdit.setGeometry(QtCore.QRect(365, 65, 331, 20))
         self.cmdLineEdit.setObjectName("cmdLineEdit")
         self.buttonBox = QtGui.QDialogButtonBox(importattrDialog)
-        self.buttonBox.setGeometry(QtCore.QRect(510, 295, 160, 26))
+        self.buttonBox.setGeometry(QtCore.QRect(555, 295, 160, 26))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
@@ -49,7 +49,7 @@ class Ui_importattrDialog(object):
         self.label_10.setGeometry(QtCore.QRect(275, 85, 76, 28))
         self.label_10.setObjectName("label_10")
         self.label_11 = QtGui.QLabel(importattrDialog)
-        self.label_11.setGeometry(QtCore.QRect(325, 190, 151, 28))
+        self.label_11.setGeometry(QtCore.QRect(395, 275, 151, 28))
         self.label_11.setObjectName("label_11")
         self.calcButton = QtGui.QPushButton(importattrDialog)
         self.calcButton.setGeometry(QtCore.QRect(410, 85, 216, 26))
@@ -147,7 +147,7 @@ class Ui_importattrDialog(object):
         self.xintSpinBox.setMaximum(99999.0)
         self.xintSpinBox.setObjectName("xintSpinBox")
         self.bckndComboBox = QtGui.QComboBox(importattrDialog)
-        self.bckndComboBox.setGeometry(QtCore.QRect(325, 210, 131, 22))
+        self.bckndComboBox.setGeometry(QtCore.QRect(395, 295, 131, 22))
         self.bckndComboBox.setObjectName("bckndComboBox")
         self.bckndComboBox.addItem(QtCore.QString())
         self.bckndComboBox.addItem(QtCore.QString())
@@ -206,6 +206,22 @@ class Ui_importattrDialog(object):
         self.el4LineEdit = QtGui.QLineEdit(importattrDialog)
         self.el4LineEdit.setGeometry(QtCore.QRect(120, 50, 41, 20))
         self.el4LineEdit.setObjectName("el4LineEdit")
+        self.xrdnameLineEdit = QtGui.QLineEdit(importattrDialog)
+        self.xrdnameLineEdit.setGeometry(QtCore.QRect(290, 180, 111, 21))
+        self.xrdnameLineEdit.setObjectName("xrdnameLineEdit")
+        self.label_18 = QtGui.QLabel(importattrDialog)
+        self.label_18.setGeometry(QtCore.QRect(290, 165, 116, 16))
+        self.label_18.setObjectName("label_18")
+        self.psizeSpinBox = QtGui.QDoubleSpinBox(importattrDialog)
+        self.psizeSpinBox.setGeometry(QtCore.QRect(290, 220, 71, 22))
+        self.psizeSpinBox.setDecimals(3)
+        self.psizeSpinBox.setMaximum(99999.0)
+        self.psizeSpinBox.setSingleStep(0.1)
+        self.psizeSpinBox.setProperty("value", QtCore.QVariant(0.1))
+        self.psizeSpinBox.setObjectName("psizeSpinBox")
+        self.label_19 = QtGui.QLabel(importattrDialog)
+        self.label_19.setGeometry(QtCore.QRect(295, 190, 121, 42))
+        self.label_19.setObjectName("label_19")
 
         self.retranslateUi(importattrDialog)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), importattrDialog.accept)
@@ -286,4 +302,8 @@ class Ui_importattrDialog(object):
         self.usespecCheckBox.setToolTip(QtGui.QApplication.translate("importattrDialog", "Unless you need to make a manual adjustment and you know what you are doing, leave this checked and ignore everything to the right of this box, i.e. \"spec command\" through \"# of points\"", None, QtGui.QApplication.UnicodeUTF8))
         self.usespecCheckBox.setText(QtGui.QApplication.translate("importattrDialog", "Use existing spec\n"
 "acquisition info", None, QtGui.QApplication.UnicodeUTF8))
+        self.xrdnameLineEdit.setText(QtGui.QApplication.translate("importattrDialog", "mar345", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_18.setText(QtGui.QApplication.translate("importattrDialog", "XRD group name", None, QtGui.QApplication.UnicodeUTF8))
+        self.psizeSpinBox.setToolTip(QtGui.QApplication.translate("importattrDialog", "sample to detector distance", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_19.setText(QtGui.QApplication.translate("importattrDialog", "pixel size (mm)", None, QtGui.QApplication.UnicodeUTF8))
 

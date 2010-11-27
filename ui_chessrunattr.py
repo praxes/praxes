@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\JohnnyG\Documents\CHESS\XRDproject_Python_11June2010Release\chessrunattr.ui'
+# Form implementation generated from reading ui file 'C:\Users\JohnnyG\Documents\CHESS\XRDproject_Python\chessrunattr.ui'
 #
-# Created: Fri Jun 18 10:17:58 2010
+# Created: Fri Nov 26 23:20:33 2010
 #      by: PyQt4 UI code generator 4.5.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -120,6 +120,23 @@ class Ui_chessrunattrDialog(object):
         self.label_3 = QtGui.QLabel(chessrunattrDialog)
         self.label_3.setGeometry(QtCore.QRect(315, 130, 101, 16))
         self.label_3.setObjectName("label_3")
+        self.xrdnameLineEdit = QtGui.QLineEdit(chessrunattrDialog)
+        self.xrdnameLineEdit.setGeometry(QtCore.QRect(280, 200, 221, 20))
+        self.xrdnameLineEdit.setObjectName("xrdnameLineEdit")
+        self.label_4 = QtGui.QLabel(chessrunattrDialog)
+        self.label_4.setGeometry(QtCore.QRect(285, 185, 291, 16))
+        self.label_4.setObjectName("label_4")
+        self.label_11 = QtGui.QLabel(chessrunattrDialog)
+        self.label_11.setGeometry(QtCore.QRect(445, 120, 71, 42))
+        self.label_11.setObjectName("label_11")
+        self.psizeSpinBox = QtGui.QDoubleSpinBox(chessrunattrDialog)
+        self.psizeSpinBox.setGeometry(QtCore.QRect(440, 160, 71, 22))
+        self.psizeSpinBox.setDecimals(3)
+        self.psizeSpinBox.setMinimum(-2.0)
+        self.psizeSpinBox.setMaximum(99999.0)
+        self.psizeSpinBox.setSingleStep(0.1)
+        self.psizeSpinBox.setProperty("value", QtCore.QVariant(0.1))
+        self.psizeSpinBox.setObjectName("psizeSpinBox")
 
         self.retranslateUi(chessrunattrDialog)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), chessrunattrDialog.accept)
@@ -146,8 +163,8 @@ class Ui_chessrunattrDialog(object):
         self.existingTextBrowser.setHtml(QtGui.QApplication.translate("chessrunattrDialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+"</style></head><body style=\" font-family:\'Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'MS Shell Dlg 2\'; font-size:8pt;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("chessrunattrDialog", "name", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("chessrunattrDialog", "existing names", None, QtGui.QApplication.UnicodeUTF8))
         self.label_18.setText(QtGui.QApplication.translate("chessrunattrDialog", "substrate normal is tilted\n"
@@ -157,4 +174,9 @@ class Ui_chessrunattrDialog(object):
         self.shape0SpinBox.setToolTip(QtGui.QApplication.translate("chessrunattrDialog", "horizontal number of pixels", None, QtGui.QApplication.UnicodeUTF8))
         self.shape1SpinBox.setToolTip(QtGui.QApplication.translate("chessrunattrDialog", "vertical number of pixels", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("chessrunattrDialog", "detector shape", None, QtGui.QApplication.UnicodeUTF8))
+        self.xrdnameLineEdit.setText(QtGui.QApplication.translate("chessrunattrDialog", "mar345", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("chessrunattrDialog", "XRD group name", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_11.setText(QtGui.QApplication.translate("chessrunattrDialog", "pixel\n"
+"size (mm)", None, QtGui.QApplication.UnicodeUTF8))
+        self.psizeSpinBox.setToolTip(QtGui.QApplication.translate("chessrunattrDialog", "sample to detector distance", None, QtGui.QApplication.UnicodeUTF8))
 

@@ -17,7 +17,7 @@ from xrf_depprof import *
 import numpy, scipy.interpolate, pylab, operator, sys, os, time, copy, h5py, matplotlib, matplotlib.cm
 import ui_mainmenu
 import ui_message_box
-import ui_import_image
+import ui_import_image'p
 import ui_import_attr
 import ui_chessrunattr
 import ui_get_group
@@ -1686,7 +1686,10 @@ class MainMenu(QMainWindow,
             'tiltdirection':str(idialog.tiltdirectionComboBox.currentText())
             }
             h5chess=CHESSRUNFILE('r+')
-            group=h5chess.create_group(str(unicode(idialog.nameLineEdit.text())))
+            grpname=str(unicode(idialog.nameLineEdit.text()))
+            if grpname in h5chess:
+                del h5chess[grpname]
+            group=h5chess.create_group(grpname)
             for key, val in attrdict.iteritems():
                 group.attrs[key]=val
             group.create_group('imap')

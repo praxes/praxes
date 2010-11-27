@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>711</width>
-    <height>329</height>
+    <width>753</width>
+    <height>336</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,7 +46,7 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>510</x>
+     <x>555</x>
      <y>295</y>
      <width>160</width>
      <height>26</height>
@@ -157,8 +157,8 @@ tilt (deg)</string>
   <widget class="QLabel" name="label_11">
    <property name="geometry">
     <rect>
-     <x>325</x>
-     <y>190</y>
+     <x>395</x>
+     <y>275</y>
      <width>151</width>
      <height>28</height>
     </rect>
@@ -522,8 +522,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QComboBox" name="bckndComboBox">
    <property name="geometry">
     <rect>
-     <x>325</x>
-     <y>210</y>
+     <x>395</x>
+     <y>295</y>
      <width>131</width>
      <height>22</height>
     </rect>
@@ -750,6 +750,70 @@ acquisition info</string>
    </property>
    <property name="text">
     <string/>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="xrdnameLineEdit">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>180</y>
+     <width>111</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>mar345</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_18">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>165</y>
+     <width>116</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>XRD group name</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="psizeSpinBox">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>220</y>
+     <width>71</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>sample to detector distance</string>
+   </property>
+   <property name="decimals">
+    <number>3</number>
+   </property>
+   <property name="maximum">
+    <double>99999.000000000000000</double>
+   </property>
+   <property name="singleStep">
+    <double>0.100000000000000</double>
+   </property>
+   <property name="value">
+    <double>0.100000000000000</double>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_19">
+   <property name="geometry">
+    <rect>
+     <x>295</x>
+     <y>190</y>
+     <width>121</width>
+     <height>42</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>pixel size (mm)</string>
    </property>
   </widget>
  </widget>
