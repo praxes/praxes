@@ -27,7 +27,6 @@ class plotwidget(FigureCanvas):
     def __init__(self, parent, width=5, height=5, dpi=100, showcolbar=True, nav=True):
         #super(plotwidget, self).__init__(parent) #***
         #plotdata can be 2d array for image plot or list of 2 1d arrays for x-y plot or 2d array for image plot or list of lists of 2 1D arrays
-        self.marwidth=3450
         self.colbar=None
         self.showcolbar=showcolbar
         self.fig = Figure(figsize=(width, height), dpi=dpi)
@@ -230,7 +229,7 @@ class plotwidget(FigureCanvas):
 
     def marimageaxesformat(self, width):  #this somehow screws up the image so skip it until figure out what is going on
         return
-        bin=self.marwidth/(1.0*width)
+        bin=detectorwidth/(1.0*width) #supposed to be the detector width in pixels but this is currently not being executed
         interval=1000
         binint=1000//bin
         ticks=[]

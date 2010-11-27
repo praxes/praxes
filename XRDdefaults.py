@@ -11,7 +11,9 @@ def attrdict_def():
     'cal':[1596.3, 1753.4, 558.9, .181, 272],#[horizontal pixel of beam, vertical, detector dist in mm, detector tilt in deg, tilt direction in deg], the origin for the beam center is upper left pixel=(0,0), fit2D uses lower left=(1,1), these numbers are all assumed to come from fit2D
     'alpha':50, #sample tilt in deg where 0 is substrate perpendicular to beam. this is 90deg??360 but depends on chi???-phi in the 4circle goniometer
     'bcknd':'min', #string for user to specify the type of background subtraction to be used in analysis
-    'wavelength':0.02066#x-ray wavelength in nm
+    'wavelength':0.02066, #x-ray wavelength in nm
+    'xrdname':'mar345', 
+    'psize':0.1, 
     }
 
 #def attrdict_def():

@@ -93,11 +93,19 @@ def getkillmap(chessh5dsetstr, bin=0):
         else:
             temp=numpy.bool_(readh5pyarray(h5chess[chessh5dsetstr+('bin%d' %bin)]))
     else:
-        print 'KILLMAP NOT FOUND> USING mar345 DEFAUKLT'
+        print 'KILLMAP NOT FOUND> USING DEFAULT'
+        xrdname='mar345'
+        p=chessh5dsetstr.rpartition('/')
+        while p in h5chess: #this is to try to get the right detector but include backwards compatib lity from when 'xrdname' didn't exist
+            if 'xrdname' in p.attrs:
+                xrdname=p.attrs['xrdname']
+                break
+            p=p.rpartition('/')[0]
+
         if bin==0:
-            temp=numpy.bool_(readh5pyarray(h5chess['mar345killmap']))
+            temp=numpy.bool_(readh5pyarray(h5chess[xrdname+'killmap']))
         else:
-            temp=numpy.bool_(readh5pyarray(h5chess['mar345killmapbin%d' %bin]))
+            temp=numpy.bool_(readh5pyarray(h5chess[xrdname+'killmapbin%d' %bin]))
     h5chess.close()
     return temp
 
@@ -141,27 +149,23 @@ def writeattr(h5path, h5groupstr, attrdict):
 
     h5file.close()
 
-def writeh5struct(h5path, h5groupstr):
-    """Adds all the default groups and any in h5groupstrlist"""
-    h5file=h5py.File(h5path, mode='r+')
-    #node=h5file[h5groupstr]
-    gstrlist=['/analysis', '/analysis/mar345']
 
-    for gs in gstrlist:
-        fullgrpstr=''.join((h5groupstr, gs))
-        if not fullgrpstr in h5file:
-            h5file.create_group(fullgrpstr)
 
-    h5file.close()
+getxrdname=lambda h5an: ('xrdname' in h5analysis.attrs.keys() and h5analysis.attrs['xrdname']) or 'mar345'
 
 def getattr(h5path, h5groupstr):
     h5file=h5py.File(h5path, mode='r')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
     attrdict={}
-    keys=['pointlist', 'command', 'xgrid', 'zgrid', 'wavelength', 'cal', 'alpha', 'counter', 'elements', 'bcknd', 'chessrunstr', 'imapstr', 'chimapstr', 'killmapstr', 'qimagestr', 'chiimagestr', 'dqchiimagestr', 'x', 'z', 'acquisition_time', 'acquisition_shape']
+    keys=['pointlist', 'command', 'xgrid', 'zgrid', 'wavelength', 'cal', 'alpha', 'counter', 'elements', 'bcknd', 'chessrunstr', 'imapstr', 'chimapstr', 'killmapstr', 'qimagestr', 'chiimagestr', 'dqchiimagestr', 'x', 'z', 'acquisition_time', 'acquisition_shape', 'xrdname', 'psize']
     for key in keys:
         if key in h5analysis.attrs:
             attrdict[key]=h5analysis.attrs[key]
+    if not 'psize' in attrdict.keys():
+        h5chess=CHESSRUNFILE()
+        h5grp=h5chess['chessrunstr']
+        attrdict['psize']=h5grp.attrs['psize']
+        h5chess.close()
     h5file.close()
     return attrdict
 
@@ -198,8 +202,8 @@ def calcbcknd(h5path, h5groupstr, bcknd, bin=3, bminperc=0.0):
     print 'calculating ',  bcknd, ' background on ', h5path, h5groupstr
     h5file=h5py.File(h5path, mode='r+')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
-    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
-    h5marcounts=h5file['/'.join((h5groupstr,'measurement/mar345/counts'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
+    h5marcounts=h5file['/'.join((h5groupstr,'measurement', getxrdname(h5analysis), 'counts'))]
     pointlist=h5analysis.attrs['pointlist']
     shape=(h5marcounts.shape[1], h5marcounts.shape[2])
 
@@ -278,9 +282,10 @@ def calcbcknd(h5path, h5groupstr, bcknd, bin=3, bminperc=0.0):
 
 
 def integrate(h5path, h5groupstr, singleimage=None, bckndbool=True, ):#singleimage is a string that is an index of marcounts or a string for other dataset or 'banom#'. only marcounts can get backnd subtraction
+    performed=True
     h5file=h5py.File(h5path, mode='r')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
-    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
 
     imap, qgrid=getimapqgrid(h5analysis.attrs['imapstr'])
     dqchiimage=getdqchiimage(h5analysis.attrs['dqchiimagestr'])
@@ -299,7 +304,6 @@ def integrate(h5path, h5groupstr, singleimage=None, bckndbool=True, ):#singleima
             if bcknd=='minanom':
                 bminanomf=readh5pyarray(h5mar['bminanomf'])
         else:
-            h5file.close()
             print 'Aborting: INTEGRATION ABORTED: CANNOT FIND ', bstr
             return 'Aborting: INTEGRATION ABORTED: CANNOT FIND ', bstr
 
@@ -307,8 +311,8 @@ def integrate(h5path, h5groupstr, singleimage=None, bckndbool=True, ):#singleima
 
     h5file=h5py.File(h5path, mode='r+')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
-    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
-    h5marcounts=h5file['/'.join((h5groupstr,'measurement/mar345/counts'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
+    h5marcounts=h5file['/'.join((h5groupstr,'measurement', getxrdname(h5analysis), 'counts'))]
 
     data=None
     if singleimage is not None:
@@ -353,14 +357,13 @@ def integrate(h5path, h5groupstr, singleimage=None, bckndbool=True, ):#singleima
                 h5file.close()
                 print 'INTEGRATION ABORTED:',  numstr, " is bigger than or incommensurate with imap"
                 return 'INTEGRATION ABORTED:',  numstr, " is bigger than or incommensurate with imap"
-
             data=unbinimage(data, imap.shape[0]/data.shape[0])
 
         if bckndbool:
             if bcknd=='minanom':
                 if bminanomf[pointind, 0]<0:
-                    print 'no calculation of bminanom background on the fly for integration'
                     h5file.close()
+                    print 'no calculation of bminanom background on the fly for integration'
                     return 'no calculation of bminanom background on the fly for integration'
                 else:
                     banom=h5mar['banom'][pointind, :, :]
@@ -381,7 +384,7 @@ def integrate(h5path, h5groupstr, singleimage=None, bckndbool=True, ):#singleima
 def qqcalc(h5path,  h5groupstr, qgrid, image): #assume q interval is integral number of  1d int interval (imap qgrid)
     h5file=h5py.File(h5path, mode='r')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
-    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
 
     numstrlist=None
 
@@ -502,9 +505,13 @@ def calcqchiimages(chessh5grpstr, alsocalcbin=3):
     wl=h5grp.attrs['wavelength']
     psize=h5grp.attrs['psize']
     tiltdir=h5grp.attrs['tiltdirection']
+    if 'xrdname' in h5grp.attrs:
+        xrdname=h5grp.attrs['xrdname']
+    else:
+        xrdname='mar345'
     h5chess.close()
 
-    center=centerindeces_fit2dcenter(fit2dcenter)
+    center=centerindeces_fit2dcenter(fit2dcenter, detsize=imageshape[0])
     center, imageshape = tiltdirectionoperation(center, imageshape, tiltdir)
 
     center=numpy.uint16(numpy.round(numpy.float32(bincenterind_centerind(center, bin))))
@@ -548,7 +555,7 @@ def calcqchiimages(chessh5grpstr, alsocalcbin=3):
     smallwidth=imageshape[1]-sizey
 
     h5chess=CHESSRUNFILE('r+')
-    circkillmap=readh5pyarray(h5chess['mar345killmap'])
+    circkillmap=readh5pyarray(h5chess[xrdname+'killmap'])
     h5grp=h5chess[chessh5grpstr]
     imls=[(qimage,'qimage'), (chiimage,'chiimage'), (dqchiimage,'dqchiimage'), (twothetaimage, 'twothetaimage'), (azimimage, 'azimimage'), (polfactimage, 'polfactimage'), (SiASFimage, 'SiASFimage')]
     for im, name in imls:
@@ -614,7 +621,7 @@ def writeplotso(runpath,  xvals, yvals, attrdict, xtype, savename):  #xvals and 
 def writeall2dimages(runpath, h5path,  h5groupstr,  type, typestr, colorrange=None,  datsave=False,  extrabin=1):
     h5file=h5py.File(h5path, mode='r')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
-    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
 
     savename1='_'.join((os.path.split(h5path)[1][0:-3], h5groupstr, typestr, ''))
 
@@ -693,14 +700,14 @@ def plotsoheader(attrdict, xtype):
     sampleline=''.join(('Title/SampleName: ', ''.join(tuple(attrdict['elements']))))
     waveline=''.join(('Wavelength: ',  '%.4f' %attrdict['wavelength'] , 'nm'))
     Lline=''.join(('Detector distance: ',  '%.1f' %attrdict['cal'][2] , 'mm'))
-    temp= '\n!@!!'.join(('!@!!MAR3450 integrated',  sampleline,  'Site: Cornell University', waveline, Lline))
+    temp= '\n!@!!'.join(('!@!!XRD integrated',  sampleline,  'Site: Cornell University', waveline, Lline))
     if xtype=='2th':
         temp=''.join((temp, '\n', '!@!XDegrees', '\n!@!YCounts\n'))
     else:
         if xtype=='d':
             temp2='d-spacing (nm)'
         elif xtype=='pix':
-            temp2='MAR3450 pixels'
+            temp2='Detector pixels'
         else:
             temp2='scattering vector (1/nm)'
         temp=''.join((temp, '\n', '!@!!X: ', temp2,'\n!@!YCounts\n'))
@@ -751,7 +758,7 @@ def calcbanom(h5path,  h5groupstr,  bqgrid=None):
     bin=3
     h5file=h5py.File(h5path, mode='r')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
-    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
 
     attrdict=getattr(h5path, h5groupstr)
 
@@ -769,8 +776,9 @@ def calcbanom(h5path,  h5groupstr,  bqgrid=None):
     killmap*=(imap!=0)
 
     h5file=h5py.File(h5path, mode='r+')
-    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
-    h5marcounts=h5file['/'.join((h5groupstr,'measurement/mar345/counts'))]
+    h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
+    h5marcounts=h5file['/'.join((h5groupstr,'measurement', getxrdname(h5analysis), 'counts'))]
     if 'bimap' in h5mar:
         del h5mar['bimap']
     if 'banom' in h5mar:
@@ -830,7 +838,7 @@ def process1dint(h5path, h5groupstr, maxcurv=16.2, type='h5mar:icounts'):
 
     if 'h5mar' in type:
         h5arrname=type.partition(':')[2]
-        h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+        h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
 
         if 'ifcounts' in h5mar:
             del h5mar['ifcounts']
@@ -842,7 +850,7 @@ def process1dint(h5path, h5groupstr, maxcurv=16.2, type='h5mar:icounts'):
         ifcountspoint.attrs['qgrid']=qgrid
     if 'h5tex' in type:
         h5grpname=type.partition(':')[2]
-        h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+        h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
         h5tex=h5mar['texture']
         h5texgrp=h5tex[h5grpname]
 
@@ -872,9 +880,9 @@ def process1dint(h5path, h5groupstr, maxcurv=16.2, type='h5mar:icounts'):
 def wavepeaksearch1d(h5path, h5groupstr, minridgelength=3, minchildlength=0, wavenoisecutoff=2.5, maxqscale_localmax=1.5, minridgewtsum=100., minchildwtsum=0., pointlist=None, verbose=False, type='h5mar'):
     h5file=h5py.File(h5path, mode='r')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
-    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
     if 'h5mar' in type:
-        wtgrpstr='/'.join((h5groupstr, 'analysis/mar345', 'wavetrans1d'))
+        wtgrpstr='/'.join((h5groupstr, 'analysis', getxrdname(h5analysis), 'wavetrans1d'))
         if pointlist is None:
             pointlist=h5analysis.attrs['pointlist']
     elif 'h5tex' in type:
@@ -883,7 +891,7 @@ def wavepeaksearch1d(h5path, h5groupstr, minridgelength=3, minchildlength=0, wav
         h5texgrp=h5tex[h5grpname]
         if pointlist is None:
             pointlist=h5texgrp.attrs['pointlist']
-        wtgrpstr='/'.join((h5groupstr, 'analysis/mar345', 'texture', h5grpname, 'wavetrans1d'))
+        wtgrpstr='/'.join((h5groupstr, 'analysis', getxrdname(h5analysis), 'texture', h5grpname, 'wavetrans1d'))
     h5file.close()
     errormsg=ridges_wavetrans1d(h5path, wtgrpstr, noiselevel=wavenoisecutoff, pointlist=pointlist)
     if not errormsg is None:
@@ -891,10 +899,9 @@ def wavepeaksearch1d(h5path, h5groupstr, minridgelength=3, minchildlength=0, wav
     errormsg=peaks_ridges1d(h5path, wtgrpstr, minridgelength=minridgelength, minchildlength=minchildlength, maxqscale_localmax=maxqscale_localmax, minridgewtsum=minridgewtsum, minchildwtsum=minchildwtsum, pointlist=pointlist, verbose=verbose)
     if not errormsg is None:
         return errormsg
-
     h5file=h5py.File(h5path, mode='r+')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
-    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
     updatelog(h5analysis,  ''.join((type, 'wavelet 1d peak search finished ', time.ctime())))
     h5file.close()
 
@@ -936,6 +943,7 @@ def ridges_wavetrans1d(h5path, h5wtgrpstr, noiselevel=None, numscalesskippedinar
     h5file.close()
 
 def peaks_ridges1d(h5path, h5wtgrpstr, minridgelength=3, minchildlength=0., maxqscale_localmax=1.5, minridgewtsum=100., minchildwtsum=0., pointlist=[], verbose=False): #the qwidthrange is in /nm and the ridge must have a local maximum in that range
+
     minridgelength=max(1, minridgelength)
     h5file=h5py.File(h5path, mode='r+')
     wtgrp=h5file[h5wtgrpstr]
@@ -948,7 +956,6 @@ def peaks_ridges1d(h5path, h5wtgrpstr, minridgelength=3, minchildlength=0., maxq
         h5file.close()
         print 'aborted: the set of qscales does not include more than 1 point in the specified qwidthrange'
         return 'aborted: the set of qscales does not include more than 1 point in the specified qwidthrange'
-
     ridgescalecritind=ridgescalecritind[0] #takes the last because these are in decreasing order now
 
     wtpoint=wtgrp['wavetrans']
@@ -1211,7 +1218,7 @@ def wavetrans1d(h5path, h5groupstr, wavesetname, type='h5mar:icounts'):#wavetran
 
     if 'h5mar' in type:
         h5arrname=type.partition(':')[2]
-        h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+        h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
 
         if 'wavetrans1d' in h5mar:
             del h5mar['wavetrans1d']
@@ -1220,7 +1227,7 @@ def wavetrans1d(h5path, h5groupstr, wavesetname, type='h5mar:icounts'):#wavetran
         qgrid=icountspoint.attrs['qgrid']
     if 'h5tex' in type:
         h5grpname=type.partition(':')[2]
-        h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+        h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
         h5tex=h5mar['texture']
         h5texgrp=h5tex[h5grpname]
 
@@ -1262,26 +1269,27 @@ def peakfit1d(h5path, h5groupstr, windowextend_hwhm=3, peakshape='Gaussian', cri
     try:
         peakfcn=eval(peakshape)
     except:
+        print 'ABORTED: did not understand peak shape "',peakshape,'" - this must be an already defined function.'
         return 'ABORTED: did not understand peak shape "',peakshape,'" - this must be an already defined function.'
 
     h5file=h5py.File(h5path, mode='r')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
-    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
     if 'h5mar' in type:
-        wtgrpstr='/'.join((h5groupstr, 'analysis/mar345', 'wavetrans1d'))
+        wtgrpstr='/'.join((h5groupstr, 'analysis', getxrdname(h5analysis), 'wavetrans1d'))
         pointlist=h5analysis.attrs['pointlist']
         ifcountspoint=h5mar['ifcounts']
         numpts=ifcountspoint.shape[0]
         qgrid=h5mar['ifcounts'].attrs['qgrid']
-        h5grpstr='/'.join((h5groupstr, 'analysis/mar345'))
+        h5grpstr='/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))
 
     elif 'h5tex' in type:
         h5grpname=type.partition(':')[2]
         h5tex=h5mar['texture']
         h5texgrp=h5tex[h5grpname]
         pointlist=h5texgrp.attrs['pointlist']
-        wtgrpstr='/'.join((h5groupstr, 'analysis/mar345', 'texture', h5grpname, 'wavetrans1d'))
-        h5grpstr='/'.join((h5groupstr, 'analysis/mar345', 'texture', h5grpname))
+        wtgrpstr='/'.join((h5groupstr, 'analysis', getxrdname(h5analysis), 'texture', h5grpname, 'wavetrans1d'))
+        h5grpstr='/'.join((h5groupstr, 'analysis', getxrdname(h5analysis), 'texture', h5grpname))
         ifcountspoint=h5texgrp['ifcounts']
         numpts=ifcountspoint.shape[0]
         qgrid=h5texgrp['ifcounts'].attrs['chigrid']
@@ -1377,7 +1385,7 @@ def peakfit1d(h5path, h5groupstr, windowextend_hwhm=3, peakshape='Gaussian', cri
 def getpeaksinrange(h5path, h5groupstr, indlist=None, qmin=0, qmax=1000, returnonlyq=True,  performprint=False, returnonlytallest=True):
     h5file=h5py.File(h5path, mode='r')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
-    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
 
     pkcounts=readh5pyarray(h5mar['pkcounts'])
     pointlist=h5analysis.attrs['pointlist']
@@ -1503,6 +1511,7 @@ def XRFanalysis(h5path, h5groupstr, elements, quantElTr, eld, elM, approxstoich,
         pointind_fluxcal=None
     elif isinstance(FluxCal, str) and FluxCal.startswith("CalUsing"):
         if infoforxrf[2] is None or set(elements)!=set(infoforxrf[0]):
+            print 'ABORTING: '+FluxCal+' requested but the DepProf data is not available.'
             return 'ABORTING: '+FluxCal+' requested but the DepProf data is not available.'
         flux=None
         pointind_fluxcal=eval(FluxCal.partition("CalUsing")[2])
@@ -1513,8 +1522,8 @@ def XRFanalysis(h5path, h5groupstr, elements, quantElTr, eld, elM, approxstoich,
 
     if DepProfEst:
         if infoforxrf[1] is None:
+            print 'ABORTING: DepProf estimates for film comp and thickness were requested but the DepProf data is not available.'
             return 'ABORTING: DepProf estimates for film comp and thickness were requested but the DepProf data is not available.'
-
         est_film_comp = infoforxrf[1][pointlist]
         est_film_nm = infoforxrf[2][pointlist]
 
@@ -1539,6 +1548,7 @@ def XRFanalysis(h5path, h5groupstr, elements, quantElTr, eld, elM, approxstoich,
             except:
                 del d
                 del M
+                print 'ABORTING XRF CALCULATION: problem with ', (count==0 and 'density') or 'massfrac', ' lambda function'
                 return 'ABORTING XRF CALCULATION: problem with ', (count==0 and 'density') or 'massfrac', ' lambda function'
 
 
@@ -1597,6 +1607,32 @@ def elements_elstr(elstr, min_num_els=3):
         if el!='X':
             el_gun+=[[el, count]]
     return elstrlist, el_gun
+#def elements_elstr(elstr, min_num_els=3): #from Nov 2010 but reverted to above June2010 which may have worked better??
+#    if isinstance(elstr, str):
+#        elstrlist=[]
+#        inds=[]
+#        for count, ch in enumerate(elstr):
+#            if ch.isupper():
+#                inds+=[count]
+#        inds+=[count+1]
+#        for i, j in zip(inds[:-1], inds[1:]):
+#            elstrlist+=[elstr[i:j]]
+#        if len(elstrlist)<min_num_els:
+#            elstrlist+=['X']*(min_num_els-len(elstrlist))
+#        el_gun=[]
+#        for count, el in enumerate(elstrlist):
+#            if el!='X':
+#                el_gun+=[[el, count]]
+#    else:
+#        elstr=numpy.array(elstr)
+#        ginds=numpy.where(numpy.logical_and(elstr!='X', elstr!=''))
+#        if len(ginds[0])<min_num_els:
+#            elstr[elstr=='']='X'
+#            elstrlist=list(elstr)+['X']*(min_num_els-len(elstr))
+#        else:
+#            elstrlist=list(elstr[ginds])
+#        el_gun=[[e, g] for e, g in zip(elstr[ginds], ginds[0])]
+#    return elstrlist, el_gun
 
 def getcomps(h5path, h5groupstr, elstrlist=None, infotype='DPmolfracALL', normalize=True, num_els=None): #elstrlist is a list of elments symbols or 'X' or whatever and comlist should be a 'type' of getpointinfo with 'ALL',  if an element is not found in the data then its composition will be zero. If elstrlist is passed, num_els is ignored, otherwise the array is guarenteed to have num_else compositions that are normalized where possible
     if elstrlist is None:
@@ -1698,6 +1734,7 @@ def createsynthetich5_peaktxt(h5path, peaktxtpath, elstr='ABC'):
 
     comp=numpy.float32(comp)
     if pointind!=range(len(pointind)):
+        print 'ABORTED: the list of point indeces is required to be 0, 1, 2, ...'
         return 'ABORTED: the list of point indeces is required to be 0, 1, 2, ...'
     grid=[-30., 60./len(pointind), len(pointind)]
     cmd='a2scan'
@@ -1720,7 +1757,8 @@ def createsynthetich5_peaktxt(h5path, peaktxtpath, elstr='ABC'):
     writeattr(h5path, h5groupstr, attrdict)
 
     h5file=h5py.File(h5path, mode='r+')
-    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+    h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
     h5depprof=h5file['/'.join((h5groupstr, 'analysis/depprof'))]
 
     if 'icounts' in h5mar:
@@ -1819,7 +1857,8 @@ def createh5_txtfiles(h5path, txtpath,  headerlines=0, elstr='ABC'):
     writeattr(h5path, h5groupstr, attrdict)
 
     h5file=h5py.File(h5path, mode='r+')
-    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+    h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
     #h5depprof=h5file['/'.join((h5groupstr, 'analysis/depprof'))]
 
     h5ic=h5mar.create_dataset('icounts', data=yvals)
@@ -1881,6 +1920,8 @@ def saveneighbors(h5path, h5groupstr, neighbors, pardict={}):#len(neighbors ) sh
     h5file.close()
 
 def buildnewscan(h5path, h5groupstr, newscandict):
+    xrdname=newscandict['xrdname']
+    
     h5file=h5py.File(h5path, mode='r+')
     h5root=h5file.create_group(h5groupstr)
     h5analysis=h5root.create_group('analysis')
@@ -1893,7 +1934,7 @@ def buildnewscan(h5path, h5groupstr, newscandict):
         h5analysis.attrs[k]=v
     for ind, newname, newind in zip(newscandict['ind_tobereplaced'], newscandict['newimage_scanname'], newscandict['newimage_ind']):#"new" refers to the replacement
         h5measnew=h5file['/'.join((newname,'measurement'))]
-        h5measurement['mar345/counts'][ind, :, :]=h5measnew['mar345/counts'][newind, :, :]
+        h5measurement[xrdname+'/counts'][ind, :, :]=h5measnew[xrdname+'/counts'][newind, :, :]
         if 'MCA/counts' in h5measurement and 'MCA/counts' in h5measnew:
             h5measurement['MCA/counts'][ind, :]=h5measnew['MCA/counts'][newind, :]
         if 'scalar_data/Seconds' in h5measnew:
@@ -1919,11 +1960,11 @@ def buildnewscan(h5path, h5groupstr, newscandict):
         else:
             h5analysis.attrs['acquisition_time']=numpy.append(numpy.float32(h5analysis.attrs['acquisition_time']), numpy.ones(numappendpts, dtype='float32'))
 
-        h5mar=h5measurement['mar345']
+        h5mar=h5measurement[xrdname]
         arr1=readh5pyarray(h5mar['counts'])
         del h5mar['counts']# this way it is deleted no matter what and it will be rewritten if there is data to append. this ensure that all arrays end up the right length.
-        if 'mar345/counts' in h5measnew:
-            arr2=readh5pyarray(h5measnew['mar345/counts'])
+        if (xrdname+'/counts') in h5measnew:
+            arr2=readh5pyarray(h5measnew[xrdname+'/counts'])
             arr1=numpy.append(arr1, arr2, axis=0)
             h5mar.create_dataset('counts', data=arr1)
 
@@ -1951,8 +1992,8 @@ def buildnewscan(h5path, h5groupstr, newscandict):
 def initializescan(h5path, h5groupstr, bin=3):
     h5file=h5py.File(h5path, mode='r+')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
-    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
-    h5marcounts=h5file['/'.join((h5groupstr,'measurement/mar345/counts'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
+    h5marcounts=h5file['/'.join((h5groupstr,'measurement', getxrdname(h5analysis), 'counts'))]
     attrdict=getattr(h5path, h5groupstr)
     if not ('bminanomf' in h5mar):
         bminanomfinit=numpy.ones((numpts_attrdict(attrdict), 3),  dtype='float32')*(-1.0)
@@ -2051,7 +2092,7 @@ def testwavetrans1d(h5path, h5groupstr, wavesetname):#wavetrans qgrid can be sub
     print 'wave grid', waveqgrid
     h5file=h5py.File(h5path, mode='r')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
-    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
 
     wtgrp=h5mar['wavetrans1d']
     qscalegrid=wavegrp.attrs['qscalegrid']
@@ -2095,7 +2136,7 @@ def testwavetrans1d(h5path, h5groupstr, wavesetname):#wavetrans qgrid can be sub
 
 #    h5file=h5py.File(h5path, mode='r+')
 #    h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
-#    h5mar=h5file['/'.join((h5groupstr, 'analysis/mar345'))]
+#    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
 #    wtgrp=h5mar['wavetrans1d']
     #qscalegrid=wtgrp.attrs['qscalegrid']
     qscalevals=scale_scalegrid_ind(qscalegrid)

@@ -300,9 +300,11 @@ class calc_bmin_banom_factors():
             print 'calc_bmin_banom_factors NOT CURRENTLY SUPPORTING DIFFERENT ARRAY SHAPES'
         self.fz=fraczeroed
         self.fp=factorprecision
-        self.center=numpy.float32(bincenterind_centerind(centerindeces_fit2dcenter(attrdict['cal']), bin))
+        self.detsize=data.shape[0]
+        self.center=numpy.float32(bincenterind_centerind(centerindeces_fit2dcenter(attrdict['cal'], detsize=self.detsize), bin))
         self.L=attrdict['cal'][2]
         self.wl=attrdict['wavelength']
+        self.psize=attrdict['psize']
         if bqgrid is None:
             minbinwidth=8  #this should be much larger than the widest features (peaks) not to be substracted
             b2=numpy.uint16(numpy.ceil((qgrid[2]-1)*1.0*qgrid[1]/minbinwidth))
@@ -311,9 +313,10 @@ class calc_bmin_banom_factors():
             self.bqgrid=qgrid_minmaxnum(qgrid[0], minmaxint_qgrid(qgrid)[1], b2)
         else:
             self.bqgrid=bqgrid
-        if (bimap is None) or (3450%bimap.shape[0]!=0):
+        if (bimap is None) or (self.detsize%bimap.shape[0]!=0):
             if qimage is None:
                 print 'aborted because need to calculate bimap but cannot without qimage'
+                return
             self.bimap=imap_gen(qimage, self.bqgrid)
 #            qslots=slotends_qgrid(self.bqgrid)
 #            pixslots=pix_q(qslots, self.L,self.wl, psize=0.1*bin)
@@ -321,8 +324,8 @@ class calc_bmin_banom_factors():
         else:
             self.bimap=bimap
 
-        self.bin=3450//self.bimap.shape[0]
-        self.center=numpy.float32(bincenterind_centerind(centerindeces_fit2dcenter(attrdict['cal']), self.bin))
+        self.bin=self.detsize/self.bimap.shape[0]
+        self.center=numpy.float32(bincenterind_centerind(centerindeces_fit2dcenter(attrdict['cal'], detsize=self.detsize), self.bin))
         self.killmap=killmap*(imap!=0)
 
         #print self.killmap.sum()
@@ -338,7 +341,7 @@ class calc_bmin_banom_factors():
 
         self.bdata=self.data-self.bmin
         qvals=q_qgrid_ind(self.bqgrid)
-        pixvalssq=pix_q(qvals, self.L,self.wl, psize=0.1*self.bin)**2
+        pixvalssq=pix_q(qvals, self.L,self.wl, psize=self.psize*self.bin)**2
 
         bqmin=numpy.array([self.bqmin_gen(i+1) for i in range(self.bqgrid[2])])
         #print '**', bqmin
@@ -397,7 +400,7 @@ class calc_bmin_banom_factors():
             return a[numpy.uint16(a.size*self.fz)]
 
     def banom_gen(self):
-        temp=numpy.array([[self.banom_int((i-self.center[1])**2+(j-self.center[0])**2)[0]  for i in range(3450/self.bin)]  for j in range(3450/self.bin)], dtype='int32')
+        temp=numpy.array([[self.banom_int((i-self.center[1])**2+(j-self.center[0])**2)[0]  for i in range(self.detsize/self.bin)]  for j in range(self.detsize/self.bin)], dtype='int32')
         temp[temp<0]=0
         return numpy.uint16(temp)
 
@@ -745,7 +748,8 @@ def bcknd1dprogram(qgrid, ivals, attrdictORangles=None, smoothqwindow=0.5, cubic
     if isinstance(attrdictORangles, dict):
         L=attrdictORangles['cal'][2]
         wl=attrdictORangles['wavelength']
-        angles=powdersolidangle_q(qvals, L, wl) #don't send a psize, use default 0.1mm
+        psize=attrdictORangles['psize']
+        angles=powdersolidangle_q(qvals, L, wl, psize=psize)
     elif isinstance(attrdictORangles, numpy.ndarray):
         angles=attrdictORangles
     else:
@@ -1834,12 +1838,18 @@ def stripbadcharsfromnumstr(numstr):
     valchars=[c for c in numstr if c.isdigit() or c=='.' or c=='-']
     return ''.join(valchars)
 
+#def cart_comp(comp):
+#    if isinstance(comp, list) or (isinstance(comp, numpy.ndarray) and comp.ndim==1):
+#        return [1.-comp[0]-0.5*comp[1], comp[1]]
+#    else:
+#        return numpy.float32([1.-comp[:, 0]-0.5*comp[:, 1], comp[:, 1]]).T
 def cart_comp(comp):
-    if isinstance(comp, list) or (isinstance(comp, numpy.ndarray) and comp.ndim==1):
+    comp=numpy.float32(comp)
+    if comp.ndim==1:
         return [1.-comp[0]-0.5*comp[1], comp[1]]
     else:
         return numpy.float32([1.-comp[:, 0]-0.5*comp[:, 1], comp[:, 1]]).T
-
+        
 def compdistarr_comp(comp):#comp must be array of compositions, each element of comp is supposed to be a 3-array of the fractions
     return numpy.float32([[numpy.sqrt(((a-b)**2).sum()) for b in comp] for a in comp]/numpy.sqrt(2.))
 

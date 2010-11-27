@@ -223,9 +223,9 @@ def minmaxint_scalegrid(scalegrid):
 def ind_scalegrid_scale(scalegrid, scale):
     return int(round(numpy.log(1.0*scale/scalegrid[0])/numpy.log(scalegrid[1])))
 
-def centerindeces_fit2dcenter(centerlist):
+def centerindeces_fit2dcenter(centerlist, detsize=3450):
     #centerlist can be 2 elements or longer, the 2 being the horizontal and vertical beam cetner from fit2d (where the origing is 1,1)
-    return [(3450-1)-(centerlist[1]-1), centerlist[0]-1]
+    return [(detsize-1)-(centerlist[1]-1), centerlist[0]-1]
 
 def bincenterind_centerind(center, bin): #center is the center in array indeces (not fit2d). if initsizey is None then assume square. not necessarilt int
     if bin>1:
