@@ -235,7 +235,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                 if self.analysisThread:
                     self.analysisThread.stop()
                     self.analysisThread.join()
-                    QtGui.qApp.processEvents()
+                    #QtGui.qApp.processEvents()
             else:
                 event.ignore()
                 return
@@ -245,7 +245,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
     def configurePymca(self):
         if self.fitParamDlg.exec_():
-            QtGui.qApp.processEvents()
+            #QtGui.qApp.processEvents()
 
             self.statusbar.showMessage('Reconfiguring PyMca ...')
             configDict = self.fitParamDlg.getParameters()
@@ -255,7 +255,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
     def elementMapUpdated(self):
         self.elementsView.updateFigure(self.getElementMap())
-        QtGui.qApp.processEvents()
+        #QtGui.qApp.processEvents()
 
     def getElementMap(self, mapType=None, element=None):
         if element is None: element = self.xrfBand
@@ -305,7 +305,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             n_indices = len(indices)
         if n_indices:
             self.statusbar.showMessage('Averaging spectra ...')
-            QtGui.qApp.processEvents()
+            #QtGui.qApp.processEvents()
 
             try:
                 # looking at individual element
@@ -331,7 +331,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             self.spectrumAnalysis.setData(x=channels, y=counts)
 
             self.statusbar.showMessage('Performing Fit ...')
-            QtGui.qApp.processEvents()
+            #QtGui.qApp.processEvents()
             ##update spectrum analysis with flux from mon0!
             self.spectrumAnalysis.mcafit.config['concentrations']['flux'] = mon0
             self.spectrumAnalysis.mcafit.config['concentrations']['time'] = 1

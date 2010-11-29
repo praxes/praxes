@@ -137,7 +137,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                 break
             if h5_filename:
                 self.statusBar.showMessage('Converting spec data...')
-                QtGui.qApp.processEvents()
+                #QtGui.qApp.processEvents()
                 from xpaxs.io.spec import convert_to_phynx
                 f = convert_to_phynx(f, h5_filename=h5_filename, force=True)
                 f.close()
