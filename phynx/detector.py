@@ -39,6 +39,9 @@ class AreaDetector(Detector):
     def pixels(self):
         return self['counts'].shape[-2:]
 
+    @property
+    def subexposures(self):
+        return self.attrs.get('subexposures', 1)
 
 class Mar345(AreaDetector):
 

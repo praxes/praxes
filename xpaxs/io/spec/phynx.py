@@ -358,6 +358,31 @@ def convert_scan(scan, sfile, h5file, spec_filename):
                 specfile.Specfile(f)[0], measurement, True, masked=masked
             )
         elif (
+            f.startswith(spec_filename+'_scan%03d_'%(int(scan_number))) and
+            f.endswith('.tiff')
+        ):
+            from xpaxs.io.tifffile import TIFFfile
+            d = TIFFfile(f).asarray()
+            r, c = d.shape
+            ad = measurement.require_group('area_detector', type='AreaDetector')
+            dset = ad.require_dataset(
+                    'counts', shape=(scan.lines(), r, c), dtype='uint32'
+                )
+            i = f.replace(spec_filename+'_scan%03d_'%(int(scan_number)), '')
+            i = int(i.replace('.tiff', ''))
+            dset[i] = d
+            del d
+            try:
+                line = scan.header('C subexposures')[0]
+                n = int(line.split()[1].split('=')[1])
+                dset.attrs['subexposures'] = n
+            except:
+                pass
+            if masked is not None and 'masked' not in mar:
+                mar['masked'] = masked
+            print 'integrated %s' % f
+            gc.collect()
+        elif (
             f.startswith(spec_filename+'.%s_'%scan_number) and
             f.endswith('.mar3450')
         ):
