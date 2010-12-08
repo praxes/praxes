@@ -15,29 +15,6 @@ import sys
 import numpy as np
 
 
-def create_edge(line, edges):
-    label, energy, yield_, jump = line.split()[1:]
-    edge = edges.require_group(label)
-    edge['energy'] = float(energy)
-    edge['energy'].attrs['units'] = 'eV'
-    edge['fluorescence_yield'] = float(yield_)
-    edge['jump_ratio'] = float(jump)
-    return edge
-
-def create_lines(elamdb, edge):
-    lines = edge.require_group('lines')
-    while 1:
-        if elamdb[0].startswith('    '):
-            iupac, siegbahn, energy, intensity = elamdb.pop(0).split()
-            line = lines.require_group(iupac)
-            line['IUPAC_symbol'] = iupac
-            line['Siegbahn_symbol'] = siegbahn
-            line['energy'] = float(energy)
-            line['energy'].attrs['units'] = 'eV'
-            line['intensity'] = float(intensity)
-        else:
-            return lines
-
 def create_CK(line, edge):
     ck = edge.require_group('Coster_Kronig')
     temp = line.split()[1:]
@@ -103,14 +80,6 @@ class ElamDBCreator(object):
         self.source_file_name = source
         self.dest_file_name = dest
 
-    def _add_element(self, line):
-        sym, num, mw, rho = line.split()[1:]
-        self.c.execute(
-            'insert into elements values (?,?,?,?)',
-            (sym, num, mw, rho)
-            )
-        return sym
-
     def create_database(self, overwrite=False):
         if os.path.isfile(self.dest_file_name):
             if overwrite:
@@ -119,32 +88,65 @@ class ElamDBCreator(object):
                 return
 
         with io.open(self.source_file_name, encoding='ascii') as f:
-            self.source_lines = f.readlines()
-            while self.source_lines[0].startswith('/'):
-                self.source_lines.pop(0)
+            lines = f.readlines()
+            while lines[0].startswith('/'):
+                lines.pop(0)
 
         self.conn = sqlite3.connect(self.dest_file_name)
         self.c = self.conn.cursor()
 
         self.c.execute(
-            '''create table elements (symbol text, atomic_number integer,
+            '''create table elements (element_id text, atomic_number integer,
             atomic_mass real, density real)
             '''
             )
-        # self.c.execute(
-        #     '''create table edges (edgeid text, atomic_number integer,
-        #     atomic_mass real, density real)
-        #     '''
-        #     )
+        self.c.execute(
+            '''create table edges (edge_id text, element_id text,
+            edge_symbol text, edge_energy real, fluorescence_yield real,
+            jump_ratio real)
+            '''
+            )
+        self.c.execute(
+            '''create table lines (line_id text, element_id text,
+            iupac_symbol text, siegbahn_symbol text, edge_start text,
+            edge_end text, energy real, intensity real)
+            '''
+            )
 
-        while self.source_lines:
-            line = self.source_lines.pop(0)
+        while lines:
+            line = lines.pop(0)
             if line.startswith('Element'):
-                element = self._add_element(line)
-        #     elif line.startswith('Edge'):
-        #         edgeid = self._add_edge(line)
-        #     elif line.startswith('  Lines'):
-        #         lines = create_lines(elamdb, edge)
+                sym, num, mw, rho = line.split()[1:]
+                self.c.execute(
+                    'insert into elements values (?,?,?,?)',
+                    (sym, num, mw, rho)
+                    )
+                self.current_element = sym
+            elif line.startswith('Edge'):
+                label, energy, yield_, jump = line.split()[1:]
+                el = self.current_element
+                self.c.execute(
+                    'insert into edges values (?,?,?,?,?,?)',
+                    ('%s_%s' % (el, label), el, label, energy, yield_, jump)
+                    )
+                self.current_edge = label
+            elif line.startswith('  Lines'):
+                while True:
+                    if lines[0].startswith('    '):
+                        line = lines.pop(0)
+                        iupac, siegbahn, energy, intensity = line.split()
+                        end, start = iupac.split('-')
+                        el = self.current_element
+                        id_ = '%s_%s' % (el, iupac)
+                        start = '%s_%s' % (el, start)
+                        end = '%s_%s' % (el, end)
+                        self.c.execute(
+                            'insert into lines values (?,?,?,?,?,?,?,?)',
+                            (id_, el, iupac, siegbahn, start, end, energy,
+                            intensity)
+                            )
+                    else:
+                        break
         #     elif line.startswith('  CK '):
         #         ck = create_CK(line, edge)
         #     elif line.startswith('  CKtotal'):
@@ -160,7 +162,7 @@ class ElamDBCreator(object):
 
         self.conn.commit()
 
-        self.c.execute('select * from elements order by symbol')
+        self.c.execute('select * from lines order by edge_end')
         for row in self.c:
             print row
 
