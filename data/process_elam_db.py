@@ -12,51 +12,6 @@ import os
 import sqlite3
 import sys
 
-import numpy as np
-
-
-def create_photoabsorption(elamdb, element):
-    data = []
-    while 1:
-        line = elamdb[0]
-
-        if line.startswith('    '):
-            data.append(np.fromstring(line, sep=' '))
-            elamdb.pop(0)
-        else:
-            data = np.array(data).transpose()
-            break
-
-    photo = element.require_group('photoabsorption')
-    photo['log_energy'] = data[0]
-    photo['log_energy'].attrs['units'] = 'eV'
-    photo['log_photoabsorption'] = data[1]
-    photo['log_photoabsorption'].attrs['units'] = 'cm^2/g'
-    photo['log_photoabsorption_spline'] = data[2]
-    return photo
-
-def create_scatter(elamdb, element):
-    data = []
-    while 1:
-        line = elamdb[0]
-
-        if line.startswith('    '):
-            data.append(np.fromstring(line, sep=' '))
-            elamdb.pop(0)
-        else:
-            data = np.array(data).transpose()
-            break
-
-    scatter = element.require_group('scatter')
-    scatter['log_energy'] = data[0]
-    scatter['log_energy'].attrs['units'] = 'eV'
-    scatter['log_coherent_scatter'] = data[1]
-    scatter['log_coherent_scatter'].attrs['units'] = 'cm^2/g'
-    scatter['log_coherent_scatter_spline'] = data[2]
-    scatter['log_incoherent_scatter'] = data[3]
-    scatter['log_incoherent_scatter'].attrs['units'] = 'cm^2/g'
-    scatter['log_incoherent_scatter_spline'] = data[4]
-    return  scatter
 
 class ElamDBCreator(object):
 
@@ -109,8 +64,12 @@ class ElamDBCreator(object):
             '''
             )
         self.c.execute(
-            '''create table scattering (element_id text, log_energy blob,
-            log_coherent_scatter blob, log_coherent_scatter_spline blob,
+            '''create table coherent_scattering (element_id text, log_energy blob,
+            log_coherent_scatter blob, log_coherent_scatter_spline blob)
+            '''
+            )
+        self.c.execute(
+            '''create table incoherent_scattering (element_id text, log_energy blob,
             log_incoherent_scatter blob, log_incoherent_scatter_spline)
             '''
             )
@@ -174,20 +133,49 @@ class ElamDBCreator(object):
                         (ck_id, self.current_element, so, self.current_edge,
                         p, tp)
                         )
-        #     elif line.startswith('Photo'):
-        #         photoabsorption = create_photoabsorption(elamdb, element)
-        #     elif line.startswith('Scatter'):
-        #         scatter = create_scatter(elamdb, element)
-        #     elif line.startswith('EndElement'):
-        #         continue
-        #     elif line.startswith('End'):
-        #         return
+            elif line.startswith('Photo'):
+                energy = []
+                photo = []
+                spline = []
+                while lines[0].startswith('    '):
+                    temp = [float(i) for i in lines.pop(0).split()]
+                    energy.append(temp[0])
+                    photo.append(temp[1])
+                    spline.append(temp[2])
+                self.c.execute(
+                    'insert into photoabsorption values (?,?,?,?)',
+                    (self.current_element, json.dumps(energy), json.dumps(photo),
+                    json.dumps(spline))
+                    )
+            elif line.startswith('Scatter'):
+                energy = []
+                c = []
+                cs = []
+                ic = []
+                ics = []
+                while lines[0].startswith('    '):
+                    temp = [float(i) for i in lines.pop(0).split()]
+                    energy.append(temp[0])
+                    c.append(temp[1])
+                    cs.append(temp[2])
+                    ic.append(temp[3])
+                    ics.append(temp[4])
+                self.c.execute(
+                    'insert into coherent_scattering values (?,?,?,?)',
+                    (self.current_element, json.dumps(energy), json.dumps(c),
+                    json.dumps(cs))
+                    )
+                self.c.execute(
+                    'insert into incoherent_scattering values (?,?,?,?)',
+                    (self.current_element, json.dumps(energy), json.dumps(i),
+                    json.dumps(ics))
+                    )
 
         self.conn.commit()
 
-        self.c.execute('select * from Coster_Kronig_transition_probabilities order by ck_transition_id')
-        for row in self.c:
-            print row
+        # self.c.execute('select * from incoherent_scattering order by element_id')
+        # for row in self.c:
+        #     print row
 
         self.c.close()
 
