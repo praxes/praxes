@@ -15,22 +15,6 @@ import sys
 import numpy as np
 
 
-def create_CK(line, edge):
-    ck = edge.require_group('Coster_Kronig')
-    temp = line.split()[1:]
-    while temp:
-        (i,j), temp = temp[:2], temp[2:]
-        ck[i] = float(j)
-    return ck
-
-def create_CKtotal(line, edge):
-    ck_total = edge.require_group('Coster_Kronig_total')
-    temp = line.split()[1:]
-    while temp:
-        (i,j), temp = temp[:2], temp[2:]
-        ck_total[i] = float(j)
-    return ck_total
-
 def create_photoabsorption(elamdb, element):
     data = []
     while 1:
@@ -101,15 +85,33 @@ class ElamDBCreator(object):
             '''
             )
         self.c.execute(
-            '''create table edges (edge_id text, element_id text,
-            edge_symbol text, edge_energy real, fluorescence_yield real,
-            jump_ratio real)
+            '''create table absorption_edges (orbital_id text, element_id text,
+            orbital_label text, absorption_edge_energy real,
+            fluorescence_yield real, jump_ratio real)
             '''
             )
         self.c.execute(
-            '''create table lines (line_id text, element_id text,
-            iupac_symbol text, siegbahn_symbol text, edge_start text,
-            edge_end text, energy real, intensity real)
+            '''create table emission_lines (line_id text, element_id text,
+            iupac_symbol text, siegbahn_symbol text, orbital_start text,
+            orbital_end text, energy real, intensity real)
+            '''
+            )
+        self.c.execute(
+            '''create table Coster_Kronig_transition_probabilities
+            (CK_transition_id text, element_id text, orbital_start text,
+            orbital_end text, transition_probability real,
+            total_transition_probability real)
+            '''
+            )
+        self.c.execute(
+            '''create table photoabsorption (element_id text, log_energy blob,
+            log_photoabsorption blob, log_photoabsorption_spline blob)
+            '''
+            )
+        self.c.execute(
+            '''create table scattering (element_id text, log_energy blob,
+            log_coherent_scatter blob, log_coherent_scatter_spline blob,
+            log_incoherent_scatter blob, log_incoherent_scatter_spline)
             '''
             )
 
@@ -126,7 +128,7 @@ class ElamDBCreator(object):
                 label, energy, yield_, jump = line.split()[1:]
                 el = self.current_element
                 self.c.execute(
-                    'insert into edges values (?,?,?,?,?,?)',
+                    'insert into absorption_edges values (?,?,?,?,?,?)',
                     ('%s_%s' % (el, label), el, label, energy, yield_, jump)
                     )
                 self.current_edge = label
@@ -141,16 +143,37 @@ class ElamDBCreator(object):
                         start = '%s_%s' % (el, start)
                         end = '%s_%s' % (el, end)
                         self.c.execute(
-                            'insert into lines values (?,?,?,?,?,?,?,?)',
+                            '''insert into emission_lines values
+                            (?,?,?,?,?,?,?,?)''',
                             (id_, el, iupac, siegbahn, start, end, energy,
                             intensity)
                             )
                     else:
                         break
-        #     elif line.startswith('  CK '):
-        #         ck = create_CK(line, edge)
-        #     elif line.startswith('  CKtotal'):
-        #         ck_total = create_CKtotal(line, edge)
+            elif line.startswith('  CK '):
+                temp = line.split()[1:]
+                ck = []
+                while temp:
+                    (i,j), temp = temp[:2], temp[2:]
+                    ck.append((i,j))
+                if lines[0].startswith('  CKtotal'):
+                    temp = lines.pop(0).split()[1:]
+                    ck_total = []
+                    while temp:
+                        (i,j), temp = temp[:2], temp[2:]
+                        ck_total.append((i,j))
+                else:
+                    ck_total = ck
+                for i, j in zip(ck, ck_total):
+                    (so, p), tp = i[:], j[1]
+                    ck_id = '%s_%s-%s' % \
+                        (self.current_element, so, self.current_edge)
+                    self.c.execute(
+                        '''insert into Coster_Kronig_transition_probabilities
+                        values (?,?,?,?,?,?)''',
+                        (ck_id, self.current_element, so, self.current_edge,
+                        p, tp)
+                        )
         #     elif line.startswith('Photo'):
         #         photoabsorption = create_photoabsorption(elamdb, element)
         #     elif line.startswith('Scatter'):
@@ -162,7 +185,7 @@ class ElamDBCreator(object):
 
         self.conn.commit()
 
-        self.c.execute('select * from lines order by edge_end')
+        self.c.execute('select * from Coster_Kronig_transition_probabilities order by ck_transition_id')
         for row in self.c:
             print row
 
