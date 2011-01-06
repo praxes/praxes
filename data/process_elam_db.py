@@ -35,42 +35,43 @@ class ElamDBCreator(object):
         self.c = self.conn.cursor()
 
         self.c.execute(
-            '''create table elements (element_id text, atomic_number integer,
+            '''create table elements (atomic_number integer, element text,
             atomic_mass real, density real)
             '''
             )
+        current_edge_id = 0
         self.c.execute(
-            '''create table absorption_edges (orbital_id text, element_id text,
-            orbital_label text, absorption_edge_energy real,
-            fluorescence_yield real, jump_ratio real)
+            '''create table absorption_edges (id integer, element text,
+            label text, energy real, fluorescence_yield real, jump_ratio real)
             '''
             )
+        current_line_id = 0
         self.c.execute(
-            '''create table emission_lines (line_id text, element_id text,
-            iupac_symbol text, siegbahn_symbol text, orbital_start text,
-            orbital_end text, energy real, intensity real)
+            '''create table emission_lines (id integer, element text,
+            iupac_symbol text, siegbahn_symbol text, start_level text,
+            end_level text, energy real, intensity real)
             '''
             )
+        current_ck_id = 0
         self.c.execute(
             '''create table Coster_Kronig_transition_probabilities
-            (CK_transition_id text, element_id text, orbital_start text,
-            orbital_end text, transition_probability real,
-            total_transition_probability real)
+            (id integer, element text, start_level text, end_level text,
+            transition_probability real, total_transition_probability real)
             '''
             )
+        current_photo_id = 0
         self.c.execute(
-            '''create table photoabsorption (element_id text, log_energy blob,
-            log_photoabsorption blob, log_photoabsorption_spline blob)
+            '''create table photoabsorption (id integer, element text,
+            log_energy text, log_photoabsorption text,
+            log_photoabsorption_spline text)
             '''
             )
+        current_scatter_id = 0
         self.c.execute(
-            '''create table coherent_scattering (element_id text, log_energy blob,
-            log_coherent_scatter blob, log_coherent_scatter_spline blob)
-            '''
-            )
-        self.c.execute(
-            '''create table incoherent_scattering (element_id text, log_energy blob,
-            log_incoherent_scatter blob, log_incoherent_scatter_spline)
+            '''create table scattering (id integer, element text,
+            log_energy text, log_coherent_scatter text,
+            log_coherent_scatter_spline text, log_incoherent_scatter text,
+            log_incoherent_scatter_spline text)
             '''
             )
 
@@ -80,32 +81,31 @@ class ElamDBCreator(object):
                 sym, num, mw, rho = line.split()[1:]
                 self.c.execute(
                     'insert into elements values (?,?,?,?)',
-                    (sym, num, mw, rho)
+                    (num, sym, mw, rho)
                     )
-                self.current_element = sym
+                current_element = sym
             elif line.startswith('Edge'):
+                current_edge_id += 1
                 label, energy, yield_, jump = line.split()[1:]
-                el = self.current_element
+                el = current_element
                 self.c.execute(
                     'insert into absorption_edges values (?,?,?,?,?,?)',
-                    ('%s_%s' % (el, label), el, label, energy, yield_, jump)
+                    (current_edge_id, el, label, energy, yield_, jump)
                     )
-                self.current_edge = label
+                current_edge = label
             elif line.startswith('  Lines'):
                 while True:
                     if lines[0].startswith('    '):
+                        current_line_id += 1
                         line = lines.pop(0)
                         iupac, siegbahn, energy, intensity = line.split()
                         end, start = iupac.split('-')
-                        el = self.current_element
-                        id_ = '%s_%s' % (el, iupac)
-                        start = '%s_%s' % (el, start)
-                        end = '%s_%s' % (el, end)
+                        el = current_element
                         self.c.execute(
                             '''insert into emission_lines values
                             (?,?,?,?,?,?,?,?)''',
-                            (id_, el, iupac, siegbahn, start, end, energy,
-                            intensity)
+                            (current_line_id, el, iupac, siegbahn, start, end,
+                            energy, intensity)
                             )
                     else:
                         break
@@ -124,16 +124,16 @@ class ElamDBCreator(object):
                 else:
                     ck_total = ck
                 for i, j in zip(ck, ck_total):
+                    current_ck_id += 1
                     (so, p), tp = i[:], j[1]
-                    ck_id = '%s_%s-%s' % \
-                        (self.current_element, so, self.current_edge)
                     self.c.execute(
                         '''insert into Coster_Kronig_transition_probabilities
                         values (?,?,?,?,?,?)''',
-                        (ck_id, self.current_element, so, self.current_edge,
+                        (current_ck_id, current_element, so, current_edge,
                         p, tp)
                         )
             elif line.startswith('Photo'):
+                current_photo_id += 1
                 energy = []
                 photo = []
                 spline = []
@@ -143,11 +143,12 @@ class ElamDBCreator(object):
                     photo.append(temp[1])
                     spline.append(temp[2])
                 self.c.execute(
-                    'insert into photoabsorption values (?,?,?,?)',
-                    (self.current_element, json.dumps(energy), json.dumps(photo),
-                    json.dumps(spline))
+                    'insert into photoabsorption values (?,?,?,?,?)',
+                    (current_photo_id, current_element, json.dumps(energy),
+                    json.dumps(photo), json.dumps(spline))
                     )
             elif line.startswith('Scatter'):
+                current_scatter_id += 1
                 energy = []
                 c = []
                 cs = []
@@ -161,21 +162,17 @@ class ElamDBCreator(object):
                     ic.append(temp[3])
                     ics.append(temp[4])
                 self.c.execute(
-                    'insert into coherent_scattering values (?,?,?,?)',
-                    (self.current_element, json.dumps(energy), json.dumps(c),
-                    json.dumps(cs))
-                    )
-                self.c.execute(
-                    'insert into incoherent_scattering values (?,?,?,?)',
-                    (self.current_element, json.dumps(energy), json.dumps(i),
+                    'insert into scattering values (?,?,?,?,?,?,?)',
+                    (current_scatter_id, current_element, json.dumps(energy),
+                    json.dumps(c), json.dumps(cs), json.dumps(i),
                     json.dumps(ics))
                     )
 
         self.conn.commit()
 
-        # self.c.execute('select * from incoherent_scattering order by element_id')
-        # for row in self.c:
-        #     print row
+        self.c.execute('select * from elements order by atomic_number')
+        for row in self.c:
+            print row
 
         self.c.close()
 
