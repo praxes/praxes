@@ -6,6 +6,31 @@ import os
 from Cython.Distutils import build_ext
 import numpy
 
+
+class data(Command):
+
+    description = "Process databases into the structures used by praxes"
+
+    user_options = []
+
+    boolean_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        import shutil
+        import subprocess
+        for db in ('elam',):# 'henke', 'waasmaier'):
+            subprocess.call('cd data && python process_%s_db.py' % db,
+                shell=True
+                )
+            shutil.copyfile('data/%s.db' % db, '%s.db' % db)
+
+
 class test(Command):
 
     """Run the test suite."""
@@ -44,7 +69,7 @@ for dirpath, dirnames, filenames in os.walk('praxes'):
 setup(
     author = 'Darren Dale',
     author_email = 'darren.dale@cornell.edu',
-    cmdclass = {'test': test, 'build_ext': build_ext},
+    cmdclass = {'data': data, 'build_ext': build_ext, 'test': test},
     description = 'Praxes framework for scientific analysis',
     ext_modules = [
         Extension('praxes.io.spec.file', ['praxes/io/spec/file.pyx']),
