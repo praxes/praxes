@@ -51,7 +51,7 @@ def create_database(source, dest, overwrite=False):
         )
     current_ck_id = 0
     c.execute(
-        '''create table Coster_Kronig_transition_probabilities
+        '''create table Coster_Kronig
         (id integer, element text, start_level text, end_level text,
         transition_probability real, total_transition_probability real)
         '''
@@ -121,7 +121,7 @@ def create_database(source, dest, overwrite=False):
                 current_ck_id += 1
                 (so, p), tp = i[:], j[1]
                 c.execute(
-                    '''insert into Coster_Kronig_transition_probabilities
+                    '''insert into Coster_Kronig
                     values (?,?,?,?,?,?)''',
                     (current_ck_id, current_element, so, current_edge,
                     p, tp)
