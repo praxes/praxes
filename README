@@ -1,0 +1,5 @@
+This git repository makes use of submodules. After making a clone of the
+repository, be sure to run these additional steps in praxes' root directory:
+
+  git submodule init
+  git submodule update
