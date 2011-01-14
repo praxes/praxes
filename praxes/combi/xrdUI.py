@@ -1,51 +1,61 @@
+import copy
+import operator
+import os
+import sys
+import time
+
+import h5py
+import matplotlib, matplotlib.cm
+import numpy
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+import scipy.interpolate
+
 global XRFALLOWED
 try:
-    from xrf_analysis import *
+    from .xrf_analysis import *
     XRFALLOWED=True
 except:
     XRFALLOWED=False
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from XRDdefaults import *
-from xrd_fileIO_fcns import *
-from xrd_math_fcns import *
-from xrdPLOT import *
-from xrd_diffraction_conversion_fcns import *
-from xrf_depprof import *
+from .XRDdefaults import *
+from .xrd_fileIO_fcns import *
+from .xrd_math_fcns import *
+from .xrdPLOT import *
+from .xrd_diffraction_conversion_fcns import *
+from .xrf_depprof import *
 
-import numpy, scipy.interpolate, pylab, operator, sys, os, time, copy, h5py, matplotlib, matplotlib.cm
-import ui_mainmenu
-import ui_message_box
-import ui_import_image'p
-import ui_import_attr
-import ui_chessrunattr
-import ui_get_group
-import ui_int_params
-import ui_chi_params
-import ui_qq_params
-import ui_h5file_info
-import ui_analyze_qq
-import ui_wavepeak_1d
-import ui_associate_pkqq
-import ui_associationtree
-import ui_make_phases_menu
-import ui_spatial_phases_menu
-import ui_highlowDialog
-import ui_bmin_menu
-import ui_chiqDialog
-import ui_plotsomenu
-import ui_XRDSuite_params
-import ui_h5scanDialog
-import ui_pdfDialog
-import ui_waveset1d_params
-import ui_dep_prof
-import ui_xrf_analysis
-import ui_test
-import ui_buildnewscan
-import ui_mini_program_dialog
-import ui_pdfsearch
-#import ui_emptydialog
+from . import ui_mainmenu
+from . import ui_message_box
+from . import ui_import_image
+from . import ui_import_attr
+from . import ui_chessrunattr
+from . import ui_get_group
+from . import ui_int_params
+from . import ui_chi_params
+from . import ui_qq_params
+from . import ui_h5file_info
+from . import ui_analyze_qq
+from . import ui_wavepeak_1d
+from . import ui_associate_pkqq
+from . import ui_associationtree
+from . import ui_make_phases_menu
+from . import ui_spatial_phases_menu
+from . import ui_highlowDialog
+from . import ui_bmin_menu
+from . import ui_chiqDialog
+from . import ui_plotsomenu
+from . import ui_XRDSuite_params
+from . import ui_h5scanDialog
+from . import ui_pdfDialog
+from . import ui_waveset1d_params
+from . import ui_dep_prof
+from . import ui_xrf_analysis
+from . import ui_test
+from . import ui_buildnewscan
+from . import ui_mini_program_dialog
+from . import ui_pdfsearch
+#from . import ui_emptydialog
 
 
 #def dummytask(secs):

@@ -1,9 +1,14 @@
-import numpy, operator, copy
-from XRDdefaults import *
+import copy
+import operator
+
+import numpy
 from PyMca import ConfigDict
 from PyMca import ClassMcaTheory
 from PyMca.ConcentrationsTool import ConcentrationsTool
 import PyMca.Elements as PyMEl
+
+from XRDdefaults import *
+
 
 def getcfgdict_txt(cfgpath):
     return ConfigDict.ConfigDict(filelist=cfgpath)

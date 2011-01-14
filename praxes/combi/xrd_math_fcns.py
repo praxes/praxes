@@ -1,6 +1,13 @@
-import numpy, pylab, scipy, scipy.optimize, scipy.interpolate, copy
-from xrd_diffraction_conversion_fcns import *
+import copy
+
 import matplotlib.delaunay as dlny
+import numpy
+import scipy
+import scipy.optimize
+import scipy.interpolate
+
+from .xrd_diffraction_conversion_fcns import *
+
 
 def numtostring(x, n=0): #exponential notation with n significnat digits. if n not specified then trivial string conversion
     if n < 1:

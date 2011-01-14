@@ -1,27 +1,31 @@
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from XRDdefaults import *
-from xrd_fileIO_fcns import *
-import numpy
-import ui_mainmenu
-import ui_message_box
-import ui_import_image
-import ui_import_attr
-import ui_get_group
-import sys
 import os
+import sys
 import time
-import matplotlib
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
-from matplotlib.figure import Figure
 
-#import matplotlib.numerix.npyma as ma
-import numpy.ma as ma
+import matplotlib
+from matplotlib.backends.backend_qt4agg import (
+    FigureCanvasQTAgg as FigureCanvas
+    )
+from matplotlib.backends.backend_qt4agg import (
+    NavigationToolbar2QTAgg as NavigationToolbar
+    )
+from matplotlib.figure import Figure
 import matplotlib.colors as colors
 import matplotlib.cm as cm
 import matplotlib.mlab as mlab
-import pylab
+import numpy
+import numpy.ma as ma
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+
+from .XRDdefaults import *
+from .xrd_fileIO_fcns import *
+from . import ui_mainmenu
+from . import ui_message_box
+from . import ui_import_image
+from . import ui_import_attr
+from . import ui_get_group
+
 
 class plotwidget(FigureCanvas):
     def __init__(self, parent, width=5, height=5, dpi=100, showcolbar=True, nav=True):

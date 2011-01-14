@@ -1,5 +1,6 @@
 import numpy
-from xrd_math_fcns import *
+
+from .xrd_math_fcns import *
 
 def eV_nm(wl):
     return 1239.8/wl

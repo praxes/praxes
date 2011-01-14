@@ -103,7 +103,7 @@ class sdist(_sdist):
     def run(self):
         self.run_command('data')
         self.run_command('ui_cvt')
-        super(sdist, self).run()
+        _sdist.run(self)
 
 
 class build(_build):
@@ -111,7 +111,7 @@ class build(_build):
     def run(self):
         self.run_command('data')
         self.run_command('ui_cvt')
-        super(sdist, self).run()
+        _build.run(self)
 
 
 packages = []
@@ -152,4 +152,5 @@ setup(
         'cython (>=0.13)',
         'numpy (>=1.5.1)',
         ),
+    scripts = ['scripts/combi']
 )

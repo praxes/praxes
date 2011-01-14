@@ -1,21 +1,26 @@
+import operator
+import os
+import time
+
+import h5py
+import matplotlib
+import numpy
+import PyMca.Elements as PyMEl
+# TODO: whats this doing here?:
+import pylab
+
 global XRFALLOWED
 try:
-    from xrf_analysis import *
+    from .xrf_analysis import *
     XRFALLOWED=True
 except:
     XRFALLOWED=False
+from .xrd_math_fcns import *
+from .xrd_diffraction_conversion_fcns import *
+from .XRDdefaults import *
+from .xrf_depprof import *
 
-import numpy, pylab, matplotlib
-from xrd_math_fcns import *
-from xrd_diffraction_conversion_fcns import *
-from XRDdefaults import *
 
-from xrf_depprof import *
-import os
-import time
-import h5py
-import operator
-import PyMca.Elements as PyMEl
 #import Elemental
 #class atabclass(tables.IsDescription):
 #    qqpkind = tables.UInt16Col() #indeces of qqpktab

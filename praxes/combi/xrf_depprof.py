@@ -1,8 +1,11 @@
-from xrd_math_fcns import *
-from XRDdefaults import *
-import numpy, operator
+import operator
+
 #import Elemental
+import numpy
 import PyMca.Elements as PyMEl
+
+from .xrd_math_fcns import *
+from .XRDdefaults import *
 
 
 def GunPropertyDict(gunelements, getEtYstar=False):
