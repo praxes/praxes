@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>peak1dDialog</class>
+ <widget class="QDialog" name="peak1dDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>541</width>
+    <height>120</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>select values for 1d peak search</string>
+  </property>
+  <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="geometry">
+    <rect>
+     <x>270</x>
+     <y>90</y>
+     <width>261</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QWidget" name="horizontalLayout">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>311</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout">
+    <item>
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>max negative
+curvature
+(counts nm^2)</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>minimum
+counts</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>q cluster radius
+(1/nm)</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="horizontalLayout_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>60</y>
+     <width>311</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout">
+    <item>
+     <widget class="QSpinBox" name="curve_spinBox">
+      <property name="maximum">
+       <number>100000000</number>
+      </property>
+      <property name="singleStep">
+       <number>10000</number>
+      </property>
+      <property name="value">
+       <number>16</number>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSpinBox" name="cts_spinBox">
+      <property name="maximum">
+       <number>1000000</number>
+      </property>
+      <property name="singleStep">
+       <number>1000</number>
+      </property>
+      <property name="value">
+       <number>20</number>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QDoubleSpinBox" name="clust_spinBox">
+      <property name="singleStep">
+       <double>0.100000000000000</double>
+      </property>
+      <property name="value">
+       <double>0.500000000000000</double>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QComboBox" name="typeComboBox">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>30</y>
+     <width>191</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="typeLabel">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>10</y>
+     <width>46</width>
+     <height>14</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>select</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>peak1dDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>peak1dDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

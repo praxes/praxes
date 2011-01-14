@@ -1,0 +1,77 @@
+<ui version="4.0" >
+ <class>getgroupDialog</class>
+ <widget class="QDialog" name="getgroupDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>355</width>
+    <height>69</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>select XRD dataset</string>
+  </property>
+  <widget class="QDialogButtonBox" name="buttonBox" >
+   <property name="geometry" >
+    <rect>
+     <x>5</x>
+     <y>35</y>
+     <width>343</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="orientation" >
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons" >
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="groupsComboBox" >
+   <property name="geometry" >
+    <rect>
+     <x>5</x>
+     <y>9</y>
+     <width>343</width>
+     <height>20</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>getgroupDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>getgroupDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

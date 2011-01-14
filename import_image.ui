@@ -1,0 +1,180 @@
+<ui version="4.0" >
+ <class>importDialog</class>
+ <widget class="QDialog" name="importDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>523</width>
+    <height>128</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Select files for importing binary image data to .h5 file</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset>CUIcon.png</iconset>
+  </property>
+  <widget class="QLabel" name="groupLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>74</y>
+     <width>79</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>group in .h5 file:</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="groupLineEdit" >
+   <property name="geometry" >
+    <rect>
+     <x>95</x>
+     <y>74</y>
+     <width>402</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text" >
+    <string>.root.XRD.PrimDataset.Raw</string>
+   </property>
+  </widget>
+  <widget class="QDialogButtonBox" name="buttonBox" >
+   <property name="geometry" >
+    <rect>
+     <x>332</x>
+     <y>100</y>
+     <width>165</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="orientation" >
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons" >
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="statusLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>20</x>
+     <y>100</y>
+     <width>301</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="styleSheet" >
+    <string>color:red</string>
+   </property>
+   <property name="text" >
+    <string>File Status</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="" >
+   <property name="geometry" >
+    <rect>
+     <x>1</x>
+     <y>11</y>
+     <width>165</width>
+     <height>60</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" >
+    <item>
+     <widget class="QPushButton" name="binaryButton" >
+      <property name="text" >
+       <string>select different binary file</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="h5Button" >
+      <property name="text" >
+       <string>select different .h5 save file</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="binarynameLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>172</x>
+     <y>12</y>
+     <width>349</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="font" >
+    <font>
+     <family>Courier</family>
+     <pointsize>10</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text" >
+    <string>.dat</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="h5nameLabel" >
+   <property name="geometry" >
+    <rect>
+     <x>172</x>
+     <y>43</y>
+     <width>349</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="font" >
+    <font>
+     <family>Courier</family>
+     <pointsize>10</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text" >
+    <string>.h5</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>importDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>importDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>spatialphasesDialog</class>
+ <widget class="QDialog" name="spatialphasesDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>364</width>
+    <height>112</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Select values for association</string>
+  </property>
+  <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>70</y>
+     <width>181</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>5</x>
+     <y>0</y>
+     <width>136</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>crit spatial
+separation for
+cts blob
+(units=xgrid sep)</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="critblobsepSpinBox">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>70</y>
+     <width>71</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <double>100.000000000000000</double>
+   </property>
+   <property name="singleStep">
+    <double>0.100000000000000</double>
+   </property>
+   <property name="value">
+    <double>1.000000000000000</double>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>10</y>
+     <width>70</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>min num qqpks</string>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="numqqpksSpinBox">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>30</y>
+     <width>42</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>3</number>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="numptsSpinBox">
+   <property name="geometry">
+    <rect>
+     <x>235</x>
+     <y>40</y>
+     <width>42</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>3</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>10</y>
+     <width>141</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>min num substrate
+points in blob</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>spatialphasesDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>spatialphasesDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

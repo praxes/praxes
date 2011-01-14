@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>wavepeak1dDialog</class>
+ <widget class="QDialog" name="wavepeak1dDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>669</width>
+    <height>133</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>select values for 1d peak search</string>
+  </property>
+  <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
+     <y>80</y>
+     <width>171</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="typeComboBox">
+   <property name="geometry">
+    <rect>
+     <x>440</x>
+     <y>46</y>
+     <width>211</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>The dataset in which peaks will be identified.</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="typeLabel">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>30</y>
+     <width>46</width>
+     <height>14</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>select</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="maxqs_spinBox">
+   <property name="geometry">
+    <rect>
+     <x>230</x>
+     <y>60</y>
+     <width>81</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>If the global maximum of the wavelet transform intensity in a ridge occurs at a wavelet scale above this value, the ridge will not be counted as a peak. Ancestor ridges are not considered in the global maximum.</string>
+   </property>
+   <property name="singleStep">
+    <double>0.100000000000000</double>
+   </property>
+   <property name="value">
+    <double>1.500000000000000</double>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="wavenoisecutoff_spinBox">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>60</y>
+     <width>99</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;This is the critical wavelet transform intensity for local maxima in the wavelet transform to be included in the set of ridges and should be set near the noise level inthe wavelet transform. &lt;/span&gt; Use trial and error with the &quot;Visualization-&amp;gt;plot 1D wavetrans&quot; in the main menu - if there are lots local maxima identified where peaks are not evident in the data, raise this value.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="minimum">
+    <double>-99999.000000000000000</double>
+   </property>
+   <property name="maximum">
+    <double>99999.000000000000000</double>
+   </property>
+   <property name="singleStep">
+    <double>0.100000000000000</double>
+   </property>
+   <property name="value">
+    <double>20.000000000000000</double>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="minridgelength_spinBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>40</y>
+     <width>99</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The minimum number of wavelet transform local maxima in a ridge for it to count as a peak. Ancestor ridges are included in this calculation.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="maximum">
+    <number>100000000</number>
+   </property>
+   <property name="singleStep">
+    <number>10000</number>
+   </property>
+   <property name="value">
+    <number>2</number>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="minridgewtsum_spinBox">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>40</y>
+     <width>91</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>For a ridge to be counted as a peak, the sum of the wavelet transform intensity over the local maxima in the ridge must be bigger than this value. The &quot;wavelet noise cutoff&quot; should be set near the noise threshold in the wavelet transform, and this value should be set significantly higher than that. Use trial and error with the &quot;Visualization-&gt;plot 1D wavetrans&quot; in the main menu - if there are too many falsely identified peaks, raise this value.</string>
+   </property>
+   <property name="minimum">
+    <double>0.000000000000000</double>
+   </property>
+   <property name="maximum">
+    <double>9999999.000000000000000</double>
+   </property>
+   <property name="value">
+    <double>100.000000000000000</double>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>10</y>
+     <width>111</width>
+     <height>29</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>min. total wave
+trans. for ridge</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>225</x>
+     <y>30</y>
+     <width>106</width>
+     <height>29</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>max wavelet
+q scale of peak</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>15</x>
+     <y>10</y>
+     <width>86</width>
+     <height>29</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>minimum
+ridge length</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>340</x>
+     <y>30</y>
+     <width>86</width>
+     <height>29</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>wavelet
+noise cutoff</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>70</y>
+     <width>91</width>
+     <height>29</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>min. total WT
+for child ridge</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="minchildwtsum_spinBox">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>100</y>
+     <width>91</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>If this value is 0, the algorithm is maximally sensitive to overlapped peaks. If this value is equal to the above &quot;min. total ..ridge&quot;, the algorithm will essentially identify overlapped peaks as a single peak. Use trial and error with the &quot;Visualization-&gt;plot 1D wavetrans&quot; in the main menu - if there are wide single peaks in the data that are being identified as multiple split peaks, raise this value.</string>
+   </property>
+   <property name="minimum">
+    <double>0.000000000000000</double>
+   </property>
+   <property name="maximum">
+    <double>9999999.000000000000000</double>
+   </property>
+   <property name="value">
+    <double>0.000000000000000</double>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="minchildlength_spinBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>100</y>
+     <width>99</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>The minimum number of wavelet transform local maxima in a child ridge for it to count as a peak.</string>
+   </property>
+   <property name="maximum">
+    <number>100000000</number>
+   </property>
+   <property name="singleStep">
+    <number>10000</number>
+   </property>
+   <property name="value">
+    <number>0</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>70</y>
+     <width>86</width>
+     <height>29</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>min. child
+ridge length</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>wavepeak1dDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>wavepeak1dDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
