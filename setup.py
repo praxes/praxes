@@ -1,5 +1,7 @@
 from distutils.core import setup
 from distutils.cmd import Command
+from distutils.command.sdist import sdist as _sdist
+from distutils.command.build import build as _build
 from distutils.extension import Extension
 import os
 
@@ -58,6 +60,60 @@ class test(Command):
         unittest.TextTestRunner(verbosity=self.verbosity+1).run(suite)
 
 
+class ui_cvt(Command):
+
+    description = "Convert Qt user interface files to PyQt .py files"
+
+    user_options = []
+
+    boolean_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def _ui_cvt(self, arg, dirname, fnames):
+        ## if os.path.split(dirname)[-1] in ('ui'):
+        for fname in fnames:
+            if fname.endswith('.ui'):
+                ui = '/'.join([dirname, fname])
+                py = os.path.splitext(ui)[0]+'.py'
+                if os.path.isfile(py):
+                    if os.path.getmtime(ui) < os.path.getmtime(py):
+                        continue
+                os.system('pyuic4 -o %s %s'%(py, ui))
+                print('converted %s'%fname)
+            elif fname.endswith('.qrc'):
+                rc = '/'.join([dirname, fname])
+                py = os.path.splitext(rc)[0]+'_rc.py'
+                if os.path.isfile(py):
+                    if os.path.getmtime(rc) < os.path.getmtime(py):
+                        continue
+                os.system('pyrcc4 -o %s %s'%(py, rc))
+                print('converted %s'%fname)
+
+    def run(self):
+        os.path.walk('praxes', self._ui_cvt, None)
+
+
+class sdist(_sdist):
+
+    def run(self):
+        self.run_command('data')
+        self.run_command('ui_cvt')
+        super(sdist, self).run()
+
+
+class build(_build):
+
+    def run(self):
+        self.run_command('data')
+        self.run_command('ui_cvt')
+        super(sdist, self).run()
+
+
 packages = []
 for dirpath, dirnames, filenames in os.walk('praxes'):
     if '__init__.py' in filenames:
@@ -69,7 +125,14 @@ for dirpath, dirnames, filenames in os.walk('praxes'):
 setup(
     author = 'Darren Dale',
     author_email = 'darren.dale@cornell.edu',
-    cmdclass = {'data': data, 'build_ext': build_ext, 'test': test},
+    cmdclass = {
+        'build': build,
+        'build_ext': build_ext,
+        'data': data,
+        'sdist': sdist,
+        'test': test,
+        'ui_cvt': ui_cvt,
+        },
     description = 'Praxes framework for scientific analysis',
     ext_modules = [
         Extension('praxes.io.spec.file', ['praxes/io/spec/file.pyx']),
