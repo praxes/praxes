@@ -1,0 +1,247 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module SpecCommand</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>SpecCommand</strong></big></big> (version 1.0)</font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/mntdirect/_bliss/users/guijarro/SpecClient/SpecCommand.py">/mntdirect/_bliss/users/guijarro/SpecClient/SpecCommand.py</a></font></td></tr></table>
+    <p><tt><a href="#SpecCommand">SpecCommand</a>&nbsp;module<br>
+&nbsp;<br>
+This&nbsp;module&nbsp;defines&nbsp;the&nbsp;classes&nbsp;for&nbsp;executing&nbsp;commands&nbsp;in&nbsp;Spec<br>
+and&nbsp;getting&nbsp;results&nbsp;back.<br>
+&nbsp;<br>
+Classes:<br>
+<a href="#BaseSpecCommand">BaseSpecCommand</a>&nbsp;--&nbsp;base&nbsp;class&nbsp;for&nbsp;<a href="#SpecCommand">SpecCommand</a>&nbsp;objects<br>
+<a href="#SpecCommand">SpecCommand</a>(<a href="#BaseSpecCommand">BaseSpecCommand</a>)&nbsp;--&nbsp;class&nbsp;for&nbsp;executing&nbsp;commands&nbsp;in&nbsp;Spec<br>
+<a href="#SpecCommandA">SpecCommandA</a>(<a href="#BaseSpecCommand">BaseSpecCommand</a>)&nbsp;--&nbsp;class&nbsp;for&nbsp;executing&nbsp;commands&nbsp;in&nbsp;Spec,&nbsp;to&nbsp;be&nbsp;used&nbsp;with&nbsp;a&nbsp;GUI</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="SpecConnectionsManager.html">SpecConnectionsManager</a><br>
+</td><td width="25%" valign=top><a href="SpecEventsDispatcher.html">SpecEventsDispatcher</a><br>
+</td><td width="25%" valign=top><a href="SpecWaitObject.html">SpecWaitObject</a><br>
+</td><td width="25%" valign=top><a href="string.html">string</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="SpecCommand.html#BaseSpecCommand">BaseSpecCommand</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="SpecCommand.html#SpecCommand">SpecCommand</a>
+</font></dt><dt><font face="helvetica, arial"><a href="SpecCommand.html#SpecCommandA">SpecCommandA</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="BaseSpecCommand">class <strong>BaseSpecCommand</strong></a></font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Class&nbsp;<a href="#BaseSpecCommand">BaseSpecCommand</a><br>
+&nbsp;<br>
+Base&nbsp;class&nbsp;for&nbsp;<a href="#SpecCommand">SpecCommand</a>&nbsp;objects<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="BaseSpecCommand-__call__"><strong>__call__</strong></a>(self, func<font color="#909090">=False</font>, *args)</dt><dd><tt>Execute&nbsp;the&nbsp;command&nbsp;with&nbsp;the&nbsp;arguments<br>
+&nbsp;<br>
+Build&nbsp;a&nbsp;command&nbsp;string&nbsp;to&nbsp;be&nbsp;executed&nbsp;by&nbsp;Spec,&nbsp;and&nbsp;call<br>
+self.<strong>executeCommand</strong>&nbsp;on&nbsp;it.&nbsp;The&nbsp;given&nbsp;arguments&nbsp;are<br>
+concatenated&nbsp;with&nbsp;the&nbsp;command&nbsp;name&nbsp;(self.<strong>command</strong>).<br>
+&nbsp;<br>
+Keyword&nbsp;arguments:<br>
+func&nbsp;--&nbsp;if&nbsp;True,&nbsp;indicates&nbsp;that&nbsp;self.<strong>command</strong>&nbsp;is&nbsp;a&nbsp;macro&nbsp;function.<br>
+Otherwise,&nbsp;indicates&nbsp;that&nbsp;self.<strong>command</strong>&nbsp;is&nbsp;a&nbsp;macro.&nbsp;This&nbsp;changes&nbsp;the&nbsp;way<br>
+the&nbsp;final&nbsp;command&nbsp;string&nbsp;is&nbsp;built.&nbsp;Defaults&nbsp;to&nbsp;False.</tt></dd></dl>
+
+<dl><dt><a name="BaseSpecCommand-__init__"><strong>__init__</strong></a>(self, command<font color="#909090">=None</font>, connection<font color="#909090">=None</font>, timeout<font color="#909090">=None</font>)</dt><dd><tt>Constructor<br>
+&nbsp;<br>
+Keyword&nbsp;arguments:<br>
+command&nbsp;--&nbsp;command&nbsp;to&nbsp;be&nbsp;executed&nbsp;by&nbsp;a&nbsp;remote&nbsp;Spec&nbsp;server,&nbsp;without&nbsp;args.&nbsp;(see&nbsp;self.<strong>setCommand</strong>)&nbsp;(defaults&nbsp;to&nbsp;None)<br>
+connection&nbsp;--&nbsp;either&nbsp;a&nbsp;'host:port'&nbsp;string&nbsp;pointing&nbsp;to&nbsp;a&nbsp;Spec&nbsp;version&nbsp;or&nbsp;a&nbsp;SpecConnection&nbsp;object&nbsp;(defaults&nbsp;to&nbsp;None)<br>
+timeout&nbsp;--&nbsp;optional&nbsp;connection&nbsp;timeout&nbsp;(defaults&nbsp;to&nbsp;None)</tt></dd></dl>
+
+<dl><dt><a name="BaseSpecCommand-__repr__"><strong>__repr__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="BaseSpecCommand-connectToSpec"><strong>connectToSpec</strong></a>(self, specVersion, timeout<font color="#909090">=None</font>)</dt><dd><tt>Connect&nbsp;to&nbsp;a&nbsp;remote&nbsp;Spec<br>
+&nbsp;<br>
+Mainly&nbsp;used&nbsp;for&nbsp;two-steps&nbsp;object&nbsp;creation.<br>
+To&nbsp;be&nbsp;extended&nbsp;by&nbsp;derivated&nbsp;classes.<br>
+&nbsp;<br>
+Arguments:<br>
+specVersion&nbsp;--&nbsp;'host:port'&nbsp;string&nbsp;representing&nbsp;the&nbsp;Spec&nbsp;version&nbsp;to&nbsp;connect&nbsp;to<br>
+timeout&nbsp;--&nbsp;optional&nbsp;connection&nbsp;timeout&nbsp;(defaults&nbsp;to&nbsp;None)</tt></dd></dl>
+
+<dl><dt><a name="BaseSpecCommand-executeCommand"><strong>executeCommand</strong></a>(self, command)</dt><dd><tt>Execute&nbsp;a&nbsp;command&nbsp;string&nbsp;in&nbsp;the&nbsp;remote&nbsp;Spec&nbsp;server<br>
+&nbsp;<br>
+To&nbsp;be&nbsp;extended&nbsp;by&nbsp;derivated&nbsp;classes.<br>
+&nbsp;<br>
+Arguments:<br>
+command&nbsp;--&nbsp;a&nbsp;command&nbsp;string&nbsp;to&nbsp;be&nbsp;executed</tt></dd></dl>
+
+<dl><dt><a name="BaseSpecCommand-setCommand"><strong>setCommand</strong></a>(self, command)</dt><dd><tt>Set&nbsp;the&nbsp;command&nbsp;to&nbsp;be&nbsp;executed&nbsp;by&nbsp;the&nbsp;Spec&nbsp;server<br>
+&nbsp;<br>
+Mainly&nbsp;used&nbsp;for&nbsp;two-steps&nbsp;object&nbsp;creation.<br>
+&nbsp;<br>
+Arguments:<br>
+command&nbsp;--&nbsp;command&nbsp;name.&nbsp;It&nbsp;is&nbsp;*NOT*&nbsp;the&nbsp;full&nbsp;command&nbsp;string<br>
+to&nbsp;be&nbsp;executed&nbsp;by&nbsp;Spec.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="SpecCommand">class <strong>SpecCommand</strong></a>(<a href="SpecCommand.html#BaseSpecCommand">BaseSpecCommand</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Class&nbsp;<a href="#SpecCommand">SpecCommand</a><br>
+&nbsp;<br>
+<a href="#SpecCommand">SpecCommand</a>&nbsp;objects&nbsp;execute&nbsp;macros&nbsp;and&nbsp;wait&nbsp;for&nbsp;results&nbsp;to&nbsp;get&nbsp;back.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="SpecCommand-connectToSpec"><strong>connectToSpec</strong></a>(self, specVersion, timeout<font color="#909090">=None</font>)</dt><dd><tt>Extend&nbsp;<a href="#BaseSpecCommand">BaseSpecCommand</a>.connectToSpec<br>
+&nbsp;<br>
+Obtain&nbsp;a&nbsp;connection&nbsp;to&nbsp;Spec,&nbsp;and&nbsp;wait&nbsp;for&nbsp;it&nbsp;to&nbsp;be&nbsp;connected&nbsp;or&nbsp;timeout.<br>
+&nbsp;<br>
+Arguments:<br>
+specVersion&nbsp;--&nbsp;'host:port'&nbsp;string&nbsp;representing&nbsp;the&nbsp;Spec&nbsp;version&nbsp;to&nbsp;connect&nbsp;to<br>
+timeout&nbsp;--&nbsp;connection&nbsp;timeout&nbsp;(defaults&nbsp;to&nbsp;None,&nbsp;no&nbsp;timeout)</tt></dd></dl>
+
+<dl><dt><a name="SpecCommand-executeCommand"><strong>executeCommand</strong></a>(self, command)</dt><dd><tt>Extend&nbsp;<a href="#BaseSpecCommand">BaseSpecCommand</a>.executeCommand<br>
+&nbsp;<br>
+Execute&nbsp;the&nbsp;given&nbsp;command&nbsp;string,&nbsp;and&nbsp;wait&nbsp;for&nbsp;reply.</tt></dd></dl>
+
+<hr>
+Methods inherited from <a href="SpecCommand.html#BaseSpecCommand">BaseSpecCommand</a>:<br>
+<dl><dt><a name="SpecCommand-__call__"><strong>__call__</strong></a>(self, func<font color="#909090">=False</font>, *args)</dt><dd><tt>Execute&nbsp;the&nbsp;command&nbsp;with&nbsp;the&nbsp;arguments<br>
+&nbsp;<br>
+Build&nbsp;a&nbsp;command&nbsp;string&nbsp;to&nbsp;be&nbsp;executed&nbsp;by&nbsp;Spec,&nbsp;and&nbsp;call<br>
+self.<strong>executeCommand</strong>&nbsp;on&nbsp;it.&nbsp;The&nbsp;given&nbsp;arguments&nbsp;are<br>
+concatenated&nbsp;with&nbsp;the&nbsp;command&nbsp;name&nbsp;(self.<strong>command</strong>).<br>
+&nbsp;<br>
+Keyword&nbsp;arguments:<br>
+func&nbsp;--&nbsp;if&nbsp;True,&nbsp;indicates&nbsp;that&nbsp;self.<strong>command</strong>&nbsp;is&nbsp;a&nbsp;macro&nbsp;function.<br>
+Otherwise,&nbsp;indicates&nbsp;that&nbsp;self.<strong>command</strong>&nbsp;is&nbsp;a&nbsp;macro.&nbsp;This&nbsp;changes&nbsp;the&nbsp;way<br>
+the&nbsp;final&nbsp;command&nbsp;string&nbsp;is&nbsp;built.&nbsp;Defaults&nbsp;to&nbsp;False.</tt></dd></dl>
+
+<dl><dt><a name="SpecCommand-__init__"><strong>__init__</strong></a>(self, command<font color="#909090">=None</font>, connection<font color="#909090">=None</font>, timeout<font color="#909090">=None</font>)</dt><dd><tt>Constructor<br>
+&nbsp;<br>
+Keyword&nbsp;arguments:<br>
+command&nbsp;--&nbsp;command&nbsp;to&nbsp;be&nbsp;executed&nbsp;by&nbsp;a&nbsp;remote&nbsp;Spec&nbsp;server,&nbsp;without&nbsp;args.&nbsp;(see&nbsp;self.<strong>setCommand</strong>)&nbsp;(defaults&nbsp;to&nbsp;None)<br>
+connection&nbsp;--&nbsp;either&nbsp;a&nbsp;'host:port'&nbsp;string&nbsp;pointing&nbsp;to&nbsp;a&nbsp;Spec&nbsp;version&nbsp;or&nbsp;a&nbsp;SpecConnection&nbsp;object&nbsp;(defaults&nbsp;to&nbsp;None)<br>
+timeout&nbsp;--&nbsp;optional&nbsp;connection&nbsp;timeout&nbsp;(defaults&nbsp;to&nbsp;None)</tt></dd></dl>
+
+<dl><dt><a name="SpecCommand-__repr__"><strong>__repr__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="SpecCommand-setCommand"><strong>setCommand</strong></a>(self, command)</dt><dd><tt>Set&nbsp;the&nbsp;command&nbsp;to&nbsp;be&nbsp;executed&nbsp;by&nbsp;the&nbsp;Spec&nbsp;server<br>
+&nbsp;<br>
+Mainly&nbsp;used&nbsp;for&nbsp;two-steps&nbsp;object&nbsp;creation.<br>
+&nbsp;<br>
+Arguments:<br>
+command&nbsp;--&nbsp;command&nbsp;name.&nbsp;It&nbsp;is&nbsp;*NOT*&nbsp;the&nbsp;full&nbsp;command&nbsp;string<br>
+to&nbsp;be&nbsp;executed&nbsp;by&nbsp;Spec.</tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="SpecCommandA">class <strong>SpecCommandA</strong></a>(<a href="SpecCommand.html#BaseSpecCommand">BaseSpecCommand</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Class&nbsp;<a href="#SpecCommandA">SpecCommandA</a><br>
+&nbsp;<br>
+Designed&nbsp;to&nbsp;be&nbsp;used&nbsp;with&nbsp;a&nbsp;GUI<br>
+&nbsp;<br>
+<a href="#SpecCommandA">SpecCommandA</a>&nbsp;is&nbsp;the&nbsp;asynchronous&nbsp;version&nbsp;of&nbsp;<a href="#SpecCommand">SpecCommand</a>.<br>
+It&nbsp;allows&nbsp;custom&nbsp;waiting&nbsp;by&nbsp;subclassing.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="SpecCommandA-beginWait"><strong>beginWait</strong></a>(self)</dt><dd><tt>Start&nbsp;waiting&nbsp;for&nbsp;the&nbsp;command&nbsp;reply<br>
+&nbsp;<br>
+To&nbsp;be&nbsp;extended&nbsp;by&nbsp;derivated&nbsp;classes.</tt></dd></dl>
+
+<dl><dt><a name="SpecCommandA-connectToSpec"><strong>connectToSpec</strong></a>(self, specVersion, timeout<font color="#909090">=None</font>)</dt><dd><tt>Extend&nbsp;<a href="#BaseSpecCommand">BaseSpecCommand</a>.connectToSpec<br>
+&nbsp;<br>
+Obtain&nbsp;a&nbsp;connection&nbsp;to&nbsp;Spec<br>
+&nbsp;<br>
+Arguments:<br>
+specVersion&nbsp;--&nbsp;'host:port'&nbsp;string&nbsp;representing&nbsp;the&nbsp;Spec&nbsp;version&nbsp;to&nbsp;connect&nbsp;to<br>
+&nbsp;<br>
+Keyword&nbsp;arguments:<br>
+timeout&nbsp;--&nbsp;ignored</tt></dd></dl>
+
+<dl><dt><a name="SpecCommandA-endWait"><strong>endWait</strong></a>(self)</dt><dd><tt>End&nbsp;waiting&nbsp;for&nbsp;the&nbsp;command&nbsp;reply<br>
+&nbsp;<br>
+To&nbsp;be&nbsp;extended&nbsp;by&nbsp;derivated&nbsp;classes.</tt></dd></dl>
+
+<dl><dt><a name="SpecCommandA-executeCommand"><strong>executeCommand</strong></a>(self, command)</dt><dd><tt>Extend&nbsp;<a href="#BaseSpecCommand">BaseSpecCommand</a>.executeCommand<br>
+&nbsp;<br>
+Execute&nbsp;a&nbsp;command&nbsp;string&nbsp;in&nbsp;the&nbsp;remote&nbsp;Spec&nbsp;server,<br>
+and&nbsp;register&nbsp;the&nbsp;reply<br>
+&nbsp;<br>
+Arguments:<br>
+command&nbsp;--&nbsp;a&nbsp;command&nbsp;string&nbsp;to&nbsp;be&nbsp;executed</tt></dd></dl>
+
+<dl><dt><a name="SpecCommandA-replyArrived"><strong>replyArrived</strong></a>(self, reply)</dt><dd><tt>Callback&nbsp;for&nbsp;getting&nbsp;reply&nbsp;after&nbsp;remote&nbsp;command&nbsp;execution.</tt></dd></dl>
+
+<hr>
+Methods inherited from <a href="SpecCommand.html#BaseSpecCommand">BaseSpecCommand</a>:<br>
+<dl><dt><a name="SpecCommandA-__call__"><strong>__call__</strong></a>(self, func<font color="#909090">=False</font>, *args)</dt><dd><tt>Execute&nbsp;the&nbsp;command&nbsp;with&nbsp;the&nbsp;arguments<br>
+&nbsp;<br>
+Build&nbsp;a&nbsp;command&nbsp;string&nbsp;to&nbsp;be&nbsp;executed&nbsp;by&nbsp;Spec,&nbsp;and&nbsp;call<br>
+self.<strong>executeCommand</strong>&nbsp;on&nbsp;it.&nbsp;The&nbsp;given&nbsp;arguments&nbsp;are<br>
+concatenated&nbsp;with&nbsp;the&nbsp;command&nbsp;name&nbsp;(self.<strong>command</strong>).<br>
+&nbsp;<br>
+Keyword&nbsp;arguments:<br>
+func&nbsp;--&nbsp;if&nbsp;True,&nbsp;indicates&nbsp;that&nbsp;self.<strong>command</strong>&nbsp;is&nbsp;a&nbsp;macro&nbsp;function.<br>
+Otherwise,&nbsp;indicates&nbsp;that&nbsp;self.<strong>command</strong>&nbsp;is&nbsp;a&nbsp;macro.&nbsp;This&nbsp;changes&nbsp;the&nbsp;way<br>
+the&nbsp;final&nbsp;command&nbsp;string&nbsp;is&nbsp;built.&nbsp;Defaults&nbsp;to&nbsp;False.</tt></dd></dl>
+
+<dl><dt><a name="SpecCommandA-__init__"><strong>__init__</strong></a>(self, command<font color="#909090">=None</font>, connection<font color="#909090">=None</font>, timeout<font color="#909090">=None</font>)</dt><dd><tt>Constructor<br>
+&nbsp;<br>
+Keyword&nbsp;arguments:<br>
+command&nbsp;--&nbsp;command&nbsp;to&nbsp;be&nbsp;executed&nbsp;by&nbsp;a&nbsp;remote&nbsp;Spec&nbsp;server,&nbsp;without&nbsp;args.&nbsp;(see&nbsp;self.<strong>setCommand</strong>)&nbsp;(defaults&nbsp;to&nbsp;None)<br>
+connection&nbsp;--&nbsp;either&nbsp;a&nbsp;'host:port'&nbsp;string&nbsp;pointing&nbsp;to&nbsp;a&nbsp;Spec&nbsp;version&nbsp;or&nbsp;a&nbsp;SpecConnection&nbsp;object&nbsp;(defaults&nbsp;to&nbsp;None)<br>
+timeout&nbsp;--&nbsp;optional&nbsp;connection&nbsp;timeout&nbsp;(defaults&nbsp;to&nbsp;None)</tt></dd></dl>
+
+<dl><dt><a name="SpecCommandA-__repr__"><strong>__repr__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="SpecCommandA-setCommand"><strong>setCommand</strong></a>(self, command)</dt><dd><tt>Set&nbsp;the&nbsp;command&nbsp;to&nbsp;be&nbsp;executed&nbsp;by&nbsp;the&nbsp;Spec&nbsp;server<br>
+&nbsp;<br>
+Mainly&nbsp;used&nbsp;for&nbsp;two-steps&nbsp;object&nbsp;creation.<br>
+&nbsp;<br>
+Arguments:<br>
+command&nbsp;--&nbsp;command&nbsp;name.&nbsp;It&nbsp;is&nbsp;*NOT*&nbsp;the&nbsp;full&nbsp;command&nbsp;string<br>
+to&nbsp;be&nbsp;executed&nbsp;by&nbsp;Spec.</tt></dd></dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>__author__</strong> = 'Matias Guijarro'<br>
+<strong>__version__</strong> = '1.0'</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#7799ee">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Author</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#7799ee"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Matias&nbsp;Guijarro</td></tr></table>
+</body></html>

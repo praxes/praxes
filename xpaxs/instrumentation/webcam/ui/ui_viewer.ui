@@ -1,0 +1,124 @@
+<ui version="4.0" >
+ <class>viewer</class>
+ <widget class="QWidget" name="viewer" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>480</width>
+    <height>409</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Viewer</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <item>
+    <widget class="QComboBox" name="urlBox" >
+     <property name="editable" >
+      <bool>true</bool>
+     </property>
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <item>
+      <property name="text" >
+       <string>about:blank</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>http://smp-desktop.dynamic.chess.cornell.edu:8888/</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>http://www.google.com</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWebView" name="camWebView" >
+     <property name="url" >
+      <url>
+       <string>about:blank</string>
+      </url>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout" >
+     <item>
+      <widget class="QSpinBox" name="reloadRateSpin" >
+       <property name="alignment" >
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="suffix" >
+        <string>fps</string>
+       </property>
+       <property name="minimum" >
+        <number>0</number>
+       </property>
+       <property name="maximum" >
+        <number>60</number>
+       </property>
+       <property name="value" >
+        <number>1</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="reloadButton" >
+       <property name="text" >
+        <string>Reload</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKit/QWebView</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>reloadButton</sender>
+   <signal>clicked()</signal>
+   <receiver>camWebView</receiver>
+   <slot>reload()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>295</x>
+     <y>387</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>295</x>
+     <y>319</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>urlBox</sender>
+   <signal>editTextChanged(QString)</signal>
+   <receiver>camWebView</receiver>
+   <slot>setWindowTitle(QString)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>159</x>
+     <y>18</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>171</x>
+     <y>60</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,0 +1,125 @@
+#!/usr/bin/env python
+
+import os
+import shutil
+import sys
+
+import phynx
+
+# from frontend.mainwindow:
+def reformat_file(self, filename):
+    f = phynx.File(filename, 'a', lock=QRLock())
+    try:
+        if f.attrs['format'] == 'h5py transitional':
+            import xpaxs.io.compat.transitional as format
+        else:
+            import xpaxs.io.compat.original as format
+    except:
+        import xpaxs.io.compat.original as format
+    f.close()
+
+    backup = '%s.old'%filename
+    if os.path.exists(backup):
+        backup = '%s.backup'%filename
+        print 'moving old file to %s'%backup
+        shutil.move(filename, backup)
+    else:
+        print 'moving old file to %s'%backup
+        shutil.move(filename, backup)
+    specfile = filename.rstrip('.hdf5').rstrip('.h5')
+    f = convert_to_phynx(specfile)
+    f.close()
+
+def reformat_unknown(filename):
+    certain = None
+    while certain not in ('y', 'n'):
+        certain = raw_input('%s format not recognized, reformat (y/n)? '%filename)
+    if certain == 'n':
+        return
+
+    import xpaxs.io.compat.original as format
+    specfile = filename.rstrip('.hdf5').rstrip('.h5').rstrip('.hdf').rstrip('.nxs')
+    while not os.path.isfile(specfile):
+        specfile = raw_input('enter spec file name: ')
+        if not specfile:
+            print '%s not reformatted' % filename
+            return
+
+    backup = filename
+    while os.path.exists(backup):
+        backup = raw_input('backup %s as: '%filename)
+        if not backup:
+            print '%s not reformatted' % filename
+            return
+
+    shutil.move(filename, backup)
+    f = format.convert_to_phynx(specfile, filename, backup)
+    f.close()
+
+def reformat_transitional(self):
+    import xpaxs.io.compat.transitional as format
+    specfile = filename.rstrip('.hdf5').rstrip('.h5').rstrip('.hdf').rstrip('.nxs')
+    while not os.path.isfile(specfile):
+        specfile = raw_input('enter spec file name: ')
+        if not specfile:
+            print '%s not reformatted' % filename
+            return
+
+    backup = filename
+    while os.path.exists(backup):
+        backup = raw_input('backup %s as: '%filename)
+        if not backup:
+            print '%s not reformatted' % filename
+            return
+
+    shutil.move(filename, backup)
+    f = format.convert_to_phynx(specfile, filename, backup)
+    f.close()
+
+def check_and_reformat(filename):
+    f = phynx.File(filename, 'a')
+
+    if f.format is None:
+        f.close()
+        reformat_unknown(filename)
+
+    elif f.format == 'h5py transitional':
+        f.close()
+        reformat_unknown(filename)
+
+
+# check contents of MultiChannelAnalyzer:
+#        with self.plock:
+#            if 'counts' in self:
+#                if self['counts'].attrs['class'] != 'Spectrum':
+#                    self['counts'].attrs['class'] = 'Spectrum'
+#
+#            # TODO: this could eventually go away
+#            # old files did not identify dead time properly
+#            if 'dead_time' in self:
+#                dt = self['dead_time']
+#                if not isinstance(dt, DeadTime):
+#                    dt.attrs['class'] = 'DeadTime'
+#            else:
+#                if 'dead' in self:
+#                    self['dead_time'] = self['dead']
+#                    self['dead_time'].attrs['class'] = 'DeadTime'
+#                elif 'dtn' in self:
+#                    data = 100*(1-self['dtn'].value)
+#                    self.create_dataset('dead_time', type='DeadTime', data=data)
+#                elif 'vtxdtn' in self:
+#                    data = 100*(1-self['vtxdtn'].value)
+#                    self.create_dataset('dead_time', type='DeadTime', data=data)
+#                else:
+#                    return
+#                self['dead_time'].attrs['units'] = '%'
+#                self['dead_time'].attrs['dead_time_format'] = '%'
+
+
+def main(args):
+    for arg in args[1:]:
+        check_and_reformat(arg)
+
+
+if __name__ == '__main__':
+    main(sys.argv)

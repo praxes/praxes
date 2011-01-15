@@ -1,0 +1,19 @@
+# SPECD/site.mac
+def mmvr '{
+	if ($#/2.0 != int($#/2.0) || $# == 0){
+		printf("Usage: mmvr motor_mne relative_position [motor2_mne")
+		printf(" relative_position]...\n")
+		beep; exit
+	}
+	numargs = split( "$*", mmv_args)
+	waitmove; getangles
+	_bad_lim = 0; _bad_mot = 0
+	for( motno = 0; motno < numargs; motno += 2){
+		_check_mot_str mmv_args[motno]
+		if (_bad_mot > 0) { exit }
+		A[mmv_args[motno]] += mmv_args[motno + 1]
+		_chk_lim mmv_args[motno] A[mmv_args[motno]]
+	}
+	if(_bad_lim > 0) { getangles; beep; exit }
+	_move
+}'

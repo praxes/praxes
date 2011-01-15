@@ -1,1 +1,4 @@
-recursive-include test *.py
+prune *
+recursive-include xpaxs *.py *.svg *.png
+recursive-include praxes *.py
+recursive-include SpecClient *.py

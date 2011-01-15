@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+
+from __future__ import absolute_import
+
+#import signal
+#signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+import logging
+import sys
+
+from PyQt4 import QtGui
+
+from xpaxs.frontend import mainwindow
+
+# TODO: this would be handled differently through the envisage framework:
+from xpaxs.frontend.application import XpaxsApplication
+
+app = XpaxsApplication(sys.argv)
+app.setOrganizationName('XPaXS')
+app.setApplicationName('xpaxs')
+myapp = mainwindow.MainWindow()
+myapp.show()
+
+logger = logging.getLogger('xpaxs')
+logger.debug('xpaxs started')
+
+sys.exit(app.exec_())

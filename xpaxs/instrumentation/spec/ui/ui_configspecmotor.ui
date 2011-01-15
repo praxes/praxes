@@ -1,0 +1,236 @@
+<ui version="4.0" >
+ <class>SpecSetter</class>
+ <widget class="QWidget" name="SpecSetter" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>529</width>
+    <height>157</height>
+   </rect>
+  </property>
+  <property name="cursor" >
+   <cursorShape>ArrowCursor</cursorShape>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" colspan="2" >
+    <widget class="QLabel" name="label_9" >
+     <property name="text" >
+      <string>Config File</string>
+     </property>
+     <property name="buddy" >
+      <cstring>lineEdit_2</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2" colspan="6" >
+    <widget class="QLineEdit" name="lineEdit_2" />
+   </item>
+   <item row="0" column="8" colspan="4" >
+    <widget class="QPushButton" name="Changer" >
+     <property name="text" >
+      <string>Change File</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>MotorName</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="3" >
+    <widget class="QLabel" name="label_2" >
+     <property name="text" >
+      <string>Stepsize</string>
+     </property>
+     <property name="buddy" >
+      <cstring>StepSize</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="4" colspan="2" >
+    <widget class="QLabel" name="label_6" >
+     <property name="text" >
+      <string>Sign</string>
+     </property>
+     <property name="buddy" >
+      <cstring>Sign</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="6" colspan="2" >
+    <widget class="QLabel" name="label_7" >
+     <property name="text" >
+      <string>Acceleration</string>
+     </property>
+     <property name="buddy" >
+      <cstring>Accel</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="8" colspan="3" >
+    <widget class="QLabel" name="label_8" >
+     <property name="text" >
+      <string>Base Rate</string>
+     </property>
+     <property name="buddy" >
+      <cstring>BR</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="11" >
+    <widget class="QLabel" name="Speed" >
+     <property name="text" >
+      <string>Speed</string>
+     </property>
+     <property name="buddy" >
+      <cstring>Speed</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" >
+    <widget class="QComboBox" name="Name" />
+   </item>
+   <item row="2" column="1" colspan="2" >
+    <widget class="QDoubleSpinBox" name="StepSize" />
+   </item>
+   <item row="2" column="4" >
+    <widget class="QSpinBox" name="Sign" >
+     <property name="minimum" >
+      <number>-1</number>
+     </property>
+     <property name="maximum" >
+      <number>1</number>
+     </property>
+     <property name="singleStep" >
+      <number>2</number>
+     </property>
+     <property name="value" >
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="5" colspan="3" >
+    <widget class="QDoubleSpinBox" name="Accel" />
+   </item>
+   <item row="2" column="8" colspan="2" >
+    <widget class="QDoubleSpinBox" name="BR" >
+     <property name="decimals" >
+      <number>0</number>
+     </property>
+     <property name="maximum" >
+      <double>1000000.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="10" colspan="2" >
+    <widget class="QDoubleSpinBox" name="Speed" >
+     <property name="decimals" >
+      <number>0</number>
+     </property>
+     <property name="maximum" >
+      <double>1000000.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" >
+    <widget class="QLabel" name="label_5" >
+     <property name="text" >
+      <string>Backlash</string>
+     </property>
+     <property name="buddy" >
+      <cstring>Blash</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" colspan="2" >
+    <widget class="QLabel" name="label_3" >
+     <property name="text" >
+      <string>Lower Limit</string>
+     </property>
+     <property name="buddy" >
+      <cstring>LL</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3" colspan="4" >
+    <widget class="QLabel" name="label_4" >
+     <property name="text" >
+      <string>Upper Limit</string>
+     </property>
+     <property name="buddy" >
+      <cstring>UL</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" >
+    <widget class="QDoubleSpinBox" name="Blash" >
+     <property name="decimals" >
+      <number>0</number>
+     </property>
+     <property name="minimum" >
+      <double>-1000000.000000000000000</double>
+     </property>
+     <property name="maximum" >
+      <double>1000000.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" colspan="2" >
+    <widget class="QDoubleSpinBox" name="LL" >
+     <property name="minimum" >
+      <double>-360.000000000000000</double>
+     </property>
+     <property name="maximum" >
+      <double>360.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="3" colspan="4" >
+    <widget class="QDoubleSpinBox" name="UL" >
+     <property name="minimum" >
+      <double>-360.000000000000000</double>
+     </property>
+     <property name="maximum" >
+      <double>360.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="7" colspan="2" >
+    <widget class="QPushButton" name="Setter" >
+     <property name="text" >
+      <string>Set Parameters</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="9" colspan="3" >
+    <widget class="QPushButton" name="pushButton" >
+     <property name="text" >
+      <string>Load</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>lineEdit_2</tabstop>
+  <tabstop>Changer</tabstop>
+  <tabstop>StepSize</tabstop>
+  <tabstop>Sign</tabstop>
+  <tabstop>Accel</tabstop>
+  <tabstop>BR</tabstop>
+  <tabstop>Speed</tabstop>
+  <tabstop>Blash</tabstop>
+  <tabstop>LL</tabstop>
+  <tabstop>UL</tabstop>
+  <tabstop>Setter</tabstop>
+  <tabstop>pushButton</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
