@@ -175,7 +175,7 @@ def integrationnormalization(killmap, imap, dqchiimage, slots=None):#this pretty
     ans[ans>0]=1/ans[ans>0]
     return ans
 
-def binimage(data, bin=3, zerokill=False, mapbin=None): #data is square array, dtype='uint16', int16 or float32. averages bin by bin sections of the array and returns smaller array    #mapbin changes the grid
+def binimage(data, bin=3, zerokill=False, mapbin=None): #data is square array,averages bin by bin sections of the array and returns smaller array    #mapbin changes the grid
     size=data.shape[0]
     if zerokill:
         nonzeromap=binboolimage(data!=0, bin=bin)
@@ -185,6 +185,22 @@ def binimage(data, bin=3, zerokill=False, mapbin=None): #data is square array, d
         if zerokill:
             ans*=nonzeromap
     else:
+        try:
+            if 'int' in str(data.dtype):
+                a, b, c=str(data.dtype).partition('int')
+                c=eval(c)
+            else:
+                a='u'
+                b='int'
+                c=1
+            c+=numpy.ceil(numpy.log(bin**2)/numpy.log(2.)/8.)
+            if c>64:
+                c='64'
+            else:
+                c='%d' %int(c)
+            dt=''.join((a, b, c))
+        except:
+            dt='int64'
         b = numpy.array([data[:, i:i+bin].sum(axis=1, dtype='int32') for i in xrange(0, size, bin)])
         if data.dtype=='bool':
             ans=numpy.bool_(numpy.array([b[:, k:k+bin].sum(axis=1, dtype='int32') for k in xrange(0, size, bin)])//bin**2)
@@ -201,8 +217,8 @@ def mapbin(data, mapbin=3):
 
 def unbinimage(data, bin=3):
     size=data.shape[0]*bin
-    d=numpy.empty((size, size), dtype='uint16')
-    a=numpy.zeros(bin, dtype='uint16')
+    d=numpy.empty((size, size), dtype=data.dtype)
+    a=numpy.zeros(bin, dtype=data.dtype)
     return numpy.array([(numpy.array([a+i for i in data[j//bin]])).flatten() for j in range(bin*data.shape[0])])
 
 def binboolimage(data, bin=3): #data is square array, dtype='bool'. every pixel in bin must be True for binned pixel to be True
@@ -216,15 +232,18 @@ def unbinboolimage(data, bin=3):
     a=numpy.zeros(bin, dtype='bool')
     return numpy.array([(numpy.array([a+i for i in data[j//bin]])).flatten() for j in range(bin*data.shape[0])])
 
-
-def bckndsubtract(data, bckndarr, killmap=None, btype='minanom', banom_f_f=None,  banomcalc=None):
+def combineimageswithwieghts(wts, imagearr):# it would be nice to use numpy.dot but that doesn't work with a 3-d array
+    return numpy.array([w*im for w, im in zip(wts, imagearr)], dtype=imagearr.dtype).sum(axis=0)
+def bckndsubtract(data, bckndarr, killmap=None, btype='minanom', banom_f_f=None,  banomcalc=None, linweights=None):
 #data,bckndarr,killmap must be same size. banom will be adjusted to that size
 #if btype is 'min' or 'ave' just calculates and returns - killmap can be None for this but must be passed otherwise
 #if btype is 'minanom' and calculation of anomalous backnd and factors is to be avoided: pass banom_f_f=(banom,fmin,fanom)
 #if btype is 'minanom' and calculation must happen do not pass banom_f_f ,  pass banomcalc=(imap,qgrid,attrdict, None or bimap, None or bqgrid, None or fraczeroed, None or factorprecision)  -don'e have to include trailing None's - also, in this case all the arrays must be full sized
 #returns tuple (bcknd subtracted data) if no banom, fmin, fanom, calc done, otherwise (    , banom, fmin, fanom, bimap, bqgrid,fraczeroed)
 # if 'minanom' then bckndarr is bmin
-    if btype=='min' or btype=='ave':
+    if btype=='lin':
+        bckndarr=combineimageswithwieghts(linweights, bckndarr)
+    if btype=='min' or btype=='ave' or btype=='lin':
         a=bckndarr>data
         data-=bckndarr
         data[a]=0
@@ -295,7 +314,6 @@ def bckndsubtract(data, bckndarr, killmap=None, btype='minanom', banom_f_f=None,
 class calc_bmin_banom_factors():
     def __init__(self, data, bmin, killmap, imap, qgrid, attrdict,  fraczeroed=0.005, factorprecision=0.005, bimap=None, bqgrid=None, qimage=None):
         #must pass either bimap or qimage.
-        bin=3
         #everyhitng should be binned to same size specified as bin
         # if providing bimap must provide correct bqgrid - if bimap provided, will use that bin
         #data,bmin,killmap,imap must be full sized
@@ -307,9 +325,12 @@ class calc_bmin_banom_factors():
             print 'calc_bmin_banom_factors NOT CURRENTLY SUPPORTING DIFFERENT ARRAY SHAPES'
         self.fz=fraczeroed
         self.fp=factorprecision
-        self.center=numpy.float32(bincenterind_centerind(centerindeces_fit2dcenter(attrdict['cal']), bin))
+        self.detsize=data.shape[0]
+        self.center=numpy.float32(bincenterind_centerind(centerindeces_fit2dcenter(attrdict['cal'], detsize=self.detsize), bin))
         self.L=attrdict['cal'][2]
         self.wl=attrdict['wavelength']
+        self.psize=attrdict['psize']
+        self.dtype=data.dtype
         if bqgrid is None:
             minbinwidth=8  #this should be much larger than the widest features (peaks) not to be substracted
             b2=numpy.uint16(numpy.ceil((qgrid[2]-1)*1.0*qgrid[1]/minbinwidth))
@@ -318,9 +339,10 @@ class calc_bmin_banom_factors():
             self.bqgrid=qgrid_minmaxnum(qgrid[0], minmaxint_qgrid(qgrid)[1], b2)
         else:
             self.bqgrid=bqgrid
-        if (bimap is None) or (3450%bimap.shape[0]!=0):
+        if (bimap is None) or (self.detsize%bimap.shape[0]!=0):
             if qimage is None:
                 print 'aborted because need to calculate bimap but cannot without qimage'
+                return
             self.bimap=imap_gen(qimage, self.bqgrid)
 #            qslots=slotends_qgrid(self.bqgrid)
 #            pixslots=pix_q(qslots, self.L,self.wl, psize=0.1*bin)
@@ -328,8 +350,8 @@ class calc_bmin_banom_factors():
         else:
             self.bimap=bimap
 
-        self.bin=3450//self.bimap.shape[0]
-        self.center=numpy.float32(bincenterind_centerind(centerindeces_fit2dcenter(attrdict['cal']), self.bin))
+        self.bin=self.detsize/self.bimap.shape[0]
+        #self.center=numpy.float32(bincenterind_centerind(centerindeces_fit2dcenter(attrdict['cal'], detsize=self.detsize), self.bin))
         self.killmap=killmap*(imap!=0)
 
         #print self.killmap.sum()
@@ -345,7 +367,7 @@ class calc_bmin_banom_factors():
 
         self.bdata=self.data-self.bmin
         qvals=q_qgrid_ind(self.bqgrid)
-        pixvalssq=pix_q(qvals, self.L,self.wl, psize=0.1*self.bin)**2
+        pixvalssq=pix_q(qvals, self.L,self.wl, psize=self.psize*self.bin)**2
 
         bqmin=numpy.array([self.bqmin_gen(i+1) for i in range(self.bqgrid[2])])
         #print '**', bqmin
@@ -404,9 +426,9 @@ class calc_bmin_banom_factors():
             return a[numpy.uint16(a.size*self.fz)]
 
     def banom_gen(self):
-        temp=numpy.array([[self.banom_int((i-self.center[1])**2+(j-self.center[0])**2)[0]  for i in range(3450/self.bin)]  for j in range(3450/self.bin)], dtype='int32')
+        temp=numpy.array([[self.banom_int((i-self.center[1])**2+(j-self.center[0])**2)[0]  for i in range(self.detsize/self.bin)]  for j in range(self.detsize/self.bin)], dtype='int64')#just use largest size int available instead of checking against self.dtype
         temp[temp<0]=0
-        return numpy.uint16(temp)
+        return numpy.array(temp, dtype=self.dtype)
 
     def btot_gen(self, fmin, fanom):
         return (self.bmin*fmin+self.banom*fanom)*self.killmap
@@ -516,6 +538,80 @@ class calc_bmin_banom_factors():
 #    def btot_gen(self, fmin, fanom):
 #        return self.bmin*fmin+self.banom*fanom
 
+def find2darrayzeros(x, y, z):#x and y are 1d arrays and z is the 2d surface. find some x,y values that linearly interpolate to z=0 with a True for success and False if all of z had same sign
+    zb=numpy.zeros(z[:-1, :-1].shape, dtype='bool')
+
+    zl=[z[:-1, :-1], z[1:, :-1], z[:-1, 1:], z[1:, 1:]]
+
+    for ar1, ar2 in zip(zl, zl[1:]+zl[0]):
+        zb+=numpy.logical_xor(ar1>0., ar2>0.)
+        
+    xi, yi=numpy.where(zb)
+    if len(xi)>0:
+        wt=numpy.sum(1./numpy.abs(numpy.float32([z[xi, yi], z[xi+1, yi], z[xi, yi+1], z[xi+1, yi+1]])), axis=0)
+        xv=numpy.float32([x[inds]/numpy.abs(z[inds, othinds]) for inds in (xi, xi+1) for othinds in (yi, yi+1)]).sum(axis=0)/wt
+        yv=numpy.float32([y[inds]/numpy.abs(z[othinds, inds]) for inds in (yi, yi+1) for othinds in (xi, xi+1)]).sum(axis=0)/wt
+        return True, xv, yv
+    else:
+        xi, yi=numpy.where(numpy.abs(z)==numpy.min(numpy.abs(z)))
+        return False, x[xi[0:1]], y[yi[0:1]]
+
+def AveArrUpToRank(arr, rank=0.5):
+    arr=arr.flatten()
+    arr=numpy.sort(arr)
+    return arr[:int(round(rank*len(arr)))].mean(dtype='float32')
+    
+def FindLinearSumBcknd(counts, killmap, b0, b1, f0vals, f1vals, fraczeroed=0.05, rankfornorm=0.5, fprecision=0.01):#takes the n x image counts and kill and bcknd images and using the f0vals,f1vals as guesses for the weights of the normalized bcknd images, find the f0,f1 that sum to maximum total counts while staying below fraczeroed  pixels being zeroed
+    vol0=(b0*killmap).sum(dtype='float32')
+    vol1=(b1*killmap).sum(dtype='float32')
+    b0=numpy.float32(b0)
+    b0wt=AveArrUpToRank(b0[numpy.where(killmap)], rank=rankfornorm)
+    b0/=b0wt
+    b1=numpy.float32(b1)
+    b1wt=AveArrUpToRank(b1[numpy.where(killmap)], rank=rankfornorm)
+    b1/=b1wt
+    nz=(killmap==1).sum(dtype='float32')*fraczeroed
+    print 'nz: ', nz,  '   trials: ', len(f0vals)*len(f1vals)
+    print 'The trial values are \nf0:', f0vals, '\nf1:', f1vals
+    f0final=[]
+    f1final=[]
+    for counter, c in enumerate(counts):
+        print 'Starting image ', counter
+        c=numpy.float32(c)
+        cwt=AveArrUpToRank(c[killmap], rank=rankfornorm)
+        c/=cwt
+        nzero_f0f1=numpy.float32([[((c-f0*b0-f1*b1)*killmap<0.).sum(dtype='float32') for f1 in f1vals] for f0 in f0vals])
+        print 'num trials w too many zeroed: ', len(numpy.where(nzero_f0f1>nz)[0])
+        garb, f0poss, f1poss=find2darrayzeros(f0vals, f1vals, nzero_f0f1-nz)
+        print 'Zeros were found within the array of guesses?', garb
+        f0mod=[]
+        f1mod=[]
+        print 'f0poss', f0poss
+        print 'f1poss', f1poss
+        for f0, f1 in zip(f0poss, f1poss):
+            lowbool=((c-f0*b0-f1*b1)*killmap<0.).sum(dtype='float32')<nz
+            newlowbool=lowbool
+            fct=1.+(lowbool*2.-1.)*fprecision
+            while lowbool==newlowbool:
+                f0*=fct
+                f1*=fct
+                newlowbool=((c-f0*b0-f1*b1)*killmap<0.).sum(dtype='float32')<nz
+            if lowbool: #use the factors that low-ball the nz
+                f0/=fct
+                f1/=fct
+            f0mod+=[f0]
+            f1mod+=[f1]
+        print 'f0mod', f0mod
+        print 'f1mod', f1mod
+        f0mod=numpy.float32(f0mod)
+        f1mod=numpy.float32(f1mod)
+        print 'tot vol', vol0*f0mod/b0wt+vol1*f1mod/b1wt
+        i=numpy.argmax(vol0*f0mod/b0wt+vol1*f1mod/b1wt) #vol0 and vol1 were calcuated before the biwt scaling so the wieghts have to be used here
+        f0final+=[f0mod[i]*cwt/b0wt]
+        f1final+=[f1mod[i]*cwt/b1wt]
+    return numpy.float32(f0final), numpy.float32(f1final)
+    
+    
 class fitfcns:
     #.finalparams .sigmas .parnames useful, returns fitfcn(x)
     def genfit(self, fcn, initparams, datatuple, markstr='unspecified', parnames=[], interaction=0,  maxfev=2000, weights=None):
@@ -618,14 +714,10 @@ def savgolsmooth(x, window, order = 4, dx=1.0, deriv=0): #based on scipy cookboo
     offsets = range(-1*side, side+1)
     offset_data = zip(offsets, m)
 
-    smooth_data = list()
-    for i in xrange(side, len(s) - side):
-            value = 0.0
-            for offset, weight in offset_data:
-                value += weight * s[i + offset]
-            smooth_data.append(value)
-    return numpy.array(smooth_data)/(dx**deriv)
-
+    smooth_data=[numpy.array([(weight * s[i + offset]) for offset, weight in offset_data]).sum() for i in xrange(side, len(s) - side)]
+    smooth_data=numpy.array(smooth_data)/(dx**deriv)
+    return smooth_data
+  
 def wellspacedgrid(numpts, yvals=False): #numpts must be a perfect square
     sn=numpy.sqrt(numpts)
     temp=numpy.r_[numpy.array(range(numpts-1))*sn/(numpts-1.0)%1, 1]
@@ -752,7 +844,8 @@ def bcknd1dprogram(qgrid, ivals, attrdictORangles=None, smoothqwindow=0.5, cubic
     if isinstance(attrdictORangles, dict):
         L=attrdictORangles['cal'][2]
         wl=attrdictORangles['wavelength']
-        angles=powdersolidangle_q(qvals, L, wl) #don't send a psize, use default 0.1mm
+        psize=attrdictORangles['psize']
+        angles=powdersolidangle_q(qvals, L, wl, psize=psize)
     elif isinstance(attrdictORangles, numpy.ndarray):
         angles=attrdictORangles
     else:
@@ -1841,12 +1934,18 @@ def stripbadcharsfromnumstr(numstr):
     valchars=[c for c in numstr if c.isdigit() or c=='.' or c=='-']
     return ''.join(valchars)
 
+#def cart_comp(comp):
+#    if isinstance(comp, list) or (isinstance(comp, numpy.ndarray) and comp.ndim==1):
+#        return [1.-comp[0]-0.5*comp[1], comp[1]]
+#    else:
+#        return numpy.float32([1.-comp[:, 0]-0.5*comp[:, 1], comp[:, 1]]).T
 def cart_comp(comp):
-    if isinstance(comp, list) or (isinstance(comp, numpy.ndarray) and comp.ndim==1):
+    comp=numpy.float32(comp)
+    if comp.ndim==1:
         return [1.-comp[0]-0.5*comp[1], comp[1]]
     else:
         return numpy.float32([1.-comp[:, 0]-0.5*comp[:, 1], comp[:, 1]]).T
-
+        
 def compdistarr_comp(comp):#comp must be array of compositions, each element of comp is supposed to be a 3-array of the fractions
     return numpy.float32([[numpy.sqrt(((a-b)**2).sum()) for b in comp] for a in comp]/numpy.sqrt(2.))
 
@@ -1941,3 +2040,33 @@ def myargmax(a): #this is to resolve the problem I reported in numpy Ticket #142
         return 0
     ind=numpy.argmin(numpy.isnan(a))
     return ind+numpy.argmax(a[ind:])
+
+def dezing(arr,critval=None):
+    if critval is None:
+        if isinstance(arr[0, 0], int):
+            critval=numpy.iinfo(arr.dtype).max
+        else:
+            critval=arr.max()
+    c=numpy.where((arr[1:-1,1:-1]>=critval)*(arr[:-2,1:-1]<critval)*(arr[2:,1:-1]<critval)*(arr[1:-1,:-2]<critval)*(arr[1:-1,2:]<critval))
+    c0=c[0]+1
+    c1=c[1]+1
+    arr[c0,c1]=(arr[c0-1,c1]+arr[c0+1,c1]+arr[c0,c1-1]+arr[c0,c1+1])/4
+    return arr
+
+def removesinglepixoutliers(arr,critratiotoneighbors=1.5):
+    #c=numpy.where(arr[1:-1,1:-1]>(critratiotoneighbors*(arr[:-2,1:-1]+arr[2:,1:-1]+arr[1:-1,:-2]+arr[1:-1,2:])))
+    c=numpy.where((arr[1:-1,1:-1]>(critratiotoneighbors*arr[:-2,1:-1]))*(arr[1:-1,1:-1]>(critratiotoneighbors*arr[2:,1:-1]))*(arr[1:-1,1:-1]>(critratiotoneighbors*arr[1:-1,:-2]))*(arr[1:-1,1:-1]>(critratiotoneighbors*arr[1:-1,2:])))
+    c0=c[0]+1
+    c1=c[1]+1
+    print len(c0), ' pixels being replaced'
+    arr[c0,c1]=(arr[c0-1,c1]+arr[c0+1,c1]+arr[c0,c1-1]+arr[c0,c1+1])/4
+    return arr
+
+def readh5pyarray(arrpoint):
+    return eval('arrpoint'+('['+':,'*len(arrpoint.shape))[:-1]+']')
+    
+def readblin(h5mar, bin=0):
+    bs=['blin0', 'blin1']
+    if bin:
+        bs=[b+'bin%d' %bin for b in bs]
+    return numpy.array([readh5pyarray(h5mar[b]) for b in bs]), numpy.array([h5mar[b].attrs['weights'][:] for b in bs]).T

@@ -543,6 +543,11 @@ p, li { white-space: pre-wrap; }
      <string>ave</string>
     </property>
    </item>
+   <item>
+    <property name="text">
+     <string>lin</string>
+    </property>
+   </item>
   </widget>
   <widget class="QDoubleSpinBox" name="wavelengthSpinBox">
    <property name="geometry">

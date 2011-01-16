@@ -12,7 +12,9 @@ def attrdict_def():
     'cal':[1596.3, 1753.4, 558.9, .181, 272],#[horizontal pixel of beam, vertical, detector dist in mm, detector tilt in deg, tilt direction in deg], the origin for the beam center is upper left pixel=(0,0), fit2D uses lower left=(1,1), these numbers are all assumed to come from fit2D
     'alpha':50, #sample tilt in deg where 0 is substrate perpendicular to beam. this is 90deg??360 but depends on chi???-phi in the 4circle goniometer
     'bcknd':'min', #string for user to specify the type of background subtraction to be used in analysis
-    'wavelength':0.02066#x-ray wavelength in nm
+    'wavelength':0.02066, #x-ray wavelength in nm
+    'xrdname':'mar345', 
+    'psize':0.1, 
     }
 
 #def attrdict_def():
@@ -52,11 +54,18 @@ def integration_params():
     return [qmin, qmax, qint]
 
 def defaultdir(st):
+#    d={\
+#    'runlog' : 'C:/Users/JohnnyG/Documents/CHESS/CHESS2010/CHESS2010runlogs', \
+#    'h5' : 'C:/Users/JohnnyG/Documents/CHESS/CHESS2010/CHESS2010h5analysis', \
+#    'dataimport' : 'C:/Users/JohnnyG/Documents/CHESS/CHESS2010/CHESS2010h5analysis',  \
+#    'otherdata' : 'C:/Users/JohnnyG/Documents/CHESS/CHESS2010',  \
+#    'pdfentries': 'C:/Users/JohnnyG/Documents/CHESS/CHESSANALYSISARRAYS' \
+#    }
     d={\
-    'runlog' : 'C:/Users/JohnnyG/Documents/CHESS/CHESS2010/CHESS2010runlogs', \
-    'h5' : 'C:/Users/JohnnyG/Documents/CHESS/CHESS2010/CHESS2010h5analysis', \
-    'dataimport' : 'C:/Users/JohnnyG/Document/CHESS/CHESS2010/CHESS2010h5analysis',  \
-    'otherdata' : 'C:/Users/JohnnyG/Documents/CHESS/CHESS2010',  \
+    'runlog' : 'C:/Users/JohnnyG/Documents/CHESS/CHESS2010-12/runlogs', \
+    'h5' : 'C:/Users/JohnnyG/Documents/CHESS/CHESS2010-12/h5analysis', \
+    'dataimport' : 'C:/Users/JohnnyG/Documents/CHESS/CHESS2010-12',  \
+    'otherdata' : 'C:/Users/JohnnyG/Documents/CHESS/CHESS2010-12',  \
     'pdfentries': 'C:/Users/JohnnyG/Documents/CHESS/CHESSANALYSISARRAYS' \
     }
 
@@ -99,3 +108,6 @@ def MINIPROGRAMpath():
 
 def XRFINFOpath():
     return 'C:/Users/JohnnyG/Documents/CHESS/CHESSANALYSISARRAYS/xrfinfodatabase.txt'
+
+def XRDgroupnames():
+    return ['mar345', 'area_detector']
