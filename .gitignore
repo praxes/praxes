@@ -1,5 +1,6 @@
 *.so
 *.pyc
+ui_*.py*
 praxes/io/spec/*.c
 xpaxs.egg-info
 build

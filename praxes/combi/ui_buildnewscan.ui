@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>buildnewscanDialog</class>
+ <widget class="QDialog" name="buildnewscanDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>828</width>
+    <height>323</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>285</y>
+     <width>341</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="replacelistLineEdit">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>105</y>
+     <width>521</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>This is the list of spec indeces from the &quot;scan name to copy&quot; which will be will be replaced.</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="newlistLineEdit">
+   <property name="geometry">
+    <rect>
+     <x>175</x>
+     <y>180</y>
+     <width>536</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>These are the spec indeces from elsehwere in the .h5 file which will replace the above spec indeces. Both XRD and XRF data are replaced.</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="replaceimageComboBox">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>105</y>
+     <width>151</width>
+     <height>26</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="newimageComboBox">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>180</y>
+     <width>151</width>
+     <height>26</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="appendnameComboBox">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>255</y>
+     <width>241</width>
+     <height>26</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="appendlistLineEdit">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>255</y>
+     <width>536</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>These are the other spec groups which will be appended to the copied spec group. In the new group, the spec indeces will be coninued from the copied spec group. The resulting list of x,z positions will not necessarily correspond to something that could be accessed with a single spec command.</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="appendPushButton">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>215</y>
+     <width>201</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Add to append scan list</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="replacePushButton">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>140</y>
+     <width>201</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Add replacement to list</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>90</y>
+     <width>131</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>image to be replaced</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>90</y>
+     <width>391</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>list of images to be replaced. comma-delimited list of indeces</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>165</y>
+     <width>541</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>list of images to replace above images. comma-delimited list of scanname:index</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>240</y>
+     <width>546</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>list of comma-delimited scan names. All images from each scan will be appended</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>165</y>
+     <width>161</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>image to replace above</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>240</y>
+     <width>141</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>scan name to append</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="copynameComboBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>20</y>
+     <width>501</width>
+     <height>26</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>5</y>
+     <width>131</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>scan name to copy</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="radiusSpinBox">
+   <property name="geometry">
+    <rect>
+     <x>260</x>
+     <y>50</y>
+     <width>71</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>When a distance is entered here, the spec group, spec index of diffraction images acquired within that distance of &quot;image to be replaced&quot; will be listed in &quot;image to replace above&quot;.</string>
+   </property>
+   <property name="maximum">
+    <double>9999.000000000000000</double>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_8">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>50</y>
+     <width>181</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>search radius for finding
+suitablereplacement (mm)</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="newnameLineEdit">
+   <property name="geometry">
+    <rect>
+     <x>530</x>
+     <y>20</y>
+     <width>121</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>This will be the name of the synthetic spec scan in the .h5 file.</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_9">
+   <property name="geometry">
+    <rect>
+     <x>530</x>
+     <y>5</y>
+     <width>131</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>new scan name</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>buildnewscanDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>buildnewscanDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

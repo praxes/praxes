@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+import os
+import sys
+import time
+
+import numpy
+from PyQt4 import QtGui
+
+from praxes.combi.XRDdefaults import *
+from praxes.combi.xrdUI import MainMenu, mygetdir
+
+
+mainapp = None
+ltime = time.localtime()
+runfoldername = (
+    "%4i" % ltime[0] + "%02i" % ltime[1] + "%02i" % ltime[2] + "_" +
+    "%02i" % ltime[3] + "." + "%02i" % ltime[4]
+    )
+
+runrootpath = mygetdir(
+    markstr='house XRDrundata folder', xpath=defaultdir('runlog')
+    )
+datpath = defaultdir('dataimport')
+h5path = defaultdir('h5')
+runpath = os.path.join(runrootpath, runfoldername).replace('\\','/')
+while os.path.exists(runpath):
+    runpath = ''.join(runpath, 'a')
+os.makedirs(runpath)
+
+mainapp = QtGui.QApplication(sys.argv)
+form = MainMenu(datpath=datpath, h5path=h5path, runpath=runpath)
+form.show()
+form.setFocus()
+sys.exit(mainapp.exec_())
