@@ -266,3 +266,9 @@ def tiltdirectioninverseoperation(image, tiltdir):
     if invbool:
         image=image[::-1, :]
     return image
+
+delQ_1mmbeam=lambda q,L,wl:q_rho(rho_q(q, L,wl)+1.,L,wl)-q
+
+delQ_1pixel=lambda q,L,wl:q_pix(pix_q(q, L,wl, psize=0.2)+1.,L,wl, psize=0.2)-q  #DEFAULT IS SET FOR GE DETECTOR
+
+delQ_1mmL=lambda q,L,wl:q_rho(rho_q(q, L+1.,wl),L+1.,wl)-q_rho(rho_q(q, L,wl),L,wl)

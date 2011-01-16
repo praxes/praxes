@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Users\JohnnyG\Documents\CHESS\XRDproject_Python\import_attr.ui'
 #
-# Created: Fri Nov 26 23:20:33 2010
+# Created: Sun Jan 09 18:39:36 2011
 #      by: PyQt4 UI code generator 4.5.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -152,6 +152,7 @@ class Ui_importattrDialog(object):
         self.bckndComboBox.addItem(QtCore.QString())
         self.bckndComboBox.addItem(QtCore.QString())
         self.bckndComboBox.addItem(QtCore.QString())
+        self.bckndComboBox.addItem(QtCore.QString())
         self.wavelengthSpinBox = QtGui.QDoubleSpinBox(importattrDialog)
         self.wavelengthSpinBox.setGeometry(QtCore.QRect(190, 55, 91, 21))
         self.wavelengthSpinBox.setReadOnly(True)
@@ -294,6 +295,7 @@ class Ui_importattrDialog(object):
         self.bckndComboBox.setItemText(0, QtGui.QApplication.translate("importattrDialog", "minanom", None, QtGui.QApplication.UnicodeUTF8))
         self.bckndComboBox.setItemText(1, QtGui.QApplication.translate("importattrDialog", "min", None, QtGui.QApplication.UnicodeUTF8))
         self.bckndComboBox.setItemText(2, QtGui.QApplication.translate("importattrDialog", "ave", None, QtGui.QApplication.UnicodeUTF8))
+        self.bckndComboBox.setItemText(3, QtGui.QApplication.translate("importattrDialog", "lin", None, QtGui.QApplication.UnicodeUTF8))
         self.label_12.setText(QtGui.QApplication.translate("importattrDialog", "wavelength(nm)", None, QtGui.QApplication.UnicodeUTF8))
         self.label_14.setText(QtGui.QApplication.translate("importattrDialog", "chessrun:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_15.setText(QtGui.QApplication.translate("importattrDialog", "imap:", None, QtGui.QApplication.UnicodeUTF8))

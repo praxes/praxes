@@ -45,6 +45,9 @@ import ui_test
 import ui_buildnewscan
 import ui_mini_program_dialog
 import ui_pdfsearch
+import ui_LinBckndDialog
+import ui_bckndinventoryDialog
+import ui_editrawxrdDialog
 #import ui_emptydialog
 
 
@@ -52,6 +55,9 @@ import ui_pdfsearch
 #    print 'dummy task exectued'
 #    time.sleep(secs)
 
+def printtime():
+    print time.ctime()
+    
 def mygetopenfile(parent=None, xpath="%s" % os.getcwd(),markstr='', filename='' ):
     if parent is None:
         xapp = QApplication(sys.argv)
@@ -212,6 +218,57 @@ class MainMenu(QMainWindow,
         if perform:
             exportpeaklist(self.h5path, self.h5groupstr, self.runpath)
 
+    @pyqtSignature("")
+    def on_action_bckndinventory_triggered(self):
+        perform=False
+        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+            perform=True
+        else:
+            temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for peak export')
+            if temp!='':
+                h5pathtemp=temp
+                if self.default_scan_checkBox.isChecked():
+                    tempgrp=getdefaultscan(temp)
+                    if tempgrp is None:
+                        #QMessageBox.warning(self,"failed",  'No default grp found - run initialize')
+                        perform=False
+                    else:
+                        self.h5path=temp
+                        self.h5groupstr=tempgrp
+                        self.updateactivepath()
+                        perform=True
+                else:
+                    idialog=getgroupDialog(self, temp)
+                    if idialog.exec_():
+                        self.h5path=temp
+                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.updateactivepath()
+                        perform=True
+        if perform:
+            idialog=bckndinventoryDialog(self, self.h5path, h5groupstr=self.h5groupstr)
+        else:#if didn't find a groupstr the traditional way then find any group that has XRD data
+            h5file=h5py.File(h5pathtemp, mode='r')
+            grpnames=[]
+            for group in h5file.iterobjects():
+                if isinstance(group,h5py.Group)  and 'measurement' in group:
+                    group=group['measurement']
+                    for xrdgrp in XRDgroupnames():
+                        if xrdgrp in group and isinstance(group[xrdgrp],h5py.Group) and 'counts' in group[xrdgrp]:
+                            grpnames+=[group[xrdgrp].name]
+            h5file.close()
+            perform=len(grpnames)>0
+            if not perform:
+                print 'no XRD data found in .h5 file'
+
+            if perform:
+                idialog=selectorDialog(self, grpnames, title='Select an experiment group')
+                perform=idialog.exec_()
+                
+            if perform:
+                h5grppath=str(idialog.groupsComboBox.currentText())
+                idialog=bckndinventoryDialog(self, h5pathtemp, h5grppath=h5grppath)
+                idialog.exec_()
+            
     @pyqtSignature("")
     def on_action_neighbor_calculation_triggered(self):
         perform=False
@@ -709,17 +766,65 @@ class MainMenu(QMainWindow,
                     tempstr=''.join((' - previous ',bcknd[:3],' background will be overwritten'))
                 else:
                     tempstr=''
-
+                h5file.close() #it i imperative thatthis be closed before LinBckndDialog executes, as 'r+' is used within
                 if 'min' in bcknd:
                     idialog=bminDialog(self)
-                    idialog.exec_()
-                    bminpercstr=', bminperc=%0.3f' %idialog.bminpercSpinBox.value()
+                    if not idialog.exec_():
+                        return
+                    othparstr=', critfrac=%0.3f' %idialog.bminpercSpinBox.value()
+                elif 'lin' in bcknd:
+                    idialog=LinBckndDialog(self, self.h5path, self.h5groupstr)
+                    if not (idialog.exec_() and idialog.perform):
+                        return
+                    othparstr=', critfrac=%0.3f' %idialog.zerofracSpinBox.value()
+                    othparstr+=', weightprecision=%0.3f, normrank=%0.3f' %(idialog.precisionSpinBox.value(), idialog.normrankSpinBox.value())
                 else:
-                    bminpercstr=''
+                    othparstr=''
                 idialog=messageDialog(self, ''.join((bcknd, ' background will be calculated', tempstr)))
+                if 'bin' in attrdicttemp.keys():
+                    binstr='%d' %attrdicttemp['bin']
+                else:
+                    binstr='3'
                 if idialog.exec_():
-                    self.addtask(''.join(("calcbcknd(h5path='", self.h5path, "', h5groupstr='", self.h5groupstr, "', bcknd='", bcknd, "', bin=", "3",bminpercstr,  ")")))
-                h5file.close()
+                    self.addtask(''.join(("calcbcknd(h5path='", self.h5path, "', h5groupstr='", self.h5groupstr, "', bcknd='", bcknd, "', bin=", binstr, othparstr,  ")")))
+                
+
+    @pyqtSignature("")
+    def on_action_copy_lin_bcknd_triggered(self):
+        perform=False
+        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+            perform=True
+        else:
+            temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for destination')
+            if temp!='':
+                if self.default_scan_checkBox.isChecked():
+                    tempgrp=getdefaultscan(temp)
+                    if tempgrp is None:
+                        QMessageBox.warning(self,"failed",  'No default grp found - run initialize')
+                        perform=False
+                    else:
+                        self.h5path=temp
+                        self.h5groupstr=tempgrp
+                        self.updateactivepath()
+                        perform=True
+                else:
+                    idialog=getgroupDialog(self, temp)
+                    if idialog.exec_():
+                        self.h5path=temp
+                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.updateactivepath()
+                        perform=True
+        if perform:
+            perform=False
+            temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 source file: from which blin will be copied')
+            if temp!='':
+                idialog=getgroupDialog(self, temp)
+                if idialog.exec_():
+                    h5path_from=temp
+                    h5groupstr_from=str(unicode(idialog.groupsComboBox.currentText()))
+                    perform=True
+        if perform:
+            self.addtask('CopyLinBckndData(%s, %s, %s, %s)' %(h5path, h5groupstr, h5path_from, h5groupstr_from))
 
     @pyqtSignature("")
     def on_action_process_1d_triggered(self):
@@ -863,7 +968,7 @@ class MainMenu(QMainWindow,
                 qmax=idialog2.qmaxSpinBox.value()
                 qint=idialog2.qintSpinBox.value()
                 qgridstr='['+','.join(tuple([labelnumberformat(num) for num in qgrid_minmaxint(qmin, qmax, qint)]))+']'
-                self.addtask(''.join(("buildintmap('",str(unicode(idialog.groupsComboBox.currentText())),"',", qgridstr, ")")))
+                self.addtask(''.join(("buildintmap('",str(unicode(idialog.groupsComboBox.currentText())),"',", qgridstr, ",bin=3)")))
 
 
     @pyqtSignature("")
@@ -882,7 +987,7 @@ class MainMenu(QMainWindow,
                 chimax=idialog2.chimaxSpinBox.value()
                 chiint=idialog2.chiintSpinBox.value()
                 chigridstr='['+','.join(tuple([labelnumberformat(num) for num in qgrid_minmaxint(chimin, chimax, chiint)]))+']'
-                self.addtask(''.join(("buildchimap('",str(unicode(idialog.groupsComboBox.currentText())),"',", chigridstr, ")")))
+                self.addtask(''.join(("buildchimap('",str(unicode(idialog.groupsComboBox.currentText())),"',", chigridstr, ",bin=3)")))
 
     @pyqtSignature("")
     def on_action_plot_imap_triggered(self):
@@ -1610,6 +1715,42 @@ class MainMenu(QMainWindow,
                 f.close()
 
     @pyqtSignature("")
+    def on_action_edit_raw_diff_data_triggered(self):
+        perform=False
+        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+            perform=True
+            h5path=self.h5path
+        else:
+            temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for editing raw XRD')
+            if temp!='':
+                h5path=temp
+                perform=True
+        
+        if perform:
+            h5file=h5py.File(h5path, mode='r')
+            grpnames=[]
+            for group in h5file.iterobjects():
+                if isinstance(group,h5py.Group)  and 'measurement' in group:
+                    group=group['measurement']
+                    for xrdgrp in XRDgroupnames():
+                        if xrdgrp in group and isinstance(group[xrdgrp],h5py.Group) and 'counts' in group[xrdgrp]:
+                            grpnames+=[group[xrdgrp].name]
+            h5file.close()
+            perform=len(grpnames)>0
+            if not perform:
+                print 'no XRD data found in .h5 file'
+
+        if perform:
+            idialog=selectorDialog(self, grpnames, title='Select an experiment group')
+            perform=idialog.exec_()
+            
+        if perform:
+            h5grppath=str(idialog.groupsComboBox.currentText())
+            idialog=editrawxrdwindow(self, h5path, h5grppath=h5grppath) #these are not self.h5path because this fcn can run on any group with xrd data (no itinilization necessary)
+            if idialog.exec_():
+                QMessageBox.warning(self,"Only Raw data modified",  'The "edit raw data" has successfully completed but\nany existing binned images, background calculations, etc.\ndo not yet reflect this edit. The cleanest way to edit raw data\nis to run "initialize.." and restart XRD analysis.')
+
+    @pyqtSignature("")
     def on_action_image_histogram_triggered(self):
         perform=False
         if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
@@ -1884,7 +2025,6 @@ class MainMenu(QMainWindow,
                     namestr=str(unicode(idialog.groupsComboBox.currentText()))
                     self.addtask(''.join(("wavetrans1d('", self.h5path, "','", self.h5groupstr, "','", namedict[namestr],"', type='h5tex:", h5texgrpname, "')")))
 
-
     @pyqtSignature("")
     def on_actionExit_triggered(self):
         raise SystemExit
@@ -1905,7 +2045,8 @@ class MainMenu(QMainWindow,
             self.h5path=h5path
             self.h5groupstr=h5groupstr
         self.updateactivepath()
-
+        
+        
         h5file=h5py.File(self.h5path, mode='r+')
         if not 'analysis' in h5file[self.h5groupstr]:
             h5file[self.h5groupstr].create_group('analysis')
@@ -1919,11 +2060,13 @@ class MainMenu(QMainWindow,
         h5file=h5py.File(self.h5path, mode='r+')
         h5analysis=h5file['/'.join((self.h5groupstr, 'analysis'))]
         xrdname=getxrdname(h5analysis)
-        if not 'xrdname' in h5analysis:
+        if not xrdname in h5analysis:
             h5analysis.create_group(xrdname)
         h5file.close()
         
-        self.addtask(''.join(("initializescan('", self.h5path, "','", self.h5groupstr, "')")))
+        idialog=editrawxrdwindow(self, self.h5path, h5groupstr=self.h5groupstr)
+        idialog.exec_()
+        self.addtask(''.join(("initializescan('", self.h5path, "','", self.h5groupstr, "',bin=3)")))
 
 
     def integratecontrol(self, single=True):
@@ -2310,6 +2453,205 @@ class MainMenu(QMainWindow,
         else:
             return None
 
+class bckndinventoryDialog(QDialog,
+        ui_bckndinventoryDialog.Ui_bckndinventoryDialog):
+    #***
+    def __init__(self, parent, h5path, h5groupstr=None, h5grppath=None):
+        super(bckndinventoryDialog, self).__init__(parent)
+        self.setupUi(self)
+        
+        self.h5path=h5path
+        self.h5file=h5py.File(self.h5path, mode='r')
+        
+        if not h5groupstr is None:
+            self.h5groupstr=h5groupstr
+            self.h5analysis=self.h5file['/'.join((self.h5groupstr, 'analysis'))]
+            self.h5mar=self.h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis)))]
+            self.h5marcounts=self.h5file['/'.join((self.h5groupstr,'measurement/'+getxrdname(h5analysis)+'/counts'))]
+            self.attrdict=getattr(self.h5path, self.h5groupstr)
+            chessrungrpname=self.attrdict['chessrunstr']
+        else:
+            self.h5mar=None
+            self.h5marcounts=self.h5file[h5grppath]['counts']
+            chessrungrpname=''
+            
+        QObject.connect(self.buttonBox,SIGNAL("accepted()"),self.ExitRoutine)
+        QObject.connect(self.copyPushButton,SIGNAL("pressed()"),self.performcopy)
+        
+        
+        self.h5chess=CHESSRUNFILE(mode='r+')
+
+        grpnames=[]
+        for group in self.h5chess.iterobjects():
+            if isinstance(group,h5py.Group):
+                grpnames+=[group.name]
+        perform=len(grpnames)>0
+        if not perform:
+            print 'no chess groups found in .h5 file'
+        if perform:
+            if chessrungrpname in grpnames:
+                setindex=grpnames.index(chessrungrpname)
+            else:
+                setindex=0
+            idialog=selectorDialog(self, grpnames, title='Select an h5chess group to store Bcknd images', setindex=setindex)
+            perform=idialog.exec_()
+        if perform:
+            chessrungrpname=str(idialog.groupsComboBox.currentText())
+            self.h5chessgrp=self.h5chess[chessrungrpname]
+            if 'BckndInventory' in self.h5chessgrp:
+                self.h5chessgrp=self.h5chessgrp['BckndInventory']
+            else:
+                self.h5chessgrp=self.h5chessgrp.create_group('BckndInventory')
+
+            self.imagepointlist=[]
+            self.imagenamelist=[]
+            
+            for counter, c in enumerate(self.h5marcounts):
+                if numpy.max(c[:, :])>0:
+                    self.imagepointlist+=[(self.h5marcounts, counter)]
+                    self.imagenamelist+=['image index %d' %counter]
+            for bname in ['bmin', 'bave', 'blin0', 'blin1']:#blin0 and blin1 have to be last so when they are omitted that doesn't change the indexing of imagepointlist
+                if (not self.h5mar is None) and bname in self.h5mar:
+                    self.imagepointlist+=[self.h5mar[bname]]
+                    self.imagenamelist+=[bname]
+            for counter, nam in enumerate(self.imagenamelist):
+                self.imageComboBox.insertItem(counter, nam)
+        else:
+            self.ExitRoutine()
+    
+    def performcopy(self):
+        
+        nam=str(self.newnameLineEdit.text())
+        if nam in self.h5chessgrp and not (self.overwriteCheckBox.isChecked()):
+            self.MsgLabel.setText('FAILED: Bcknd Image with that name already exists')
+            return
+        try:
+            pnt=self.imagepointlist[self.imageComboBox.currentIndex()]
+            d={}
+            if isinstance(pnt, tuple):
+                print pnt
+                arr=pnt[0][pnt[1]]
+                print arr.shape
+                print pnt[0].file.filename
+                d['sourcefile']=pnt[0].file.filename
+                print pnt[0].name
+                d['sourcename']=pnt[0].name
+                print pnt[1]
+                d['sourcearrayindex']=pnt[1]
+            else:
+                print pnt
+                arr=readh5pyarray(pnt)
+                d['sourcefile']=arr.file.filename
+                d['sourcename']=arr.name
+                d['sourcearrayindex']=''
+            if nam in self.h5chessgrp:
+                del self.h5chessgrp[nam]
+            h5ds=self.h5chessgrp.create_dataset(nam, data=arr)
+            for key, val in d.iteritems():
+                h5ds.attrs[key]=val
+            self.MsgLabel.setText('%s successfully added to inventory' %nam)
+        except:
+            self.MsgLabel.setText('FAILED: fatal error, probably problem with name')
+            
+    def ExitRoutine(self):
+        self.h5file.close()
+        self.h5chess.close()
+        
+class LinBckndDialog(QDialog,
+        ui_LinBckndDialog.Ui_LinBckndDialog):
+
+    def __init__(self, parent, h5path, h5groupstr):
+        super(LinBckndDialog, self).__init__(parent)
+        self.setupUi(self)
+        #***
+        self.h5path=h5path
+        self.h5groupstr=h5groupstr
+        self.h5file=h5py.File(self.h5path, mode='r+')
+        h5analysis=self.h5file['/'.join((self.h5groupstr, 'analysis'))]
+        self.h5mar=self.h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis)))]
+        h5marcounts=self.h5file['/'.join((self.h5groupstr,'measurement/'+getxrdname(h5analysis)+'/counts'))]
+        attrdict=getattr(self.h5path, self.h5groupstr)
+        
+        QObject.connect(self.buttonBox,SIGNAL("accepted()"),self.ExitRoutine)
+        QObject.connect(self.buttonBox,SIGNAL("rejected()"),self.CancelledExitRoutine)
+
+        self.imagepointlist=[]
+        self.imagenamelist=[]
+        self.h5chess=CHESSRUNFILE()
+        h5chessrun=self.h5chess[attrdict['chessrunstr']]
+        if 'BckndInventory' in h5chessrun:
+            bckndgrppoint=h5chessrun['BckndInventory']
+            for dset in bckndgrppoint.iterobjects():
+                if isinstance(dset,h5py.Dataset):
+                    self.imagepointlist+=[dset]
+                    self.imagenamelist+=['bcknd inventory: '+dset.name.rpartition('/')[2]]
+        for counter, c in enumerate(h5marcounts):
+            if numpy.max(c[:, :])>0:
+                self.imagepointlist+=[(h5marcounts, counter)]
+                self.imagenamelist+=['this data, image index %d' %counter]
+        for bname in ['bmin', 'bave', 'blin0', 'blin1']:#blin0 and blin1 have to be last so when they are omitted that doesn't change the indexing of imagepointlist
+            if bname in self.h5mar:
+                self.imagepointlist+=[self.h5mar[bname]]
+                self.imagenamelist+=[bname]
+        for counter, nam in enumerate(self.imagenamelist):
+            for cb, notallowed in zip([self.imageComboBox0, self.imageComboBox1], ['blin0', 'blin1']):
+                if nam!=notallowed:
+                    cb.insertItem(counter, nam)
+        self.perform=False
+    
+    def CancelledExitRoutine(self):
+        self.h5file.close()
+        self.h5chess.close()
+
+    def ExitRoutine(self):
+        
+        for cb, nam, twle in zip([self.imageComboBox0, self.imageComboBox1], ['blin0', 'blin1'], [self.imagefracLineEdit0, self.imagefracLineEdit1]):
+            d={}
+            try:
+                d['trialimageweights']=numpy.float32(eval('['+str(twle.text())+']'))
+            except:
+                h5file.close()
+                if not self.h5chess is None:
+                    self.h5chess.close()
+                print
+                QMessageBox.warning(self,"syntax error",  "Aborting because the list of trial wieghts did not convert to array correctly.\nThe enetered string has been printed.\nSome blin data in .h5 may have been deleted.")
+                self.perform=False
+                return
+            pnt=self.imagepointlist[cb.currentIndex()]
+            
+            if isinstance(pnt, tuple):
+                print 'reading ', pnt[0].name
+                arr=pnt[0][pnt[1]]
+                d['sourcefile']=pnt[0].file .filename
+                d['sourcename']=pnt[0].name
+                d['sourcearrayindex']=pnt[1]
+            else:
+                print 'reading ', pnt.name
+                arr=readh5pyarray(pnt)
+                d['sourcefile']=pnt.file.filename
+                d['sourcename']=pnt.name
+                d['sourcearrayindex']=''
+            dellist=[]
+            if nam in self.h5mar:
+                for pnt in self.h5mar.itervalues():
+                    if isinstance(pnt,h5py.Dataset):
+                        print pnt.name
+                        print pnt.name.rpartition('/')[2]
+                        temp=pnt.name.rpartition('/')[2]
+                        if nam in temp:#this gets rid of all the blin0bin$
+                            dellist+=[temp]
+            print dellist
+            for temp in dellist:
+                del self.h5mar[temp]
+                
+            h5ds=self.h5mar.create_dataset(nam, data=arr)
+            for key, val in d.iteritems():
+                h5ds.attrs[key]=val
+            
+        self.h5file.close()
+        self.h5chess.close()
+        self.perform=True
+
 
 class highlowDialog(QDialog,
         ui_highlowDialog.Ui_highlowDialog):
@@ -2537,7 +2879,9 @@ class importattrDialog(QDialog,
         self.zstartSpinBox.setValue(self.attrdict['zgrid'][0])
         self.zintSpinBox.setValue(self.attrdict['zgrid'][1])
         self.zptsSpinBox.setValue(self.attrdict['zgrid'][2])
-        if self.attrdict['bcknd']=='ave':
+        if self.attrdict['bcknd']=='lin':
+            self.bckndComboBox.setCurrentIndex(3)
+        elif self.attrdict['bcknd']=='ave':
             self.bckndComboBox.setCurrentIndex(2)
         elif self.attrdict['bcknd']=='min':
             self.bckndComboBox.setCurrentIndex(1)
@@ -2697,24 +3041,31 @@ class getgroupDialog(QDialog,
         self.h5path=h5path
         self.groupsComboBox.clear()
         h5file=h5py.File(self.h5path, mode='r')
+        dfltgrp=getdefaultscan(self.h5path)
+        dfltind=None
+        count=0
         for group in h5file.iterobjects():
             if isinstance(group,h5py.Group)  and 'analysis' in group:
                 xrdname=getxrdname(group['analysis'])
                 if ('measurement/'+xrdname in group) and ('analysis/'+xrdname in group):
-                    self.groupsComboBox.insertItem(0,group.name.rpartition('/')[2])
+                    self.groupsComboBox.insertItem(count,group.name.rpartition('/')[2])
+                    if dfltgrp==group.name.rpartition('/')[2]:
+                        dfltind=count
+                    count+=1
         h5file.close()
-        self.groupsComboBox.setCurrentIndex(0)
+        if not dfltind is None:
+            self.groupsComboBox.setCurrentIndex(dfltind)
 
 class selectorDialog(QDialog,
         ui_get_group.Ui_getgroupDialog):
 
-    def __init__(self, parent, itemnames, title='Select an item'):
+    def __init__(self, parent, itemnames, title='Select an item', setindex=0):
         super(selectorDialog, self).__init__(parent)
         self.setupUi(self)
         self.groupsComboBox.clear()
-        for item in itemnames:
-            self.groupsComboBox.insertItem(999,item)
-        self.groupsComboBox.setCurrentIndex(0)
+        for count, item in enumerate(itemnames):
+            self.groupsComboBox.insertItem(count,item)
+        self.groupsComboBox.setCurrentIndex(setindex)
         self.setWindowTitle(title)
 
 class plotsoDialog(QDialog,
@@ -2788,7 +3139,7 @@ class chiqDialog(QDialog,
 class plot2dintwindow(QDialog):
     def __init__(self, parent, h5path, h5groupstr, runpath, navchoice, navkill=False):
         super(plot2dintwindow, self).__init__(parent)
-        self.bin=3
+
         self.navchoice=navchoice
         self.critradius=36 #2mm of edge of 3" wafer off limits
         
@@ -2806,7 +3157,8 @@ class plot2dintwindow(QDialog):
         h5mar=h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis)))]
         attrdict=getattr(self.h5path, self.h5groupstr)
         self.pointlist=h5analysis.attrs['pointlist']
-
+        
+        self.bin=getbin(h5analysis)
 
         self.killmap=getkillmap(h5analysis.attrs['killmapstr'])
         self.killmapbin=getkillmap(h5analysis.attrs['killmapstr'], bin=self.bin)
@@ -2824,10 +3176,14 @@ class plot2dintwindow(QDialog):
         self.chimapbin=getchimapchigrid(h5analysis.attrs['chimapstr'], chigrid=False, bin=self.bin)
 
         self.bcknd=attrdict['bcknd']
-        bstr=''.join(('b', self.bcknd[:3]))
-        self.bckndarr=readh5pyarray(h5mar[bstr])
-        bstr=''.join((bstr, 'bin%d' %self.bin))
-        self.bckndarrbin=readh5pyarray(h5mar[bstr])
+        if 'lin' in self.bcknd:
+            self.bckndarr, self.blinwts=readblin(h5mar)
+            self.bckndarrbin, self.blinwts=readblin(h5mar, bin=self.bin)
+        else:
+            bstr=''.join(('b', self.bcknd[:3]))
+            self.bckndarr=readh5pyarray(h5mar[bstr])
+            bstr=''.join((bstr, 'bin%d' %self.bin))
+            self.bckndarrbin=readh5pyarray(h5mar[bstr])
 
         if self.bcknd=='minanom':
             if 'bimap' in h5mar:
@@ -3102,7 +3458,7 @@ class plot2dintwindow(QDialog):
         self.imname=unicode(self.imComboBox.currentText())
         self.imnum=eval(self.imname)
         h5file=h5py.File(self.h5path, mode='r')
-        h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
+        h5analysis=h5file['/'.join((self.h5groupstr, 'analysis'))]
         if self.binbool:
             h5arr=h5file['/'.join((self.h5groupstr, 'analysis/'+getxrdname(h5analysis)+'/countsbin%d' %self.bin))]
         else:
@@ -3124,6 +3480,8 @@ class plot2dintwindow(QDialog):
                             banom=h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis), 'banom'))][self.imnum, :, :]
                             h5file.close()
                             plotarr=bckndsubtract(plotarr, self.bckndarrbin, self.imapkillmapbin, btype=self.bcknd, banom_f_f=(banom, self.bminanomf[self.imnum, 0], self.bminanomf[self.imnum, 1]))[0]
+                    elif 'lin' in self.bcknd:
+                            plotarr=bckndsubtract(plotarr, self.bckndarrbin, self.imapkillmapbin, btype=self.bcknd, linweights=self.blinwts[self.imnum])[0]
                     else:
                         plotarr=bckndsubtract(plotarr, self.bckndarrbin, self.imapkillmapbin, btype=self.bcknd)[0]
 
@@ -3143,6 +3501,8 @@ class plot2dintwindow(QDialog):
                             banom=h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis), 'banom'))][self.imnum, :, :]
                             h5file.close()
                             plotarr=bckndsubtract(plotarr, self.bckndarr, self.imapkillmap, btype=self.bcknd, banom_f_f=(banom, self.bminanomf[self.imnum, 0], self.bminanomf[self.imnum, 1]))[0]
+                    elif 'lin' in self.bcknd:
+                        plotarr=bckndsubtract(plotarr, self.bckndarr, self.imapkillmap, btype=self.bcknd, linweights=self.blinwts[self.imnum])[0]
                     else:
                         plotarr=bckndsubtract(plotarr, self.bckndarr, self.imapkillmap, btype=self.bcknd)[0]
         elif self.killbool:
@@ -3175,10 +3535,10 @@ class plot2dintwindow(QDialog):
             qvals=q_qgrid_ind(qgrid, range(numpy.max(imap)))
 
             datamask=numpy.bool_([[(ch in chimap) and (i in imap)  for ch in xrange(1, numpy.max(chimap)+1)] for i in xrange(1, numpy.max(imap)+1)])
-            plotarr=numpy.uint16([[(plotarr[(chimap==ch)&(imap==i)]).mean(dtype='float32')  for ch in xrange(1, numpy.max(chimap)+1)] for i in xrange(1, numpy.max(imap)+1)])
+            plotarr=numpy.array([[(plotarr[(chimap==ch)&(imap==i)]).mean(dtype='float32')  for ch in xrange(1, numpy.max(chimap)+1)] for i in xrange(1, numpy.max(imap)+1)], dtype=plotarr.dtype)
             plotarr*=datamask
             if self.chiq_solidanglebool:
-                plotarr=numpy.uint16([row/(1.0*powdersolidangle_q(qvals[count], self.L, self.wl, psize=self.psize)) for count, row in enumerate(plotarr)])
+                plotarr=numpy.array([row/(1.0*powdersolidangle_q(qvals[count], self.L, self.wl, psize=self.psize)) for count, row in enumerate(plotarr)], dtype=plotarr.dtype)
             self.plotw.performplot(plotarr, upperorigin=False, axesformat='chiq', qvals=qvals, chivals=chivals, log=self.logCheckBox.isChecked(), colrange=range)
             self.savename2=''.join(('ChiQ', self.imname))
         else:
@@ -3223,6 +3583,17 @@ class plot2dintwindow(QDialog):
                 banom=h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis), 'banom'))][self.imnum, :, :]
                 h5file.close()
                 plotarr=(self.bckndarrbin*self.bminanomf[self.imnum, 0]+banom*self.bminanomf[self.imnum, 0])*self.imapkillmapbin
+        elif 'lin' in self.bcknd:
+            if self.binbool:
+                plotarr=combineimageswithwieghts(self.blinwts[self.imnum], self.bckndarrbin)
+            else:
+                plotarr=combineimageswithwieghts(self.blinwts[self.imnum], self.bckndarr)
+            if self.killbool:
+                if self.binbool:
+                    plotarr*=self.imapkillmapbin
+                else:
+                    plotarr*=self.imapkillmap
+
         else:
             if self.binbool:
                 plotarr=self.bckndarrbin
@@ -3261,7 +3632,7 @@ class plot2dintwindow(QDialog):
             QMessageBox.warning(self,"failed",  "banom not available for this image")
         else:
             h5file=h5py.File(self.h5path, mode='r')
-            bh5analysis=h5file['/'.join((self.h5groupstr, 'analysis'))]
+            analysis=h5file['/'.join((self.h5groupstr, 'analysis'))]
             banom=h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis), 'banom'))][self.imnum, :, :]
             h5file.close()
             self.plotw.performplot(banom*self.imapkillmapbin, log=self.logCheckBox.isChecked())
@@ -3401,7 +3772,7 @@ class plot2dintwindow(QDialog):
 
         self.killmapbin=binboolimage(self.killmap)
         self.imapkillmap=self.killmap*(self.imap!=0)
-        self.imapkillmapbin=binboolimage(self.imapkillmap)
+        self.imapkillmapbin=binboolimage(self.imapkillmap, bin=self.bin)
         self.drawkillmap()
 #
 #    def clicklogger(self, posn):
@@ -3714,6 +4085,7 @@ class h5fileinfoDialog(QDialog,
         h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
         h5root=h5file[h5groupstr]
         h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
+        self.treeWidget=QTreeWidget() #added without knowing if it is necessary
         mainitem=QTreeWidgetItem([h5groupstr],  0)
         self.treeWidget.addTopLevelItem(mainitem)
         self.createTree(h5root, mainitem)
@@ -3735,7 +4107,7 @@ class h5fileinfoDialog(QDialog,
             elif isinstance(node, h5py.Group):
                 item=QTreeWidgetItem([node.name.rpartition('/')[2]],  0)
                 parentitem.addChild(item)
-                self.createTree(node,  item)
+                self.createTree(node, item)
                 if self.showattrs:
                     for attrname, attrval in node.attrs.iteritems():
                         attritem=QTreeWidgetItem([self.attrstring(attrname, attrval)],  0)
@@ -3801,7 +4173,7 @@ class h5fileinfoDialog(QDialog,
 class plotimapwindow(QDialog):
     def __init__(self, parent, h5path, h5groupstr, runpath, texture=False):
         super(plotimapwindow, self).__init__(parent)
-        self.bin=3
+
 
         self.texturebool=texture
         self.h5path=h5path
@@ -3816,6 +4188,8 @@ class plotimapwindow(QDialog):
 
         attrdict=getattr(self.h5path, self.h5groupstr)
 
+        self.bin=getbin(h5analysis)
+        
         self.pointlist=h5analysis.attrs['pointlist']
 
         self.killmap=getkillmap(h5analysis.attrs['killmapstr'])
@@ -3835,10 +4209,15 @@ class plotimapwindow(QDialog):
             self.dqchiimagebin=getdqchiimage(h5analysis.attrs['dqchiimagestr'], bin=self.bin)
 
         self.bcknd=attrdict['bcknd']
-        bstr=''.join(('b', self.bcknd[:3]))
-        self.bckndarr=readh5pyarray(h5mar[bstr])
-        bstr=''.join((bstr, 'bin%d' %self.bin))
-        self.bckndarrbin=readh5pyarray(h5mar[bstr])
+        if 'lin' in self.bcknd:
+            self.bckndarr, self.blinwts=readblin(h5mar)
+            self.bckndarrbin, self.blinwts=readblin(h5mar, bin=self.bin)
+        else:
+            bstr=''.join(('b', self.bcknd[:3]))
+            self.bckndarr=readh5pyarray(h5mar[bstr])
+            bstr=''.join((bstr, 'bin%d' %self.bin))
+            self.bckndarrbin=readh5pyarray(h5mar[bstr])
+
 
         if self.bcknd=='minanom':
             if 'bimap' in h5mar:
@@ -4187,7 +4566,7 @@ class plotimapwindow(QDialog):
             self.imnum=eval(self.imname)
 
             h5file=h5py.File(self.h5path, mode='r')
-            h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
+            h5analysis=h5file['/'.join((self.h5groupstr, 'analysis'))]
             if self.binbool:
                 h5arr=h5file['/'.join((self.h5groupstr, 'analysis/'+getxrdname(h5analysis)+'/countsbin%d' %self.bin))]
                 imap=self.imapbin*self.killmapbin
@@ -4214,6 +4593,8 @@ class plotimapwindow(QDialog):
                                 banom=h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis), 'banom'))][self.imnum, :, :]
                                 h5file.close()
                                 plotarr=bckndsubtract(plotarr, self.bckndarrbin, self.imapkillmapbin, btype=self.bcknd, banom_f_f=(banom, self.bminanomf[self.imnum, 0], self.bminanomf[self.imnum, 1]))[0]
+                        elif 'lin' in self.bcknd:
+                            plotarr=bckndsubtract(plotarr, self.bckndarrbin, self.imapkillmapbin, btype=self.bcknd, linweights=self.blinwts[self.imnum])[0]
                         else:
                             plotarr=bckndsubtract(plotarr, self.bckndarrbin, self.imapkillmapbin, btype=self.bcknd)[0]
 
@@ -4233,6 +4614,8 @@ class plotimapwindow(QDialog):
                                 banom=h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis), 'banom'))][self.imnum, :, :]
                                 h5file.close()
                                 plotarr=bckndsubtract(plotarr, self.bckndarr, self.imapkillmap, btype=self.bcknd, banom_f_f=(banom, self.bminanomf[self.imnum, 0], self.bminanomf[self.imnum, 1]))[0]
+                        elif 'lin' in self.bcknd:
+                            plotarr=bckndsubtract(plotarr, self.bckndarr, self.imapkillmap, btype=self.bcknd, linweights=self.blinwts[self.imnum])[0]
                         else:
                             plotarr=bckndsubtract(plotarr, self.bckndarr, self.imapkillmap, btype=self.bcknd)[0]
 
@@ -4267,6 +4650,7 @@ class plotimapwindow(QDialog):
         self.savename2=''.join((self.savename2, '_q', t1, ' to ', t2))
         self.imgLabel.setText(''.join(('plot of image ',self.savename2)))
         self.plotw.fig.canvas.draw()
+        print 'stopping', ASDGADF
 
     def drawimap(self):
         self.binbool=self.binCheckBox.isChecked()
@@ -4365,7 +4749,7 @@ class plot1dintwindow(QDialog):
 
         L=self.attrdict['cal'][2]
         wl=self.attrdict['wavelength']
-        psize=attrdict['psize']
+        psize=self.attrdict['psize']
         self.tvals=twotheta_q(self.qvals, wl)
         self.dvals=d_q(self.qvals)
         self.pvals=pix_q(self.qvals, L, wl, psize=psize)
@@ -5614,7 +5998,7 @@ class plotdatwindow(QDialog):
         if temp!='':
             self.datpath=temp
             self.savename=os.path.splitext(os.path.split(self.datpath)[1])[0]
-            data = numpy.fromfile(self.datpath, dtype='uint16')
+            data = numpy.fromfile(self.datpath, dtype='uint16') #TODO: make the data type less constrictive
             data.shape = (numpy.sqrt(len(data)), numpy.sqrt(len(data)))
             self.plotw.performplot(data,  log=self.logCheckBox.isChecked())
             self.plotw.fig.canvas.draw()
@@ -5632,12 +6016,14 @@ class plothistwindow(QDialog):
         self.navchoice=navchoice
         self.savename1='_'.join((os.path.split(self.h5path)[1][0:-3], self.h5groupstr, ''))
         self.imnamelist=[]
-        self.bin=3
+
         h5file=h5py.File(self.h5path, mode='r')
         h5analysis=h5file['/'.join((self.h5groupstr, 'analysis'))]
         h5mar=h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis)))]
         h5marcounts=h5file['/'.join((self.h5groupstr,'measurement/'+getxrdname(h5analysis)+'/counts'))]
 
+        self.bin=getbin(h5analysis)
+        
         self.attrdict=getattr(self.h5path, self.h5groupstr)
 
         self.pointlist=h5analysis.attrs['pointlist']
@@ -5905,6 +6291,8 @@ class plothistwindow(QDialog):
                                 banom=h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis), 'banom'))][self.imnum, :, :]
                                 h5file.close()
                                 plotarr=bckndsubtract(plotarr, self.bckndarrbin, self.killmapbin, btype=self.bcknd, banom_f_f=(banom, self.bminanomf[imnum, 0], self.bminanomf[imnum, 1]))[0]
+                        elif 'lin' in self.bcknd:
+                            plotarr=bckndsubtract(plotarr, self.bckndarrbin, self.killmapbin, btype=self.bcknd, linweights=self.blinwts[imnum])[0]
                         else:
                             plotarr=bckndsubtract(plotarr, self.bckndarrbin, self.killmapbin, btype=self.bcknd)[0]
                         totpix=self.killmapbin.sum()
@@ -5923,6 +6311,8 @@ class plothistwindow(QDialog):
                                 banom=h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis), 'banom'))][self.imnum, :, :]
                                 h5file.close()
                                 plotarr=bckndsubtract(plotarr, self.bckndarr, self.killmap, btype=self.bcknd, banom_f_f=(banom, self.bminanomf[imnum, 0], self.bminanomf[imnum, 1]))[0]
+                        elif 'lin' in self.bcknd:
+                            plotarr=bckndsubtract(plotarr, self.bckndarr, self.killmap, btype=self.bcknd, linweights=self.blinwts[imnum])[0]
                         else:
                             plotarr=bckndsubtract(plotarr, self.bckndarr, self.killmap, btype=self.bcknd)[0]
                         totpix=self.killmap.sum()
@@ -6379,7 +6769,7 @@ class plotinterpimageof1ddatawindow(QDialog):
         if style=='texture' and 'tex' in type:
             QMessageBox.warning(self,"warning",  "For interp plot, type should be 'h5mar' when style is 'texture'")
         self.navchoice=navchoice
-        self.bin=3
+
         self.h5path=h5path
         self.h5groupstr=h5groupstr
         self.runpath=runpath
@@ -6389,7 +6779,9 @@ class plotinterpimageof1ddatawindow(QDialog):
         h5file=h5py.File(self.h5path, mode='r')
         h5analysis=h5file['/'.join((self.h5groupstr, 'analysis'))]
         h5mar=h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis)))]
-
+        
+        self.bin=getbin(h5analysis)
+        
         if 'h5mar' in type:
             self.h5datagrpstr='/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis)))
             qgridtemp=getimapqgrid(h5analysis.attrs['imapstr'], imap=False)
@@ -6441,10 +6833,14 @@ class plotinterpimageof1ddatawindow(QDialog):
             self.dqchiimagebin=getdqchiimage(h5analysis.attrs['dqchiimagestr'], bin=self.bin)
 
             self.bcknd=self.attrdict['bcknd']
-            bstr=''.join(('b', self.bcknd[:3]))
-            self.bckndarr=readh5pyarray(h5mar[bstr])
-            bstr=''.join((bstr, 'bin%d' %self.bin))
-            self.bckndarrbin=readh5pyarray(h5mar[bstr])
+            if 'lin' in self.bcknd:
+                self.bckndarr, self.blinwts=readblin(h5mar)
+                self.bckndarrbin, self.blinwts=readblin(h5mar, bin=self.bin)
+            else:
+                bstr=''.join(('b', self.bcknd[:3]))
+                self.bckndarr=readh5pyarray(h5mar[bstr])
+                bstr=''.join((bstr, 'bin%d' %self.bin))
+                self.bckndarrbin=readh5pyarray(h5mar[bstr])
 
             if self.bcknd=='minanom':
                 if 'bimap' in h5mar:
@@ -7085,6 +7481,8 @@ class plotinterpimageof1ddatawindow(QDialog):
                 h5analysis=h5file['/'.join((self.h5groupstr, 'analysis'))]
                 banom=h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis), 'banom'))][self.imnum, :, :]
                 plotarr=bckndsubtract(plotarr, bckndarr, imapkillmap, btype=self.bcknd, banom_f_f=(banom, self.bminanomf[pointind, 0], self.bminanomf[pointind, 1]))[0]
+            elif 'lin' in self.bcknd:
+                plotarr=bckndsubtract(plotarr, bckndarr, imapkillmap, btype=self.bcknd, linweights=self.blinwts[pointind])[0]
             else:
                 plotarr=bckndsubtract(plotarr, bckndarr, imapkillmap, btype=self.bcknd)[0]
 
@@ -7798,12 +8196,13 @@ class neighborwindow(QDialog):
         self.runpath=runpath
         self.savename1='_'.join((os.path.split(self.h5path)[1][0:-3], self.h5groupstr, ''))
         self.imnamelist=[]
-        self.bin=3
+
         h5file=h5py.File(self.h5path, mode='r')
         h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
 
         self.attrdict=getattr(self.h5path, self.h5groupstr)
-
+        self.bin=getbin(h5analysis)
+        
         self.pointlist=self.attrdict['pointlist']
         elstr=self.attrdict['elements']
 
@@ -8654,3 +9053,76 @@ class pdfsearchDialog(QDialog,
 
         self.lineind_textind_plotlist+=[[range(lineindstart, lineindstop), textind]]
         self.plotw.fig.canvas.draw()
+
+
+class editrawxrdwindow(QDialog,
+        ui_editrawxrdDialog.Ui_editrawxrdDialog):
+    #***
+    def __init__(self, parent, h5path, h5groupstr=None,  h5grppath=None):#either pass  h5grppath which is the entire path to the XRD group that contains counts or the normal h5groupstr
+        super(editrawxrdwindow, self).__init__(parent)
+        self.setupUi(self)
+        
+        self.h5path=h5path
+        self.h5groupstr=h5groupstr
+        self.h5grppath=h5grppath
+        
+        h5file=h5py.File(self.h5path, mode='r')
+        if self.h5grppath is None:
+            h5analysis=h5file['/'.join((self.h5groupstr, 'analysis'))]
+            h5mar=h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis)))]
+            h5marcounts=h5file['/'.join((self.h5groupstr,'measurement/'+getxrdname(h5analysis)+'/counts'))]
+            h5sd=h5file['/'.join((self.h5groupstr,'measurement', 'scalar_data'))]
+        else:
+            h5marcounts=h5file[h5grppath]['counts']
+            if 'scalar_data' in h5file[h5grppath].parent:
+                h5sd=(h5file[h5grppath].parent)['scalar_data']
+            else:
+                h5sd=None
+        s=''
+        for k, v in h5marcounts.attrs.iteritems():
+            if k.startswith('mod_'):
+                s+=': '.join((k.partition('mod_')[2], `v`))+'\n'
+        if len(s)>0:
+            s="This raw data has already been modified with the following settings:\n"+s
+            QMessageBox.warning(self, "REPEAT EDIT",  s)
+        
+        if h5sd is None:
+            self.normCheckBox.setChecked(False)
+            self.normCheckBox.setEnabled(False)
+            prefind=None
+        else:
+            count=0
+            prefind=None
+            for dset in h5sd.iterobjects():
+                if isinstance(dset, h5py.Dataset) and dset.shape==h5marcounts.shape[0:1]:
+                    nam=dset.name.rpartition('/')[2]
+                    self.normComboBox.insertItem(count, nam)
+                    if nam=='IC3':
+                        prefind=count
+                    count+=1
+        if not prefind is None:
+            self.normComboBox.setCurrentIndex(prefind)
+        h5file.close()
+        self.dezingComboBox.insertItem(0, 'outlier method')
+        self.dezingComboBox.insertItem(1, 'by image max val')
+        self.dezingComboBox.setCurrentIndex(0)
+        QObject.connect(self.dezingComboBox,SIGNAL("activated(QString)"),self.dezingchanged)
+        QObject.connect(self.buttonBox,SIGNAL("accepted()"),self.ExitRoutine)
+
+    def dezingchanged(self, garbage):
+        show=self.dezingComboBox.currentIndex()==0
+        self.dezingLabel.setVisible(show)
+        self.dezingSpinBox.setVisible(show)
+    def ExitRoutine(self):
+        dezingbool=self.dezingCheckBox.isChecked()
+        normbool=self.normCheckBox.isChecked() 
+        multbool=self.multCheckBox.isChecked()
+        if dezingbool or normbool or multbool:
+            a=dezingbool and self.dezingComboBox.currentIndex()==1
+            b=normbool and str(self.normComboBox.currentText()) or None
+            c=multbool and self.multSpinBox.value() or None
+            d=(dezingbool and self.dezingComboBox.currentIndex()==0) and self.dezingSpinBox.value() or None
+            if self.h5grppath is None:
+                xrdraw_dezing_rescale(self.h5path, h5groupstr=self.h5groupstr, dezingbool=a, normdsetname=b, multval=c, outlier_nieghbratio=d)
+            else:
+                xrdraw_dezing_rescale(self.h5path, h5grppath=self.h5grppath, dezingbool=a, normdsetname=b, multval=c, outlier_nieghbratio=d)

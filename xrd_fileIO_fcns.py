@@ -50,6 +50,12 @@ import PyMca.Elements as PyMEl
 def readh5pyarray(arrpoint):
     return eval('arrpoint'+('['+':,'*len(arrpoint.shape))[:-1]+']')
 
+def readblin(h5mar, bin=0):
+    bs=['blin0', 'blin1']
+    if bin:
+        bs=[b+'bin%d' %bin for b in bs]
+    return numpy.array([readh5pyarray(h5mar[b]) for b in bs]), numpy.array([h5mar[b].attrs['weights'][:] for b in bs]).T
+
 def getimapqgrid(chessh5dsetstr, imap=True,  qgrid=True, bin=0):
     h5chess=CHESSRUNFILE()
     imappoint=h5chess[chessh5dsetstr]
@@ -68,9 +74,6 @@ def getimapqgrid(chessh5dsetstr, imap=True,  qgrid=True, bin=0):
 
 def getchimapchigrid(chessh5dsetstr, chimap=True, chigrid=True, bin=0):
     h5chess=CHESSRUNFILE()
-    print chessh5dsetstr
-    print h5chess['2010Mar/chimap'].listitems()
-
     chimappoint=h5chess[chessh5dsetstr]
     temp=tuple()
     if chimap:
@@ -95,10 +98,10 @@ def getkillmap(chessh5dsetstr, bin=0):
     else:
         print 'KILLMAP NOT FOUND> USING DEFAULT'
         xrdname='mar345'
-        p=chessh5dsetstr.rpartition('/')
+        p=chessh5dsetstr.rpartition('/')[0]
         while p in h5chess: #this is to try to get the right detector but include backwards compatib lity from when 'xrdname' didn't exist
-            if 'xrdname' in p.attrs:
-                xrdname=p.attrs['xrdname']
+            if 'xrdname' in h5chess[p].attrs:
+                xrdname=h5chess[p].attrs['xrdname']
                 break
             p=p.rpartition('/')[0]
 
@@ -149,7 +152,14 @@ def writeattr(h5path, h5groupstr, attrdict):
 
     h5file.close()
 
-
+def getbin(h5an):
+    h5mar=h5an[getxrdname(h5an)]
+    bin=1
+    for name in h5mar.listnames():
+        if name.startswith('countsbin'):
+            bin=eval(name.partition('countsbin')[2])
+            break
+    return bin
 
 getxrdname=lambda h5an: ('xrdname' in h5an.attrs.keys() and h5an.attrs['xrdname']) or 'mar345'
 
@@ -157,7 +167,7 @@ def getattr(h5path, h5groupstr):
     h5file=h5py.File(h5path, mode='r')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
     attrdict={}
-    keys=['pointlist', 'command', 'xgrid', 'zgrid', 'wavelength', 'cal', 'alpha', 'counter', 'elements', 'bcknd', 'chessrunstr', 'imapstr', 'chimapstr', 'killmapstr', 'qimagestr', 'chiimagestr', 'dqchiimagestr', 'x', 'z', 'acquisition_time', 'acquisition_shape', 'xrdname', 'psize']
+    keys=['pointlist', 'command', 'xgrid', 'zgrid', 'wavelength', 'cal', 'alpha', 'counter', 'elements', 'bcknd', 'chessrunstr', 'imapstr', 'chimapstr', 'killmapstr', 'qimagestr', 'chiimagestr', 'dqchiimagestr', 'x', 'z', 'acquisition_time', 'acquisition_shape', 'xrdname', 'psize', 'bin']
     for key in keys:
         if key in h5analysis.attrs:
             attrdict[key]=h5analysis.attrs[key]
@@ -197,7 +207,7 @@ def numpts_attrdict(attrdict):
     else:
         return int(round(max(attrdict['xgrid'][2], attrdict['zgrid'][2])))
 
-def calcbcknd(h5path, h5groupstr, bcknd, bin=3, bminperc=0.0):
+def calcbcknd(h5path, h5groupstr, bcknd, bin=3, critfrac=0.05, weightprecision=0.01, normrank=0.5):
     """groupstr is to the main scan group,  e.g. XRD.PrimDataset. bcknd starts with 'min' or 'ave'"""
     print 'calculating ',  bcknd, ' background on ', h5path, h5groupstr
     h5file=h5py.File(h5path, mode='r+')
@@ -206,7 +216,7 @@ def calcbcknd(h5path, h5groupstr, bcknd, bin=3, bminperc=0.0):
     h5marcounts=h5file['/'.join((h5groupstr,'measurement', getxrdname(h5analysis), 'counts'))]
     pointlist=h5analysis.attrs['pointlist']
     shape=(h5marcounts.shape[1], h5marcounts.shape[2])
-
+    
 
     if bin!=0:
         binshape=(shape[0]//bin, shape[1]//bin)
@@ -217,11 +227,11 @@ def calcbcknd(h5path, h5groupstr, bcknd, bin=3, bminperc=0.0):
             del h5mar['bmin']
         if ('bminbin%d' %bin) in h5mar:
             del h5mar[('bminbin%d' %bin)]
-        percind=max(1, int(round(len(pointlist)*bminperc)))
+        percind=max(1, int(round(len(pointlist)*critfrac)))
         if percind+1>=len(pointlist):
             print 'something bad might be about to happend because you have asked for too high of a percentile'
         if percind!=1:
-            bcknddata=numpy.empty((percind+1, shape[0], shape[1]), dtype='uint16')
+            bcknddata=numpy.empty((percind+1, shape[0], shape[1]), dtype=h5marcounts.dtype)
     elif bcknd=='ave':
         bcknddata=numpy.zeros(shape,dtype='float32')
         if 'bave' in h5mar:
@@ -229,46 +239,70 @@ def calcbcknd(h5path, h5groupstr, bcknd, bin=3, bminperc=0.0):
         if ('bavebin%d' %bin) in h5mar:
             del h5mar[('bminbin%d' %bin)]
 
+    if 'lin' in bcknd:
+        data=h5marcounts[pointlist, :, :]
+        killmap=getkillmap(h5analysis.attrs['killmapstr'])
+        b0=readh5pyarray(h5mar['blin0'])
+        f0vals=h5mar['blin0'].attrs['trialimageweights'][:]
+        b1=readh5pyarray(h5mar['blin1'])
+        f1vals=h5mar['blin1'].attrs['trialimageweights'][:]
+        ans=FindLinearSumBcknd(data, killmap, b0, b1, f0vals, f1vals, fraczeroed=critfrac, rankfornorm=normrank, fprecision=weightprecision)
+        for nam, wt, bn in zip(['blin0', 'blin1'], ans, [b0, b1]):
+            h5ar=h5mar[nam]
+            weights=numpy.zeros(h5marcounts.shape[0], dtype='float32')
+            weights[pointlist]=wt
+            h5ar.attrs['zerofrac']=critfrac
+            h5ar.attrs['weightprecision']=weightprecision
+            h5ar.attrs['normrank']=normrank
+            h5ar.attrs['weights']=weights
+            if bin!=0:
+                binnam='%sbin%d' %(nam, bin)
+                if binnam in h5mar:
+                    del h5mar[binnam]
+                h5arbin=h5mar.create_dataset(binnam, data=binimage(bn, bin))
+                for key, val in h5ar.attrs.iteritems():
+                    h5arbin.attrs[key]=val
 
-    for count, pointind in enumerate(pointlist):
-        print pointind
-
-        data=h5marcounts[pointind, :, :]
-
-        if 'min' in bcknd:
-            if percind==1:
-                indeces=data<bcknddata
-                bcknddata[indeces]=data[indeces]
-            else:
-                if count<=percind:
-                    bcknddata[count, :, :]=data
-                    if count==percind:
-                        bcknddata=numpy.sort(bcknddata, axis=0)
-                else:
-                    bcknddata[percind, :, :]=data
-                bcknddata=numpy.sort(bcknddata, axis=0)
-                if pointind==pointlist[-1]:
-                    bcknddata=bcknddata[-2, :, :]
-        elif bcknd=='ave':
-            bcknddata+=data
-
-    if len(pointlist)==0:
-        print 'background calculation error: NO IMAGES FOUND'
-        h5file.close()
     else:
-        for dset in h5mar.iterobjects():
-            if isinstance(dset, h5py.Dataset) and (('b'+bcknd) in dset.name.rpartition('/')[2]):
-                del dset #deletes the array about to be created and its derivatives
-        if 'min' in bcknd:
-            bminpoint=h5mar.create_dataset('bmin', data=bcknddata)
-            bminpoint.attrs['percentile']=bminperc
-            if bin!=0:
-                h5mar.create_dataset('bminbin%d' %bin, data=binimage(bcknddata, bin))
-        elif bcknd=='ave':
-            bcknddata=numpy.uint16(round(bcknddata/len(pointlist)))
-            h5mar.create_dataset('bave', data=bcknddata)
-            if bin!=0:
-                h5mar.create_dataset('bavebin%d' %bin, data=binimage(bcknddata, bin))
+        for count, pointind in enumerate(pointlist):
+            print pointind
+
+            data=h5marcounts[pointind, :, :]
+
+            if 'min' in bcknd:
+                if percind==1:
+                    indeces=data<bcknddata
+                    bcknddata[indeces]=data[indeces]
+                else:
+                    if count<=percind:
+                        bcknddata[count, :, :]=data
+                        if count==percind:
+                            bcknddata=numpy.sort(bcknddata, axis=0)
+                    else:
+                        bcknddata[percind, :, :]=data
+                    bcknddata=numpy.sort(bcknddata, axis=0)
+                    if pointind==pointlist[-1]:
+                        bcknddata=bcknddata[-2, :, :]
+            elif bcknd=='ave':
+                bcknddata+=data
+
+        if len(pointlist)==0:
+            print 'background calculation error: NO IMAGES FOUND'
+            h5file.close()
+        else:
+            for dset in h5mar.iterobjects():
+                if isinstance(dset, h5py.Dataset) and (('b'+bcknd) in dset.name.rpartition('/')[2]):
+                    del dset #deletes the array about to be created and its derivatives
+            if 'min' in bcknd:
+                bminpoint=h5mar.create_dataset('bmin', data=bcknddata)
+                bminpoint.attrs['percentile']=critfrac
+                if bin!=0:
+                    h5mar.create_dataset('bminbin%d' %bin, data=binimage(bcknddata, bin))
+            elif bcknd=='ave':
+                bcknddata=numpy.array(round(bcknddata/len(pointlist)), dtype=h5marcounts.dtype)
+                h5mar.create_dataset('bave', data=bcknddata)
+                if bin!=0:
+                    h5mar.create_dataset('bavebin%d' %bin, data=binimage(bcknddata, bin))
 
         print bcknd[:3] ,' background calculation complete'
         if bin==0:
@@ -278,7 +312,7 @@ def calcbcknd(h5path, h5groupstr, bcknd, bin=3, bminperc=0.0):
         updatelog(h5analysis,  ''.join(('dataset background calculated', t1, ': ', bcknd, '. finished ', time.ctime())))
         h5file.close()
         if bcknd=='minanom':
-            calcbanom(h5path, h5groupstr, bqgrid=None)
+            calcbanom(h5path, h5groupstr, bqgrid=None, bin=bin)
 
 
 def integrate(h5path, h5groupstr, singleimage=None, bckndbool=True, ):#singleimage is a string that is an index of marcounts or a string for other dataset or 'banom#'. only marcounts can get backnd subtraction
@@ -298,14 +332,17 @@ def integrate(h5path, h5groupstr, singleimage=None, bckndbool=True, ):#singleima
     if bckndbool:
         attrdict=getattr(h5path, h5groupstr)
         bcknd=attrdict['bcknd']
-        bstr=''.join(('b', bcknd[:3]))
-        if bstr in h5mar:
-            bckndarr=readh5pyarray(h5mar[bstr])
-            if bcknd=='minanom':
-                bminanomf=readh5pyarray(h5mar['bminanomf'])
+        if 'lin' in bcknd:
+            bckndarr, blinwts=readblin(h5mar)
         else:
-            print 'Aborting: INTEGRATION ABORTED: CANNOT FIND ', bstr
-            return 'Aborting: INTEGRATION ABORTED: CANNOT FIND ', bstr
+            bstr=''.join(('b', bcknd[:3]))
+            if bstr in h5mar:
+                bckndarr=readh5pyarray(h5mar[bstr])
+                if bcknd=='minanom':
+                    bminanomf=readh5pyarray(h5mar['bminanomf'])
+            else:
+                print 'Aborting: INTEGRATION ABORTED: CANNOT FIND ', bstr
+                return 'Aborting: INTEGRATION ABORTED: CANNOT FIND ', bstr
 
     h5file.close()
 
@@ -368,6 +405,8 @@ def integrate(h5path, h5groupstr, singleimage=None, bckndbool=True, ):#singleima
                 else:
                     banom=h5mar['banom'][pointind, :, :]
                     data=bckndsubtract(data, bckndarr, killmap, btype=bcknd, banom_f_f=(banom, bminanomf[pointind, 0], bminanomf[pointind, 1]))[0]
+            elif 'lin' in bcknd:
+                data=bckndsubtract(data, bckndarr, killmap, btype=bcknd, linweights=blinwts[pointind])[0]
             else:
                 data=bckndsubtract(data, bckndarr, killmap, btype=bcknd)[0]
 
@@ -444,8 +483,7 @@ def qqcalc(h5path,  h5groupstr, qgrid, image): #assume q interval is integral nu
     h5file.close()
 
 
-def buildintmap(chessh5grpstr, qgrid):
-    bin=3
+def buildintmap(chessh5grpstr, qgrid, bin=3):
     h5chess=CHESSRUNFILE()
     h5grp=h5chess[chessh5grpstr]
 
@@ -464,8 +502,7 @@ def buildintmap(chessh5grpstr, qgrid):
     h5grp.create_dataset(imapname+('bin%d' %bin), data=binimage(imap, bin=bin, zerokill=True))
     h5chess.close()
 
-def buildchimap(chessh5grpstr, chigrid):
-    bin=3
+def buildchimap(chessh5grpstr, chigrid, bin=3):
     h5chess=CHESSRUNFILE()
     h5grp=h5chess[chessh5grpstr]
 
@@ -603,13 +640,16 @@ def writenumtotxtfile(runpath,  xvals, yvals, savename,  header=None):
 
 def writeplotso(runpath,  xvals, yvals, attrdict, xtype, savename):  #xvals and yvals must be same length numpy arrays, savename is filename without extension
     writestr=plotsoheader(attrdict, xtype)
+    arg=numpy.argsort(xvals)
+    xvals=xvals[arg]
+    yvals=yvals[arg]
     for i in range(xvals.size):
         sigdig=7
         yv=yvals[i]
         if yv==0:
             yv+=10**(-1*sigdig)
         try:
-            writestr=''.join((writestr,'%.3f' %xvals[i], ' ',  eval(''.join(("'%.","%d" %(numpy.abs(sigdig-numpy.ceil(numpy.log10(yv)))),"f' %yv"))), '\n'))
+            writestr=''.join((writestr,'%.6f' %xvals[i], ' ',  eval(''.join(("'%.","%d" %(numpy.abs(sigdig-numpy.ceil(numpy.log10(yv)))),"f' %yv"))), '\n'))
         except:
             print ''.join(("'%.","%d" %(numpy.abs(sigdig-numpy.ceil(numpy.log10(yv)))),"f' %yv"))
         #the 7 in above line gives 7 significant digits, the precision of float32
@@ -626,8 +666,8 @@ def writeall2dimages(runpath, h5path,  h5groupstr,  type, typestr, colorrange=No
     savename1='_'.join((os.path.split(h5path)[1][0:-3], h5groupstr, typestr, ''))
 
     pointlist=h5analysis.attrs['pointlist']
-    btype=h5analysis.attrs['bcknd']
-    usebanom=(type>0 and btype=='minanom') or (type==3)
+    bcknd=h5analysis.attrs['bcknd']
+    usebanom=(type>0 and bcknd=='minanom') or (type==3)
     if usebanom:
         bminanomf=h5mar['bminanomf']
     if type>0:
@@ -635,29 +675,51 @@ def writeall2dimages(runpath, h5path,  h5groupstr,  type, typestr, colorrange=No
         if extrabin>1:
             killmapbin=binboolimage(killmapbin, bin=extrabin)
     if type==1 or type==3 or type==4:
-        if 'min' in btype:
-            bckndarr=readh5pyarray(h5mar['bminbin3'])
+        if 'min' in bcknd:
+            bckndarr=readh5pyarray(h5mar['bminbin%d' %getbin(h5analysis)])
+        elif 'lin' in bcknd:
+            bckndarr, blinwts=readblin(h5mar)
         else:
-            bckndarr=readh5pyarray(h5mar['bavebin3'])
+            bckndarr=readh5pyarray(h5mar['bavebin%d' %getbin(h5analysis)])
         if extrabin>1:
-            bckndarr=binimage(bckndarr, bin=extrabin)
+            if 'lin' in bcknd:
+                bckndarr=numpy.array([binimage(b, bin=extrabin) for b in bckndarr])
+            else:
+                bckndarr=binimage(bckndarr, bin=extrabin)
     cb=None
     btuple=None
     if not colorrange is None:
         norm = matplotlib.colors.Normalize(vmin=colorrange[0], vmax=colorrange[1])
 
     if type==4:
-        bckndarr*=killmapbin
-        savename1='_'.join((os.path.split(h5path)[1][0:-3], h5groupstr, btype[0:3]))
-        if datsave:
-            bckndarr.tofile(str(''.join((runpath, '/',savename1, '.dat'))))
+        if 'lin' in bcknd:
+            bckndarr=numpy.array([b*killmapbin for b in bckndarr])
         else:
-            if not colorrange is None:
-                pyim=pylab.imshow(bckndarr, norm=norm)
+            bckndarr*=killmapbin
+        savename1='_'.join((os.path.split(h5path)[1][0:-3], h5groupstr, bcknd[0:3]))
+        if datsave:
+            if 'lin' in bcknd:
+                b0, b1=bckndarr
+                b0.tofile(str(''.join((runpath, '/',savename1, '0.dat'))))
+                b1.tofile(str(''.join((runpath, '/',savename1, '1.dat'))))
             else:
-                pyim=pylab.imshow(bckndarr)
-            pylab.savefig(str(''.join((runpath, '/',savename1, '.png'))))
-            pylab.cla()
+                bckndarr.tofile(str(''.join((runpath, '/',savename1, '.dat'))))
+        else:
+            if 'lin' in bcknd:
+                for counter, b in enumerate(bckndarr):
+                    if not colorrange is None:
+                        pyim=pylab.imshow(b, norm=norm)
+                    else:
+                        pyim=pylab.imshow(b)
+                    pylab.savefig(str(''.join((runpath, '/',savename1, `counter`,'.png'))))
+                    pylab.cla()
+            else:
+                if not colorrange is None:
+                    pyim=pylab.imshow(bckndarr, norm=norm)
+                else:
+                    pyim=pylab.imshow(bckndarr)
+                pylab.savefig(str(''.join((runpath, '/',savename1, '.png'))))
+                pylab.cla()
     else:
         for pointind in pointlist:
             imname=`pointind`
@@ -673,13 +735,15 @@ def writeall2dimages(runpath, h5path,  h5groupstr,  type, typestr, colorrange=No
                 saveim=pnnn
             elif type==1:
                 if usebanom:
-                    saveim=bckndsubtract(pnnn, bckndarr, killmapbin, btype=btype, banom_f_f=btuple)[0]
+                    saveim=bckndsubtract(pnnn, bckndarr, killmapbin, btype=bcknd, banom_f_f=btuple)[0]
+                elif 'lin' in bcknd:
+                    saveim=bckndsubtract(pnnn, bckndarr, killmapbin, btype=bcknd, linweights=blinwts[pointind])[0]
                 else:
-                    saveim=bckndsubtract(pnnn, bckndarr, killmapbin, btype=btype)[0]
+                    saveim=bckndsubtract(pnnn, bckndarr, killmapbin, btype=bcknd)[0]
             elif type==2:
                 saveim=banom
             else:
-                saveim=bckndsubtract(pnnn, bckndarr, killmapbin, btype=btype, banom_f_f=btuple)[1]
+                saveim=bckndsubtract(pnnn, bckndarr, killmapbin, btype=bcknd, banom_f_f=btuple)[1]
 
             if datsave:
                 saveim.tofile(str(''.join((runpath, '/',savename1, imname, '.dat'))))
@@ -752,10 +816,9 @@ def readplotso(filename, headerlines=0, splitstr=None):#can use ! in the file or
     return numpy.float32(xvals), numpy.float32(yvals), xtype
 
 
-def calcbanom(h5path,  h5groupstr,  bqgrid=None):
+def calcbanom(h5path,  h5groupstr,  bqgrid=None, bin=3):
 #this function for entire pointlist
 #if bqgrid is None, use the default bqgrid to calculate bimap or use an already saved bimap. if bqgrid passed then if it is the same as that of saved bimap, use saved bimap, else calc new bimap.
-    bin=3
     h5file=h5py.File(h5path, mode='r')
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
     h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
@@ -1979,7 +2042,7 @@ def buildnewscan(h5path, h5groupstr, newscandict):
                 h5mca.create_dataset('counts', data=arr1)
 
         h5sd=h5measurement['scalar_data']
-        for item in h5sd.iterobjects():
+        for item in h5sd.values():
             itemname=item.name.rpartition('/')[2]
             if isinstance(item,h5py.Dataset) and len(item.shape)==1:
                 del h5sd[itemname]
@@ -1995,6 +2058,7 @@ def initializescan(h5path, h5groupstr, bin=3):
     h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
     h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
     h5marcounts=h5file['/'.join((h5groupstr,'measurement', getxrdname(h5analysis), 'counts'))]
+    h5analysis.attrs['bin']=bin
     attrdict=getattr(h5path, h5groupstr)
     if not ('bminanomf' in h5mar):
         bminanomfinit=numpy.ones((numpts_attrdict(attrdict), 3),  dtype='float32')*(-1.0)
@@ -2003,8 +2067,8 @@ def initializescan(h5path, h5groupstr, bin=3):
     pointlist=[]
     if 'countsbin%d' %bin in h5mar:
         del h5mar['countsbin%d' %bin]
-    countsbin=h5mar.create_dataset('countsbin%d' %bin, (h5marcounts.shape[0],h5marcounts.shape[1]//bin,h5marcounts.shape[2]//bin), dtype='uint16')
-    z=numpy.zeros((h5marcounts.shape[1]//bin,h5marcounts.shape[2]//bin), dtype='uint16')
+    countsbin=h5mar.create_dataset('countsbin%d' %bin, (h5marcounts.shape[0],h5marcounts.shape[1]//bin,h5marcounts.shape[2]//bin), dtype=h5marcounts.dtype)
+    z=numpy.zeros((h5marcounts.shape[1]//bin,h5marcounts.shape[2]//bin), dtype=h5marcounts.dtype)
     for count, image in enumerate(h5marcounts):
         data=image[:, :]
         if data.max()>0:
@@ -2015,6 +2079,8 @@ def initializescan(h5path, h5groupstr, bin=3):
     h5analysis.attrs['pointlist']=pointlist
     h5file.attrs['defaultscan']=str(h5groupstr)
     if 'min' in attrdict['bcknd']:
+        initbcknd='min'
+    elif 'lin' in attrdict['bcknd']:
         initbcknd='min'
     else:
         initbcknd='ave'
@@ -2191,3 +2257,72 @@ def readpdffile(pdfentriespath):
         except:
             print 'format error in pdf entry ', liststr
     return pdfname, pdflist
+    
+def xrdraw_dezing_rescale(h5path, h5groupstr=None, h5grppath=None, dezingbool=False, normdsetname=None, multval=None, outlier_nieghbratio=None):
+    h5file=h5py.File(h5path, mode='r+')
+    if not h5groupstr is None:
+        h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
+        h5marcounts=h5file['/'.join((h5groupstr,'measurement/'+getxrdname(h5analysis)+'/counts'))]
+        h5sd=h5file['/'.join((h5groupstr,'measurement', 'scalar_data'))]
+    else:
+        h5analysis=None
+        h5marcounts=h5file[h5grppath]['counts']
+        if not normdsetname is None:
+            h5sd=(h5file[h5grppath].parent)['scalar_data']
+    marcounts=readh5pyarray(h5marcounts)
+    if multval is None:
+        multval=1
+    multval=numpy.array([multval], dtype=marcounts.dtype)[0]
+    for count, arr in enumerate(marcounts):
+        if not normdsetname is None:
+            m=multval/h5sd[normdsetname][count]
+        else:
+            m=multval
+        if dezingbool:
+            arr=dezing(arr, critval=arr.max())
+        if not outlier_nieghbratio is None:
+            arr=removesinglepixoutliers(arr, critratiotoneighbors=outlier_nieghbratio)
+        marcounts[count, :, :]=(arr*m)[:, :]
+    h5marcounts[:, :, :]=marcounts[:, :, :]
+    for k, v in zip(['mod_dezing', 'mod_normbyscalar', 'mod_multiplier', 'mod_outlier_neighbratio'], [dezingbool, normdsetname, multval, outlier_nieghbratio]):
+        print k, v
+        if v is None:
+            continue
+        h5marcounts.attrs[k]=v
+    if not h5analysis is None:
+        updatelog(h5analysis,  ''.join(('raw XRD data modified using dezingbool=%s, normdsetname=%s, multval=%s' %(`dezingbool`, `normdsetname`,  `multval`), '. finished ', time.ctime())))
+    h5file.close()
+
+def CopyLinBckndData(h5path, h5groupstr, h5path_from, h5groupstr_from):
+    h5file=h5py.File(h5path, mode='r+')
+    h5analysis=h5file['/'.join((h5groupstr, 'analysis'))]
+    h5mar=h5file['/'.join((h5groupstr, 'analysis', getxrdname(h5analysis)))]
+    
+    h5file_from=h5py.File(h5path_from, mode='r')
+    h5analysis_from=h5file_from['/'.join((h5groupstr_from, 'analysis'))]
+    h5mar_from=h5file_from['/'.join((h5groupstr_from, 'analysis', getxrdname(h5analysis_from)))]
+    
+    dellist=[]
+    for pnt in h5mar.itervalues():
+        if isinstance(pnt,h5py.Dataset):
+            temp=pnt.name.rpartition('/')[2]
+            if temp.startswith('blin'):
+                dellist+=[temp]
+    for temp in dellist:
+        del h5mar[temp]
+
+    anycopied=False
+    for pnt in h5mar_from.itervalues():
+        if isinstance(pnt,h5py.Dataset) and (pnt.name.rpartition('/')[2]).startswith('blin'):
+            h5file.copy(pnt, h5mar[pnt.name.rpartition('/')[2]])
+            anycopied=True
+    
+    if anycopied:
+        updatelog(h5analysis,  ''.join(('LinBcknd arrays and attrs copied from %s %s' %(h5path_from, h5groupstr_from), '. finished ', time.ctime())))
+        h5file.close()
+        h5file_from.close()
+    else:
+        h5file.close()
+        h5file_from.close()
+        print 'CopyFailed: No LinBkcnd arrays were found'
+        return 'CopyFailed: No LinBkcnd arrays were found'

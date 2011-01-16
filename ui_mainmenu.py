@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Users\JohnnyG\Documents\CHESS\XRDproject_Python\mainmenu.ui'
 #
-# Created: Tue Jun 29 13:23:20 2010
+# Created: Fri Jan 14 01:04:56 2011
 #      by: PyQt4 UI code generator 4.5.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -55,7 +55,7 @@ class Ui_MainMenu(object):
         self.label.setObjectName("label")
         MainMenu.setCentralWidget(self.bodywidget)
         self.main_menu_pulldown = QtGui.QMenuBar(MainMenu)
-        self.main_menu_pulldown.setGeometry(QtCore.QRect(0, 0, 1025, 27))
+        self.main_menu_pulldown.setGeometry(QtCore.QRect(0, 0, 1025, 23))
         self.main_menu_pulldown.setObjectName("main_menu_pulldown")
         self.menuXRD_analysis_for_MAR345 = QtGui.QMenu(self.main_menu_pulldown)
         self.menuXRD_analysis_for_MAR345.setObjectName("menuXRD_analysis_for_MAR345")
@@ -224,6 +224,12 @@ class Ui_MainMenu(object):
         self.action_process_texture.setObjectName("action_process_texture")
         self.action_fit_1d_peaks_tex = QtGui.QAction(MainMenu)
         self.action_fit_1d_peaks_tex.setObjectName("action_fit_1d_peaks_tex")
+        self.action_bckndinventory = QtGui.QAction(MainMenu)
+        self.action_bckndinventory.setObjectName("action_bckndinventory")
+        self.action_edit_raw_diff_data = QtGui.QAction(MainMenu)
+        self.action_edit_raw_diff_data.setObjectName("action_edit_raw_diff_data")
+        self.action_copy_lin_bcknd = QtGui.QAction(MainMenu)
+        self.action_copy_lin_bcknd.setObjectName("action_copy_lin_bcknd")
         self.menuXRD_analysis_for_MAR345.addAction(self.action_initialize_scan)
         self.menuXRD_analysis_for_MAR345.addAction(self.action_edit_DAQ_params)
         self.menuXRD_analysis_for_MAR345.addAction(self.action_change_active_scan)
@@ -232,10 +238,12 @@ class Ui_MainMenu(object):
         self.menuXRD_analysis_for_MAR345.addAction(self.action_import_sample_info)
         self.menuXRD_analysis_for_MAR345.addAction(self.action_synthimport)
         self.menuXRD_analysis_for_MAR345.addAction(self.action_import_txt_XRD_data)
+        self.menuXRD_analysis_for_MAR345.addAction(self.action_copy_lin_bcknd)
         self.menuPerform_integration.addAction(self.action_integrate_single_image)
         self.menuPerform_integration.addAction(self.action_integrate_entire_dataset)
         self.menu1d_peak_search.addAction(self.action_1d_peak_search_single)
         self.menu1d_peak_search.addAction(self.action_1d_peak_search_all)
+        self.menuData_Analysis.addAction(self.action_edit_raw_diff_data)
         self.menuData_Analysis.addAction(self.action_choose_data_subset)
         self.menuData_Analysis.addAction(self.action_calc_bcknd)
         self.menuData_Analysis.addAction(self.menuPerform_integration.menuAction())
@@ -270,6 +278,7 @@ class Ui_MainMenu(object):
         self.menuCHESSrun.addAction(self.actionBinImapChimap)
         self.menuCHESSrun.addSeparator()
         self.menuCHESSrun.addAction(self.action_plot_chessrun_arrays)
+        self.menuCHESSrun.addAction(self.action_bckndinventory)
         self.menuWavelets.addAction(self.action_calc_waveset1d)
         self.menuComposition.addAction(self.actionDeposition_Profiling)
         self.menuComposition.addAction(self.actionXRF_analysis)
@@ -310,8 +319,8 @@ class Ui_MainMenu(object):
         self.taskTextBrowser.setHtml(QtGui.QApplication.translate("MainMenu", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+"</style></head><body style=\" font-family:\'Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'MS Shell Dlg 2\'; font-size:8pt;\"></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.performPushButton.setToolTip(QtGui.QApplication.translate("MainMenu", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
@@ -408,4 +417,7 @@ class Ui_MainMenu(object):
         self.action_1d_peak_search_tex.setText(QtGui.QApplication.translate("MainMenu", "wavelet peak search PHI-dist", None, QtGui.QApplication.UnicodeUTF8))
         self.action_process_texture.setText(QtGui.QApplication.translate("MainMenu", "process PHI-dist", None, QtGui.QApplication.UnicodeUTF8))
         self.action_fit_1d_peaks_tex.setText(QtGui.QApplication.translate("MainMenu", "fit peaks", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_bckndinventory.setText(QtGui.QApplication.translate("MainMenu", "inventory a bcknd image from sample .h5", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_edit_raw_diff_data.setText(QtGui.QApplication.translate("MainMenu", "edit raw diffraction data", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_copy_lin_bcknd.setText(QtGui.QApplication.translate("MainMenu", "copy \"linear bcknd\" source data from other .h5", None, QtGui.QApplication.UnicodeUTF8))
 
