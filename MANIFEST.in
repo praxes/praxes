@@ -1,3 +1,0 @@
-prune *
-recursive-include praxes *.py *.svg *.png
-recursive-include SpecClient *.py

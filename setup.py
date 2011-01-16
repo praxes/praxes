@@ -114,13 +114,18 @@ class build(_build):
         _build.run(self)
 
 
-packages = []
+packages = ['SpecClient']
 for dirpath, dirnames, filenames in os.walk('praxes'):
     if '__init__.py' in filenames:
         packages.append('.'.join(dirpath.split(os.sep)))
     else:
         del(dirnames[:])
 
+with open('xpaxs/version.py') as f:
+    for line in f:
+        if line[:11] == '__version__':
+            exec(line)
+            break
 
 setup(
     author = 'Darren Dale',
@@ -146,11 +151,20 @@ setup(
         Extension('praxes.io.spec.scan', ['praxes/io/spec/scan.pyx']),
         ],
     name = 'praxes',
+    package_data = {'': ['*.svg', '*.db']},
     packages = packages,
     requires = (
         'python (>=2.7)',
         'cython (>=0.13)',
         'numpy (>=1.5.1)',
         ),
-    scripts = ['scripts/combi']
+    scripts = [
+        'scripts/combi',
+        'scripts/sxfm',
+        ].extend(
+            ['scripts/praxes_win_post_install.py'] 
+            if 'bdist_wininst' in sys.argv
+            else []
+            )
+    version = __version__,
 )
