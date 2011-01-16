@@ -1,0 +1,271 @@
+
+<!doctype html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module SpecConnection</title>
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>SpecConnection</strong></big></big> (version 1.0)</font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/mntdirect/_bliss/users/guijarro/SpecClient/SpecConnection.py">/mntdirect/_bliss/users/guijarro/SpecClient/SpecConnection.py</a></font></td></tr></table>
+    <p><tt><a href="#SpecConnection">SpecConnection</a>&nbsp;module<br>
+&nbsp;<br>
+This&nbsp;module&nbsp;defines&nbsp;the&nbsp;low-level&nbsp;<a href="#SpecConnection">SpecConnection</a>&nbsp;class,&nbsp;implementing<br>
+the&nbsp;protocol&nbsp;for&nbsp;communicating&nbsp;with&nbsp;a&nbsp;remote&nbsp;Spec&nbsp;server</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#fffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="SpecChannel.html">SpecChannel</a><br>
+<a href="SpecEventsDispatcher.html">SpecEventsDispatcher</a><br>
+</td><td width="25%" valign=top><a href="SpecMessage.html">SpecMessage</a><br>
+<a href="SpecReply.html">SpecReply</a><br>
+</td><td width="25%" valign=top><a href="asyncore.html">asyncore</a><br>
+<a href="socket.html">socket</a><br>
+</td><td width="25%" valign=top><a href="string.html">string</a><br>
+<a href="weakref.html">weakref</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="asyncore.html#dispatcher">asyncore.dispatcher</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="SpecConnection.html#SpecConnection">SpecConnection</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="SpecConnection">class <strong>SpecConnection</strong></a>(<a href="asyncore.html#dispatcher">asyncore.dispatcher</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#SpecConnection">SpecConnection</a>&nbsp;class<br>
+&nbsp;<br>
+Signals:<br>
+<a href="#SpecConnection-connected">connected</a>()&nbsp;--&nbsp;emitted&nbsp;when&nbsp;the&nbsp;required&nbsp;Spec&nbsp;version&nbsp;gets&nbsp;connected<br>
+disconnected()&nbsp;--&nbsp;emitted&nbsp;when&nbsp;the&nbsp;required&nbsp;Spec&nbsp;version&nbsp;gets&nbsp;disconnected<br>
+replyFromSpec(reply&nbsp;id,&nbsp;SpecReply&nbsp;object)&nbsp;--&nbsp;emitted&nbsp;when&nbsp;a&nbsp;reply&nbsp;comes&nbsp;from&nbsp;the&nbsp;remote&nbsp;Spec<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="SpecConnection-__init__"><strong>__init__</strong></a>(self, specVersion)</dt><dd><tt>Constructor<br>
+&nbsp;<br>
+Arguments:<br>
+specVersion&nbsp;--&nbsp;a&nbsp;'host:port'&nbsp;string</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-__str__"><strong>__str__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="SpecConnection-checkourversion"><strong>checkourversion</strong></a>(self, name)</dt><dd><tt>Check&nbsp;remote&nbsp;Spec&nbsp;version<br>
+&nbsp;<br>
+If&nbsp;we&nbsp;are&nbsp;in&nbsp;port&nbsp;scanning&nbsp;mode,&nbsp;check&nbsp;if&nbsp;the&nbsp;name&nbsp;from<br>
+Spec&nbsp;corresponds&nbsp;to&nbsp;our&nbsp;required&nbsp;Spec&nbsp;version.&nbsp;If&nbsp;the<br>
+name&nbsp;matches,&nbsp;enter&nbsp;CONNECTED&nbsp;state,&nbsp;otherwise&nbsp;close&nbsp;the<br>
+connection.<br>
+If&nbsp;we&nbsp;are&nbsp;not&nbsp;in&nbsp;port&nbsp;scanning&nbsp;mode,&nbsp;enter&nbsp;CONNECTED&nbsp;state.</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-disconnect"><strong>disconnect</strong></a>(self)</dt><dd><tt>Disconnect&nbsp;from&nbsp;the&nbsp;remote&nbsp;Spec&nbsp;version.</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-error"><strong>error</strong></a>(self, error)</dt></dl>
+
+<dl><dt><a name="SpecConnection-getChannel"><strong>getChannel</strong></a>(self, chanName)</dt><dd><tt>Return&nbsp;a&nbsp;channel&nbsp;object<br>
+&nbsp;<br>
+If&nbsp;the&nbsp;required&nbsp;channel&nbsp;is&nbsp;already&nbsp;registered,&nbsp;return&nbsp;it.<br>
+Otherwise,&nbsp;return&nbsp;a&nbsp;new&nbsp;'temporary'&nbsp;unregistered&nbsp;SpecChannel&nbsp;object&nbsp;;<br>
+reference&nbsp;should&nbsp;be&nbsp;kept&nbsp;in&nbsp;the&nbsp;caller&nbsp;or&nbsp;the&nbsp;object&nbsp;will&nbsp;get&nbsp;dereferenced.<br>
+&nbsp;<br>
+Arguments:<br>
+chanName&nbsp;--&nbsp;a&nbsp;string&nbsp;representing&nbsp;the&nbsp;channel&nbsp;name,&nbsp;i.e.&nbsp;'var/toto'</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-handle_close"><strong>handle_close</strong></a>(self)</dt><dd><tt>Handle&nbsp;'close'&nbsp;event&nbsp;on&nbsp;socket.</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-handle_connect"><strong>handle_connect</strong></a>(self)</dt><dd><tt>Handle&nbsp;'connect'&nbsp;event&nbsp;on&nbsp;socket.</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-handle_error"><strong>handle_error</strong></a>(self)</dt><dd><tt>Close&nbsp;connection&nbsp;on&nbsp;any&nbsp;unhandled&nbsp;error.</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-handle_read"><strong>handle_read</strong></a>(self)</dt><dd><tt>Handle&nbsp;'read'&nbsp;events&nbsp;on&nbsp;socket<br>
+&nbsp;<br>
+Messages&nbsp;are&nbsp;built&nbsp;from&nbsp;the&nbsp;read&nbsp;calls&nbsp;on&nbsp;the&nbsp;socket.</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-handle_write"><strong>handle_write</strong></a>(self)</dt><dd><tt>Handle&nbsp;'write'&nbsp;events&nbsp;on&nbsp;socket.</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-isSpecConnected"><strong>isSpecConnected</strong></a>(self)</dt><dd><tt>Return&nbsp;True&nbsp;if&nbsp;the&nbsp;remote&nbsp;Spec&nbsp;version&nbsp;is&nbsp;connected.</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-makeConnection"><strong>makeConnection</strong></a>(self)</dt><dd><tt>Establish&nbsp;a&nbsp;connection&nbsp;to&nbsp;Spec<br>
+&nbsp;<br>
+If&nbsp;the&nbsp;connection&nbsp;is&nbsp;already&nbsp;established,&nbsp;do&nbsp;nothing.<br>
+Otherwise,&nbsp;create&nbsp;a&nbsp;socket&nbsp;object&nbsp;and&nbsp;try&nbsp;to&nbsp;connect.<br>
+If&nbsp;we&nbsp;are&nbsp;in&nbsp;port&nbsp;scanning&nbsp;mode,&nbsp;try&nbsp;to&nbsp;connect&nbsp;using<br>
+a&nbsp;port&nbsp;defined&nbsp;in&nbsp;the&nbsp;range&nbsp;from&nbsp;MIN_PORT&nbsp;to&nbsp;MAX_PORT</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-registerChannel"><strong>registerChannel</strong></a>(self, chanName, receiverSlot, registrationFlag<font color="#909090">=0</font>, dispatchMode<font color="#909090">=1</font>)</dt><dd><tt>Register&nbsp;a&nbsp;channel<br>
+&nbsp;<br>
+Tell&nbsp;the&nbsp;remote&nbsp;Spec&nbsp;we&nbsp;are&nbsp;interested&nbsp;in&nbsp;receiving&nbsp;channel&nbsp;update&nbsp;events.<br>
+If&nbsp;the&nbsp;channel&nbsp;is&nbsp;not&nbsp;already&nbsp;registered,&nbsp;create&nbsp;a&nbsp;new&nbsp;SpecChannel&nbsp;object,<br>
+and&nbsp;connect&nbsp;the&nbsp;channel&nbsp;'valueChanged'&nbsp;signal&nbsp;to&nbsp;the&nbsp;receiver&nbsp;slot.&nbsp;If&nbsp;the<br>
+channel&nbsp;is&nbsp;already&nbsp;registered,&nbsp;simply&nbsp;add&nbsp;a&nbsp;connection&nbsp;to&nbsp;the&nbsp;receiver<br>
+slot.<br>
+&nbsp;<br>
+Arguments:<br>
+chanName&nbsp;--&nbsp;a&nbsp;string&nbsp;representing&nbsp;the&nbsp;channel&nbsp;name,&nbsp;i.e.&nbsp;'var/toto'<br>
+receiverSlot&nbsp;--&nbsp;any&nbsp;callable&nbsp;object&nbsp;in&nbsp;Python<br>
+&nbsp;<br>
+Keywords&nbsp;arguments:<br>
+registrationFlag&nbsp;--&nbsp;internal&nbsp;flag<br>
+dispatchMode&nbsp;--&nbsp;can&nbsp;be&nbsp;SpecEventsDispatcher.UPDATEVALUE&nbsp;(default)&nbsp;or&nbsp;SpecEventsDispatcher.FIREEVENT,<br>
+depending&nbsp;on&nbsp;how&nbsp;the&nbsp;receiver&nbsp;slot&nbsp;will&nbsp;be&nbsp;called.&nbsp;UPDATEVALUE&nbsp;means&nbsp;we&nbsp;don't&nbsp;mind&nbsp;skipping&nbsp;some<br>
+channel&nbsp;update&nbsp;events&nbsp;as&nbsp;long&nbsp;as&nbsp;we&nbsp;got&nbsp;the&nbsp;last&nbsp;one&nbsp;(for&nbsp;example,&nbsp;a&nbsp;motor&nbsp;position).&nbsp;FIREEVENT&nbsp;means<br>
+we&nbsp;want&nbsp;to&nbsp;call&nbsp;the&nbsp;receiver&nbsp;slot&nbsp;for&nbsp;every&nbsp;event.</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-registerReply"><strong>registerReply</strong></a>(self, replyID, receiverSlot)</dt><dd><tt>Register&nbsp;for&nbsp;a&nbsp;reply&nbsp;event<br>
+&nbsp;<br>
+Connect&nbsp;the&nbsp;corresponding&nbsp;SpecReply&nbsp;object&nbsp;'replyFromSpec'&nbsp;signal<br>
+to&nbsp;the&nbsp;receiver&nbsp;slot.<br>
+&nbsp;<br>
+Arguments:<br>
+replyID&nbsp;--&nbsp;integer&nbsp;representing&nbsp;the&nbsp;reply&nbsp;id&nbsp;<br>
+receiverSlot&nbsp;--&nbsp;any&nbsp;callable&nbsp;Python&nbsp;object</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-send_msg_abort"><strong>send_msg_abort</strong></a>(self)</dt><dd><tt>Send&nbsp;an&nbsp;abort&nbsp;message.</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-send_msg_chan_read"><strong>send_msg_chan_read</strong></a>(self, chanName)</dt><dd><tt>Send&nbsp;a&nbsp;channel&nbsp;read&nbsp;message,&nbsp;and&nbsp;return&nbsp;the&nbsp;reply&nbsp;id.<br>
+&nbsp;<br>
+Arguments:<br>
+chanName&nbsp;--&nbsp;a&nbsp;string&nbsp;representing&nbsp;the&nbsp;channel&nbsp;name,&nbsp;i.e.&nbsp;'var/toto'</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-send_msg_chan_send"><strong>send_msg_chan_send</strong></a>(self, chanName, value)</dt><dd><tt>Send&nbsp;a&nbsp;channel&nbsp;write&nbsp;message.<br>
+&nbsp;<br>
+Arguments:<br>
+chanName&nbsp;--&nbsp;a&nbsp;string&nbsp;representing&nbsp;the&nbsp;channel&nbsp;name,&nbsp;i.e.&nbsp;'var/toto'<br>
+value&nbsp;--&nbsp;channel&nbsp;value</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-send_msg_close"><strong>send_msg_close</strong></a>(self)</dt><dd><tt>Send&nbsp;a&nbsp;close&nbsp;message.</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-send_msg_cmd"><strong>send_msg_cmd</strong></a>(self, cmd)</dt><dd><tt>Send&nbsp;a&nbsp;command&nbsp;message&nbsp;to&nbsp;the&nbsp;remote&nbsp;Spec&nbsp;server.<br>
+&nbsp;<br>
+Arguments:<br>
+cmd&nbsp;--&nbsp;command&nbsp;string,&nbsp;i.e.&nbsp;'mv&nbsp;psvo&nbsp;1.2'</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-send_msg_cmd_with_return"><strong>send_msg_cmd_with_return</strong></a>(self, cmd)</dt><dd><tt>Send&nbsp;a&nbsp;command&nbsp;message&nbsp;to&nbsp;the&nbsp;remote&nbsp;Spec&nbsp;server,&nbsp;and&nbsp;return&nbsp;the&nbsp;reply&nbsp;id.<br>
+&nbsp;<br>
+Arguments:<br>
+cmd&nbsp;--&nbsp;command&nbsp;string,&nbsp;i.e.&nbsp;'1+1'</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-send_msg_hello"><strong>send_msg_hello</strong></a>(self)</dt><dd><tt>Send&nbsp;a&nbsp;hello&nbsp;message.</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-send_msg_register"><strong>send_msg_register</strong></a>(self, chanName)</dt><dd><tt>Send&nbsp;a&nbsp;channel&nbsp;register&nbsp;message.<br>
+&nbsp;<br>
+Arguments:<br>
+chanName&nbsp;--&nbsp;a&nbsp;string&nbsp;representing&nbsp;the&nbsp;channel&nbsp;name,&nbsp;i.e.&nbsp;'var/toto'</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-send_msg_unregister"><strong>send_msg_unregister</strong></a>(self, chanName)</dt><dd><tt>Send&nbsp;a&nbsp;channel&nbsp;unregister&nbsp;message.<br>
+&nbsp;<br>
+Arguments:<br>
+chanName&nbsp;--&nbsp;a&nbsp;string&nbsp;representing&nbsp;the&nbsp;channel&nbsp;name,&nbsp;i.e.&nbsp;'var/toto'</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-specConnected"><strong>specConnected</strong></a>(self)</dt><dd><tt>Emit&nbsp;the&nbsp;'connected'&nbsp;signal&nbsp;when&nbsp;the&nbsp;remote&nbsp;Spec&nbsp;version&nbsp;is&nbsp;connected.</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-specDisconnected"><strong>specDisconnected</strong></a>(self)</dt><dd><tt>Emit&nbsp;the&nbsp;'disconnected'&nbsp;signal&nbsp;when&nbsp;the&nbsp;remote&nbsp;Spec&nbsp;version&nbsp;is&nbsp;disconnected.</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-statusChanged"><strong>statusChanged</strong></a>(self, status)</dt></dl>
+
+<dl><dt><a name="SpecConnection-unregisterChannel"><strong>unregisterChannel</strong></a>(self, chanName)</dt><dd><tt>Unregister&nbsp;a&nbsp;channel<br>
+&nbsp;<br>
+Arguments:<br>
+chanName&nbsp;--&nbsp;a&nbsp;string&nbsp;representing&nbsp;the&nbsp;channel&nbsp;to&nbsp;unregister,&nbsp;i.e.&nbsp;'var/toto'</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-writable"><strong>writable</strong></a>(self)</dt><dd><tt>Return&nbsp;True&nbsp;if&nbsp;socket&nbsp;should&nbsp;be&nbsp;written.</tt></dd></dl>
+
+<hr>
+Methods inherited from <a href="asyncore.html#dispatcher">asyncore.dispatcher</a>:<br>
+<dl><dt><a name="SpecConnection-__getattr__"><strong>__getattr__</strong></a>(self, attr)</dt><dd><tt>#&nbsp;cheap&nbsp;inheritance,&nbsp;used&nbsp;to&nbsp;pass&nbsp;all&nbsp;other&nbsp;attribute<br>
+#&nbsp;references&nbsp;to&nbsp;the&nbsp;underlying&nbsp;socket&nbsp;object.</tt></dd></dl>
+
+<dl><dt><a name="SpecConnection-__repr__"><strong>__repr__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="SpecConnection-accept"><strong>accept</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="SpecConnection-add_channel"><strong>add_channel</strong></a>(self, map<font color="#909090">=None</font>)</dt></dl>
+
+<dl><dt><a name="SpecConnection-bind"><strong>bind</strong></a>(self, addr)</dt></dl>
+
+<dl><dt><a name="SpecConnection-close"><strong>close</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="SpecConnection-connect"><strong>connect</strong></a>(self, address)</dt></dl>
+
+<dl><dt><a name="SpecConnection-create_socket"><strong>create_socket</strong></a>(self, family, type)</dt></dl>
+
+<dl><dt><a name="SpecConnection-del_channel"><strong>del_channel</strong></a>(self, map<font color="#909090">=None</font>)</dt></dl>
+
+<dl><dt><a name="SpecConnection-handle_accept"><strong>handle_accept</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="SpecConnection-handle_expt"><strong>handle_expt</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="SpecConnection-handle_expt_event"><strong>handle_expt_event</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="SpecConnection-handle_read_event"><strong>handle_read_event</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="SpecConnection-handle_write_event"><strong>handle_write_event</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="SpecConnection-listen"><strong>listen</strong></a>(self, num)</dt></dl>
+
+<dl><dt><a name="SpecConnection-log"><strong>log</strong></a>(self, message)</dt></dl>
+
+<dl><dt><a name="SpecConnection-log_info"><strong>log_info</strong></a>(self, message, type<font color="#909090">='info'</font>)</dt></dl>
+
+<dl><dt><a name="SpecConnection-readable"><strong>readable</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="SpecConnection-recv"><strong>recv</strong></a>(self, buffer_size)</dt></dl>
+
+<dl><dt><a name="SpecConnection-send"><strong>send</strong></a>(self, data)</dt></dl>
+
+<dl><dt><a name="SpecConnection-set_reuse_addr"><strong>set_reuse_addr</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="SpecConnection-set_socket"><strong>set_socket</strong></a>(self, sock, map<font color="#909090">=None</font>)</dt></dl>
+
+<hr>
+Data and other attributes inherited from <a href="asyncore.html#dispatcher">asyncore.dispatcher</a>:<br>
+<dl><dt><strong>ac_in_buffer_size</strong> = 32768</dl>
+
+<dl><dt><strong>accepting</strong> = 0</dl>
+
+<dl><dt><strong>addr</strong> = None</dl>
+
+<dl><dt><strong>closing</strong> = 0</dl>
+
+<dl><dt><strong>connected</strong> = 0</dl>
+
+<dl><dt><strong>debug</strong> = 0</dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>CONNECTED</strong> = 4<br>
+<strong>DISCONNECTED</strong> = 1<br>
+<strong>MAX_PORT</strong> = 6530<br>
+<strong>MIN_PORT</strong> = 6510<br>
+<strong>PORTSCANNING</strong> = 2<br>
+<strong>WAITINGFORHELLO</strong> = 3<br>
+<strong>__author__</strong> = 'Matias Guijarro'<br>
+<strong>__version__</strong> = '1.0'</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#7799ee">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Author</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#7799ee"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Matias&nbsp;Guijarro</td></tr></table>
+</body></html>

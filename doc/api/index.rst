@@ -8,3 +8,5 @@ Praxes API
    :maxdepth: 2
 
    io/index
+   .. combi
+   flourescence

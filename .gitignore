@@ -2,9 +2,11 @@
 *.pyc
 ui_*.py*
 praxes/io/spec/*.c
-xpaxs.egg-info
+*.egg-info
 build
 doc/_build
 dist
 MANIFEST
 .DS_Store
+*_rc.py
+ui_*.py

@@ -1,0 +1,73 @@
+<ui version="4.0" >
+ <class>SavedLocations</class>
+ <widget class="QGroupBox" name="SavedLocations" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>326</width>
+    <height>69</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy vsizetype="Minimum" hsizetype="Preferred" >
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle" >
+   <string>GroupBox</string>
+  </property>
+  <property name="title" >
+   <string>Scan Controls</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout" >
+   <item>
+    <widget class="QComboBox" name="savedLocsComboBox" >
+     <property name="toolTip" >
+      <string>The start and end points of the scan</string>
+     </property>
+     <item>
+      <property name="text" >
+       <string>Start</string>
+      </property>
+     </item>
+     <item>
+      <property name="text" >
+       <string>End</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="saveButton" >
+     <property name="toolTip" >
+      <string>save the location</string>
+     </property>
+     <property name="text" >
+      <string>Save</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="deleteButton" >
+     <property name="toolTip" >
+      <string>Delete the saved location</string>
+     </property>
+     <property name="text" >
+      <string>Delete</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="startScanButton" >
+     <property name="text" >
+      <string>Start Scan</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

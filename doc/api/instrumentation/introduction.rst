@@ -1,0 +1,5 @@
+============
+Introduction
+============
+
+.. automodule:: praxes.instrumentation

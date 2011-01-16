@@ -1,0 +1,7 @@
+============
+Introduction
+============
+
+.. automodule:: xpaxs.core
+
+

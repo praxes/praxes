@@ -28,6 +28,12 @@ import sys, os
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.pngmath',
+    'sphinx.ext.todo',
+    'matplotlib.sphinxext.plot_directive',
+    'sphinx.ext.ifconfig',
+    'ipython_console_highlighting',
+    'sphinx.ext.autosummary',
+    #'numpydoc.numpydoc'
     ]
 
 # Add any paths that contain templates here, relative to this directory.
