@@ -1,4 +1,3 @@
 prune *
-recursive-include xpaxs *.py *.svg *.png
-recursive-include praxes *.py
+recursive-include praxes *.py *.svg *.png
 recursive-include SpecClient *.py

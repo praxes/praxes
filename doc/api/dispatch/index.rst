@@ -1,6 +1,6 @@
-******************
-XPaXS Dispatch API
-******************
+===================
+Praxes Dispatch API
+===================
 
 .. _dispatch-contents:
 

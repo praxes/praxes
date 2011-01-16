@@ -2,6 +2,4 @@
 Introduction
 ============
 
-.. automodule:: xpaxs.instrumentation
-
-
+.. automodule:: praxes.instrumentation

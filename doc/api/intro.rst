@@ -1,6 +1,0 @@
-************
-Introduction
-************
-
-.. automodule:: xpaxs
-

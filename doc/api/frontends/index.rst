@@ -1,6 +1,6 @@
-******************
-XPaXS Frontend API
-******************
+===================
+Praxes Frontend API
+===================
 
 .. _frontend-contents:
 

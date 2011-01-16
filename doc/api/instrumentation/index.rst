@@ -1,6 +1,6 @@
-*************************
-XPaXS Instrumentation API
-*************************
+==========================
+Praxes Instrumentation API
+==========================
 
 .. _instrumentation-contents:
 

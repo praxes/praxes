@@ -1,6 +1,6 @@
-****************
-XPaXS Config API
-****************
+=================
+Praxes Config API
+=================
 
 .. _config-contents:
 

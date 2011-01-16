@@ -46,7 +46,7 @@ and you want to export channels 500-550 of the first three MCA spectra to an
 ASCII text file. You can do so with the following simple python code, which can
 be run as a script or in an interactive session::
 
-  from xpaxs.io.phynx import File
+  from praxes.io.phynx import File
   import numpy
 
   f = File('mydata.h5')

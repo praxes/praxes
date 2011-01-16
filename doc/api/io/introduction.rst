@@ -2,4 +2,4 @@
 Introduction
 ============
 
-.. automodule:: xpaxs.io
+.. automodule:: praxes.io

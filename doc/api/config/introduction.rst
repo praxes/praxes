@@ -2,6 +2,6 @@
 Introduction
 ============
 
-.. automodule:: xpaxs.config
+.. automodule:: praxes.config
 
 

@@ -2,6 +2,4 @@
 Introduction
 ============
 
-.. automodule:: xpaxs.dispatch
-
-
+.. automodule:: praxes.dispatch
