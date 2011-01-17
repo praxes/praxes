@@ -33,7 +33,7 @@ def create_database(source, dest, overwrite=False):
 
     c.execute(
         '''create table elements (atomic_number integer, element text,
-        atomic_mass real, density real)
+        molar_mass real, density real)
         '''
         )
     current_edge_id = 0

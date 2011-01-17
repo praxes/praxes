@@ -4,6 +4,7 @@ from distutils.command.sdist import sdist as _sdist
 from distutils.command.build import build as _build
 from distutils.extension import Extension
 import os
+import sys
 
 from Cython.Distutils import build_ext
 import numpy
@@ -26,11 +27,15 @@ class data(Command):
     def run(self):
         import shutil
         import subprocess
-        for db in ('elam',):# 'henke', 'waasmaier'):
+        for db, loc in (
+            ('elam', 'praxes/phys_ref_data'),
+            #('henke', 'praxes/phys_ref_data'),
+            #('waasmaier', 'praxes/phys_ref_data'),
+            ):
             subprocess.call('cd data && python process_%s_db.py' % db,
                 shell=True
                 )
-            shutil.copyfile('data/%s.db' % db, '%s.db' % db)
+            shutil.copyfile('data/%s.db' % db, '%s/%s.db' % (loc, db))
 
 
 class test(Command):
@@ -121,7 +126,7 @@ for dirpath, dirnames, filenames in os.walk('praxes'):
     else:
         del(dirnames[:])
 
-with open('xpaxs/version.py') as f:
+with open('praxes/version.py') as f:
     for line in f:
         if line[:11] == '__version__':
             exec(line)
@@ -162,9 +167,9 @@ setup(
         'scripts/combi',
         'scripts/sxfm',
         ].extend(
-            ['scripts/praxes_win_post_install.py'] 
+            ['scripts/praxes_win_post_install.py']
             if 'bdist_wininst' in sys.argv
             else []
-            )
+            ),
     version = __version__,
 )

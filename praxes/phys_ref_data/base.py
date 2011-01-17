@@ -5,24 +5,32 @@
 from __future__ import absolute_import
 
 import re
+import sqlite3
 
-import h5py
 import numpy as np
 import quantities as pq
 
-from ..decorators import memoize
+from .decorators import memoize
 
 
-class H5pyQuantitiesAdapter(object):
+class SQLiteQuantitiesAdapter(object):
 
-    def _get_h5data(self, filename, id): 
+    @property
+    def database(self):
+        raise NotImplemented
+
+    def _get_data(self, filename, id):
         def _get_data(item):
             if not isinstance(item, h5py.Dataset):
-                return None 
+                return None
             units = item.attrs.get('units', None)
             if units is not None:
                 return pq.Quantity(item[...], units)
             return item[...]
+
+        conn = sqlite3.connect(dest_file_name)
+        c = conn.cursor()
+
 
         with h5py.File(filename, 'r') as f:
             item = f[id]
@@ -30,8 +38,8 @@ class H5pyQuantitiesAdapter(object):
             if isinstance(item, h5py.Dataset):
                 return _get_data(item)
 
-            res = {}  
-            for k, v in item.iteritems():   
+            res = {}
+            for k, v in item.iteritems():
                 res[k] = _get_data(v)
             return res
 

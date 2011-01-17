@@ -1,5 +1,6 @@
 *.so
 *.pyc
+*.db
 ui_*.py*
 praxes/io/spec/*.c
 *.egg-info

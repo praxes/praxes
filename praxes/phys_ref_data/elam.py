@@ -14,27 +14,30 @@ http://www.cstl.nist.gov/acd/839.01/xrfdownload.html
 
 from __future__ import absolute_import
 
-import h5py
+from collections import OrderedDict
+import json
+import os
+import sqlite3
+
 import numpy as np
 import quantities as pq
 
 from .interpolate import splint
 from . import base
-from ..decorators import memoize
+from .decorators import memoize
 
 
-@memoize
-def _get_filename():
-    import pkg_resources
-    return pkg_resources.resource_filename(__name__, 'elamdb.h5')
+class ElamSQLiteConnection(sqlite3.Connection):
 
-@memoize
-def keys():
-    with h5py.File(_get_filename(), 'r') as f:
-        return f.keys()
+    def __init__(self):
+        super(ElamSQLiteConnection, self).__init__(
+            os.path.join(os.path.split(__file__)[0], 'elam.db')
+            )
+
+elamdb = ElamSQLiteConnection()
 
 
-class Line(base.H5pyQuantitiesAdapter):
+class Line(object):
     """
     Publicly accessible attributes:
     iupac
@@ -53,15 +56,22 @@ class Line(base.H5pyQuantitiesAdapter):
     """
 
     def _get_data(self, id):
-        return self._get_h5data(
-            _get_filename(),
-            '%s/edges/%s/lines/%s/%s'
-            % (self.element, self.edge, self.iupac, id)
-            )
+        cursor = elamdb.cursor()
+        result = cursor.execute(
+            '''select %s from emission_lines
+            where element=? and iupac_symbol=?''' % id,
+            (self._element, self._iupac)
+            ).fetchone()
+        cursor.close()
+        return result[0]
 
     @property
-    def edge(self):
-        return self._edge
+    def end_level(self):
+        return self._get_data('start_level')
+
+    @property
+    def start_level(self):
+        return self._get_data('end_level')
 
     @property
     def element(self):
@@ -70,7 +80,7 @@ class Line(base.H5pyQuantitiesAdapter):
     @property
     @memoize
     def energy(self):
-        return self._get_data('energy')
+        return self._get_data('energy') * pq.eV
 
     @property
     @memoize
@@ -101,7 +111,7 @@ class Line(base.H5pyQuantitiesAdapter):
         return ('').join(res)+'\n'+' '*19
 
 
-class Edge(base.H5pyQuantitiesAdapter):
+class Edge(object):
     """
     Publicly accessible attributes:
     name
@@ -144,20 +154,34 @@ class Edge(base.H5pyQuantitiesAdapter):
 
     @property
     @memoize
-    def _ck(self):
-        return self._get_data('Coster_Kronig')
+    def ck_probability(self):
+        c = elamdb.cursor()
+        items = c.execute(
+            '''select start_level, transition_probability from Coster_Kronig
+            where element=? and end_level=? order by start_level''',
+            (self.element, self.name)
+            )
+        return OrderedDict(items)
 
     @property
     @memoize
-    def _ck_total(self):
-        return self._get_data('Coster_Kronig_total')
+    def ck_total_probability(self):
+        c = elamdb.cursor()
+        items = c.execute(
+            '''select start_level, total_transition_probability
+            from Coster_Kronig
+            where element=? and end_level=? order by start_level''',
+            (self.element, self.name)
+            )
+        return OrderedDict(items)
 
     def _get_data(self, id):
-        return self._get_h5data(
-            _get_filename(),
-            '%s/edges/%s/%s'
-            % (self.element, self.name, id)
-            )
+        cursor = elamdb.cursor()
+        result = cursor.execute('''select %s from absorption_edges
+            where element=? and label=?''' % id, (self._element, self._name)
+            ).fetchone()
+        cursor.close()
+        return result[0]
 
     @property
     def element(self):
@@ -181,12 +205,15 @@ class Edge(base.H5pyQuantitiesAdapter):
     @property
     @memoize
     def lines(self):
-        res = {}
-        try:
-            for key in self._get_data('lines'):
-                res[key] = Line(self.element, self.name, key)
-        except KeyError:
-            pass
+        c = elamdb.cursor()
+        keys = c.execute(
+            '''select iupac_symbol from emission_lines
+            where element=? and end_level=? order by iupac_symbol''',
+            (self.element, self.name)
+            )
+        res = OrderedDict()
+        for (key, ) in keys:
+            res[key] = Line(self.element, self.name, key)
         return res
 
     @property
@@ -211,7 +238,7 @@ class Edge(base.H5pyQuantitiesAdapter):
         return ''.join(res).lstrip()
 
 
-class AtomicData(base.AtomicData, base.H5pyQuantitiesAdapter):
+class AtomicData(base.AtomicData):
     """
     Publicly accessible attributes:
 
@@ -225,10 +252,12 @@ class AtomicData(base.AtomicData, base.H5pyQuantitiesAdapter):
     """
 
     def _get_data(self, id):
-        return self._get_h5data(
-            _get_filename(),
-            '%s/%s' % (self.element, id)
-            )
+        cursor = elamdb.cursor()
+        result = cursor.execute('''select %s from elements
+            where element=?''' % id, (self.element, )
+            ).fetchone()
+        cursor.close()
+        return result[0]
 
     @property
     @memoize
@@ -243,8 +272,14 @@ class AtomicData(base.AtomicData, base.H5pyQuantitiesAdapter):
     @property
     @memoize
     def edges(self):
-        res = {}
-        for key in self._get_data('edges'):
+        c = elamdb.cursor()
+        keys = c.execute(
+            '''select label from absorption_edges
+            where element=? order by energy desc''',
+            (self.element,)
+            )
+        res = OrderedDict()
+        for (key, ) in keys:
             res[key] = Edge(self.element, key)
         return res
 
@@ -256,12 +291,12 @@ class AtomicData(base.AtomicData, base.H5pyQuantitiesAdapter):
     @property
     @memoize
     def mass_density(self):
-        return self._get_data('mass_density')
+        return self._get_data('mass_density') * pq.g / pq.cm**3
 
     @property
     @memoize
     def molar_mass(self):
-        return self._get_data('molar_mass')
+        return self._get_data('molar_mass') * pq.g / pq.mol
 
     @property
     @memoize
@@ -274,7 +309,7 @@ class AtomicData(base.AtomicData, base.H5pyQuantitiesAdapter):
         """
         base.AtomicData.__init__(self, symbol)
         try:
-            assert self.element in keys()
+            self._get_data('element')
         except AssertionError:
             raise NotImplementedError(
                 'Fluorescence data have not been reported for %s'
@@ -296,33 +331,24 @@ class AtomicData(base.AtomicData, base.H5pyQuantitiesAdapter):
         Return the photoabsorption cross section for 100 < E < 8e5 eV
 
         """
-        res = self._photoabsorption(energy)
-        res *= self.molar_mass / pq.constants.N_A
-        res.units = 'cm**2'
-        return res
+        return self._photoabsorption(energy)
 
     def coherent_scattering_cross_section(self, energy):
         """
         Return the coherent scattering cross section for
         100 < E < 8e5 eV
         """
-        res = self._coherent_scatter(energy)
-        res *= self.molar_mass / pq.constants.N_A
-        res.units = 'cm**2'
-        return res
+        return self._coherent_scatter(energy)
 
     def incoherent_scattering_cross_section(self, energy):
         """
         Return the incoherent scattering cross section for
         100 < E < 8e5 eV
         """
-        res = self._incoherent_scatter(energy)
-        res *= self.molar_mass / pq.constants.N_A
-        res.units = 'cm**2'
-        return res
+        return self._incoherent_scatter(energy)
 
 
-class SplineInterpolable(base.H5pyQuantitiesAdapter):
+class SplineInterpolable(object):
 
     @property
     def element(self):
@@ -338,21 +364,23 @@ class SplineInterpolable(base.H5pyQuantitiesAdapter):
 
     def __call__(self, energy):
         log_energy = np.log(energy.rescale('eV').magnitude)
-        log_xa = self._log_independant_value.magnitude
-        log_ya = self._log_dependant_value.magnitude
+        log_xa = self._log_independant_value
+        log_ya = self._log_dependant_value
         log_yspline = self._log_dependant_value_spline
 
         log_res = splint(log_xa, log_ya, log_yspline, log_energy)
-        return np.exp(log_res) * self._log_dependant_value.units
+        return np.exp(log_res) * pq.cm**2 / pq.g
 
 
 class Photoabsorption(SplineInterpolable):
 
     def _get_data(self, id):
-        return self._get_h5data(
-            _get_filename(),
-            '%s/photoabsorption/%s' % (self.element, id)
-            )
+        cursor = elamdb.cursor()
+        result = cursor.execute('''select %s from photoabsorption
+            where element=?''' % id, (self.element, )
+            ).fetchone()
+        cursor.close()
+        return np.array(json.loads(result[0]))
 
     @property
     @memoize
@@ -368,10 +396,12 @@ class Photoabsorption(SplineInterpolable):
 class Scatter(SplineInterpolable):
 
     def _get_data(self, id):
-        return self._get_h5data(
-            _get_filename(),
-            '%s/scatter/%s' % (self.element, id)
-            )
+        cursor = elamdb.cursor()
+        result = cursor.execute('''select %s from scattering
+            where element=?''' % id, (self.element, )
+            ).fetchone()
+        cursor.close()
+        return np.array(json.loads(result[0]))
 
 
 class CoherentScatter(Scatter):
