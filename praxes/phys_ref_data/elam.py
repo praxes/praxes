@@ -18,6 +18,7 @@ from collections import OrderedDict
 import json
 import os
 import sqlite3
+import textwrap
 
 import numpy as np
 import quantities as pq
@@ -37,7 +38,7 @@ class ElamSQLiteConnection(sqlite3.Connection):
 elamdb = ElamSQLiteConnection()
 
 
-class Line(object):
+class Transition(object):
     """
     Publicly accessible attributes:
     iupac
@@ -79,7 +80,7 @@ class Line(object):
 
     @property
     @memoize
-    def energy(self):
+    def emission_energy(self):
         return self._get_data('energy') * pq.eV
 
     @property
@@ -96,22 +97,33 @@ class Line(object):
     def siegbahn(self):
         return self._get_data('Siegbahn_symbol')
 
-    def __init__(self, element, edge, iupac):
+    def __init__(self, element, iupac):
         self._element = element
-        self._edge = edge
         self._iupac = iupac
 
     @memoize
+    def __repr__(self):
+        return "<%s(%s, %s)>" % (self.__class__, self.element, self.iupac)
+
+    @memoize
     def __str__(self):
-        res = []
-        keys = vars(self).keys()
-        keys.sort()
-        for key in keys:
-            res.append('\n'+' '*30+'%s: %s' % (key, getattr(self, key)))
-        return ('').join(res)+'\n'+' '*19
+        return textwrap.dedent(
+            """\
+            %s(%s, %s)
+              emission energy: %s
+              intensity: %s
+              Siegbahn symbol: %s""" % (
+                str(self.__class__).split('.')[-1],
+                self.element,
+                self.iupac,
+                self.emission_energy,
+                self.intensity,
+                self.siegbahn,
+                )
+            )
 
 
-class Edge(object):
+class XrayLevel(object):
     """
     Publicly accessible attributes:
     name
@@ -154,7 +166,7 @@ class Edge(object):
 
     @property
     @memoize
-    def ck_probability(self):
+    def ck_probabilities(self):
         c = elamdb.cursor()
         items = c.execute(
             '''select final_level, transition_probability from Coster_Kronig
@@ -165,7 +177,7 @@ class Edge(object):
 
     @property
     @memoize
-    def ck_total_probability(self):
+    def ck_total_probabilities(self):
         c = elamdb.cursor()
         items = c.execute(
             '''select final_level, total_transition_probability
@@ -177,7 +189,7 @@ class Edge(object):
 
     def _get_data(self, id):
         cursor = elamdb.cursor()
-        result = cursor.execute('''select %s from absorption_edges
+        result = cursor.execute('''select %s from xray_levels
             where element=? and label=?''' % id, (self._element, self._name)
             ).fetchone()
         cursor.close()
@@ -189,8 +201,8 @@ class Edge(object):
 
     @property
     @memoize
-    def energy(self):
-        return self._get_data('energy')
+    def absorption_edge(self):
+        return self._get_data('absorption_edge') * pq.eV
 
     @property
     @memoize
@@ -204,7 +216,7 @@ class Edge(object):
 
     @property
     @memoize
-    def lines(self):
+    def transitions(self):
         c = elamdb.cursor()
         keys = c.execute(
             '''select iupac_symbol from emission_lines
@@ -213,7 +225,7 @@ class Edge(object):
             )
         res = OrderedDict()
         for (key, ) in keys:
-            res[key] = Line(self.element, self.name, key)
+            res[key] = Transition(self.element, key)
         return res
 
     @property
@@ -225,17 +237,31 @@ class Edge(object):
         self._name = name
 
     @memoize
+    def __repr__(self):
+        return "<%s(%s, %s)>" % (self.__class__, self.element, self.name)
+
+    @memoize
     def __str__(self):
-        res = []
-        keys = vars(self).keys()
-        keys.sort()
-        for key in keys:
-            if key in ('_ck', '_ck_total'): pass
-            elif key is 'name':
-                res.append('\n'+' '*6)
-            else:
-                res.append('\n'+' '*13+'%s: %s' % (key, getattr(self, key)))
-        return ''.join(res).lstrip()
+        return textwrap.dedent(
+            """\
+            %s(%s, %s)
+              absorption edge: %s
+              flourescence yield: %s
+              jump ratio: %s
+              Coster Kronig probabilities: %s
+              Coster Kronig total probabilities: %s
+              transitions: %s""" % (
+                str(self.__class__).split('.')[-1],
+                self.element,
+                self.name,
+                self.absorption_edge,
+                self.fluorescence_yield,
+                self.jump_ratio,
+                self.ck_probabilities.items(),
+                self.ck_total_probabilities.items(),
+                self.transitions.keys()
+                )
+            )
 
 
 class AtomicData(base.AtomicData):
@@ -271,16 +297,16 @@ class AtomicData(base.AtomicData):
 
     @property
     @memoize
-    def edges(self):
+    def xray_levels(self):
         c = elamdb.cursor()
         keys = c.execute(
-            '''select label from absorption_edges
-            where element=? order by energy desc''',
+            '''select label from xray_levels where element=?
+            order by absorption_edge desc''',
             (self.element,)
             )
         res = OrderedDict()
         for (key, ) in keys:
-            res[key] = Edge(self.element, key)
+            res[key] = XrayLevel(self.element, key)
         return res
 
     @property
@@ -291,7 +317,7 @@ class AtomicData(base.AtomicData):
     @property
     @memoize
     def mass_density(self):
-        return self._get_data('mass_density') * pq.g / pq.cm**3
+        return self._get_data('density') * pq.g / pq.cm**3
 
     @property
     @memoize
@@ -317,35 +343,48 @@ class AtomicData(base.AtomicData):
                 )
 
     @memoize
+    def __repr__(self):
+        return "<%s(%s)>" % (self.__class__, self.symbol)
+
+    @memoize
     def __str__(self):
-        res = []
-        keys = vars(self).keys()
-        keys.sort()
-        for key in keys:
-            if key in ('_scatter', '_photoabsorption'): pass
-            else: res.append('\n%s: %s' % (key, getattr(self, key)))
-        return ''.join(res).lstrip('\n').replace(' , ', '   ')
+        return textwrap.dedent(
+            """\
+            %s(%s)
+              mass density: %s
+              molar mass: %s
+              x-ray levels: %s""" % (
+                str(self.__class__).split('.')[-1],
+                self.symbol,
+                self.mass_density,
+                self.molar_mass,
+                self.xray_levels.keys()
+                )
+            )
 
     def photoabsorption_cross_section(self, energy):
         """
         Return the photoabsorption cross section for 100 < E < 8e5 eV
-
         """
-        return self._photoabsorption(energy)
+        res = self._photoabsorption(energy) * self.atomic_mass
+        res.units = 'cm**2'
+        return res
 
     def coherent_scattering_cross_section(self, energy):
         """
-        Return the coherent scattering cross section for
-        100 < E < 8e5 eV
+        Return the coherent scattering cross section for 100 < E < 8e5 eV
         """
-        return self._coherent_scatter(energy)
+        res = self._coherent_scatter(energy) * self.atomic_mass
+        res.units = 'cm**2'
+        return res
 
     def incoherent_scattering_cross_section(self, energy):
         """
-        Return the incoherent scattering cross section for
-        100 < E < 8e5 eV
+        Return the incoherent scattering cross section for 100 < E < 8e5 eV
         """
-        return self._incoherent_scatter(energy)
+        res = self._incoherent_scatter(energy) * self.atomic_mass
+        res.units = 'cm**2'
+        return res
 
 
 class SplineInterpolable(object):

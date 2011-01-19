@@ -38,8 +38,8 @@ def create_database(source, dest, overwrite=False):
         )
     current_edge_id = 0
     c.execute(
-        '''create table absorption_edges (id integer, element text, label text,
-        energy real, fluorescence_yield real, jump_ratio real)
+        '''create table xray_levels (id integer, element text, label text,
+        absorption_edge real, fluorescence_yield real, jump_ratio real)
         '''
         )
     current_line_id = 0
@@ -84,7 +84,7 @@ def create_database(source, dest, overwrite=False):
             label, energy, yield_, jump = line.split()[1:]
             el = current_element
             c.execute(
-                'insert into absorption_edges values (?,?,?,?,?,?)',
+                'insert into xray_levels values (?,?,?,?,?,?)',
                 (current_edge_id, el, label, energy, yield_, jump)
                 )
             current_edge = label

@@ -34,35 +34,39 @@ class TestElements(testing.TestCase):
     def test_photoabsorption(self):
         self.assertAlmostEqual(
             AtomicData('Cu').photoabsorption_cross_section(10 * pq.keV),
-            214.4591 * pq.cm**2 / pq.g,
-            places=4
+            2.263e-20 * pq.cm**2,
+            delta=1e-23
             )
 
     def test_coherent_scattering(self):
         self.assertAlmostEqual(
             AtomicData('Cu').coherent_scattering_cross_section(10 * pq.keV),
-            1.45 * pq.cm**2 / pq.g,
-            places=4
+            1.53e-22 * pq.cm**2,
+            delta=1e-24
             )
 
     def test_incoherent_scattering(self):
         self.assertAlmostEqual(
             AtomicData('Cu').incoherent_scattering_cross_section(10 * pq.keV),
-            0.0773 * pq.cm**2 / pq.g,
-            places=4
+            8.152e-24 * pq.cm**2,
+            delta=1e-27
             )
 
-    def test_edges(self):
-        self.assertEqual(AtomicData('U').edges['K'].energy, 115606.0 * pq.eV)
+    def test_levels(self):
         self.assertEqual(
-            AtomicData('Pb').edges['L1'].ck_probability['L3'], 0.58
+            AtomicData('U').xray_levels['K'].absorption_edge, 115606.0 * pq.eV
             )
         self.assertEqual(
-            AtomicData('Pb').edges['L1'].ck_total_probability['L3'], 0.58464
+            AtomicData('Pb').xray_levels['L1'].ck_probabilities['L3'], 0.58
+            )
+        self.assertEqual(
+            AtomicData('Pb').xray_levels['L1'].ck_total_probabilities['L3'],
+            0.58464
             )
 
-    def test_lines(self):
+    def test_transitions(self):
         self.assertEqual(
-            AtomicData('U').edges['K'].lines['K-L3'].energy,
+            AtomicData('U').xray_levels['K'].\
+                transitions['K-L3'].emission_energy,
             98440 * pq.eV
             )
