@@ -66,12 +66,12 @@ class Line(object):
         return result[0]
 
     @property
-    def end_level(self):
-        return self._get_data('start_level')
+    def final_level(self):
+        return self._get_data('final_level')
 
     @property
-    def start_level(self):
-        return self._get_data('end_level')
+    def initial_level(self):
+        return self._get_data('initial_level')
 
     @property
     def element(self):
@@ -157,8 +157,8 @@ class Edge(object):
     def ck_probability(self):
         c = elamdb.cursor()
         items = c.execute(
-            '''select start_level, transition_probability from Coster_Kronig
-            where element=? and end_level=? order by start_level''',
+            '''select final_level, transition_probability from Coster_Kronig
+            where element=? and initial_level=? order by final_level''',
             (self.element, self.name)
             )
         return OrderedDict(items)
@@ -168,9 +168,9 @@ class Edge(object):
     def ck_total_probability(self):
         c = elamdb.cursor()
         items = c.execute(
-            '''select start_level, total_transition_probability
+            '''select final_level, total_transition_probability
             from Coster_Kronig
-            where element=? and end_level=? order by start_level''',
+            where element=? and initial_level=? order by final_level''',
             (self.element, self.name)
             )
         return OrderedDict(items)
@@ -208,7 +208,7 @@ class Edge(object):
         c = elamdb.cursor()
         keys = c.execute(
             '''select iupac_symbol from emission_lines
-            where element=? and end_level=? order by iupac_symbol''',
+            where element=? and initial_level=? order by iupac_symbol''',
             (self.element, self.name)
             )
         res = OrderedDict()

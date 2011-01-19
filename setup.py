@@ -35,7 +35,7 @@ class data(Command):
             subprocess.call('cd data && python process_%s_db.py' % db,
                 shell=True
                 )
-            shutil.copyfile('data/%s.db' % db, '%s/%s.db' % (loc, db))
+            shutil.move('data/%s.db' % db, '%s/%s.db' % (loc, db))
 
 
 class test(Command):

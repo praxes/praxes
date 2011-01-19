@@ -45,14 +45,14 @@ def create_database(source, dest, overwrite=False):
     current_line_id = 0
     c.execute(
         '''create table emission_lines (id integer, element text,
-        iupac_symbol text, siegbahn_symbol text, start_level text,
-        end_level text, energy real, intensity real)
+        iupac_symbol text, siegbahn_symbol text, initial_level text,
+        final_level text, energy real, intensity real)
         '''
         )
     current_ck_id = 0
     c.execute(
         '''create table Coster_Kronig
-        (id integer, element text, start_level text, end_level text,
+        (id integer, element text, initial_level text, final_level text,
         transition_probability real, total_transition_probability real)
         '''
         )
@@ -94,7 +94,7 @@ def create_database(source, dest, overwrite=False):
                     current_line_id += 1
                     line = lines.pop(0)
                     iupac, siegbahn, energy, intensity = line.split()
-                    end, start = iupac.split('-')
+                    start, end = iupac.split('-')
                     el = current_element
                     c.execute(
                         'insert into emission_lines values (?,?,?,?,?,?,?,?)',
@@ -123,8 +123,7 @@ def create_database(source, dest, overwrite=False):
                 c.execute(
                     '''insert into Coster_Kronig
                     values (?,?,?,?,?,?)''',
-                    (current_ck_id, current_element, so, current_edge,
-                    p, tp)
+                    (current_ck_id, current_element, current_edge, so, p, tp)
                     )
         elif line.startswith('Photo'):
             current_photo_id += 1
