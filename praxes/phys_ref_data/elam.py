@@ -103,17 +103,16 @@ class Transition(object):
 
     @memoize
     def __repr__(self):
-        return "<%s(%s, %s)>" % (self.__class__, self.element, self.iupac)
+        return "<Transition(%s, %s)>" % (self.element, self.iupac)
 
     @memoize
     def __str__(self):
         return textwrap.dedent(
             """\
-            %s(%s, %s)
+            Transition(%s, %s)
               emission energy: %s
               intensity: %s
               Siegbahn symbol: %s""" % (
-                str(self.__class__).split('.')[-1],
                 self.element,
                 self.iupac,
                 self.emission_energy,
@@ -190,7 +189,8 @@ class XrayLevel(object):
     def _get_data(self, id):
         cursor = elamdb.cursor()
         result = cursor.execute('''select %s from xray_levels
-            where element=? and label=?''' % id, (self._element, self._name)
+            where element=? and label=?''' % id,
+            (self._element, self._name)
             ).fetchone()
         cursor.close()
         return result[0]
@@ -238,20 +238,19 @@ class XrayLevel(object):
 
     @memoize
     def __repr__(self):
-        return "<%s(%s, %s)>" % (self.__class__, self.element, self.name)
+        return "<XrayLevel(%s, %s)>" % (self.element, self.name)
 
     @memoize
     def __str__(self):
         return textwrap.dedent(
             """\
-            %s(%s, %s)
+            XrayLevel(%s, %s)
               absorption edge: %s
               flourescence yield: %s
               jump ratio: %s
               Coster Kronig probabilities: %s
               Coster Kronig total probabilities: %s
               transitions: %s""" % (
-                str(self.__class__).split('.')[-1],
                 self.element,
                 self.name,
                 self.absorption_edge,
@@ -344,17 +343,16 @@ class AtomicData(base.AtomicData):
 
     @memoize
     def __repr__(self):
-        return "<%s(%s)>" % (self.__class__, self.symbol)
+        return "<AtomicData(%s)>" % self.symbol
 
     @memoize
     def __str__(self):
         return textwrap.dedent(
             """\
-            %s(%s)
+            AtomicData(%s)
               mass density: %s
               molar mass: %s
               x-ray levels: %s""" % (
-                str(self.__class__).split('.')[-1],
                 self.symbol,
                 self.mass_density,
                 self.molar_mass,
