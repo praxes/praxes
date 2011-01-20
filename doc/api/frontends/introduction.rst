@@ -1,7 +1,0 @@
-============
-Introduction
-============
-
-.. automodule:: praxes.frontend
-
-

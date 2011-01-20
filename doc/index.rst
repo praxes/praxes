@@ -9,3 +9,4 @@ Praxes Documentation
    api/index
    devel/index
    about/index
+   glossary

@@ -8,5 +8,7 @@ Praxes API
    :maxdepth: 2
 
    io/index
-   .. combi
-   flourescence
+   combi/index
+   phys_ref_data/index
+   instrumentation/index
+   config/index

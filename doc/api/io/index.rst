@@ -7,5 +7,6 @@
 .. toctree::
    :maxdepth: 2
 
-   introduction.rst
-   spec.rst
+   introduction
+   spec
+   phynx

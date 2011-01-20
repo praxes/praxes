@@ -34,22 +34,22 @@ class TestElements(testing.TestCase):
     def test_photoabsorption(self):
         self.assertAlmostEqual(
             AtomicData('Cu').photoabsorption_cross_section(10 * pq.keV),
-            2.263e-20 * pq.cm**2,
-            delta=1e-23
+            214.459 * pq.cm**2/pq.g,
+            delta=1e-3
             )
 
     def test_coherent_scattering(self):
         self.assertAlmostEqual(
             AtomicData('Cu').coherent_scattering_cross_section(10 * pq.keV),
-            1.53e-22 * pq.cm**2,
-            delta=1e-24
+            1.45 * pq.cm**2/pq.g,
+            delta=1e-3
             )
 
     def test_incoherent_scattering(self):
         self.assertAlmostEqual(
             AtomicData('Cu').incoherent_scattering_cross_section(10 * pq.keV),
-            8.152e-24 * pq.cm**2,
-            delta=1e-27
+            0.077 * pq.cm**2/pq.g,
+            delta=1e-3
             )
 
     def test_levels(self):

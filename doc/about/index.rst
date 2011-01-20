@@ -1,8 +1,8 @@
 .. _about_index:
 
-============
+************
 About Praxes
-============
+************
 
 .. toctree::
    :maxdepth: 1

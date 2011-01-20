@@ -1,8 +1,8 @@
-*****
-phynx
-*****
+======================
+:mod:`praxes.io.phynx`
+======================
 
-============
+
 Introduction
 ============
 
@@ -27,7 +27,6 @@ NeXus hierarchy and full instrument definition can be built at a later time, if
 so desired. The phynx routines are designed to provide an interface to your data
 that is hopefully intuitive and simple to use.
 
-==============
 Exporting data
 ==============
 

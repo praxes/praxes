@@ -1,12 +1,11 @@
 ===================
-Praxes Dispatch API
+:mod:`praxes.combi`
 ===================
 
-.. _dispatch-contents:
+
+.. _api-contents:
 
 .. toctree::
    :maxdepth: 2
-
-   introduction.rst
 
 
