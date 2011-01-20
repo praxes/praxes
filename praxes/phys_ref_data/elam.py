@@ -11,6 +11,7 @@ from __future__ import absolute_import
 from collections import OrderedDict
 import json
 import os
+import re
 import sqlite3
 import textwrap
 
@@ -49,7 +50,7 @@ class Transition(object):
         result = cursor.execute(
             '''select %s from emission_lines
             where element=? and iupac_symbol=?''' % id,
-            (self._element, self._iupac_symbol)
+            (self._element_symbol, self._iupac_symbol)
             ).fetchone()
         cursor.close()
         return result[0]
@@ -57,17 +58,17 @@ class Transition(object):
     @property
     def final_level(self):
         "x-ray level after transition"
-        return self._get_data('final_level')
+        return XrayLevel(self._element_symbol, self._get_data('final_level'))
 
     @property
     def initial_level(self):
         "x-ray level before transition"
-        return self._get_data('initial_level')
+        return XrayLevel(self._element_symbol, self._get_data('initial_level'))
 
     @property
     def element(self):
         "The element in which the x-ray transition occurs"
-        return self._element
+        return AtomicData(self._element_symbol)
 
     @property
     @memoize
@@ -93,12 +94,14 @@ class Transition(object):
         return self._get_data('Siegbahn_symbol')
 
     def __init__(self, element, iupac):
-        self._element = element
+        self._element_symbol = element
         self._iupac_symbol = iupac
 
     @memoize
     def __repr__(self):
-        return "<Transition(%s, %s)>" % (self.element, self._iupac_symbol)
+        return "<Transition(%s, %s)>" % (
+            self._element_symbol, self._iupac_symbol
+            )
 
     @memoize
     def __str__(self):
@@ -108,7 +111,7 @@ class Transition(object):
               emission energy: %s
               intensity: %s
               Siegbahn symbol: %s""" % (
-                self._element,
+                self._element_symbol,
                 self._iupac_symbol,
                 self.emission_energy,
                 self.intensity,
@@ -156,7 +159,7 @@ class XrayLevel(object):
         cursor = elamdb.cursor()
         result = cursor.execute('''select %s from xray_levels
             where element=? and label=?''' % id,
-            (self._element, self._iupac_symbol)
+            (self._element_symbol, self._iupac_symbol)
             ).fetchone()
         cursor.close()
         return result[0]
@@ -171,7 +174,7 @@ class XrayLevel(object):
         items = c.execute(
             '''select final_level, transition_probability from Coster_Kronig
             where element=? and initial_level=? order by final_level''',
-            (self._element, self._iupac_symbol)
+            (self._element_symbol, self._iupac_symbol)
             )
         return OrderedDict(items)
 
@@ -187,14 +190,14 @@ class XrayLevel(object):
             '''select final_level, total_transition_probability
             from Coster_Kronig
             where element=? and initial_level=? order by final_level''',
-            (self._element, self._iupac_symbol)
+            (self._element_symbol, self._iupac_symbol)
             )
         return OrderedDict(items)
 
     @property
     def element(self):
         "The element to which this x-ray level applies"
-        return self._element
+        return AtomicData(self._element_symbol)
 
     @property
     @memoize
@@ -222,11 +225,11 @@ class XrayLevel(object):
         keys = c.execute(
             '''select iupac_symbol from emission_lines
             where element=? and initial_level=? order by iupac_symbol''',
-            (self._element, self._iupac_symbol)
+            (self._element_symbol, self._iupac_symbol)
             )
         res = OrderedDict()
         for (key, ) in keys:
-            res[key] = Transition(self.element, key)
+            res[key] = Transition(self._element_symbol, key)
         return res
 
     @property
@@ -235,12 +238,14 @@ class XrayLevel(object):
         return self._iupac_symbol
 
     def __init__(self, element, iupac_symbol):
-        self._element = element
+        self._element_symbol = element
         self._iupac_symbol = iupac_symbol
 
     @memoize
     def __repr__(self):
-        return "<XrayLevel(%s, %s)>" % (self._element, self._iupac_symbol)
+        return "<XrayLevel(%s, %s)>" % (
+            self._element_symbol, self._iupac_symbol
+            )
 
     @memoize
     def __str__(self):
@@ -253,7 +258,7 @@ class XrayLevel(object):
               Coster Kronig probabilities: %s
               Coster Kronig total probabilities: %s
               transitions: %s""" % (
-                self._element,
+                self._element_symbol,
                 self._iupac_symbol,
                 self.absorption_edge,
                 self.fluorescence_yield,
@@ -265,7 +270,7 @@ class XrayLevel(object):
             )
 
 
-class AtomicData(base.AtomicData):
+class AtomicData(object):
     """
 
     """
@@ -273,9 +278,10 @@ class AtomicData(base.AtomicData):
     def _get_data(self, id):
         cursor = elamdb.cursor()
         result = cursor.execute('''select %s from elements
-            where element=?''' % id, (self.element, )
+            where element=?''' % id, (self._symbol, )
             ).fetchone()
         cursor.close()
+        assert result is not None
         return result[0]
 
     @property
@@ -286,8 +292,14 @@ class AtomicData(base.AtomicData):
 
     @property
     @memoize
+    def atomic_number(self):
+        "The atomic number"
+        return self._get_data('atomic_number')
+
+    @property
+    @memoize
     def _coherent_scatter(self):
-        return CoherentScatter(self.element)
+        return CoherentScatter(self._symbol)
 
     @property
     @memoize
@@ -297,17 +309,17 @@ class AtomicData(base.AtomicData):
         keys = c.execute(
             '''select label from xray_levels where element=?
             order by absorption_edge desc''',
-            (self.element,)
+            (self._symbol,)
             )
         res = OrderedDict()
         for (key, ) in keys:
-            res[key] = XrayLevel(self.element, key)
+            res[key] = XrayLevel(self._symbol, key)
         return res
 
     @property
     @memoize
     def _incoherent_scatter(self):
-        return IncoherentScatter(self.element)
+        return IncoherentScatter(self._symbol)
 
     @property
     @memoize
@@ -327,19 +339,23 @@ class AtomicData(base.AtomicData):
     @property
     @memoize
     def _photoabsorption(self):
-        return Photoabsorption(self.element)
+        return Photoabsorption(self._symbol)
+
+    @property
+    def symbol(self):
+        return self._symbol
 
     def __init__(self, symbol):
         """
-        symbol is a string, like 'Ca' or 'Ca2+'
+        symbol is a string, like 'Ca' or 'S'
         """
-        base.AtomicData.__init__(self, symbol)
+        self._symbol = symbol
         try:
             self._get_data('element')
         except AssertionError:
             raise NotImplementedError(
                 'Fluorescence data have not been reported for %s'
-                % self.element
+                % symbol
                 )
 
     @memoize

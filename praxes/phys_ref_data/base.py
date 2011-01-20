@@ -49,15 +49,15 @@ class AtomicData:
     """
     """
 
-    @property
-    @memoize
-    def atomic_mass(self):
-        return (self.molar_mass / pq.constants.N_A).rescale('amu')
+    ## @property
+    ## @memoize
+    ## def atomic_mass(self):
+    ##    return (self.molar_mass / pq.constants.N_A).rescale('amu')
 
-    @property
-    @memoize
-    def atomic_number(self):
-        return _atomic_data[self.element]['atomic_number']
+    ## @property
+    ## @memoize
+    ## def atomic_number(self):
+    ##     return _atomic_data[self.element]['atomic_number']
 
     @property
     @memoize
@@ -74,17 +74,21 @@ class AtomicData:
     @property
     @memoize
     def element(self):
-        return re.findall('[A-Z][a-z]?|\d*[+,-]?', self.symbol)[0].capitalize()
+        return re.findall(
+            '([A-Z][a-z]?)(?:[0-9]+[+,-])?', self.symbol
+            )[0].capitalize()
 
     @property
     @memoize
     def ionization_state(self):
-        return re.findall('[A-Z][a-z]?|\d*[+,-]?', self.symbol)[1].capitalize()
+        return re.findall(
+            '([A-Z][a-z]?)(?:[0-9]+[+,-])?', self.symbol
+            )[1]
 
-    @property
-    @memoize
-    def molar_mass(self):
-        return _atomic_data[self.element]['molar_mass']*pq.g/pq.mol
+    ## @property
+    ## @memoize
+    ## def molar_mass(self):
+    ##     return _atomic_data[self.element]['molar_mass']*pq.g/pq.mol
 
     @property
     def symbol(self):
