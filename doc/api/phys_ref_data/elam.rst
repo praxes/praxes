@@ -38,3 +38,4 @@ Module Interface
 
 .. automodule:: praxes.phys_ref_data.elam
    :members:
+   :inherited-members:

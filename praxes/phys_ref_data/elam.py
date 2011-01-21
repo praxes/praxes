@@ -411,7 +411,7 @@ class XrayLevel(_DictCompat):
             )
 
 
-class Element(object):
+class Element(_DictCompat):
 
     """
     """
