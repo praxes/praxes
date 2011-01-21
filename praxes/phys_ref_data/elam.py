@@ -21,14 +21,54 @@ import quantities as pq
 from praxes.decorators import memoize
 
 
-class ElamSQLiteConnection(sqlite3.Connection):
+class AtomicData(object):
+
+    "A dict-like interface to the Elam database"
+
+    @property
+    def db(self):
+        "A connection to the sqlite database connection"
+        return self.__db
 
     def __init__(self):
-        super(ElamSQLiteConnection, self).__init__(
+        self.__db = sqlite3.connect(
             os.path.join(os.path.split(__file__)[0], 'elam.db')
             )
 
-elamdb = ElamSQLiteConnection()
+    def __contains__(self, item):
+        return item in self.keys()
+
+    def __getitem__(self, item):
+        return Element(item)
+
+    def __iter__(self):
+        return iter(self.keys())
+
+    def __len__(self):
+        return len(self.keys())
+
+    def get(self, item, default=None):
+        "Return the value for *key*, or return *default*"
+        return Element(item) if item in self else None
+
+    def items(self):
+        "Return a new view of the (key, value) pairs"
+        return zip(self.keys(), self.values())
+
+    def keys(self):
+        "return a new view of the keys"
+        cursor = elamdb.cursor()
+        results = cursor.execute(
+            '''select element from elements order by atomic_number'''
+            )
+        cursor.close()
+        return [i[0] for i in results[0]]
+
+    def values(self):
+        "return a new view of the values"
+        return [Element(i) for i in self.keys()]
+
+atomic_data = AtomicData()
 
 
 class Transition(object):
@@ -44,7 +84,7 @@ class Transition(object):
     """
 
     def _get_data(self, id):
-        cursor = elamdb.cursor()
+        cursor = atomic_data.db.cursor()
         result = cursor.execute(
             '''select %s from emission_lines
             where element=? and iupac_symbol=?''' % id,
@@ -66,7 +106,7 @@ class Transition(object):
     @property
     def element(self):
         "The element in which the x-ray transition occurs"
-        return AtomicData(self._element_symbol)
+        return Element(self._element_symbol)
 
     @property
     @memoize
@@ -154,7 +194,7 @@ class XrayLevel(object):
     """
 
     def _get_data(self, id):
-        cursor = elamdb.cursor()
+        cursor = atomic_data.db.cursor()
         result = cursor.execute('''select %s from xray_levels
             where element=? and label=?''' % id,
             (self._element_symbol, self._iupac_symbol)
@@ -168,7 +208,7 @@ class XrayLevel(object):
         """A dictionary containing the probabilities of Coster Kronig
         transitions to the given final state
         """
-        c = elamdb.cursor()
+        c = atomic_data.db.cursor()
         items = c.execute(
             '''select final_level, transition_probability from Coster_Kronig
             where element=? and initial_level=? order by final_level''',
@@ -183,7 +223,7 @@ class XrayLevel(object):
         transitions to the given final state, including pathways through
         intermediate states
         """
-        c = elamdb.cursor()
+        c = atomic_data.db.cursor()
         items = c.execute(
             '''select final_level, total_transition_probability
             from Coster_Kronig
@@ -195,7 +235,7 @@ class XrayLevel(object):
     @property
     def element(self):
         "The element to which this x-ray level applies"
-        return AtomicData(self._element_symbol)
+        return Element(self._element_symbol)
 
     @property
     @memoize
@@ -219,7 +259,7 @@ class XrayLevel(object):
     @memoize
     def transitions(self):
         "An ordered dictionary containing the transitions from this x-ray level"
-        c = elamdb.cursor()
+        c = atomic_data.db.cursor()
         keys = c.execute(
             '''select iupac_symbol from emission_lines
             where element=? and initial_level=? order by iupac_symbol''',
@@ -268,13 +308,13 @@ class XrayLevel(object):
             )
 
 
-class AtomicData(object):
+class Element(object):
     """
 
     """
 
     def _get_data(self, id):
-        cursor = elamdb.cursor()
+        cursor = atomic_data.db.cursor()
         result = cursor.execute('''select %s from elements
             where element=?''' % id, (self._symbol, )
             ).fetchone()
@@ -303,7 +343,7 @@ class AtomicData(object):
     @memoize
     def xray_levels(self):
         "An ordered dictionary containing the reported x-ray levels"
-        c = elamdb.cursor()
+        c = atomic_data.db.cursor()
         keys = c.execute(
             '''select label from xray_levels where element=?
             order by absorption_edge desc''',
@@ -351,20 +391,20 @@ class AtomicData(object):
         try:
             self._get_data('element')
         except AssertionError:
-            raise NotImplementedError(
+            raise KeyError(
                 'Fluorescence data have not been reported for %s'
                 % symbol
                 )
 
     @memoize
     def __repr__(self):
-        return "<AtomicData(%s)>" % self.symbol
+        return "<Element(%s)>" % self.symbol
 
     @memoize
     def __str__(self):
         return textwrap.dedent(
             """\
-            AtomicData(%s)
+            Element(%s)
               mass density: %s
               molar mass: %s
               x-ray levels: %s""" % (
@@ -483,7 +523,7 @@ class SplineInterpolable(object):
 class Photoabsorption(SplineInterpolable):
 
     def _get_data(self, id):
-        cursor = elamdb.cursor()
+        cursor = atomic_data.db.cursor()
         result = cursor.execute('''select %s from photoabsorption
             where element=?''' % id, (self.element, )
             ).fetchone()
@@ -504,7 +544,7 @@ class Photoabsorption(SplineInterpolable):
 class Scatter(SplineInterpolable):
 
     def _get_data(self, id):
-        cursor = elamdb.cursor()
+        cursor = atomic_data.db.cursor()
         result = cursor.execute('''select %s from scattering
             where element=?''' % id, (self.element, )
             ).fetchone()
