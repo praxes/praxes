@@ -38,15 +38,15 @@ def create_database(source, dest, overwrite=False):
         )
     current_edge_id = 0
     c.execute(
-        '''create table xray_levels (id integer, element text, label text,
-        absorption_edge real, fluorescence_yield real, jump_ratio real)
+        '''create table xray_levels (id integer, element text, iupac_symbol
+        text, absorption_edge real, fluorescence_yield real, jump_ratio real)
         '''
         )
     current_line_id = 0
     c.execute(
-        '''create table emission_lines (id integer, element text,
+        '''create table xray_transitions (id integer, element text,
         iupac_symbol text, siegbahn_symbol text, initial_level text,
-        final_level text, energy real, intensity real)
+        final_level text, emission_energy real, intensity real)
         '''
         )
     current_ck_id = 0
@@ -97,7 +97,7 @@ def create_database(source, dest, overwrite=False):
                     start, end = iupac.split('-')
                     el = current_element
                     c.execute(
-                        'insert into emission_lines values (?,?,?,?,?,?,?,?)',
+                        'insert into xray_transitions values (?,?,?,?,?,?,?,?)',
                         (current_line_id, el, iupac, siegbahn, start, end,
                         energy, intensity)
                         )

@@ -9,14 +9,33 @@ from ..elam import atomic_data
 
 class TestElements(testing.TestCase):
 
-    def test_symbol(self):
-        for key in ('Si', 'O'):
-            self.assertEqual(atomic_data[key].symbol, key)
+    def test_keys(self):
+        self.assertEqual(atomic_data.keys()[0], 'H')
+
+    def test_contains(self):
+        self.assertTrue('H' in atomic_data)
+
+    def test_len(self):
+        self.assertEqual(len(atomic_data), 98)
+
+    def test_iter(self):
+        self.assertEqual([i for i in atomic_data][0], 'H')
 
     def test_creation(self):
+        for key in ('Si', 'O'):
+            self.assertEqual(atomic_data[key].symbol, key)
+            self.assertEqual(atomic_data.get(key).symbol, key)
+        self.assertEqual(atomic_data.get('Z', None), None)
         with self.assertRaises(KeyError):
             for key in ('Z', 'O2-'):
                 atomic_data[key]
+
+    def test_values(self):
+        self.assertEqual(atomic_data.values()[0].symbol, 'H')
+
+    def test_items(self):
+        self.assertEqual(atomic_data.items()[0][0], 'H')
+        self.assertEqual(atomic_data.items()[0][1].symbol, 'H')
 
     def test_atomic_mass(self):
         for key, val in (('Si', 28.0855 * pq.u), ('O', 15.9994 * pq.u)):
@@ -58,79 +77,53 @@ class TestElements(testing.TestCase):
 
 class TestLevels(testing.TestCase):
 
+    def test_keys(self):
+        self.assertEqual(atomic_data['U'].keys()[0], 'K')
+
     def test_creation(self):
-        self.assertEqual(
-            atomic_data['U'].xray_levels['K'].iupac_symbol, 'K'
-            )
+        self.assertEqual(atomic_data['U']['K'].iupac_symbol, 'K')
 
     def test_jump_ratio(self):
-        self.assertEqual(
-            atomic_data['U'].xray_levels['L2'].jump_ratio, 1.4
-            )
+        self.assertEqual(atomic_data['U']['L2'].jump_ratio, 1.4)
 
     def test_fluorescence_yield(self):
-        self.assertEqual(
-            atomic_data['U'].xray_levels['L2'].fluorescence_yield, 0.467
-            )
+        self.assertEqual(atomic_data['U']['L2'].fluorescence_yield, 0.467)
 
     def test_absorption_edge(self):
-        self.assertEqual(
-            atomic_data['U'].xray_levels['L2'].absorption_edge, 20.948*pq.keV
-            )
+        self.assertEqual(atomic_data['U']['L2'].absorption_edge, 20.948*pq.keV)
 
     def test_element(self):
-        self.assertEqual(
-            atomic_data['U'].xray_levels['L2'].element.symbol, 'U'
-            )
+        self.assertEqual(atomic_data['U']['L2'].element.symbol, 'U')
 
 
 class TestTransitions(testing.TestCase):
 
+    def test_keys(self):
+        self.assertEqual(atomic_data['U']['K'].keys()[0], 'L1')
+
     def test_creation(self):
-        self.assertEqual(
-            atomic_data['U'].xray_levels['K'].\
-                transitions['K-L3'].iupac_symbol,
-            'K-L3'
-            )
+        self.assertEqual(atomic_data['U']['K']['L3'].iupac_symbol, 'K-L3')
 
     def test_initial_level(self):
         self.assertEqual(
-            atomic_data['U'].xray_levels['K'].\
-                transitions['K-L3'].initial_level.iupac_symbol,
-            'K'
+            atomic_data['U']['K']['L3'].initial_level.iupac_symbol, 'K'
             )
 
     def test_final_level(self):
         self.assertEqual(
-            atomic_data['U'].xray_levels['K'].\
-                transitions['K-L3'].final_level.iupac_symbol,
-            'L3'
+            atomic_data['U']['K']['L3'].final_level.iupac_symbol, 'L3'
             )
 
     def test_element(self):
-        self.assertEqual(
-            atomic_data['U'].xray_levels['K'].\
-                transitions['K-L3'].element.symbol,
-            'U'
-            )
+        self.assertEqual(atomic_data['U']['K']['L3'].element.symbol, 'U')
 
     def test_emission_energy(self):
         self.assertEqual(
-            atomic_data['U'].xray_levels['K'].\
-                transitions['K-L3'].emission_energy,
-            98.440 * pq.keV
+            atomic_data['U']['K']['L3'].emission_energy, 98.440 * pq.keV
             )
 
     def test_intensity(self):
-        self.assertEqual(
-            atomic_data['U'].xray_levels['K'].\
-                transitions['K-L3'].intensity,
-            0.473147
-            )
+        self.assertEqual(atomic_data['U']['K']['L3'].intensity, 0.473147)
 
     def test_siegbahn_symbol(self):
-        self.assertEqual(
-            atomic_data['U'].xray_levels['K'].\
-                transitions['K-L3'].siegbahn_symbol,
-            'Ka1'
-            )
+        self.assertEqual(atomic_data['U']['K']['L3'].siegbahn_symbol, 'Ka1')

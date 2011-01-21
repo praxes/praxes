@@ -3,15 +3,12 @@
 The elam module is an interface to a database of fundamental X-ray fluorescence
 parameters compiled by W.T. Elam, B.D. Ravel and J.R. Sieber, and published in
 Radiation Physics and Chemistry, 63 (2), 121 (2002). The database is published
-by NIST at http://www.nist.gov/mml/analytical/inorganic/xrf.cfm .
+by NIST at http://www.nist.gov/mml/analytical/inorganic/xrf.cfm.
 '''
-
-from __future__ import absolute_import
 
 from collections import OrderedDict
 import json
 import os
-import re
 import sqlite3
 import textwrap
 
@@ -21,25 +18,13 @@ import quantities as pq
 from praxes.decorators import memoize
 
 
-class AtomicData(object):
-
-    "A dict-like interface to the Elam database"
-
-    @property
-    def db(self):
-        "A connection to the sqlite database connection"
-        return self.__db
-
-    def __init__(self):
-        self.__db = sqlite3.connect(
-            os.path.join(os.path.split(__file__)[0], 'elam.db')
-            )
+class _DictCompat(object):
 
     def __contains__(self, item):
         return item in self.keys()
 
     def __getitem__(self, item):
-        return Element(item)
+        raise NotImplementedError
 
     def __iter__(self):
         return iter(self.keys())
@@ -49,29 +34,119 @@ class AtomicData(object):
 
     def get(self, item, default=None):
         "Return the value for *key*, or return *default*"
-        return Element(item) if item in self else None
+        return self[item] if item in self else None
 
     def items(self):
         "Return a new view of the (key, value) pairs"
         return zip(self.keys(), self.values())
 
     def keys(self):
-        "return a new view of the keys"
-        cursor = elamdb.cursor()
-        results = cursor.execute(
-            '''select element from elements order by atomic_number'''
-            )
-        cursor.close()
-        return [i[0] for i in results[0]]
+        raise NotImplementedError
 
     def values(self):
         "return a new view of the values"
-        return [Element(i) for i in self.keys()]
+        return [self[i] for i in self.keys()]
+
+
+class AtomicData(_DictCompat):
+
+    "A dict-like interface to the Elam database"
+
+    __slots__ = ['__db', '_keys']
+
+    @property
+    def db(self):
+        """
+        A new cursor to the sqlite database connection, providing access to the
+        underlying sql database. For example::
+
+           >>> atomic_data.db.execute(
+               '''select element from elements where atomic_number<20'''
+               ).fetchall()
+
+        The database provides the following tables:
+
+        elements
+           #. atomic_number (integer)
+           #. element (text)
+           #. molar_mass (real, g/mol)
+           #. density (real, g/cm^3)
+
+        xray_levels
+           #. id (integer)
+           #. element (text)
+           #. iupac_symbol (text)
+           #. absoprtion_edge (real, eV)
+           #. fluorescence_yield (real)
+           #. jump_ratio (real)
+
+        xray_transitions
+           #. id (integer)
+           #. element (text)
+           #. iupac_symbol (text)
+           #. siegbahn_symbol (text)
+           #. initial_level (text)
+           #. final_level (text)
+           #. emission_energy (real, eV)
+           #. intensity (real)
+
+        Coster_Kronig
+           #. id (integer)
+           #. element (text)
+           #. intitial_level (text)
+           #. final_level (text)
+           #. transition_probability (real)
+           #. total_transition_probability (real)
+
+        photoabsorption
+           #. id (integer)
+           #. element (text)
+           #. log_energy (text, eV when exponentiated) [#f1]_
+           #. log_photoabsorption (text, cm^2/g when exponentiated) [#f1]_
+           #. log_photoabsorption_spline (text) [#f1]_
+
+        scattering
+           #. id (integer)
+           #. element (text)
+           #. log_energy (text, eV when exponentiated) [#f1]_
+           #. log_coherent_scatter (text, cm^2/g when exponentiated) [#f1]_
+           #. log_coherent_scatter_spline (text) [#f1]_
+           #. log_incoherent_scatter (text, cm^2/g when exponentiated) [#f1]_
+           #. log_incoherent_scatter_spline (text) [#f1]_
+
+        .. rubric:: Footnotes
+
+        .. [#f1] use json.loads() to recover a list of numerical values
+        """
+        return self.__db.cursor()
+
+    def __init__(self):
+        self.__db = sqlite3.connect(
+            os.path.join(os.path.split(__file__)[0], 'elam.db')
+            )
+
+    def __getitem__(self, item):
+        if item not in self.keys():
+            raise KeyError('Element "%s" not recognized' % item)
+        return Element(item, self.__db)
+
+    def keys(self):
+        "return a new view of the keys"
+        try:
+            return list(self._keys)
+        except AttributeError:
+            cursor = self.__db.cursor()
+            results = cursor.execute(
+                '''select element from elements order by atomic_number'''
+                )
+            self._keys = tuple(i[0] for i in results)
+            return list(self._keys)
 
 atomic_data = AtomicData()
 
 
 class Transition(object):
+
     """
     The following is quoted verbatim from the elamdb source file:
 
@@ -83,36 +158,41 @@ class Transition(object):
        arbitrary intensities assigned to Mgamma and Mzeta lines.
     """
 
+    __slots__ = ['__db', '_element_symbol', '_iupac_symbol']
+
     def _get_data(self, id):
-        cursor = atomic_data.db.cursor()
+        cursor = self.__db.cursor()
         result = cursor.execute(
-            '''select %s from emission_lines
+            '''select %s from xray_transitions
             where element=? and iupac_symbol=?''' % id,
             (self._element_symbol, self._iupac_symbol)
             ).fetchone()
-        cursor.close()
         return result[0]
 
     @property
     def final_level(self):
         "x-ray level after transition"
-        return XrayLevel(self._element_symbol, self._get_data('final_level'))
+        return XrayLevel(
+            self._element_symbol, self._get_data('final_level'), self.__db
+            )
 
     @property
     def initial_level(self):
         "x-ray level before transition"
-        return XrayLevel(self._element_symbol, self._get_data('initial_level'))
+        return XrayLevel(
+            self._element_symbol, self._get_data('initial_level'), self.__db
+            )
 
     @property
     def element(self):
         "The element in which the x-ray transition occurs"
-        return Element(self._element_symbol)
+        return Element(self._element_symbol, self.__db)
 
     @property
     @memoize
     def emission_energy(self):
         "The energy of the emitted x ray, in eV"
-        return self._get_data('energy') * pq.eV
+        return self._get_data('emission_energy') * pq.eV
 
     @property
     @memoize
@@ -131,7 +211,8 @@ class Transition(object):
         "The Siegbahn symbol for the transition"
         return self._get_data('Siegbahn_symbol')
 
-    def __init__(self, element, iupac):
+    def __init__(self, element, iupac, db):
+        self.__db = db
         self._element_symbol = element
         self._iupac_symbol = iupac
 
@@ -158,7 +239,8 @@ class Transition(object):
             )
 
 
-class XrayLevel(object):
+class XrayLevel(_DictCompat):
+
     """
     The following is quoted verbatim from the elamdb source file:
 
@@ -193,49 +275,60 @@ class XrayLevel(object):
        conclusions.
     """
 
+    __slots__ = [
+        '__db', '_element_symbol', '_iupac_symbol', '_ck_probabilities',
+        '_ck_total_probabilities', '_keys'
+        ]
+
     def _get_data(self, id):
-        cursor = atomic_data.db.cursor()
+        cursor = self.__db.cursor()
         result = cursor.execute('''select %s from xray_levels
-            where element=? and label=?''' % id,
+            where element=? and iupac_symbol=?''' % id,
             (self._element_symbol, self._iupac_symbol)
             ).fetchone()
-        cursor.close()
         return result[0]
 
     @property
-    @memoize
     def ck_probabilities(self):
         """A dictionary containing the probabilities of Coster Kronig
         transitions to the given final state
         """
-        c = atomic_data.db.cursor()
-        items = c.execute(
-            '''select final_level, transition_probability from Coster_Kronig
-            where element=? and initial_level=? order by final_level''',
-            (self._element_symbol, self._iupac_symbol)
-            )
-        return OrderedDict(items)
+        try:
+            return OrderedDict(self._ck_probabilities)
+        except AttributeError:
+            c = self.__db.cursor()
+            items = c.execute(
+                '''select final_level, transition_probability from Coster_Kronig
+                where element=? and initial_level=? order by final_level''',
+                (self._element_symbol, self._iupac_symbol)
+                )
+            self._ck_probabilities = tuple(items)
+            return OrderedDict(self._ck_probabilities)
+
 
     @property
-    @memoize
     def ck_total_probabilities(self):
         """A dictionary containing the probabilities of Coster Kronig
         transitions to the given final state, including pathways through
         intermediate states
         """
-        c = atomic_data.db.cursor()
-        items = c.execute(
-            '''select final_level, total_transition_probability
-            from Coster_Kronig
-            where element=? and initial_level=? order by final_level''',
-            (self._element_symbol, self._iupac_symbol)
-            )
-        return OrderedDict(items)
+        try:
+            return OrderedDict(self._ck_total_probabilities)
+        except AttributeError:
+            c = self.__db.cursor()
+            items = c.execute(
+                '''select final_level, total_transition_probability
+                from Coster_Kronig
+                where element=? and initial_level=? order by final_level''',
+                (self._element_symbol, self._iupac_symbol)
+                )
+            self._ck_total_probabilities = tuple(items)
+            return OrderedDict(self._ck_total_probabilities)
 
     @property
     def element(self):
         "The element to which this x-ray level applies"
-        return Element(self._element_symbol)
+        return Element(self._element_symbol, self.__db)
 
     @property
     @memoize
@@ -256,28 +349,38 @@ class XrayLevel(object):
         return self._get_data('jump_ratio')
 
     @property
-    @memoize
-    def transitions(self):
-        "An ordered dictionary containing the transitions from this x-ray level"
-        c = atomic_data.db.cursor()
-        keys = c.execute(
-            '''select iupac_symbol from emission_lines
-            where element=? and initial_level=? order by iupac_symbol''',
-            (self._element_symbol, self._iupac_symbol)
-            )
-        res = OrderedDict()
-        for (key, ) in keys:
-            res[key] = Transition(self._element_symbol, key)
-        return res
-
-    @property
     def iupac_symbol(self):
         "The IUPAC symbol for the x-ray level"
         return self._iupac_symbol
 
-    def __init__(self, element, iupac_symbol):
+    def __init__(self, element, iupac_symbol, db):
+        self.__db = db
         self._element_symbol = element
         self._iupac_symbol = iupac_symbol
+
+    def __getitem__(self, item):
+        iupac = '-'.join([self.iupac_symbol, item])
+        if not item in self.keys():
+            raise KeyError('Transition "%s" not recognized' % item)
+        return Transition(self._element_symbol, iupac, self.__db)
+
+    def get(self, item, default=None):
+        "Return the value for *key*, or return *default*"
+        return self[item] if item in self else None
+
+    def keys(self):
+        "return a new view of the keys for reported transitions"
+        try:
+            return list(self._keys)
+        except AttributeError:
+            cursor = self.__db.cursor()
+            results = cursor.execute(
+                '''select iupac_symbol from xray_transitions
+                where element=? and initial_level=? order by iupac_symbol''',
+                (self._element_symbol, self._iupac_symbol)
+                )
+            self._keys = tuple(i[0].split('-')[1] for i in results)
+            return list(self._keys)
 
     @memoize
     def __repr__(self):
@@ -303,22 +406,23 @@ class XrayLevel(object):
                 self.jump_ratio,
                 self.ck_probabilities.items(),
                 self.ck_total_probabilities.items(),
-                self.transitions.keys()
+                self.keys()
                 )
             )
 
 
 class Element(object):
-    """
 
     """
+    """
+
+    __slots__ = ['__db', '_symbol', '_keys']
 
     def _get_data(self, id):
-        cursor = atomic_data.db.cursor()
+        cursor = self.__db.cursor()
         result = cursor.execute('''select %s from elements
             where element=?''' % id, (self._symbol, )
             ).fetchone()
-        cursor.close()
         assert result is not None
         return result[0]
 
@@ -337,27 +441,12 @@ class Element(object):
     @property
     @memoize
     def _coherent_scatter(self):
-        return CoherentScatter(self._symbol)
-
-    @property
-    @memoize
-    def xray_levels(self):
-        "An ordered dictionary containing the reported x-ray levels"
-        c = atomic_data.db.cursor()
-        keys = c.execute(
-            '''select label from xray_levels where element=?
-            order by absorption_edge desc''',
-            (self._symbol,)
-            )
-        res = OrderedDict()
-        for (key, ) in keys:
-            res[key] = XrayLevel(self._symbol, key)
-        return res
+        return CoherentScatter(self._symbol, self.__db)
 
     @property
     @memoize
     def _incoherent_scatter(self):
-        return IncoherentScatter(self._symbol)
+        return IncoherentScatter(self._symbol, self.__db)
 
     @property
     @memoize
@@ -377,24 +466,37 @@ class Element(object):
     @property
     @memoize
     def _photoabsorption(self):
-        return Photoabsorption(self._symbol)
+        return Photoabsorption(self._symbol, self.__db)
 
     @property
     def symbol(self):
         return self._symbol
 
-    def __init__(self, symbol):
+    def __init__(self, symbol, db):
         """
         symbol is a string, like 'Ca' or 'S'
         """
+        self.__db = db
         self._symbol = symbol
+
+    def __getitem__(self, item):
+        if not item in self.keys():
+            raise KeyError('x-ray level "%s" not recognized' % item)
+        return XrayLevel(self._symbol, item, self.__db)
+
+    def keys(self):
+        "return a new view of the keys for the reported x-ray levels"
         try:
-            self._get_data('element')
-        except AssertionError:
-            raise KeyError(
-                'Fluorescence data have not been reported for %s'
-                % symbol
+            return list(self._keys)
+        except AttributeError:
+            cursor = self.__db.cursor()
+            results = cursor.execute(
+                '''select iupac_symbol from xray_levels where element=?
+                order by absorption_edge desc''',
+                (self._symbol,)
                 )
+            self._keys = tuple(i[0] for i in results)
+            return list(self._keys)
 
     @memoize
     def __repr__(self):
@@ -411,7 +513,7 @@ class Element(object):
                 self.symbol,
                 self.mass_density,
                 self.molar_mass,
-                self.xray_levels.keys()
+                self.keys()
                 )
             )
 
@@ -466,6 +568,8 @@ class Element(object):
 
 class SplineInterpolable(object):
 
+    __slots__ = ['_db', '_element']
+
     @property
     def element(self):
         return self._element
@@ -507,7 +611,8 @@ class SplineInterpolable(object):
         return res
 
 
-    def __init__(self, element):
+    def __init__(self, element, db):
+        self._db = db
         self._element = element
 
     def __call__(self, energy):
@@ -523,11 +628,10 @@ class SplineInterpolable(object):
 class Photoabsorption(SplineInterpolable):
 
     def _get_data(self, id):
-        cursor = atomic_data.db.cursor()
+        cursor = self._db.cursor()
         result = cursor.execute('''select %s from photoabsorption
             where element=?''' % id, (self.element, )
             ).fetchone()
-        cursor.close()
         return np.array(json.loads(result[0]))
 
     @property
@@ -544,11 +648,10 @@ class Photoabsorption(SplineInterpolable):
 class Scatter(SplineInterpolable):
 
     def _get_data(self, id):
-        cursor = atomic_data.db.cursor()
+        cursor = self._db.cursor()
         result = cursor.execute('''select %s from scattering
             where element=?''' % id, (self.element, )
             ).fetchone()
-        cursor.close()
         return np.array(json.loads(result[0]))
 
 

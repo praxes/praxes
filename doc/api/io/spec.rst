@@ -8,7 +8,7 @@
 The :mod:`spec` module provides an interface to data stored in files created
 by Certified Scientific's "spec" program.
 
-Files are opened using the the :func:`open` function, which returns a read-only
+Files are opened using the :func:`open` function, which returns a read-only
 dictionary-like interface to the scans contained in the file::
 
    >>> from praxes.io import spec
