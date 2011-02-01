@@ -53,13 +53,6 @@ cdef class DataProxy:
     def __getitem__(self, args):
         raise NotImplementedError
 
-    cdef object _get_item_string(self, object f, int offset):
-        f.seek(offset)
-        s = f.readline()
-        while s[-2] == b'\\':
-            s = ''.join([s, f.readline()])
-        return s
-
     cdef int n_cols(self) except -1:
         tag = b'\\'
         with self._lock:
