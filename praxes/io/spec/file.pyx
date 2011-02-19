@@ -57,7 +57,6 @@ cdef class SpecFile(ReadOnlyDict):
                 list(self._index.values())[-1].update()
 
             f.seek(self._bytes_read)
-            file_offset = f.tell()
             line = f.readline()
             while line:
                 if line[:2] == b'#S':
@@ -68,7 +67,7 @@ cdef class SpecFile(ReadOnlyDict):
                         dup += 1
                         id = '%s.%d' % (name, dup)
                     scan = SpecScan(
-                        name, id, self, file_offset, lock=self._lock,
+                        name, id, self, f.tell()-len(line), lock=self._lock,
                         **self._headers
                         )
                     self._index[id] = scan
@@ -91,7 +90,6 @@ cdef class SpecFile(ReadOnlyDict):
                     temp = line.decode('ascii').split(None, 1)[1][:-1]
                     pos.extend(re.split('  +', temp))
 
-                file_offset += len(line)
                 line = f.readline()
 
             self._bytes_read = f.tell()

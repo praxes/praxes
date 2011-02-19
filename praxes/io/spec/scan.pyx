@@ -130,7 +130,7 @@ cdef class SpecScan(ReadOnlyDict):
                 line = readline()
                 c_line = line
 
-            self._bytes_read = f.tell()
+            self._bytes_read = file_offset
             f.close()
 
             if 'positioners' in attrs:
