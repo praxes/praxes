@@ -12,7 +12,6 @@ from PyQt4 import QtCore, QtGui
 import praxes
 from .ui import ui_mainwindow
 from .phynx import FileModel, FileView, ExportRawCSV, ExportCorrectedCSV
-import phynx
 from .notifications import NotificationsDialog
 
 
