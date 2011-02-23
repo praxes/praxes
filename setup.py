@@ -132,6 +132,27 @@ with open('praxes/version.py') as f:
             exec(line)
             break
 
+ext_modules = [
+    Extension('praxes.io.spec.file', ['praxes/io/spec/file.pyx']),
+    Extension(
+        'praxes.io.spec.proxies',
+        ['praxes/io/spec/proxies.pyx'],
+        include_dirs=[numpy.get_include()]
+        ),
+    Extension(
+        'praxes.io.spec.readonlydict',
+        ['praxes/io/spec/readonlydict.pyx']
+        ),
+    Extension('praxes.io.spec.scan', ['praxes/io/spec/scan.pyx']),
+    ]
+
+scripts = [
+    'scripts/combi',
+    'scripts/sxfm'
+    ]
+if ('bdist_wininst' in sys.argv) or ('bdist_msi' in sys.argv):
+    scripts.append('praxes_win_post_install.py')
+
 setup(
     author = 'Darren Dale',
     author_email = 'darren.dale@cornell.edu',
@@ -144,17 +165,7 @@ setup(
         'ui_cvt': ui_cvt,
         },
     description = 'Praxes framework for scientific analysis',
-    ext_modules = [
-        Extension('praxes.io.spec.file', ['praxes/io/spec/file.pyx']),
-        Extension(
-            'praxes.io.spec.proxies', ['praxes/io/spec/proxies.pyx'],
-            include_dirs=[numpy.get_include()]
-            ),
-        Extension(
-            'praxes.io.spec.readonlydict', ['praxes/io/spec/readonlydict.pyx']
-            ),
-        Extension('praxes.io.spec.scan', ['praxes/io/spec/scan.pyx']),
-        ],
+    ext_modules = ext_modules,
     name = 'praxes',
     package_data = {'': ['*.svg', '*.db']},
     packages = packages,
@@ -163,13 +174,6 @@ setup(
         'cython (>=0.13)',
         'numpy (>=1.5.1)',
         ),
-    scripts = [
-        'scripts/combi',
-        'scripts/sxfm',
-        ].extend(
-            ['scripts/praxes_win_post_install.py']
-            if 'bdist_wininst' in sys.argv
-            else []
-            ),
+    scripts = scripts,
     version = __version__,
 )
