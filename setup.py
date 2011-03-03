@@ -146,6 +146,10 @@ ext_modules = [
     Extension('praxes.io.spec.scan', ['praxes/io/spec/scan.pyx']),
     ]
 
+package_data = {
+    'praxes': ['*.svg', '*.db', 'instrumentation/spec/macros/*.mac']
+    }
+
 scripts = [
     'scripts/combi',
     'scripts/sxfm'
@@ -167,7 +171,7 @@ setup(
     description = 'Praxes framework for scientific analysis',
     ext_modules = ext_modules,
     name = 'praxes',
-    package_data = {'': ['*.svg', '*.db']},
+    package_data = package_data,
     packages = packages,
     requires = (
         'python (>=2.7)',
