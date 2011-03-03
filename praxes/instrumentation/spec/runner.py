@@ -31,9 +31,7 @@ class Dispatcher(QtCore.QThread):
         QtCore.QThread.__init__(self, parent)
 
         self.timer = QtCore.QTimer(self)
-        self.connect(self.timer,
-                     QtCore.SIGNAL("timeout()"),
-                     self.update)
+        self.timer.timeout.connect(self.update)
         self.timer.start(20)
 
     def run(self):
@@ -44,6 +42,8 @@ class Dispatcher(QtCore.QThread):
 
 
 class SpecDatafile(SpecVariable.SpecVariableA, QtCore.QObject):
+
+    datafileChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, varName=None, specVersion=None, specRunner=None):
         QtCore.QObject.__init__(self, specRunner)
@@ -64,7 +64,7 @@ class SpecDatafile(SpecVariable.SpecVariableA, QtCore.QObject):
 
     def update(self, value):
         if not value == '/dev/null':
-            self.emit(QtCore.SIGNAL("datafileChanged"), value)
+            self.datafileChanged.emit(value)
 
 
 class SpecRunnerBase(Spec.Spec, QtCore.QObject):
@@ -73,6 +73,8 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
     SpecRunner is our primary interface to Spec. Some caching is added,
     to improve performance.
     """
+
+    specBusy = QtCore.pyqtSignal(bool)
 
     @property
     def busy(self):
@@ -86,14 +88,15 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
     def specVersion(self):
         return self.__specVersion
 
-    def _getStatus(self):
+    @property
+    def status(self):
         return self.__status
-    def _setStatus(self, status):
+    @status.setter
+    def status(self, status):
         status = status.lower()
         assert status in ('aborting', 'busy', 'cleanup', 'ready')
         self.__status = status
-        self.emit(QtCore.SIGNAL('specBusy'), status != 'ready')
-    status = property(_getStatus, _setStatus)
+        self.specBusy.emit(status != 'ready')
 
     def __init__(self, specVersion=None, timeout=None, parent=None):
         """specVersion is a string like 'foo.bar:spec' or '127.0.0.1:fourc'
@@ -125,9 +128,7 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
 #        self.dispatcher.start(QtCore.QThread.NormalPriority)
 #########
         self.timer = QtCore.QTimer(self)
-        self.connect(self.timer,
-                     QtCore.SIGNAL("timeout()"),
-                     self.update)
+        self.timer.timeout.connect(self.update)
         self.timer.start(20)
 
     def __statusReady(self, status):

@@ -79,13 +79,9 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         plotOptions = self.elementsView.plotOptions
         self.optionsWidgetVLayout.insertWidget(1, plotOptions)
 
-        self.connect(
-            self.elementsView,
-            QtCore.SIGNAL("pickEvent"),
-            self.processAverageSpectrum
-        )
+        self.elementsView.pickEvent.connect(self.processAverageSpectrum)
         # TODO: remove the window from the list of open windows when we close
-#           self.connect(scanView, QtCore.SIGNAL("scanClosed"), self.scanClosed)
+#           self.scanView.scanClosed.connect(self.scanClosed)
 
         self.fitParamDlg = FitParamDialog(parent=self)
 
@@ -110,11 +106,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
         self.progress_queue = Queue.Queue()
         self.timer = QtCore.QTimer(self)
-        self.connect(
-            self.timer,
-            QtCore.SIGNAL('timeout()'),
-            self.update
-        )
+        self.timer.timeout.connect(self.update)
 
         self.elementsView.updateFigure()
 
@@ -375,32 +367,11 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             n_local_processes=n_local_processes
         )
 
-#        self.connect(
-#            thread,
-#            QtCore.SIGNAL('dataProcessed'),
-#            self.elementMapUpdated
-#        )
-#        self.connect(
-#            thread,
-#            QtCore.SIGNAL('ppJobStats'),
-#            self.ppJobStats.updateTable
-#        )
-#        self.connect(
-#            thread,
-#            QtCore.SIGNAL("finished()"),
-#            self.processComplete
-#        )
-#        self.connect(
-#            thread,
-#            QtCore.SIGNAL('percentComplete'),
-#            self.progressBar.setValue
-#        )
-        self.connect(
-            self.actionAbort,
-            QtCore.SIGNAL('triggered(bool)'),
-            self.abort,
-            #thread.stop
-        )
+#        self.thread.dataProcessed.connect(self.elementMapUpdated)
+#        self.thread.ppJobStats.connect(self.ppJobStats.updateTable)
+#        self.thread.finished.connect(self.processComplete)
+#        self.thread.percentComplete.connect(self.progressBar.setValue)
+        self.actionAbort.triggered.connect(self.abort) #thread.stop
 
         self.statusbar.showMessage('Analyzing spectra ...')
         self.statusbar.addPermanentWidget(self.progressBar)

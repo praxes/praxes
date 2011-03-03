@@ -31,6 +31,8 @@ class ScanParameters(QtGui.QWidget):
     _cmd = ''
     _AxisWidget = None
 
+    scanReady = QtCore.pyqtSignal(bool)
+
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
 
@@ -49,11 +51,7 @@ class ScanParameters(QtGui.QWidget):
 
     def _connectSignals(self):
         for axis in self._axes:
-            self.connect(
-                axis,
-                QtCore.SIGNAL("motorReady(PyQt_PyObject)"),
-                self.scanReady
-            )
+            axis.motorReady.connect(self.checkScanReady)
 
     def _getAxisWidget(self):
         raise NotImplementedError
@@ -64,12 +62,12 @@ class ScanParameters(QtGui.QWidget):
     def getDefaultAxes(self):
         raise NotImplementedError
 
-    def scanReady(self):
+    def checkScanReady(self):
         for axis in self._axes:
-            if not axis.motorReady:
-                self.emit(QtCore.SIGNAL("scanReady(PyQt_PyObject)"), False)
+            if not axis.isReady:
+                self.scanReady.emit(False)
                 return
-        self.emit(QtCore.SIGNAL("scanReady(PyQt_PyObject)"), True)
+        self.scanReady.emit(True)
 
 
 class AScanParameters(ScanParameters):
@@ -123,11 +121,7 @@ class A2ScanParameters(AScanParameters):
     def _connectSignals(self):
         AScanParameters._connectSignals(self)
         for axis in self._axes:
-            self.connect(
-                axis.stepSpinBox,
-                QtCore.SIGNAL('valueChanged(int)'),
-                self._syncSteps
-            )
+            axis.stepSpinBox.valueChanged[int].connect(self._syncSteps)
 
     def getScanArgs(self):
         args = [self._cmd]
@@ -275,36 +269,12 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
         from .scan import QtSpecScanA
         self._scan = QtSpecScanA(self.specRunner.specVersion, parent=self)
 
-        self.connect(
-            self._scan,
-            QtCore.SIGNAL("newScanLength"),
-            self._newScanLength
-        )
-        self.connect(
-            self._scan,
-            QtCore.SIGNAL("newScanData"),
-            self._newScanData
-        )
-        self.connect(
-            self._scan,
-            QtCore.SIGNAL("scanStarted()"),
-            self.scanStarted
-        )
-        self.connect(
-            self._scan,
-            QtCore.SIGNAL("scanPaused()"),
-            self.scanPaused
-        )
-        self.connect(
-            self._scan,
-            QtCore.SIGNAL("scanResumed()"),
-            self.scanResumed
-        )
-        self.connect(
-            self._scan,
-            QtCore.SIGNAL("scanFinished()"),
-            self.scanFinished
-        )
+        self._scan.scanLength.connect(self._newScanLength)
+        self._scan.scanData.connect(self._newScanData)
+        self._scan.started.connect(self.scanStarted)
+        self._scan.paused.connect(self.scanPaused)
+        self._scan.resumed.connect(self.scanResumed)
+        self._scan.finished.connect(self.scanFinished)
 
         self.scanTypeComboBox.addItems(self._scanTypes)
 
@@ -376,12 +346,8 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
             self._scanParameters = ScanParameters(self.specRunner, self)
             self.scanParametersLayout.addWidget(self._scanParameters)
 
-            self.connect(
-                self._scanParameters,
-                QtCore.SIGNAL("scanReady(PyQt_PyObject)"),
-                self.scanButton.setEnabled
-            )
-            self._scanParameters.scanReady()
+            self._scanParameters.scanReady.connect(self.scanButton.setEnabled)
+            self._scanParameters.checkScanReady()
 
             settings = QtCore.QSettings()
             settings.beginGroup("ScanParameters")
@@ -455,18 +421,8 @@ class ChangeSpecFileDialog(QtGui.QDialog):
         )
         layout.addWidget(buttonBox)
 
-        self.connect(
-            buttonBox,
-            QtCore.SIGNAL("accepted()"),
-            self,
-            QtCore.SLOT("accept()")
-        )
-        self.connect(
-            buttonBox,
-            QtCore.SIGNAL("rejected()"),
-            self,
-            QtCore.SIGNAL("reject()")
-        )
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
 
 
 if __name__ == "__main__":

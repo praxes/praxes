@@ -25,6 +25,12 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
                        'MOVING',
                        'ONLIMIT']
 
+    limitsChanged = QtCore.pyqtSignal(tuple)
+    positionChanged = QtCore.pyqtSignal(double)
+    stateChanged = QtCore.pyqtSignal(str)
+    scanBoundStartChanged = QtCore.pyqtSignal(double)
+    scanBoundStopChanged = QtCore.pyqtSignal(double)
+
     def __init__(self, specName=None, specVersion=None):
         QtCore.QObject.__init__(self)
         SpecMotor.SpecMotorA.__init__(self, str(specName), str(specVersion))
@@ -55,14 +61,12 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
     def getScanBoundStart(self):
         if self._scanBoundStart is None:
             return self.getPosition()
-
         else:
             return self._scanBoundStart
 
     def getScanBoundStop(self):
         if self._scanBoundStop is None:
             return self.getPosition() + 1
-
         else:
             return self._scanBoundStop
 
@@ -74,14 +78,12 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
 
     def motorLimitsChanged(self):
         limits = self.getLimits()
-        self.emit(QtCore.SIGNAL("limitsChanged(PyQt_PyObject)"),
-                  limits)
+        self.limitsChanged.emit(self.getLimits())
 #        logger.debug("Motor %s limits changed to (%s,%s)",self.specName,
 #                                                           limits[0],limits[1])
 
     def motorPositionChanged(self, absolutePosition):
-        self.emit(QtCore.SIGNAL("positionChanged(PyQt_PyObject)"),
-                  absolutePosition)
+        self.positionChanged.emit(absolutePosition)
 #        logger.debug("Motor %s position changed to %s",self.specName,
 #                                                           absolutePosition)
 
@@ -90,8 +92,7 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
 
     def motorStateChanged(self, state):
         state = self.__state_strings[state]
-        self.emit(QtCore.SIGNAL("stateChanged(PyQt_PyObject)"),
-                  state)
+        self.stateChanged.emit(state)
 #        logger.debug( "Motor %s state changed to %s",self.specName, state)
 
     def getState(self):
@@ -100,78 +101,8 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
 
     def setScanBoundStart(self, val):
         self._scanBoundStart = val
-        self.emit(QtCore.SIGNAL("scanBoundStartChanged(PyQt_PyObject)"), val)
+        self.scanBoundStartChanged.emit(val)
 
     def setScanBoundStop(self, val):
         self._scanBoundStop = val
-        self.emit(QtCore.SIGNAL("scanBoundStopChanged(PyQt_PyObject)"), val)
-
-
-class TestQtSpecMotor(QtSpecMotorBase):
-
-    __state_strings = ['NOTINITIALIZED',
-                       'UNUSABLE',
-                       'READY',
-                       'MOVESTARTED',
-                       'MOVING',
-                       'ONLIMIT']
-    def __init__(self,mne,specVersion = None):
-
-        QtCore.QObject.__init__(self)
-        self.specName = mne
-        self.position = len(mne)*10
-        self.toGoTo=0
-        self.limits=(len(mne),len(mne)*1000)
-        self.paramdict = {'step_size':len(mne)*1000,
-                                'slew_rate':len(mne)*1000,
-                                'acceleration':len(mne)*10}
-
-
-        self.state = READY
-        self.Timer = QtCore.QTimer()
-        self.time =len(mne)*1000
-
-        self.connect(self.Timer, QtCore.SIGNAL('timeout()'), self.end)
-        logger.debug("Motor %s is in Test Mode",self.specName)
-
-    def getPosition(self):
-        return self.position
-
-    def getParameter(self,parameter):
-        return self.paramdict[parameter]
-
-    def getState(self):
-        return self.__state_strings[self.state]
-
-    def getLimits(self):
-        return self.limits
-
-    def move(self,amount=0):
-        if self.state in (READY,ONLIMIT):
-            self.Timer.start(self.time)
-            self.state = MOVING
-            self.toGoTo=amount
-            self.motorStateChanged(self.state)
-
-    def end(self):
-        self.Timer.stop()
-        self.state = READY
-        self.motorStateChanged(self.state)
-        self.position=self.toGoTo
-        self.motorPositionChanged(self.getPosition())
-
-
-if TEST_SPEC:
-    class QtSpecMotorA(TestQtSpecMotor):
-        pass
-else:
-    class QtSpecMotorA(QtSpecMotorBase):
-        pass
-
-
-if __name__ == "__main__":
-    m = QtSpecMotorA('samz', 'f3.chess.cornell.edu:xrf')
-    print
-    m = QtSpecMotorA('samz', 'f3.chess.cornell.edu:xrf')
-    print
-    m = QtSpecMotorA('samz', 'f3.chess.cornell.edu:xrf')
+        self.scanBoundStopChanged.emit(val)

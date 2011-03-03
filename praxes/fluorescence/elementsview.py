@@ -21,6 +21,8 @@ class ElementBaseFigure(QtMplCanvas):
     """
     """
 
+    pickEvent = QtCore.pyqtSignal(np.ndarray)
+
     def __init__(self, scan_data, parent=None):
         super(ElementBaseFigure, self).__init__(parent)
 
@@ -69,7 +71,7 @@ class ElementBaseFigure(QtMplCanvas):
             temp = np.logical_and(y_data >= ystart, y_data <= yend)
             items = np.logical_and(temp, items)
         indices = np.nonzero(items)[0]
-        self.emit(QtCore.SIGNAL('pickEvent'), indices)
+        self.pickEvent.emit(indices)
 
     def setXLabel(self, label):
         self._xlabel = label
@@ -85,6 +87,9 @@ class ElementBaseFigure(QtMplCanvas):
 
 
 class ElementImageFigure(ElementBaseFigure):
+
+    minValueChanged = QtCore.pyqtSignal(float)
+    maxValueChanged = QtCore.pyqtSignal(float)
 
     def __init__(self, scan_data, parent=None):
         super(ElementImageFigure, self).__init__(scan_data, parent)
@@ -140,8 +145,8 @@ class ElementImageFigure(ElementBaseFigure):
         if self.autoscale:
             self.image.autoscale()
             self._clim = list(self.image.get_clim())
-            self.emit(QtCore.SIGNAL("minValueChanged"), self._clim[0])
-            self.emit(QtCore.SIGNAL("maxValueChanged"), self._clim[1])
+            self.minValueChanged.emit(self._clim[0])
+            self.maxValueChanged.emit(self._clim[1])
         else:
             self.image.set_clim(self._clim)
 
@@ -183,8 +188,8 @@ class ElementPlotFigure(ElementBaseFigure):
 
         if self.autoscale:
             self._ylims = list(self.axes.get_ylim())
-            self.emit(QtCore.SIGNAL("minValueChanged"), self._ylims[0])
-            self.emit(QtCore.SIGNAL("maxValueChanged"), self._ylims[1])
+            self.minValueChanged.emit(self._ylims[0])
+            self.maxValueChanged.emit(self._ylims[1])
         else:
             self.axes.set_ylim(self._ylims)
 
@@ -213,17 +218,8 @@ class ElementsView(QtGui.QGroupBox):
 
         self._plotOptions = PlotOptions(scan_data, self.figure)
 
-        self.connect(
-            self.toolbar,
-            QtCore.SIGNAL("pickEvent"),
-            self.figure.onPick
-        )
-        self.connect(
-            self.figure,
-            QtCore.SIGNAL("pickEvent"),
-            self,
-            QtCore.SIGNAL("pickEvent")
-        )
+        self.toolbar.pickEvent.connect(self.figure.onPick)
+        self.figure.pickEvent.connect(self.pickEvent)
 
     @property
     def plotOptions(self):

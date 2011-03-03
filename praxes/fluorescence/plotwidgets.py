@@ -32,6 +32,8 @@ np.seterr(all='ignore')
 
 class Toolbar(MplToolbar):
 
+    pickEvent = QtCore.pyqtSignal(float, float, float, float)
+
     def __init__(self, *args, **kwargs):
         pixmap = QtGui.QPixmap()
         pixmap.load(':/cross.png')
@@ -167,19 +169,15 @@ class Toolbar(MplToolbar):
             self._idRelease = self.canvas.mpl_connect(
                 'button_press_event', self.selectPoint)
             self.draw_rubberband(event, 0, 0, 0, 0)
-            self.emit(
-                QtCore.SIGNAL('pickEvent'),
+            self.pickEvent.emit(
                 self.xdatastart,
                 self.ydatastart,
                 event.xdata,
                 event.ydata
             )
 
-
     def drawband(self, event):
         self.draw_rubberband(event,self.xstart, self.ystart, event.x, event.y)
-
-
 
 
 class QtMplCanvas(FigureCanvasQTAgg):

@@ -23,6 +23,8 @@ class ScanControls(Ui_ScanControls, QtGui.QWidget):
 
     """Provides a GUI interface for positioning motors and running scans"""
 
+    scanType = QtCore.pyqtSignal(str)
+
     def __init__(self, specRunner, parent=None):
 #        logger.debug('Initializing Scan Controls')
         QtGui.QWidget.__init__(self, parent)
@@ -70,54 +72,26 @@ class ScanControls(Ui_ScanControls, QtGui.QWidget):
         self.connectSignals()
 
     def connectSignals(self):
-        self.connect(self.scanTypeComboBox,
-                     QtCore.SIGNAL("currentIndexChanged(const QString&)"),
-                     self.setScanType)
-        self.connect(self.abortButton,
-                     QtCore.SIGNAL("clicked()"),
-                     self.abort)
-        self.connect(self.scanButton,
-                     QtCore.SIGNAL("clicked()"),
-                     self.startScan)
-        self.connect(self.pauseButton,
-                     QtCore.SIGNAL("clicked()"),
-                     self.scanPaused)
-        self.connect(self.resumeButton,
-                     QtCore.SIGNAL("clicked()"),
-                     self.scanResumed)
-        self.connect(self.specRunner.scan,
-                     QtCore.SIGNAL("scanStarted()"),
-                     self.scanStarted)
-        self.connect(self.specRunner.scan,
-                     QtCore.SIGNAL("scanStarted()"),
-                     self.activityStarted)
-        self.connect(self.specRunner.scan,
-                     QtCore.SIGNAL("scanFinished()"),
-                     self.scanFinished)
-        self.connect(self.specRunner.scan,
-                     QtCore.SIGNAL("scanFinished()"),
-                     self.activityFinished)
-        self.connect(self.specRunner.scan,
-                     QtCore.SIGNAL("newScanIndex(int)"),
-                     self.updateProgressBar)
+        self.scanTypeComboBox.currentIndexChanged.connect(self.setScanType)
+        self.abortButton.clicked.connect(self.abort)
+        self.scanButton.clicked.connect(self.startScan)
+        self.pauseButton.clicked.connect(self.scanPaused)
+        self.resumeButton.clicked.connect(self.scanResumed)
+        self.specRunner.scan.scanStarted.connect(self.scanStarted)
+        self.specRunner.scan.scanStarted.connect(self.activityStarted)
+        self.specRunner.scan.scanFinished.connect(self.scanFinished)
+        self.specRunner.scan.scanFinished.connect(self.activityFinished)
+        self.specRunner.scan.newScanIndex.connect(self.updateProgressBar)
 
     def connectAxesSignals(self):
         for axis in self.axes:
-            self.connect(axis,
-                         QtCore.SIGNAL("motorActive()"),
-                         self.activityStarted)
-            self.connect(axis,
-                         QtCore.SIGNAL("motorReady()"),
-                         self.activityFinished)
+            axis.motorActive.connect(self.activityStarted)
+            axis.motorReady.connect(self.activityFinished)
 
     def disconnectAxesSignals(self):
         for axis in self.axes:
-            self.disconnect(axis,
-                            QtCore.SIGNAL("motorActive()"),
-                            self.activityStarted)
-            self.disconnect(axis,
-                            QtCore.SIGNAL("motorReady()"),
-                            self.activityFinished)
+            axis.motorActive.disconnect(self.activityStarted)
+            axis.motorReady.disconnect(self.activityFinished)
 
     def startScan(self):
 #        logger.debug('Call for starting a Scan')
@@ -163,7 +137,6 @@ class ScanControls(Ui_ScanControls, QtGui.QWidget):
         self.disconnectAxesSignals()
         self.scanStackedLayout.setCurrentWidget(self.pauseButton)
         self.progressBar.reset()
-        self.emit(QtCore.SIGNAL("addStatusBarWidget"), self.statusBarWidget)
         self.statusBarWidget.show()
 
     def scanFinished(self):
@@ -172,7 +145,6 @@ class ScanControls(Ui_ScanControls, QtGui.QWidget):
         self.scanCountSpinBox.setEnabled(True)
         self.connectAxesSignals()
         self.scanStackedLayout.setCurrentWidget(self.scanButton)
-        self.emit(QtCore.SIGNAL("removeStatusBarWidget"), self.statusBarWidget)
         self.statusBarWidget.hide()
 
     def scanPaused(self):
@@ -188,7 +160,7 @@ class ScanControls(Ui_ScanControls, QtGui.QWidget):
     def setScanType(self, scanType):
         scanType = str(scanType)
         self.setAxes(scanType)
-        self.emit(QtCore.SIGNAL("scanType(string)"), scanType)
+        self.scanType.emit(scanType)
         self.setIndependentStepsEnabled(scanType in ('mesh', ))
 
     def setIndependentStepsEnabled(self, enabled=False):
@@ -198,18 +170,15 @@ class ScanControls(Ui_ScanControls, QtGui.QWidget):
             for m in self.axes:
                 for n in self.axes:
                     if m is not n:
-                        m.disconnect(m.scanStepsSpinBox,
-                                     QtCore.SIGNAL("valueChanged(int)"),
-                                     n.scanStepsSpinBox,
-                                     QtCore.SLOT('setValue(int)'))
+                        m.scanStepsSpinBox.valueChanged.disconnect(
+                            n.scanStepsSpinBox.setValue
+                            )
         else:
             for m in self.axes:
                 for n in self.axes:
                     if m is not n:
-                        m.connect(m.scanStepsSpinBox,
-                                  QtCore.SIGNAL("valueChanged(int)"),
-                                  n.scanStepsSpinBox,
-                                  QtCore.SLOT('setValue(int)'))
+                        m.scanStepsSpinBox.valueChanges.connect(
+                            n.scanStepsSpinBox.setValue)
 
     def setAxes(self, scanType):
 #        logger.debug('Setting Axes')
@@ -245,12 +214,8 @@ class ScanDialog(Ui_ScanDialog, QtGui.QDialog):
         self.specRunner = parent.specRunner
         self.getDefaults()
 
-        self.connect(self.precountSpin,
-                     QtCore.SIGNAL("valueChanged(double)"),
-                     self.enableSkipmode)
-        self.connect(self.fileNameEdit,
-                     QtCore.SIGNAL("editingFinished()"),
-                     self.formatFileName)
+        self.precountSpin.valueChanged.connect(self.enableSkipmode)
+        self.fileNameEdit.editingFinished.connect(self.formatFileName)
 
     def enableSkipmode(self, val):
 #        logger.debug('enableSkipmode %s',bool(val))

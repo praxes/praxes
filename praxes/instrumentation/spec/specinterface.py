@@ -160,17 +160,10 @@ class SpecInterface(QtCore.QObject):
     def _configure(self):
         from . import configdialog
 
-        self.connect(
-            self.mainWindow.actionConfigure,
-            QtCore.SIGNAL("triggered()"),
+        self.mainWindow.actionConfigure.triggered.connect(
             lambda : configdialog.ConfigDialog(self.specRunner, self.mainWindow)
-        )
-        self.connect(
-            self.specRunner.datafile,
-            QtCore.SIGNAL("datafileChanged"),
-            self,
-            QtCore.SIGNAL("datafileChanged")
-        )
+            )
+        self.specRunner.datafile.datafileChanged.connect(self.datafileChanged)
 
         self._configureInterfaceWidget()
 

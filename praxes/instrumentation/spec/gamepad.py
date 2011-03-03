@@ -51,31 +51,19 @@ class GamePad(Ui_GamePad, QtGui.QWidget):
         self.vboxlayout1.insertWidget(0, self.eastWestMotorWidget)
         self.vboxlayout1.insertWidget(0, self.northSouthMotorWidget)
 
-        self.connect(
-            self.eastWestMotorWidget,
-            QtCore.SIGNAL("stateChanged(PyQt_PyObject)"),
+        self.eastWestMotorWidget.stateChanged.connect(
             self._eastWestMotorStateChanged
-        )
-        self.connect(
-            self.northSouthMotorWidget,
-            QtCore.SIGNAL("stateChanged(PyQt_PyObject)"),
+            )
+        self.northSouthMotorWidget.stateChanged.connect(
             self._northSouthMotorStateChanged
-        )
-        self.connect(
-            self.eastWestMotorWidget,
-            QtCore.SIGNAL("nextPositionIsCurrent(PyQt_PyObject)"),
+            )
+        self.eastWestMotorWidget.nextPositionIsCurrent.connect(
             self.startButton.setDisabled
-        )
-        self.connect(
-            self.northSouthMotorWidget,
-            QtCore.SIGNAL("nextPositionIsCurrent(PyQt_PyObject)"),
+            )
+        self.northSouthMotorWidget.nextPositionIsCurrent.connect(
             self.startButton.setDisabled
-        )
-        self.connect(
-            self.specRunner,
-            QtCore.SIGNAL("specBusy"),
-            self.setBusy
-        )
+            )
+        self.specRunner.specBusy.connect(self.setBusy)
 
     @property
     def northSouthMotorWidget(self):

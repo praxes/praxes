@@ -5,7 +5,6 @@ import posixpath
 
 
 def sequential(values):
-    print values
     def key(value):
         if 'start_time' in value.attrs:
             return value.attrs['start_time']

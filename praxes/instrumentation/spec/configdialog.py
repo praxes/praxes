@@ -26,7 +26,7 @@ class ConfigDialog(Ui_MotorDialog, QtGui.QDialog):
         QtCore.QTimer.singleShot(0, self.specConnect)
         self.settings = QtCore.QSettings()
         self.settings.beginGroup('SpecConfig/%s'%specRunner.specVersion)
-        self.connect(self.restore, QtCore.SIGNAL("clicked()"), self.reset)
+        self.restore.clicked.connect(self.reset)
         self.show()
 
     def reset(self):
@@ -85,16 +85,14 @@ class MotorTab(Ui_MotorConfig, QtGui.QWidget):
     def connectWidgets(self):
         for Param in self.ParamDict.keys():
             widget=self.ParamDict[Param]
-            self.connect(widget,
-                         QtCore.SIGNAL('valueChanged(double)'),
-                         self.addToChageList)
+            widget.valueChanged.connect(self.addToChangeList)
 
     def getProperties(self):
 #        logger.debug('getting %s Properties',self.name)
         for param in self.ParamDict.keys():
             self.ParamDict[param].setValue(self.motor.getParameter(param))
 
-    def addToChageList(self,value):
+    def addToChangeList(self, value):
         widget=self.sender()
         self.change[widget]=value
 

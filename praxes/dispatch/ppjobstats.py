@@ -35,15 +35,9 @@ class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):
 
         self.updateTable()
 
-        self.connect(self.refreshButton,
-                     QtCore.SIGNAL("clicked()"),
-                     self.updateTable)
-        self.connect(self.numCpusSpinBox,
-                     QtCore.SIGNAL("valueChanged(int)"),
-                     self.server.set_ncpus)
-        self.connect(self.numCpusSpinBox,
-                     QtCore.SIGNAL("valueChanged(int)"),
-                     self.updateLocalProcesses)
+        self.refreshButton.clicked.connect(self.updateTable)
+        self.numCpusSpinBox.valueChanged.connect(self.server.set_ncpus)
+        self.numCpusSpinBox.valueChanged.connect(self.updateLocalProcesses)
 
         settings = QtCore.QSettings()
         settings.beginGroup('PPJobServers')

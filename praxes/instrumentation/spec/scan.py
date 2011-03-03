@@ -22,6 +22,16 @@ logger = logging.getLogger(__file__)
 
 class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
+    scanLength = QtCore.pyqtSignal(int)
+    beginProcessing = QtCore.pyqtSignal()
+    scanData = QtCore.pyqtSignal(int)
+    scanPoint = QtCore.pyqtSignal(int)
+    aborted = QtCore.pyqtSignal()
+    finished = QtCore.pyqtSignal()
+    paused = QtCore.pyqtSignal()
+    resumed = QtCore.pyqtSignal()
+    started = QtCore.pyqtSignal()
+
     def __init__(self, specVersion, parent=None):
         QtCore.QObject.__init__(self, parent)
         SpecScan.SpecScanA.__init__(self, specVersion)
@@ -87,14 +97,9 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         ScanView = praxes.application.getService('ScanView')
         view = ScanView(entry)
         if view:
+            self.beginProcessing.connect(view.processData)
 
-            self.connect(
-                self,
-                QtCore.SIGNAL('beginProcessing'),
-                view.processData
-            )
-
-        self.emit(QtCore.SIGNAL("newScanLength"), info['npoints'])
+        self.scanLength.emit(info['npoints'])
 
     def newScanData(self, scanData):
 #        logger.debug( 'scanData: %s', scanData)
@@ -119,8 +124,8 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
                 self._lastPoint = i
             if i == 0:
-                self.emit(QtCore.SIGNAL("beginProcessing"))
-            self.emit(QtCore.SIGNAL("newScanData"), i)
+                self.beginProcessing.emit()
+            self.scanData.emit(i)
 #            print 'exiting newScanData'
         except AttributeError:
             pass
@@ -130,7 +135,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         scanData['x'] = x
         scanData['y'] = y
 #        logger.debug( "newScanPoint: %s", i)
-        self.emit(QtCore.SIGNAL("newScanPoint"), i)
+        self.scanPoint.emit(i)
 
     def scanAborted(self):
 #        logger.info('Scan Aborted')
@@ -138,20 +143,20 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
             self._scanData.npoints = self._lastPoint + 1
         except (AttributeError, h5py.h5.H5Error, TypeError):
             pass
-        self.emit(QtCore.SIGNAL("scanAborted()"))
+        self.aborted.emit()
         self.scanFinished()
 
     def scanFinished(self):
 #        logger.info( 'scan finished')
         self._scanData = None
-        self.emit(QtCore.SIGNAL("scanFinished()"))
+        self.finished.emit()
 
     def scanPaused(self):
-        self.emit(QtCore.SIGNAL("scanPaused()"))
+        self.paused.emit()
 
     def scanResumed(self):
-        self.emit(QtCore.SIGNAL("scanResumed()"))
+        self.resumed.emit()
 
     def scanStarted(self):
 #        logger.info('scan started')
-        self.emit(QtCore.SIGNAL("scanStarted()"))
+        self.started.emit()

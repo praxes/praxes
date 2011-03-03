@@ -159,6 +159,8 @@ class FileModel(QtCore.QAbstractItemModel):
     """
     """
 
+    fileAppended = QtCore.pyqtSignal()
+
     def __init__(self, parent=None):
         super(FileModel, self).__init__(parent)
         self.rootItem = RootItem(['File/Group/Dataset', 'Description', 'Shape', 'Data Type'])
@@ -247,7 +249,7 @@ class FileModel(QtCore.QAbstractItemModel):
 
         phynxFile = phynx.File(filename, 'a')
         self.rootItem.appendChild(phynxFile)
-        self.emit(QtCore.SIGNAL('fileAppended'))
+        self.fileAppended.emit()
         return phynxFile
 
 
@@ -258,16 +260,8 @@ class FileView(QtGui.QTreeView):
         self.setModel(fileModel)
         self.setColumnWidth(0, 250)
 
-        self.connect(
-            self,
-            QtCore.SIGNAL('collapsed(QModelIndex)'),
-            fileModel.clearRows
-        )
-        self.connect(
-            fileModel,
-            QtCore.SIGNAL('fileAppended'),
-            self.doItemsLayout
-        )
+        self.collapsed.connect(fileModel.clearRows)
+        fileModel.fileAppended.connect(self.doItemsLayout)
 
 
 class ExportRawCSV(QtCore.QObject):

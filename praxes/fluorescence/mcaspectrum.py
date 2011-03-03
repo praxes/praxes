@@ -26,9 +26,7 @@ class SpectrumAnalysisThread(QtCore.QThread):
         self.mcafit = McaTheory()
 
         self.timer = QtCore.QTimer(self)
-        self.connect(self.timer,
-                     QtCore.SIGNAL("timeout()"),
-                     self.update)
+        self.timer.timeout.connect(self.update)
         self.timer.start(20)
 
     def run(self):
@@ -125,9 +123,7 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
         self.gridlayout1.addWidget(self.toolbar, 0, 0, 1, 1)
         self.gridlayout1.addWidget(self.figure, 1, 0, 1, 1)
 
-        self.connect(self.mcaLogscaleButton,
-                     QtCore.SIGNAL("clicked(bool)"),
-                     self.enableLogscale)
+        self.mcaLogscaleButton.clicked.connect(self.enableLogscale)
 
     def __getattr__(self, attr):
         return getattr(self.figure, attr)

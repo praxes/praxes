@@ -10,6 +10,8 @@ from .ui.ui_plotoptions import Ui_PlotOptions
 
 class PlotOptions(Ui_PlotOptions, QtGui.QGroupBox):
 
+    colorMapChanged = QtCore.pyqtSignal(object)
+
     def __init__(self, scan_data, figure, parent=None):
         super(PlotOptions, self).__init__(parent)
         self.setupUi(self)
@@ -19,61 +21,27 @@ class PlotOptions(Ui_PlotOptions, QtGui.QGroupBox):
         if len(scan_data.acquisition_shape) != 2:
             self.imageSettingsWidget.setVisible(False)
 
-        self.connect(
-            self._figure,
-            QtCore.SIGNAL("maxValueChanged"),
-            self.maxSpinBox.setValue
-        )
-        self.connect(
-            self._figure,
-            QtCore.SIGNAL("minValueChanged"),
-            self.minSpinBox.setValue
-        )
-        self.connect(
-            self.maxSpinBox,
-            QtCore.SIGNAL("valueChanged(double)"),
-            self._figure.setDataMax
-        )
-        self.connect(
-            self.minSpinBox,
-            QtCore.SIGNAL("valueChanged(double)"),
-            self._figure.setDataMin
-        )
-        self.connect(
-            self.dataAutoscaleButton,
-            QtCore.SIGNAL("clicked(bool)"),
-            self._figure.enableAutoscale
-        )
+        self._figure.maxValueChanged.connect(self.maxSpinBox.setValue)
+        self._figure.minValueChanged.connect(self.minSpinBox.setValue)
+        self.maxSpinBox.valueChanged.connect(self._figure.setDataMax)
+        self.minSpinBox.valueChanged.connect(self._figure.setDataMin)
+        self.dataAutoscaleButton.clicked.connect(self._figure.enableAutoscale)
         try:
             cmaps = sorted(cm._cmapnames)
             self.colorMapComboBox.addItems(cmaps)
             cmap = rcParams['image.cmap']
             self.colorMapComboBox.setCurrentIndex(cmaps.index(cmap))
-            self.connect(
-                self.imageOriginComboBox,
-                QtCore.SIGNAL("currentIndexChanged(QString)"),
+            self.imageOriginComboBox.currentIndexChanged['QString'].connect(
                 self._figure.setImageOrigin
                 )
-            self.connect(
-                self.interpolationComboBox,
-                QtCore.SIGNAL("currentIndexChanged(QString)"),
+            self.interpolationComboBox.currentIndexChanged['QString'].connect(
                 self._figure.setInterpolation
                 )
-            self.connect(
-                self.colorMapComboBox,
-                QtCore.SIGNAL("currentIndexChanged(QString)"),
+            self.colorMapComboBox.currentIndexChanged['QString'].connect(
                 self.colorMapChanged
                 )
-            self.connect(
-                self.reverseColorMapCheckBox,
-                QtCore.SIGNAL("toggled(bool)"),
-                self.colorMapChanged
-                )
-            self.connect(
-                self,
-                QtCore.SIGNAL("colorMapChanged"),
-                self._figure.setColorMap
-                )
+            self.reverseColorMapCheckBox.toggled.connect(self.colorMapChanged)
+            self.colorMapChanged.connect(self._figure.setColorMap)
         except AttributeError:
             pass
 
@@ -81,7 +49,7 @@ class PlotOptions(Ui_PlotOptions, QtGui.QGroupBox):
         cmap = str(self.colorMapComboBox.currentText())
         if self.reverseColorMapCheckBox.isChecked():
             cmap = cmap + "_r"
-        self.emit(QtCore.SIGNAL("colorMapChanged"), cm.cmap_d[cmap])
+        self.colorMapChanged.emit(cm.cmap_d[cmap])
 
     @QtCore.pyqtSignature("bool")
     def on_dataAutoscaleButton_toggled(self, toggled):

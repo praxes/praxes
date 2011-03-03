@@ -18,21 +18,9 @@ class Viewer(ui_viewer.Ui_viewer, QtGui.QWidget):
         self.setupUi(self)
         self.timer = QtCore.QTimer(self)
 
-        self.connect(
-                     self.urlBox,
-                     QtCore.SIGNAL("currentIndexChanged(QString)"),
-                     self.changeURL
-                     )
-
-        self.connect(
-            self.reloadRateSpin,
-            QtCore.SIGNAL("valueChanged(int)"),
-            self.changeFPS
-        )
-        self.connect(
-                     self.timer,
-                     QtCore.SIGNAL('timeout()'),
-                     self.reload)
+        self.urlBox.currentIndexChanged['QString'].connect(self.changeURL)
+        self.reloadRateSpinvalueChanged[int].connect(self.changeFPS)
+        self.timer.timeout.connect(self.reload)
         self.changeFPS()
 
     def changeFPS(self):

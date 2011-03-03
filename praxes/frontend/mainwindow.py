@@ -69,11 +69,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         action = QtGui.QAction(name, self)
         action.setVisible(False)
         self._toolActions[action] = target
-        self.connect(
-            action,
-            QtCore.SIGNAL('triggered()'),
-            self.toolActionTriggered
-        )
+        action.triggered.connect(self.toolActionTriggered)
         return action
 
     def _setupToolActions(self):
@@ -229,7 +225,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         # this is a shortcut for now, in the future the view would be
         # an overview of the entry with ability to open different analyses
         if isinstance(scan, phynx.registry['Entry']):
-            from ..core.fluorescence.mcaanalysiswindow import McaAnalysisWindow
+            from ..fluorescence.mcaanalysiswindow import McaAnalysisWindow
             if len(scan['measurement'].mcas) > 0:
                 return McaAnalysisWindow(scan, self)
             else:

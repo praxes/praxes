@@ -17,6 +17,9 @@ class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
 
     """Establishes a Experiment controls    """
 
+    motorReady = QtCore.pyqtSignal()
+    motorActive = QtCore.pyqtSignal()
+
     def __init__(self, parent, motor):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
@@ -37,15 +40,9 @@ class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
         self.motorComboBox.addItems(motors)
         self.motorComboBox.setCurrentIndex(ind)
 
-        self.connect(self.motorComboBox,
-                     QtCore.SIGNAL("currentIndexChanged(const QString&)"),
-                     self.setMotor)
-        self.connect(self.nextPosSlider,
-                     QtCore.SIGNAL("valueChanged(int)"),
-                     self.setNextPosition)
-        self.connect(self.nextPosSpinBox,
-                     QtCore.SIGNAL("valueChanged(double)"),
-                     self.setNextPosition)
+        self.motorComboBox.currentIndexChanged['QString'].connect(self.setMotor)
+        self.nextPosSlider.valueChanged.connect(self.setNextPosition)
+        self.nextPosSpinBox.valueChanged.connect(self.setNextPosition)
 
     def setMotor(self, motor, hostport=None):
         self._motor = motor = self.specRunner.getMotor(str(motor))
@@ -60,18 +57,10 @@ class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
         self.scanToSpinBox.setValue(position+1)
         self.motorStateChanged(self.getState())
 
-        self.connect(self._motor,
-                     QtCore.SIGNAL("motorPositionChanged(PyQt_PyObject)"),
-                     self.setPosition)
-        self.connect(self._motor,
-                     QtCore.SIGNAL("motorLimitsChanged(PyQt_PyObject)"),
-                     self.setLimits)
-        self.connect(self._motor,
-                     QtCore.SIGNAL("motorStateChanged(PyQt_PyObject)"),
-                     self.motorStateChanged)
-        self.connect(self.nextPosPushButton,
-                     QtCore.SIGNAL("clicked()"),
-                     self.moveMotor)
+        self._motor.motorPositionChanged.connect(self.setPosition)
+        self._motor.motorLimitsChanged.connect(self.setLimits)
+        self._motor.motorStateChanged.connect(self.motorStateChanged)
+        self.nextPosPushButton.clicked.connect(self.moveMotor)
 
     def setPosition(self, position):
         self.currentPosReport.setText('%.3f'%position)
@@ -96,10 +85,10 @@ class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
 
     def motorStateChanged(self, state):
         if state in ('READY', 'ONLIMIT'):
-            self.emit(QtCore.SIGNAL("motorReady()"))
+            self.motorReady.emit()
             self.setEnabled(True)
         else:
-            self.emit(QtCore.SIGNAL("motorActive()"))
+            self.motorActive.emit()
             self.setEnabled(False)
 
     def getScanInfo(self):

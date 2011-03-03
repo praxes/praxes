@@ -152,11 +152,7 @@ class NotificationsDialog(Ui_NotificationsDialog, QtGui.QDialog):
         self.allEdit.setFocus()
         self.settings = QtCore.QSettings()
         self.getValues()
-        self.connect(
-            self.importantBox,
-            QtCore.SIGNAL('toggled(bool)'),
-            self.importantWarn
-        )
+        self.importantBox.toggled.connect(self.importantWarn)
 
     def importantWarn(self, bool):
         if bool:

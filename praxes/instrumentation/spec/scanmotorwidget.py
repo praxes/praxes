@@ -9,6 +9,8 @@ from .ui.ui_scanmotorwidget import Ui_ScanMotorWidget
 
 class ScanMotorWidget(Ui_ScanMotorWidget, QtGui.QGroupBox):
 
+    motorReady = QtCore.pyqtSignal(bool)
+
     def __init__(self, specRunner, title="", motorName=None, parent=None):
         QtGui.QGroupBox.__init__(self, parent)
         self.setupUi(self)
@@ -38,10 +40,9 @@ class ScanMotorWidget(Ui_ScanMotorWidget, QtGui.QGroupBox):
         return self.mneComboBox.currentText()
 
     @property
-    def motorReady(self):
+    def isReady(self):
         if self._motor is None:
             return False
-
         else:
             return True
 
@@ -73,21 +74,9 @@ class ScanMotorWidget(Ui_ScanMotorWidget, QtGui.QGroupBox):
 
     def _connectMotor(self):
         if self._motor:
-            self.connect(
-                self._motor,
-                QtCore.SIGNAL("scanBoundStartChanged(PyQt_PyObject)"),
-                self._setStartPosition
-            )
-            self.connect(
-                self._motor,
-                QtCore.SIGNAL("scanBoundStopChanged(PyQt_PyObject)"),
-                self.stopSpinBox.setValue
-            )
-            self.connect(
-                self._motor,
-                QtCore.SIGNAL("limitsChanged(PyQt_PyObject)"),
-                self._limitsChanged
-            )
+            self._motor.scanBoundStartChanged.connect(self._setStartPosition)
+            self._motor.scanBoundStopChanged.connect(self.stopSpinBox.setValue)
+            self._motor.limitsChanged.connect(self._limitsChanged)
 
     def _limitsChanged(self, limits):
         low, high = limits
@@ -110,11 +99,11 @@ class ScanMotorWidget(Ui_ScanMotorWidget, QtGui.QGroupBox):
             self._motor = self.specRunner.getMotor(str(motorMne))
             self._connectMotor()
             self._setEnabled(True)
-            self.emit(QtCore.SIGNAL("motorReady(PyQt_PyObject)"), True)
+            self.motorReady.emit(True)
         else:
             self._motor = None
             self._setEnabled(False)
-            self.emit(QtCore.SIGNAL("motorReady(PyQt_PyObject)"), False)
+            self.motorReady.emit(False)
 
         self._limitsChanged(self.limits)
         self._setPrecision(self.precision)
@@ -166,11 +155,9 @@ class DScanMotorWidget(ScanMotorWidget):
     def _connectMotor(self):
         ScanMotorWidget._connectMotor(self)
         if self._motor:
-            self.connect(
-                self._motor,
-                QtCore.SIGNAL("positionChanged(PyQt_PyObject)"),
+            self._motor.positionChanged.connect(
                 lambda: self._limitsChanged(self.limits)
-            )
+                )
 
     def _setStartPosition(self, val):
         self.startSpinBox.setValue(val - self.position)

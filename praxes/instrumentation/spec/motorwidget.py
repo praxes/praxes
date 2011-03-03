@@ -10,6 +10,9 @@ from .ui.ui_motorwidget import Ui_MotorWidget
 
 class MotorWidget(Ui_MotorWidget, QtGui.QWidget):
 
+    nextPositionIsCurrent = QtCore.pyqtSignal(bool)
+    stateChanged = QtCore.pyqtSignal(str)
+
     def __init__(self, direction, specRunner, parent):
         QtGui.QWidget.__init__(self, parent)
         self.setupUi(self)
@@ -83,46 +86,21 @@ class MotorWidget(Ui_MotorWidget, QtGui.QWidget):
 
     def _connectMotor(self):
         if self._motor:
-            self.connect(
-                self._motor,
-                QtCore.SIGNAL("positionChanged(PyQt_PyObject)"),
-                self._positionChanged
-            )
-            self.connect(
-                self._motor,
-                QtCore.SIGNAL("limitsChanged(PyQt_PyObject)"),
-                self._limitsChanged
-            )
-            self.connect(
-                self._motor,
-                QtCore.SIGNAL("stateChanged(PyQt_PyObject)"),
-                self._stateChanged
-            )
+            self._motor.positionChanged.connect(self._positionChanged)
+            self._motor.limitsChanged.connect(self._limitsChanged)
+            self._motor.stateChanged.connect(self._stateChanged)
 
     def _disconnectMotor(self):
         if self._motor:
-            self.disconnect(
-                self._motor,
-                QtCore.SIGNAL("positionChanged(PyQt_PyObject)"),
-                self._positionChanged
-            )
-            self.disconnect(
-                self._motor,
-                QtCore.SIGNAL("limitsChanged(PyQt_PyObject)"),
-                self._limitsChanged
-            )
-            self.disconnect(
-                self._motor,
-                QtCore.SIGNAL("stateChanged(PyQt_PyObject)"),
-                self._stateChanged
-            )
+            self._motor.positionChanged.disconnect(self._positionChanged)
+            self._motor.limitsChanged.disconnect(self._limitsChanged)
+            self._motor.stateChanged.disconnect(self._stateChanged)
 
     def _isNextPositionCurrentPosition(self):
         fmt = '%.' + str(self.precision) + 'f'
-        self.emit(
-            QtCore.SIGNAL("nextPositionIsCurrent(PyQt_PyObject)"),
+        self.nextPositionIsCurrent.emit(
             fmt%self.nextPosition == fmt%self.position
-        )
+            )
 
     def _limitsChanged(self, limits):
         low, high = limits
@@ -159,7 +137,7 @@ class MotorWidget(Ui_MotorWidget, QtGui.QWidget):
     def _stateChanged(self, state):
         self._setMotorMoving(state)
         self._setMotorUsable(state)
-        self.emit(QtCore.SIGNAL("stateChanged(PyQt_PyObject)"), state)
+        self.stateChanged.emit(state)
 
     @QtCore.pyqtSignature("bool")
     def on_actionSaveStartLocation_triggered(self):
