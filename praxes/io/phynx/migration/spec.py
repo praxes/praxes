@@ -165,17 +165,17 @@ def process_mca(scan, measurement, process_scalars=False, masked=None):
                 sys.stdout.write('.\n')
                 sys.stdout.flush()
 
-        if process_scalars:
+
             # assume all scalars to be signals, except dead_time
-            for i, label in enumerate(scan.alllabels()):
-                kwargs = {'class':'Signal'}
-                if label == 'dead_time':
-                    kwargs['class'] = 'DeadTime'
-                    kwargs['dead_time_format'] = dead_time_format
-                if label == monitor:
-                    kwargs['efficiency'] = monitor_efficiency
-                dset = mca.create_dataset(
-                    label, data=scan.datacol(i+1), dtype='float32', **kwargs
+        for i, label in enumerate(scan.alllabels()):
+            kwargs = {'class':'Signal'}
+            if label == 'dead_time':
+                kwargs['class'] = 'DeadTime'
+                kwargs['dead_time_format'] = dead_time_format
+            if label == monitor:
+                kwargs['efficiency'] = monitor_efficiency
+            dset = mca.create_dataset(
+                label, data=scan.datacol(i+1), dtype='float32', **kwargs
                 )
 
         if masked is not None:
@@ -297,22 +297,23 @@ def convert_scan(scan, sfile, h5file, spec_filename):
             continue
         if mca is not None and label in (
                     'icr', 'ocr', 'real', 'live', 'dtn', 'vtxdtn', 'dead',
-                    'dead_time'
+                    'dead_time', 'Real', 'Live', 'ICR', 'OCR', 'FDead'
                 ):
+            pass
             # vortex detector, assume single mca
-            kwargs = {'class':'Signal', 'signal':0}
-            if label == 'dead_time':
-                kwargs['units'] = '%'
-                kwargs['class'] = 'DeadTime'
-                kwargs['dead_time_format'] = '%'
-            try:
-                dset = mca.create_dataset(
-                    label, data=scan.datacol(i+1), dtype='float32', **kwargs
-                )
-            except UnboundLocalError:
-                dset = measurement.create_dataset(
-                    label, data=scan.datacol(i+1), dtype='float32', **kwargs
-                )
+            ## kwargs = {'class':'Signal', 'signal':0}
+            ## if label == 'dead_time':
+            ##     kwargs['units'] = '%'
+            ##     kwargs['class'] = 'DeadTime'
+            ##     kwargs['dead_time_format'] = '%'
+            ## try:
+            ##     dset = mca.create_dataset(
+            ##         label, data=scan.datacol(i+1), dtype='float32', **kwargs
+            ##     )
+            ## except UnboundLocalError:
+            ##     dset = measurement.create_dataset(
+            ##         label, data=scan.datacol(i+1), dtype='float32', **kwargs
+            ##     )
         elif (label in allmotors) \
             or (label.lower() in ('energy', 'time', 'h', 'k', 'l', 'q')):
             kwargs = {'class':'Axis'}

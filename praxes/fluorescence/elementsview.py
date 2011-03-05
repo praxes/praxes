@@ -21,6 +21,8 @@ class ElementBaseFigure(QtMplCanvas):
     """
     """
 
+    minValueChanged = QtCore.pyqtSignal(float)
+    maxValueChanged = QtCore.pyqtSignal(float)
     pickEvent = QtCore.pyqtSignal(np.ndarray)
 
     def __init__(self, scan_data, parent=None):
@@ -87,9 +89,6 @@ class ElementBaseFigure(QtMplCanvas):
 
 
 class ElementImageFigure(ElementBaseFigure):
-
-    minValueChanged = QtCore.pyqtSignal(float)
-    maxValueChanged = QtCore.pyqtSignal(float)
 
     def __init__(self, scan_data, parent=None):
         super(ElementImageFigure, self).__init__(scan_data, parent)
