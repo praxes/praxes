@@ -16,7 +16,7 @@ logger = logging.getLogger(__file__)
 [NOTINITIALIZED,UNUSABLE,READY,MOVESTARTED,MOVING,ONLIMIT]=[0,1,2,3,4,5]
 
 
-class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
+class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):
 
     __state_strings = ['NOTINITIALIZED',
                        'UNUSABLE',
@@ -26,10 +26,10 @@ class QtSpecMotorBase(SpecMotor.SpecMotorA, QtCore.QObject):
                        'ONLIMIT']
 
     limitsChanged = QtCore.pyqtSignal(tuple)
-    positionChanged = QtCore.pyqtSignal(double)
+    positionChanged = QtCore.pyqtSignal(float)
     stateChanged = QtCore.pyqtSignal(str)
-    scanBoundStartChanged = QtCore.pyqtSignal(double)
-    scanBoundStopChanged = QtCore.pyqtSignal(double)
+    scanBoundStartChanged = QtCore.pyqtSignal(float)
+    scanBoundStopChanged = QtCore.pyqtSignal(float)
 
     def __init__(self, specName=None, specVersion=None):
         QtCore.QObject.__init__(self)

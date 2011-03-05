@@ -117,6 +117,8 @@ class SpecInterface(QtCore.QObject):
     widgets and keeps track of the specrunner
     """
 
+    datafileChanged = QtCore.pyqtSignal(str)
+
     def __init__(self, parent=None):
         super(SpecInterface, self).__init__(parent)
 

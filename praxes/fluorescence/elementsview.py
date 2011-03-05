@@ -48,7 +48,7 @@ class ElementBaseFigure(QtMplCanvas):
         # first find closest actual values:
         x_data = self._x_data[...]
         start_diffs = np.abs(x_data - xstart)
-        end_diffs = np.abs(self._x_data - xend)
+        end_diffs = np.abs(x_data - xend)
         if self._y_data is not None:
             y_data = self._y_data[...]
             start_diffs += np.abs(y_data - ystart)
@@ -197,6 +197,8 @@ class ElementPlotFigure(ElementBaseFigure):
 
 
 class ElementsView(QtGui.QGroupBox):
+
+    pickEvent = QtCore.pyqtSignal(np.ndarray)
 
     def __init__(self, scan_data, parent=None):
         super(ElementsView, self).__init__(parent)

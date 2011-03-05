@@ -38,14 +38,14 @@ class PlotOptions(Ui_PlotOptions, QtGui.QGroupBox):
                 self._figure.setInterpolation
                 )
             self.colorMapComboBox.currentIndexChanged['QString'].connect(
-                self.colorMapChanged
+                self.setColorMap
                 )
-            self.reverseColorMapCheckBox.toggled.connect(self.colorMapChanged)
+            self.reverseColorMapCheckBox.toggled.connect(self.setColorMap)
             self.colorMapChanged.connect(self._figure.setColorMap)
         except AttributeError:
             pass
 
-    def colorMapChanged(self, val):
+    def setColorMap(self, val):
         cmap = str(self.colorMapComboBox.currentText())
         if self.reverseColorMapCheckBox.isChecked():
             cmap = cmap + "_r"
