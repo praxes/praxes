@@ -62,7 +62,7 @@ cdef class DataProxy:
                     s = f.readline()
                     while s[-2:-1] == tag:
                         s = b''.join([s, f.readline()])
-                    self._n_cols = len(s.split(b' '))
+                    self._n_cols = len(s.strip().split(b' '))
         return self._n_cols
 
     cdef object _get_data(
