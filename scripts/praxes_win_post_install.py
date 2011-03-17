@@ -27,7 +27,7 @@ def install():
         directory_created(start_dir)
 
     # Create program shortcuts ...
-    script = '"%s"' % os.path.join(scripts_dir, 'sxfm-script.pyw')
+    script = '"%s"' % os.path.join(scripts_dir, 'sxfm')
     f = os.path.join(start_dir, 'sxfm.lnk')
     mkshortcut(python, 'sxfm', f, script, "%HOMEDRIVE%%HOMEPATH%")
 

@@ -2,6 +2,7 @@ from distutils.core import setup
 from distutils.cmd import Command
 from distutils.command.sdist import sdist as _sdist
 from distutils.command.build import build as _build
+from distutils.command.bdist_wininst import bdist_wininst as _bdist_wininst
 from distutils.extension import Extension
 import os
 import sys
@@ -119,6 +120,14 @@ class build(_build):
         _build.run(self)
 
 
+class bdist_wininst(_bdist_wininst):
+
+    def run(self):
+        self.run_command('data')
+        self.run_command('ui_cvt')
+        _bdist_wininst.run(self)
+
+
 packages = ['SpecClient']
 for dirpath, dirnames, filenames in os.walk('praxes'):
     if '__init__.py' in filenames:
@@ -160,12 +169,13 @@ scripts = [
     'scripts/sxfm'
     ]
 if ('bdist_wininst' in sys.argv) or ('bdist_msi' in sys.argv):
-    scripts.append('praxes_win_post_install.py')
+    scripts.append('scripts/praxes_win_post_install.py')
 
 setup(
     author = 'Darren Dale',
     author_email = 'darren.dale@cornell.edu',
     cmdclass = {
+        'bdist_wininst': bdist_wininst,
         'build': build,
         'build_ext': build_ext,
         'data': data,

@@ -18,7 +18,7 @@ source release, just do::
   git push --tags
 
 This automatically creates links to download the source release at the
-`Praxes downloads page`_. 
+`Praxes downloads page`_.
 
 
 Creating Windows Installers
@@ -26,15 +26,10 @@ Creating Windows Installers
 
 Open a DOS window, cd into the praxes source directory and run::
 
-  python setup.py bdist_msi
+  python setup.py bdist_wininst --install-script=praxes_win_post_install.py
 
 This creates the windows installer in the `dist/` directory, which can then be
 uploaded to the `Praxes downloads page`_.
-
-.. Note that in the future, if items are to be added to the Windows start menu,
-   the command should be::
-
-      python setup.py bdist_wininst --install-script=praxes_win_post_install.py 
 
 
 Publishing Praxes' documentation
@@ -61,7 +56,7 @@ push the changes to the upstream praxes repository::
    git commit -a -m "meaningful commit message"
    git push
 
-and visit the `Praxes documentation page`_ to view the documentation. 
+and visit the `Praxes documentation page`_ to view the documentation.
 
 .. _`Praxes downloads page`: https://github.com/praxes/praxes/downloads
 .. _Sphinx: http://sphinx.pocoo.org/
