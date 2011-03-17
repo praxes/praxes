@@ -67,8 +67,8 @@ cdef class DataProxy:
 
     cdef object _get_data(
         self,
-        np.ndarray[np.int64_t, ndim=1, mode=u'strided'] indices,
-        np.ndarray[np.int64_t, ndim=1, mode=u'strided'] subindices
+        np.ndarray[np.int_t, ndim=1, mode=u'strided'] indices,
+        np.ndarray[np.int_t, ndim=1, mode=u'strided'] subindices
         ):
         cdef int i, j, n_x, n_y, t_n_x, val_n
         cdef bytes s
