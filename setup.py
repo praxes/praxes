@@ -147,7 +147,12 @@ ext_modules = [
     ]
 
 package_data = {
-    'praxes': ['*.svg', '*.db', 'instrumentation/spec/macros/*.mac']
+    'praxes': [
+        'fluorescence/ui/icons/*.svg',
+        'instrumentation/spec/macros/*.mac',
+        'instrumentation/spec/ui/icons/*.svg',
+        'phys_ref_data/*.db',
+        ]
     }
 
 scripts = [
