@@ -1,27 +1,17 @@
+from collections import OrderedDict
 import io
 import os
 import re
 
-from praxes.io.spec.readonlydict cimport ReadOnlyDict
-from praxes.io.spec.scan import SpecScan
+from praxes.io.spec.mapping cimport Mapping
+from praxes.io.spec.scan import create_scan
 
 
-class DummyRLock(object):
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, traceback):
-        pass
-
-    def acquire(self):
-        pass
-
-    def release(self):
-        pass
+def create_file(file_name):
+    return FileIndex(file_name)
 
 
-cdef class SpecFile(ReadOnlyDict):
+cdef class FileIndex(Mapping):
 
     "An OrderedDict-like interface to scans contained in spec data files."
 
@@ -29,12 +19,8 @@ cdef class SpecFile(ReadOnlyDict):
     cdef unsigned long long _bytes_read
     cdef object _headers
 
-    def __init__(self, file_name, lock=None):
-        if lock is True:
-            import threading
-            lock = threading.RLock()
-        lock = lock or DummyRLock()
-        super(SpecFile, self).__init__(lock, ordered=True)
+    def __init__(self, file_name):
+        super(FileIndex, self).__init__(OrderedDict())
 
         self.name = file_name
         self._bytes_read = 0
@@ -45,7 +31,6 @@ cdef class SpecFile(ReadOnlyDict):
     def update(self):
         try:
             f = None
-            self._lock.acquire()
             "Update the file index based on any data appended to the file."
             if os.stat(self.name).st_size == self._bytes_read:
                 return
@@ -66,9 +51,8 @@ cdef class SpecFile(ReadOnlyDict):
                     while id in self._index:
                         dup += 1
                         id = '%s.%d' % (name, dup)
-                    scan = SpecScan(
-                        name, id, self, f.tell()-len(line), lock=self._lock,
-                        **self._headers
+                    scan = create_scan(
+                        name, id, self, f.tell()-len(line), **self._headers
                         )
                     self._index[id] = scan
                     f.seek(scan.file_offsets[1])

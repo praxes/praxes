@@ -1,11 +1,7 @@
-from collections import OrderedDict
+cdef class Mapping:
 
-
-cdef class ReadOnlyDict:
-
-    def __init__(self, lock, ordered=False, **kwargs):
-        self._lock = lock
-        self._index = OrderedDict(**kwargs) if ordered else dict(**kwargs)
+    def __init__(self, index):
+        self._index = index
 
     def __contains__(self, item):
         return item in self._index

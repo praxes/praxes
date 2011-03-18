@@ -13,19 +13,25 @@ import numpy as np
 
 ALL = slice(None, None, None)
 
+def create_scalar_proxy(file_name, name, column, index):
+    return ScalarProxy(file_name, name, column, index)
+
+def create_vector_proxy(file_name, name, index):
+    return VectorProxy(file_name, name, index)
+
 
 class DataProxyIterator(object):
 
-    def __init__(self, proxy):
-        self.__proxy = proxy
+    def __init__(self, index):
+        self.__index = index
         self.__next = 0
 
     def __next__(self):
         i = self.__next
-        if i >= len(self.__proxy):
+        if i >= len(self.__index):
             raise StopIteration
         self.__next += 1
-        return self.__proxy[i]
+        return self.__index[i]
 
     def next(self):
         return self.__next__()
@@ -33,19 +39,17 @@ class DataProxyIterator(object):
 
 cdef class DataProxy:
 
-    cdef object _index, _lock
+    cdef object _index
     cdef int _n_cols
     cdef readonly object file_name, name
 
-    def __init__(self, file_name, name, index, lock):
-        self._lock = lock
+    def __init__(self, file_name, name, index):
         self.file_name = file_name
         self.name = name
         self._index = index
 
     def __len__(self):
-        with self._lock:
-            return len(self._index)
+        return len(self._index)
 
     def __iter__(self):
         return DataProxyIterator(self)
@@ -55,14 +59,13 @@ cdef class DataProxy:
 
     cdef int n_cols(self) except -1:
         tag = b'\\'
-        with self._lock:
-            if self._n_cols is 0:
-                with io.open(self.file_name, 'rb', buffering=1024*1024*2) as f:
-                    f.seek(self._index[0])
-                    s = f.readline()
-                    while s[-2:-1] == tag:
-                        s = b''.join([s, f.readline()])
-                    self._n_cols = len(s.strip().split(b' '))
+        if self._n_cols is 0:
+            with io.open(self.file_name, 'rb', buffering=1024*1024*2) as f:
+                f.seek(self._index[0])
+                s = f.readline()
+                while s[-2:-1] == tag:
+                    s = b''.join([s, f.readline()])
+                self._n_cols = len(s.strip().split(b' '))
         return self._n_cols
 
     cdef object _get_data(
@@ -90,8 +93,6 @@ cdef class DataProxy:
         ret = ret_arr
 
         try:
-            # acquire lock to protect access to self._index
-            self._lock.acquire()
             f = io.open(self.file_name, 'rb', buffering=1024*1024*2)
             for i in range(n_y):
                 f.seek(self._index[indices[i]])
@@ -118,7 +119,6 @@ cdef class DataProxy:
                     ret[i, j] = temp[subindices[j]]
         finally:
             f.close()
-            self._lock.release
 
         return ret_arr
 
@@ -131,8 +131,8 @@ cdef class ScalarProxy(DataProxy):
         def __get__(self):
             return (len(self),)
 
-    def __init__(self, file_name, name, column, index, lock):
-        super(ScalarProxy, self).__init__(file_name, name, index, lock)
+    def __init__(self, file_name, name, column, index):
+        super(ScalarProxy, self).__init__(file_name, name, index)
         self._column = column
 
     def __getitem__(self, args):
@@ -164,8 +164,7 @@ cdef class VectorProxy(DataProxy):
 
     property shape:
         def __get__(self):
-            with self._lock:
-                return len(self), self.n_cols()
+            return len(self), self.n_cols()
 
     def __getitem__(self, args):
         extent = Ellipsis
@@ -191,12 +190,11 @@ cdef class VectorProxy(DataProxy):
         elif isinstance(extent, int):
             subitems = np.array([extent])
         elif isinstance(extent, slice):
-            with self._lock:
-                subitems = np.arange(
-                    extent.start or 0,
-                    extent.stop or self.n_cols(),
-                    extent.step or 1
-                    )
+            subitems = np.arange(
+                extent.start or 0,
+                extent.stop or self.n_cols(),
+                extent.step or 1
+                )
         else:
             subitems = np.asarray(extent)
 

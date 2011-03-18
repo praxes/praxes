@@ -148,10 +148,7 @@ ext_modules = [
         ['praxes/io/spec/proxies.pyx'],
         include_dirs=[numpy.get_include()]
         ),
-    Extension(
-        'praxes.io.spec.readonlydict',
-        ['praxes/io/spec/readonlydict.pyx']
-        ),
+    Extension('praxes.io.spec.mapping', ['praxes/io/spec/mapping.pyx']),
     Extension('praxes.io.spec.scan', ['praxes/io/spec/scan.pyx']),
     ]
 

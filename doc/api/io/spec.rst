@@ -19,9 +19,9 @@ dictionary-like interface to the scans contained in the file::
 Each scan is also
 a read-only dictionary-like interface to the scalar and vector data.
 
-At the top of the :mod:`spec` hierarchy is the :class:`ReadOnlyDict` class,
+At the top of the :mod:`spec` hierarchy is the :class:`Mapping` class,
 which provides a dictionary interface similar to the dictionaries in python-3.
-Extending :class:`ReadOnlyDict` is :class:`SpecFile`, which scans the file and
+Extending :class:`Mapping` is :class:`SpecFile`, which scans the file and
 creates an index of available scans::
 
    >>> f.keys()
@@ -32,7 +32,7 @@ creates an index of available scans::
 :meth:`SpecFile.update` is provided to update the file's index in the event
 that data has been appended to the file.
 
-Also extending :class:`ReadOnlyDict` is :class:`SpecScan`, which scans a
+Also extending :class:`Mapping` is :class:`SpecScan`, which scans a
 portion of the file and creates an index of available datasets and metadata::
 
    >>> scan.keys()
@@ -84,14 +84,8 @@ Module Interface
    Open *file_name* and return a read-only dictionary-like interface.  If the
    file cannot be opened, an :exc:`IOError` is raised.
 
-   *lock* can be *True* to protect access with a recursive lock from python's
-   threading library. An instance of an alternative recursive lock implementation can
-   be provided, but it must have acquire() and release() methods, and must support
-   python's context management protocol (must have __enter__() and __exit__()
-   methods).
 
-
-.. class:: ReadOnlyDict
+.. class:: Mapping
 
    The base class for all :mod:`spec` dictionary-like access to read-only data.
 
@@ -128,7 +122,7 @@ Module Interface
 .. class:: SpecFile
 
    A class providing high-level access to scans stored in a "spec" data file.
-   It inherits :class:`ReadOnlyDict`.
+   It inherits :class:`Mapping`.
 
    .. method:: update()
 
@@ -139,11 +133,11 @@ Module Interface
 .. class:: SpecScan
 
    A class providing high-level access to datasets associated with a scan in a
-   "spec" data file. It inherits :class:`ReadOnlyDict`.
+   "spec" data file. It inherits :class:`Mapping`.
 
    .. attribute:: attrs
 
-      A :class:`ReadOnlyDict` instance containing the metadata for the scan.
+      A :class:`Mapping` instance containing the metadata for the scan.
 
    .. attribute:: data
 
