@@ -12,7 +12,7 @@ from praxes.io.spec.proxies import ScalarProxy, VectorProxy
 cdef class SpecScan(ReadOnlyDict):
 
     cdef readonly object attrs, data, file_name, id, name
-    cdef int _bytes_read, _file_offset
+    cdef unsigned long long _bytes_read, _file_offset
     cdef object _mca_data_indices, _scalar_data_index
     cdef char _index_finalized
 
@@ -43,7 +43,7 @@ cdef class SpecScan(ReadOnlyDict):
         self.update()
 
     def update(self):
-        cdef int file_offset
+        cdef unsigned long long file_offset
         cdef bytes line
         cdef char* c_line
         cdef char ctag

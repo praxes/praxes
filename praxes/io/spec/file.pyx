@@ -26,7 +26,7 @@ cdef class SpecFile(ReadOnlyDict):
     "An OrderedDict-like interface to scans contained in spec data files."
 
     cdef readonly object name
-    cdef int _bytes_read
+    cdef unsigned long long _bytes_read
     cdef object _headers
 
     def __init__(self, file_name, lock=None):
