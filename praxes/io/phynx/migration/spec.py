@@ -354,6 +354,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
             f.startswith(spec_filename+'.scan%s.'%scan_number) and
             f.endswith('.mca')
         ):
+            f = os.path.join(dir, f)
             print 'integrating %s'%f
             process_mca(
                 specfile.Specfile(f)[0], measurement, True, masked=masked
@@ -363,6 +364,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
             f.endswith('.tiff')
         ):
             from praxes.io.tifffile import TIFFfile
+            f = os.path.join(dir, f)
             d = TIFFfile(f).asarray()
             r, c = d.shape
             ad = measurement.require_group('area_detector', type='AreaDetector')
@@ -387,6 +389,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
             f.startswith(spec_filename+'.%s_'%scan_number) and
             f.endswith('.mar3450')
         ):
+            f = os.path.join(dir, f)
             try:
                 p = subprocess.Popen(
                     ['marcvt', '-raw32', f],
