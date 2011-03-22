@@ -24,6 +24,8 @@ import SpecEventsDispatcher
 import SpecChannel
 import SpecMessage
 import SpecReply
+import traceback
+import sys
 
 asyncore.dispatcher.ac_in_buffer_size = 32768 #32 ko input buffer
 
@@ -105,6 +107,7 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         self.serverVersion = None
         self.scanport = False
         self.scanname = ''
+        self.aliasedChannels = {}
         self.registeredChannels = {}
         self.registeredReplies = {}
         self.sendq = []
@@ -199,17 +202,27 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
 
         chanName = str(chanName)
 
-        if not chanName in self.registeredChannels:
-            newChannel = SpecChannel.SpecChannel(self, chanName, registrationFlag)
-            self.registeredChannels[chanName] = newChannel
+        try:
+          if not chanName in self.registeredChannels:
+            channel = SpecChannel.SpecChannel(self, chanName, registrationFlag)
+            self.registeredChannels[chanName] = channel
+            if channel.spec_chan_name != chanName:
+                def valueChanged(value, chanName=chanName):
+                    channel = self.registeredChannels[chanName]
+                    channel.update(value,force=True)
+                self.aliasedChannels[chanName]=valueChanged
+                self.registerChannel(channel.spec_chan_name, valueChanged, registrationFlag, dispatchMode)
+          else:
+            channel = self.registeredChannels[chanName]
 
-        SpecEventsDispatcher.connect(self.registeredChannels[chanName], 'valueChanged', receiverSlot, dispatchMode)
+          SpecEventsDispatcher.connect(channel, 'valueChanged', receiverSlot, dispatchMode)
 
-        channelValue = self.registeredChannels[chanName].value
-        if channelValue is not None:
+          channelValue = self.registeredChannels[channel.spec_chan_name].value
+          if channelValue is not None:
             # we received a value, so emit an update signal
-            self.registeredChannels[chanName].update(channelValue)
-
+            channel.update(channelValue,force=True)
+        except Exception,e:
+          traceback.print_exc()
 
     def unregisterChannel(self, chanName):
         """Unregister a channel
@@ -284,6 +297,8 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         if self.socket:
             self.close()
         self.valid_socket = False
+        self.registeredChannels = {}
+        self.aliasedChannels = {}
         self.specDisconnected()
 
 
@@ -294,7 +309,9 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
 
     def handle_error(self):
         """Handle an uncaught error."""
-        return
+        exception, error_string, tb = sys.exc_info()
+        # let Python display exception like it wants!
+        sys.excepthook(exception, error_string, tb)
 
 
     def handle_read(self):
@@ -320,37 +337,40 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
             offset += consumedBytes
 
             if self.message.isComplete():
-                # dispatch incoming message
-                if self.message.cmd == SpecMessage.REPLY:
-                    replyID = self.message.sn
+                try:
+                    # dispatch incoming message
+                    if self.message.cmd == SpecMessage.REPLY:
+                        replyID = self.message.sn
 
-                    if replyID > 0:
-                        try:
-                            reply = self.registeredReplies[replyID]
-                        except:
-                            logging.getLogger("SpecClient").exception("Unexpected error while receiving a message from server")
+                        if replyID > 0:
+                            try:
+                                reply = self.registeredReplies[replyID]
+                            except:
+                                logging.getLogger("SpecClient").exception("Unexpected error while receiving a message from server")
+                            else:
+                                del self.registeredReplies[replyID]
+
+                                reply.update(self.message.data, self.message.type == SpecMessage.ERROR, self.message.err)
+                                #SpecEventsDispatcher.emit(self, 'replyFromSpec', (replyID, reply, ))
+                    elif self.message.cmd == SpecMessage.EVENT:
+                        self.registeredChannels[self.message.name].update(self.message.data, self.message.flags == SpecMessage.DELETED)
+                    elif self.message.cmd == SpecMessage.HELLO_REPLY:
+                        if self.checkourversion(self.message.name):
+                            self.serverVersion = self.message.vers #header version
+                            #self.state = CONNECTED
+                            self.specConnected()
                         else:
-                            del self.registeredReplies[replyID]
-
-                            reply.update(self.message.data, self.message.type == SpecMessage.ERROR, self.message.err)
-
-                            #SpecEventsDispatcher.emit(self, 'replyFromSpec', (replyID, reply, ))
-                elif self.message.cmd == SpecMessage.EVENT:
-                    for name in SpecChannel.SpecChannel.channel_aliases[self.message.name]:
-                        self.registeredChannels[name].update(self.message.data, deleted=self.message.flags == SpecMessage.DELETED)
-                elif self.message.cmd == SpecMessage.HELLO_REPLY:
-                    if self.checkourversion(self.message.name):
-                        self.serverVersion = self.message.vers #header version
-                        #self.state = CONNECTED
-                        self.specConnected()
-                    else:
-                        self.serverVersion = None
-                        self.connected = False
-                        self.close()
-                        self.state = DISCONNECTED
-
-                self.message = None
-
+                            self.serverVersion = None
+                            self.connected = False
+                            self.close()
+                            self.state = DISCONNECTED
+                except:
+                    self.message = None
+                    self.receivedStrings = [ s[offset:] ]
+                    raise
+                else:
+                    self.message = None
+                                   
         self.receivedStrings = [ s[offset:] ]
 
 
@@ -414,7 +434,6 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         cmd -- command string, i.e. '1+1'
         """
         if self.isSpecConnected():
-            import sys
             try:
                 caller = sys._getframe(1).f_locals['self']
             except KeyError:
@@ -435,7 +454,6 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
             logging.getLogger('SpecClient').error('Cannot execute command in Spec : feature is available since Spec server v3 only')
         else:
             if self.isSpecConnected():
-                import sys
                 try:
                     caller = sys._getframe(1).f_locals['self']
                 except KeyError:
@@ -481,7 +499,6 @@ class SpecConnectionDispatcher(asyncore.dispatcher):
         chanName -- a string representing the channel name, i.e. 'var/toto'
         """
         if self.isSpecConnected():
-            import sys
             try:
                 caller = sys._getframe(1).f_locals['self']
             except KeyError:

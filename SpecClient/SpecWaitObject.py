@@ -30,7 +30,13 @@ def waitFunc(timeout):
   Arguments:
   timeout -- waiting time in milliseconds
   """
-  time.sleep(timeout/1000.0)
+  try:
+    P = getattr(SpecConnectionsManager.SpecConnectionsManager(), "poll")
+  except AttributeError:
+    time.sleep(timeout/1000.0)
+    SpecEventsDispatcher.dispatch()
+  else:
+    P(timeout/1000.0)
 
 
 class SpecWaitObject:
@@ -146,9 +152,9 @@ class SpecWaitObject:
         Exceptions:
         timeout -- raise a timeout exception on timeout
         """
-        t = 0
+        t0 = time.time()
         while not self.isdisconnected:
-            SpecEventsDispatcher.dispatch()
+            waitFunc(10)
 
             if self.value is not None:
                 if waitValue is None:
@@ -160,19 +166,9 @@ class SpecWaitObject:
                     self.value = None
 
             if self.value is None:
-                t0 = time.time()
-                waitFunc(10) # 10 ms.
-                t += (time.time() - t0)*1000
-
+                t = (time.time() - t0)*1000
                 if timeout is not None and t >= timeout:
                     raise SpecClientTimeoutError
-
-            try:
-              P = getattr(SpecConnectionsManager.SpecConnectionsManager(), "poll")
-            except AttributeError:
-              pass
-            else:
-              P()
 
 
     def replyArrived(self, reply):

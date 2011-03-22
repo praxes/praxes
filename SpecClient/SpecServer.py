@@ -45,6 +45,7 @@ class BaseSpecRequestHandler(asyncore.dispatcher):
                     self.clientOrder = self.message.packedHeaderDataFormat[0]
                     print "client byte order: ", self.clientOrder
                     self.clientVersion = self.message.vers
+                    self.clientName = self.message.name
                     self.send_hello_reply(self.message.sn, str(self.server.name))
                 else:
                     received_messages.append(self.message)
@@ -162,9 +163,12 @@ class BaseSpecRequestHandler(asyncore.dispatcher):
         self.sendq.append(SpecMessage.error_message(replyID, name, data, version = self.clientVersion, order=self.clientOrder))
 
 
-    def send_msg_event(self, chanName, value):
+    def send_msg_event(self, chanName, value, broadcast=True):
         self.sendq.append(SpecMessage.msg_event(chanName, value, version = self.clientVersion, order=self.clientOrder))
-
+        if broadcast:
+          for client in self.server.clients:
+            client.send_msg_event(chanName, value, broadcast=False)
+          
 
 class SpecServer(asyncore.dispatcher):
     def __init__(self, host, name, handler = BaseSpecRequestHandler):

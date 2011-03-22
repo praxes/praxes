@@ -179,15 +179,12 @@ class _SpecConnectionsManager:
         self.connections = {}
         self.connectionDispatchers = {}
 
-
-    def poll(self, timeout=0.01):
-        """Poll the asynchronous socket connections and dispatch incomming events"""
+    def getFdDispatchersDict(self):
         connection_dispatcher_keys = self.connectionDispatchers.keys()
         for k in connection_dispatcher_keys:
           connection = self.connectionDispatchers.get(k)
           if connection is not None:
             connection.makeConnection()
-
         connection_dispatchers = {}
         for condis in self.connectionDispatchers.itervalues():
           if condis.socket is not None:
@@ -196,8 +193,11 @@ class _SpecConnectionsManager:
             except:
               # BAD FILE DESCRIPTOR?
               continue
-        
-        asyncore.loop(timeout, False, connection_dispatchers, 1)
+        return connection_dispatchers
+       
+    def poll(self, timeout=0.01):
+        """Poll the asynchronous socket connections and dispatch incomming events"""
+        asyncore.loop(timeout, False, self.getFdDispatchersDict(), 1)
 
         SpecEventsDispatcher.dispatch()
 

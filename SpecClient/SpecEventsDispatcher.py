@@ -1,12 +1,11 @@
-#$Id: SpecEventsDispatcher.py,v 1.4 2005/09/27 13:54:19 guijarro Exp $
-
-#import logging
 import weakref
 import exceptions
 import Queue
 import time
+#import threading
 
 (UPDATEVALUE, FIREEVENT) = (1, 2)
+#MAIN_THREAD = threading.currentThread()
 
 class SpecClientDispatcherError(exceptions.Exception):
     def __init__(self, args=None):
@@ -23,10 +22,12 @@ def robustApply(slot, arguments = ()):
 
     if hasattr(slot, 'im_func'):
         # an instance method
-        n_args = slot.im_func.func_code.co_argcount - 1
+        n_default_args = slot.im_func.func_defaults and len(slot.im_func.func_defaults) or 0
+        n_args = slot.im_func.func_code.co_argcount - n_default_args - 1
     else:
         try:
-            n_args = slot.func_code.co_argcount
+            n_default_args = slot.func_defaults and len(slot.func_defaults) or 0
+            n_args = slot.func_code.co_argcount - n_default_args
         except:
             raise SpecClientDispatcherError, 'Unknown slot type %s %s' % (repr(slot), type(slot))
 
@@ -323,9 +324,11 @@ def disconnect(sender, signal, slot):
 
 def emit(sender, signal, arguments = ()):
     eventsToDispatch.put(Event(sender, signal, arguments))
+    #if threading.current_thread() == MAIN_THREAD:
+    #    dispatch(-1)
 
 
-def dispatch():
+def dispatch(max_time_in_s=1):
     t0 = time.time()
     while 1:
         try:
@@ -334,7 +337,9 @@ def dispatch():
             break
         else:
             receiver(args)
-            if (time.time()-t0) >= 1:
+            if max_time_in_s < 0:
+              continue
+            elif (time.time()-t0) >= max_time_in_s:
               break
 
 

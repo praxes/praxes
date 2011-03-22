@@ -19,10 +19,14 @@ from . import TEST_SPEC
 logger = logging.getLogger(__file__)
 
 
-def getSpecMacro(filename):
+def getSpecMacro(filename, package=None):
+    if package is not None:
+        package = __file__
     temp = os.path.split(__file__)[0]
-    filename = os.path.join(temp, 'macros', filename)
-    return open(filename).read()
+    try:
+        return open(os.path.join(temp, filename))
+    except IOError:
+        return open(os.path.join(temp, 'macros', filename))
 
 
 class Dispatcher(QtCore.QThread):

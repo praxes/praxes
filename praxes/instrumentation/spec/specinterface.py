@@ -52,11 +52,11 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def connectionError(self):
         host,port = self.getSpecVersion().split(':')
-#        logger.error('Unabel to connect to the "%s" instance at "%s".',
+#        logger.error('Unable to connect to the "%s" instance at "%s".',
 #                     port, host)
         error = QtGui.QErrorMessage()
         error.showMessage('''\
-        Unabel to connect to the "%s" instance at "%s". Please \
+        Unable to connect to the "%s" instance at "%s". Please \
         make sure you have started spec in server mode (for example "spec \
         -S").'''%(port,host))
         error.exec_()

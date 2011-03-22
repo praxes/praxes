@@ -158,7 +158,8 @@ package_data = {
         'instrumentation/spec/macros/*.mac',
         'instrumentation/spec/ui/icons/*.svg',
         'phys_ref_data/*.db',
-        ]
+        ],
+    'SpecClient': ['*.mac',]
     }
 
 scripts = [
