@@ -9,6 +9,7 @@ import sys
 import time
 
 from PyQt4 import QtCore
+import SpecClient
 from SpecClient import Spec, SpecEventsDispatcher, SpecCommand, SpecVariable
 
 from .motor import QtSpecMotorA
@@ -24,9 +25,9 @@ def getSpecMacro(filename, package=None):
         package = __file__
     temp = os.path.split(__file__)[0]
     try:
-        return open(os.path.join(temp, filename))
+        return open(os.path.join(temp, filename)).read()
     except IOError:
-        return open(os.path.join(temp, 'macros', filename))
+        return open(os.path.join(temp, 'macros', filename)).read()
 
 
 class Dispatcher(QtCore.QThread):
@@ -123,7 +124,7 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
         self.getMotorsMne()
         self.getCountersMne()
 
-        self.runMacro('clientutils.mac')
+        self(getSpecMacro('clientutils.mac', SpecClient), asynchronous=False)
         self("client_data 1", asynchronous=False)
 
         self.runMacro('skipmode.mac')
