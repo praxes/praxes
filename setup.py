@@ -28,15 +28,9 @@ class data(Command):
     def run(self):
         import shutil
         import subprocess
-        for db, loc in (
-            ('elam', 'praxes/phys_ref_data'),
-            #('henke', 'praxes/phys_ref_data'),
-            #('waasmaier', 'praxes/phys_ref_data'),
-            ):
-            subprocess.call('cd data && python process_%s_db.py' % db,
-                shell=True
-                )
-            shutil.move('data/%s.db' % db, '%s/%s.db' % (loc, db))
+        for db in ('elam', ):#'henke', 'waasmaier'),
+            subprocess.call([sys.executable, 'data/process_%s_db.py' % db])
+            shutil.move('%s.db' % db, 'praxes/physref/%s.db' % db)
 
 
 class test(Command):
@@ -157,7 +151,7 @@ package_data = {
         'fluorescence/ui/icons/*.svg',
         'instrumentation/spec/macros/*.mac',
         'instrumentation/spec/ui/icons/*.svg',
-        'phys_ref_data/*.db',
+        'physref/*.db',
         ],
     'SpecClient': ['*.mac',]
     }

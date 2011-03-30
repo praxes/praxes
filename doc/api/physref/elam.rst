@@ -1,11 +1,11 @@
-:mod:`praxes.phys_ref_data.elam`
-================================
+:mod:`praxes.physref.elam`
+==========================
 
 The :mod:`elam` module provides an interface to the Elam x-ray database.
 Elements are accessed using :attr:`atomic_data`, which provides a read-only
 dictionary-like interface to the element data::
 
-   >>> from praxes.phys_ref_data.elam import atomic_data
+   >>> from praxes.physref.elam import atomic_data
    >>> copper = atomic_data['Cu']
    >>> print(copper.atomic_number)
    29
@@ -36,6 +36,6 @@ each thread to access the data.
 Module Interface
 ----------------
 
-.. automodule:: praxes.phys_ref_data.elam
+.. automodule:: praxes.physref.elam
    :members:
    :inherited-members:

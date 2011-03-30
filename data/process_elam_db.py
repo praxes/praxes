@@ -167,4 +167,6 @@ def create_database(source, dest, overwrite=False):
 
 
 if __name__ == '__main__':
-    create_database('elam_physical_reference/elam.dat', 'elam.db', True)
+    loc = os.path.split(__file__)[0]
+    source = os.path.join(loc, 'elam_physical_reference/elam.dat')
+    create_database(source, 'elam.db', True)

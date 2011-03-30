@@ -9,6 +9,6 @@ Praxes API
 
    io/index
    combi/index
-   phys_ref_data/index
+   physref/index
    instrumentation/index
    config/index
