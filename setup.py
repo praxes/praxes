@@ -15,6 +15,11 @@ from Cython.Distutils import build_ext
 import numpy
 
 
+def parallel_data_cvt(args):
+    if not os.path.exists(args[-1]):
+        subprocess.call(args)
+        print('converted', args[-1])
+
 class data(Command):
 
     description = "Process databases into the structures used by praxes"
@@ -30,17 +35,20 @@ class data(Command):
         pass
 
     def process_elam(self):
-        return subprocess.Popen([
+        return (
             sys.executable,
             'data/elam_physical_reference/create_db.py',
             'data/elam_physical_reference/elam.dat',
             'praxes/physref/elam.db'
-            ])
+            )
 
     def run(self):
-        procs = []
-        procs.append(self.process_elam())
-        [proc.wait() for proc in procs]
+        to_process = [
+            self.process_elam(),
+            ]
+
+        pool = multiprocessing.Pool()
+        pool.map(parallel_data_cvt, to_process)
 
 
 class test(Command):
