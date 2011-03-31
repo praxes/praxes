@@ -1,9 +1,12 @@
+from __future__ import print_function
+
 from distutils.core import setup
 from distutils.cmd import Command
 from distutils.command.sdist import sdist as _sdist
 from distutils.command.build import build as _build
 from distutils.command.bdist_wininst import bdist_wininst as _bdist_wininst
 from distutils.extension import Extension
+import multiprocessing
 import os
 import subprocess
 import sys
@@ -67,6 +70,10 @@ class test(Command):
         unittest.TextTestRunner(verbosity=self.verbosity+1).run(suite)
 
 
+def parallel_ui_cvt(args):
+    subprocess.call(args)
+    print('converted', args[-1])
+
 class ui_cvt(Command):
 
     description = "Convert Qt user interface files to PyQt .py files"
@@ -81,28 +88,28 @@ class ui_cvt(Command):
     def finalize_options(self):
         pass
 
-    def _ui_cvt(self, arg, dirname, fnames):
-        ## if os.path.split(dirname)[-1] in ('ui'):
-        for fname in fnames:
-            if fname.endswith('.ui'):
-                ui = '/'.join([dirname, fname])
-                py = os.path.splitext(ui)[0]+'.py'
-                if os.path.isfile(py):
-                    if os.path.getmtime(ui) < os.path.getmtime(py):
-                        continue
-                os.system('pyuic4 -o %s %s'%(py, ui))
-                print('converted %s'%fname)
-            elif fname.endswith('.qrc'):
-                rc = '/'.join([dirname, fname])
-                py = os.path.splitext(rc)[0]+'_rc.py'
-                if os.path.isfile(py):
-                    if os.path.getmtime(rc) < os.path.getmtime(py):
-                        continue
-                os.system('pyrcc4 -o %s %s'%(py, rc))
-                print('converted %s'%fname)
-
     def run(self):
-        os.path.walk('praxes', self._ui_cvt, None)
+        to_process = []
+        for root, dirs, files in os.walk('praxes'):
+            for f in files:
+                if f.endswith('.ui'):
+                    source = os.path.join(root, f)
+                    dest = os.path.splitext(source)[0]+'.py'
+                    exe = 'pyuic4'
+                elif f.endswith('.qrc'):
+                    source = os.path.join(root, f)
+                    dest = os.path.splitext(source)[0]+'_rc.py'
+                    exe = 'pyrcc4'
+                else:
+                    continue
+
+                if os.path.isfile(dest):
+                    if os.path.getmtime(source) < os.path.getmtime(dest):
+                            continue
+                to_process.append((exe, '-o', dest, source))
+
+        pool = multiprocessing.Pool()
+        pool.map(parallel_ui_cvt, to_process)
 
 
 class sdist(_sdist):
