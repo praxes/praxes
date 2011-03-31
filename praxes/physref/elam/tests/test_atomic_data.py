@@ -1,13 +1,13 @@
 import operator as op
+from unittest import TestCase
 
 import numpy as np
 import quantities as pq
 
-from praxes import testing
 from ..elam import atomic_data
 
 
-class TestElements(testing.TestCase):
+class TestElements(TestCase):
 
     def test_keys(self):
         self.assertEqual(atomic_data.keys()[0], 'H')
@@ -75,7 +75,7 @@ class TestElements(testing.TestCase):
             )
 
 
-class TestLevels(testing.TestCase):
+class TestLevels(TestCase):
 
     def test_keys(self):
         self.assertEqual(atomic_data['U'].keys()[0], 'K')
@@ -96,7 +96,7 @@ class TestLevels(testing.TestCase):
         self.assertEqual(atomic_data['U']['L2'].element.symbol, 'U')
 
 
-class TestTransitions(testing.TestCase):
+class TestTransitions(TestCase):
 
     def test_keys(self):
         self.assertEqual(atomic_data['U']['K'].keys()[0], 'L1')
