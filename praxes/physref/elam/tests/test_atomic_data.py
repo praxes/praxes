@@ -4,7 +4,8 @@ from unittest import TestCase
 import numpy as np
 import quantities as pq
 
-from ..elam import atomic_data
+from ..atomicdata import AtomicData
+atomic_data = AtomicData()
 
 
 class TestElements(TestCase):
