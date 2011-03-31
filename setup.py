@@ -15,7 +15,7 @@ from Cython.Distutils import build_ext
 import numpy
 
 
-def parallel_data_cvt(args):
+def convert_data(args):
     if not os.path.exists(args[-1]):
         subprocess.call(args)
         print('converted', args[-1])
@@ -47,8 +47,12 @@ class data(Command):
             self.process_elam(),
             ]
 
-        pool = multiprocessing.Pool()
-        pool.map(parallel_data_cvt, to_process)
+        if sys.platform.startswith('win'):
+            #doing this in parallel on windows will crash your computer
+            [convert_data(args) for args in to_process]
+        else:
+            pool = multiprocessing.Pool()
+            pool.map(convert_data, to_process)
 
 
 class test(Command):
@@ -78,7 +82,7 @@ class test(Command):
         unittest.TextTestRunner(verbosity=self.verbosity+1).run(suite)
 
 
-def parallel_ui_cvt(args):
+def convert_ui(args):
     subprocess.call(args)
     print('converted', args[-1])
 
@@ -116,8 +120,12 @@ class ui_cvt(Command):
                             continue
                 to_process.append((exe, '-o', dest, source))
 
-        pool = multiprocessing.Pool()
-        pool.map(parallel_ui_cvt, to_process)
+        if sys.platform.startswith('win'):
+            # doing this in parallel on windows will crash your computer
+            [convert_ui(args) for args in to_process]
+        else:
+            pool = multiprocessing.Pool()
+            pool.map(convert_ui, to_process)
 
 
 class sdist(_sdist):
@@ -144,7 +152,7 @@ class bdist_wininst(_bdist_wininst):
         _bdist_wininst.run(self)
 
 
-packages = ['SpecClient']
+packages = []
 for dirpath, dirnames, filenames in os.walk('praxes'):
     if '__init__.py' in filenames:
         packages.append('.'.join(dirpath.split(os.sep)))
@@ -175,8 +183,11 @@ package_data = {
         'instrumentation/spec/ui/icons/*.svg',
         'physref/*.db',
         ],
-    'SpecClient': ['*.mac',]
     }
+
+if sys.platform == 'linux2':
+    packages.append('SpecClient')
+    package_data['SpecClient'] = ['*.mac']
 
 scripts = [
     'scripts/combi',
