@@ -6,7 +6,7 @@ Radiation Physics and Chemistry, 63 (2), 121 (2002). The database is published
 by NIST at http://www.nist.gov/mml/analytical/inorganic/xrf.cfm.
 '''
 
-from collections import OrderedDict
+import collections
 import json
 import os
 import sqlite3
@@ -18,7 +18,7 @@ import quantities as pq
 from praxes.decorators import memoize
 
 
-class _DictCompat(object):
+class Mapping(collections.Hashable, collections.Mapping):
 
     def __contains__(self, item):
         return item in self.keys()
@@ -48,7 +48,7 @@ class _DictCompat(object):
         return [self[i] for i in self.keys()]
 
 
-class AtomicData(_DictCompat):
+class AtomicData(Mapping):
 
     "A dict-like interface to the Elam database"
 
@@ -129,6 +129,9 @@ class AtomicData(_DictCompat):
         if item not in self.keys():
             raise KeyError('Element "%s" not recognized' % item)
         return Element(item, self.__db)
+
+    def __hash__(self):
+        return hash((type(self), self.__db))
 
     def keys(self):
         "return a new view of the keys"
@@ -216,6 +219,9 @@ class Transition(object):
         self._element_symbol = element
         self._iupac_symbol = iupac
 
+    def __hash__(self):
+        return hash((type(self), self._iupac_symbol))
+
     @memoize
     def __repr__(self):
         return "<Transition(%s, %s)>" % (
@@ -239,7 +245,7 @@ class Transition(object):
             )
 
 
-class XrayLevel(_DictCompat):
+class XrayLevel(Mapping):
 
     """
     The following is quoted verbatim from the elamdb source file:
@@ -294,7 +300,7 @@ class XrayLevel(_DictCompat):
         transitions to the given final state
         """
         try:
-            return OrderedDict(self._ck_probabilities)
+            return collections.OrderedDict(self._ck_probabilities)
         except AttributeError:
             c = self.__db.cursor()
             items = c.execute(
@@ -303,7 +309,7 @@ class XrayLevel(_DictCompat):
                 (self._element_symbol, self._iupac_symbol)
                 )
             self._ck_probabilities = tuple(items)
-            return OrderedDict(self._ck_probabilities)
+            return collections.OrderedDict(self._ck_probabilities)
 
 
     @property
@@ -313,7 +319,7 @@ class XrayLevel(_DictCompat):
         intermediate states
         """
         try:
-            return OrderedDict(self._ck_total_probabilities)
+            return collections.OrderedDict(self._ck_total_probabilities)
         except AttributeError:
             c = self.__db.cursor()
             items = c.execute(
@@ -323,7 +329,7 @@ class XrayLevel(_DictCompat):
                 (self._element_symbol, self._iupac_symbol)
                 )
             self._ck_total_probabilities = tuple(items)
-            return OrderedDict(self._ck_total_probabilities)
+            return collections.OrderedDict(self._ck_total_probabilities)
 
     @property
     def element(self):
@@ -357,6 +363,9 @@ class XrayLevel(_DictCompat):
         self.__db = db
         self._element_symbol = element
         self._iupac_symbol = iupac_symbol
+
+    def __hash__(self):
+        return hash((type(self), self._iupac_symbol))
 
     def __getitem__(self, item):
         iupac = '-'.join([self.iupac_symbol, item])
@@ -411,7 +420,7 @@ class XrayLevel(_DictCompat):
             )
 
 
-class Element(_DictCompat):
+class Element(Mapping):
 
     """
     """
@@ -483,6 +492,9 @@ class Element(_DictCompat):
         if not item in self.keys():
             raise KeyError('x-ray level "%s" not recognized' % item)
         return XrayLevel(self._symbol, item, self.__db)
+
+    def __hash__(self):
+        return hash((type(self), self._symbol))
 
     def keys(self):
         "return a new view of the keys for the reported x-ray levels"
