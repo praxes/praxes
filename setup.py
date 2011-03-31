@@ -39,7 +39,7 @@ class data(Command):
             sys.executable,
             'data/elam_physical_reference/create_db.py',
             'data/elam_physical_reference/elam.dat',
-            'praxes/physref/elam.db'
+            'praxes/physref/elam/elam.db'
             )
 
     def run(self):

@@ -2,27 +2,27 @@
 ==========================
 
 The :mod:`elam` module provides an interface to the Elam x-ray database.
-Elements are accessed using :attr:`atomic_data`, which provides a read-only
-dictionary-like interface to the element data::
+Elements are accessed using :attr:`atomic_data`, which provides a mapping to
+the element data::
 
    >>> from praxes.physref.elam import atomic_data
    >>> copper = atomic_data['Cu']
    >>> print(copper.atomic_number)
    29
+
+Each element provides a mapping to the x-ray states reported in the Elam
+database::
+
    >>> print(copper.keys())
    ['K', 'L1', 'L2', 'L3', 'M1', 'M2', 'M3', 'M4', 'M5']
-
-Each element provides a read-only dictionary-like interface to the x-ray states
-reported in the Elam database::
-
    >>> print(copper['K'].fluorescence_yield)
    0.441091
+
+Each x-ray state provides a mapping to the transitions originating from that
+state::
+
    >>> print(copper['K'].keys())
    ['L1', 'L2', 'L3', 'M2', 'M3', 'M4,5']
-
-Each x-ray state provides a read-only dictionary-like interface to the
-transitions originating from that state::
-
    >>> print(copper['K']['L3'].iupac_symbol)
    'K-L3'
 
@@ -37,5 +37,19 @@ Module Interface
 ----------------
 
 .. automodule:: praxes.physref.elam
+
+.. autoclass:: praxes.physref.elam.atomicdata.AtomicData
+   :members:
+   :inherited-members:
+
+.. autoclass:: praxes.physref.elam.element.Element
+   :members:
+   :inherited-members:
+
+.. autoclass:: praxes.physref.elam.xraylevel.XrayLevel
+   :members:
+   :inherited-members:
+
+.. autoclass:: praxes.physref.elam.transition.Transition
    :members:
    :inherited-members:
