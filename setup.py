@@ -5,6 +5,7 @@ from distutils.command.build import build as _build
 from distutils.command.bdist_wininst import bdist_wininst as _bdist_wininst
 from distutils.extension import Extension
 import os
+import subprocess
 import sys
 
 from Cython.Distutils import build_ext
@@ -25,12 +26,18 @@ class data(Command):
     def finalize_options(self):
         pass
 
+    def process_elam(self):
+        return subprocess.Popen([
+            sys.executable,
+            'data/elam_physical_reference/create_db.py',
+            'data/elam_physical_reference/elam.dat',
+            'praxes/physref/elam.db'
+            ])
+
     def run(self):
-        import shutil
-        import subprocess
-        for db in ('elam', ):#'henke', 'waasmaier'),
-            subprocess.call([sys.executable, 'data/process_%s_db.py' % db])
-            shutil.move('%s.db' % db, 'praxes/physref/%s.db' % db)
+        procs = []
+        procs.append(self.process_elam())
+        [proc.wait() for proc in procs]
 
 
 class test(Command):
