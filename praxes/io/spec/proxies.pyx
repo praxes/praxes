@@ -39,12 +39,13 @@ class DataProxyIterator(object):
 
 cdef class DataProxy:
 
-    cdef object _index
+    cdef object _index, fh
     cdef int _n_cols
     cdef readonly object file_name, name
 
     def __init__(self, file_name, name, index):
         self.file_name = file_name
+        self.fh = io.open(self.file_name, 'rb', buffering=1024*1024*2)
         self.name = name
         self._index = index
 
@@ -60,12 +61,11 @@ cdef class DataProxy:
     cdef int n_cols(self) except -1:
         tag = b'\\'
         if self._n_cols is 0:
-            with io.open(self.file_name, 'rb', buffering=1024*1024*2) as f:
-                f.seek(self._index[0])
-                s = f.readline()
-                while s[-2:-1] == tag:
-                    s = b''.join([s, f.readline()])
-                self._n_cols = len(s.strip().split(b' '))
+            self.fh.seek(self._index[0])
+            s = self.fh.readline()
+            while s[-2:-1] == tag:
+                s = b''.join([s, self.fh.readline()])
+            self._n_cols = len(s.strip().split(b' '))
         return self._n_cols
 
     cdef object _get_data(
@@ -77,10 +77,11 @@ cdef class DataProxy:
         cdef bytes s
         cdef char* cstring
         cdef char c
-        tag = b'\\'
+        cdef char tag = b'\\'
         cdef char val[20]
         cdef np.ndarray[np.float64_t, ndim=1, mode=u'strided'] temp
         cdef np.ndarray[np.float64_t, ndim=2, mode=u'strided'] ret
+        cdef object f, lines
 
         n_y = len(indices)
         n_x = len(subindices)
@@ -92,33 +93,35 @@ cdef class DataProxy:
         ret_arr = np.empty((n_y, n_x), dtype=np.float64)
         ret = ret_arr
 
-        try:
-            f = io.open(self.file_name, 'rb', buffering=1024*1024*2)
-            for i in range(n_y):
-                f.seek(self._index[indices[i]])
-                s = f.readline()
-                while s[-2:-1] == tag:
-                    s = b''.join([s, f.readline()])
-                cstring = s
+        f = self.fh
+        for i in range(n_y):
+            f.seek(self._index[indices[i]])
+            lines = []
+            while True:
+                lines.append(f.readline())
+                cstring = lines[-1][-2]
+                c = cstring[0]
+                if c != tag:
+                    break
+            s = b''.join(lines)
+            cstring = s
 
-                # convert the string to a temp array
-                j = 0
-                val_n = 0
-                for c in cstring:
-                    if isdigit(c) or c in (b'-', b'.', b'e', b'E'):
-                        val[j] = c
-                        j += 1
-                    elif j:
-                        val[j] = b'\0'
-                        j = 0
-                        temp[val_n] = atof(val)
-                        val_n += 1
+            # convert the string to a temp array
+            j = 0
+            val_n = 0
+            for c in cstring:
+                if isdigit(c) or c in (b'-', b'.', b'e', b'E'):
+                    val[j] = c
+                    j += 1
+                elif j:
+                    val[j] = b'\0'
+                    j = 0
+                    temp[val_n] = atof(val)
+                    val_n += 1
 
-                # update the return array
-                for j in range(n_x):
-                    ret[i, j] = temp[subindices[j]]
-        finally:
-            f.close()
+            # update the return array
+            for j in range(n_x):
+                ret[i, j] = temp[subindices[j]]
 
         return ret_arr
 
