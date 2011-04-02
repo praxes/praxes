@@ -17,7 +17,7 @@ class Detector(Group):
 
     @property
     def device_id(self):
-        return self.attrs.get('id', posixpath.split(self.name)[-1])
+        return self.attrs.get('id', posixpath.basename(self.name))
 
 
 class LinearDetector(Detector):
@@ -42,6 +42,7 @@ class AreaDetector(Detector):
     @property
     def subexposures(self):
         return self.attrs.get('subexposures', 1)
+
 
 class Mar345(AreaDetector):
 

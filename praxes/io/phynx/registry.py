@@ -11,12 +11,8 @@ from .utils import sync
 
 class _Registry(object):
 
-    @property
-    def plock(self):
-        return self._plock
-
     def __init__(self):
-        self._plock = threading.Lock()
+        self._lock = threading.Lock()
         self.__data = {}
 
     @sync

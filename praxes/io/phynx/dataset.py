@@ -9,78 +9,77 @@ import posixpath
 import h5py
 import numpy as np
 
-from .base import _PhynxProperties
+from .base import Node
 from .exceptions import H5Error
 from .registry import registry
 from .utils import memoize, simple_eval, sync
 
 
-class Dataset(_PhynxProperties, h5py.Dataset):
+class Dataset(Node):
 
     """
     """
 
-    def _get_acquired(self):
-        return self.attrs.get('acquired', self.npoints)
-    def _set_acquired(self, value):
-        self.attrs['acquired'] = int(value)
-    acquired = property(_get_acquired, _set_acquired)
+#    def _get_acquired(self):
+#        return self.attrs.get('acquired', self.npoints)
+#    def _set_acquired(self, value):
+#        self.attrs['acquired'] = int(value)
+#    acquired = property(_get_acquired, _set_acquired)
+#
+#    @property
+#    def entry(self):
+#        try:
+#            target = self.file['/'.join(self.parent.name.split('/')[:2])]
+#            assert isinstance(target, registry['Entry'])
+#            return target
+#        except AssertionError:
+#            return None
 
     @property
-    def entry(self):
-        try:
-            target = self.file['/'.join(self.parent.name.split('/')[:2])]
-            assert isinstance(target, registry['Entry'])
-            return target
-        except AssertionError:
-            return None
+    def dtype(self):
+        return self._h5node.dtype
 
     @property
     @sync
     def map(self):
-        res = np.zeros(self.acquisition_shape, self.dtype)
-        res.flat[:len(self)] = self.value.flatten()
+        res = self._h5node[...]
+        res.shape = self.measurement.acquision_shape
         return res
 
     @property
     def measurement(self):
-        try:
-            return self.entry.measurement
-        except AttributeError:
-            return None
+        return getattr(self.entry, 'measurement', None)
 
-    def __init__(
-        self, parent_object, name, shape=None, dtype=None, data=None,
-        chunks=None, compression='gzip', shuffle=None, fletcher32=None,
-        maxshape=None, compression_opts=None, **kwargs
-    ):
-        if data is None and shape is None:
-            h5py.Dataset.__init__(self, parent_object, name)
-            _PhynxProperties.__init__(self, parent_object)
-        else:
-            h5py.Dataset.__init__(
-                self, parent_object, name, shape=shape, dtype=dtype,
-                data=data, chunks=chunks, compression=compression,
-                shuffle=shuffle, fletcher32=fletcher32, maxshape=maxshape,
-                compression_opts=compression_opts
-            )
-            _PhynxProperties.__init__(self, parent_object)
+    @property
+    def shape(self):
+        return self._h5node.shape
 
-            self.attrs['class'] = self.__class__.__name__
-
-        for key, val in kwargs.iteritems():
-            if not np.isscalar(val):
-                val = str(val)
-            self.attrs[key] = val
+#    def __init__(
+#        self, parent_object, name, shape=None, dtype=None, data=None,
+#        chunks=None, compression='gzip', shuffle=None, fletcher32=None,
+#        maxshape=None, compression_opts=None, **kwargs
+#    ):
+#        if data is None and shape is None:
+#            h5py.Dataset.__init__(self, parent_object, name)
+#            _PhynxProperties.__init__(self, parent_object)
+#        else:
+#            h5py.Dataset.__init__(
+#                self, parent_object, name, shape=shape, dtype=dtype,
+#                data=data, chunks=chunks, compression=compression,
+#                shuffle=shuffle, fletcher32=fletcher32, maxshape=maxshape,
+#                compression_opts=compression_opts
+#            )
+#            _PhynxProperties.__init__(self, parent_object)
+#
+#            self.attrs['class'] = self.__class__.__name__
+#
+#        for key, val in kwargs.iteritems():
+#            if not np.isscalar(val):
+#                val = str(val)
+#            self.attrs[key] = val
 
     def __getitem__(self, args):
-        if isinstance(args, int):
-            # this is a speedup to workaround an hdf5 indexing bug
-            res = super(Dataset, self).__getitem__(slice(args, args+1))
-            res.shape = res.shape[1:]
-            return res
-        else:
-            return super(Dataset, self).__getitem__(args)
+        return self._h5node.__getitem__(args)
 
     @sync
     def __repr__(self):
@@ -97,15 +96,17 @@ class Dataset(_PhynxProperties, h5py.Dataset):
 
     @sync
     def mean(self, indices=None):
+        acquired = self.measurement.acquired
         if indices is None:
-            indices = range(self.acquired)
+            indices = range(acquired)
         elif len(indices):
-            indices = [i for i in indices if i < self.acquired]
+            indices = [i for i in indices if i < acquired]
 
         res = np.zeros(self.shape[1:], 'f')
         nitems = 0
+        mask = self.measurement.masked
         for i in indices:
-            if not self.measurement.masked[i]:
+            if not mask[i]:
                 nitems += 1
                 res += self[i]
         if nitems:
@@ -149,11 +150,12 @@ class Signal(Dataset):
     """
     """
 
-    def _get_efficiency(self):
+    @property
+    def efficiency(self):
         return self.attrs.get('efficiency', 1)
-    def _set_efficiency(self, value):
+    @efficiency.setter
+    def efficiency(self, value):
         self.attrs['efficiency'] = float(value)
-    efficiency = property(_get_efficiency, _set_efficiency)
 
     @property
     def signal(self):
@@ -247,8 +249,8 @@ class DataProxy(object):
 
     @property
     def map(self):
-        res = np.zeros(self._dset.acquisition_shape, self._dset.dtype)
-        res.flat[:len(self)] = self[:].flatten()
+        res = self._dset[...]
+        res.shape = self.measurement.acquisition_shape
         return res
 
     @property
@@ -282,15 +284,17 @@ class DataProxy(object):
 
     @sync
     def mean(self, indices=None):
+        acquired = self.acquired
         if indices is None:
-            indices = range(self.acquired)
+            indices = range(acquired)
         elif len(indices):
-            indices = [i for i in indices if i < self.acquired]
+            indices = [i for i in indices if i < acquired]
 
         res = np.zeros(self.shape[1:], 'f')
         nitems = 0
+        mask = self.measurement.masked
         for i in indices:
-            if not self.measurement.masked[i]:
+            if not mask[i]:
                 nitems += 1
                 res += self[i]
         if nitems:

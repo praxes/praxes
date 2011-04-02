@@ -1,4 +1,3 @@
-import __builtin__
 import copy
 import operator
 import posixpath
@@ -12,8 +11,8 @@ def sequential(values):
             return value.attrs['end_time']
         else:
             try:
-            	return posixpath.split(value.name[-1])
+            	return value.name
             except AttributeError:
                 return value
 
-    return __builtin__.sorted(values, key=key)
+    return sorted(values, key=key)

@@ -118,7 +118,7 @@ class Entry(Group):
         measurements = [
             i for i in self.itervalues()
             if isinstance(i, registry['Measurement'])
-        ]
+            ]
         nm = len(measurements)
         if nm == 1:
             return measurements[0]
@@ -129,11 +129,13 @@ class Entry(Group):
                 'There should be one Measurement group per entry, found %d' % nm
             )
 
+    @property
     @sync
-    def _get_npoints(self):
+    def npoints(self):
         return self.attrs.get('npoints', 0)
+    @npoints.setter
     @sync
-    def _set_npoints(self, np):
+    def npoints(self, np):
         def func(name, obj):
             obj.attrs['npoints'] = np
             try:
@@ -141,4 +143,3 @@ class Entry(Group):
             except (AttributeError, TypeError):
                 pass
         self.visititems(func)
-    npoints = property(_get_npoints, _set_npoints)

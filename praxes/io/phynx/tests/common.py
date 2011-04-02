@@ -9,6 +9,8 @@ else:
 
 import numpy as np
 
+from ..file import open
+
 
 class TestCase(ut.TestCase):
 
@@ -20,10 +22,10 @@ class TestCase(ut.TestCase):
     def tearDownClass(cls):
         shutil.rmtree(cls.tempdir)
 
-    def mktemp(self, suffix='', prefix='', dir=None):
+    def mktemp(self, suffix='.h5', prefix='', dir=None):
         if dir is None:
             dir = self.tempdir
-        return tempfile.mktemp(suffix, prefix, dir=self.tempdir)
+        return open(tempfile.mktemp(suffix, prefix, dir=self.tempdir))
 
     def assertArrayEqual(self, a1, a2, msg=None, delta=None):
         """

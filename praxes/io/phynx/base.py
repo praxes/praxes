@@ -2,23 +2,25 @@
 """
 from __future__ import absolute_import, with_statement
 
+from collections import Mapping
+import posixpath
+
 from distutils.version import LooseVersion
 
 import h5py
 
-from .exceptions import H5Error
 from .utils import memoize, simple_eval
 
 
 class _RegisterPhynxClass(type):
 
     def __init__(cls, name, bases, attrs):
-        if cls.__name__ != '_PhynxProperties':
+        if cls.__name__ is not 'Node':
             from .registry import registry
             registry.register(cls)
 
 
-class _PhynxProperties(object):
+class Node(object):
 
     """A mix-in class to propagate attributes from the parent object to
     the new HDF5 group or dataset, and to expose those attributes via
@@ -27,38 +29,73 @@ class _PhynxProperties(object):
 
     __metaclass__ = _RegisterPhynxClass
 
+#    @property
+#    def acquisition_shape(self):
+#        return simple_eval(self.attrs.get('acquisition_shape', '()'))
+
     @property
-    def acquisition_shape(self):
-        return simple_eval(self.attrs.get('acquisition_shape', '()'))
+    def attrs(self):
+        return self._h5node.attrs
 
     @property
     @memoize
     def file(self):
         from .file import File
-        return File(None, bind=h5py.h5i.get_file_id(self.id))
+        return File(self._h5node.file, self._lock)
+
+#    @property
+#    def lock(self):
+#        return self._lock
+
+#    @property
+#    def npoints(self):
+#        return self.attrs.get('npoints', 0)
 
     @property
-    def npoints(self):
-        return self.attrs.get('npoints', 0)
+    @memoize
+    def id(self):
+        return self._h5node.name
 
     @property
-    def plock(self):
-        return self._plock
+    @memoize
+    def name(self):
+        return posixpath.basename(self.id)
 
     @property
-    def source_file(self):
-        return self.attrs.get('source_file', self.file.filename)
+    @memoize
+    def path(self):
+        return posixpath.dirname(self.id)
 
-    def __init__(self, parent_object):
-        with parent_object.plock:
-            self._plock = parent_object.plock
-            for attr in ['acquisition_shape', 'source_file', 'npoints']:
-                if (attr not in self.attrs) and (attr in parent_object.attrs):
-                    self.attrs[attr] = parent_object.attrs[attr]
+    @property
+    @memoize
+    def parent(self):
+        return self.file[self._h5node.parent]
+
+#    @property
+#    def source_file(self):
+#        return self.attrs.get('source_file', self.file.filename)
+
+    def __init__(self, h5node, lock):
+        self._h5node = h5node
+        self._lock = lock
+#        for attr in ['acquisition_shape', 'source_file', 'npoints']:
+#            if (attr not in self.attrs) and (attr in parent_object.attrs):
+#                self.attrs[attr] = parent_object.attrs[attr]
+
+    def __len__(self):
+        return self._h5node.__len__()
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        return self._h5node.__eq__(other._h5node)
+
+    def __hash__(self):
+        return hash((self.__class__, self._h5node))
 
     def __enter__(self):
-        self.plock.__enter__()
+        self._lock.__enter__()
         return self
 
     def __exit__(self, type, value, traceback):
-        self.plock.__exit__(type, value, traceback)
+        self._lock.__exit__(type, value, traceback)

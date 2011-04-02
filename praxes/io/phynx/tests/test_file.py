@@ -1,31 +1,43 @@
-
 from __future__ import absolute_import, with_statement
 
-from numpy import testing as npt
-from .utils import TestCase
-from ..exceptions import H5Error
-from .. import File
+import os
+import shutil
+import tempfile
+import time
+import warnings
+warnings.filterwarnings("ignore")
+
+from .common import TestCase, ut
+from ..file import File, open
+from ..registry import registry
+
+import numpy as np
+from ..file import open
 
 
 class TestFile(TestCase):
 
-    _ref_fname = 'citrus_leaves.dat.h5'
+    def mktemp(self, mode='a'):
+        dir = self.tempdir
+        fname = tempfile.mktemp(suffix='.h5', dir=self.tempdir)
+        path = os.path.split(__file__)[0]
+        shutil.copy(os.path.join(path, 'citrus_leaves.dat.h5'), fname)
+        return open(fname, mode=mode)
 
     def test_File_init_r(self):
-        with self.get_file('r') as f:
-            npt.assert_raises(IOError, f.create_group, 'foo')
-            npt.assert_equal(f.mode, 'r')
-            npt.assert_equal(f.filename, self.fname)
+        f = self.mktemp('r')
+        self.assertRaises(IOError, f.create_group, 'foo')
+        self.assertEqual(f.mode, 'r')
+        self.assertEqual(f.file_name, f._h5node.filename)
 
-        from ..file import File
-        npt.assert_raises(IOError, File, '.', 'r')
+        self.assertRaises(IOError, open, '.', 'r')
 
     def test_file_property(self):
-        with self.get_file('w') as f:
-            npt.assert_equal(f, f.file)
-            npt.assert_equal(f.file, f['/'].file)
+        f = self.mktemp()
+        self.assertEqual(f, f.file)
+        self.assertEqual(f.file, f['/'].file)
 
-            f['foo']=[1,2]
-            assert isinstance(f.file, File)
-            assert isinstance(f['/'].file, File)
-            assert isinstance(f['/foo'].file, File)
+        f['foo'] = [1, 2]
+        self.assert_(isinstance(f.file, File))
+        self.assert_(isinstance(f['/'].file, File))
+        self.assert_(isinstance(f['/foo'].file, File))

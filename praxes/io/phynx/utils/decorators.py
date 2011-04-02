@@ -18,7 +18,7 @@ def memoize(f, cache={}):
 def sync(f):
     @wraps(f)
     def g(self, *args, **kwargs):
-        with self.plock:
+        with self._lock:
             return f(self, *args, **kwargs)
     return g
 
