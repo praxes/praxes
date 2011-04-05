@@ -41,3 +41,9 @@ class TestFile(TestCase):
         self.assert_(isinstance(f.file, File))
         self.assert_(isinstance(f['/'].file, File))
         self.assert_(isinstance(f['/foo'].file, File))
+
+    def test_parent(self):
+        f = self.mktemp()
+        self.assertTrue(f.parent == f['/'])
+
+

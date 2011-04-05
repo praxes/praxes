@@ -11,7 +11,7 @@ import numpy as np
 
 from .base import Node
 from .registry import registry
-from .utils import sorting, sync
+from .utils import sync
 
 
 # keep a list of unrecognized classes, so we only raise an error the first time:

@@ -13,7 +13,7 @@ import time
 import h5py
 
 from .group import Group
-from .utils import sync, sorting
+from .utils import sync
 from .version import __format_version__
 
 
@@ -85,15 +85,15 @@ class File(Group):
     def mode(self):
         return self._h5node.mode
 
-    @sync
-    def create_entry(self, name, **data):
-        """A convenience function to build the most basic hierarchy"""
-        entry = self.create_group(name, type='Entry', **data)
-        measurement = entry.create_group('measurement', type='Measurement')
-        scalar_data = measurement.create_group('scalar_data', type='ScalarData')
-        pos = measurement.create_group('positioners', type='Positioners')
-        return entry
-
+#    @sync
+#    def create_entry(self, name, **data):
+#        """A convenience function to build the most basic hierarchy"""
+#        entry = self.create_group(name, type='Entry', **data)
+#        measurement = entry.create_group('measurement', type='Measurement')
+#        scalar_data = measurement.create_group('scalar_data', type='ScalarData')
+#        pos = measurement.create_group('positioners', type='Positioners')
+#        return entry
+#
 #    @sync
 #    def require_entry(self, name, **data):
 #        """A convenience function to access/build the most basic hierarchy"""
@@ -119,7 +119,7 @@ class File(Group):
         return [n.name for n in self.values()]
 
     def values(self):
-        return sorting.sequential(self[key] for key in self._h5node.keys())
+        return sorted(self[key] for key in self._h5node.keys())
 
     def items(self):
         return [(n.name, n) for n in self.values()]

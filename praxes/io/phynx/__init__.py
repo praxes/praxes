@@ -38,6 +38,6 @@ from .user import User
 
 from .registry import registry
 
-#from .utils import simple_eval, sorting
+#from .utils import simple_eval
 #
 #from .exceptions import H5Error

@@ -143,3 +143,16 @@ class Entry(Group):
             except (AttributeError, TypeError):
                 pass
         self.visititems(func)
+
+    # this method
+    def __lt__(self, other):
+        keys = []
+        for item in (self, other):
+            k = item.attrs.get('start_time', None)
+            if k is None:
+                k = item.attrs.get('end_time', None)
+            if k is None:
+                k = self.id
+            keys.append(k)
+        s, o = keys
+        return s < o

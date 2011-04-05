@@ -2,14 +2,13 @@
 """
 from __future__ import absolute_import, with_statement
 
-from collections import Mapping
 import posixpath
 
 from distutils.version import LooseVersion
 
 import h5py
 
-from .utils import memoize, simple_eval
+from .utils import memoize#, simple_eval
 
 
 class _RegisterPhynxClass(type):
@@ -69,7 +68,7 @@ class Node(object):
     @property
     @memoize
     def parent(self):
-        return self.file[self._h5node.parent]
+        return self.file[self.path]
 
 #    @property
 #    def source_file(self):
@@ -84,6 +83,9 @@ class Node(object):
 
     def __len__(self):
         return self._h5node.__len__()
+
+    def __lt__(self, other):
+        return self.id < other.id
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
