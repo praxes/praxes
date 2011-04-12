@@ -85,6 +85,12 @@ class File(Group):
     def mode(self):
         return self._h5node.mode
 
+    def close(self):
+        self._h5node.close()
+
+    def flush(self):
+        self._h5node.flush()
+
 #    @sync
 #    def create_entry(self, name, **data):
 #        """A convenience function to build the most basic hierarchy"""
@@ -114,12 +120,3 @@ class File(Group):
 #            self._sorted = value
 #        except AssertionError:
 #            raise AsserionError('value must be a callable or None')
-
-    def keys(self):
-        return [n.name for n in self.values()]
-
-    def values(self):
-        return sorted(self[key] for key in self._h5node.keys())
-
-    def items(self):
-        return [(n.name, n) for n in self.values()]

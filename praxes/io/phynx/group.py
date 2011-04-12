@@ -47,37 +47,10 @@ class Group(Node):
     """
     """
 
-    @property
-    def children(self):
-        return self.values()
-
-    @property
-    def entry(self):
-        target = self['/'.join(self.name.split('/')[:2])]
-        return target if isinstance(target, registry['Entry']) else None
-
-    @property
-    def measurement(self):
-        return getattr(self.entry, 'measurement', None)
-
-    @property
-    @sync
-    def signals(self):
-        from .dataset import Signal
-        return dict(
-            (posixpath.basename(j.name), j)
-            for j in sorted(i for i in self.values() if isinstance(i, Axis))
-            )
-
-    @property
-    @sync
-    def axes(self):
-        from .dataset import Axis
-        return dict(
-            (posixpath.basename(j.name), j)
-            for j in sorted(i for i in self.values() if isinstance(i, Axis))
-            )
-
+#    @property
+#    def children(self):
+#        return self.values()
+#
 #    def __init__(self, h5node, lock):
 #        """
 #        Open an existing group or create a new one.
@@ -117,9 +90,6 @@ class Group(Node):
 
     @sync
     def __getitem__(self, name):
-        # TODO: would be better to check the attribute without having to
-        # create create the group twice. This might be possible with the
-        # 1.8 API.
         h5node = self._h5node[name]
 
         cls = h5node.attrs.get('class')
@@ -195,14 +165,20 @@ class Group(Node):
 #                add_metadata(res, **kwargs)
 #            return res
 
+    def get(self, name, default=None):
+        try:
+            return self[name]
+        except KeyError:
+            return default
+
     @sync
     def values(self):
-        return [self[key] for key in self._h5node.keys()]
+        return sorted([self[key] for key in self._h5node.keys()])
 
     @sync
     def keys(self):
-        return self._h5node.keys()
+        return [val.name for val in self.values()]
 
     @sync
     def items(self):
-        return [(key, self[key]) for key in self._h5node.keys()]
+        return [(val.name, val) for val in self.values()]

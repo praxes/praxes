@@ -28,13 +28,14 @@ class Node(object):
 
     __metaclass__ = _RegisterPhynxClass
 
-#    @property
-#    def acquisition_shape(self):
-#        return simple_eval(self.attrs.get('acquisition_shape', '()'))
-
     @property
     def attrs(self):
         return self._h5node.attrs
+
+    @property
+    def entry(self):
+        target = self['/'.join(self.name.split('/')[:2])]
+        return target if isinstance(target, registry['Entry']) else None
 
     @property
     @memoize
@@ -55,6 +56,10 @@ class Node(object):
     def id(self):
         return self._h5node.name
 
+#    @property
+#    def measurement(self):
+#        return getattr(self.entry, 'measurement', None)
+
     @property
     @memoize
     def name(self):
@@ -69,10 +74,6 @@ class Node(object):
     @memoize
     def parent(self):
         return self.file[self.path]
-
-#    @property
-#    def source_file(self):
-#        return self.attrs.get('source_file', self.file.filename)
 
     def __init__(self, h5node, lock):
         self._h5node = h5node

@@ -94,7 +94,41 @@ class Measurement(Group):
             )
 
 
-class ScalarData(Group):
+class HasSignals(object):
+
+    @property
+    @sync
+    def signals(self):
+        from .dataset import Signal
+        return dict(
+            (posixpath.basename(j.name), j)
+            for j in sorted(i for i in self.values() if isinstance(i, Axis))
+            )
+
+
+class HasAxes(object):
+
+    @property
+    @sync
+    def axes(self):
+        from .dataset import Axis
+        return dict(
+            (posixpath.basename(j.name), j)
+            for j in sorted(i for i in self.values() if isinstance(i, Axis))
+            )
+
+
+class HasMonitor(object):
+
+    @property
+    @sync
+    def monitor(self):
+        id = self.attrs.get('monitor', None)
+        if id is not None:
+            return self[id]
+
+
+class ScalarData(Group, HasAxes, HasMonitor, HasSignals):
 
     """
     A group containing all the scanned scalar data in the measurement,
@@ -107,13 +141,6 @@ class ScalarData(Group):
     * etc.
 
     """
-
-    @property
-    @sync
-    def monitor(self):
-        id = self.attrs.get('monitor', None)
-        if id is not None:
-            return self[id]
 
 
 class Positioners(Group):

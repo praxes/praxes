@@ -109,6 +109,10 @@ class Entry(Group):
         return AcquisitionID(self.attrs.get('acquisition_id', '0'))
 
     @property
+    def acquisition_shape(self):
+        return simple_eval(self.attrs.get('acquisition_shape', '()'))
+
+    @property
     def entry(self):
         return self
 
@@ -144,7 +148,11 @@ class Entry(Group):
                 pass
         self.visititems(func)
 
-    # this method
+    @property
+    def source_file(self):
+        return self.attrs.get('source_file', self.file.filename)
+
+    # this method is required for sorted():
     def __lt__(self, other):
         keys = []
         for item in (self, other):
