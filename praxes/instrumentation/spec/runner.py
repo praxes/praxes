@@ -22,8 +22,9 @@ logger = logging.getLogger(__file__)
 
 def getSpecMacro(filename, package=None):
     if package is not None:
-        package = __file__
-    temp = os.path.split(__file__)[0]
+        temp = os.path.split(package.__file__)[0]
+    else:
+        temp = os.path.split(__file__)[0]
     try:
         return open(os.path.join(temp, filename)).read()
     except IOError:
@@ -106,14 +107,10 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
     def __init__(self, specVersion=None, timeout=None, parent=None):
         """specVersion is a string like 'foo.bar:spec' or '127.0.0.1:fourc'
         """
-        print 1
         QtCore.QObject.__init__(self, parent)
-        print 2
         Spec.Spec.__init__(self, specVersion, timeout)
-        print 3
         self.__specVersion = specVersion
         self.__status = 'ready'
-        print 4
         self.connection.registerChannel(
             'status/ready',
             self.__statusReady,
@@ -128,10 +125,8 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
         self.getMotorsMne()
         self.getCountersMne()
 
-        print 1
         self(getSpecMacro('clientutils.mac', SpecClient), asynchronous=False)
         self("client_data 1", asynchronous=False)
-        print 2
 
         self.runMacro('skipmode.mac')
 

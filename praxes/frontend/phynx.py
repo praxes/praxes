@@ -57,7 +57,7 @@ class H5NodeProxy(object):
         if not self._children:
             # obtaining the lock here is necessary, otherwise application can
             # freeze if navigating tree while data is processing
-            with self.file.plock:
+            with self.file:
                 self._children = [
                     H5NodeProxy(self.file, i, self)
                     for i in sorted(
@@ -89,7 +89,7 @@ class H5NodeProxy(object):
 
     @property
     def row(self):
-        with self.file.plock:
+        with self.file:
             try:
                 return self.parent.children.index(self)
             except ValueError:
@@ -104,7 +104,7 @@ class H5NodeProxy(object):
         return self._type
 
     def __init__(self, file, node, parent=None):
-        with file.plock:
+        with file:
             self._file = file
             self._parent = parent
             self._name = node.name
@@ -144,7 +144,7 @@ class H5FileProxy(H5NodeProxy):
         self._name = file.name
 
     def close(self):
-        with self.file.plock:
+        with self.file:
             return self.file.close()
 
     def __getitem__(self, path):
