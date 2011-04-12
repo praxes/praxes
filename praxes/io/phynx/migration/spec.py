@@ -14,7 +14,7 @@ try:
 except ImportError:
     from PyMca import specfile
 
-from .. import File, H5Error
+from .. import open, H5Error
 
 
 def get_spec_scan_info(commandList):
@@ -433,7 +433,7 @@ def convert_to_phynx(spec_filename, h5_filename=None, force=False):
         )
 
     print 'making file %s'% h5_filename
-    h5_file = File(h5_filename, 'w')
+    h5_file = open(h5_filename, 'w')
     spec_file = specfile.Specfile(spec_filename)
     for scan in spec_file:
         try:

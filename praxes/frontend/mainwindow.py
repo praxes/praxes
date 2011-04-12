@@ -146,7 +146,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         index = self.fileView.currentIndex()
         self._currentItem = self.fileModel.getNodeFromIndex(index)
         if self._currentItem is not None:
-            for action, tool in self._toolActions.iteritems():
+            for action, tool in self._toolActions.items():
                 action.setVisible(tool.offersService(self._currentItem))
 
     @QtCore.pyqtSignature("")
@@ -177,7 +177,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             if self.expInterface:
                 self.actionConfigure.setEnabled(True)
                 for key, (item, area, action) in \
-                        self.expInterface.dockWidgets.iteritems():
+                        self.expInterface.dockWidgets.items():
                     self.menuView.addAction(action)
                     self.addDockWidget(area, item)
             else:
@@ -186,7 +186,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             if self.expInterface:
                 self.actionConfigure.setEnabled(False)
                 for key, (item, area, action) in \
-                        self.expInterface.dockWidgets.iteritems():
+                        self.expInterface.dockWidgets.items():
                     self.removeDockWidget(item)
                     self.menuView.removeAction(action)
                 self.expInterface.close()

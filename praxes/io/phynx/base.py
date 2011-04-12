@@ -8,6 +8,7 @@ from distutils.version import LooseVersion
 
 import h5py
 
+from .registry import registry
 from .utils import memoize#, simple_eval
 
 
@@ -34,7 +35,7 @@ class Node(object):
 
     @property
     def entry(self):
-        target = self['/'.join(self.name.split('/')[:2])]
+        target = self['/'.join(self.id.split('/')[:2])]
         return target if isinstance(target, registry['Entry']) else None
 
     @property

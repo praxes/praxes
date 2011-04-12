@@ -20,21 +20,6 @@ class Dataset(Node):
     """
     """
 
-#    def _get_acquired(self):
-#        return self.attrs.get('acquired', self.npoints)
-#    def _set_acquired(self, value):
-#        self.attrs['acquired'] = int(value)
-#    acquired = property(_get_acquired, _set_acquired)
-#
-#    @property
-#    def entry(self):
-#        try:
-#            target = self.file['/'.join(self.parent.name.split('/')[:2])]
-#            assert isinstance(target, registry['Entry'])
-#            return target
-#        except AssertionError:
-#            return None
-
     @property
     def dtype(self):
         return self._h5node.dtype
@@ -43,12 +28,8 @@ class Dataset(Node):
     @sync
     def map(self):
         res = self._h5node[...]
-        res.shape = self.measurement.acquision_shape
+        res.shape = self.entry.acquision_shape
         return res
-
-    @property
-    def measurement(self):
-        return getattr(self.entry, 'measurement', None)
 
     @property
     def shape(self):
@@ -96,7 +77,7 @@ class Dataset(Node):
 
     @sync
     def mean(self, indices=None):
-        acquired = self.measurement.acquired
+        acquired = self.entry.acquired
         if indices is None:
             indices = range(acquired)
         elif len(indices):
@@ -132,7 +113,7 @@ class Axis(Dataset):
         try:
             return simple_eval(self.attrs['range'])
         except H5Error:
-            return (self.value[[0, -1]])
+            return (self[[0, -1]])
 
     @sync
     def __cmp__(self, other):
@@ -244,36 +225,19 @@ class DeadTime(Signal):
 class DataProxy(object):
 
     @property
-    def acquired(self):
-        return self._dset.acquired
-
-    @property
     def map(self):
         res = self._dset[...]
-        res.shape = self.measurement.acquisition_shape
+        res.shape = self.entry.acquisition_shape
         return res
-
-    @property
-    def measurement(self):
-        return self._dset.measurement
-
-    @property
-    def npoints(self):
-        return self._dset.npoints
-
-    @property
-    def plock(self):
-        return self._dset.plock
 
     @property
     def shape(self):
         return self._dset.shape
 
     def __init__(self, dataset):
-        with dataset.plock:
-            self._dset = dataset
+        self._dset = dataset
+        self._lock = dataset._lock
 
-    @sync
     def __getitem__(self, args):
         raise NotImplementedError(
             '__getitem__ must be implemented by $s' % self.__class__.__name__
@@ -284,7 +248,7 @@ class DataProxy(object):
 
     @sync
     def mean(self, indices=None):
-        acquired = self.acquired
+        acquired = self._dset.entry.acquired
         if indices is None:
             indices = range(acquired)
         elif len(indices):
@@ -349,13 +313,12 @@ class DeadTimeProxy(DataProxy):
         return self._format
 
     def __init__(self, dataset, format):
-        with dataset.plock:
-            super(DeadTimeProxy, self).__init__(dataset)
+        super(DeadTimeProxy, self).__init__(dataset)
 
-            assert format in (
-                'percent', '%', 'fraction', 'normalization', 'correction'
-            )
-            self._format = format
+        assert format in (
+            'percent', '%', 'fraction', 'normalization', 'correction'
+        )
+        self._format = format
 
     @sync
     def __getitem__(self, args):

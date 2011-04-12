@@ -3,6 +3,7 @@
 
 from __future__ import absolute_import
 
+import json
 import re
 
 from .group import Group
@@ -101,6 +102,15 @@ class Entry(Group):
     nx_class = 'NXentry'
 
     @property
+    @sync
+    def acquired(self):
+        return self.attrs.get('acquired', self.npoints)
+    @acquired.setter
+    @sync
+    def acquired(self, value):
+        self.attrs['acquired'] = int(value)
+
+    @property
     def acquisition_command(self):
         return self.attrs.get('acquisition_command', '')
 
@@ -110,7 +120,13 @@ class Entry(Group):
 
     @property
     def acquisition_shape(self):
-        return simple_eval(self.attrs.get('acquisition_shape', '()'))
+        temp = self.attrs.get('acquisition_shape', None)
+        if temp is None:
+            return
+        try:
+            return json.loads(temp)
+        except ValueError:
+            return simple_eval()
 
     @property
     def entry(self):
@@ -120,7 +136,7 @@ class Entry(Group):
     @sync
     def measurement(self):
         measurements = [
-            i for i in self.itervalues()
+            i for i in self.values()
             if isinstance(i, registry['Measurement'])
             ]
         nm = len(measurements)
@@ -150,7 +166,7 @@ class Entry(Group):
 
     @property
     def source_file(self):
-        return self.attrs.get('source_file', self.file.filename)
+        return self.attrs.get('source_file', self.file.file_name)
 
     # this method is required for sorted():
     def __lt__(self, other):

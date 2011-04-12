@@ -20,7 +20,7 @@ class ProcessedData(Group):
     def fits(self):
         return dict(
             [(posixpath.split(s.name)[-1].rstrip('_fit'), s)
-                for s in self.itervalues() if isinstance(s, Fit)]
+                for s in self.values() if isinstance(s, Fit)]
         )
 
     @property
@@ -28,7 +28,7 @@ class ProcessedData(Group):
     def fit_errors(self):
         return dict(
             [(posixpath.split(s.name)[-1].rstrip('_fit_error'), s)
-                for s in self.itervalues() if isinstance(s, FitError)]
+                for s in self.values() if isinstance(s, FitError)]
         )
 
 
@@ -42,7 +42,7 @@ class ElementMaps(ProcessedData):
     def mass_fractions(self):
         return dict(
             [(posixpath.split(s.name)[-1].rstrip('_mass_fraction'), s)
-                for s in self.itervalues() if isinstance(s, MassFraction)]
+                for s in self.values() if isinstance(s, MassFraction)]
         )
 
 

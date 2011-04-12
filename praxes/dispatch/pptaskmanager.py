@@ -76,7 +76,7 @@ class PPTaskManager(threading.Thread):
         self.__lock = threading.RLock()
 
         self._scan = scan
-        self._n_points = scan.npoints
+        self._n_points = scan.entry.npoints
 
         self.progress_queue = progress_queue
         self.job_queue = []
@@ -89,7 +89,7 @@ class PPTaskManager(threading.Thread):
 
         # total cpus, including local and remote:
         self._n_cpus = np.sum(
-            [i for i in self.job_server.get_active_nodes().itervalues()]
+            [i for i in self.job_server.get_active_nodes().values()]
         )
 
         self.__stopped = False

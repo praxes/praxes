@@ -136,8 +136,8 @@ class H5NodeProxy(object):
 class H5FileProxy(H5NodeProxy):
 
     @property
-    def filename(self):
-        return self.file.filename
+    def file_name(self):
+        return self.file.file_name
 
     def __init__(self, file, parent=None):
         super(H5FileProxy, self).__init__(file, file, parent)
@@ -185,7 +185,7 @@ class FileModel(QtCore.QAbstractItemModel):
         column = index.column()
         if column == 0:
             if item.name == '/':
-                return QtCore.QVariant(item.file.filename)
+                return QtCore.QVariant(item.file.file_name)
             else:
                 return QtCore.QVariant(posixpath.split(item.name)[-1])
         if column == 1:
@@ -222,7 +222,7 @@ class FileModel(QtCore.QAbstractItemModel):
         parentItem = self.getProxyFromIndex(parent)
 
         child = parentItem.children[row]
-        id = hash((child.file.filename, child.name))
+        id = hash((child.file.file_name, child.name))
         index = self.createIndex(row, column, id)
         self._idMap.setdefault(index.internalId(), child)
         return index
@@ -236,18 +236,18 @@ class FileModel(QtCore.QAbstractItemModel):
         if parent.row is None:
             return QtCore.QModelIndex()
         else:
-            id = hash((parent.file.filename, parent.name))
+            id = hash((parent.file.file_name, parent.name))
             return self.createIndex(parent.row, 0, id)
 
     def rowCount(self, index):
         return len(self.getProxyFromIndex(index))
 
-    def openFile(self, filename):
+    def openFile(self, file_name):
         for item in self.rootItem:
-            if item.filename == filename:
+            if item.file_name == file_name:
                 return item.file
 
-        phynxFile = phynx.File(filename, 'a')
+        phynxFile = phynx.open(file_name, 'a')
         self.rootItem.appendChild(phynxFile)
         self.fileAppended.emit()
         return phynxFile
@@ -272,22 +272,22 @@ class ExportRawCSV(QtCore.QObject):
         assert len(h5Node.shape) <= 2
         assert hasattr(h5Node, "value")
 
-        filename = QtGui.QFileDialog.getSaveFileName(
+        file_name = QtGui.QFileDialog.getSaveFileName(
             parent,
             "Export Dataset",
             posixpath.split(h5Node.name)[-1] + '.txt',
             "text files (*.txt *.dat *.csv)"
         )
-        if filename:
-            self.exportData(str(filename), h5Node)
+        if file_name:
+            self.exportData(str(file_name), h5Node)
 
-    def exportData(self, filename, h5Node):
+    def exportData(self, file_name, h5Node):
         try:
             data = h5Node.map
         except TypeError:
             data = h5Node.value
         import numpy as np
-        np.savetxt(filename, data, fmt='%g', delimiter=',')
+        np.savetxt(file_name, data, fmt='%g', delimiter=',')
 
     @classmethod
     def offersService(cls, h5Node):
@@ -308,22 +308,22 @@ class ExportCorrectedCSV(ExportRawCSV):
         assert len(h5Node.shape) <= 2
         assert hasattr(h5Node, "corrected_value")
 
-        filename = QtGui.QFileDialog.getSaveFileName(
+        file_name = QtGui.QFileDialog.getSaveFileName(
             parent,
             "Export Dataset",
             posixpath.split(h5Node.name)[-1] + '_corr.txt',
             "text files (*.txt *.dat *.csv)"
         )
-        if filename:
-            self.exportData(str(filename), h5Node)
+        if file_name:
+            self.exportData(str(file_name), h5Node)
 
-    def exportData(self, filename, h5Node):
+    def exportData(self, file_name, h5Node):
         try:
             data = h5Node.corrected_value.map
         except TypeError:
             data = h5Node.corrected_value[:]
         import numpy as np
-        np.savetxt(filename, data, fmt='%g', delimiter=',')
+        np.savetxt(file_name, data, fmt='%g', delimiter=',')
 
     @classmethod
     def offersService(cls, h5Node):

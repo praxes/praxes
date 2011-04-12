@@ -25,17 +25,18 @@ def update_metadata(node, cls=None, nx_class=None, **kwargs):
     if nx_class is not None:
         node.attrs['NX_class'] = nx_class
     for key, val in kwargs.iteritems():
-        if not np.isscalar(val):
+        if isinstance(val, unicode):
+            # remove this when h5py supports unicode:
             val = str(val)
-        node.attrs[key] = val
+        elif not np.isscalar(val):
+            val = str(val)
+        # don't str(key) when h5py supports unicode:
+        node.attrs[str(key)] = val
 
 def pop_dataset_kwargs(kwargs):
     dset = {}
-    dset['shape'] = kwargs.pop('shape')
-    dset['dtype'] = kwargs.pop('dtype')
-    dset['exact'] = kwargs.pop('exact', False)
     for key in (
-        'data', 'chunks', 'compression', 'shuffle', 'fletcher32', 'maxshape'
+        'data', 'chunks', 'compression', 'shuffle', 'fletcher32', 'maxshape',
         'compression_opts', '_rawid'
         ):
         dset[key] = kwargs.pop(key, None)
@@ -71,7 +72,7 @@ class Group(Node):
 #        _PhynxProperties.__init__(self, parent_object)
 #
 #        if attrs:
-#            for attr, val in attrs.iteritems():
+#            for attr, val in attrs.items():
 #                if not np.isscalar(val):
 #                    val = str(val)
 #                self.attrs[attr] = val
@@ -87,6 +88,10 @@ class Group(Node):
             )
         except Exception:
             return "<Closed %s group>" % self.__class__.__name__
+
+    @sync
+    def __contains__(self, name):
+        return name in self._h5node
 
     @sync
     def __getitem__(self, name):
@@ -117,6 +122,7 @@ class Group(Node):
         self._h5node.__setitem__(name, value)
 
     def create_dataset(self, name, shape, dtype, type='Dataset', **kwargs):
+        "must pass *shape* and *dtype* kwargs, *type* is also a common kwarg"
         cls = registry[type]
         node = self._h5node.create_dataset(
             name, shape, dtype, **pop_dataset_kwargs(kwargs)

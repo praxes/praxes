@@ -27,3 +27,18 @@ class TestGroup(TestCase):
         self.assertEqual(f.values(), [c, b, a])
         self.assertEqual(f.keys(), ['a', 'b', 'c'])
         self.assertEqual(f.items(), [('a', c), ('b', b), ('c', a)])
+
+    def test_contains(self):
+        f = self.mktemp()
+        a = f.create_group('a')
+        self.assertTrue('a' in f)
+        self.assertFalse('z' in f)
+
+    def test_entry(self):
+        f = self.mktemp()
+        a = f.create_group('a', 'Entry')
+        b = a.create_group('b')
+        self.assertEqual(f.entry, None)
+        self.assertEqual(a, a.entry)
+        self.assertEqual(a, b.entry)
+

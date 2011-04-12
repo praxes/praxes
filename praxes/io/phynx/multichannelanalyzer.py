@@ -4,6 +4,7 @@
 from __future__ import absolute_import, with_statement
 
 import copy
+import json
 import time
 
 import numpy as np
@@ -21,14 +22,18 @@ class MultiChannelAnalyzer(Detector):
 
     @property
     def calibration(self):
-        cal = simple_eval(self.attrs.get('calibration', '(0,1)'))
+        temp = self.attrs.get('calibration', '[0,1]')
+        try:
+            cal = json.loads(temp)
+        except ValueError:
+            cal = simple_eval(temp)
         return np.array(cal, 'f')
 
     @property
     @sync
     def channels(self):
         if 'channels' in self:
-            return self['channels'].value
+            return self['channels'][...]
         return np.arange(self['counts'].shape[-1])
 
     @property
@@ -53,17 +58,22 @@ class MultiChannelAnalyzer(Detector):
             config = self.attrs.get('pymca_config', None)
             if config is not None:
                 from PyMca.ConfigDict import ConfigDict
-                self._pymca_config = ConfigDict(simple_eval(config))
+                try:
+                    config = json.loads(config)
+                except ValueError:
+                    config = config.replace('\'','"').replace('None', 'null')
+                    config = json.loads(config)
+                self._pymca_config = ConfigDict(config)
                 return self._pymca_config
             else:
                 config = self.measurement.pymca_config
-                self.attrs['pymca_config'] = str(config)
+                self.attrs['pymca_config'] = json.dumps(config)
                 return config
     @pymca_config.setter
     @sync
     def _set_pymca_config(self, config):
         self._pymca_config = copy.deepcopy(config)
-        self.attrs['pymca_config'] = str(config)
+        self.attrs['pymca_config'] = json.dumps(config)
 
     @sync
     def set_calibration(self, cal, order=None):
@@ -133,7 +143,7 @@ class CorrectedSpectrumProxy(DataProxy):
             return None
 
     def __getitem__(self, key):
-        with self._dset.plock:
+        with self._dset:
             data = self._dset.__getitem__(key)
 
             # detector deadtime correction

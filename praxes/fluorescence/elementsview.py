@@ -29,10 +29,10 @@ class ElementBaseFigure(QtMplCanvas):
         super(ElementBaseFigure, self).__init__(parent)
 
         self.scan_data = scan_data
-        sd = scan_data.measurement.scalar_data
-        self._x_data = sd.get_sorted_axes_list(1)[0]
+        axes = scan_data.entry.measurement.scalar_data.axes.values()
+        self._x_data = [a for a in axes if a.axis == 1][0]
         try:
-            self._y_data = sd.get_sorted_axes_list(2)[0]
+            self._y_data = [a for a in axes if a.axis == 2][0]
         except:
             self._y_data = None
 
@@ -98,9 +98,9 @@ class ElementImageFigure(ElementBaseFigure):
 
     def _createInitialFigure(self):
         extent = []
-        sd = self.scan_data.measurement.scalar_data
-        x_axis = sd.get_sorted_axes_list(1)[0]
-        y_axis = sd.get_sorted_axes_list(2)[0]
+        axes = self.scan_data.entry.measurement.scalar_data.axes.values()
+        x_axis = [a for a in axes if a.axis == 1][0]
+        y_axis = [a for a in axes if a.axis == 2][0]
         extent.extend(x_axis.range)
         extent.extend(y_axis.range)
         self.image = self.axes.imshow(self._elementData, extent=extent,
@@ -156,7 +156,7 @@ class ElementPlotFigure(ElementBaseFigure):
 
     def _createInitialFigure(self):
         try:
-            sd = self.scan_data.measurement.scalar_data
+            sd = self.scan_data.entry.measurement.scalar_data
             self._elementPlot, = self.axes.plot(self._x_data, self._elementData)
             self.axes.set_xlabel(posixpath.split(self._x_data.name)[-1])
             self.axes.set_xlim(self._x_data.range)
@@ -180,8 +180,8 @@ class ElementPlotFigure(ElementBaseFigure):
         else: self._elementData = elementData
 
 
-        self._elementPlot.set_xdata(self._x_data.value[:self._x_data.acquired])
-        self._elementPlot.set_ydata(elementData[:self._x_data.acquired])
+        self._elementPlot.set_xdata(self._x_data.value[:self.entry.acquired])
+        self._elementPlot.set_ydata(elementData[:self.entry.acquired])
         self.axes.relim()
         self.axes.autoscale_view()
 
@@ -206,7 +206,7 @@ class ElementsView(QtGui.QGroupBox):
 
         layout = QtGui.QVBoxLayout()
 
-        if len(scan_data.acquisition_shape) == 2:
+        if len(scan_data.entry.acquisition_shape) == 2:
             self.figure = ElementImageFigure(scan_data, self)
 
         else:

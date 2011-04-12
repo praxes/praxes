@@ -3,7 +3,9 @@
 
 from __future__ import absolute_import
 
+from collections import OrderedDict
 import copy
+import json
 import posixpath
 
 import numpy as np
@@ -22,15 +24,6 @@ class Measurement(Group):
     """
 
     @property
-    @sync
-    def acquired(self):
-        return self.attrs.get('acquired', self.npoints)
-    @acquired.setter
-    @sync
-    def acquired(self, value):
-        self.attrs['acquired'] = int(value)
-
-    @property
     @memoize
     def masked(self):
         return MaskedProxy(self)
@@ -39,7 +32,7 @@ class Measurement(Group):
     @sync
     def mcas(self):
         return dict([
-            (posixpath.split(a.name)[-1], a) for a in self.iterobjects()
+            (posixpath.split(a.name)[-1], a) for a in self.values()
             if isinstance(a, registry['MultiChannelAnalyzer'])
         ])
 
@@ -48,7 +41,7 @@ class Measurement(Group):
     @sync
     def positioners(self):
         targets = [
-            i for i in self.iterobjects() if isinstance(i, Positioners)
+            i for i in self.values() if isinstance(i, Positioners)
         ]
         nt = len(targets)
         if nt == 1:
@@ -68,7 +61,12 @@ class Measurement(Group):
         except AttributeError:
             from PyMca.ConfigDict import ConfigDict
             config = self.attrs.get('pymca_config', '{}')
-            self._pymca_config = ConfigDict(simple_eval(config))
+            try:
+                config = json.loads(config)
+            except ValueError:
+                config = config.replace('\'','"').replace('None', 'null')
+                config = json.loads(config)
+            self._pymca_config = ConfigDict(config)
             return copy.deepcopy(self._pymca_config)
     @pymca_config.setter
     @sync
@@ -81,7 +79,7 @@ class Measurement(Group):
     @sync
     def scalar_data(self):
         targets = [
-            i for i in self.iterobjects() if isinstance(i, ScalarData)
+            i for i in self.values() if isinstance(i, ScalarData)
         ]
         nt = len(targets)
         if nt == 1:
@@ -100,7 +98,7 @@ class HasSignals(object):
     @sync
     def signals(self):
         from .dataset import Signal
-        return dict(
+        return OrderedDict(
             (posixpath.basename(j.name), j)
             for j in sorted(i for i in self.values() if isinstance(i, Axis))
             )
@@ -112,7 +110,7 @@ class HasAxes(object):
     @sync
     def axes(self):
         from .dataset import Axis
-        return dict(
+        return OrderedDict(
             (posixpath.basename(j.name), j)
             for j in sorted(i for i in self.values() if isinstance(i, Axis))
             )
@@ -155,31 +153,22 @@ class Positioners(Group):
 class MaskedProxy(object):
 
     @property
-    def acquired(self):
-        return self._measurement.acquired
-
-    @property
     def masked(self):
         return self
 
     @property
     @memoize
     def npoints(self):
-        return self._measurement.npoints
-
-    @property
-    @memoize
-    def plock(self):
-        return self._measurement.plock
+        return self._measurement.entry.npoints
 
     def __init__(self, measurement):
         self._measurement = measurement
 
-    @sync
     def __getitem__(self, args):
         try:
             return self._measurement.scalar_data['masked'].__getitem__(args)
         except KeyError:
             if isinstance(args, int):
                 return False
-            return np.zeros(self._measurement.npoints, '?').__getitem__(args)
+            temp = np.zeros(self._measurement.entry.npoints, '?')
+            return temp.__getitem__(args)

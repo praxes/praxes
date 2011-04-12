@@ -39,24 +39,24 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         self.analysisThread = None
 
         if isinstance(scan_data, phynx.Entry):
-            self.scan_data = scan_data.measurement
+            self.scan_data = scan_data.entry.measurement
         elif isinstance(scan_data, phynx.Measurement):
             self.scan_data = scan_data
         elif isinstance(scan_data, phynx.MultiChannelAnalyzer):
             self.scan_data = scan_data
         else:
-            with scan_data.plock:
+            with scan_data:
                 raise TypeError(
                     'H5 node type %s not recognized by McaAnalysisWindow'
                     % scan_data.__class__.__name__
                 )
-        self._n_points = scan_data.npoints
+        self._n_points = scan_data.entry.npoints
 
         pymcaConfig = self.scan_data.pymca_config
         self.setupUi(self)
 
         title = '%s: %s: %s'%(
-            posixpath.split(scan_data.file.filename)[-1],
+            posixpath.split(scan_data.file.file_name)[-1],
             posixpath.split(getattr(scan_data.entry, 'name', ''))[-1],
             posixpath.split(self.scan_data.name)[-1]
         )
@@ -92,7 +92,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             self.configurePymca()
 
         try:
-            eff = self.scan_data.measurement.mcas.values()[0].monitor.efficiency
+            mca = self.scan_data.entry.measurement.mcas.values()[0]
+            eff = mca.monitor.efficiency
             self.monitorEfficiency.setText(str(eff))
             self.monitorEfficiency.setEnabled(True)
         except AttributeError:
@@ -118,7 +119,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             return sorted(
                 self.scan_data['element_maps'].fits.keys()
                 )
-        except (phynx.H5Error, AttributeError):
+        except KeyError:
             return []
 
     @property
@@ -202,11 +203,12 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         try:
             value = float(self.monitorEfficiency.text())
             assert (0 < value <= 1)
-            for mca in self.scan_data.measurement.mcas.values():
+            for mca in self.scan_data.entry.measurement.mcas.values():
                 mca.monitor.efficiency = value
         except (ValueError, AssertionError):
+            mca = self.scan_data.entry.measurement.mcas.values()[0]
             self.monitorEfficiency.setText(
-                str(self.scan_data.measurement.mcas.values()[0].monitor.efficiency)
+                str(mca.monitor.efficiency)
                 )
 
 
@@ -256,18 +258,18 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         if mapType and element:
             try:
                 entry = '%s_%s'%(element, mapType)
-                with self.scan_data.plock:
+                with self.scan_data:
                     return self.scan_data['element_maps'][entry].map
 
             except phynx.H5Error:
-                return np.zeros(self.scan_data.acquisition_shape)
+                return np.zeros(self.scan_data.entry.acquisition_shape)
 
         else:
-            return np.zeros(self.scan_data.acquisition_shape, dtype='f')
+            return np.zeros(self.scan_data.entry.acquisition_shape, dtype='f')
 
     def initializeElementMaps(self, elements):
-        with self.scan_data.plock:
-            if 'element_maps' in self.scan_data.measurement:
+        with self.scan_data:
+            if 'element_maps' in self.scan_data.entry.measurement:
                 del self.scan_data['element_maps']
 
             elementMaps = self.scan_data.create_group(
@@ -284,15 +286,15 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                     elementMaps.create_dataset(
                         entry,
                         type=cls,
-                        data=np.zeros(self.scan_data.npoints, 'f')
+                        data=np.zeros(self.scan_data.entry.npoints, 'f')
                     )
 
     def processAverageSpectrum(self, indices=None):
         if indices is None:
-            indices = np.arange(self.scan_data.measurement.acquired)
+            indices = np.arange(self.scan_data.entry.acquired)
         n_indices = len(indices)
         if n_indices:
-            masked = self.scan_data.measurement.masked[...][indices]
+            masked = self.scan_data.entry.measurement.masked[...][indices]
             indices = indices[np.logical_not(masked)]
             n_indices = len(indices)
         if n_indices:
@@ -409,7 +411,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
     def _resetPeaks(self):
         peaks = []
 
-        for el, edges in self.pymcaConfig['peaks'].iteritems():
+        for el, edges in self.pymcaConfig['peaks'].items():
             for edge in edges:
                 name = '_'.join([el, edge])
                 peaks.append(name)

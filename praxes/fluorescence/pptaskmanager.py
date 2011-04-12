@@ -108,9 +108,9 @@ class XfsPPTaskManager(PPTaskManager):
         if i >= self.n_points:
             raise StopIteration()
 
-        with self.scan.plock:
+        with self.scan:
             if i != self._indices[i]:
-                if i >= self._measurement.acquired:
+                if i >= self._measurement.entry.acquired:
                     raise StopIteration()
                 # expected the datapoint, but not yet acquired
                 return None
@@ -133,7 +133,7 @@ class XfsPPTaskManager(PPTaskManager):
 
     def update_element_map(self, element, map_type, index, val):
         try:
-            with self.scan.plock:
+            with self.scan:
                 entry = '%s_%s'%(element, map_type)
                 self.scan['element_maps'][entry][index] = val
         except ValueError:
@@ -165,7 +165,7 @@ class XfsPPTaskManager(PPTaskManager):
 
         try:
             mass_fractions = result['concentrations']['mass fraction']
-            for key, val in mass_fractions.iteritems():
+            for key, val in mass_fractions.items():
                 k = key.replace(' ', '_')
                 self.update_element_map(k, 'mass_fraction', index, val)
         except KeyError:
