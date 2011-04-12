@@ -75,6 +75,8 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         name = name + acq_order
 
         # create the entry and measurement groups
+        print info
+        return
         entry = h5File.create_entry(name, **info)
         measurement = entry.measurement
         # create all the groups under measurement, defined by clientutils:
@@ -102,6 +104,8 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
         self.scanLength.emit(info['npoints'])
 
     def newScanData(self, scanData):
+        print scanData
+        return
 #        logger.debug( 'scanData: %s', scanData)
 
         try:
