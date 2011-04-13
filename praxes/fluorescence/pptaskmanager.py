@@ -83,7 +83,7 @@ class XfsPPTaskManager(PPTaskManager):
     def __init__(self, scan, config, progress_queue, **kwargs):
         super(XfsPPTaskManager, self).__init__(scan, progress_queue, **kwargs)
 
-        self._measurement = scan.measurement
+        self._measurement = scan.entry.measurement
         self._indices = self._measurement.scalar_data['i']
         self._masked = self._measurement.masked
         try:
@@ -109,8 +109,13 @@ class XfsPPTaskManager(PPTaskManager):
             raise StopIteration()
 
         with self.scan:
-            if i != self._indices[i]:
-                if i >= self._measurement.entry.acquired:
+            try:
+                suspect = i != self._indices[i]
+            except IndexError:
+                suspect = True
+            if suspect:
+                if i >= self._measurement.entry.npoints:
+                    # entry.npoints has changed, scan was aborted
                     raise StopIteration()
                 # expected the datapoint, but not yet acquired
                 return None

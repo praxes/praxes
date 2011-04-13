@@ -9,7 +9,9 @@ import os
 from PyQt4 import QtCore, QtGui
 
 from .ui.ui_scanparameterswidget import Ui_ScanParametersWidget
-from .scanmotorwidget import AScanMotorWidget, DScanMotorWidget, MeshMotorWidget
+from .scanmotorwidget import (
+    AScanMotorWidget, DScanMotorWidget, MeshMotorWidget
+    )
 
 
 class SpecfileError(exceptions.Exception):
@@ -265,16 +267,7 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
         self.setupUi(self)
 
         self._specRunner = specRunner
-
-        from .scan import QtSpecScanA
-        self._scan = QtSpecScanA(self.specRunner.specVersion, parent=self)
-
-        self._scan.scanLength.connect(self._newScanLength)
-        self._scan.scanData.connect(self._newScanData)
-        self._scan.started.connect(self.scanStarted)
-        self._scan.paused.connect(self.scanPaused)
-        self._scan.resumed.connect(self.scanResumed)
-        self._scan.finished.connect(self.scanFinished)
+        self._scan = None
 
         self.scanTypeComboBox.addItems(self._scanTypes)
 
@@ -307,15 +300,15 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
 
     @QtCore.pyqtSignature("bool")
     def on_actionPause_triggered(self):
-        self.scan.pause()
+        self._scan.pause()
 
     @QtCore.pyqtSignature("bool")
     def on_actionResume_triggered(self):
-        self.scan.resume()
+        self._scan.resume()
 
     @QtCore.pyqtSignature("bool")
     def on_actionAbort_triggered(self):
-        self.scan.abort()
+        self._scan.abort()
 
     @QtCore.pyqtSignature("")
     def on_specFileNameEdit_editingFinished(self):
@@ -333,7 +326,7 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
         args.append(self.integrationTimeSpinBox.value())
         cmd = ' '.join(str(i) for i in args)
 
-        self.scan(cmd)
+        self.new_scan(cmd)
 
     @QtCore.pyqtSignature("QString")
     def on_scanTypeComboBox_currentIndexChanged(self, val):
@@ -382,6 +375,18 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
             self._specFileError(fileName, specCreated)
 
         self.specFileNameEdit.setText(specCreated)
+
+    def new_scan(self, command):
+        from .scan import QtSpecScanA
+        self._scan = QtSpecScanA(self.specRunner.specVersion, parent=self)
+        self._scan.scanLength.connect(self._newScanLength)
+        self._scan.scanData.connect(self._newScanData)
+        self._scan.started.connect(self.scanStarted)
+        self._scan.paused.connect(self.scanPaused)
+        self._scan.resumed.connect(self.scanResumed)
+        self._scan.finished.connect(self.scanFinished)
+
+        self._scan(command)
 
     def scanPaused(self):
         self.actionPause.setVisible(False)

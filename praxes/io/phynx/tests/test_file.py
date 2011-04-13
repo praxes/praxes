@@ -31,7 +31,7 @@ class TestFile(TestCase):
     def test_path(self):
         f = self.mktemp()
         self.assertEqual(f.path, '/')
-        self.assertEqual(f.name, '')
+        self.assertEqual(f.name, '/')
         self.assertEqual(f.id, '/')
 
     def test_close(self):

@@ -9,7 +9,6 @@ from PyQt4 import QtCore, QtGui
 from SpecClient import SpecClientError
 
 from .ui import ui_specconnect
-from .scancontrols import ScanControls
 from .runner import SpecRunner
 
 USESSH = False

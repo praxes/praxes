@@ -13,7 +13,6 @@ import SpecClient
 from SpecClient import Spec, SpecEventsDispatcher, SpecCommand, SpecVariable
 
 from .motor import QtSpecMotorA
-from .scan import QtSpecScanA
 from . import TEST_SPEC
 
 

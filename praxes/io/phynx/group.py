@@ -24,7 +24,7 @@ def update_metadata(node, cls=None, nx_class=None, **kwargs):
         node.attrs['class'] = cls
     if nx_class is not None:
         node.attrs['NX_class'] = nx_class
-    for key, val in kwargs.iteritems():
+    for key, val in kwargs.items():
         if isinstance(val, unicode):
             # remove this when h5py supports unicode:
             val = str(val)
@@ -36,8 +36,8 @@ def update_metadata(node, cls=None, nx_class=None, **kwargs):
 def pop_dataset_kwargs(kwargs):
     dset = {}
     for key in (
-        'data', 'chunks', 'compression', 'shuffle', 'fletcher32', 'maxshape',
-        'compression_opts', '_rawid'
+        'shape', 'dtype', 'data', 'chunks', 'compression', 'shuffle',
+        'fletcher32', 'maxshape', 'compression_opts', '_rawid'
         ):
         dset[key] = kwargs.pop(key, None)
     return dset
@@ -95,7 +95,10 @@ class Group(Node):
 
     @sync
     def __getitem__(self, name):
-        h5node = self._h5node[name]
+        try:
+            h5node = self._h5node[name]
+        except:
+            raise KeyError("%s not found" % repr(name))
 
         cls = h5node.attrs.get('class')
         if cls is None:
@@ -121,12 +124,10 @@ class Group(Node):
     def __setitem__(self, name, value):
         self._h5node.__setitem__(name, value)
 
-    def create_dataset(self, name, shape, dtype, type='Dataset', **kwargs):
+    def create_dataset(self, name, **kwargs):
         "must pass *shape* and *dtype* kwargs, *type* is also a common kwarg"
-        cls = registry[type]
-        node = self._h5node.create_dataset(
-            name, shape, dtype, **pop_dataset_kwargs(kwargs)
-            )
+        cls = registry[kwargs.pop('type', 'Dataset')]
+        node = self._h5node.create_dataset(name, **pop_dataset_kwargs(kwargs))
         res = cls(node, self._lock)
         nx_class = getattr(res, 'nx_class', None)
         update_metadata(res, cls=cls.__name__, nx_class=nx_class, **kwargs)

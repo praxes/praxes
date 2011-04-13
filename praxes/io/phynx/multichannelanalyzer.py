@@ -11,7 +11,6 @@ import numpy as np
 
 from .dataset import DataProxy, DeadTime, Signal
 from .detector import Detector
-from .exceptions import H5Error
 from .utils import memoize, simple_eval, sync
 
 
@@ -26,7 +25,7 @@ class MultiChannelAnalyzer(Detector):
         try:
             cal = json.loads(temp)
         except ValueError:
-            cal = simple_eval(temp)
+            cal = json.loads(temp.replace('(','[').replace(')',']'))
         return np.array(cal, 'f')
 
     @property
@@ -63,6 +62,13 @@ class MultiChannelAnalyzer(Detector):
                 except ValueError:
                     config = config.replace('\'','"').replace('None', 'null')
                     config = json.loads(config)
+                if 'peaks' in config:
+                    for k, v in config['peaks'].items():
+                        if isinstance(v, list):
+                            # I have no idea how this became a list
+                            v = v[0]
+                        # not necessary if pymca fixes a bug:
+                        config['peaks'][k] = str(v)
                 self._pymca_config = ConfigDict(config)
                 return self._pymca_config
             else:
@@ -138,8 +144,7 @@ class CorrectedSpectrumProxy(DataProxy):
     def _deadtime(self):
         try:
             return self._dset.parent['dead_time'].correction
-        except H5Error:
-            print "No deadtime available"
+        except KeyError:
             return None
 
     def __getitem__(self, key):

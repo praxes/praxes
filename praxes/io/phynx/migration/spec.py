@@ -14,7 +14,7 @@ try:
 except ImportError:
     from PyMca import specfile
 
-from .. import open, H5Error
+from .. import open
 
 
 def get_spec_scan_info(commandList):
@@ -244,7 +244,7 @@ def convert_scan(scan, sfile, h5file, spec_filename):
         for motor, pos in zip(sfile.allmotors(), scan.allmotorpos()):
             try:
                 positioners[motor] = pos
-            except H5Error:
+            except ValueError:
                 print (
     """
     Invalid spec motor configuration:

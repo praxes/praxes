@@ -4,13 +4,13 @@
 from __future__ import absolute_import, with_statement
 
 import copy
+import json
 import posixpath
 
 import h5py
 import numpy as np
 
 from .base import Node
-from .exceptions import H5Error
 from .registry import registry
 from .utils import memoize, simple_eval, sync
 
@@ -28,7 +28,7 @@ class Dataset(Node):
     @sync
     def map(self):
         res = self._h5node[...]
-        res.shape = self.entry.acquision_shape
+        res.shape = self.entry.acquisition_shape
         return res
 
     @property
@@ -61,6 +61,9 @@ class Dataset(Node):
 
     def __getitem__(self, args):
         return self._h5node.__getitem__(args)
+
+    def __setitem__(self, args, vals):
+        self._h5node.__setitem__(args, vals)
 
     @sync
     def __repr__(self):
@@ -110,10 +113,13 @@ class Axis(Dataset):
 
     @property
     def range(self):
+        temp = self.attrs.get('range', None)
+        if temp is None:
+            return self[[0, -1]]
         try:
-            return simple_eval(self.attrs['range'])
-        except H5Error:
-            return (self[[0, -1]])
+            return json.loads(temp)
+        except ValueError:
+            return json.loads(temp.replace('(', '[').replace(')', ']'))
 
     @sync
     def __cmp__(self, other):
@@ -285,7 +291,7 @@ class CorrectedDataProxy(DataProxy):
                 newshape[:len(norm.shape)] = norm.shape
                 norm.shape = newshape
             data /= norm
-        except H5Error:
+        except KeyError:
             # fails if normalization is not defined
             pass
 
@@ -298,7 +304,7 @@ class CorrectedDataProxy(DataProxy):
                 newshape[:len(dtc.shape)] = dtc.shape
                 dtc.shape = newshape
             data *= dtc
-        except H5Error:
+        except KeyError:
             # fails if dead_time_correction is not defined
             pass
 

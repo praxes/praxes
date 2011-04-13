@@ -70,7 +70,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             self.deadTimeReport.setText(
                 str(self.scan_data.mcas.values()[0]['dead_time'].format)
                 )
-        except phynx.H5Error:
+        except KeyError:
             self.deadTimeReport.setText('Not found')
 
         self._setupMcaDockWindows()
@@ -261,7 +261,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                 with self.scan_data:
                     return self.scan_data['element_maps'][entry].map
 
-            except phynx.H5Error:
+            except KeyError:
                 return np.zeros(self.scan_data.entry.acquisition_shape)
 
         else:

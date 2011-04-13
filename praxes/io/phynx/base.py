@@ -35,7 +35,7 @@ class Node(object):
 
     @property
     def entry(self):
-        target = self['/'.join(self.id.split('/')[:2])]
+        target = self.file['/'.join(self.id.split('/')[:2])]
         return target if isinstance(target, registry['Entry']) else None
 
     @property

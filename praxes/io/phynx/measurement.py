@@ -24,6 +24,18 @@ class Measurement(Group):
     """
 
     @property
+    @sync
+    def acquired(self):
+        try:
+            return self.attrs.get['acquired']
+        except:
+            return self.entry.npoints
+    @acquired.setter
+    @sync
+    def acquired(self, value):
+        self.attrs['acquired'] = int(value)
+
+    @property
     @memoize
     def masked(self):
         return MaskedProxy(self)
@@ -66,13 +78,23 @@ class Measurement(Group):
             except ValueError:
                 config = config.replace('\'','"').replace('None', 'null')
                 config = json.loads(config)
+            if 'peaks' in config:
+                for k, v in config['peaks'].items():
+                    if isinstance(v, list):
+                        # I have no idea how this became a list:
+                        v = v[0]
+                    # not necessary when pymca fixes a bug:
+                    config['peaks'][k] = str(v)
             self._pymca_config = ConfigDict(config)
             return copy.deepcopy(self._pymca_config)
     @pymca_config.setter
     @sync
     def pymca_config(self, config):
+        print config
+        print json.dumps(config)
         self._pymca_config = copy.deepcopy(config)
-        self.attrs['pymca_config'] = str(config)
+        self.attrs['pymca_config'] = json.dumps(config)
+        print self.attrs['pymca_config']
 
     @property
     @memoize
@@ -90,6 +112,17 @@ class Measurement(Group):
             raise ValueError(
                 'There should be one ScalarData group per entry, found %d' % nm
             )
+
+    def update(self, **kwargs):
+        with self:
+            i = kwargs['scalar_data/i']
+            for k, val in kwargs.items():
+                try:
+                    self[k][i] = val
+                except ValueError:
+                    self[k].resize(i+1, axis=0)
+                    self[k][i] = val
+            self.acquired = i+1
 
 
 class HasSignals(object):
@@ -155,11 +188,6 @@ class MaskedProxy(object):
     @property
     def masked(self):
         return self
-
-    @property
-    @memoize
-    def npoints(self):
-        return self._measurement.entry.npoints
 
     def __init__(self, measurement):
         self._measurement = measurement

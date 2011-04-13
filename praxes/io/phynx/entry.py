@@ -104,11 +104,7 @@ class Entry(Group):
     @property
     @sync
     def acquired(self):
-        return self.attrs.get('acquired', self.npoints)
-    @acquired.setter
-    @sync
-    def acquired(self, value):
-        self.attrs['acquired'] = int(value)
+        return self.measurement.acquired
 
     @property
     def acquisition_command(self):
@@ -156,13 +152,7 @@ class Entry(Group):
     @npoints.setter
     @sync
     def npoints(self, np):
-        def func(name, obj):
-            obj.attrs['npoints'] = np
-            try:
-                obj.resize(np, axis=0)
-            except (AttributeError, TypeError):
-                pass
-        self.visititems(func)
+        self.attrs['npoints'] = np
 
     @property
     def source_file(self):
@@ -180,3 +170,32 @@ class Entry(Group):
             keys.append(k)
         s, o = keys
         return s < o
+
+    def create_measurement(self, **kwargs):
+        """
+        *kwargs* is a {key: (type, attrs)} dict, such that:
+
+        measurement.create_{group,dataset}(key, type=type, **attrs)
+        """
+        m = self.create_group('measurement', type='Measurement')
+        m.create_group('scalar_data', 'ScalarData')
+        m.create_group('positioners', 'Positioners')
+
+        keys = sorted(kwargs.keys())
+        for k in keys:
+            t, kws = kwargs.pop(k)
+            # this should be removed when h5py supports unicode:
+            k = str(k)
+            t = str(t)
+            if issubclass(registry[t], registry['Dataset']):
+                m.create_dataset(k, type=t, **kws)
+            else:
+                m.create_group(k, type=t, **kws)
+
+        # make a few links:
+        if 'masked' in m['scalar_data']:
+            for k, val in m.mcas.items():
+                val['masked'] = m['scalar_data/masked']
+
+    def update_measurement(self, **kwargs):
+        self.measurement.update(**kwargs)

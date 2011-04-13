@@ -85,6 +85,10 @@ class File(Group):
     def mode(self):
         return self._h5node.mode
 
+    @property
+    def name(self):
+        return '/'
+
     def close(self):
         self._h5node.close()
 
@@ -99,7 +103,7 @@ class File(Group):
 #        scalar_data = measurement.create_group('scalar_data', type='ScalarData')
 #        pos = measurement.create_group('positioners', type='Positioners')
 #        return entry
-#
+
 #    @sync
 #    def require_entry(self, name, **data):
 #        """A convenience function to access/build the most basic hierarchy"""

@@ -60,10 +60,7 @@ class H5NodeProxy(object):
             with self.file:
                 self._children = [
                     H5NodeProxy(self.file, i, self)
-                    for i in sorted(
-                        self.getNode(self.name).values(),
-                        key=operator.attrgetter('name')
-                    )
+                    for i in self.getNode(self.name).values()
                 ]
         return self._children
 
@@ -107,7 +104,7 @@ class H5NodeProxy(object):
         with file:
             self._file = file
             self._parent = parent
-            self._name = node.name
+            self._name = node.id
             self._type = type(node).__name__
             try:
                 self._dtype = str(node.dtype)
