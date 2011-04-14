@@ -3,6 +3,7 @@
 
 from __future__ import absolute_import, with_statement
 
+import json
 import posixpath
 import warnings
 
@@ -25,13 +26,9 @@ def update_metadata(node, cls=None, nx_class=None, **kwargs):
     if nx_class is not None:
         node.attrs['NX_class'] = nx_class
     for key, val in kwargs.items():
-        if isinstance(val, unicode):
-            # remove this when h5py supports unicode:
+        if not np.isscalar(val):
             val = str(val)
-        elif not np.isscalar(val):
-            val = str(val)
-        # don't str(key) when h5py supports unicode:
-        node.attrs[str(key)] = val
+        node.attrs[key] = val
 
 def pop_dataset_kwargs(kwargs):
     dset = {}

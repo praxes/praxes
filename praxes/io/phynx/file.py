@@ -94,33 +94,3 @@ class File(Group):
 
     def flush(self):
         self._h5node.flush()
-
-#    @sync
-#    def create_entry(self, name, **data):
-#        """A convenience function to build the most basic hierarchy"""
-#        entry = self.create_group(name, type='Entry', **data)
-#        measurement = entry.create_group('measurement', type='Measurement')
-#        scalar_data = measurement.create_group('scalar_data', type='ScalarData')
-#        pos = measurement.create_group('positioners', type='Positioners')
-#        return entry
-
-#    @sync
-#    def require_entry(self, name, **data):
-#        """A convenience function to access/build the most basic hierarchy"""
-#        entry = self.require_group(name, type='Entry', **data)
-#        measurement = entry.require_group('measurement', type='Measurement')
-#        scalars = measurement.require_group('scalar_data', type='ScalarData')
-#        pos = measurement.require_group('positioners', type='Positioners')
-#        return entry
-#
-#    def sorted_with(self, value):
-#        """
-#        Set the default sorting behavior for nodes with methods returning
-#        lists. Accepts a callable or None. If a callable, the callable should
-#        accept and reorganize a list of phynx nodes.
-#        """
-#        try:
-#            assert value is None or callable(value)
-#            self._sorted = value
-#        except AssertionError:
-#            raise AsserionError('value must be a callable or None')

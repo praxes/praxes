@@ -57,29 +57,20 @@ class MultiChannelAnalyzer(Detector):
             config = self.attrs.get('pymca_config', None)
             if config is not None:
                 from PyMca.ConfigDict import ConfigDict
-                try:
-                    config = json.loads(config)
-                except ValueError:
-                    config = config.replace('\'','"').replace('None', 'null')
-                    config = json.loads(config)
-                if 'peaks' in config:
-                    for k, v in config['peaks'].items():
-                        if isinstance(v, list):
-                            # I have no idea how this became a list
-                            v = v[0]
-                        # not necessary if pymca fixes a bug:
-                        config['peaks'][k] = str(v)
-                self._pymca_config = ConfigDict(config)
+                # would like to use json.loads here:
+                self._pymca_config = ConfigDict(simple_eval(config))
                 return self._pymca_config
             else:
                 config = self.measurement.pymca_config
-                self.attrs['pymca_config'] = json.dumps(config)
+                # would like to use json.dumps here:
+                self.attrs['pymca_config'] = str(config)
                 return config
     @pymca_config.setter
     @sync
     def _set_pymca_config(self, config):
         self._pymca_config = copy.deepcopy(config)
-        self.attrs['pymca_config'] = json.dumps(config)
+        # would like to use json.dumps here:
+        self.attrs['pymca_config'] = str(config)
 
     @sync
     def set_calibration(self, cal, order=None):

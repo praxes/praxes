@@ -184,9 +184,6 @@ class Entry(Group):
         keys = sorted(kwargs.keys())
         for k in keys:
             t, kws = kwargs.pop(k)
-            # this should be removed when h5py supports unicode:
-            k = str(k)
-            t = str(t)
             if issubclass(registry[t], registry['Dataset']):
                 m.create_dataset(k, type=t, **kws)
             else:

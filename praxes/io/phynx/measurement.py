@@ -5,7 +5,6 @@ from __future__ import absolute_import
 
 from collections import OrderedDict
 import copy
-import json
 import posixpath
 
 import numpy as np
@@ -72,29 +71,16 @@ class Measurement(Group):
             return self._pymca_config
         except AttributeError:
             from PyMca.ConfigDict import ConfigDict
-            config = self.attrs.get('pymca_config', '{}')
-            try:
-                config = json.loads(config)
-            except ValueError:
-                config = config.replace('\'','"').replace('None', 'null')
-                config = json.loads(config)
-            if 'peaks' in config:
-                for k, v in config['peaks'].items():
-                    if isinstance(v, list):
-                        # I have no idea how this became a list:
-                        v = v[0]
-                    # not necessary when pymca fixes a bug:
-                    config['peaks'][k] = str(v)
+            # would like to use json.loads here:
+            config = simple_eval(self.attrs.get('pymca_config', '{}'))
             self._pymca_config = ConfigDict(config)
             return copy.deepcopy(self._pymca_config)
     @pymca_config.setter
     @sync
     def pymca_config(self, config):
-        print config
-        print json.dumps(config)
         self._pymca_config = copy.deepcopy(config)
-        self.attrs['pymca_config'] = json.dumps(config)
-        print self.attrs['pymca_config']
+        # would like to use json.dumps here:
+        self.attrs['pymca_config'] = str(config)
 
     @property
     @memoize
@@ -113,6 +99,7 @@ class Measurement(Group):
                 'There should be one ScalarData group per entry, found %d' % nm
             )
 
+    @sync
     def update(self, **kwargs):
         with self:
             i = kwargs['scalar_data/i']
