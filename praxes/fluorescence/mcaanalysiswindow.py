@@ -8,6 +8,7 @@ import gc
 import logging
 import posixpath
 import Queue
+import sys
 
 from PyQt4 import QtCore, QtGui
 from PyMca.FitParam import FitParamDialog
@@ -35,92 +36,93 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
     def __init__(self, scan_data, parent=None):
         super(McaAnalysisWindow, self).__init__(parent)
 
-
         self.analysisThread = None
 
-        if isinstance(scan_data, phynx.Entry):
-            self.scan_data = scan_data.entry.measurement
-        elif isinstance(scan_data, phynx.Measurement):
-            self.scan_data = scan_data
-        elif isinstance(scan_data, phynx.MultiChannelAnalyzer):
-            self.scan_data = scan_data
-        else:
-            with scan_data:
-                raise TypeError(
-                    'H5 node type %s not recognized by McaAnalysisWindow'
-                    % scan_data.__class__.__name__
-                )
-        self._n_points = scan_data.entry.npoints
+        with scan_data:
+            if isinstance(scan_data, phynx.Entry):
+                self.scan_data = scan_data.entry.measurement
+            elif isinstance(scan_data, phynx.Measurement):
+                self.scan_data = scan_data
+            elif isinstance(scan_data, phynx.MultiChannelAnalyzer):
+                self.scan_data = scan_data
+            else:
+                with scan_data:
+                    raise TypeError(
+                        'H5 node type %s not recognized by McaAnalysisWindow'
+                        % scan_data.__class__.__name__
+                    )
+            self._n_points = scan_data.entry.npoints
 
-        pymcaConfig = self.scan_data.pymca_config
-        self.setupUi(self)
+            pymcaConfig = self.scan_data.pymca_config
+            self.setupUi(self)
 
-        title = '%s: %s: %s'%(
-            posixpath.split(scan_data.file.file_name)[-1],
-            posixpath.split(getattr(scan_data.entry, 'name', ''))[-1],
-            posixpath.split(self.scan_data.name)[-1]
-        )
-        self.setWindowTitle(title)
+            title = '%s: %s: %s'%(
+                posixpath.split(scan_data.file.file_name)[-1],
+                posixpath.split(getattr(scan_data.entry, 'name', ''))[-1],
+                posixpath.split(self.scan_data.name)[-1]
+            )
+            self.setWindowTitle(title)
 
-        self.elementsView = ElementsView(self.scan_data, self)
-        self.splitter.addWidget(self.elementsView)
+            self.elementsView = ElementsView(self.scan_data, self)
+            self.splitter.addWidget(self.elementsView)
 
-        self.xrfBandComboBox.addItems(self.availableElements)
-        try:
-            self.deadTimeReport.setText(
-                str(self.scan_data.mcas.values()[0]['dead_time'].format)
-                )
-        except KeyError:
-            self.deadTimeReport.setText('Not found')
+            self.xrfBandComboBox.addItems(self.availableElements)
+            try:
+                self.deadTimeReport.setText(
+                    str(self.scan_data.mcas.values()[0]['dead_time'].format)
+                    )
+            except KeyError:
+                self.deadTimeReport.setText('Not found')
 
-        self._setupMcaDockWindows()
-        self._setupPPJobStats()
+            self._setupMcaDockWindows()
+            self._setupPPJobStats()
 
-        plotOptions = self.elementsView.plotOptions
-        self.optionsWidgetVLayout.insertWidget(1, plotOptions)
+            plotOptions = self.elementsView.plotOptions
+            self.optionsWidgetVLayout.insertWidget(1, plotOptions)
 
-        self.elementsView.pickEvent.connect(self.processAverageSpectrum)
-        # TODO: remove the window from the list of open windows when we close
-#           self.scanView.scanClosed.connect(self.scanClosed)
+            self.elementsView.pickEvent.connect(self.processAverageSpectrum)
+            # TODO: remove the window from the list of open windows when we close
+    #           self.scanView.scanClosed.connect(self.scanClosed)
 
-        self.fitParamDlg = FitParamDialog(parent=self)
+            self.fitParamDlg = FitParamDialog(parent=self)
 
-        if pymcaConfig:
-            self.fitParamDlg.setParameters(pymcaConfig)
-            self.spectrumAnalysis.configure(pymcaConfig)
-        else:
-            self.configurePymca()
+            if pymcaConfig:
+                self.fitParamDlg.setParameters(pymcaConfig)
+                self.spectrumAnalysis.configure(pymcaConfig)
+            else:
+                self.configurePymca()
 
-        try:
-            mca = self.scan_data.entry.measurement.mcas.values()[0]
-            eff = mca.monitor.efficiency
-            self.monitorEfficiency.setText(str(eff))
-            self.monitorEfficiency.setEnabled(True)
-        except AttributeError:
-            pass
+            try:
+                mca = self.scan_data.entry.measurement.mcas.values()[0]
+                eff = mca.monitor.efficiency
+                self.monitorEfficiency.setText(str(eff))
+                self.monitorEfficiency.setEnabled(True)
+            except AttributeError:
+                pass
 
-        self.progressBar = QtGui.QProgressBar(self)
-        self.progressBar.setMaximumHeight(17)
-        self.progressBar.hide()
-        self.progressBar.addAction(self.actionAbort)
-        self.progressBar.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+            self.progressBar = QtGui.QProgressBar(self)
+            self.progressBar.setMaximumHeight(17)
+            self.progressBar.hide()
+            self.progressBar.addAction(self.actionAbort)
+            self.progressBar.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 
-        self.progress_queue = Queue.Queue()
-        self.timer = QtCore.QTimer(self)
-        self.timer.timeout.connect(self.update)
+            self.progress_queue = Queue.Queue()
+            self.timer = QtCore.QTimer(self)
+            self.timer.timeout.connect(self.update)
 
-        self.elementsView.updateFigure()
+            self.elementsView.updateFigure()
 
-        self._restoreSettings()
+            self._restoreSettings()
 
     @property
     def availableElements(self):
-        try:
-            return sorted(
-                self.scan_data['element_maps'].fits.keys()
-                )
-        except KeyError:
-            return []
+        with self.scan_data:
+            try:
+                return sorted(
+                    self.scan_data['element_maps'].fits.keys()
+                    )
+            except KeyError:
+                return []
 
     @property
     def deadTimePercent(self):
@@ -200,16 +202,17 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
     @QtCore.pyqtSignature("")
     def on_monitorEfficiency_editingFinished(self):
-        try:
-            value = float(self.monitorEfficiency.text())
-            assert (0 < value <= 1)
-            for mca in self.scan_data.entry.measurement.mcas.values():
-                mca.monitor.efficiency = value
-        except (ValueError, AssertionError):
-            mca = self.scan_data.entry.measurement.mcas.values()[0]
-            self.monitorEfficiency.setText(
-                str(mca.monitor.efficiency)
-                )
+        with self.scan_Data:
+            try:
+                value = float(self.monitorEfficiency.text())
+                assert (0 < value <= 1)
+                for mca in self.scan_data.entry.measurement.mcas.values():
+                    mca.monitor.efficiency = value
+            except (ValueError, AssertionError):
+                mca = self.scan_data.entry.measurement.mcas.values()[0]
+                self.monitorEfficiency.setText(
+                    str(mca.monitor.efficiency)
+                    )
 
 
     @QtCore.pyqtSignature("QString")
@@ -244,7 +247,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             self.statusbar.showMessage('Reconfiguring PyMca ...')
             configDict = self.fitParamDlg.getParameters()
             self.spectrumAnalysis.configure(configDict)
-            self.scan_data.pymca_config = configDict
+            with self.scan_data:
+                self.scan_data.pymca_config = configDict
             self.statusbar.clearMessage()
 
     def elementMapUpdated(self):
@@ -256,16 +260,18 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         if mapType is None: mapType = self.mapType
 
         if mapType and element:
-            try:
-                entry = '%s_%s'%(element, mapType)
-                with self.scan_data:
+            with self.scan_data:
+                try:
+                    entry = '%s_%s'%(element, mapType)
                     return self.scan_data['element_maps'][entry].map
-
-            except KeyError:
-                return np.zeros(self.scan_data.entry.acquisition_shape)
+                except KeyError:
+                    return np.zeros(self.scan_data.entry.acquisition_shape)
 
         else:
-            return np.zeros(self.scan_data.entry.acquisition_shape, dtype='f')
+            with self.scan_data:
+                return np.zeros(
+                    self.scan_data.entry.acquisition_shape, dtype='f'
+                    )
 
     def initializeElementMaps(self, elements):
         with self.scan_data:
@@ -290,40 +296,40 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                     )
 
     def processAverageSpectrum(self, indices=None):
-        if indices is None:
-            indices = np.arange(self.scan_data.entry.acquired)
-        n_indices = len(indices)
-        if n_indices:
-            masked = self.scan_data.entry.measurement.masked[...][indices]
-            indices = indices[np.logical_not(masked)]
+        with self.scan_data:
+            if indices is None:
+                indices = np.arange(self.scan_data.entry.acquired)
             n_indices = len(indices)
-        if n_indices:
-            self.statusbar.showMessage('Averaging spectra ...')
-            #QtGui.qApp.processEvents()
+            if n_indices:
+                masked = self.scan_data.entry.measurement.masked[...][indices]
+                indices = indices[np.logical_not(masked)]
+                n_indices = len(indices)
+            if n_indices:
+                self.statusbar.showMessage('Averaging spectra ...')
+                #QtGui.qApp.processEvents()
 
-            try:
-                # looking at individual element
-                monitor = self.scan_data.monitor.corrected_value
-                mon0 = monitor[indices[0]]
-                channels = self.scan_data.channels
-                counts = channels.astype('float32') * 0
-                dataset = self.scan_data['counts'].corrected_value
-                for i in indices:
-                    counts += dataset[i] / n_indices * (monitor[i]/mon0)
-            except AttributeError:
-                # looking at multiple elements
-                mcas = self.scan_data.mcas.values()
-                monitor = mcas[0].monitor.corrected_value
-                mon0 = monitor[indices[0]]
-                channels = mcas[0].channels
-                counts = channels.astype('float32') * 0
-                for mca in mcas:
-                    dataset = mca['counts'].corrected_value
+                try:
+                    # looking at individual element
+                    monitor = self.scan_data.monitor.corrected_value
+                    mon0 = monitor[indices[0]]
+                    channels = self.scan_data.channels
+                    counts = channels.astype('float32') * 0
+                    dataset = self.scan_data['counts'].corrected_value
                     for i in indices:
                         counts += dataset[i] / n_indices * (monitor[i]/mon0)
+                except AttributeError:
+                    # looking at multiple elements
+                    mcas = self.scan_data.mcas.values()
+                    monitor = mcas[0].monitor.corrected_value
+                    mon0 = monitor[indices[0]]
+                    channels = mcas[0].channels
+                    counts = channels.astype('float32') * 0
+                    for mca in mcas:
+                        dataset = mca['counts'].corrected_value
+                        for i in indices:
+                            counts += dataset[i] / n_indices * (monitor[i]/mon0)
 
             self.spectrumAnalysis.setData(x=channels, y=counts)
-
             self.statusbar.showMessage('Performing Fit ...')
             #QtGui.qApp.processEvents()
             ##update spectrum analysis with flux from mon0!

@@ -83,18 +83,19 @@ class XfsPPTaskManager(PPTaskManager):
     def __init__(self, scan, config, progress_queue, **kwargs):
         super(XfsPPTaskManager, self).__init__(scan, progress_queue, **kwargs)
 
-        self._measurement = scan.entry.measurement
-        self._indices = self._measurement.scalar_data['i']
-        self._masked = self._measurement.masked
-        try:
-            # are we processing a group of mca elements...
-            mcas = scan.mcas.values()
-            self._counts = [mca['counts'] for mca in mcas]
-            self._monitor = mcas[0].monitor.corrected_value
-        except AttributeError:
-            # or a single element?
-            self._counts = [scan['counts']]
-            self._monitor = scan.monitor.corrected_value
+        with scan:
+            self._measurement = scan.entry.measurement
+            self._indices = self._measurement.scalar_data['i']
+            self._masked = self._measurement.masked
+            try:
+                # are we processing a group of mca elements...
+                mcas = scan.mcas.values()
+                self._counts = [mca['counts'] for mca in mcas]
+                self._monitor = mcas[0].monitor.corrected_value
+            except AttributeError:
+                # or a single element?
+                self._counts = [scan['counts']]
+                self._monitor = scan.monitor.corrected_value
 
         self._advanced_fit = ClassMcaTheory.McaTheory(config=config)
         self._advanced_fit.enableOptimizedLinearFit()
@@ -127,26 +128,26 @@ class XfsPPTaskManager(PPTaskManager):
 
             cts = [counts.corrected_value[i] for counts in self._counts]
 
-        spectrum = np.sum(cts, 0)
-        mft = self.mass_fraction_tool
-        if self._monitor is not None:
-            mft.config['flux'] = self._monitor[i]
+            spectrum = np.sum(cts, 0)
+            mft = self.mass_fraction_tool
+            if self._monitor is not None:
+                mft.config['flux'] = self._monitor[i]
         args = (
             i, spectrum, self.advanced_fit, self.mass_fraction_tool
             )
         return analyze_spectrum, args
 
     def update_element_map(self, element, map_type, index, val):
-        try:
-            with self.scan:
+        with self.scan:
+            try:
                 entry = '%s_%s'%(element, map_type)
                 self.scan['element_maps'][entry][index] = val
-        except ValueError:
-            print "index %d out of range for %s" % (index, entry)
-        except KeyError:
-            print "%s not found in element_maps" % entry
-        except TypeError:
-            print entry, index, val
+            except ValueError:
+                print "index %d out of range for %s" % (index, entry)
+            except KeyError:
+                print "%s not found in element_maps" % entry
+            except TypeError:
+                print entry, index, val
 
     def update_records(self, data):
         if data is None:

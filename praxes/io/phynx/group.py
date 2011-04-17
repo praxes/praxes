@@ -91,6 +91,10 @@ class Group(Node):
         return name in self._h5node
 
     @sync
+    def __delitem__(self, name):
+        del self._h5node[name]
+
+    @sync
     def __getitem__(self, name):
         try:
             h5node = self._h5node[name]

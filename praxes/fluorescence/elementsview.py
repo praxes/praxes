@@ -29,12 +29,13 @@ class ElementBaseFigure(QtMplCanvas):
         super(ElementBaseFigure, self).__init__(parent)
 
         self.scan_data = scan_data
-        axes = scan_data.entry.measurement.scalar_data.axes.values()
-        self._x_data = [a for a in axes if a.axis == 1][0]
-        try:
-            self._y_data = [a for a in axes if a.axis == 2][0]
-        except:
-            self._y_data = None
+        with self.scan_data:
+            axes = scan_data.entry.measurement.scalar_data.axes.values()
+            self._x_data = [a for a in axes if a.axis == 1][0]
+            try:
+                self._y_data = [a for a in axes if a.axis == 2][0]
+            except:
+                self._y_data = None
 
         self.autoscale = True
 
@@ -48,32 +49,33 @@ class ElementBaseFigure(QtMplCanvas):
 
     def onPick(self, xstart, ystart, xend, yend):
         # first find closest actual values:
-        x_data = self._x_data[...]
-        start_diffs = np.abs(x_data - xstart)
-        end_diffs = np.abs(x_data - xend)
-        if self._y_data is not None:
-            y_data = self._y_data[...]
-            start_diffs += np.abs(y_data - ystart)
-            end_diffs += np.abs(y_data - yend)
-        i_start = np.nonzero(np.ravel(start_diffs==start_diffs.min()))[0][0]
-        i_end = np.nonzero(np.ravel(end_diffs==end_diffs.min()))[0][0]
-        xstart = x_data[i_start]
-        xend = x_data[i_end]
-        if xstart > xend:
-            xstart, xend = xend, xstart
-        if self._y_data is not None:
-            ystart = y_data[i_start]
-            yend = y_data[i_end]
-            if ystart > yend:
-                ystart, yend = yend, ystart
+        with self.scan_data:
+            x_data = self._x_data[...]
+            start_diffs = np.abs(x_data - xstart)
+            end_diffs = np.abs(x_data - xend)
+            if self._y_data is not None:
+                y_data = self._y_data[...]
+                start_diffs += np.abs(y_data - ystart)
+                end_diffs += np.abs(y_data - yend)
+            i_start = np.nonzero(np.ravel(start_diffs==start_diffs.min()))[0][0]
+            i_end = np.nonzero(np.ravel(end_diffs==end_diffs.min()))[0][0]
+            xstart = x_data[i_start]
+            xend = x_data[i_end]
+            if xstart > xend:
+                xstart, xend = xend, xstart
+            if self._y_data is not None:
+                ystart = y_data[i_start]
+                yend = y_data[i_end]
+                if ystart > yend:
+                    ystart, yend = yend, ystart
 
-        # now find the indices contained therein:
-        items = np.logical_and(x_data >= xstart, x_data <= xend)
-        if self._y_data is not None:
-            temp = np.logical_and(y_data >= ystart, y_data <= yend)
-            items = np.logical_and(temp, items)
-        indices = np.nonzero(items)[0]
-        self.pickEvent.emit(indices)
+            # now find the indices contained therein:
+            items = np.logical_and(x_data >= xstart, x_data <= xend)
+            if self._y_data is not None:
+                temp = np.logical_and(y_data >= ystart, y_data <= yend)
+                items = np.logical_and(temp, items)
+            indices = np.nonzero(items)[0]
+            self.pickEvent.emit(indices)
 
     def setXLabel(self, label):
         self._xlabel = label
@@ -97,20 +99,21 @@ class ElementImageFigure(ElementBaseFigure):
         self._clim = [min, max or float(max==0)]
 
     def _createInitialFigure(self):
-        extent = []
-        axes = self.scan_data.entry.measurement.scalar_data.axes.values()
-        x_axis = [a for a in axes if a.axis == 1][0]
-        y_axis = [a for a in axes if a.axis == 2][0]
-        extent.extend(x_axis.range)
-        extent.extend(y_axis.range)
-        self.image = self.axes.imshow(self._elementData, extent=extent,
-                                       interpolation='nearest',
-                                       origin='lower')
-        self._colorbar = self.figure.colorbar(self.image)
+        with self.scan_data:
+            extent = []
+            axes = self.scan_data.entry.measurement.scalar_data.axes.values()
+            x_axis = [a for a in axes if a.axis == 1][0]
+            y_axis = [a for a in axes if a.axis == 2][0]
+            extent.extend(x_axis.range)
+            extent.extend(y_axis.range)
+            self.image = self.axes.imshow(self._elementData, extent=extent,
+                                           interpolation='nearest',
+                                           origin='lower')
+            self._colorbar = self.figure.colorbar(self.image)
 
-        self.axes.set_xlabel(posixpath.split(x_axis.name)[-1])
-        try: self.axes.set_ylabel(posixpath.split(y_axis.name)[-1])
-        except IndexError: pass
+            self.axes.set_xlabel(posixpath.split(x_axis.name)[-1])
+            try: self.axes.set_ylabel(posixpath.split(y_axis.name)[-1])
+            except IndexError: pass
 
     def enableAutoscale(self, val):
         self.autoscale = val
@@ -155,13 +158,16 @@ class ElementImageFigure(ElementBaseFigure):
 class ElementPlotFigure(ElementBaseFigure):
 
     def _createInitialFigure(self):
-        try:
-            sd = self.scan_data.entry.measurement.scalar_data
-            self._elementPlot, = self.axes.plot(self._x_data, self._elementData)
-            self.axes.set_xlabel(posixpath.split(self._x_data.name)[-1])
-            self.axes.set_xlim(self._x_data.range)
-        except:
-            self._elementPlot, = self.axes.plot(self._elementData)
+        with self.scan_data:
+            try:
+                sd = self.scan_data.entry.measurement.scalar_data
+                self._elementPlot, = self.axes.plot(
+                    self._x_data[:], self._elementData
+                    )
+                self.axes.set_xlabel(posixpath.split(self._x_data.name)[-1])
+                self.axes.set_xlim(self._x_data.range)
+            except:
+                self._elementPlot, = self.axes.plot(self._elementData)
 
     def enableAutoscale(self, val):
         self.axes.set_autoscale_on(val)
@@ -180,8 +186,9 @@ class ElementPlotFigure(ElementBaseFigure):
         else: self._elementData = elementData
 
 
-        self._elementPlot.set_xdata(self._x_data.value[:self.entry.acquired])
-        self._elementPlot.set_ydata(elementData[:self.entry.acquired])
+        with self.scan_data:
+            self._elementPlot.set_xdata(self._x_data[:self.entry.acquired])
+            self._elementPlot.set_ydata(elementData[:self.entry.acquired])
         self.axes.relim()
         self.axes.autoscale_view()
 
@@ -206,18 +213,19 @@ class ElementsView(QtGui.QGroupBox):
 
         layout = QtGui.QVBoxLayout()
 
-        if len(scan_data.entry.acquisition_shape) == 2:
-            self.figure = ElementImageFigure(scan_data, self)
+        with scan_data:
+            if len(scan_data.entry.acquisition_shape) == 2:
+                self.figure = ElementImageFigure(scan_data, self)
 
-        else:
-            self.figure = ElementPlotFigure(scan_data, self)
+            else:
+                self.figure = ElementPlotFigure(scan_data, self)
 
-        self.toolbar = Toolbar(self.figure, self)
-        layout.addWidget(self.toolbar)
-        layout.addWidget(self.figure)
-        self.setLayout(layout)
+            self.toolbar = Toolbar(self.figure, self)
+            layout.addWidget(self.toolbar)
+            layout.addWidget(self.figure)
+            self.setLayout(layout)
 
-        self._plotOptions = PlotOptions(scan_data, self.figure)
+            self._plotOptions = PlotOptions(scan_data, self.figure)
 
         self.toolbar.pickEvent.connect(self.figure.onPick)
         self.figure.pickEvent.connect(self.pickEvent)

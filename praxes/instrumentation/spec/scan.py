@@ -68,18 +68,18 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
         # It is possible for a scan number to appear multiple times in a
         # spec file. Booo!
-        name = str(info['acquisition_id'])
-        acq_order = ''
-        i = 0
-        while (name + acq_order) in h5File:
-            i += 1
-            acq_order = '.%d'%i
-        name = name + acq_order
+        with h5File:
+            name = str(info['acquisition_id'])
+            acq_order = ''
+            i = 0
+            while (name + acq_order) in h5File:
+                i += 1
+                acq_order = '.%d'%i
+            name = name + acq_order
 
-        # create the entry and measurement groups
-        self._scanData = h5File.create_group(name, 'Entry', **info)
-        measurement = self._scanData.create_measurement(**tree)
-        # create all the groups under measurement, defined by clientutils:
+            # create the entry and measurement groups
+            self._scanData = h5File.create_group(name, 'Entry', **info)
+            measurement = self._scanData.create_measurement(**tree)
 
         ScanView = praxes.application.getService('ScanView')
         view = ScanView(self._scanData)
@@ -111,7 +111,8 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
     def scanAborted(self):
 #        logger.info('Scan Aborted')
         if self._scanData is not None:
-            self._scanData.npoints = self._lastPoint + 1
+            with self._scanData:
+                self._scanData.npoints = self._lastPoint + 1
             self.aborted.emit()
             self.scanFinished()
 

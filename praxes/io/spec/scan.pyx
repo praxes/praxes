@@ -129,8 +129,6 @@ cdef class ScanIndex(Mapping):
                 elif ctag == b'L':
                     labels = line.decode('ascii').split()[1:]
                     attrs['labels'] = labels
-                    if 'monitor' not in attrs:
-                        attrs['monitor'] = labels[-1]
                     for column, label in enumerate(labels):
                         self._index[label] = create_scalar_proxy(
                             self.file_name,
@@ -151,6 +149,14 @@ cdef class ScanIndex(Mapping):
             positions = attrs.pop('positions')
             attrs['positions'] = dict(zip(positioners, positions))
 
+        if 'monitor' not in attrs:
+            try:
+                attrs['monitor'] = [
+                    i for i in attrs['user_comments']
+                    if i.startswith('monitor =')
+                    ][0].split('=')[-1].strip()
+            except IndexError:
+                attrs['monitor'] = attrs['labels'][-2]
         if 'monitor_efficiency' not in attrs:
             eff = [i for i in attrs['user_comments']
                    if i.startswith('monitor efficiency')]
