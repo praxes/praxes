@@ -3,6 +3,7 @@
 from __future__ import absolute_import, with_statement
 
 import posixpath
+import sys
 
 from distutils.version import LooseVersion
 
@@ -10,6 +11,43 @@ import h5py
 
 from .registry import registry
 from .utils import memoize#, simple_eval
+
+
+# this class is necessary because h5py does not accept unicode values:
+class AttrsProxy(object):
+
+    def __init__(self, attrs):
+        self._attrs = attrs
+
+    def __len__(self):
+        return len(self._attrs)
+
+    def __contains__(self, key):
+        return key in self._attrs
+
+    def __delitem__(self, key):
+        del self._attrs[key]
+
+    def __getitem__(self, key):
+        return self._attrs[key]
+
+    def __setitem__(self, key, val):
+        if sys.version_info[0] < 3:
+            if isinstance(val, unicode):
+                val = str(val)
+        self._attrs[key] = val
+
+    def get(self, key, default=None):
+        return self._attrs.get(key, default)
+
+    def keys(self):
+        return self._attrs.keys()
+
+    def values(self):
+        return self._attrs.values()
+
+    def items(self):
+        return self._attrs.items()
 
 
 class _RegisterPhynxClass(type):
@@ -30,8 +68,9 @@ class Node(object):
     __metaclass__ = _RegisterPhynxClass
 
     @property
+    @memoize
     def attrs(self):
-        return self._h5node.attrs
+        return AttrsProxy(self._h5node.attrs)
 
     @property
     def entry(self):

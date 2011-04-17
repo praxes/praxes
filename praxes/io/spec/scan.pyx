@@ -1,6 +1,7 @@
 cdef extern from 'ctype.h':
     int isdigit(char)
 
+from collections import OrderedDict
 import io
 
 import numpy as np
@@ -55,6 +56,9 @@ cdef class ScanIndex(Mapping):
 
         f = io.open(self.file_name, 'rb', buffering=1024*1024*2)
         attrs = self.attrs._index
+        comments = attrs.setdefault('comments', [])
+        user_comments = attrs.setdefault('user_comments', [])
+        mca_info = attrs.setdefault('mca_info', OrderedDict())
         f.seek(self._bytes_read)
         file_offset = f.tell()
         readline = f.readline
@@ -107,11 +111,21 @@ cdef class ScanIndex(Mapping):
                         [float(i) for i in temp]
                         )
                 elif ctag == b'C':
-                    comments = attrs.setdefault('comments', [])
-                    comments.append(line[3:-1].decode('ascii'))
+                    attrs['comments'].append(line[3:-1].decode('ascii'))
                 elif ctag == b'U':
-                    user_comments = attrs.setdefault('user_comments', [])
-                    user_comments.append(line[3:-1].decode('ascii'))
+                    attrs['user_comments'].append(line[3:-1].decode('ascii'))
+                elif ctag == b'@':
+                    temp = line[1:].decode('ascii').split()
+                    if temp[0] == '@CHANN':
+                        mca_info.values()[-1]['channels'] = [
+                            int(i) for i in temp[1:]
+                            ]
+                    elif temp[0] == '@CALIB':
+                        mca_info.values()[-1]['calibration'] = [
+                            float(i) for i in temp[1:]
+                            ]
+                    else:
+                        mca_info[temp[0]] = {}
                 elif ctag == b'L':
                     labels = line.decode('ascii').split()[1:]
                     attrs['labels'] = labels
@@ -136,6 +150,15 @@ cdef class ScanIndex(Mapping):
             positioners = attrs.pop('positioners')
             positions = attrs.pop('positions')
             attrs['positions'] = dict(zip(positioners, positions))
+
+        if 'monitor_efficiency' not in attrs:
+            eff = [i for i in attrs['user_comments']
+                   if i.startswith('monitor efficiency')]
+            if eff:
+                eff = float(eff[0].split()[-1])
+            else:
+                eff = 1
+            attrs['monitor_efficiency'] = eff
 
         for key, index in self._mca_data_indices.items():
             if key not in self._index:

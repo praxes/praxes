@@ -33,3 +33,14 @@ class TestSorting(TestCase):
         c.attrs['start_time'] = 0
         self.assert_(c < a)
         self.assertEqual(f.values(), [c, a, b])
+
+    def test_entry_id(self):
+        f = self.mktemp()
+        a = f.create_group('1', 'Entry')
+        b = f.create_group('2', 'Entry')
+        self.assertTrue(a < b)
+        c = f.create_group('15', 'Entry')
+        self.assert_(b < c)
+        d = f.create_group('1.1', 'Entry')
+        self.assertTrue(a < d and d < b and d < c)
+        self.assertEqual(f.values(), [a, d, b, c])

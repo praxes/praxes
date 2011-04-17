@@ -125,7 +125,8 @@ class H5NodeProxy(object):
     def getNode(self, name=None):
         if not name:
             name = self.name
-        return self.file[name]
+        with self.file:
+            return self.file[name]
 
     def __len__(self):
         return len(self.children)
@@ -135,15 +136,15 @@ class H5FileProxy(H5NodeProxy):
 
     @property
     def file_name(self):
-        return self.file.file_name
+        with self.file:
+            return self.file.file_name
 
     def __init__(self, file, parent=None):
         super(H5FileProxy, self).__init__(file, file, parent)
         self._name = file.name
 
     def close(self):
-        with self.file:
-            return self.file.close()
+        return self.file.close()
 
     def __getitem__(self, path):
         if path == '/':

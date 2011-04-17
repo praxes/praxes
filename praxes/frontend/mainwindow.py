@@ -106,18 +106,22 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
 
     @QtCore.pyqtSignature("")
     def on_actionImportSpecFile_triggered(self, force=False):
-        f = '%s'% QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.',
-                    "Spec datafiles (*.dat *.mca);;All files (*)")
+        f = '%s'% QtGui.QFileDialog.getOpenFileName(
+            self,
+            'Open File',
+            os.getcwd(),
+            "Spec datafiles (*.dat *.mca);;All files (*)"
+            )
         if f:
             while 1:
                 h5_filename = str(
                     QtGui.QFileDialog.getSaveFileName(
                         self,
                         'Save HDF5 File',
-                        './'+f+'.h5',
+                        os.path.join(os.getcwd(), f+'.h5'),
                         'HDF5 files (*.h5 *.hdf5 *.hdf *.nxs)'
+                        )
                     )
-                )
                 if h5_filename and os.path.isfile(h5_filename):
                     res = QtGui.QMessageBox.question(
                         self,
@@ -125,7 +129,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                         'Do you want to overwrite the existing file?',
                         QtGui.QMessageBox.Yes,
                         QtGui.QMessageBox.No
-                    )
+                        )
                     if res == QtGui.QMessageBox.Yes:
                         os.remove(h5_filename)
                     else:
@@ -135,7 +139,9 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                 self.statusBar.showMessage('Converting spec data...')
                 #QtGui.qApp.processEvents()
                 from praxes.io.phynx.migration.spec import convert_to_phynx
-                f = convert_to_phynx(f, h5_filename=h5_filename, force=True)
+                f = convert_to_phynx(
+                    f, h5_filename=h5_filename, force=True, report=True
+                    )
                 f.close()
                 del f
                 self.statusBar.clearMessage()
@@ -245,15 +251,13 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         self.statusBar.clearMessage()
 
         return scanView
-##
-##
 
     def openFile(self, filename=None):
         if filename is None:
             filename = QtGui.QFileDialog.getOpenFileName(
                 self,
                 'Open File',
-                '.',
+                os.getcwd(),
                 "hdf5 files (*.h5 *.hdf5 *.hdf *.nxs)"
             )
         if filename:
@@ -266,12 +270,14 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             newfilename = QtGui.QFileDialog.getSaveFileName(
                 self,
                 "Save File",
-                filename,
+                os.path.join(os.getcwd(), filename),
                 "hdf5 files (*.h5 *.hdf5 *.hdf *.nxs)"
-            )
+                )
             if newfilename:
                 newfilename = str(newfilename)
-                if newfilename.split('.')[-1] not in ('h5', 'hdf5', 'hdf', 'nxs'):
+                if os.path.splitext(newfilename)[-1] not in (
+                    'h5', 'hdf5', 'hdf', 'nxs'
+                    ):
                     newfilename = newfilename + '.h5'
                 return self.fileModel.openFile(newfilename)
 

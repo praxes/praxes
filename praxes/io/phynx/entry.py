@@ -8,7 +8,7 @@ import re
 
 from .group import Group
 from .registry import registry
-from .utils import sync
+from .utils import sync, simple_eval
 
 
 class AcquisitionID(object):
@@ -122,7 +122,7 @@ class Entry(Group):
         try:
             return json.loads(temp)
         except ValueError:
-            return simple_eval()
+            return simple_eval(temp)
 
     @property
     def entry(self):
@@ -166,7 +166,11 @@ class Entry(Group):
             if k is None:
                 k = item.attrs.get('end_time', None)
             if k is None:
-                k = self.id
+                k = item.id
+                try:
+                    k = float(k[1:])
+                except ValueError:
+                    pass
             keys.append(k)
         s, o = keys
         return s < o

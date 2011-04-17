@@ -120,7 +120,7 @@ class HasSignals(object):
         from .dataset import Signal
         return OrderedDict(
             (posixpath.basename(j.name), j)
-            for j in sorted(i for i in self.values() if isinstance(i, Axis))
+            for j in sorted(i for i in self.values() if isinstance(i, Signal))
             )
 
 
