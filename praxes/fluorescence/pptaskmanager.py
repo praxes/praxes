@@ -83,7 +83,7 @@ class XfsPPTaskManager(PPTaskManager):
     def __init__(self, scan, config, progress_queue, **kwargs):
         super(XfsPPTaskManager, self).__init__(scan, progress_queue, **kwargs)
 
-        self._measurement = scan.measurement
+        self._measurement = scan.entry.measurement
         self._indices = self._measurement.scalar_data['i']
         self._masked = self._measurement.masked
         try:
@@ -108,9 +108,14 @@ class XfsPPTaskManager(PPTaskManager):
         if i >= self.n_points:
             raise StopIteration()
 
-        with self.scan.plock:
-            if i != self._indices[i]:
-                if i >= self._measurement.acquired:
+        with self.scan:
+            try:
+                suspect = i != self._indices[i]
+            except IndexError:
+                suspect = True
+            if suspect:
+                if i >= self._measurement.entry.npoints:
+                    # entry.npoints has changed, scan was aborted
                     raise StopIteration()
                 # expected the datapoint, but not yet acquired
                 return None
@@ -133,7 +138,7 @@ class XfsPPTaskManager(PPTaskManager):
 
     def update_element_map(self, element, map_type, index, val):
         try:
-            with self.scan.plock:
+            with self.scan:
                 entry = '%s_%s'%(element, map_type)
                 self.scan['element_maps'][entry][index] = val
         except ValueError:
@@ -165,7 +170,7 @@ class XfsPPTaskManager(PPTaskManager):
 
         try:
             mass_fractions = result['concentrations']['mass fraction']
-            for key, val in mass_fractions.iteritems():
+            for key, val in mass_fractions.items():
                 k = key.replace(' ', '_')
                 self.update_element_map(k, 'mass_fraction', index, val)
         except KeyError:

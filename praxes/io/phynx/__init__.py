@@ -3,7 +3,9 @@
 
 from __future__ import absolute_import
 
-from .version import __version__
+from .version import __version__, __format_version__
+
+from .file import open
 
 from .beam import Beam
 from .characterization import Characterization
@@ -13,7 +15,7 @@ from .component import (
     Filter, Flipper, Guide, Insertion_device, Mirror,
     Moderator, Monochromator, Polarizer, Positioner, Source,
     Velocity_selector
-)
+    )
 from .data import Data, EventData, Monitor
 from .dataset import Axis, Dataset, DeadTime, Signal
 from .detector import AreaDetector, Detector, LinearDetector, Mar345
@@ -30,12 +32,8 @@ from .note import Note
 from .process import Process
 from .processeddata import (
     ProcessedData, ElementMaps, Fit, FitError, MassFraction
-)
+    )
 from .sample import Sample
 from .user import User
 
 from .registry import registry
-
-from .utils import simple_eval, sorting
-
-from .exceptions import H5Error

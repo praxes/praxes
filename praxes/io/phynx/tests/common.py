@@ -1,3 +1,4 @@
+import os
 import shutil
 import sys
 import tempfile
@@ -8,6 +9,8 @@ else:
     import unittest2 as ut
 
 import numpy as np
+
+from ..file import open
 
 
 class TestCase(ut.TestCase):
@@ -20,10 +23,17 @@ class TestCase(ut.TestCase):
     def tearDownClass(cls):
         shutil.rmtree(cls.tempdir)
 
-    def mktemp(self, suffix='', prefix='', dir=None):
+    def getfile(self, filename, mode='a'):
+        dir = self.tempdir
+        fname = tempfile.mktemp(suffix='.h5', dir=self.tempdir)
+        path = os.path.split(__file__)[0]
+        shutil.copy(os.path.join(path, filename), fname)
+        return open(fname, mode=mode)
+
+    def mktemp(self, mode='a', suffix='.h5', prefix='', dir=None):
         if dir is None:
             dir = self.tempdir
-        return tempfile.mktemp(suffix, prefix, dir=self.tempdir)
+        return open(tempfile.mktemp(suffix, prefix, dir=self.tempdir), mode)
 
     def assertArrayEqual(self, a1, a2, msg=None, delta=None):
         """

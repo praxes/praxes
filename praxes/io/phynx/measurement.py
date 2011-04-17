@@ -3,6 +3,7 @@
 
 from __future__ import absolute_import
 
+from collections import OrderedDict
 import copy
 import posixpath
 
@@ -24,7 +25,10 @@ class Measurement(Group):
     @property
     @sync
     def acquired(self):
-        return self.attrs.get('acquired', self.npoints)
+        try:
+            return self.attrs.get['acquired']
+        except:
+            return self.entry.npoints
     @acquired.setter
     @sync
     def acquired(self, value):
@@ -39,7 +43,7 @@ class Measurement(Group):
     @sync
     def mcas(self):
         return dict([
-            (posixpath.split(a.name)[-1], a) for a in self.iterobjects()
+            (posixpath.split(a.name)[-1], a) for a in self.values()
             if isinstance(a, registry['MultiChannelAnalyzer'])
         ])
 
@@ -48,7 +52,7 @@ class Measurement(Group):
     @sync
     def positioners(self):
         targets = [
-            i for i in self.iterobjects() if isinstance(i, Positioners)
+            i for i in self.values() if isinstance(i, Positioners)
         ]
         nt = len(targets)
         if nt == 1:
@@ -67,13 +71,15 @@ class Measurement(Group):
             return self._pymca_config
         except AttributeError:
             from PyMca.ConfigDict import ConfigDict
-            config = self.attrs.get('pymca_config', '{}')
-            self._pymca_config = ConfigDict(simple_eval(config))
+            # would like to use json.loads here:
+            config = simple_eval(self.attrs.get('pymca_config', '{}'))
+            self._pymca_config = ConfigDict(config)
             return copy.deepcopy(self._pymca_config)
     @pymca_config.setter
     @sync
     def pymca_config(self, config):
         self._pymca_config = copy.deepcopy(config)
+        # would like to use json.dumps here:
         self.attrs['pymca_config'] = str(config)
 
     @property
@@ -81,7 +87,7 @@ class Measurement(Group):
     @sync
     def scalar_data(self):
         targets = [
-            i for i in self.iterobjects() if isinstance(i, ScalarData)
+            i for i in self.values() if isinstance(i, ScalarData)
         ]
         nt = len(targets)
         if nt == 1:
@@ -93,8 +99,54 @@ class Measurement(Group):
                 'There should be one ScalarData group per entry, found %d' % nm
             )
 
+    @sync
+    def update(self, **kwargs):
+        with self:
+            i = kwargs['scalar_data/i']
+            for k, val in kwargs.items():
+                try:
+                    self[k][i] = val
+                except ValueError:
+                    self[k].resize(i+1, axis=0)
+                    self[k][i] = val
+            self.acquired = i+1
 
-class ScalarData(Group):
+
+class HasSignals(object):
+
+    @property
+    @sync
+    def signals(self):
+        from .dataset import Signal
+        return OrderedDict(
+            (posixpath.basename(j.name), j)
+            for j in sorted(i for i in self.values() if isinstance(i, Signal))
+            )
+
+
+class HasAxes(object):
+
+    @property
+    @sync
+    def axes(self):
+        from .dataset import Axis
+        return OrderedDict(
+            (posixpath.basename(j.name), j)
+            for j in sorted(i for i in self.values() if isinstance(i, Axis))
+            )
+
+
+class HasMonitor(object):
+
+    @property
+    @sync
+    def monitor(self):
+        id = self.attrs.get('monitor', None)
+        if id is not None:
+            return self[id]
+
+
+class ScalarData(Group, HasAxes, HasMonitor, HasSignals):
 
     """
     A group containing all the scanned scalar data in the measurement,
@@ -107,13 +159,6 @@ class ScalarData(Group):
     * etc.
 
     """
-
-    @property
-    @sync
-    def monitor(self):
-        id = self.attrs.get('monitor', None)
-        if id is not None:
-            return self[id]
 
 
 class Positioners(Group):
@@ -128,31 +173,17 @@ class Positioners(Group):
 class MaskedProxy(object):
 
     @property
-    def acquired(self):
-        return self._measurement.acquired
-
-    @property
     def masked(self):
         return self
-
-    @property
-    @memoize
-    def npoints(self):
-        return self._measurement.npoints
-
-    @property
-    @memoize
-    def plock(self):
-        return self._measurement.plock
 
     def __init__(self, measurement):
         self._measurement = measurement
 
-    @sync
     def __getitem__(self, args):
         try:
             return self._measurement.scalar_data['masked'].__getitem__(args)
         except KeyError:
             if isinstance(args, int):
                 return False
-            return np.zeros(self._measurement.npoints, '?').__getitem__(args)
+            temp = np.zeros(self._measurement.entry.npoints, '?')
+            return temp.__getitem__(args)

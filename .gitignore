@@ -11,3 +11,4 @@ MANIFEST
 .DS_Store
 *_rc.py
 ui_*.py
+*.patch

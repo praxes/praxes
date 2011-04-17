@@ -26,6 +26,7 @@ b"""#F testfile.dat
 #P1 1 2 3
 #C A gratuitous comment
 #U A user comment
+#U monitor efficiency 1.2e-5
 #@vortex %25C
 #@CHANN 30 0 29 1
 #@CALIB 0 0.01 0
@@ -40,6 +41,22 @@ b"""#F testfile.dat
 1 300 1000 300
 @vortex 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\\
  0 0 0 0 10000
+
+#S 2  dscan  samx -1 1 2 1
+#D Sat Jan 1 00:01:00 2010
+#M 1000  (I0)
+#G0 0
+#G1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+#G3 0 0 0 0 0 0 0 0 0
+#G4 0
+#Q
+#P0 0 10 -10
+#P1 1 2 3
+#N 4
+#L samx  Epoch  I0  I1
+-1 100 1000 100
+0 200 1000 200
+1 300 1000 300
 """
 
 
@@ -61,7 +78,10 @@ class TestSpecScanInterface(TestCase):
         self.assertEqual(self.f['1'].attrs['command'], 'dscan samx -1 1 2 1')
 
     def test_comments(self):
-        self.assertEqual(self.f['1'].attrs['comments'], ['A gratuitous comment'])
+        self.assertEqual(
+            self.f['1'].attrs['comments'], ['A gratuitous comment']
+            )
+        self.assertEqual(self.f['2'].attrs['comments'], [])
 
     def test_data(self):
         data = self.f['1'].data
@@ -85,6 +105,9 @@ class TestSpecScanInterface(TestCase):
 
     def test_epoch_offset(self):
         self.assertEqual(self.f['1'].attrs['epoch_offset'], 1000)
+
+    def test_file_origin(self):
+        self.assertEqual(self.f['1'].attrs['file_origin'], 'testfile.dat')
 
     def test_get_item(self):
         scan = self.f['1']
@@ -112,6 +135,11 @@ class TestSpecScanInterface(TestCase):
         "test that the scan length is equal to the number of entries"
         self.assertEqual(len(self.f['1']), 5)
 
+    def test_mca_info(self):
+        i = self.f['1'].attrs['mca_info']
+        self.assertEqual(i['@vortex']['channels'], [30, 0, 29, 1])
+        self.assertEqual(i['@vortex']['calibration'], [0, 0.01, 0])
+
     def test_mcas(self):
         data = self.f['1']['@vortex']
         ref = np.array(
@@ -134,6 +162,12 @@ class TestSpecScanInterface(TestCase):
     def test_monitor(self):
         self.assertEqual(self.f['1'].attrs['monitor'], 'I0')
 
+    def test_monitor_efficiency(self):
+        self.assertEqual(self.f['1'].attrs['monitor_efficiency'], 1.2e-5)
+
+    def test_orientations(self):
+        self.assertEqual(self.f['1'].attrs['orientations'][0], [0.0])
+
     def test_positions(self):
         self.assertEqual(
             self.f['1'].attrs['positions'],
@@ -148,17 +182,20 @@ class TestSpecScanInterface(TestCase):
         ref = reference_data.split(b'\n')
 
         with open(self.file_name, 'ab') as f:
-            f.write(b'\n'.join(ref[5:]))
+            f.write(b'\n'.join(ref[6:]))
         self.f.update()
         self.assertEqual(len(self.f['1.2']), 5)
 
         with open(self.file_name, 'ab') as f:
-            f.write(b'\n'.join(ref[-4:]))
+            f.write(b'\n'.join(ref[-2:]))
         self.f.update()
-        self.assertArrayEqual(self.f['1.2']['samx'][...], np.array([-1,0,1,1]))
+        self.assertArrayEqual(self.f['2.2']['samx'][...], np.array([-1,0,1,1]))
 
     def test_user(self):
         self.assertEqual(self.f['1'].attrs['user'], 'specuser')
 
     def test_user_comments(self):
-        self.assertEqual(self.f['1'].attrs['user_comments'], ['A user comment'])
+        self.assertEqual(
+            self.f['1'].attrs['user_comments'],
+            ['A user comment', 'monitor efficiency 1.2e-5'])
+        self.assertEqual(self.f['2'].attrs['user_comments'], [])

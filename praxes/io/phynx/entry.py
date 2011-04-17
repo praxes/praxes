@@ -3,11 +3,12 @@
 
 from __future__ import absolute_import
 
+import json
 import re
 
 from .group import Group
 from .registry import registry
-from .utils import sync
+from .utils import sync, simple_eval
 
 
 class AcquisitionID(object):
@@ -101,12 +102,27 @@ class Entry(Group):
     nx_class = 'NXentry'
 
     @property
+    @sync
+    def acquired(self):
+        return self.measurement.acquired
+
+    @property
     def acquisition_command(self):
         return self.attrs.get('acquisition_command', '')
 
     @property
     def acquisition_id(self):
         return AcquisitionID(self.attrs.get('acquisition_id', '0'))
+
+    @property
+    def acquisition_shape(self):
+        temp = self.attrs.get('acquisition_shape', None)
+        if temp is None:
+            return
+        try:
+            return json.loads(temp)
+        except ValueError:
+            return simple_eval(temp)
 
     @property
     def entry(self):
@@ -116,9 +132,9 @@ class Entry(Group):
     @sync
     def measurement(self):
         measurements = [
-            i for i in self.itervalues()
+            i for i in self.values()
             if isinstance(i, registry['Measurement'])
-        ]
+            ]
         nm = len(measurements)
         if nm == 1:
             return measurements[0]
@@ -129,16 +145,58 @@ class Entry(Group):
                 'There should be one Measurement group per entry, found %d' % nm
             )
 
+    @property
     @sync
-    def _get_npoints(self):
+    def npoints(self):
         return self.attrs.get('npoints', 0)
+    @npoints.setter
     @sync
-    def _set_npoints(self, np):
-        def func(name, obj):
-            obj.attrs['npoints'] = np
-            try:
-                obj.resize(np, axis=0)
-            except (AttributeError, TypeError):
-                pass
-        self.visititems(func)
-    npoints = property(_get_npoints, _set_npoints)
+    def npoints(self, np):
+        self.attrs['npoints'] = np
+
+    @property
+    def source_file(self):
+        return self.attrs.get('source_file', self.file.file_name)
+
+    # this method is required for sorted():
+    def __lt__(self, other):
+        keys = []
+        for item in (self, other):
+            k = item.attrs.get('start_time', None)
+            if k is None:
+                k = item.attrs.get('end_time', None)
+            if k is None:
+                k = item.id
+                try:
+                    k = float(k[1:])
+                except ValueError:
+                    pass
+            keys.append(k)
+        s, o = keys
+        return s < o
+
+    def create_measurement(self, **kwargs):
+        """
+        *kwargs* is a {key: (type, attrs)} dict, such that:
+
+        measurement.create_{group,dataset}(key, type=type, **attrs)
+        """
+        m = self.create_group('measurement', type='Measurement')
+        m.create_group('scalar_data', 'ScalarData')
+        m.create_group('positioners', 'Positioners')
+
+        keys = sorted(kwargs.keys())
+        for k in keys:
+            t, kws = kwargs.pop(k)
+            if issubclass(registry[t], registry['Dataset']):
+                m.create_dataset(k, type=t, **kws)
+            else:
+                m.create_group(k, type=t, **kws)
+
+        # make a few links:
+        if 'masked' in m['scalar_data']:
+            for k, val in m.mcas.items():
+                val['masked'] = m['scalar_data/masked']
+
+    def update_measurement(self, **kwargs):
+        self.measurement.update(**kwargs)

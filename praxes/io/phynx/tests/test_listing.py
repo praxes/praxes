@@ -1,70 +1,46 @@
 
 from __future__ import absolute_import, with_statement
 
-import posixpath
-import time
+from .common import TestCase, ut
 
-from numpy import testing as npt
-from .utils import TestCase
-from ..exceptions import H5Error
-from .. import sorting
 
 class TestSorting(TestCase):
 
     def test_defaults(self):
-        with self.file as f:
-            a=f.create_group('a')
-            b=f.create_group('b')
-            c=f.create_group('c')
-            npt.assert_array_equal(f.keys(), ['a', 'b', 'c'])
-            npt.assert_array_equal(f.values(), [a, b, c])
-            npt.assert_array_equal(f.items(), [('a', a), ('b', b), ('c', c)])
-            npt.assert_array_equal(f.listnames(), ['a', 'b', 'c'])
-            npt.assert_array_equal(f.listobjects(), [a, b, c])
-            npt.assert_array_equal(f.listitems(), [('a', a), ('b', b), ('c', c)])
+        f = self.mktemp()
+        a = f.create_group('a')
+        b = f.create_group('b')
+        c = f.create_group('c')
+        self.assertItemsEqual(f.keys(), ['a', 'b', 'c'])
+        self.assertItemsEqual(f.values(), [a, b, c])
+        self.assertItemsEqual(f.items(), [('a', a), ('b', b), ('c', c)])
 
     def test_sequential_name(self):
-        with self.file as f:
-            f.sorted_with(sorting.sequential)
-
-            f.create_group('a')
-            f.create_group('b')
-            f.create_group('c')
-            npt.assert_equal(f.keys(), ['a', 'b', 'c'])
+        f = self.mktemp()
+        a = f.create_group('a')
+        b = f.create_group('b')
+        c = f.create_group('c')
+        self.assertEqual(f.values(), [a, b, c])
 
     def test_default_start_time(self):
-        with self.file as f:
-            a = f.create_group('c')
-            a.attrs['start_time'] = time.time()
-            time.sleep(.01)
+        f = self.mktemp()
+        a = f.create_group('c', 'Entry')
+        a.attrs['start_time'] = 1
+        b = f.create_group('b', 'Entry')
+        b.attrs['start_time'] = 2
+        self.assert_(a < b)
+        c = f.create_group('a', 'Entry')
+        c.attrs['start_time'] = 0
+        self.assert_(c < a)
+        self.assertEqual(f.values(), [c, a, b])
 
-            b = f.create_group('b')
-            b.attrs['start_time'] = time.time()
-            time.sleep(.01)
-
-            c = f.create_group('a')
-            c.attrs['start_time'] = time.time()
-
-            npt.assert_equal(f.keys(), ['a', 'b', 'c'])
-
-    def test_sequential_start_time(self):
-        with self.file as f:
-            f.sorted_with(sorting.sequential)
-
-            a = f.create_group('c')
-            a.attrs['start_time'] = time.time()
-            time.sleep(.01)
-
-            b = f.create_group('b')
-            b.attrs['start_time'] = time.time()
-            time.sleep(.01)
-
-            c = f.create_group('a')
-            c.attrs['start_time'] = time.time()
-
-            npt.assert_equal(f.keys(), ['c', 'b', 'a'])
-            npt.assert_array_equal(f.values(), [c, b, a])
-            npt.assert_array_equal(f.items(), [('c', c), ('b', b), ('a', a)])
-            npt.assert_array_equal(f.listnames(), ['c', 'b', 'a'])
-            npt.assert_array_equal(f.listobjects(), [c, b, a])
-            npt.assert_array_equal(f.listitems(), [('c', c), ('b', b), ('a', a)])
+    def test_entry_id(self):
+        f = self.mktemp()
+        a = f.create_group('1', 'Entry')
+        b = f.create_group('2', 'Entry')
+        self.assertTrue(a < b)
+        c = f.create_group('15', 'Entry')
+        self.assert_(b < c)
+        d = f.create_group('1.1', 'Entry')
+        self.assertTrue(a < d and d < b and d < c)
+        self.assertEqual(f.values(), [a, d, b, c])

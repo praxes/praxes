@@ -33,7 +33,7 @@ def convert_entry(old, new):
                 newMaps.create_dataset(
                     element,
                     type=cls,
-                    data=map.value.flatten()
+                    data=map[...].flatten()
                 )
     except:
         pass

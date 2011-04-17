@@ -1,58 +1,57 @@
-
 from __future__ import absolute_import, with_statement
 
-import posixpath
 import time
+import warnings
+warnings.filterwarnings("ignore")
+
+from .common import TestCase, ut
+from ..file import open
+from ..registry import registry
 
 import numpy as np
-from numpy import testing as npt
-from .utils import TestCase
-from ..exceptions import H5Error
-from .. import sorting
 
-from praxes.io import phynx
 
-class TestSorting(TestCase):
+class TestConstruction(TestCase):
 
     def test_unrecognized_class(self):
-        with self.file as f:
-            a = f.create_group('a')
-            a.attrs['class'] = np.array('Foo')
-            assert isinstance(f['a'], phynx.Group)
+        f = self.mktemp()
+        a = f.create_group('a')
+        a.attrs['class'] = 'Foo'
+        self.assert_(isinstance(f['a'], registry['Group']))
 
     def test_unrecognized_nxclass(self):
-        with self.file as f:
-            a = f.create_group('a')
-            a.attrs['nx_class'] = np.array('Foo')
-            assert isinstance(f['a'], phynx.Group)
+        f = self.mktemp()
+        a = f._h5node.create_group('a')
+        a.attrs['nx_class'] = 'Foo'
+        self.assert_(isinstance(f['a'], registry['Group']))
 
     def test_class_attribute_array(self):
-        with self.file as f:
-            a = f.create_group('a')
-            a.attrs['class'] = np.array(['Foo'])
-            assert isinstance(f['a'], phynx.Group)
+        f = self.mktemp()
+        a = f.create_group('a')
+        a.attrs['class'] = np.array(['Foo'])
+        self.assert_(isinstance(f['a'], registry['Group']))
 
     def test_class_attribute_respected(self):
-        with self.file as f:
-            a = f.create_group('a')
-            a.attrs['class'] = 'Measurement'
-            assert isinstance(f['a'], phynx.Measurement)
+        f = self.mktemp()
+        a = f.create_group('a')
+        a.attrs['class'] = 'Measurement'
+        self.assert_(isinstance(f['a'], registry['Measurement']))
 
     def test_class_attribute_saved(self):
-        with self.file as f:
-            a = f.create_group('a', type='Entry')
-            assert isinstance(f['a'], phynx.Entry)
+        f = self.mktemp()
+        a = f.create_group('a', type='Entry')
+        self.assert_(isinstance(f['a'], registry['Entry']))
 
     def test_use_nxclass(self):
-        with self.file as f:
-            a = f.create_group('a', type='Entry')
-            del a.attrs['class']
-            assert isinstance(f['a'], phynx.Entry)
+        f = self.mktemp()
+        a = f.create_group('a', type='Entry')
+        del a.attrs['class']
+        self.assert_(isinstance(f['a'], registry['Entry']))
 
     def test_use_default_interface(self):
-        with self.file as f:
-            a = f.create_group('a', type='Entry')
-            del a.attrs['class']
-            del a.attrs['NX_class']
-            assert not isinstance(f['a'], phynx.Entry)
-            assert isinstance(f['a'], phynx.Group)
+        f = self.mktemp()
+        a = f.create_group('a', type='Entry')
+        del a.attrs['class']
+        del a.attrs['NX_class']
+        self.assert_(not isinstance(f['a'], registry['Entry']))
+        self.assert_(isinstance(f['a'], registry['Group']))

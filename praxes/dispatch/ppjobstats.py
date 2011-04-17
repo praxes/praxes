@@ -57,12 +57,12 @@ class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):
     def updateTable(self, statsDict=None):
         if statsDict is None: statsDict = self.server.get_stats()
 
-        totalJobs = np.sum([i.njobs for i in statsDict.itervalues()])
+        totalJobs = np.sum([i.njobs for i in statsDict.values()])
 
         self.jobStatsTable.setUpdatesEnabled(False)
         self.jobStatsTable.clearContents()
         self.jobStatsTable.setRowCount(len(statsDict))
-        for row, (address, stats) in enumerate(statsDict.iteritems()):
+        for row, (address, stats) in enumerate(statsDict.items()):
             item = QtGui.QTableWidgetItem(address)
             item.setTextAlignment(QtCore.Qt.AlignCenter)
             self.jobStatsTable.setItem(row, 0, item)

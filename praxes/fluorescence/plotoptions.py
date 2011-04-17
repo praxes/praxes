@@ -18,7 +18,7 @@ class PlotOptions(Ui_PlotOptions, QtGui.QGroupBox):
 
         self._figure = figure
 
-        if len(scan_data.acquisition_shape) != 2:
+        if len(scan_data.entry.acquisition_shape) != 2:
             self.imageSettingsWidget.setVisible(False)
 
         self._figure.maxValueChanged.connect(self.maxSpinBox.setValue)
