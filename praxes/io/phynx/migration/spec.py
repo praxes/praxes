@@ -58,6 +58,7 @@ def _mesh(scan_info, *args):
         scan_info['scan_shape'].append(step)
     return scan_info
 get_scan_metadata['mesh'] = _mesh
+get_scan_metadata['zzmesh'] = _mesh
 
 def _smesh(scan_info, *args):
     # Example: smesh  scany 32.3 32.7 -0.05 0.15 100  scanx -143.5 -123.5 40  1

@@ -218,7 +218,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         h5File = self._specFileRegistry.get(key, None)
 
         if not h5File:
-            default = key.split(os.path.sep)[-1] + '.h5'
+            default = key.split(os.path.sep)[-1]+'.h5'
             h5File = self.saveFile(default)
             if h5File:
                 self._specFileRegistry[key] = h5File
@@ -276,7 +276,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             if newfilename:
                 newfilename = str(newfilename)
                 if os.path.splitext(newfilename)[-1] not in (
-                    'h5', 'hdf5', 'hdf', 'nxs'
+                    '.h5', '.hdf5', '.hdf', '.nxs'
                     ):
                     newfilename = newfilename + '.h5'
                 return self.fileModel.openFile(newfilename)

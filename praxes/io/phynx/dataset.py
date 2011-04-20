@@ -29,6 +29,10 @@ class Dataset(Node):
     def map(self):
         res = self._h5node[...]
         res.shape = self.entry.acquisition_shape
+        if self.entry.acquisition_command.startswith('zzmesh'):
+            for i, val in enumerate(res):
+                if i%2:
+                    res[i] = np.array(val[::-1])
         return res
 
     @property

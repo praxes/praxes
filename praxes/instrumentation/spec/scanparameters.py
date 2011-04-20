@@ -232,6 +232,10 @@ class MeshParameters(ScanParameters):
         return [fastAxis, slowAxis]
 
 
+class ZZMeshParameters(MeshParameters):
+    _cmd = 'zzmesh'
+
+
 class EScanParameters(ScanParameters):
     pass
 
@@ -253,6 +257,7 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
     _scanParametersClasses['d2scan'] = D2ScanParameters
     _scanParametersClasses['d3scan'] = D3ScanParameters
     _scanParametersClasses['mesh'] = MeshParameters
+    _scanParametersClasses['zzmesh'] = ZZMeshParameters
 #    _scanParametersClasses['Escan'] = EScanParameters
 #    _scanParametersClasses['tseries'] = TSeriesParameters
 
@@ -260,7 +265,7 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
         ['',
          'ascan', 'a2scan', 'a3scan',
          'dscan', 'd2scan', 'd3scan',
-         'mesh'
+         'mesh', 'zzmesh'
         ]
 
     def __init__(self, specRunner, parent=None):
@@ -331,7 +336,8 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
     @QtCore.pyqtSignature("")
     def on_scanButton_clicked(self):
         args = self._scanParameters.getScanArgs()
-        args.append(self.integrationTimeSpinBox.value())
+        if not isinstance(self._scanParameters, ZZMeshParameters):
+            args.append(self.integrationTimeSpinBox.value())
         cmd = ' '.join(str(i) for i in args)
 
         self._scan(cmd)
