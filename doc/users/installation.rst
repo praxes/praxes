@@ -15,7 +15,6 @@ Check that you have the following installed:
 #. PyQt4_ (version 4.5.2 or later) [#f1]_
 #. PyMca_ (version 4.4.0 or later, Windows users, please see footnote) [#f2]_
 #. matplotlib_ (0.98.3 or later)
-#. ParallelPython_ (version 1.6.0 or later)
 #. h5py_ (1.3.0 or later) [#f3]_
 #. Praxes_
 
@@ -46,6 +45,5 @@ and run the following in the source directory::
 .. _Qt: http://qt.nokia.com/
 .. _matplotlib: http://pypi.python.org/pypi/matplotlib
 .. _PyMca: http://pypi.python.org/pypi/PyMca
-.. _ParallelPython: http://pypi.python.org/pypi/pp
 .. _h5py: http://pypi.python.org/pypi/h5py
 .. _Praxes: http://github.com/praxes/praxes/downloads
