@@ -6,20 +6,20 @@ import copy
 import gc
 import hashlib
 import logging
+import multiprocessing
 import threading
 import time
 
-import pp
-#from PyQt4 import QtCore
 import numpy as np
 np.seterr(all='ignore')
+from PyQt4 import QtCore
 
 
 logger = logging.getLogger(__file__)
 DEBUG = False
 
 
-class PPTaskManager(threading.Thread):
+class TaskManager(threading.Thread):
 
     @property
     def job_server(self):
@@ -71,26 +71,20 @@ class PPTaskManager(threading.Thread):
             self.__stopped = copy.copy(val)
 
     def __init__(self, scan, progress_queue, **kwargs):
-        super(PPTaskManager, self).__init__()
+        super(TaskManager, self).__init__()
 
         self.__lock = threading.RLock()
 
         self._scan = scan
         self._n_points = scan.entry.npoints
+        self._n_cpus = kwargs.get(
+            'n_local_processes', multiprocessing.cpu_count()
+            )
 
         self.progress_queue = progress_queue
         self.job_queue = []
 
-        self._job_server = pp.Server(ppservers=('*',))
-
-        n_cpus = self.job_server.get_ncpus()
-        n_local_processes = kwargs.get('n_local_processes', n_cpus)
-        self.job_server.set_ncpus(n_local_processes)
-
-        # total cpus, including local and remote:
-        self._n_cpus = np.sum(
-            [i for i in self.job_server.get_active_nodes().values()]
-        )
+        self._job_server = self.create_pool()
 
         self.__stopped = False
 
@@ -111,13 +105,16 @@ class PPTaskManager(threading.Thread):
         """
         raise NotImplementedError
 
+    def create_pool(self):
+        raise NotImplementedError()
+
     def flush(self):
-        #self.job_server.wait()
         while True:
             try:
-                res = self.job_queue.pop(0)()
-                if res is not None:
-                    self.update_records(res)
+                job = self.job_queue.pop(0)
+                job.wait()
+                #if res is not None:
+                #    self.update_records(res)
             except IndexError:
                 break
         self.n_submitted = 0
@@ -138,8 +135,8 @@ class PPTaskManager(threading.Thread):
 
             if item:
                 f, args = item
-                job = self.job_server.submit(
-                    f, args, modules=("time", )
+                job = self.job_server.apply_async(
+                    f, args, callback=self.update_records
                     )
                 self.job_queue.append(job)
 
@@ -149,11 +146,13 @@ class PPTaskManager(threading.Thread):
             if self.n_submitted >= self.n_cpus*3:
                 self.flush()
 
+        self.job_server.close()
+        self.job_server.join()
         if self.n_submitted > 0:
             self.flush()
 
     def queue_results(self):
-        stats = copy.deepcopy(self.job_server.get_stats())
+        stats = {}
         stats['n_processed'] = self.n_processed
         self.progress_queue.put(stats)
 

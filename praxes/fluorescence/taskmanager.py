@@ -4,31 +4,42 @@ from __future__ import with_statement
 
 import copy
 import logging
+import multiprocessing
 import sys
 import time
 
 import numpy as np
-import pp
 from PyMca import ClassMcaTheory
 from PyMca.ConcentrationsTool import ConcentrationsTool
 import numpy as np
 np.seterr(all='ignore')
 
-from praxes.dispatch.pptaskmanager import PPTaskManager
+from praxes.dispatch.taskmanager import TaskManager
 
 
 logger = logging.getLogger(__file__)
 DEBUG = False
 
-def analyze_spectrum(index, spectrum, advanced_fit, mass_fraction_tool):
+
+def init(config):
+    global advanced_fit, mass_fraction_tool
+    from PyMca.ClassMcaTheory import McaTheory
+    config['fit']['use_limit'] = 1
+    advanced_fit = McaTheory(config=config)
+    advanced_fit.enableOptimizedLinearFit()
+    if 'concentrations' in config:
+        mass_fraction_tool = ConcentrationsTool(config['concentrations'])
+        mass_fraction_tool.config['time'] = 1
+    else:
+        mass_fraction_tool = None
+
+
+def analyze_spectrum(index, spectrum, monitor):
     start = time.time()
-    advanced_fit.config['fit']['use_limit'] = 1
-    # TODO: get the channels from the controller
     advanced_fit.setdata(y=spectrum)
     advanced_fit.estimate()
     estimate = time.time()
-    if ('concentrations' in advanced_fit.config) and \
-            (advanced_fit._fluoRates is None):
+    if (mass_fraction_tool is not None) and (advanced_fit._fluoRates is None):
         fitresult, result = advanced_fit.startfit(digest=1)
     else:
         fitresult = advanced_fit.startfit(digest=0)
@@ -36,11 +47,13 @@ def analyze_spectrum(index, spectrum, advanced_fit, mass_fraction_tool):
     result['index'] = index
     fit = time.time()
 
-    if mass_fraction_tool:
+    if mass_fraction_tool is not None:
         temp = {}
         temp['fitresult'] = fitresult
         temp['result'] = result
         temp['result']['config'] = advanced_fit.config
+        mass_fraction_tool.config['time'] = 1
+        mass_fraction_tool.config['flux'] = monitor
         conc = mass_fraction_tool.processFitResult(
             fitresult=temp,
             elementsfrommatrix=False,
@@ -55,12 +68,11 @@ def analyze_spectrum(index, spectrum, advanced_fit, mass_fraction_tool):
     return {
         'index': index,
         'result': result,
-        'advanced_fit': advanced_fit,
         'report': report
     }
 
 
-class XfsPPTaskManager(PPTaskManager):
+class XfsTaskManager(TaskManager):
 
     @property
     def advanced_fit(self):
@@ -81,7 +93,9 @@ class XfsPPTaskManager(PPTaskManager):
             self._mass_fraction_tool = val
 
     def __init__(self, scan, config, progress_queue, **kwargs):
-        super(XfsPPTaskManager, self).__init__(scan, progress_queue, **kwargs)
+        # needs to be set before the super call:
+        self._config = config
+        super(XfsTaskManager, self).__init__(scan, progress_queue, **kwargs)
 
         with scan:
             self._measurement = scan.entry.measurement
@@ -91,18 +105,19 @@ class XfsPPTaskManager(PPTaskManager):
                 # are we processing a group of mca elements...
                 mcas = scan.mcas.values()
                 self._counts = [mca['counts'] for mca in mcas]
-                self._monitor = mcas[0].monitor.corrected_value
+                self._monitor = getattr(
+                    mcas[0].monitor, 'corrected_value', None
+                    )
             except AttributeError:
                 # or a single element?
                 self._counts = [scan['counts']]
-                self._monitor = scan.monitor.corrected_value
+                self._monitor = getattr(scan.monitor, 'corrected_value', None)
 
-        self._advanced_fit = ClassMcaTheory.McaTheory(config=config)
-        self._advanced_fit.enableOptimizedLinearFit()
-        self._mass_fraction_tool = None
-        if 'concentrations' in config:
-            self._mass_fraction_tool = ConcentrationsTool(config['concentrations'])
-            self._mass_fraction_tool.config['time'] = 1
+    def create_pool(self):
+
+        return multiprocessing.Pool(
+            self.n_cpus, init, (self._config,)
+            )
 
     def next(self):
         i = self._next_index
@@ -127,15 +142,13 @@ class XfsPPTaskManager(PPTaskManager):
                 return 0
 
             cts = [counts.corrected_value[i] for counts in self._counts]
-
             spectrum = np.sum(cts, 0)
-            mft = self.mass_fraction_tool
+
+            monitor = None
             if self._monitor is not None:
-                mft.config['flux'] = self._monitor[i]
-        args = (
-            i, spectrum, self.advanced_fit, self.mass_fraction_tool
-            )
-        return analyze_spectrum, args
+                monitor = self._monitor[i]
+
+        return analyze_spectrum, (i, spectrum, monitor)
 
     def update_element_map(self, element, map_type, index, val):
         with self.scan:
@@ -154,7 +167,6 @@ class XfsPPTaskManager(PPTaskManager):
             return
 
         index = data['index']
-        self.advanced_fit = data['advanced_fit']
 
         result = data['result']
         for group in result['groups']:

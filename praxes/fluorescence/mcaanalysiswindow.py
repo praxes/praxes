@@ -75,7 +75,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                 self.deadTimeReport.setText('Not found')
 
             self._setupMcaDockWindows()
-            self._setupPPJobStats()
+            self._setupJobStats()
 
             plotOptions = self.elementsView.plotOptions
             self.optionsWidgetVLayout.insertWidget(1, plotOptions)
@@ -168,14 +168,14 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             'Spectrum Analysis'
         )
 
-    def _setupPPJobStats(self):
-        from praxes.dispatch.ppjobstats import PPJobStats
+    def _setupJobStats(self):
+        from praxes.dispatch.jobstats import JobStats
 
-        self.ppJobStats = PPJobStats()
-        self.ppJobStatsDock = self._createDockWindow('PPJobStatsDock')
-        self._setupDockWindow(self.ppJobStatsDock,
+        self.jobStats = JobStats()
+        self.jobStatsDock = self._createDockWindow('JobStatsDock')
+        self._setupDockWindow(self.jobStatsDock,
                                QtCore.Qt.RightDockWidgetArea,
-                               self.ppJobStats, 'Analysis Server Stats')
+                               self.jobStats, 'Analysis Server Stats')
 
     @QtCore.pyqtSignature("bool")
     def on_actionAbort_triggered(self):
@@ -356,19 +356,19 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         self.elementMapUpdated()
 
     def processData(self):
-        from .pptaskmanager import XfsPPTaskManager
+        from .taskmanager import XfsTaskManager
 
         self.setMenuToolsActionsEnabled(False)
 
         self._resetPeaks()
 
         settings = QtCore.QSettings()
-        settings.beginGroup('PPJobServers')
+        settings.beginGroup('JobServers')
         n_local_processes, ok = settings.value(
             'LocalProcesses', QtCore.QVariant(1)
         ).toInt()
 
-        thread = XfsPPTaskManager(
+        thread = XfsTaskManager(
             self.scan_data,
             copy.deepcopy(self.pymcaConfig),
             self.progress_queue,
@@ -376,7 +376,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         )
 
 #        self.thread.dataProcessed.connect(self.elementMapUpdated)
-#        self.thread.ppJobStats.connect(self.ppJobStats.updateTable)
+#        self.thread.jobStats.connect(self.jobStats.updateTable)
 #        self.thread.finished.connect(self.processComplete)
 #        self.thread.percentComplete.connect(self.progressBar.setValue)
         self.actionAbort.triggered.connect(self.abort) #thread.stop
@@ -409,7 +409,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         n_processed = item.pop('n_processed')
         progress = int((100.0 * n_processed) / self.n_points)
         self.progressBar.setValue(progress)
-        self.ppJobStats.updateTable(item)
+#        self.jobStats.updateTable(item)
 
         if n_processed >= self.n_points:
             self.processComplete()

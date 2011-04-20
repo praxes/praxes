@@ -5,42 +5,33 @@ from __future__ import absolute_import
 
 import hashlib
 import logging
+import multiprocessing
 import time
 
 import numpy as np
-import pp
 from PyQt4 import QtCore, QtGui
 
-from .ui import ui_ppjobstats
+from .ui import ui_jobstats
 
 
 logger = logging.getLogger(__file__)
 
 
-class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):
+class JobStats(ui_jobstats.Ui_JobStats, QtGui.QWidget):
 
     def __init__(self, parent=None):
-        super(PPJobStats, self).__init__(parent)
+        super(JobStats, self).__init__(parent)
         self.setupUi(self)
 
-        try:
-            self.server = pp.Server(ppservers=('*', ))
-        except ValueError:
-            # this should not be necessary with pp-1.5.6 and later:
-            secret = hashlib.md5(str(time.time())).hexdigest()
-            self.server = pp.Server(
-                ppservers=('*', ), secret=secret
-            )
-        self.numCpusSpinBox.setMaximum(self.server.get_ncpus())
+        self.numCpusSpinBox.setMaximum(multiprocessing.cpu_count())
 
         self.updateTable()
 
         self.refreshButton.clicked.connect(self.updateTable)
-        self.numCpusSpinBox.valueChanged.connect(self.server.set_ncpus)
         self.numCpusSpinBox.valueChanged.connect(self.updateLocalProcesses)
 
         settings = QtCore.QSettings()
-        settings.beginGroup('PPJobServers')
+        settings.beginGroup('JobServers')
         default = self.numCpusSpinBox.minimum()
         val, ok = settings.value('LocalProcesses',
                                  QtCore.QVariant(default)).toInt()
@@ -50,14 +41,12 @@ class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):
 
     def updateLocalProcesses(self, val):
         settings = QtCore.QSettings()
-        settings.beginGroup('PPJobServers')
-        settings.setValue('LocalProcesses',
-                          QtCore.QVariant(val))
+        settings.beginGroup('JobServers')
+        settings.setValue('LocalProcesses', QtCore.QVariant(val))
 
     def updateTable(self, statsDict=None):
-        if statsDict is None: statsDict = self.server.get_stats()
-
-        totalJobs = np.sum([i.njobs for i in statsDict.values()])
+        if statsDict is None:
+            return
 
         self.jobStatsTable.setUpdatesEnabled(False)
         self.jobStatsTable.clearContents()
@@ -67,31 +56,17 @@ class PPJobStats(ui_ppjobstats.Ui_PPJobStats, QtGui.QWidget):
             item.setTextAlignment(QtCore.Qt.AlignCenter)
             self.jobStatsTable.setItem(row, 0, item)
 
-            item = QtGui.QTableWidgetItem(str(stats.ncpus))
+            item = QtGui.QTableWidgetItem(str(stats['n_cpus']))
             item.setTextAlignment(QtCore.Qt.AlignCenter)
             self.jobStatsTable.setItem(row, 1, item)
 
-            item = QtGui.QTableWidgetItem(str(stats.njobs))
+            item = QtGui.QTableWidgetItem(str(stats['n_jobs']))
             item.setTextAlignment(QtCore.Qt.AlignCenter)
             self.jobStatsTable.setItem(row, 2, item)
 
-            try:
-                item = QtGui.QTableWidgetItem('%.2f'%(100.*stats.njobs/totalJobs))
-                item.setTextAlignment(QtCore.Qt.AlignCenter)
-                self.jobStatsTable.setItem(row, 3, item)
-            except ZeroDivisionError:
-                pass
-
-            item = QtGui.QTableWidgetItem('%.2f'%stats.time)
+            item = QtGui.QTableWidgetItem('%.2f'%stats['time'])
             item.setTextAlignment(QtCore.Qt.AlignCenter)
-            self.jobStatsTable.setItem(row, 4, item)
-
-            try:
-                item = QtGui.QTableWidgetItem('%.4f'%(stats.time/stats.njobs))
-                item.setTextAlignment(QtCore.Qt.AlignCenter)
-                self.jobStatsTable.setItem(row, 5, item)
-            except ZeroDivisionError:
-                pass
+            self.jobStatsTable.setItem(row, 3, item)
 
         self.jobStatsTable.resizeColumnsToContents()
         self.jobStatsTable.resizeRowsToContents()
