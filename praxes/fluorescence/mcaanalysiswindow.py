@@ -407,11 +407,13 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         self.elementMapUpdated()
 
         n_processed = item.pop('n_processed')
-        progress = int((100.0 * n_processed) / self.n_points)
+        with self.scan_data:
+            n_points = self.scan_data.entry.npoints
+        progress = int((100.0 * n_processed) / n_points)
         self.progressBar.setValue(progress)
 #        self.jobStats.updateTable(item)
 
-        if n_processed >= self.n_points:
+        if n_processed >= n_points:
             self.processComplete()
 
     def _resetPeaks(self):

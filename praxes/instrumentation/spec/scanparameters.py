@@ -9,6 +9,7 @@ import os
 from PyQt4 import QtCore, QtGui
 
 from .ui.ui_scanparameterswidget import Ui_ScanParametersWidget
+from .scan import QtSpecScanA
 from .scanmotorwidget import (
     AScanMotorWidget, DScanMotorWidget, MeshMotorWidget
     )
@@ -267,7 +268,14 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
         self.setupUi(self)
 
         self._specRunner = specRunner
-        self._scan = None
+
+        self._scan = QtSpecScanA(self.specRunner.specVersion, parent=self)
+        self._scan.scanLength.connect(self._newScanLength)
+        self._scan.scanData.connect(self._newScanData)
+        self._scan.started.connect(self.scanStarted)
+        self._scan.paused.connect(self.scanPaused)
+        self._scan.resumed.connect(self.scanResumed)
+        self._scan.finished.connect(self.scanFinished)
 
         self.scanTypeComboBox.addItems(self._scanTypes)
 
@@ -326,7 +334,7 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
         args.append(self.integrationTimeSpinBox.value())
         cmd = ' '.join(str(i) for i in args)
 
-        self.new_scan(cmd)
+        self._scan(cmd)
 
     @QtCore.pyqtSignature("QString")
     def on_scanTypeComboBox_currentIndexChanged(self, val):
@@ -375,18 +383,6 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
             self._specFileError(fileName, specCreated)
 
         self.specFileNameEdit.setText(specCreated)
-
-    def new_scan(self, command):
-        from .scan import QtSpecScanA
-        self._scan = QtSpecScanA(self.specRunner.specVersion, parent=self)
-        self._scan.scanLength.connect(self._newScanLength)
-        self._scan.scanData.connect(self._newScanData)
-        self._scan.started.connect(self.scanStarted)
-        self._scan.paused.connect(self.scanPaused)
-        self._scan.resumed.connect(self.scanResumed)
-        self._scan.finished.connect(self.scanFinished)
-
-        self._scan(command)
 
     def scanPaused(self):
         self.actionPause.setVisible(False)

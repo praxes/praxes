@@ -51,6 +51,7 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
     def newScan(self, scanParameters):
 #        logger.debug('newScan: %s', scanParameters)
 
+        self._lastPoint = -1
         tree = scanParameters.pop('phynx', None)
         if tree is None:
             return
@@ -83,6 +84,13 @@ class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):
 
         ScanView = praxes.application.getService('ScanView')
         view = ScanView(self._scanData)
+
+        # make sure only one view gets this signal:
+        try:
+            self.beginProcessing.disconnect()
+        except TypeError:
+            # no connections to disconnect
+            pass
         if view:
             self.beginProcessing.connect(view.processData)
 
