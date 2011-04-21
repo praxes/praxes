@@ -3,7 +3,7 @@
 from __future__ import with_statement
 
 import copy
-import logging
+#import logging
 import multiprocessing
 import sys
 import time
@@ -17,7 +17,7 @@ np.seterr(all='ignore')
 from praxes.dispatch.taskmanager import TaskManager
 
 
-logger = logging.getLogger(__file__)
+#logger = logging.getLogger(__file__)
 DEBUG = False
 
 

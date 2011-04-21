@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import
 
-import logging
+#import logging
 import sys
 import os
 
@@ -15,7 +15,7 @@ from .phynx import FileModel, FileView, ExportRawCSV, ExportCorrectedCSV
 from praxes.io import phynx
 
 
-logger = logging.getLogger(__file__)
+#logger = logging.getLogger(__file__)
 
 
 class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):

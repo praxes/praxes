@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 import hashlib
-import logging
+#import logging
 import multiprocessing
 import time
 
@@ -14,7 +14,7 @@ from PyQt4 import QtCore, QtGui
 from .ui import ui_jobstats
 
 
-logger = logging.getLogger(__file__)
+#logger = logging.getLogger(__file__)
 
 
 class JobStats(ui_jobstats.Ui_JobStats, QtGui.QWidget):

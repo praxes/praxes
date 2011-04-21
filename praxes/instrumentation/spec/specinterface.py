@@ -3,7 +3,7 @@
 from __future__ import absolute_import
 
 import gc
-import logging
+#import logging
 
 from PyQt4 import QtCore, QtGui
 from SpecClient import SpecClientError
@@ -14,7 +14,7 @@ from .runner import SpecRunner
 USESSH = False
 
 
-logger = logging.getLogger(__file__)
+#logger = logging.getLogger(__file__)
 
 
 class ConnectionAborted(Exception):

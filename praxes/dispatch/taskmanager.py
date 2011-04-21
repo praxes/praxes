@@ -5,7 +5,7 @@ from __future__ import with_statement
 import copy
 import gc
 import hashlib
-import logging
+#import logging
 import multiprocessing
 import threading
 import time
@@ -15,7 +15,7 @@ np.seterr(all='ignore')
 from PyQt4 import QtCore
 
 
-logger = logging.getLogger(__file__)
+#logger = logging.getLogger(__file__)
 DEBUG = False
 
 

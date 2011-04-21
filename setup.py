@@ -191,8 +191,14 @@ if sys.platform == 'linux2':
 
 scripts = [
     'scripts/combi',
-    'scripts/sxfm'
     ]
+if sys.platform.startswith('win'):
+    # scripts calling multiprocessing must be importable
+    import shutil
+    shutil.copy('scripts/sxfm', 'praxes/sxfm.py')
+    scripts.append('praxes/sxfm.py')
+else:
+    scripts.append('scripts/sxfm')
 if ('bdist_wininst' in sys.argv) or ('bdist_msi' in sys.argv):
     scripts.append('scripts/praxes_win_post_install.py')
 

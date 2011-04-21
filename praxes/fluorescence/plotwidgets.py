@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import
 
-import logging
+#import logging
 import os
 
 from PyQt4 import QtCore, QtGui
@@ -19,7 +19,7 @@ import numpy as np
 from .ui import icons_rc, cursors_rc
 
 
-logger = logging.getLogger(__file__)
+#logger = logging.getLogger(__file__)
 
 mpl.rcdefaults()
 mpl.rcParams['axes.formatter.limits'] = [-4, 4]

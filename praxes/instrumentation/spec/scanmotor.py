@@ -3,14 +3,14 @@
 
 from __future__ import absolute_import
 
-import logging
+#import logging
 
 from PyQt4 import QtCore, QtGui
 
 from .ui.ui_scanmotor import Ui_ScanMotor
 
 
-logger = logging.getLogger(__file__)
+#logger = logging.getLogger(__file__)
 
 
 class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
@@ -31,7 +31,7 @@ class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
         try:
             ind = motors.index(motor)
         except ValueError:
-            logger.error(ValueError)
+#            logger.error(ValueError)
             motor = motors[0]
             ind = 0
 #        logger.debug('setting motor')

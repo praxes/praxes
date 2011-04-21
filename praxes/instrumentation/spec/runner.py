@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import
 
-import logging
+#import logging
 import os
 import sys
 import time
@@ -16,7 +16,7 @@ from .motor import QtSpecMotorA
 from . import TEST_SPEC
 
 
-logger = logging.getLogger(__file__)
+#logger = logging.getLogger(__file__)
 
 
 def getSpecMacro(filename, package=None):
@@ -62,9 +62,10 @@ class SpecDatafile(SpecVariable.SpecVariableA, QtCore.QObject):
 
         specCreated = os.path.split(specfile)[-1]
         if fileName == specCreated:
-            logger.debug("file %s created",fileName)
+#            logger.debug("file %s created",fileName)
+            pass
         else:
-            logger.error('%s given %s returned',(fileName,specfile))
+#            logger.error('%s given %s returned',(fileName,specfile))
             self.fileError(fileName, specfile)
 
     def update(self, value):

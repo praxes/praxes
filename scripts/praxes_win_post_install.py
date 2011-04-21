@@ -20,6 +20,7 @@ def install():
         'Praxes'
     )
     scripts_dir = os.path.join(prefix, 'Scripts')
+    lib_dir = os.path.join(prefix, 'Lib', 'site-packages', 'praxes')
 
     # Create entry ...
     if not os.path.isdir(start_dir):
@@ -27,18 +28,9 @@ def install():
         directory_created(start_dir)
 
     # Create program shortcuts ...
-    script = '"%s"' % os.path.join(scripts_dir, 'sxfm')
+    script = '"%s"' % os.path.join(lib_dir, 'sxfm.py')
     f = os.path.join(start_dir, 'sxfm.lnk')
     mkshortcut(python, 'sxfm', f, script, "%HOMEDRIVE%%HOMEPATH%")
-
-    # Create documentation shortcuts ...
-#    t = prefix + r'\share\doc\ipython-%s\manual.pdf' % version
-#    f = ip_dir + r'\Manual in PDF.lnk'
-#    mkshortcut(t,r'IPython Manual - PDF-Format',f)
-#
-#    t = prefix + r'\share\doc\ipython-%s\manual\manual.html' % version
-#    f = ip_dir + r'\Manual in HTML.lnk'
-#    mkshortcut(t,'IPython Manual - HTML-Format',f)
 
 def remove():
     """Routine to be run by the win32 installer with the -remove switch."""

@@ -4,8 +4,8 @@
 from __future__ import absolute_import, with_statement
 
 import copy
-import gc
-import logging
+#import gc
+#import logging
 import posixpath
 import Queue
 import sys
@@ -20,7 +20,7 @@ from .elementsview import ElementsView
 from praxes.io import phynx
 
 
-logger = logging.getLogger(__file__)
+#logger = logging.getLogger(__file__)
 
 
 class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):

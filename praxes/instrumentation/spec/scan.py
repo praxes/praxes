@@ -4,7 +4,7 @@
 from __future__ import absolute_import, with_statement
 
 import copy
-import logging
+#import logging
 import os
 
 import numpy as np
@@ -16,7 +16,7 @@ import h5py
 from . import TEST_SPEC
 
 
-logger = logging.getLogger(__file__)
+#logger = logging.getLogger(__file__)
 
 
 class QtSpecScanA(SpecScan.SpecScanA, QtCore.QObject):

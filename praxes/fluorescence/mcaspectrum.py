@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import
 
-import logging
+#import logging
 
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg\
     as MplToolbar
@@ -15,7 +15,7 @@ from .plotwidgets import QtMplCanvas
 from .ui import ui_mcaspectrum
 
 
-logger = logging.getLogger(__file__)
+#logger = logging.getLogger(__file__)
 
 
 class SpectrumAnalysisThread(QtCore.QThread):

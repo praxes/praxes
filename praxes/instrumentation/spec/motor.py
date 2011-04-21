@@ -1,7 +1,7 @@
 """
 """
 
-import logging
+#import logging
 import os
 import sys
 
@@ -11,7 +11,7 @@ from SpecClient import SpecMotor
 from . import TEST_SPEC
 
 
-logger = logging.getLogger(__file__)
+#logger = logging.getLogger(__file__)
 
 [NOTINITIALIZED,UNUSABLE,READY,MOVESTARTED,MOVING,ONLIMIT]=[0,1,2,3,4,5]
 
@@ -70,11 +70,11 @@ class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):
         else:
             return self._scanBoundStop
 
-    def connected(self):
-        logger.debug('Motor %s connected',self.specName)
+#    def connected(self):
+#        logger.debug('Motor %s connected',self.specName)
 
-    def disconnected(self):
-        logger.debug('Motor %s disconnected',self.specName)
+#    def disconnected(self):
+#        logger.debug('Motor %s disconnected',self.specName)
 
     def motorLimitsChanged(self):
         limits = self.getLimits()
@@ -87,8 +87,8 @@ class QtSpecMotorA(SpecMotor.SpecMotorA, QtCore.QObject):
 #        logger.debug("Motor %s position changed to %s",self.specName,
 #                                                           absolutePosition)
 
-    def syncQuestionAnswer(self, specSteps, controllerSteps):
-        logger.debug( "Motor %s syncing",self.specName)
+#    def syncQuestionAnswer(self, specSteps, controllerSteps):
+#        logger.debug( "Motor %s syncing",self.specName)
 
     def motorStateChanged(self, state):
         state = self.__state_strings[state]

@@ -1,14 +1,14 @@
 """
 """
 
-import logging
+#import logging
 import sys
 import os
 
 from PyQt4 import QtCore, QtGui
 
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
 
 # TODO: this is an attempt to provide a services registry similar to that in
 # Enthought's envisage framework. This is a simple implementation designed to
@@ -30,7 +30,7 @@ class ServiceRegistry:
         serviceId = self._nextServiceId()
         self._services[serviceId] = (protocol, obj, properties)
 
-        logger.debug('service <%d> registered %s', serviceId, protocol)
+#        logger.debug('service <%d> registered %s', serviceId, protocol)
 
         return serviceId
 
@@ -56,7 +56,7 @@ class ServiceRegistry:
         try:
             del self._services[serviceId]
 
-            logger.debug('service <%d> unregistered', serviceId)
+#            logger.debug('service <%d> unregistered', serviceId)
 
         except KeyError:
             raise ValueError('no service with id <%d>' % serviceId)

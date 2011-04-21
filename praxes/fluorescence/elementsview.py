@@ -2,7 +2,7 @@
 """
 from __future__ import absolute_import
 
-import logging
+#import logging
 import posixpath
 
 import numpy as np
@@ -12,7 +12,7 @@ from .plotwidgets import QtMplCanvas, Toolbar
 from .plotoptions import PlotOptions
 
 
-logger = logging.getLogger(__file__)
+#logger = logging.getLogger(__file__)
 DEBUG = False
 
 

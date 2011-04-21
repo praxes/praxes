@@ -3,7 +3,7 @@
 from __future__ import absolute_import
 
 import codecs
-import logging
+#import logging
 import os
 import sys
 import time
@@ -14,7 +14,7 @@ import pxssh
 from .ui import ui_sshdialog
 
 
-logger = logging.getLogger(__file__)
+#logger = logging.getLogger(__file__)
 
 
 class SshDialog(ui_sshdialog.Ui_Dialog, QtGui.QDialog):

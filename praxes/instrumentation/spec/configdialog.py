@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import
 
-import logging
+#import logging
 
 from PyQt4 import QtCore, QtGui
 
@@ -11,7 +11,7 @@ from .ui.ui_motordialog import Ui_MotorDialog
 from .ui.ui_motorconfig import Ui_MotorConfig
 
 
-logger = logging.getLogger(__file__)
+#logger = logging.getLogger(__file__)
 
 
 class ConfigDialog(Ui_MotorDialog, QtGui.QDialog):

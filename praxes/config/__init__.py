@@ -2,12 +2,12 @@
 """
 
 import glob
-import logging
+#import logging
 import os
 import sys
 
 
-logger = logging.getLogger('praxes.config')
+#logger = logging.getLogger('praxes.config')
 
 def get_user_config_dir():
     '''return the path to the user's spectromicroscopy config directory'''
@@ -27,7 +27,7 @@ def qrc2py(dir):
             convert = True
         if convert:
             os.system('pyrcc4 -o %s %s'%(py, rc))
-            logger.debug('converted %s'%rc)
+#            logger.debug('converted %s'%rc)
 
 def ui2py(dir):
     """If .ui files are present, praxes is being run in development mode. In
@@ -41,7 +41,7 @@ def ui2py(dir):
             convert = True
         if convert:
             converted = os.system('pyuic4 -o %s %s'%(py, ui))
-            if converted == 0:
-                logger.debug('converted %s'%ui)
-            else:
-                logger.error('could not find pyuic4')
+#            if converted == 0:
+#                logger.debug('converted %s'%ui)
+#            else:
+#                logger.error('could not find pyuic4')
