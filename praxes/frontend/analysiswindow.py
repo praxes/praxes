@@ -116,14 +116,14 @@ class AnalysisWindow(QtGui.QMainWindow):
             'class method "offersService" has not been implemented'
             )
 
-def main():
-    import sys
-    app = QtGui.QApplication(sys.argv)
-    app.setOrganizationName('Praxes')
-    form = AnalysisWindow()
-    form.show()
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()
+#def main():
+#    import sys
+#    app = QtGui.QApplication(sys.argv)
+#    app.setOrganizationName('Praxes')
+#    form = AnalysisWindow()
+#    form.show()
+#    sys.exit(app.exec_())
+#
+#
+#if __name__ == "__main__":
+#    main()

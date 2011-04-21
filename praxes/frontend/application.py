@@ -2,7 +2,7 @@
 """
 from __future__ import absolute_import
 
-import logging
+#import logging
 import sys
 import os
 
@@ -68,19 +68,19 @@ class PraxesApplication:
         return setattr(self.__instance, attr, value)
 
 
-def main():
-    import sys
-    app = PraxesApplication(sys.argv)
-
-    import praxes
-
-    print dir(QtGui.qApp)
-    print dir(praxes.application)
-
-    form = QtGui.QWidget()
-    form.show()
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()
+#def main():
+#    import sys
+#    app = PraxesApplication(sys.argv)
+#
+#    import praxes
+#
+#    print dir(QtGui.qApp)
+#    print dir(praxes.application)
+#
+#    form = QtGui.QWidget()
+#    form.show()
+#    sys.exit(app.exec_())
+#
+#
+#if __name__ == "__main__":
+#    main()

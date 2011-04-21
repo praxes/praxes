@@ -442,10 +442,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         )
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtGui.QApplication(sys.argv)
-    app.setOrganizationName('Praxes')
-    form = McaAnalysisWindow()
-    form.show()
-    sys.exit(app.exec_())
+#if __name__ == "__main__":
+#    import sys
+#    app = QtGui.QApplication(sys.argv)
+#    app.setOrganizationName('Praxes')
+#    form = McaAnalysisWindow()
+#    form.show()
+#    sys.exit(app.exec_())

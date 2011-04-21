@@ -240,10 +240,10 @@ class NotificationsDialog(Ui_NotificationsDialog, QtGui.QDialog):
         )
 
 
-if __name__  ==  "__main__":
-    app = QtGui.QApplication(sys.argv)
-    app.setOrganizationName('Praxes')
-    Notice('Testing Praxes','working')
-    myapp = EmailDialog()
-    myapp.show()
-    sys.exit(app.exec_())
+#if __name__  ==  "__main__":
+#    app = QtGui.QApplication(sys.argv)
+#    app.setOrganizationName('Praxes')
+#    Notice('Testing Praxes','working')
+#    myapp = EmailDialog()
+#    myapp.show()
+#    sys.exit(app.exec_())

@@ -335,12 +335,12 @@ class ExportCorrectedCSV(ExportRawCSV):
             return False
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtGui.QApplication(sys.argv)
-    fileModel = FileModel()
-    fileView = FileView(fileModel)
-    fileModel.openFile('../io/phynx/tests/citrus_leaves.dat.h5')
-    fileView.show()
-
-    sys.exit(app.exec_())
+#if __name__ == "__main__":
+#    import sys
+#    app = QtGui.QApplication(sys.argv)
+#    fileModel = FileModel()
+#    fileView = FileView(fileModel)
+#    fileModel.openFile('../io/phynx/tests/citrus_leaves.dat.h5')
+#    fileView.show()
+#
+#    sys.exit(app.exec_())

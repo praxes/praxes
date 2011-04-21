@@ -211,7 +211,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         settings.beginGroup("MainWindow")
         settings.setValue('Geometry', QtCore.QVariant(self.saveGeometry()))
         settings.setValue('State', QtCore.QVariant(self.saveState()))
-        self.fileModel.close()
+        #self.fileModel.close()
         return event.accept()
 
     def getH5FileFromKey(self, key):
@@ -291,18 +291,18 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
             self.statusBar.clearMessage()
 
 
-def main():
-    import sys
-    from .application import PraxesApplication
-
-    app = PraxesApplication(sys.argv)
-    app.setOrganizationName('Praxes')
-    app.setApplicationName('praxes')
-    mainwindow = MainWindow()
-    mainwindow.show()
-
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()
+#def main():
+#    import sys
+#    from .application import PraxesApplication
+#
+#    app = PraxesApplication(sys.argv)
+#    app.setOrganizationName('Praxes')
+#    app.setApplicationName('praxes')
+#    mainwindow = MainWindow()
+#    mainwindow.show()
+#
+#    sys.exit(app.exec_())
+#
+#
+#if __name__ == "__main__":
+#    main()
