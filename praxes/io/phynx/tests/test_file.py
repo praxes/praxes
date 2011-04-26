@@ -10,7 +10,7 @@ class TestFile(TestCase):
         f = self.getfile('citrus_leaves.dat.h5', mode='r')
         self.assertEqual(f.mode, 'r')
         self.assertEqual(f.file_name, f._h5node.filename)
-        self.assertRaises(IOError, f.create_group, 'foo')
+        self.assertRaises(ValueError, f.create_group, 'foo')
 
         self.assertRaises(IOError, open, '.', 'r')
 
