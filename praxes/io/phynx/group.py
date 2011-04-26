@@ -34,7 +34,7 @@ def pop_dataset_kwargs(kwargs):
     dset = {}
     for key in (
         'shape', 'dtype', 'data', 'chunks', 'compression', 'shuffle',
-        'fletcher32', 'maxshape', 'compression_opts', '_rawid'
+        'fletcher32', 'maxshape', 'compression_opts'
         ):
         dset[key] = kwargs.pop(key, None)
     return dset
