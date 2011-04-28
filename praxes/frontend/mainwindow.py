@@ -218,7 +218,7 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
         h5File = self._specFileRegistry.get(key, None)
 
         if not h5File:
-            default = key.split(os.path.sep)[-1]+'.h5'
+            default = key + '.h5'
             h5File = self.saveFile(default)
             if h5File:
                 self._specFileRegistry[key] = h5File
