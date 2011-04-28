@@ -394,7 +394,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         self.timer.start(1000)
 
     def abort(self):
-        self.analysisThread.stop()
+        if self.analysisThread is not None:
+            self.analysisThread.stop()
         self.processComplete()
 
     def update(self):
