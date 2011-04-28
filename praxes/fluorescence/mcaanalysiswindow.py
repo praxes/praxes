@@ -356,7 +356,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         self.elementMapUpdated()
 
     def processData(self):
-        from .taskmanager import XfsTaskManager
+        if sys.platform.startswith('win'):
+            from .pptaskmanager import XfsTaskManager
+        else:
+            from .mptaskmanager import XfsTaskManager
 
         self.setMenuToolsActionsEnabled(False)
 

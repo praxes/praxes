@@ -14,7 +14,7 @@ from PyMca.ConcentrationsTool import ConcentrationsTool
 import numpy as np
 np.seterr(all='ignore')
 
-from praxes.dispatch.taskmanager import TaskManager
+from praxes.dispatch.mptaskmanager import TaskManager
 
 
 #logger = logging.getLogger(__file__)

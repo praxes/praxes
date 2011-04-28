@@ -16,6 +16,7 @@ Check that you have the following installed:
 #. PyMca_ (version 4.4.0 or later, Windows users, please see footnote) [#f2]_
 #. matplotlib_ (0.98.3 or later)
 #. h5py_ (1.3.0 or later) [#f3]_
+#. parallelpython_ (1.6.1 or later, only required for Windows)
 #. Praxes_
 
 To install Praxes on OS X or Linux, download the source tar.gz file, unpack it,
@@ -47,3 +48,4 @@ and run the following in the source directory::
 .. _PyMca: http://pypi.python.org/pypi/PyMca
 .. _h5py: http://pypi.python.org/pypi/h5py
 .. _Praxes: http://github.com/praxes/praxes/downloads
+.. _parallelpython: http://www.parallelpython.com
