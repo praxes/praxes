@@ -202,7 +202,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
     @QtCore.pyqtSignature("")
     def on_monitorEfficiency_editingFinished(self):
-        with self.scan_Data:
+        with self.scan_data:
             try:
                 value = float(self.monitorEfficiency.text())
                 assert (0 < value <= 1)
@@ -213,7 +213,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                 self.monitorEfficiency.setText(
                     str(mca.monitor.efficiency)
                     )
-
 
     @QtCore.pyqtSignature("QString")
     def on_xrfBandComboBox_currentIndexChanged(self):

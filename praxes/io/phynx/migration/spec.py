@@ -155,6 +155,13 @@ def process_mca(scan, measurement, masked=None, report=False):
     except IndexError:
         dead_time_format = "percent"
 
+    try:
+        fast_dead_time = [i for i in scan.attrs['user_comments']
+                          if i.startswith('DXP fast_dead_time')][0].split()[-1]
+        fast_dead_time = float(fast_dead_time)
+    except IndexError:
+        fast_dead_time = 0
+
     if report: print 'Number of MCA:', num_mca
     keys = [i for i in scan.keys() if i.startswith('@')]
     for key in keys:
@@ -164,6 +171,8 @@ def process_mca(scan, measurement, masked=None, report=False):
         attrs = {}
         if monitor:
             attrs['monitor'] = monitor
+
+        attrs['fast_dead_time'] = fast_dead_time
 
         try:
             attrs.update(mca_info[key])
