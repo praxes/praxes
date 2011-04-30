@@ -1,38 +1,50 @@
-======================
-:mod:`praxes.io.phynx`
-======================
+=============================================================
+:mod:`phynx` --- Object-oriented interface to hdf5 data files
+=============================================================
 
+.. module:: praxes.io.phynx
+   :synopsis: Object-oriented interface to domain-specific hdf5 data files.
+.. moduleauthor:: Darren Dale <dsdale24@gmail.com>
 
 Introduction
 ============
 
-Phynx is a high-level interface to HDF5 files, using the h5py bindings to the
-the HDF5 library. HDF5 is an open-source binary format designed for scientific
-data, it allows you to organize your data in an hierarchy similar to a
-filesystem. It is fair to think of HDF5 as a file system for large, complex
-data. Phynx provides access to such datasets without storing the entire file in
-memory, thus it is easy to work with multi-gigabyte files on a computer with
-limited RAM.
+Phynx is a high-level interface to HDF5 files, built around the h5py bindings
+to the the HDF5 library. HDF5 is an cross-platform, open-source, binary file
+format designed for scientific data, allowing data to be organized in an
+hierarchy similar to the directories and files on a filesystem. It is fair to
+think of HDF5 as a file system for large, complex data. HDF5 provides access to
+data without loading the entire file in memory, thus it is easy to work with
+multi-gigabyte files on a computer with limited RAM.
 
-Phynx offers additional object oriented routines designed to make it easier to
-work with the kind of data generated at synchrotron labs. Its organization is
-inspired in part by the NeXus_ format. The NeXus application programming
-interface is somewhat onerous on both the developer and the user, and the
-standard NeXus hierarchy is in some ways too cumbersome and constrictive for
-many applications. Nevertheless, the NeXus project has the laudable goal of
-bridging the gap between experimental and theoretical research initiatives, and
-phynx does not intend to subvert the NeXus project. Rather, phynx is designed to
-provide a simple organization for synchrotron data, around which the standard
-NeXus hierarchy and full instrument definition can be built at a later time, if
-so desired. The phynx routines are designed to provide an interface to your data
-that is hopefully intuitive and simple to use.
+Phynx offers a useful and intuitive object oriented interface designed to make
+it easier to work with the kind of data generated at synchrotron labs. The
+files are organized into a simple hierarchy that attempts to provide sufficient
+context for interpretation and processing.
+
+The phynx file organization attempts to provide compatibility with the NeXus_
+format. NeXus strives to provide a common exchange format for data generated at
+synchrotron and neutron facilities, using the NeXus API to interact with data
+stored in either XML or HDF5 files. NeXus application definitions play a major
+role in the "universality" of a NeXus file.
+
+Many experiments, however, do not involve a well-defined application. They may
+involve combinations of application definitions, or instrumentation may need to
+be adapted to experimental necessity in ways that diverge from a well-defined
+application definition. Phynx is not necessarily suitable as a common exchange
+format. Rather, its design is based on a flexible, time-tested way to organize
+data which simplifies real-time analysis routines and allows data to be
+interpret in some other context not envisioned by a well-defined application
+definition. Data in phynx files can easily be exported into a more
+domain-specific common exchange format.
+
 
 Exporting data
 ==============
 
 Naturally, you will feel more comfortable storing your data in the HDF5 format
-if you understand how to get it back out. Imagine you have a file with the
-following standard format::
+if you know how to export it to another familiar format. Imagine you have a
+file with the following standard format::
 
   mydata.h5
     /entry_1/measurement/scalar_data/motor_1

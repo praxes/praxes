@@ -9,4 +9,4 @@
 
    introduction
    spec
-   phynx
+   phynx/index
