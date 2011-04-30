@@ -27,8 +27,14 @@ class Dataset(Node):
     @property
     @sync
     def map(self):
-        res = self._h5node[...]
-        res.shape = self.entry.acquisition_shape
+        shape = [np.prod(self.entry.acquisition_shape)]
+        shape.extend(self.shape[1:])
+        res = np.zeros(shape, self._h5node.dtype)
+        res[:len(self)] = self._h5node[...]
+        shape = []
+        shape.extend(self.entry.acquisition_shape)
+        shape.extend(self.shape[1:])
+        res.shape = shape
         if self.entry.acquisition_command.startswith('zzmesh'):
             for i, val in enumerate(res):
                 if i%2:
