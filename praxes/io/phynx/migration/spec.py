@@ -449,12 +449,8 @@ def convert_to_phynx(
     h5_file = open(h5_filename, 'w')
     spec_file = spec.open(spec_filename)
     for scan in spec_file.values():
-#        try:
-#            scan.lines()
-#        except specfile.error:
-#            # scan.lines() failed because there were none
-#            continue
-        convert_scan(scan, h5_file, spec_filename, report=report)
+        if len(scan.values()[0]):
+            convert_scan(scan, h5_file, spec_filename, report=report)
 
     if report: print 'phynx %s complete'% h5_file
     return h5_file
