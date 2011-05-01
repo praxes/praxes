@@ -52,6 +52,25 @@ b"""#F testfile.dat
 #Q
 #P0 0 10 -10
 #P1 1 2 3
+#C A gratuitous comment
+#U A user comment
+#U monitor efficiency 1.2e-5
+#@vortex %25C
+#@CHANN 30 0 29 1
+#@CALIB 0 0.01 0
+#N 4
+#L samx  Epoch  I0  I1
+
+#S 3  dscan  samx -1 1 2 1
+#D Sat Jan 1 00:01:00 2010
+#M 1000  (I0)
+#G0 0
+#G1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+#G3 0 0 0 0 0 0 0 0 0
+#G4 0
+#Q
+#P0 0 10 -10
+#P1 1 2 3
 #N 4
 #L samx  Epoch  I0  I1
 -1 100 1000 100
@@ -81,7 +100,7 @@ class TestSpecScanInterface(TestCase):
         self.assertEqual(
             self.f['1'].attrs['comments'], ['A gratuitous comment']
             )
-        self.assertEqual(self.f['2'].attrs['comments'], [])
+        self.assertEqual(self.f['3'].attrs['comments'], [])
 
     def test_data(self):
         data = self.f['1'].data
@@ -122,6 +141,8 @@ class TestSpecScanInterface(TestCase):
         self.assertArrayEqual(scan['I0'][...], np.array([1000, 1000, 1000]))
         self.assertArrayEqual(scan['I1'][...], np.array([100, 200, 300]))
 
+        self.assertArrayEqual(self.f['2']['I1'][:], np.array([]))
+
     def test_iter_item(self):
         self.assertEqual([i for i in self.f['1']['samx']], [-1, 0, 1])
 
@@ -159,6 +180,8 @@ class TestSpecScanInterface(TestCase):
         self.assertRaises(IndexError, op.getitem, data, (0, slice(50)))
         self.assertRaises(IndexError, op.getitem, data, (slice(0, 10), 0))
 
+        self.assertArrayEqual(self.f['2']['@vortex'][:], np.array([]))
+
     def test_monitor(self):
         self.assertEqual(self.f['1'].attrs['monitor'], 'I0')
 
@@ -189,7 +212,7 @@ class TestSpecScanInterface(TestCase):
         with open(self.file_name, 'ab') as f:
             f.write(b'\n'.join(ref[-2:]))
         self.f.update()
-        self.assertArrayEqual(self.f['2.2']['samx'][...], np.array([-1,0,1,1]))
+        self.assertArrayEqual(self.f['3.2']['samx'][...], np.array([-1,0,1,1]))
 
     def test_user(self):
         self.assertEqual(self.f['1'].attrs['user'], 'specuser')
@@ -198,4 +221,4 @@ class TestSpecScanInterface(TestCase):
         self.assertEqual(
             self.f['1'].attrs['user_comments'],
             ['A user comment', 'monitor efficiency 1.2e-5'])
-        self.assertEqual(self.f['2'].attrs['user_comments'], [])
+        self.assertEqual(self.f['3'].attrs['user_comments'], [])

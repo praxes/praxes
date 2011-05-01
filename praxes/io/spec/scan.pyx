@@ -125,7 +125,9 @@ cdef class ScanIndex(Mapping):
                             float(i) for i in temp[1:]
                             ]
                     else:
+                        # this line declared the mca id
                         mca_info[temp[0]] = {}
+                        self._mca_data_indices.setdefault(temp[0], [])
                 elif ctag == b'L':
                     labels = line.decode('ascii').split()[1:]
                     attrs['labels'] = labels

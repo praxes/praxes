@@ -48,6 +48,7 @@ cdef class DataProxy:
         self.fh = io.open(self.file_name, 'rb', buffering=1024*1024*2)
         self.name = name
         self._index = index
+        self._n_cols = -1
 
     def __len__(self):
         return len(self._index)
@@ -60,12 +61,15 @@ cdef class DataProxy:
 
     cdef int n_cols(self) except -1:
         tag = b'\\'
-        if self._n_cols is 0:
-            self.fh.seek(self._index[0])
-            s = self.fh.readline()
-            while s[-2:-1] == tag:
-                s = b''.join([s, self.fh.readline()])
-            self._n_cols = len(s.strip().split(b' '))
+        if self._n_cols == -1:
+            try:
+                self.fh.seek(self._index[0])
+                s = self.fh.readline()
+                while s[-2:-1] == tag:
+                    s = b''.join([s, self.fh.readline()])
+                self._n_cols = len(s.strip().split(b' '))
+            except IndexError:
+                self._n_cols = 0
         return self._n_cols
 
     cdef object _get_data(
@@ -87,6 +91,8 @@ cdef class DataProxy:
         n_x = len(subindices)
 
         t_n_x = self.n_cols()
+        if t_n_x == 0:
+            return np.array([], dtype=np.float64)
         temp_arr = np.empty((t_n_x, ), dtype=np.float64)
         temp = temp_arr
 
