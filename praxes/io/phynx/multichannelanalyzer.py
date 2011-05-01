@@ -131,21 +131,12 @@ class CorrectedSpectrumProxy(DataProxy):
             return None
 
     @property
+    @memoize
     def _deadtime_correction(self):
-        return None
-        # this is totally broken and needs a new implementation, proxy?
-        with self._dset:
-            try:
-                icr = self._dset.parent['icr'][:]
-                fdt =  self._dset.parent.attrs.get('fast_dead_time', 0)
-                if fdt:
-                    icr = icr*np.exp(icr*fdt)
-                return icr/self._dset.parent['ocr'][:]
-            except KeyError:
-                try:
-                    return self._dset.parent['dead_time'].correction
-                except KeyError:
-                    return None
+        try:
+            return self._dset.parent['dead_time'].correction
+        except KeyError:
+            return None
 
     def __getitem__(self, key):
         with self._dset:
@@ -153,20 +144,15 @@ class CorrectedSpectrumProxy(DataProxy):
 
             # detector deadtime correction
             try:
-                #dtc = self._deadtime_correction.__getitem__(key)
-                icr = self._dset.parent['icr'][key]
-                fdt =  self._dset.parent.attrs.get('fast_dead_time', 0)
-                if fdt:
-                    icr = icr*np.exp(icr*fdt)
-                dtc = icr/self._dset.parent['ocr'][key]
+                dtc = self._deadtime_correction.__getitem__(key)
                 if isinstance(dtc, np.ndarray) \
                         and len(dtc.shape) < len(data.shape):
                     newshape = [1]*len(data.shape)
                     newshape[:len(dtc.shape)] = dtc.shape
                     dtc.shape = newshape
                 data *= dtc
-            except (AttributeError, TypeError, KeyError):
-                # fails if dead_time_correction is not defined
+            except (AttributeError, TypeError):
+                # fails if dead_time_correction is None
                 pass
 
             return data
