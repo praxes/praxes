@@ -187,8 +187,12 @@ class ElementPlotFigure(ElementBaseFigure):
 
 
         with self.scan_data:
-            self._elementPlot.set_xdata(self._x_data[:self.entry.acquired])
-            self._elementPlot.set_ydata(elementData[:self.entry.acquired])
+            self._elementPlot.set_xdata(
+                self._x_data[:self.scan_data.entry.acquired]
+                )
+            self._elementPlot.set_ydata(
+                elementData[:self.scan_data.entry.acquired]
+                )
         self.axes.relim()
         self.axes.autoscale_view()
 

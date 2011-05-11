@@ -248,7 +248,7 @@ def convert_scan(scan, h5file, spec_filename, report=False):
     # We need to update time metadata if it was a tseries:
     if scan_info['scan_type'] == 'tseries':
         scan_info['scan_shape'] = np.array([len(scan.values()[0])])
-        t = scan['time'][:]
+        t = scan['Time'][:]
         scan_info['axis_info']['time']['range'] = str((t.min(), t.max()))
     # We need to update time metadata if it was a chess_escan:
     if scan_info['scan_type'] == 'chess_escan':
