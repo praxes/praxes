@@ -315,7 +315,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                     counts = channels.astype('float32') * 0
                     dataset = self.scan_data['counts'].corrected_value
                     for i in indices:
-                        counts += dataset[i] / n_indices * (monitor[i]/mon0)
+                        counts += dataset[i] / n_indices / (monitor[i]/mon0)
                 except AttributeError:
                     # looking at multiple elements
                     mcas = self.scan_data.mcas.values()
@@ -326,7 +326,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                     for mca in mcas:
                         dataset = mca['counts'].corrected_value
                         for i in indices:
-                            counts += dataset[i] / n_indices * (monitor[i]/mon0)
+                            counts += dataset[i] / n_indices / (monitor[i]/mon0)
 
             self.spectrumAnalysis.setData(x=channels, y=counts)
             self.statusbar.showMessage('Performing Fit ...')
