@@ -142,8 +142,9 @@ class CorrectedSpectrumProxy(DataProxy):
         with self._dset:
             data = self._dset.__getitem__(key)
 
-            # detector deadtime correction
-            try:
+            if self._deadtime_correction is not None:
+                if isinstance(key, tuple):
+                    key = key[0]
                 dtc = self._deadtime_correction.__getitem__(key)
                 if isinstance(dtc, np.ndarray) \
                         and len(dtc.shape) < len(data.shape):
@@ -151,8 +152,5 @@ class CorrectedSpectrumProxy(DataProxy):
                     newshape[:len(dtc.shape)] = dtc.shape
                     dtc.shape = newshape
                 data *= dtc
-            except (AttributeError, TypeError):
-                # fails if dead_time_correction is None
-                pass
 
             return data
