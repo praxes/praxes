@@ -240,7 +240,7 @@ class DataProxy(object):
     @property
     def map(self):
         res = self._dset[...]
-        res.shape = self.entry.acquisition_shape
+        res.shape = self._dset.entry.acquisition_shape
         return res
 
     @property
@@ -288,31 +288,6 @@ class CorrectedDataProxy(DataProxy):
         try:
             data /= self._dset.efficiency
         except AttributeError:
-            pass
-
-        # normalization may be something like ring current or monitor counts
-        try:
-            norm = self._dset.parent['normalization'][key]
-            if norm.shape and len(norm.shape) < len(data.shape):
-                newshape = [1]*len(data.shape)
-                newshape[:len(norm.shape)] = norm.shape
-                norm.shape = newshape
-            data /= norm
-        except KeyError:
-            # fails if normalization is not defined
-            pass
-
-        # detector deadtime correction
-        try:
-            dtc = self._dset.parent['dead_time'].correction[key]
-            if isinstance(dtc, np.ndarray) \
-                    and len(dtc.shape) < len(data.shape):
-                newshape = [1]*len(data.shape)
-                newshape[:len(dtc.shape)] = dtc.shape
-                dtc.shape = newshape
-            data *= dtc
-        except KeyError:
-            # fails if dead_time_correction is not defined
             pass
 
         return data
