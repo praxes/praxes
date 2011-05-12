@@ -52,7 +52,6 @@ def analyze_spectrum(index, spectrum, monitor):
         temp['fitresult'] = fitresult
         temp['result'] = result
         temp['result']['config'] = advanced_fit.config
-        mass_fraction_tool.config['time'] = 1
         mass_fraction_tool.config['flux'] = monitor
         conc = mass_fraction_tool.processFitResult(
             fitresult=temp,
@@ -104,13 +103,13 @@ class XfsTaskManager(TaskManager):
             try:
                 # are we processing a group of mca elements...
                 mcas = scan.mcas.values()
-                self._counts = [mca['counts'] for mca in mcas]
+                self._counts = [mca['counts'].corrected_value for mca in mcas]
                 self._monitor = getattr(
                     mcas[0].monitor, 'corrected_value', None
                     )
             except AttributeError:
                 # or a single element?
-                self._counts = [scan['counts']]
+                self._counts = [scan['counts'].corrected_value]
                 self._monitor = getattr(scan.monitor, 'corrected_value', None)
 
     def create_pool(self):
@@ -141,7 +140,7 @@ class XfsTaskManager(TaskManager):
             if self._masked[i]:
                 return 0
 
-            cts = [counts.corrected_value[i] for counts in self._counts]
+            cts = [counts[i] for counts in self._counts]
             spectrum = np.sum(cts, 0)
 
             monitor = None
