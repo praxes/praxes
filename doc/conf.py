@@ -56,9 +56,13 @@ copyright = u'2010, Darren Dale'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
+with open('../praxes/version.py') as f:
+    for line in f:
+        if line.startswith('__version__'):
+            exec(line)
+            break
 # The short X.Y version.
-import praxes
-version = praxes.__version__
+version = __version__
 # The full version, including alpha/beta/rc tags.
 release = version
 
