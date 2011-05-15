@@ -66,7 +66,7 @@ cdef class DataProxy:
                 self.fh.seek(self._index[0])
                 s = self.fh.readline()
                 while s[-2:-1] == tag:
-                    s = b''.join([s[:-2], self.fh.readline()])
+                    s = b''.join([s[:-2].strip(), self.fh.readline()])
                 self._n_cols = len(s.strip().split(b' '))
             except IndexError:
                 self._n_cols = 0

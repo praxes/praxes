@@ -269,7 +269,6 @@ class ExportRawCSV(QtCore.QObject):
         QtCore.QObject.__init__(parent)
         assert isinstance(h5Node, phynx.Dataset)
         assert len(h5Node.shape) <= 2
-        assert hasattr(h5Node, "value")
 
         file_name = QtGui.QFileDialog.getSaveFileName(
             parent,
@@ -284,7 +283,7 @@ class ExportRawCSV(QtCore.QObject):
         try:
             data = h5Node.map
         except TypeError:
-            data = h5Node.value
+            data = h5Node[:]
         import numpy as np
         np.savetxt(file_name, data, fmt='%g', delimiter=',')
 
@@ -293,7 +292,6 @@ class ExportRawCSV(QtCore.QObject):
         try:
             assert isinstance(h5Node, phynx.Dataset)
             assert len(h5Node.shape) <= 2
-            assert hasattr(h5Node, "value")
             return True
         except AssertionError:
             return False
