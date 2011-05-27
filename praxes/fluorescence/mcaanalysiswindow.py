@@ -303,35 +303,35 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                 masked = self.scan_data.entry.measurement.masked[...][indices]
                 indices = indices[np.logical_not(masked)]
                 n_indices = len(indices)
-            if n_indices:
-                self.statusbar.showMessage('Averaging spectra ...')
-                #QtGui.qApp.processEvents()
 
-                try:
-                    # looking at individual element
-                    monitor = self.scan_data.monitor.corrected_value
-                    mon0 = monitor[indices[0]]
-                    channels = self.scan_data.channels
-                    counts = channels.astype('float32') * 0
-                    dataset = self.scan_data['counts'].corrected_value
+            if not n_indices:
+                return
+
+            self.statusbar.showMessage('Averaging spectra ...')
+
+            try:
+                # looking at individual element
+                monitor = self.scan_data.monitor.corrected_value
+                mon0 = monitor[indices[0]]
+                channels = self.scan_data.channels
+                counts = channels.astype('float32') * 0
+                dataset = self.scan_data['counts'].corrected_value
+                for i in indices:
+                    counts += dataset[i] / n_indices / (monitor[i]/mon0)
+            except AttributeError:
+                # looking at multiple elements
+                mcas = self.scan_data.mcas.values()
+                monitor = mcas[0].monitor.corrected_value
+                mon0 = monitor[indices[0]]
+                channels = mcas[0].channels
+                counts = channels.astype('float32') * 0
+                for mca in mcas:
+                    dataset = mca['counts'].corrected_value
                     for i in indices:
                         counts += dataset[i] / n_indices / (monitor[i]/mon0)
-                except AttributeError:
-                    # looking at multiple elements
-                    mcas = self.scan_data.mcas.values()
-                    monitor = mcas[0].monitor.corrected_value
-                    mon0 = monitor[indices[0]]
-                    channels = mcas[0].channels
-                    counts = channels.astype('float32') * 0
-                    for mca in mcas:
-                        dataset = mca['counts'].corrected_value
-                        for i in indices:
-                            counts += dataset[i] / n_indices / (monitor[i]/mon0)
 
             self.spectrumAnalysis.setData(x=channels, y=counts)
             self.statusbar.showMessage('Performing Fit ...')
-            #QtGui.qApp.processEvents()
-            ##update spectrum analysis with flux from mon0!
             self.spectrumAnalysis.mcafit.config['concentrations']['flux'] = mon0
             self.spectrumAnalysis.mcafit.config['concentrations']['time'] = 1
             fitresult = self.spectrumAnalysis.fit()

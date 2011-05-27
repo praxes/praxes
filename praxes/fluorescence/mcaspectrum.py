@@ -3,6 +3,7 @@
 
 from __future__ import absolute_import
 
+import copy
 #import logging
 
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg\
@@ -154,7 +155,8 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
             return
 
         self.mcafit.estimate()
-        fitresult, self.fitData = self.mcafit.startfit(digest=1)
+        fitresult, fitData = self.mcafit.startfit(digest=1)
+        self.fitData = copy.deepcopy(fitData)
         self.peaksSpectrum()
         self.updateFigure()
 
@@ -177,7 +179,7 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
                 msg.setText("Error processing fit result: %s" % (sys.exc_info()[1]))
                 msg.exec_()
 
-        return fitresult
+        return copy.deepcopy(fitresult)
 
     def peaksSpectrum(self):
         fitresult = self.fitData
