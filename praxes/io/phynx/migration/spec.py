@@ -376,12 +376,16 @@ def convert_scan(scan, h5file, spec_filename, report=False):
             d = TIFFfile(f).asarray()
             r, c = d.shape
             ad = measurement.require_group('area_detector', type='AreaDetector')
-            dset = ad.create_dataset(
-                    'counts', shape=(scan.lines(), r, c), dtype='uint32'
-                    )
+            dset = ad.require_dataset(
+                'counts', (scan.lines(), r, c), 'uint32', maxshape=(None, r, c)
+                )
             i = f.replace(spec_filename+'_scan%03d_'%(int(scan_number)), '')
             i = int(i.replace('.tiff', ''))
-            dset[i] = d
+            try:
+                dset[i] = d
+            except:
+                dset.resize((i, r, c))
+                dset[i] = d
             del d
             try:
                 line = [i for i in scan.attrs['comments']
