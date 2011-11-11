@@ -16,6 +16,9 @@ ALL = slice(None, None, None)
 def create_scalar_proxy(file_name, name, column, index):
     return ScalarProxy(file_name, name, column, index)
 
+def create_epoch_proxy(filename, name, column, index, offset):
+    return EpochProxy(filename, name, column, index, offset)
+
 def create_vector_proxy(file_name, name, index):
     return VectorProxy(file_name, name, index)
 
@@ -167,6 +170,18 @@ cdef class ScalarProxy(DataProxy):
         if isinstance(args, int):
             return res[0]
         return res
+
+
+cdef class EpochProxy(ScalarProxy):
+
+    cdef readonly int offset
+
+    def __init__(self, file_name, name, column, index, offset):
+        super(EpochProxy, self).__init__(file_name, name, column, index)
+        self.offset = offset
+
+    def __getitem__(self, args):
+        return super(EpochProxy, self).__getitem__(args) + self.offset
 
 
 cdef class VectorProxy(DataProxy):

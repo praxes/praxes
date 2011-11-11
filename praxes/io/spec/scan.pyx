@@ -7,8 +7,9 @@ import io
 import numpy as np
 
 from praxes.io.spec.mapping cimport Mapping
-from praxes.io.spec.proxies import create_scalar_proxy, create_vector_proxy
-
+from praxes.io.spec.proxies import (
+    create_scalar_proxy, create_epoch_proxy, create_vector_proxy
+    )
 
 def create_scan(*args, **kwargs):
     return ScanIndex(*args, **kwargs)
@@ -78,13 +79,22 @@ cdef class ScanIndex(Mapping):
                 except KeyError:
                     index = self._mca_data_indices.setdefault(key, [])
                 index.append(file_offset + len(key) + 1)
+            elif ctag == b'\n':
+                # blank line indicates data has ended
+                self._index_finalized = True
+                break
             elif ctag == b'#':
                 tag = line[1]
                 ctag = c_line[1]
-                if ctag == b'S':
-                    if 'command' in attrs:
-                        self._index_finalized = True
-                        break
+
+                if ctag == b'C':
+                    # These can be interleaved with data
+                    attrs['comments'].append(line[3:-1].decode('ascii'))
+                elif 'labels' in attrs:
+                    # non-comment control line, data has ended
+                    self._index_finalized = True
+                    break
+                elif ctag == b'S':
                     attrs['command'] = \
                         ' '.join(line.decode('ascii').split()[2:])
                 elif ctag == b'D':
@@ -110,8 +120,6 @@ cdef class ScanIndex(Mapping):
                     positions.extend(
                         [float(i) for i in temp]
                         )
-                elif ctag == b'C':
-                    attrs['comments'].append(line[3:-1].decode('ascii'))
                 elif ctag == b'U':
                     attrs['user_comments'].append(line[3:-1].decode('ascii'))
                 elif ctag == b'@':
@@ -132,12 +140,21 @@ cdef class ScanIndex(Mapping):
                     labels = line.decode('ascii').split()[1:]
                     attrs['labels'] = labels
                     for column, label in enumerate(labels):
-                        self._index[label] = create_scalar_proxy(
-                            self.file_name,
-                            label,
-                            column,
-                            self._scalar_data_index
-                            )
+                        if label == 'Epoch':
+                            self._index[label] = create_epoch_proxy(
+                                self.file_name,
+                                label,
+                                column,
+                                self._scalar_data_index,
+                                attrs['epoch_offset']
+                                )
+                        else:
+                            self._index[label] = create_scalar_proxy(
+                                self.file_name,
+                                label,
+                                column,
+                                self._scalar_data_index
+                                )
 
             file_offset += len(line)
             line = readline()

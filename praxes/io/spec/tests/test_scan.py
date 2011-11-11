@@ -61,6 +61,8 @@ b"""#F testfile.dat
 #N 4
 #L samx  Epoch  I0  I1
 
+#E 2000
+
 #S 3  dscan  samx -1 1 2 1
 #D Sat Jan 1 00:01:00 2010
 #M 1000  (I0)
@@ -137,11 +139,16 @@ class TestSpecScanInterface(TestCase):
         self.assertArrayEqual(scan['samx'][1:], np.array([0, 1]))
         self.assertArrayEqual(scan['samx'][1:2], np.array([0]))
         self.assertArrayEqual(scan['samx'][[0, 1, 2]], np.array([-1, 0, 1]))
-        self.assertArrayEqual(scan['Epoch'][...], np.array([100, 200, 300]))
+        self.assertArrayEqual(scan['Epoch'][...], np.array([1100, 1200, 1300]))
         self.assertArrayEqual(scan['I0'][...], np.array([1000, 1000, 1000]))
         self.assertArrayEqual(scan['I1'][...], np.array([100, 200, 300]))
 
         self.assertArrayEqual(self.f['2']['I1'][:], np.array([]))
+
+        self.assertArrayEqual(
+            self.f['3']['Epoch'][...], np.array([2100, 2200, 2300])
+            )
+        self.assertEqual(self.f['3']['Epoch'].offset, 2000)
 
     def test_iter_item(self):
         self.assertEqual([i for i in self.f['1']['samx']], [-1, 0, 1])

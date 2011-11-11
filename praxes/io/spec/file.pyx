@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from copy import deepcopy
 import io
 import os
 import re
@@ -52,7 +53,8 @@ cdef class FileIndex(Mapping):
                         dup += 1
                         id = '%s.%d' % (name, dup)
                     scan = create_scan(
-                        name, id, self, f.tell()-len(line), **self._headers
+                        name, id, self, f.tell()-len(line),
+                        **deepcopy(self._headers)
                         )
                     self._index[id] = scan
                     f.seek(scan.file_offsets[1])
