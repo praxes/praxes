@@ -17,8 +17,8 @@ import numpy as np
 from praxes.frontend.analysiswindow import AnalysisWindow
 from .ui.ui_mcaanalysiswindow import Ui_McaAnalysisWindow
 from .elementsview import ElementsView
+from .results import XRFMapResultProxy
 from praxes.io import phynx
-
 
 #logger = logging.getLogger(__file__)
 
@@ -52,6 +52,8 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                         % scan_data.__class__.__name__
                     )
             self._n_points = scan_data.entry.npoints
+            self._dirty = False
+            self._results = XRFMapResultProxy(self.scan_data)
 
             pymcaConfig = self.scan_data.pymca_config
             self.setupUi(self)
@@ -108,7 +110,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
             self.progress_queue = Queue.Queue()
             self.timer = QtCore.QTimer(self)
-            self.timer.timeout.connect(self.update)
+            self.timer.timeout.connect(self.elementMapUpdated)
 
             self.elementsView.updateFigure()
 
@@ -230,7 +232,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             if res == QtGui.QMessageBox.Yes:
                 if self.analysisThread:
                     self.analysisThread.stop()
-                    self.analysisThread.join()
+                    self.analysisThread.wait()
                     #QtGui.qApp.processEvents()
             else:
                 event.ignore()
@@ -251,7 +253,9 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             self.statusbar.clearMessage()
 
     def elementMapUpdated(self):
-        self.elementsView.updateFigure(self.getElementMap())
+        if self._dirty:
+            self._dirty = False
+            self.elementsView.updateFigure(self.getElementMap())
         #QtGui.qApp.processEvents()
 
     def getElementMap(self, mapType=None, element=None):
@@ -259,13 +263,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         if mapType is None: mapType = self.mapType
 
         if mapType and element:
-            with self.scan_data:
-                try:
-                    entry = '%s_%s'%(element, mapType)
-                    return self.scan_data['element_maps'][entry].map
-                except KeyError:
-                    return np.zeros(self.scan_data.entry.acquisition_shape)
-
+            try:
+                return self._results.get(element, mapType)
+            except KeyError:
+                return np.zeros(self.scan_data.entry.acquisition_shape)
         else:
             with self.scan_data:
                 return np.zeros(
@@ -273,26 +274,11 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                     )
 
     def initializeElementMaps(self, elements):
-        with self.scan_data:
-            if 'element_maps' in self.scan_data.entry.measurement:
-                del self.scan_data['element_maps']
-
-            elementMaps = self.scan_data.create_group(
-                'element_maps', type='ElementMaps'
+        self._results = XRFMapResultProxy(
+            self.scan_data,
+            elements,
+            self.scan_data.entry.npoints
             )
-
-            for mapType, cls in [
-                ('fit', 'Fit'),
-                ('fit_error', 'FitError'),
-                ('mass_fraction', 'MassFraction')
-            ]:
-                for element in elements:
-                    entry = '%s_%s'%(element, mapType)
-                    elementMaps.create_dataset(
-                        entry,
-                        type=cls,
-                        data=np.zeros(self.scan_data.entry.npoints, 'f')
-                    )
 
     def processAverageSpectrum(self, indices=None):
         with self.scan_data:
@@ -353,6 +339,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
         self.setMenuToolsActionsEnabled(True)
         self.elementMapUpdated()
+        self._results.flush()
 
     def processData(self):
         if sys.platform.startswith('win'):
@@ -368,20 +355,18 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         settings.beginGroup('JobServers')
         n_local_processes, ok = settings.value(
             'LocalProcesses', QtCore.QVariant(1)
-        ).toInt()
+            ).toInt()
 
         thread = XfsTaskManager(
             self.scan_data,
             copy.deepcopy(self.pymcaConfig),
-            self.progress_queue,
+            self._results,
             n_local_processes=n_local_processes
-        )
+            )
 
-#        self.thread.dataProcessed.connect(self.elementMapUpdated)
-#        self.thread.jobStats.connect(self.jobStats.updateTable)
-#        self.thread.finished.connect(self.processComplete)
-#        self.thread.percentComplete.connect(self.progressBar.setValue)
-        self.actionAbort.triggered.connect(self.abort) #thread.stop
+        thread.progress_report.connect(self.update)
+        thread.finished.connect(self.processComplete)
+        self.actionAbort.triggered.connect(thread.stop) #thread.stop
 
         self.statusbar.showMessage('Analyzing spectra ...')
         self.statusbar.addPermanentWidget(self.progressBar)
@@ -392,24 +377,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         thread.start()
         self.timer.start(1000)
 
-    def abort(self):
-        if self.analysisThread is not None:
-            self.analysisThread.stop()
-        self.processComplete()
+    def update(self, report):
+        self._dirty = True
 
-    def update(self):
-        item = None
-        while True:
-            try:
-                item = self.progress_queue.get(False)
-            except Queue.Empty:
-                break
-        if item is None:
-            return
-
-        self.elementMapUpdated()
-
-        n_processed = item.pop('n_processed')
+        n_processed = report.pop('n_processed')
         with self.scan_data:
             n_points = self.scan_data.entry.npoints
         progress = int((100.0 * n_processed) / n_points)

@@ -7,7 +7,7 @@ import gc
 import hashlib
 #import logging
 import multiprocessing
-import threading
+from threading import RLock
 import time
 
 import numpy as np
@@ -19,7 +19,22 @@ from PyQt4 import QtCore
 DEBUG = False
 
 
-class TaskManager(threading.Thread):
+class QRLock(QtCore.QMutex):
+
+    def __init__(self):
+        QtCore.QMutex.__init__(self, QtCore.QMutex.Recursive)
+
+    def __enter__(self):
+        self.lock()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.unlock()
+
+
+class TaskManager(QtCore.QThread):
+
+    progress_report = QtCore.pyqtSignal(dict)
 
     @property
     def job_server(self):
@@ -49,15 +64,6 @@ class TaskManager(threading.Thread):
             self._n_processed = copy.copy(val)
 
     @property
-    def n_submitted(self):
-        with self.lock:
-            return copy.copy(self._n_submitted)
-    @n_submitted.setter
-    def n_submitted(self, val):
-        with self.lock:
-            self._n_submitted = copy.copy(val)
-
-    @property
     def scan(self):
         return self._scan
 
@@ -70,18 +76,19 @@ class TaskManager(threading.Thread):
         with self.lock:
             self.__stopped = copy.copy(val)
 
-    def __init__(self, scan, progress_queue, **kwargs):
+    def __init__(self, scan, results, **kwargs):
         super(TaskManager, self).__init__()
 
-        self.__lock = threading.RLock()
+        self.__lock = QRLock()
 
         self._scan = scan
         self._n_points = scan.entry.npoints
         self._n_cpus = kwargs.get(
             'n_local_processes', multiprocessing.cpu_count()
             )
+        self._available_workers = 3 * self._n_cpus
 
-        self.progress_queue = progress_queue
+        self._results = results
         self.job_queue = []
 
         self._job_server = self.create_pool()
@@ -90,7 +97,6 @@ class TaskManager(threading.Thread):
 
         self._next_index = 0
         self._n_processed = 0
-        self._n_submitted = 0
 
     def __iter__(self):
         return self
@@ -108,53 +114,44 @@ class TaskManager(threading.Thread):
     def create_pool(self):
         raise NotImplementedError()
 
-    def flush(self):
-        while True:
-            try:
-                job = self.job_queue.pop(0)
-                job.wait()
-                #if res is not None:
-                #    self.update_records(res)
-            except IndexError:
-                break
-        self.n_submitted = 0
-        self.queue_results()
+    def _data_processed(self, data):
+        with self.lock:
+            self._available_workers += 1
+
+        self.update_records(data)
+
+        stats = {'n_processed': self.n_processed}
+        self.progress_report.emit(stats)
 
     def process_data(self):
-        for item in self:
-            if self.stopped:
+        while not self.stopped:
+            with self.lock:
+                if self._available_workers:
+                    self._available_workers -= 1
+                else:
+                    time.sleep(0.01)
+                    continue
+
+            try:
+                item = self.next()
+            except StopIteration:
+                self.job_server.close()
+                self.job_server.join()
                 break
 
             if item is None:
                 # next data point is not yet available
-                if self.n_submitted > 0:
-                    self.flush()
-                else:
-                    time.sleep(0.1)
+                time.sleep(0.1)
                 continue
 
-            if item:
+            if item: # could be zero if masked
                 f, args = item
-                job = self.job_server.apply_async(
-                    f, args, callback=self.update_records
+                self.job_server.apply_async(
+                    f, args, callback=self._data_processed
                     )
-                self.job_queue.append(job)
+                #self.job_queue.append(job)
 
             self.n_processed += 1
-            self.n_submitted += 1
-
-            if self.n_submitted >= self.n_cpus*3:
-                self.flush()
-
-        self.job_server.close()
-        self.job_server.join()
-        if self.n_submitted > 0:
-            self.flush()
-
-    def queue_results(self):
-        stats = {}
-        stats['n_processed'] = self.n_processed
-        self.progress_queue.put(stats)
 
     def run(self):
         self.process_data()

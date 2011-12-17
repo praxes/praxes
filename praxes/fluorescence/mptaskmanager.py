@@ -91,10 +91,10 @@ class XfsTaskManager(TaskManager):
         with self.lock:
             self._mass_fraction_tool = val
 
-    def __init__(self, scan, config, progress_queue, **kwargs):
+    def __init__(self, scan, config, results, **kwargs):
         # needs to be set before the super call:
         self._config = config
-        super(XfsTaskManager, self).__init__(scan, progress_queue, **kwargs)
+        super(XfsTaskManager, self).__init__(scan, results, **kwargs)
 
         with scan:
             self._measurement = scan.entry.measurement
@@ -149,18 +149,6 @@ class XfsTaskManager(TaskManager):
 
         return analyze_spectrum, (i, spectrum, monitor)
 
-    def update_element_map(self, element, map_type, index, val):
-        with self.scan:
-            try:
-                entry = '%s_%s'%(element, map_type)
-                self.scan['element_maps'][entry][index] = val
-            except ValueError:
-                print "index %d out of range for %s" % (index, entry)
-            except KeyError:
-                print "%s not found in element_maps" % entry
-            except TypeError:
-                print entry, index, val
-
     def update_records(self, data):
         if data is None:
             return
@@ -177,13 +165,13 @@ class XfsTaskManager(TaskManager):
             else:
                 sigma_area = np.nan
 
-            self.update_element_map(g, 'fit', index, fit_area)
-            self.update_element_map(g, 'fit_error', index, sigma_area)
+            self._results.update_fit(g, index, fit_area)
+            self._results.update_fit_error(g, index, sigma_area)
 
         try:
             mass_fractions = result['concentrations']['mass fraction']
             for key, val in mass_fractions.items():
                 k = key.replace(' ', '_')
-                self.update_element_map(k, 'mass_fraction', index, val)
+                self._results.update_mass_fraction(k, index, val)
         except KeyError:
             pass
