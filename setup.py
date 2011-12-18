@@ -82,8 +82,8 @@ class test(Command):
         unittest.TextTestRunner(verbosity=self.verbosity+1).run(suite)
 
 
-def convert_ui(args):
-    subprocess.call(args)
+def convert_ui(args, **kwargs):
+    subprocess.call(args, **kwargs)
     print('converted', args[-1])
 
 class ui_cvt(Command):
@@ -118,11 +118,12 @@ class ui_cvt(Command):
                 if os.path.isfile(dest):
                     if os.path.getmtime(source) < os.path.getmtime(dest):
                             continue
-                to_process.append((exe, '-o', dest, source))
+
+                to_process.append([exe, '-o', dest, source])
 
         if sys.platform.startswith('win'):
             # doing this in parallel on windows will crash your computer
-            [convert_ui(args) for args in to_process]
+            [convert_ui(args, shell=True) for args in to_process]
         else:
             pool = multiprocessing.Pool()
             pool.map(convert_ui, to_process)
