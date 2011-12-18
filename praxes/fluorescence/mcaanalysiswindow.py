@@ -342,10 +342,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         self._results.flush()
 
     def processData(self):
-        if sys.platform.startswith('win'):
-            from .pptaskmanager import XfsTaskManager
-        else:
-            from .mptaskmanager import XfsTaskManager
+        from .mptaskmanager import XfsTaskManager
 
         self.setMenuToolsActionsEnabled(False)
 
@@ -411,9 +408,11 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
     @classmethod
     def offersService(cls, h5Node):
-        return isinstance(
+        if isinstance(
             h5Node, (phynx.Entry, phynx.Measurement, phynx.MultiChannelAnalyzer)
-        )
+            ):
+            return len(h5Node.entry.measurement.mcas) > 0
+        return False
 
 
 #if __name__ == "__main__":
