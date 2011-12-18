@@ -31,9 +31,10 @@ class XRFMapResultProxy(object):
                         element_maps.create_dataset(entry, type=cls, data=data)
 
         with self._storage:
-            shape = self._storage.entry.acquisition_shape
-            for k, v in self._storage['element_maps'].items():
-                self._cache[k] = v[()].reshape(shape)
+            if 'element_maps' in self._storage:
+                shape = self._storage.entry.acquisition_shape
+                for k, v in self._storage['element_maps'].items():
+                    self._cache[k] = v[()].reshape(shape)
 
     def update_fit(self, element, index, value):
         with self._lock:
