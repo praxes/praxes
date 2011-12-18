@@ -9,6 +9,7 @@ class XRFMapResultProxy(object):
         self._lock = RLock()
         self._storage = storage
         self._cache = {}
+        self._is_zzmesh = storage.entry.acquisition_command.startswith('zzmesh')
 
         if elements and shape:
             # we are overwriting an existing result:
@@ -58,4 +59,9 @@ class XRFMapResultProxy(object):
 
     def get(self, element, map_type):
         with self._lock:
-            return self._cache['%s_%s' % (element, map_type)].copy()
+            res = self._cache['%s_%s' % (element, map_type)].copy()
+        if self._is_zzmesh:
+            for i, val in enumerate(res):
+                if i%2:
+                    res[i] = np.array(val[::-1])
+        return res
