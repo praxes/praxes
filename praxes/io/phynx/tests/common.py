@@ -15,6 +15,13 @@ from ..file import open
 
 class TestCase(ut.TestCase):
 
+    def setUp(self):
+        self.f = self.mktemp(mode='w')
+
+    def tearDown(self):
+        if self.f:
+            self.f.close()
+
     @classmethod
     def setUpClass(cls):
         cls.tempdir = tempfile.mkdtemp(prefix='phynx-test_')

@@ -9,11 +9,10 @@ from ..registry import registry
 class TestDataset(TestCase):
 
     def test_create(self):
-        f = self.mktemp()
-        f['foo'] = [0,1,2,3]
-        self.assertArrayEqual(f['foo'], np.array([0,1,2,3]))
-        f.create_dataset('bar', data=np.array([1,2,3]), type='Axis')
-        self.assertArrayEqual(f['bar'], np.array([1,2,3]))
-        self.assertTrue(isinstance(f['bar'], registry['Axis']))
-        f.create_dataset('baz', shape=[2,2], dtype='f')
-        self.assertArrayEqual(f['baz'], np.array([[0,0],[0,0]], 'f'))
+        self.f['foo'] = [0,1,2,3]
+        self.assertArrayEqual(self.f['foo'], np.array([0,1,2,3]))
+        self.f.create_dataset('bar', data=np.array([1,2,3]), type='Axis')
+        self.assertArrayEqual(self.f['bar'], np.array([1,2,3]))
+        self.assertTrue(isinstance(self.f['bar'], registry['Axis']))
+        self.f.create_dataset('baz', shape=[2,2], dtype='f')
+        self.assertArrayEqual(self.f['baz'], np.array([[0,0],[0,0]], 'f'))

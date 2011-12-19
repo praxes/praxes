@@ -142,3 +142,6 @@ class Node(object):
 
     def __exit__(self, type, value, traceback):
         self._lock.__exit__(type, value, traceback)
+
+    def __nonzero__(self):
+        return bool(self._h5node.id)

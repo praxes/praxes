@@ -7,40 +7,36 @@ from .common import TestCase, ut
 class TestSorting(TestCase):
 
     def test_defaults(self):
-        f = self.mktemp()
-        a = f.create_group('a')
-        b = f.create_group('b')
-        c = f.create_group('c')
-        self.assertItemsEqual(f.keys(), ['a', 'b', 'c'])
-        self.assertItemsEqual(f.values(), [a, b, c])
-        self.assertItemsEqual(f.items(), [('a', a), ('b', b), ('c', c)])
+        a = self.f.create_group('a')
+        b = self.f.create_group('b')
+        c = self.f.create_group('c')
+        self.assertItemsEqual(self.f.keys(), ['a', 'b', 'c'])
+        self.assertItemsEqual(self.f.values(), [a, b, c])
+        self.assertItemsEqual(self.f.items(), [('a', a), ('b', b), ('c', c)])
 
     def test_sequential_name(self):
-        f = self.mktemp()
-        a = f.create_group('a')
-        b = f.create_group('b')
-        c = f.create_group('c')
-        self.assertEqual(f.values(), [a, b, c])
+        a = self.f.create_group('a')
+        b = self.f.create_group('b')
+        c = self.f.create_group('c')
+        self.assertEqual(self.f.values(), [a, b, c])
 
     def test_default_start_time(self):
-        f = self.mktemp()
-        a = f.create_group('c', 'Entry')
+        a = self.f.create_group('c', 'Entry')
         a.attrs['start_time'] = 1
-        b = f.create_group('b', 'Entry')
+        b = self.f.create_group('b', 'Entry')
         b.attrs['start_time'] = 2
         self.assert_(a < b)
-        c = f.create_group('a', 'Entry')
+        c = self.f.create_group('a', 'Entry')
         c.attrs['start_time'] = 0
         self.assert_(c < a)
-        self.assertEqual(f.values(), [c, a, b])
+        self.assertEqual(self.f.values(), [c, a, b])
 
     def test_entry_id(self):
-        f = self.mktemp()
-        a = f.create_group('1', 'Entry')
-        b = f.create_group('2', 'Entry')
+        a = self.f.create_group('1', 'Entry')
+        b = self.f.create_group('2', 'Entry')
         self.assertTrue(a < b)
-        c = f.create_group('15', 'Entry')
+        c = self.f.create_group('15', 'Entry')
         self.assert_(b < c)
-        d = f.create_group('1.1', 'Entry')
+        d = self.f.create_group('1.1', 'Entry')
         self.assertTrue(a < d and d < b and d < c)
-        self.assertEqual(f.values(), [a, d, b, c])
+        self.assertEqual(self.f.values(), [a, d, b, c])

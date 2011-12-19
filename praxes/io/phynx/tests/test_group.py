@@ -7,38 +7,32 @@ from ..registry import registry
 class TestGroup(TestCase):
 
     def test_getitem(self):
-        f = self.mktemp()
-        a = f.create_group('a', 'Entry')
-        self.assertEqual(a, f['a'])
-        self.assertTrue(isinstance(f['a'], registry['Entry']))
+        a = self.f.create_group('a', 'Entry')
+        self.assertEqual(a, self.f['a'])
+        self.assertTrue(isinstance(self.f['a'], registry['Entry']))
 
     def test_get(self):
-        f = self.mktemp()
-        a = f.create_group('a')
-        self.assertEqual(f.get('a'), a)
-        self.assertEqual(f.get('b'), None)
-        self.assertEqual(f.get('b', 'c'), 'c')
+        a = self.f.create_group('a')
+        self.assertEqual(self.f.get('a'), a)
+        self.assertEqual(self.f.get('b'), None)
+        self.assertEqual(self.f.get('b', 'c'), 'c')
 
     def test_sorted(self):
-        f = self.mktemp()
-        a = f.create_group('c')
-        b = f.create_group('b')
-        c = f.create_group('a')
-        self.assertEqual(f.values(), [c, b, a])
-        self.assertEqual(f.keys(), ['a', 'b', 'c'])
-        self.assertEqual(f.items(), [('a', c), ('b', b), ('c', a)])
+        a = self.f.create_group('c')
+        b = self.f.create_group('b')
+        c = self.f.create_group('a')
+        self.assertEqual(self.f.values(), [c, b, a])
+        self.assertEqual(self.f.keys(), ['a', 'b', 'c'])
+        self.assertEqual(self.f.items(), [('a', c), ('b', b), ('c', a)])
 
     def test_contains(self):
-        f = self.mktemp()
-        a = f.create_group('a')
-        self.assertTrue('a' in f)
-        self.assertFalse('z' in f)
+        a = self.f.create_group('a')
+        self.assertTrue('a' in self.f)
+        self.assertFalse('z' in self.f)
 
     def test_entry(self):
-        f = self.mktemp()
-        a = f.create_group('a', 'Entry')
+        a = self.f.create_group('a', 'Entry')
         b = a.create_group('b')
-        self.assertEqual(f.entry, None)
+        self.assertEqual(self.f.entry, None)
         self.assertEqual(a, a.entry)
         self.assertEqual(a, b.entry)
-
