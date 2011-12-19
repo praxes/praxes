@@ -1,35 +1,23 @@
 """
 """
-from __future__ import with_statement
+from __future__ import absolute_import, with_statement
 
 import copy
 import gc
 import hashlib
 #import logging
 import multiprocessing
-from threading import RLock
 import time
 
 import numpy as np
 np.seterr(all='ignore')
 from PyQt4 import QtCore
 
+from ..rlock import FastRLock
+
 
 #logger = logging.getLogger(__file__)
 DEBUG = False
-
-
-class QRLock(QtCore.QMutex):
-
-    def __init__(self):
-        QtCore.QMutex.__init__(self, QtCore.QMutex.Recursive)
-
-    def __enter__(self):
-        self.lock()
-        return self
-
-    def __exit__(self, type, value, traceback):
-        self.unlock()
 
 
 class TaskManager(QtCore.QThread):
@@ -79,7 +67,7 @@ class TaskManager(QtCore.QThread):
     def __init__(self, scan, results, **kwargs):
         super(TaskManager, self).__init__()
 
-        self.__lock = QRLock()
+        self.__lock = FastRLock()
 
         self._scan = scan
         self._n_points = scan.entry.npoints

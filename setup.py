@@ -175,6 +175,7 @@ ext_modules = [
         ),
     Extension('praxes.io.spec.mapping', ['praxes/io/spec/mapping.pyx']),
     Extension('praxes.io.spec.scan', ['praxes/io/spec/scan.pyx']),
+    Extension('praxes.rlock', ['praxes/rlock.pyx']),
     ]
 
 package_data = {

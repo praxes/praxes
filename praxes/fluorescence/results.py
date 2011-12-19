@@ -1,4 +1,6 @@
-from threading import RLock
+from __future__ import absolute_import, with_statement
+
+from ..rlock import FastRLock
 
 import numpy as np
 
@@ -6,7 +8,7 @@ import numpy as np
 class XRFMapResultProxy(object):
 
     def __init__(self, storage, elements=None, shape=None):
-        self._lock = RLock()
+        self._lock = FastRLock()
         self._storage = storage
         self._cache = {}
         self._is_zzmesh = storage.entry.acquisition_command.startswith('zzmesh')

@@ -6,11 +6,11 @@ import operator
 import os
 import posixpath
 import shutil
-from threading import RLock
 
 from PyQt4 import QtCore, QtGui
 
 from praxes.io import phynx
+from ..rlock import FastRLock
 
 
 class RootItem(object):
@@ -246,7 +246,7 @@ class FileModel(QtCore.QAbstractItemModel):
             if item.file_name == file_name:
                 return item.file
 
-        phynxFile = phynx.open(file_name, 'a', lock=RLock())
+        phynxFile = phynx.open(file_name, 'a', lock=FastRLock())
         self.rootItem.appendChild(phynxFile)
         self.fileAppended.emit()
         return phynxFile
