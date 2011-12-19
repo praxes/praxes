@@ -7,7 +7,6 @@ from ..file import File, open
 class TestFile(TestCase):
 
     def test_File_init_r(self):
-        #f = self.getfile('citrus_leaves.dat.h5', mode='r')
         fname = self.f.file_name
         self.f.close()
         f = open(fname, 'r')
