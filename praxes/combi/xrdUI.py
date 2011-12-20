@@ -66,37 +66,37 @@ from . import ui_editrawxrdDialog
 #    time.sleep(secs)
 
 def printtime():
-    print time.ctime()
+    print(time.ctime())
     
 def mygetopenfile(parent=None, xpath="%s" % os.getcwd(),markstr='', filename='' ):
     if parent is None:
         xapp = QApplication(sys.argv)
         xparent = QWidget()
-        returnfn = unicode(QFileDialog.getOpenFileName(xparent,''.join(['Select file to open:', markstr]),os.path.join(xpath, filename).replace('\\','/')))
+        returnfn = str(QFileDialog.getOpenFileName(xparent,''.join(['Select file to open:', markstr]),os.path.join(xpath, filename).replace('\\','/')))
         xparent.destroy()
         xapp.quit()
         return returnfn
-    return unicode(QFileDialog.getOpenFileName(parent,''.join(['Select file to open: ', markstr]),os.path.join(xpath, filename).replace('\\','/')))
+    return str(QFileDialog.getOpenFileName(parent,''.join(['Select file to open: ', markstr]),os.path.join(xpath, filename).replace('\\','/')))
 
 def mygetsavefile(parent=None, xpath="%s" % os.getcwd(),markstr='', filename='' ):
     if parent is None:
         xapp = QApplication(sys.argv)
         xparent = QWidget()
-        returnfn = unicode(QFileDialog.getSaveFileName(xparent,''.join(['Select file for save: ', markstr]),os.path.join(xpath, filename).replace('\\','/')))
+        returnfn = str(QFileDialog.getSaveFileName(xparent,''.join(['Select file for save: ', markstr]),os.path.join(xpath, filename).replace('\\','/')))
         xparent.destroy()
         xapp.quit()
         return returnfn
-    return unicode(QFileDialog.getSaveFileName(parent,''.join(['Select file for save: ', markstr]),os.path.join(xpath, filename).replace('\\','/')))
+    return str(QFileDialog.getSaveFileName(parent,''.join(['Select file for save: ', markstr]),os.path.join(xpath, filename).replace('\\','/')))
 
 def mygetdir(parent=None, xpath="%s" % os.getcwd(),markstr='' ):
     if parent is None:
         xapp = QApplication(sys.argv)
         xparent = QWidget()
-        returnfn = unicode(QFileDialog.getExistingDirectory(xparent,''.join(['Select directory:', markstr]), xpath))
+        returnfn = str(QFileDialog.getExistingDirectory(xparent,''.join(['Select directory:', markstr]), xpath))
         xparent.destroy()
         xapp.quit()
         return returnfn
-    return unicode(QFileDialog.getExistingDirectory(parent,''.join(['Select directory:', markstr]), xpath))
+    return str(QFileDialog.getExistingDirectory(parent,''.join(['Select directory:', markstr]), xpath))
 
 class MainMenu(QMainWindow,
         ui_mainmenu.Ui_MainMenu):
@@ -123,7 +123,7 @@ class MainMenu(QMainWindow,
 
     @pyqtSignature("")
     def on_performPushButton_clicked(self):
-        self.tasktext=unicode(self.taskTextBrowser.toPlainText())
+        self.tasktext=str(self.taskTextBrowser.toPlainText())
         self.tasktext=self.tasktext.strip()
         self.tasktext=''.join((self.tasktext, '\n'))
         self.performtasks()
@@ -134,7 +134,7 @@ class MainMenu(QMainWindow,
             ACTIVEPATH=self.h5path
             ACTIVEGRP=self.h5groupstr
         except:
-            print 'NO ACTIVE PATH AND GROUP HAVE BEEN DEFINED'
+            print('NO ACTIVE PATH AND GROUP HAVE BEEN DEFINED')
         self.lineendlist=[-1]
         i=0
         while i!=-1:
@@ -145,7 +145,7 @@ class MainMenu(QMainWindow,
 #            self.taskTextBrowser.setPlainText(''.join((self.tasktext[0:self.lineendlist[i]+1], '*', self.tasktext[self.lineendlist[i]+1:])))
 #            self.repaint()
             cmdstr=self.tasktext[self.lineendlist[i]+1:self.lineendlist[i+1]]
-            print 'performing: ', cmdstr
+            print('performing: ', cmdstr)
             if cmdstr.startswith('ACTIVEPATH='):
                 ACTIVEPATH=eval(cmdstr.partition('ACTIVEPATH=')[2])
             elif cmdstr.startswith('ACTIVEGRP='):
@@ -181,7 +181,7 @@ class MainMenu(QMainWindow,
         h5dir=mygetdir(parent=self, markstr='h5 save dir')
         if len(h5dir)==0:
             return
-        print len(synthpath), len(h5dir)
+        print(len(synthpath), len(h5dir))
         h5name=os.path.split(synthpath)[1]+'.h5'
         h5path=os.path.join(h5dir, h5name).replace('\\','/')
         self.addtask("createsynthetich5_peaktxt('"+h5path+"', '"+ synthpath+ "', elstr='ABC')")
@@ -195,7 +195,7 @@ class MainMenu(QMainWindow,
         h5dir=mygetdir(parent=self, markstr='h5 save dir')
         if len(h5dir)==0:
             return
-        print len(synthpath), len(h5dir)
+        print(len(synthpath), len(h5dir))
         h5name=os.path.split(synthpath)[1]+'.h5'
         h5path=os.path.join(h5dir, h5name).replace('\\','/')
         self.addtask("createh5_txtfiles('"+h5path+"', '"+ synthpath+ "', headerlines=0, elstr='ABC')")
@@ -203,7 +203,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_exportpeak_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for peak export')
@@ -222,7 +222,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -231,7 +231,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_bckndinventory_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for peak export')
@@ -251,7 +251,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -268,7 +268,7 @@ class MainMenu(QMainWindow,
             h5file.close()
             perform=len(grpnames)>0
             if not perform:
-                print 'no XRD data found in .h5 file'
+                print('no XRD data found in .h5 file')
 
             if perform:
                 idialog=selectorDialog(self, grpnames, title='Select an experiment group')
@@ -282,7 +282,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_neighbor_calculation_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for neighbor calculation')
@@ -301,7 +301,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -311,7 +311,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_plot_sample_info_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for sample info plotting')
@@ -330,7 +330,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -340,7 +340,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_textureanalysis_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for texture analysis')
@@ -359,7 +359,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -369,7 +369,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_import_sample_info_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for sample info import')
@@ -388,7 +388,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -401,7 +401,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_export_XRDSuite_files_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for 1d->.plt')
@@ -420,7 +420,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -448,13 +448,13 @@ class MainMenu(QMainWindow,
                 scale=idialog.scaleCheckBox.isChecked()
                 dpbool=idialog.CompComboBox.currentIndex()==1
                 xrfbool=idialog.CompComboBox.currentIndex()==1
-                imtype=unicode(idialog.imtypeComboBox.currentText()).partition(' ')[0]
+                imtype=str(idialog.imtypeComboBox.currentText()).partition(' ')[0]
                 if imtype.startswith('if'):
                     counts=readh5pyarray(h5mar['ifcounts'])
                 else:
                     counts=readh5pyarray(h5mar['icounts'])
 
-                xtype=unicode(idialog.xtypeComboBox.currentText())
+                xtype=str(idialog.xtypeComboBox.currentText())
                 low=idialog.qminSpinBox.value()
                 high=idialog.qmaxSpinBox.value()
                 lowind=numpy.where(qvals>=low)[0][0]
@@ -483,7 +483,7 @@ class MainMenu(QMainWindow,
 
                 infodict, success=getpointinfo(self.h5path, self.h5groupstr, types=types)
                 if not success or (not comptype is None and compsarr is None):
-                    print 'ABORTING: not all info could be found'
+                    print('ABORTING: not all info could be found')
                     return
 
                 if scale:
@@ -565,7 +565,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_change_active_scan_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
             temp=self.h5path
         else:
@@ -575,7 +575,7 @@ class MainMenu(QMainWindow,
             idialog=getgroupDialog(self, temp)
             if idialog.exec_():
                 self.h5path=temp
-                self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                 self.updateactivepath()
                 h5file=h5py.File(self.h5path, mode='r+')
                 h5file.attrs['defaultscan']=str(self.h5groupstr)
@@ -589,7 +589,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_edit_DAQ_params_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for scan attribute edit')
@@ -608,7 +608,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -619,7 +619,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_buildnewscan_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for scan attribute edit')
@@ -638,13 +638,13 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
             idialog=buildnewscanDialog(self, self.h5path, self.h5groupstr)
             if idialog.exec_():
-                destname=str(unicode(idialog.newnameLineEdit.text()))
+                destname=str(str(idialog.newnameLineEdit.text()))
                 h5file=h5py.File(self.h5path, mode='r')
                 if destname in h5file:
                     h5file.close()
@@ -662,7 +662,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_actionXRF_analysis_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for XRF analysis')
@@ -681,14 +681,14 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
             idialog=xrfanalysisDialog(self, self.h5path, self.h5groupstr)
             if idialog.exec_():
                 if idialog.parstr=='' or idialog.parstr is None:
-                    print 'ABORTING XRF ANALYSIS: some error'
+                    print('ABORTING XRF ANALYSIS: some error')
                     return
 
                 self.addtask(", ".join(("XRFanalysis(h5path='"+self.h5path+"'", "h5groupstr='"+self.h5groupstr+"'", idialog.parstr))+")")
@@ -698,7 +698,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_actionDeposition_Profiling_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for Deposition Profile calculation')
@@ -717,7 +717,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -728,9 +728,9 @@ class MainMenu(QMainWindow,
                 xcoords=attrdict['x']
                 zcoords=attrdict['z']
                 mdq=MappedDepQuantities(DepRates(gunpropdict, GunPosnDict(xcoords, zcoords)), gunpropdict)
-                for vals in mdq.itervalues():
+                for vals in mdq.values():
                     if numpy.any(numpy.isnan(vals)):
-                        print mdq
+                        print(mdq)
                         QMessageBox.warning(self,"failed",  'Deposition profiling aborted, NaN results. The dictionary of results was printed.')
                         return
                 writedepprof(self.h5path, self.h5groupstr, gunpropdict, mdq)
@@ -741,7 +741,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_calc_bcknd_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for background calculation')
@@ -760,7 +760,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -791,7 +791,7 @@ class MainMenu(QMainWindow,
                 else:
                     othparstr=''
                 idialog=messageDialog(self, ''.join((bcknd, ' background will be calculated', tempstr)))
-                if 'bin' in attrdicttemp.keys():
+                if 'bin' in list(attrdicttemp.keys()):
                     binstr='%d' %attrdicttemp['bin']
                 else:
                     binstr='3'
@@ -802,7 +802,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_copy_lin_bcknd_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for destination')
@@ -821,7 +821,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -831,7 +831,7 @@ class MainMenu(QMainWindow,
                 idialog=getgroupDialog(self, temp)
                 if idialog.exec_():
                     h5path_from=temp
-                    h5groupstr_from=str(unicode(idialog.groupsComboBox.currentText()))
+                    h5groupstr_from=str(str(idialog.groupsComboBox.currentText()))
                     perform=True
         if perform:
             self.addtask('CopyLinBckndData(%s, %s, %s, %s)' %(h5path, h5groupstr, h5path_from, h5groupstr_from))
@@ -839,7 +839,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_process_1d_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for background calculation')
@@ -858,7 +858,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -869,7 +869,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_process_texture_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for background calculation')
@@ -888,7 +888,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -905,7 +905,7 @@ class MainMenu(QMainWindow,
                 h5file.close()
             else:
                 h5file.close()
-                print 'cannot calculate wave trans without texture data'
+                print('cannot calculate wave trans without texture data')
                 return
             if len(texgrplist)>0 and idialog.exec_():
                 h5texgrpname=str(idialog.groupsComboBox.currentText())
@@ -922,7 +922,7 @@ class MainMenu(QMainWindow,
         h5chess.close()
         idialog=selectorDialog(self, itemnames, title='select a CHESSrun group')
         if idialog.exec_():
-            self.addtask(''.join(("binmapsinh5chess('",str(unicode(idialog.groupsComboBox.currentText())),"', bin=3)")))
+            self.addtask(''.join(("binmapsinh5chess('",str(str(idialog.groupsComboBox.currentText())),"', bin=3)")))
 
 
     @pyqtSignature("")
@@ -936,7 +936,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_choose_data_subset_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for background calculation')
@@ -955,7 +955,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -978,7 +978,7 @@ class MainMenu(QMainWindow,
                 qmax=idialog2.qmaxSpinBox.value()
                 qint=idialog2.qintSpinBox.value()
                 qgridstr='['+','.join(tuple([labelnumberformat(num) for num in qgrid_minmaxint(qmin, qmax, qint)]))+']'
-                self.addtask(''.join(("buildintmap('",str(unicode(idialog.groupsComboBox.currentText())),"',", qgridstr, ",bin=3)")))
+                self.addtask(''.join(("buildintmap('",str(str(idialog.groupsComboBox.currentText())),"',", qgridstr, ",bin=3)")))
 
 
     @pyqtSignature("")
@@ -991,18 +991,18 @@ class MainMenu(QMainWindow,
         h5chess.close()
         idialog=selectorDialog(self, itemnames, title='select a CHESSrun group')
         if idialog.exec_():
-            idialog2=chiparamDialog(self, str(unicode(idialog.groupsComboBox.currentText())))
+            idialog2=chiparamDialog(self, str(str(idialog.groupsComboBox.currentText())))
             if idialog2.exec_():
                 chimin=idialog2.chiminSpinBox.value()
                 chimax=idialog2.chimaxSpinBox.value()
                 chiint=idialog2.chiintSpinBox.value()
                 chigridstr='['+','.join(tuple([labelnumberformat(num) for num in qgrid_minmaxint(chimin, chimax, chiint)]))+']'
-                self.addtask(''.join(("buildchimap('",str(unicode(idialog.groupsComboBox.currentText())),"',", chigridstr, ",bin=3)")))
+                self.addtask(''.join(("buildchimap('",str(str(idialog.groupsComboBox.currentText())),"',", chigridstr, ",bin=3)")))
 
     @pyqtSignature("")
     def on_action_plot_imap_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for integration map')
@@ -1021,7 +1021,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1032,7 +1032,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_plot_1D_texture_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for texture plotting ')
@@ -1051,7 +1051,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1061,7 +1061,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_plot1dwavetrans_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for plotting 1d wave transform')
@@ -1080,7 +1080,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1107,7 +1107,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_plotinterpimageof1ddata_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for plotting interpolation maps')
@@ -1126,7 +1126,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1170,7 +1170,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_analyze_qq_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for analyzing qq')
@@ -1189,7 +1189,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1231,7 +1231,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_group_into_phases_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for phase grouping')
@@ -1250,7 +1250,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1264,7 +1264,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_spatial_phases_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for spatial analysis of phases')
@@ -1283,7 +1283,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1300,7 +1300,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_plot_2D_intensity_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for 2d intensity plotting')
@@ -1319,7 +1319,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1329,7 +1329,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_plot_1D_intensity_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for 1d intensity plotting')
@@ -1348,7 +1348,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1375,7 +1375,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_fix1dbcknd_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for 1d intensity plotting')
@@ -1394,7 +1394,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1404,7 +1404,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_addpeaks_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for 1d intensity plotting')
@@ -1423,7 +1423,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1433,7 +1433,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_removepeaks_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for 1d intensity plotting')
@@ -1452,7 +1452,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1462,7 +1462,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_association_trees_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for association tree')
@@ -1481,7 +1481,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1491,7 +1491,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_plot_qq_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for qq plotting')
@@ -1510,7 +1510,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1520,7 +1520,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_association_trees_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for qq plotting')
@@ -1539,7 +1539,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1549,7 +1549,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_save_all_1d_plt_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for 1d->.plt')
@@ -1568,7 +1568,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1582,7 +1582,7 @@ class MainMenu(QMainWindow,
             idialog=plotsoDialog(self, xtypelist, qvals[0], qvals[-1], title='select a scattering variable')
             if idialog.exec_():
                 scale=idialog.densityCheckBox.isChecked()
-                xtype=unicode(idialog.typeComboBox.currentText())
+                xtype=str(idialog.typeComboBox.currentText())
                 low=idialog.lowSpinBox.value()
                 high=idialog.highSpinBox.value()
                 lowind=numpy.where(qvals>=low)[0][0]
@@ -1595,7 +1595,7 @@ class MainMenu(QMainWindow,
                 if scale:
                     infodict, success=getpointinfo(self.h5path, self.h5groupstr, types=['DPnmolcm2'])
                     if not success:
-                        print 'ABORTING: not all info could be found'
+                        print('ABORTING: not all info could be found')
                         return
                     scalearr=1/infodict['DPnmolcm2']
 
@@ -1627,13 +1627,13 @@ class MainMenu(QMainWindow,
                 for pnt in pointers:
                     for pointind in pointlist:
                         yvals=pnt[pointind, lowind:highind]*scalearr[pointind]#index out of bounds
-                        writeplotso(self.runpath, xvals, yvals, attrdict, t1, ''.join((savename1, pnt.name.rpartition('/')[2], `pointind`)))
+                        writeplotso(self.runpath, xvals, yvals, attrdict, t1, ''.join((savename1, pnt.name.rpartition('/')[2], repr(pointind))))
             h5file.close()
 
     @pyqtSignature("")
     def on_action_save_2d_image_dataset_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for 2d data->.png')
@@ -1652,20 +1652,20 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
             typelist=['raw','bckndsubtracted', 'banom', 'totalbcknd',  'singlebcknd']
             idialog=selectorDialog(self, typelist, title='select a 2d image type')
             if idialog.exec_():
-                typestr=str(unicode(idialog.groupsComboBox.currentText()))
+                typestr=str(str(idialog.groupsComboBox.currentText()))
                 type=typelist.index(typestr)
 
                 savetypelist=['png from binned data', 'png with x2 furhter binning',  'png with x10 furhter binning', 'dat from binned data', 'dat with x2 furhter binning',  'dat with x10 furhter binning' ]
                 idialog=selectorDialog(self, savetypelist, title='select a save type')
                 if idialog.exec_():
-                    saveind=savetypelist.index(str(unicode(idialog.groupsComboBox.currentText())))
+                    saveind=savetypelist.index(str(str(idialog.groupsComboBox.currentText())))
                     extrabin=[1, 2, 10][saveind%3]
                     datsave=bool(saveind//3)
                     if not datsave:
@@ -1679,7 +1679,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_export_cfg_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for 2d data->.png')
@@ -1698,7 +1698,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1714,10 +1714,10 @@ class MainMenu(QMainWindow,
             h5xrf=h5analysis['xrf']
             cfg=readh5pyarray(h5xrf['cfg'])
             inds=list(numpy.where(cfg!='')[0])
-            inds=[`i` for i in inds]
+            inds=[repr(i) for i in inds]
             idialog=selectorDialog(self, inds, title='select a pointind')
             if idialog.exec_():
-                indstr=str(unicode(idialog.groupsComboBox.currentText()))
+                indstr=str(str(idialog.groupsComboBox.currentText()))
                 ind=inds.index(indstr)
                 cfgpath=os.path.join(self.runpath, ''.join((os.path.split(self.h5path)[1][0:-3], '_', self.h5groupstr.rpartition('.')[2], '_', indstr, '.cfg'))).replace('\\','/').encode()
                 f=open(cfgpath,mode='w')
@@ -1727,7 +1727,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_edit_raw_diff_data_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
             h5path=self.h5path
         else:
@@ -1748,7 +1748,7 @@ class MainMenu(QMainWindow,
             h5file.close()
             perform=len(grpnames)>0
             if not perform:
-                print 'no XRD data found in .h5 file'
+                print('no XRD data found in .h5 file')
 
         if perform:
             idialog=selectorDialog(self, grpnames, title='Select an experiment group')
@@ -1763,7 +1763,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_image_histogram_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for histogram plotting')
@@ -1782,7 +1782,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1792,7 +1792,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_H5file_info_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for file info retrieval')
@@ -1811,7 +1811,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1829,7 +1829,7 @@ class MainMenu(QMainWindow,
         idialog=selectorDialog(self, itemnames, title='select a CHESSrun group')
 
         if idialog.exec_():
-            self.addtask(''.join(("calcqchiimages('", unicode(idialog.groupsComboBox.currentText()), "', alsocalcbin=3)")))
+            self.addtask(''.join(("calcqchiimages('", str(idialog.groupsComboBox.currentText()), "', alsocalcbin=3)")))
 
     @pyqtSignature("")
     def on_action_createchessrun_triggered(self):
@@ -1845,11 +1845,11 @@ class MainMenu(QMainWindow,
             'psize':idialog.psizeSpinBox.value(), 
             }
             h5chess=CHESSRUNFILE('r+')
-            grpname=str(unicode(idialog.nameLineEdit.text()))
+            grpname=str(str(idialog.nameLineEdit.text()))
             if grpname in h5chess:
                 del h5chess[grpname]
             group=h5chess.create_group(grpname)
-            for key, val in attrdict.iteritems():
+            for key, val in attrdict.items():
                 group.attrs[key]=val
             group.create_group('imap')
             group.create_group('chimap')
@@ -1860,7 +1860,7 @@ class MainMenu(QMainWindow,
     @pyqtSignature("")
     def on_action_calc_waveset1d_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for file info retrieval')
@@ -1879,7 +1879,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1918,13 +1918,13 @@ class MainMenu(QMainWindow,
             qint=idialog.qintSpinBox.value()
             qgridstr='['+','.join(tuple([labelnumberformat(num) for num in qgrid_minmaxint(qmin, qmax, qint)]))+']'
 
-            self.addtask(''.join(("buildwaveset1d(qscalegrid=", qsgridstr, ", qposngrid=", qpgridstr, ", qgrid=", qgridstr, ",maxfixenfrac=",`idialog.fixenSpinBox.value()`,")")))
+            self.addtask(''.join(("buildwaveset1d(qscalegrid=", qsgridstr, ", qposngrid=", qpgridstr, ", qgrid=", qgridstr, ",maxfixenfrac=",repr(idialog.fixenSpinBox.value()),")")))
 
 
     @pyqtSignature("")
     def on_action_wavetrans1d_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for wavelet transform calculation')
@@ -1943,7 +1943,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -1967,17 +1967,17 @@ class MainMenu(QMainWindow,
                             selectlist+=[selstr]
                 idialog=selectorDialog(self, selectlist, title='select wavelet set to use')
                 if idialog.exec_():
-                    namestr=str(unicode(idialog.groupsComboBox.currentText()))
+                    namestr=str(str(idialog.groupsComboBox.currentText()))
                     self.addtask(''.join(("wavetrans1d('", self.h5path, "','", self.h5groupstr, "','", namedict[namestr],"')")))
             else:
                 h5file.close()
-                print 'cannot calculate wave trans without icounts'
+                print('cannot calculate wave trans without icounts')
 
 
     @pyqtSignature("")
     def on_action_wavetranstex_triggered(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for wavelet transform calculation')
@@ -1996,7 +1996,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -2012,7 +2012,7 @@ class MainMenu(QMainWindow,
                 idialog=selectorDialog(self, texgrplist, title='select texture dataset')
             else:
                 h5file.close()
-                print 'cannot calculate wave trans without texture data'
+                print('cannot calculate wave trans without texture data')
                 return
             if len(texgrplist)>0 and idialog.exec_():
                 h5texgrpname=str(idialog.groupsComboBox.currentText())
@@ -2032,7 +2032,7 @@ class MainMenu(QMainWindow,
                             selectlist+=[selstr]
                 idialog=selectorDialog(self, selectlist, title='select wavelet set to use')
                 if idialog.exec_():
-                    namestr=str(unicode(idialog.groupsComboBox.currentText()))
+                    namestr=str(str(idialog.groupsComboBox.currentText()))
                     self.addtask(''.join(("wavetrans1d('", self.h5path, "','", self.h5groupstr, "','", namedict[namestr],"', type='h5tex:", h5texgrpname, "')")))
 
     @pyqtSignature("")
@@ -2048,7 +2048,7 @@ class MainMenu(QMainWindow,
             idialog2=importh5scanDialog(self, self.h5path)
             if not idialog2.exec_():
                 return
-            temp=unicode(idialog2.scanComboBox.currentText())
+            temp=str(idialog2.scanComboBox.currentText())
             self.h5groupstr, temp, command=temp.partition(':')
             self.h5groupstr=str(self.h5groupstr)
         else:
@@ -2081,7 +2081,7 @@ class MainMenu(QMainWindow,
 
     def integratecontrol(self, single=True):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for integration')
@@ -2100,7 +2100,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -2125,7 +2125,7 @@ class MainMenu(QMainWindow,
                 if single:
                     idialog=selectorDialog(self, namelist, title='select an image to integrate')
                     if idialog.exec_():
-                        imname=str(unicode(idialog.groupsComboBox.currentText()))
+                        imname=str(str(idialog.groupsComboBox.currentText()))
                         singlecommand=''.join((", singleimage='", imname,"'"))
                         perform=True
                         if imname.startswith('b') or ('raw' in imname):
@@ -2133,13 +2133,13 @@ class MainMenu(QMainWindow,
                 else:
                     perform=True
                 if perform:
-                    self.addtask(''.join(("integrate(h5path='", self.h5path, "', h5groupstr='", self.h5groupstr,"'", singlecommand, ", bckndbool=", `bckndbool`, ")")))
+                    self.addtask(''.join(("integrate(h5path='", self.h5path, "', h5groupstr='", self.h5groupstr,"'", singlecommand, ", bckndbool=", repr(bckndbool), ")")))
             else:
                 QMessageBox.warning(self,"failed",  "no images found")
 
     def qqcalccontrol(self):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for calculating qq')
@@ -2158,7 +2158,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -2167,7 +2167,7 @@ class MainMenu(QMainWindow,
             h5mar=h5file['/'.join((self.h5groupstr, 'analysis', getxrdname(h5analysis)))]
             if not ('icounts' in h5mar):
                 h5file.close()
-                print 'cannot perform qqcalc due to absence of icounts'
+                print('cannot perform qqcalc due to absence of icounts')
                 return
             defqgrid=h5mar['icounts'].attrs['qgrid']
 
@@ -2180,7 +2180,7 @@ class MainMenu(QMainWindow,
             h5file.close()
             idialog=qqparamDialog(self, defqgrid, opts, 'select a type of 1d intensity array')
             if idialog.exec_():
-                imagecommand=unicode(idialog.typeComboBox.currentText()).partition(' ')[0]
+                imagecommand=str(idialog.typeComboBox.currentText()).partition(' ')[0]
                 imagecommand=''.join((", image='", imagecommand,"'"))
                 qmin=idialog.qminSpinBox.value()
                 qmax=idialog.qmaxSpinBox.value()
@@ -2190,7 +2190,7 @@ class MainMenu(QMainWindow,
 
     def peakfitcontrol(self, type='h5mar'):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for finding peaks in 1d intensity')
@@ -2209,7 +2209,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -2231,7 +2231,7 @@ class MainMenu(QMainWindow,
                         namelist+=[grp.name.rpartition('/')[2]]
             if len(namelist)==0:
                 h5file.close()
-                print 'cannot calculate wave trans without texture data'
+                print('cannot calculate wave trans without texture data')
                 return
             else:
                 idialog=selectorDialog(self, namelist, title='select texture dataset')
@@ -2251,7 +2251,7 @@ class MainMenu(QMainWindow,
 
     def peak1dcontrol(self, single=True, type='h5mar'):
         perform=False
-        if self.activepathcheckBox.isChecked() and unicode(self.active_file_lineEdit.text())==self.activepathcompare:
+        if self.activepathcheckBox.isChecked() and str(self.active_file_lineEdit.text())==self.activepathcompare:
             perform=True
         else:
             temp = mygetopenfile(self, xpath=self.h5path,markstr='.h5 file for finding peaks in 1d intensity')
@@ -2270,7 +2270,7 @@ class MainMenu(QMainWindow,
                     idialog=getgroupDialog(self, temp)
                     if idialog.exec_():
                         self.h5path=temp
-                        self.h5groupstr=str(unicode(idialog.groupsComboBox.currentText()))
+                        self.h5groupstr=str(str(idialog.groupsComboBox.currentText()))
                         self.updateactivepath()
                         perform=True
         if perform:
@@ -2289,7 +2289,7 @@ class MainMenu(QMainWindow,
                         namelist+=[grp.name.rpartition('/')[2]]
             if len(namelist)==0:
                 h5file.close()
-                print 'cannot perform peak search because cannot find wavelet transformation'
+                print('cannot perform peak search because cannot find wavelet transformation')
 
             idialog=wavepeak1dDialog(self, namelist, 'select a type of 1d intensity array for peak search')
             if idialog.exec_():
@@ -2429,35 +2429,35 @@ class MainMenu(QMainWindow,
         idialog = importattrDialog(p1, p2, p3, command=command)
         if idialog.exec_():
             ellineditlist=[idialog.el1LineEdit, idialog.el2LineEdit, idialog.el3LineEdit, idialog.el4LineEdit]
-            ellist=[str(unicode(le.text())) for le in ellineditlist]
+            ellist=[str(str(le.text())) for le in ellineditlist]
             xgrid=(idialog.xstartSpinBox.value(), idialog.xintSpinBox.value(), idialog.xptsSpinBox.value())
             zgrid=(idialog.zstartSpinBox.value(), idialog.zintSpinBox.value(), idialog.zptsSpinBox.value())
             returndict ={
             'wavelength':idialog.wavelengthSpinBox.value(),
-            'command':str(unicode(idialog.cmdLineEdit.text())),
+            'command':str(str(idialog.cmdLineEdit.text())),
             'elements':ellist,
             'xgrid':xgrid,
             'zgrid':zgrid,
             'counter':idialog.inttimeSpinBox.value(),
             'cal':[idialog.xcenSpinBox.value(), idialog.ycenSpinBox.value(), idialog.LSpinBox.value(), idialog.martiltSpinBox.value(), idialog.tiltrotSpinBox.value()],
             'alpha':idialog.alphaSpinBox.value(),
-            'bcknd':str(unicode(idialog.bckndComboBox.currentText())),
-            'chessrunstr':'/'.join(('', str(unicode(idialog.chessruncomboBox.currentText())))),
-            'imapstr':'/'.join(('', str(unicode(idialog.chessruncomboBox.currentText())), 'imap', str(unicode(idialog.imapcomboBox.currentText())))),
-            'chimapstr':'/'.join(('', str(unicode(idialog.chessruncomboBox.currentText())), 'chimap', str(unicode(idialog.chimapcomboBox.currentText())))),
-            'killmapstr':'/'.join(('', str(unicode(idialog.chessruncomboBox.currentText())), 'killmap', str(unicode(idialog.killmapcomboBox.currentText())))),
-            'qimagestr':'/'.join(('', str(unicode(idialog.chessruncomboBox.currentText())), 'qimage')),
-            'chiimagestr':'/'.join(('', str(unicode(idialog.chessruncomboBox.currentText())), 'chiimage')),
-            'dqchiimagestr':'/'.join(('', str(unicode(idialog.chessruncomboBox.currentText())), 'dqchiimage')),
+            'bcknd':str(str(idialog.bckndComboBox.currentText())),
+            'chessrunstr':'/'.join(('', str(str(idialog.chessruncomboBox.currentText())))),
+            'imapstr':'/'.join(('', str(str(idialog.chessruncomboBox.currentText())), 'imap', str(str(idialog.imapcomboBox.currentText())))),
+            'chimapstr':'/'.join(('', str(str(idialog.chessruncomboBox.currentText())), 'chimap', str(str(idialog.chimapcomboBox.currentText())))),
+            'killmapstr':'/'.join(('', str(str(idialog.chessruncomboBox.currentText())), 'killmap', str(str(idialog.killmapcomboBox.currentText())))),
+            'qimagestr':'/'.join(('', str(str(idialog.chessruncomboBox.currentText())), 'qimage')),
+            'chiimagestr':'/'.join(('', str(str(idialog.chessruncomboBox.currentText())), 'chiimage')),
+            'dqchiimagestr':'/'.join(('', str(str(idialog.chessruncomboBox.currentText())), 'dqchiimage')),
             'xrdname':str(idialog.xrdnameLineEdit.text()), 
             'psize':idialog.psizeSpinBox.value(), 
             }
             if returndict['command']!='USER-COMPILED':
                 if idialog.usespecCheckBox.isChecked():
-                    for k, v in idialog.fromspecattr.iteritems():
+                    for k, v in idialog.fromspecattr.items():
                         returndict[k]=v
                 else:
-                    for k, v in specattr_xzgrid(xgrid, zgrid, 'mesh' in returndict['command']).iteritems():
+                    for k, v in specattr_xzgrid(xgrid, zgrid, 'mesh' in returndict['command']).items():
                         returndict[k]=v
             return returndict
         else:
@@ -2497,7 +2497,7 @@ class bckndinventoryDialog(QDialog,
                 grpnames+=[group.name]
         perform=len(grpnames)>0
         if not perform:
-            print 'no chess groups found in .h5 file'
+            print('no chess groups found in .h5 file')
         if perform:
             if chessrungrpname in grpnames:
                 setindex=grpnames.index(chessrungrpname)
@@ -2539,17 +2539,17 @@ class bckndinventoryDialog(QDialog,
             pnt=self.imagepointlist[self.imageComboBox.currentIndex()]
             d={}
             if isinstance(pnt, tuple):
-                print pnt
+                print(pnt)
                 arr=pnt[0][pnt[1]]
-                print arr.shape
-                print pnt[0].file.filename
+                print(arr.shape)
+                print(pnt[0].file.filename)
                 d['sourcefile']=pnt[0].file.filename
-                print pnt[0].name
+                print(pnt[0].name)
                 d['sourcename']=pnt[0].name
-                print pnt[1]
+                print(pnt[1])
                 d['sourcearrayindex']=pnt[1]
             else:
-                print pnt
+                print(pnt)
                 arr=readh5pyarray(pnt)
                 d['sourcefile']=arr.file.filename
                 d['sourcename']=arr.name
@@ -2557,7 +2557,7 @@ class bckndinventoryDialog(QDialog,
             if nam in self.h5chessgrp:
                 del self.h5chessgrp[nam]
             h5ds=self.h5chessgrp.create_dataset(nam, data=arr)
-            for key, val in d.iteritems():
+            for key, val in d.items():
                 h5ds.attrs[key]=val
             self.MsgLabel.setText('%s successfully added to inventory' %nam)
         except:
@@ -2623,39 +2623,39 @@ class LinBckndDialog(QDialog,
                 h5file.close()
                 if not self.h5chess is None:
                     self.h5chess.close()
-                print
+                print()
                 QMessageBox.warning(self,"syntax error",  "Aborting because the list of trial wieghts did not convert to array correctly.\nThe enetered string has been printed.\nSome blin data in .h5 may have been deleted.")
                 self.perform=False
                 return
             pnt=self.imagepointlist[cb.currentIndex()]
             
             if isinstance(pnt, tuple):
-                print 'reading ', pnt[0].name
+                print('reading ', pnt[0].name)
                 arr=pnt[0][pnt[1]]
                 d['sourcefile']=pnt[0].file .filename
                 d['sourcename']=pnt[0].name
                 d['sourcearrayindex']=pnt[1]
             else:
-                print 'reading ', pnt.name
+                print('reading ', pnt.name)
                 arr=readh5pyarray(pnt)
                 d['sourcefile']=pnt.file.filename
                 d['sourcename']=pnt.name
                 d['sourcearrayindex']=''
             dellist=[]
             if nam in self.h5mar:
-                for pnt in self.h5mar.itervalues():
+                for pnt in self.h5mar.values():
                     if isinstance(pnt,h5py.Dataset):
-                        print pnt.name
-                        print pnt.name.rpartition('/')[2]
+                        print(pnt.name)
+                        print(pnt.name.rpartition('/')[2])
                         temp=pnt.name.rpartition('/')[2]
                         if nam in temp:#this gets rid of all the blin0bin$
                             dellist+=[temp]
-            print dellist
+            print(dellist)
             for temp in dellist:
                 del self.h5mar[temp]
                 
             h5ds=self.h5mar.create_dataset(nam, data=arr)
-            for key, val in d.iteritems():
+            for key, val in d.items():
                 h5ds.attrs[key]=val
             
         self.h5file.close()
@@ -2686,7 +2686,7 @@ class importh5scanDialog(QDialog,
         self.setupUi(self)
         h5file=h5py.File(h5path, mode='r')
         for grp in h5file.iterobjects():
-            print grp.name.rpartition('/')[2]
+            print(grp.name.rpartition('/')[2])
             if isinstance(grp,h5py.Group):
                 #the below conditions means that the data must have this h5 format to analyze the data. if these conditions need to be loosened, the importattrDialog routines should allow user entry of the spec info
                 if ('samx' in grp['measurement/scalar_data'] and len(grp['measurement/scalar_data/samx'].shape)==1) or ('samz' in grp['measurement/scalar_data/'] and len(grp['measurement/scalar_data/samz'].shape)==1):
@@ -2788,7 +2788,7 @@ class importattrDialog(QDialog,
 
 
         self.attrdict=getattr(h5path, h5groupstr)
-        if 'cal' in self.attrdict.keys():
+        if 'cal' in list(self.attrdict.keys()):
             self.chessrun=self.attrdict['chessrunstr'][1:]
             imapstr=self.attrdict['imapstr'][::-1].partition('/')[0][::-1]
             chimapstr=self.attrdict['chimapstr'][::-1].partition('/')[0][::-1]
@@ -2872,9 +2872,9 @@ class importattrDialog(QDialog,
         self.tiltrotSpinBox.setValue(self.attrdict['cal'][4])
         self.alphaSpinBox.setValue(self.attrdict['alpha'])
         self.wavelengthSpinBox.setValue(self.attrdict['wavelength'])
-        if 'xrdname' in self.attrdict.keys():
+        if 'xrdname' in list(self.attrdict.keys()):
             self.xrdnameLineEdit.setText(self.attrdict['xrdname'])
-        if 'psize' in self.attrdict.keys():
+        if 'psize' in list(self.attrdict.keys()):
             self.psizeSpinBox.setValue(self.attrdict['psize']), 
 
     def setvalues(self):
@@ -2909,7 +2909,7 @@ class importattrDialog(QDialog,
                     index=count
                 count+=1
         if index<0:
-            print 'PROBLEM FINDING A CHESSRUN THAT SHOULD EXIST'
+            print('PROBLEM FINDING A CHESSRUN THAT SHOULD EXIST')
             return
 
         self.chessruncomboBox.setCurrentIndex(index)
@@ -2952,14 +2952,14 @@ class importattrDialog(QDialog,
     def getchessrunattrs(self):
         h5chess=CHESSRUNFILE()
         node=h5chess[self.chessrun]
-        for key, val in node.attrs.iteritems():
-            if key in self.attrdict.keys():
+        for key, val in node.attrs.items():
+            if key in list(self.attrdict.keys()):
                 self.attrdict[key]=val
         h5chess.close()
 
     @pyqtSignature("")
     def on_getchessruninfoButton_clicked(self):
-        self.chessrun=str(unicode(self.chessruncomboBox.currentText()))
+        self.chessrun=str(str(self.chessruncomboBox.currentText()))
 
         self.chessruncomboBox.clear()
         self.imapcomboBox.clear()
@@ -2974,7 +2974,7 @@ class importattrDialog(QDialog,
     def on_calcButton_clicked(self):
         self.calcfromcommand()
     def calcfromcommand(self):
-        a=unicode(self.cmdLineEdit.text()).encode()
+        a=str(self.cmdLineEdit.text()).encode()
         b=('','',a)
         c=[]
 
@@ -3306,10 +3306,10 @@ class plot2dintwindow(QDialog):
                 infotype='XRFmolfracALL'
             self.elstrlist, self.compsarr=getternarycomps(self.h5path, self.h5groupstr, elstr=elstr, infotype=infotype)
             if self.compsarr is None:
-                print 'NO COMPOSITION NAVIGATOR WINDOW BECAUSE PROBLEM CALCULATING COMPOSITIONS'
+                print('NO COMPOSITION NAVIGATOR WINDOW BECAUSE PROBLEM CALCULATING COMPOSITIONS')
                 self.navw = subnavigatorwidget(self, self.xgrid, self.zgrid, self.xcoords, self.zcoords)
             else:
-                print 'COMPS:', self.compsarr
+                print('COMPS:', self.compsarr)
                 self.navw = compnavigatorwidget(self, self.compsarr, self.elstrlist)
         QObject.connect(self.navw, SIGNAL("picclicked"), self.picclickprocess)
 
@@ -3420,12 +3420,12 @@ class plot2dintwindow(QDialog):
         self.navw.plotpoints(self.pointlist, list(set(self.imnumlist)-set(self.pointlist)))
         self.chiqplotbool=False
         self.fillimComboBox()
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
 
         try:
             self.imnum=eval(self.imname)
         except:
-            print 'abortng plot2d because some error in point selections'
+            print('abortng plot2d because some error in point selections')
             return
 
 
@@ -3456,7 +3456,7 @@ class plot2dintwindow(QDialog):
         self.killbool=self.killCheckBox.isChecked() and (not self.bckndbool)
 #        if self.navkill:
 #            self.killbool=self.killCheckBox.isChecked()
-        rangestr=unicode(self.rangeLineEdit.text())
+        rangestr=str(self.rangeLineEdit.text())
         try:
             range=eval(rangestr)
             if isinstance(range,(int,float)):
@@ -3465,7 +3465,7 @@ class plot2dintwindow(QDialog):
                 range=(0., range[0])
         except:
             range=None
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
         self.imnum=eval(self.imname)
         h5file=h5py.File(self.h5path, mode='r')
         h5analysis=h5file['/'.join((self.h5groupstr, 'analysis'))]
@@ -3502,7 +3502,7 @@ class plot2dintwindow(QDialog):
                 else:
                     if self.bcknd=='minanom':
                         if self.bminanomf[self.imnum, 0]<0:
-                            print 'WARNING: calculating bminanom background (for histogram analysis) on the fly: INEFFICIENT'
+                            print('WARNING: calculating bminanom background (for histogram analysis) on the fly: INEFFICIENT')
                             temp=bckndsubtract(plotarr, self.bckndarr, self.imapkillmap, btype=self.bcknd, banomcalc=self.banomcalc)
                             plotarr=temp[0]
                         else:
@@ -3541,11 +3541,11 @@ class plot2dintwindow(QDialog):
 
             qgrid=bingrid_grid(self.qgrid, mapbin=self.chiq_qbin)
             chigrid=bingrid_grid(self.chigrid, mapbin=self.chiq_chibin)
-            chivals=q_qgrid_ind(chigrid, range(numpy.max(chimap)))
-            qvals=q_qgrid_ind(qgrid, range(numpy.max(imap)))
+            chivals=q_qgrid_ind(chigrid, list(range(numpy.max(chimap))))
+            qvals=q_qgrid_ind(qgrid, list(range(numpy.max(imap))))
 
-            datamask=numpy.bool_([[(ch in chimap) and (i in imap)  for ch in xrange(1, numpy.max(chimap)+1)] for i in xrange(1, numpy.max(imap)+1)])
-            plotarr=numpy.array([[(plotarr[(chimap==ch)&(imap==i)]).mean(dtype='float32')  for ch in xrange(1, numpy.max(chimap)+1)] for i in xrange(1, numpy.max(imap)+1)], dtype=plotarr.dtype)
+            datamask=numpy.bool_([[(ch in chimap) and (i in imap)  for ch in range(1, numpy.max(chimap)+1)] for i in range(1, numpy.max(imap)+1)])
+            plotarr=numpy.array([[(plotarr[(chimap==ch)&(imap==i)]).mean(dtype='float32')  for ch in range(1, numpy.max(chimap)+1)] for i in range(1, numpy.max(imap)+1)], dtype=plotarr.dtype)
             plotarr*=datamask
             if self.chiq_solidanglebool:
                 plotarr=numpy.array([row/(1.0*powdersolidangle_q(qvals[count], self.L, self.wl, psize=self.psize)) for count, row in enumerate(plotarr)], dtype=plotarr.dtype)
@@ -3579,7 +3579,7 @@ class plot2dintwindow(QDialog):
     def drawbcknd(self):
         self.binbool=self.binCheckBox.isChecked()
         self.killbool=self.killCheckBox.isChecked()
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
         self.imnum=eval(self.imname)
 
         if self.bcknd=='minanom':
@@ -3631,7 +3631,7 @@ class plot2dintwindow(QDialog):
         self.plotw.fig.canvas.draw()
 
     def drawbanom(self):
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
         temp=self.imname
         while temp.startswith('0'):
             temp=temp[1:]
@@ -3716,7 +3716,7 @@ class plot2dintwindow(QDialog):
         for dset in h5chesskillgrp.iterobjects():
             if isinstance(dset, h5py.Dataset) and (dset.name.rpartition('/')[2]).startswith('killmap') and (dset.name.rpartition('/')[2]).partition('killmap')[2].isdigit():
                 maxkill=max(maxkill, eval((dset.name.rpartition('/')[2]).partition('killmap')[2]))
-                print 'maxkill', maxkill
+                print('maxkill', maxkill)
         newkillname='killmap%d' %(maxkill+1)
         dset=h5chesskillgrp.create_dataset(newkillname, data=self.killmap)
         dset.attrs['h5createdpath']=str(self.h5path)
@@ -3764,7 +3764,7 @@ class plot2dintwindow(QDialog):
 
     def clickkillcont(self, ptlist):
         clicklist=numpy.round(numpy.float32(ptlist)*self.imagewidth/self.plotimagewidth)
-        print clicklist
+        print(clicklist)
         cen=[]
         rad=[]
         for i in range(clicklist.shape[0]//2):
@@ -3882,13 +3882,13 @@ class depprofDialog(QDialog,
 
     def CalcRespCoef(self):
         elstrlist=[str(le.text()) for le in self.elLineEdit]
-        for k, v in GunPropertyDict(elstrlist,True).iteritems():
+        for k, v in GunPropertyDict(elstrlist,True).items():
             self.propdict[k]=v
         self.propdict['ProfileParams']=[self.profiles[cbox.currentIndex()][1] for i, cbox in enumerate(self.dpComboBox) if i in self.propdict['guninds']]
         self.propdict['voltages']=[sb.value() for i, sb in enumerate(self.voltSpinBox) if i in self.propdict['guninds']]
         self.propdict['CenterMolRates']=[sb.value() for i, sb in enumerate(self.rateSpinBox) if i in self.propdict['guninds']]
-        print 'propdict'
-        print self.propdict
+        print('propdict')
+        print(self.propdict)
         self.propdict['RespAgunBgunCoef']=SortedRespCoef(self.propdict)
         for le, sb, (a, b, c, f) in zip(self.respLineEdit, self.fracSpinBox, self.propdict['RespAgunBgunCoef']): #will only write as many as are there and only 6 if there are more
             le.setText('%s by %s : %.2f' %(self.propdict['symbol'][self.propdict['guninds'].index(a)], self.propdict['symbol'][self.propdict['guninds'].index(b)], c))
@@ -3896,13 +3896,13 @@ class depprofDialog(QDialog,
 
     def ExitRoutine(self):
         self.propdict['DepTime']=self.doubleSpinBoxdeptime.value()
-        if 'RespAgunBgunCoef' in self.propdict.keys(): #if resputter coef calculations done then don't re-read info even if it has been changed
-            for i, (sb, notused) in enumerate(zip(self.fracSpinBox, self.propdict['RespAgunBgunCoef'])):
+        if 'RespAgunBgunCoef' in list(self.propdict.keys()): #if resputter coef calculations done then don't re-read info even if it has been changed
+            for i, (sb, notused) in enumerate(list(zip(self.fracSpinBox, self.propdict['RespAgunBgunCoef']))):
                 self.propdict['RespAgunBgunCoef'][i][3]=sb.value()
             return
         self.propdict['RespAgunBgunCoef']=[]
         elstrlist=[str(le.text()) for le in self.elLineEdit]
-        for k, v in GunPropertyDict(elstrlist,True).iteritems():
+        for k, v in GunPropertyDict(elstrlist,True).items():
             self.propdict[k]=v
         self.propdict['ProfileParams']=[self.profiles[cbox.currentIndex()][1] for i, cbox in enumerate(self.dpComboBox) if i in self.propdict['guninds']]
         self.propdict['voltages']=[sb.value() for i, sb in enumerate(self.voltSpinBox) if i in self.propdict['guninds']]
@@ -4099,19 +4099,19 @@ class h5fileinfoDialog(QDialog,
         mainitem=QTreeWidgetItem([h5groupstr],  0)
         self.treeWidget.addTopLevelItem(mainitem)
         self.createTree(h5root, mainitem)
-        self.logBrowser.setText(unicode(h5analysis.attrs['modifiedlog']))
+        self.logBrowser.setText(str(h5analysis.attrs['modifiedlog']))
         h5file.close()
         self.logLabel.setText(''.join(('log of modifications on ', h5groupstr)))
 
     def createTree(self, startnode, parentitem):
-        print startnode
-        print startnode.listobjects()
+        print(startnode)
+        print(startnode.listobjects())
         for node in startnode.iterobjects():
             if isinstance(node, h5py.Dataset):
-                item=QTreeWidgetItem([node.name.rpartition('/')[2]+`node.shape`],  0)
+                item=QTreeWidgetItem([node.name.rpartition('/')[2]+repr(node.shape)],  0)
                 parentitem.addChild(item)
                 if self.showattrs:
-                    for attrname, attrval in node.attrs.iteritems():
+                    for attrname, attrval in node.attrs.items():
                         attritem=QTreeWidgetItem([self.attrstring(attrname, attrval)],  0)
                         item.addChild(attritem)
             elif isinstance(node, h5py.Group):
@@ -4119,7 +4119,7 @@ class h5fileinfoDialog(QDialog,
                 parentitem.addChild(item)
                 self.createTree(node, item)
                 if self.showattrs:
-                    for attrname, attrval in node.attrs.iteritems():
+                    for attrname, attrval in node.attrs.items():
                         attritem=QTreeWidgetItem([self.attrstring(attrname, attrval)],  0)
                         item.addChild(attritem)
 
@@ -4146,7 +4146,7 @@ class h5fileinfoDialog(QDialog,
                     ndim+=1
 
                     if isinstance(temp, str):
-                        attrvalstr=`attrval`
+                        attrvalstr=repr(attrval)
                         attrvalstr=attrvalstr.partition('(')[2].rpartition(',')[0]
                         if len(attrvalstr)>100:
                             s+=attrvalstr[:20]+' ... '+attrvalstr[-20:]
@@ -4165,7 +4165,7 @@ class h5fileinfoDialog(QDialog,
             else:
                 raise
         except:
-            s+='type is '+`type(attrval)`
+            s+='type is '+repr(type(attrval))
         return s
 
     def numfmt(self, num):
@@ -4411,7 +4411,7 @@ class plotimapwindow(QDialog):
         else:
             self.setLayout(layout)
         self.fillimComboBox()
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
 
         if self.imname.isdigit():
             self.imnum=eval(self.imname)
@@ -4463,7 +4463,7 @@ class plotimapwindow(QDialog):
             self.fromfileimComboBox.insertItem(999, '%d' %ind)
 
     def drawtexturefromfile(self):
-        self.imname=unicode(self.fromfileimComboBox.currentText())
+        self.imname=str(self.fromfileimComboBox.currentText())
         try:
             self.imComboBox.setCurrentIndex(self.imnamelist.index(self.imname))
             pointind=eval(self.imname)#could support bin images but not yet supported
@@ -4505,7 +4505,7 @@ class plotimapwindow(QDialog):
 
     def drawtexture(self):
         texplotind=self.fulltexplotComboBox.currentIndex()
-        kstr=unicode(self.peakComboBox.currentText())
+        kstr=str(self.peakComboBox.currentText())
         if kstr!='from2D':
             kind=ind_qgrid_q(self.qgrid, eval(kstr.partition(',')[0]))
             sideind=max([1, numpy.uint16(numpy.round(self.qwidthSpinBox.value()/2.0/self.qgrid[1]))])
@@ -4523,8 +4523,8 @@ class plotimapwindow(QDialog):
 
         sortedchivals=list(set(self.chivals))
         sortedchivals.sort()
-        print [self.dqchivals[self.chivals==chi].size for chi in sortedchivals]
-        print 'max', [numpy.max(self.dqchivals[self.chivals==chi]) for chi in sortedchivals]
+        print([self.dqchivals[self.chivals==chi].size for chi in sortedchivals])
+        print('max', [numpy.max(self.dqchivals[self.chivals==chi]) for chi in sortedchivals])
         binnedchidata=numpy.float32([[chi, (self.countvals[self.chivals==chi]*self.dqchivals[self.chivals==chi]).sum()/self.dqchivals[self.chivals==chi].sum()] for chi in sortedchivals if self.dqchivals[self.chivals==chi].sum()>0]).T
         poschiind=numpy.where(binnedchidata[0, :]>0)
         negchiind=numpy.where(binnedchidata[0, :]<0)
@@ -4537,7 +4537,7 @@ class plotimapwindow(QDialog):
             abschi=numpy.abs(binnedchidata[0][:])
             abschireduced=sorted(list(set(abschi)))
             abschidata=numpy.float32([[chi, binnedchidata[1][abschi==chi].sum()/(abschi==chi).sum()] for chi in abschireduced]).T
-            print numpy.float32([(abschi==chi).sum() for chi in abschireduced])
+            print(numpy.float32([(abschi==chi).sum() for chi in abschireduced]))
             self.texplotw.performplot([abschidata[0][:], abschidata[1][:]], overlay=(self.overlayCheckBox.isChecked() or self.rawplotCheckBox.isChecked()))
         elif texplotind==2:
             self.texplotw.performplot([-1.0*binnedchidata[0][negchiind], binnedchidata[1][negchiind]], overlay=(self.overlayCheckBox.isChecked() or self.rawplotCheckBox.isChecked()))
@@ -4556,7 +4556,7 @@ class plotimapwindow(QDialog):
     def draw(self, ind2d=None, bothnegpos=0):#bothnegpos should be 0 for both neative and positive chiinds, 1 for negative only and 2 for positive only, if ind2d is passed then bothnegpos is not used
         self.bckndbool=self.bckndCheckBox.isChecked()
         self.binbool=self.binCheckBox.isChecked()
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
 
         if not self.imname.isdigit():
             h5file=h5py.File(self.h5path, mode='r')
@@ -4615,7 +4615,7 @@ class plotimapwindow(QDialog):
                     else:
                         if self.bcknd=='minanom':
                             if self.bminanomf[self.imnum, 0]<0:
-                                print 'WARNING: calculating bminanom background (for imap plotting) on the fly: INEFFICIENT'
+                                print('WARNING: calculating bminanom background (for imap plotting) on the fly: INEFFICIENT')
                                 temp=bckndsubtract(plotarr, self.bckndarr, self.imapkillmap, btype=self.bcknd, banomcalc=self.banomcalc)
                                 plotarr=temp[0]
                             else:
@@ -4660,7 +4660,7 @@ class plotimapwindow(QDialog):
         self.savename2=''.join((self.savename2, '_q', t1, ' to ', t2))
         self.imgLabel.setText(''.join(('plot of image ',self.savename2)))
         self.plotw.fig.canvas.draw()
-        print 'stopping', ASDGADF
+        print('stopping', ASDGADF)
 
     def drawimap(self):
         self.binbool=self.binCheckBox.isChecked()
@@ -4768,7 +4768,7 @@ class plot1dintwindow(QDialog):
         self.psize=psize
         
         if len(self.imnamelist)==0:
-            print 'NO 1D IMAGES FOUND!'
+            print('NO 1D IMAGES FOUND!')
             return
         self.setWindowTitle('Plot intensity vs scattering vector')
 
@@ -4792,10 +4792,10 @@ class plot1dintwindow(QDialog):
                 infotype='XRFmolfracALL'
             self.elstrlist, self.compsarr=getternarycomps(self.h5path, self.h5groupstr, elstr=elstr, infotype=infotype)
             if self.compsarr is None:
-                print 'NO COMPOSITION NAVIGATOR WINDOW BECAUSE PROBLEM CALCULATING COMPOSITIONS'
+                print('NO COMPOSITION NAVIGATOR WINDOW BECAUSE PROBLEM CALCULATING COMPOSITIONS')
                 self.navw = subnavigatorwidget(self, self.xgrid, self.zgrid, self.xcoords, self.zcoords)
             else:
-                print 'COMPS:', self.compsarr
+                print('COMPS:', self.compsarr)
                 self.navw = compnavigatorwidget(self, self.compsarr, self.elstrlist)
 
         QObject.connect(self.navw, SIGNAL("picclicked"), self.picclickprocess)
@@ -5038,7 +5038,7 @@ class plot1dintwindow(QDialog):
         self.selectlist=[]
         self.plotpeaklist=None
         self.imnum=0
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
 
 
         if self.imname.startswith('if') and self.imname[2:].isdigit():
@@ -5074,7 +5074,7 @@ class plot1dintwindow(QDialog):
         box.setCurrentIndex(0)
 
     def drawwithpeaks(self):
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
         if self.imname.startswith('if'):
             temp=self.imname[2:]
         else:
@@ -5091,7 +5091,7 @@ class plot1dintwindow(QDialog):
             peaks=eval(pkcmd)
         except:
             h5file.close()
-            print 'abort: problem getting peak data for ', self.imname
+            print('abort: problem getting peak data for ', self.imname)
             return
         qvals, garb, heights=peakinfo_pksavearr(peaks)
         sortind=numpy.argsort(qvals)
@@ -5115,7 +5115,7 @@ class plot1dintwindow(QDialog):
 
         h5file.close()
 
-        xtype=unicode(self.xaxisComboBox.currentText())
+        xtype=str(self.xaxisComboBox.currentText())
         if 'pix' in xtype:
             xvals=pix_q(qvals, self.L, self.wl, psize=self.psize)
         elif '(nm)' in xtype:
@@ -5130,7 +5130,7 @@ class plot1dintwindow(QDialog):
     def draw(self):
         h5file=h5py.File(self.h5path, mode='r')
 
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
 
         if self.imname.startswith('if'):
             temp=self.imname[2:]
@@ -5148,12 +5148,12 @@ class plot1dintwindow(QDialog):
             plotarr=eval(icmd)
         except:
             h5file.close()
-            print 'abort: problem getting data for ', self.imname
+            print('abort: problem getting data for ', self.imname)
             self.plotpeaklist=None
             return
 
         h5file.close()
-        xtype=unicode(self.xaxisComboBox.currentText())
+        xtype=str(self.xaxisComboBox.currentText())
         xtransformed=True
         if 'pix' in xtype:
             xvals=self.pvals
@@ -5214,7 +5214,7 @@ class plot1dintwindow(QDialog):
 
         if self.addpeaks:
             if xtransformed:
-                print 'added peaks will only be plotted for q-axis'
+                print('added peaks will only be plotted for q-axis')
             else:
                 ylim=self.plotw.axes.get_ylim()
                 for peak in self.additionalpeaks:
@@ -5226,7 +5226,7 @@ class plot1dintwindow(QDialog):
         self.navw.fig.canvas.draw()
 
     def toplotso(self):
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
         if self.imname.startswith('if'):
             temp=self.imname[2:]
         else:
@@ -5244,12 +5244,12 @@ class plot1dintwindow(QDialog):
             plotarr=eval(icmd)
         except:
             h5file.close()
-            print 'abort: problem getting data for ', self.imname
+            print('abort: problem getting data for ', self.imname)
             self.plotpeaklist=None
             return
 
         h5file.close()
-        xtype=unicode(self.xaxisComboBox.currentText())
+        xtype=str(self.xaxisComboBox.currentText())
         if 'pix' in xtype:
             xvals=self.pvals
             t1='pix'
@@ -5345,7 +5345,7 @@ class plot1dintwindow(QDialog):
         imnum_sig_col=[]
         enteredqvals_sig_col=[]
         for i in range(4):
-            imnumstr=unicode(self.bckndComboBoxlist[i].currentText())
+            imnumstr=str(self.bckndComboBoxlist[i].currentText())
             lestr=str(self.bckndLineEditlist[i].text())
             if len(lestr)>0:
                 try:
@@ -5355,7 +5355,7 @@ class plot1dintwindow(QDialog):
                     enteredqvals_sig_col+=[(eqv, self.bckndSpinBoxlist[i].value(), self.bckndcolors[i])]
                     continue
                 except:
-                    print 'FORMAT ERROR ON ENTERED Q-VALS. should be comma delimited Q-vals.'
+                    print('FORMAT ERROR ON ENTERED Q-VALS. should be comma delimited Q-vals.')
             if imnumstr.isdigit():
                 imnum_sig_col+=[(eval(imnumstr), self.bckndSpinBoxlist[i].value(), self.bckndcolors[i])]
         if len(imnum_sig_col)==0 and len(enteredqvals_sig_col)==0:
@@ -5383,7 +5383,7 @@ class plot1dintwindow(QDialog):
                 bckndinds-=set(range(int(round(p-s)), int(round(p+s))+1))
             self.plotw.axes.plot(self.qvals, counts, col)
         bckndinds=sorted(list(bckndinds))
-        self.alteredbcknd=fillgapswithinterp(range(int(round(self.qgrid[2]))), bckndinds, ibmin[bckndinds], indexinterval_fitinds=self.bckndindexintervalSpinBox.value())
+        self.alteredbcknd=fillgapswithinterp(list(range(int(round(self.qgrid[2])))), bckndinds, ibmin[bckndinds], indexinterval_fitinds=self.bckndindexintervalSpinBox.value())
         self.plotw.axes.plot(self.qvals, ibmin, 'k')
         self.plotw.axes.plot(self.qvals, self.alteredbcknd, 'r')
         self.newadditionfrom1dbckndsubtraction=ibmin-self.alteredbcknd
@@ -5398,10 +5398,10 @@ class plot1dintwindow(QDialog):
         icountspoint=h5mar['icounts']
         if 'asintegratedicounts' in h5mar:
             del h5mar['asintegratedicounts']
-            print 'WARNING:There should not have been an existing icounts_asintegrated but it is being overwritten anyway'
+            print('WARNING:There should not have been an existing icounts_asintegrated but it is being overwritten anyway')
         icountsasint=h5mar.create_dataset('asintegratedicounts', data=icountspoint[:, :])
         icountsasint.attrs['bcknd1daddition']=self.newadditionfrom1dbckndsubtraction
-        for key, val in self.savedictbcknd1d.iteritems():
+        for key, val in self.savedictbcknd1d.items():
             if isinstance(val, list) and len(val)==0:
                 continue
             icountsasint.attrs[key]=val
@@ -5456,18 +5456,18 @@ class plot1dintwindow(QDialog):
         h5file=h5py.File(self.h5path, mode='r+')
         pkqvals=h5file[self.h5datagrpstr]['pkcounts'][self.imnum, 0, :]
         ind=myargmin((pkqvals-self.qvalueofpeakremoval)**2)
-        print self.qvalueofpeakremoval
-        print (pkqvals-self.qvalueofpeakremoval)**2
-        print h5file[self.h5datagrpstr]['pkcounts'][self.imnum, 0, :]
+        print(self.qvalueofpeakremoval)
+        print((pkqvals-self.qvalueofpeakremoval)**2)
+        print(h5file[self.h5datagrpstr]['pkcounts'][self.imnum, 0, :])
         h5file[self.h5datagrpstr]['pkcounts'][self.imnum, :, ind]=numpy.float32([numpy.nan]*h5file[self.h5datagrpstr]['pkcounts'].shape[1])
-        print  self.imnum, ind
-        print h5file[self.h5datagrpstr]['pkcounts'][self.imnum, 0, :]
+        print(self.imnum, ind)
+        print(h5file[self.h5datagrpstr]['pkcounts'][self.imnum, 0, :])
 
         h5file.close()
         self.peaksremoved.setValue(1+self.peaksremoved.value())
 
     def fillpeakComboBox(self):
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
         if self.imname.startswith('if'):
             temp=self.imname[2:]
         else:
@@ -5486,8 +5486,8 @@ class plot1dintwindow(QDialog):
         self.peakComboBox.insertItem(999, 'sum of all')
 
     def plotfitpeak(self):
-        if not ('q' in unicode(self.xaxisComboBox.currentText()) or 'PHI' in unicode(self.xaxisComboBox.currentText())):
-            print 'overlay fitted peaks only available for plotting vs q'
+        if not ('q' in str(self.xaxisComboBox.currentText()) or 'PHI' in str(self.xaxisComboBox.currentText())):
+            print('overlay fitted peaks only available for plotting vs q')
             return
 
         h5file=h5py.File(self.h5path, mode='r')
@@ -5495,7 +5495,7 @@ class plot1dintwindow(QDialog):
         peakfcn=eval(h5file[self.h5datagrpstr]['pkcounts'].attrs['peakshape'])
         h5file.close()
 
-        if unicode(self.peakComboBox.currentText())=='sum of all':
+        if str(self.peakComboBox.currentText())=='sum of all':
             qvals=self.qvals
             gaussvals=numpy.zeros(qvals.size, dtype='float32')
             for q, sig, ht in zip(q_pk, sig_pk, ht_pk):
@@ -5666,10 +5666,10 @@ class plotqqwindow(QDialog):
                 infotype='XRFmolfracALL'
             self.elstrlist, self.compsarr=getternarycomps(self.h5path, self.h5groupstr, elstr=elstr, infotype=infotype)
             if self.compsarr is None:
-                print 'NO COMPOSITION NAVIGATOR WINDOW BECAUSE PROBLEM CALCULATING COMPOSITIONS'
+                print('NO COMPOSITION NAVIGATOR WINDOW BECAUSE PROBLEM CALCULATING COMPOSITIONS')
                 self.navw = subnavigatorwidget(self, self.xgrid, self.zgrid, self.xcoords, self.zcoords)
             else:
-                print 'COMPS:', self.compsarr
+                print('COMPS:', self.compsarr)
                 self.navw = compnavigatorwidget(self, self.compsarr, self.elstrlist)
         QObject.connect(self.navw, SIGNAL("picclicked"), self.picclickprocess)
 
@@ -5764,7 +5764,7 @@ class plotqqwindow(QDialog):
 
         self.fillimComboBox()
 
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
         if self.imname=='qq':
             self.imnum=999
         elif self.imname=='qqnorm':
@@ -5856,39 +5856,39 @@ class plotqqwindow(QDialog):
         temp=self.treeAWidget.selectedItems()
         if len(temp)>0:
             item=temp[0]
-            if unicode(item.text(0)).startswith('qq'):
-                qqlist=[eval(''.join(('[', unicode(item.text(0)).partition('(')[2].partition(')')[0], ']')))]
-                klist=[eval(unicode(item.parent().text(0)).partition('(')[2].partition(')')[0])]
-            elif unicode(item.text(0)).startswith('k'):
-                klist=[eval(unicode(item.text(0)).partition('(')[2].partition(')')[0])]
+            if str(item.text(0)).startswith('qq'):
+                qqlist=[eval(''.join(('[', str(item.text(0)).partition('(')[2].partition(')')[0], ']')))]
+                klist=[eval(str(item.parent().text(0)).partition('(')[2].partition(')')[0])]
+            elif str(item.text(0)).startswith('k'):
+                klist=[eval(str(item.text(0)).partition('(')[2].partition(')')[0])]
                 qqlist=[]
                 for chnum in range(item.childCount()):
-                    qqlist+=[eval(''.join(('[', unicode(item.child(chnum).text(0)).partition('(')[2].partition(')')[0], ']')))]
+                    qqlist+=[eval(''.join(('[', str(item.child(chnum).text(0)).partition('(')[2].partition(')')[0], ']')))]
             self.drawfromtree(klist, qqlist)
 
     def drawtreeB(self):
         temp=self.treeBWidget.selectedItems()
         if len(temp)>0:
             item=temp[0]
-            if unicode(item.text(0)).startswith('k'):
-                klist=[eval(unicode(item.text(0)).partition('(')[2].partition(')')[0])]
-                qqlist=[eval(''.join(('[', unicode(item.parent().text(0)).partition('(')[2].partition(')')[0], ']')))]
-            elif unicode(item.text(0)).startswith('qq'):
-                qqlist=[eval(''.join(('[', unicode(item.text(0)).partition('(')[2].partition(')')[0], ']')))]
+            if str(item.text(0)).startswith('k'):
+                klist=[eval(str(item.text(0)).partition('(')[2].partition(')')[0])]
+                qqlist=[eval(''.join(('[', str(item.parent().text(0)).partition('(')[2].partition(')')[0], ']')))]
+            elif str(item.text(0)).startswith('qq'):
+                qqlist=[eval(''.join(('[', str(item.text(0)).partition('(')[2].partition(')')[0], ']')))]
                 klist=[]
                 for chnum in range(item.childCount()):
-                    klist+=[eval(unicode(item.child(chnum).text(0)).partition('(')[2].partition(')')[0])]
+                    klist+=[eval(str(item.child(chnum).text(0)).partition('(')[2].partition(')')[0])]
             self.drawfromtree(klist, qqlist)
 
     def drawtreeC(self):
         temp=self.treeCWidget.selectedItems()
         if len(temp)>0:
             item=temp[0]
-            if unicode(item.text(0)).startswith('k'):
-                klist=[eval(unicode(item.text(0)).partition('(')[2].partition(')')[0])]
+            if str(item.text(0)).startswith('k'):
+                klist=[eval(str(item.text(0)).partition('(')[2].partition(')')[0])]
                 qqlist=[]
-            elif unicode(item.text(0)).startswith('qq'):
-                qqlist=[eval(''.join(('[', unicode(item.text(0)).partition('(')[2].partition(')')[0], ']')))]
+            elif str(item.text(0)).startswith('qq'):
+                qqlist=[eval(''.join(('[', str(item.text(0)).partition('(')[2].partition(')')[0], ']')))]
                 klist=[]
             self.drawfromtree(klist, qqlist)
 
@@ -5909,7 +5909,7 @@ class plotqqwindow(QDialog):
         self.imgLabel.setText(self.savename2)
 
     def draw(self):
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
         if self.imname=='qq':
             self.imnum=999
             self.imname=''
@@ -6121,10 +6121,10 @@ class plothistwindow(QDialog):
                 infotype='XRFmolfracALL'
             self.elstrlist, self.compsarr=getternarycomps(self.h5path, self.h5groupstr, elstr=elstr, infotype=infotype)
             if self.compsarr is None:
-                print 'NO COMPOSITION NAVIGATOR WINDOW BECAUSE PROBLEM CALCULATING COMPOSITIONS'
+                print('NO COMPOSITION NAVIGATOR WINDOW BECAUSE PROBLEM CALCULATING COMPOSITIONS')
                 self.navw = subnavigatorwidget(self, self.xgrid, self.zgrid, self.xcoords, self.zcoords)
             else:
-                print 'COMPS:', self.compsarr
+                print('COMPS:', self.compsarr)
                 self.navw = compnavigatorwidget(self, self.compsarr, self.elstrlist)
         QObject.connect(self.navw, SIGNAL("picclicked"), self.picclickprocess)
 
@@ -6208,7 +6208,7 @@ class plothistwindow(QDialog):
         self.selectlist=[]
 
         #self.imnum=0
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
 
 
         self.navw.plotpoints(self.pointlist, [])
@@ -6240,7 +6240,7 @@ class plothistwindow(QDialog):
         self.imComboBox.setCurrentIndex(0)
 
     def draw(self):
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
         self.dat=False
 
         h5file=h5py.File(self.h5path, mode='r+')
@@ -6312,7 +6312,7 @@ class plothistwindow(QDialog):
                     else:
                         if self.bcknd=='minanom':
                             if self.bminanomf[imnum, 0]<0:
-                                print 'WARNING: calculating bminanom background (for histogram analysis) on the fly: INEFFICIENT'
+                                print('WARNING: calculating bminanom background (for histogram analysis) on the fly: INEFFICIENT')
                                 temp=bckndsubtract(plotarr, self.bckndarr, self.killmap, btype=self.bcknd, banomcalc=self.banomcalc)
                                 plotarr=temp[0]
                             else:
@@ -6349,7 +6349,7 @@ class plothistwindow(QDialog):
         self.imgLabel.setText(''.join((self.savename2, ': ', self.histstr)))
 
     def savetxt(self):
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
         if self.dat:
             name=''.join((self.datsavename, '_hist'))
         else:
@@ -6409,8 +6409,8 @@ class plothistwindow(QDialog):
             kdata=data
         if b==0:
             b=(kdata.max()-a)/(1.0*c)
-        self.vals=numpy.array(range(c), dtype='float32')*b+a+b/2
-        slots=numpy.array(range(c+1), dtype='float32')*b+a
+        self.vals=numpy.array(list(range(c)), dtype='float32')*b+a+b/2
+        slots=numpy.array(list(range(c+1)), dtype='float32')*b+a
         self.counts=numpy.array([((kdata>slots[i])&(kdata<=slots[i+1])).sum() for i in range(c)])/(1.0*totpix)
         belowcounts=(kdata<=slots[0]).sum()-kdata.shape[0]**2+totpix #get rid of all the zeros from killmap
         abovecounts=(kdata>slots[-1]).sum()
@@ -6473,7 +6473,7 @@ class plotwavetrans1dwindow(QDialog):
         h5file.close()
 
         if len(self.imnamelist)==0:
-            print 'NO 1D IMAGES FOUND!'
+            print('NO 1D IMAGES FOUND!')
             return
         self.setWindowTitle('Plot wavelet trnasform of 1d spectra')
 
@@ -6498,10 +6498,10 @@ class plotwavetrans1dwindow(QDialog):
                 infotype='XRFmolfracALL'
             self.elstrlist, self.compsarr=getternarycomps(self.h5path, self.h5groupstr, elstr=elstr, infotype=infotype)
             if self.compsarr is None:
-                print 'NO COMPOSITION NAVIGATOR WINDOW BECAUSE PROBLEM CALCULATING COMPOSITIONS'
+                print('NO COMPOSITION NAVIGATOR WINDOW BECAUSE PROBLEM CALCULATING COMPOSITIONS')
                 self.navw = subnavigatorwidget(self, self.xgrid, self.zgrid, self.xcoords, self.zcoords)
             else:
-                print 'COMPS:', self.compsarr
+                print('COMPS:', self.compsarr)
                 self.navw = compnavigatorwidget(self, self.compsarr, self.elstrlist)
         QObject.connect(self.navw, SIGNAL("picclicked"), self.picclickprocess)
 
@@ -6605,7 +6605,7 @@ class plotwavetrans1dwindow(QDialog):
         self.savecount=0
         self.selectlist=[]
         self.imnum=0
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
 
         self.navw.plotpoints(self.pointlist, [])
 
@@ -6636,21 +6636,21 @@ class plotwavetrans1dwindow(QDialog):
         h5file=h5py.File(self.h5path, mode='r+')
         wtgrp=h5file[self.wtgrpstr]
         if not 'peaks' in wtgrp:
-            print "PEAKS HAVE NOT BEEN IDENTIFIED"
+            print("PEAKS HAVE NOT BEEN IDENTIFIED")
             h5file.close()
             return
         pkscaleind=wtgrp['peaks'][self.imnum, 0, :]
         pkposnind=wtgrp['peaks'][self.imnum, 1, :]
         pkqvals=numpy.float32(pkposnind[pkposnind!=32767])
         ind=myargmin((pkqvals-self.qvalueofpeakremoval)**2)
-        print 'removing peak at ', self.qvalueofpeakremoval
+        print('removing peak at ', self.qvalueofpeakremoval)
         #print (pkqvals-self.qvalueofpeakremoval)**2
-        print (numpy.append(numpy.append(pkscaleind[:ind],pkscaleind[ind+1:]),numpy.uint16([32767]))).dtype
+        print((numpy.append(numpy.append(pkscaleind[:ind],pkscaleind[ind+1:]),numpy.uint16([32767]))).dtype)
         wtgrp['peaks'][self.imnum, 0, :]=numpy.append(numpy.append(pkscaleind[:ind],pkscaleind[ind+1:]),numpy.uint16([32767]))[:]
         wtgrp['peaks'][self.imnum, 1, :]=numpy.append(numpy.append(pkposnind[:ind],pkposnind[ind+1:]),numpy.uint16([32767]))[:]
 
 
-        print  self.imnum, ind
+        print(self.imnum, ind)
 
 
         h5file.close()
@@ -6673,15 +6673,15 @@ class plotwavetrans1dwindow(QDialog):
         self.savecount+=1
 
     def drawfittedpeaks(self):
-        print 'not implemented yet'
+        print('not implemented yet')
 
     def draw(self):
-        self.imname=unicode(self.imComboBox.currentText())
+        self.imname=str(self.imComboBox.currentText())
 
         if self.imname.isdigit():
             self.imnum=eval(self.imname)
         else:
-            print 'plotting wavetrans of auxiliary data is not yet supported'
+            print('plotting wavetrans of auxiliary data is not yet supported')
 
         self.selectlist=[self.imnum]
 
@@ -6715,7 +6715,7 @@ class plotwavetrans1dwindow(QDialog):
             overlay=True
             w_o_c=self.scaleComboBox.currentIndex()
         else:
-            QMessageBox.warning(self,"failed",  'ABORTED. PLOTTING NOT SUPPORTED:', unicode(self.plotComboBox.currentText()))
+            QMessageBox.warning(self,"failed",  'ABORTED. PLOTTING NOT SUPPORTED:', str(self.plotComboBox.currentText()))
             return
 
         self.display_wavetrans1dcaller(w_o_c, title='', wtcmap=wtcmap, ridgecmap=ridgecmap, overlay1donly=overlay)
@@ -6740,7 +6740,7 @@ class plotwavetrans1dwindow(QDialog):
         datapeakind=None
         if isinstance(wavescaleind_or_countsname, str):
             datascaleind=None
-            print h5file[wavescaleind_or_countsname].shape, h5file[wavescaleind_or_countsname][self.imnum].shape, h5file[wavescaleind_or_countsname][self.imnum][self.icountsind].shape
+            print(h5file[wavescaleind_or_countsname].shape, h5file[wavescaleind_or_countsname][self.imnum].shape, h5file[wavescaleind_or_countsname][self.imnum][self.icountsind].shape)
             data=h5file[wavescaleind_or_countsname][self.imnum][self.icountsind]
             if ('peaks' in wtgrp) and self.peaksCheckBox.isChecked():
                 datapeakind=wtgrp['peaks'][self.imnum, 1, :]
@@ -6775,7 +6775,7 @@ class plotinterpimageof1ddatawindow(QDialog):
         else:
             self.interpstyle=False
             self.infostyle=False
-            print 'PLOTTING TYPE NOT UNDERSTOOD'
+            print('PLOTTING TYPE NOT UNDERSTOOD')
         if style=='texture' and 'tex' in type:
             QMessageBox.warning(self,"warning",  "For interp plot, type should be 'h5mar' when style is 'texture'")
         self.navchoice=navchoice
@@ -7356,10 +7356,10 @@ class plotinterpimageof1ddatawindow(QDialog):
                 infotype='XRFmolfracALL'
             self.elstrlist, self.compsarr=getternarycomps(self.h5path, self.h5groupstr, elstr=elstr, infotype=infotype)
             if self.compsarr is None:
-                print 'NO COMPOSITION NAVIGATOR WINDOW BECAUSE PROBLEM CALCULATING COMPOSITIONS'
+                print('NO COMPOSITION NAVIGATOR WINDOW BECAUSE PROBLEM CALCULATING COMPOSITIONS')
                 self.navw = subnavigatorwidget(self, self.xgrid, self.zgrid, self.xcoords, self.zcoords)
             else:
-                print 'COMPS:', self.compsarr
+                print('COMPS:', self.compsarr)
                 self.navw = compnavigatorwidget(self, self.compsarr, self.elstrlist)
         QObject.connect(self.navw, SIGNAL("picclicked"), self.picclickprocess)
 
@@ -7456,7 +7456,7 @@ class plotinterpimageof1ddatawindow(QDialog):
 
         chiindexmin=ind_qgrid_q(self.chigrid, chiminplot, fractional=False)
         chiindexmax=ind_qgrid_q(self.chigrid, chimaxplot, fractional=False)
-        chimapinds_plot=numpy.uint16(range(chiindexmin, chiindexmax+1))+1 # THE +1  IS BECAUSE INT HIS ROUTINE WE WILL OPERATE IN THE CHIMAP INDECES WHICH ARE ONE HIGHER THAN CHIGRID INDECES AND CAN BE NEGATIVE
+        chimapinds_plot=numpy.uint16(list(range(chiindexmin, chiindexmax+1)))+1 # THE +1  IS BECAUSE INT HIS ROUTINE WE WILL OPERATE IN THE CHIMAP INDECES WHICH ARE ONE HIGHER THAN CHIGRID INDECES AND CAN BE NEGATIVE
         #savechigrid=qgrid_minmaxint(q_qgrid_ind(self.chigrid, chiindexmin), q_qgrid_ind(self.chigrid, chiindexmax), self.chigrid[1])
 
         chiqwidthSpinBoxval=self.chiqwidthSpinBox.value()
@@ -7508,7 +7508,7 @@ class plotinterpimageof1ddatawindow(QDialog):
                 ind2dlist+=[ind2d]
 
             if ind2d[0].size==0:
-                print 'ERROR - THE ANNULUS FOR PSI PLOTTING WAS NOT FOUND IN THE BINNED MAR IMAGE'
+                print('ERROR - THE ANNULUS FOR PSI PLOTTING WAS NOT FOUND IN THE BINNED MAR IMAGE')
 
             chimapinds=chimap[ind2d] #do not substract one, see above note. there should be no zeros  in this
             self.countvals=plotarr[ind2d]
@@ -7518,8 +7518,8 @@ class plotinterpimageof1ddatawindow(QDialog):
 
             binnedchidata=[[chi, (self.countvals[chimapinds==chi]*self.dqchivals[chimapinds==chi]).sum()/(self.dqchivals[chimapinds==chi].sum())] for chi in sortedchivals if self.dqchivals[chimapinds==chi].sum()>0]
 
-            cinds=numpy.int16(map(operator.itemgetter(0),binnedchidata))
-            vals=numpy.float32(map(operator.itemgetter(1),binnedchidata))
+            cinds=numpy.int16(list(map(operator.itemgetter(0),binnedchidata)))
+            vals=numpy.float32(list(map(operator.itemgetter(1),binnedchidata)))
 
             if texplotind==0:
                 poschiind=numpy.where(cinds>0)
@@ -7543,10 +7543,10 @@ class plotinterpimageof1ddatawindow(QDialog):
                 indboolarr=numpy.array([cmi in cinds for cmi in chimapinds_plot])
                 usablevals=numpy.float32([vals[count] for count, ind in enumerate(cinds) if ind in chimapinds_plot])
             if normchivalsbool:
-                print 'before', usablevals.sum()
+                print('before', usablevals.sum())
                 normval=numpy.max(usablevals)
                 usablevals/=normval
-                print 'after', usablevals.sum()
+                print('after', usablevals.sum())
             else:
                 normval=1.
             if savetex:
@@ -7555,7 +7555,7 @@ class plotinterpimageof1ddatawindow(QDialog):
                 dq_peaks[pointind]=qw
                 savenormvals[pointind]=normval
             self.chicounts[-1, indboolarr]=usablevals[:]
-            print '**', self.chicounts.shape, self.chicounts.sum()
+            print('**', self.chicounts.shape, self.chicounts.sum())
         h5file.close()
 
 
@@ -7611,14 +7611,14 @@ class plotinterpimageof1ddatawindow(QDialog):
     def peakextractdraw(self):
         selectlist=self.getselectlist()
         if len(selectlist)==0:
-            print 'abort plotting. no slected images'
+            print('abort plotting. no slected images')
             return
 
 
 
-        print 'below is the info of the brightest peak in the selected range witha line for every point in poinlist. This is for pasting into a spreadhseet. copy until ^^^^^^^^^^^^\n','\t'.join(('index','q','hwhm','height','sigq','sighwhm','sigheight'))
+        print('below is the info of the brightest peak in the selected range witha line for every point in poinlist. This is for pasting into a spreadhseet. copy until ^^^^^^^^^^^^\n','\t'.join(('index','q','hwhm','height','sigq','sighwhm','sigheight')))
         self.pointind_extractedpeaks, peakinfo=getpeaksinrange(self.h5path, self.h5groupstr, indlist=selectlist, qmin=self.peakextractqminSpinBox.value(), qmax=self.peakextractqmaxSpinBox.value(), returnonlyq=False,  performprint=True)
-        print '^^^^^^^^^^^^^^'
+        print('^^^^^^^^^^^^^^')
 
         newimlist=''
         for pointind in self.pointind_extractedpeaks:
@@ -7651,7 +7651,7 @@ class plotinterpimageof1ddatawindow(QDialog):
         infovalsarr_interpto=numpy.linspace(self.YinfominSpinBox.value(), self.YinfomaxSpinBox.value(), num=self.YinfonumSpinBox.value())
         qindexmin=ind_qgrid_q(qgrid, qminplot, fractional=False)
         qindexmax=ind_qgrid_q(qgrid, qmaxplot, fractional=False)
-        qindarr=numpy.uint16(range(qindexmin, qindexmax+1))
+        qindarr=numpy.uint16(list(range(qindexmin, qindexmax+1)))
 
 
         normarray=self.CalculateInfoVals(str(self.XInfoMathTextBrowser.toPlainText()), selectlist)
@@ -7665,7 +7665,7 @@ class plotinterpimageof1ddatawindow(QDialog):
         if self.chidrawbool:
             counts=self.chicounts
         else:
-            datatypestr=unicode(self.xrdtypeComboBox.currentText())
+            datatypestr=str(self.xrdtypeComboBox.currentText())
             if datatypestr=='ifcounts':
                 counts=readh5pyarray(h5file[self.h5datagrpstr]['ifcounts'])[selectlist][:, qindarr]
             else:
@@ -7712,17 +7712,17 @@ class plotinterpimageof1ddatawindow(QDialog):
             cl=[numpy.argmin((self.infovalsarr-iv)**2) for iv in infovalsarr_interpto]
             plotdata=numpy.float32([counts[c]/normarray[c] for c in cl])
 
-        infoplotindeces=scipy.interp(self.infovalsarr, infovalsarr_interpto, numpy.float32(range(len(infovalsarr_interpto))))#need to plot in indeces since plotting over imshow so use the full interpolated grid with its indeces to figure out where the original data will lie
+        infoplotindeces=scipy.interp(self.infovalsarr, infovalsarr_interpto, numpy.float32(list(range(len(infovalsarr_interpto)))))#need to plot in indeces since plotting over imshow so use the full interpolated grid with its indeces to figure out where the original data will lie
 
         cmap=self.getcmap()
-        print cmap
+        print(cmap)
         self.plotw.axes.hold(False)
         if self.logCheckBox.isChecked():
             plotdata[plotdata<self.logcutSpinBox.value()]=self.logcutSpinBox.value()
             if (plotdata<=0).sum()==0:
                 plotdata=numpy.log10(plotdata+1)
             else:
-                print 'log not taken because there is data <=0'
+                print('log not taken because there is data <=0')
 
         self.plotw.performplot(plotdata, upperorigin=False, cmap=cmap, aspect=.75*qindarr.size/infovalsarr_interpto.size)
 
@@ -7730,7 +7730,7 @@ class plotinterpimageof1ddatawindow(QDialog):
 
         if self.datamarkerCheckBox.isChecked():
             marks=([-0.5]*len(infoplotindeces), infoplotindeces)
-            styletext=unicode(self.datamarkerstyleLineEdit.text())
+            styletext=str(self.datamarkerstyleLineEdit.text())
             self.plotw.axes.plot(marks[0],marks[1], styletext[:2], markersize=eval(styletext[2:]))
 
         if self.plotpeaksCheckBox.isChecked() and not self.chidrawbool:
@@ -7746,20 +7746,20 @@ class plotinterpimageof1ddatawindow(QDialog):
                 peakinfoplotindlist+=[infoplotind]*qplotind.size
                 peakqplotindlist+=list(qplotind)
 
-            styletext=unicode(self.peaksstyleLineEdit.text())
+            styletext=str(self.peaksstyleLineEdit.text())
             self.plotw.axes.plot(peakqplotindlist,peakinfoplotindlist, styletext[:2],markersize=eval(styletext[2:]))
-            print '$', qvalarray
-            print '@', ind_qgrid_q(qgrid, qvalarray, fractional=True)-qindexmin
-            print '^', peakqplotindlist
-            print '%', peakinfoplotindlist
-            print '*1',self.qgrid
+            print('$', qvalarray)
+            print('@', ind_qgrid_q(qgrid, qvalarray, fractional=True)-qindexmin)
+            print('^', peakqplotindlist)
+            print('%', peakinfoplotindlist)
+            print('*1',self.qgrid)
         #plot PDF lines
         pdfinfostr=str(self.pdfplotinfoLineEdit.text())
         if len(pdfinfostr.strip())>0:
             #try:
             pdfymin, pdfymax, pdfcolstr, lwstr=[s.strip() for s in pdfinfostr.split(',')]
             pdfrange=numpy.float32([pdfymin, pdfymax])
-            pdfrangeind=scipy.interp(pdfrange, infovalsarr_interpto, numpy.float32(range(len(infovalsarr_interpto))))
+            pdfrangeind=scipy.interp(pdfrange, infovalsarr_interpto, numpy.float32(list(range(len(infovalsarr_interpto)))))
             h=[]
             pdfqlist=[]
             for d, height in self.pdfentry:
@@ -7777,7 +7777,7 @@ class plotinterpimageof1ddatawindow(QDialog):
             #except:
                 #print 'ERROR IN PLOTTING PDF LINES!!'
 
-        qlabelind=numpy.uint16(range(5))*(len(qindarr)-1)//4.0
+        qlabelind=numpy.uint16(list(range(5)))*(len(qindarr)-1)//4.0
         qlabels=['%.2f' %q_qgrid_ind(qgrid, qindarr[i]) for i in qlabelind]
         self.plotw.axes.set_xticks(qlabelind)
         self.plotw.axes.set_xticklabels(qlabels)
@@ -7786,7 +7786,7 @@ class plotinterpimageof1ddatawindow(QDialog):
         else:
             self.plotw.axes.set_xlabel('scattering vector (1/nm)')
 
-        ylabelind=numpy.uint16(range(5))*(len(infovalsarr_interpto)-1)//4.0
+        ylabelind=numpy.uint16(list(range(5)))*(len(infovalsarr_interpto)-1)//4.0
         ylabels=['%.2f' %infovalsarr_interpto[i] for i in ylabelind]
         self.plotw.axes.set_yticks(ylabelind)
         self.plotw.axes.set_yticklabels(ylabels)
@@ -7808,11 +7808,11 @@ class plotinterpimageof1ddatawindow(QDialog):
         if idialog.exec_():
             #label=unicode(idialog.labellineEdit.text())
             self.pdfentry=idialog.pdflist[idialog.pdfcomboBox.currentIndex()]
-            colstr=unicode(idialog.colorlineEdit.text())
+            colstr=str(idialog.colorlineEdit.text())
             if colstr=='':
                 colstr='k:'
             lwstr='4*h'
-            rangestr=`self.YinfominSpinBox.value()`+','+`self.YinfomaxSpinBox.value()`
+            rangestr=repr(self.YinfominSpinBox.value())+','+repr(self.YinfomaxSpinBox.value())
             self.pdfplotinfoLineEdit.setText(','.join((rangestr, colstr, lwstr)))
 
     def picclickprocess(self, picnum):
@@ -7990,10 +7990,10 @@ class plotinterpimageof1ddatawindow(QDialog):
         self.navw.fig.canvas.draw()
 
     def save(self):
-        self.plotw.save(os.path.join(self.runpath, ''.join((self.savename1, unicode(self.imgLabel.text())))).replace('\\','/').encode())
+        self.plotw.save(os.path.join(self.runpath, ''.join((self.savename1, str(self.imgLabel.text())))).replace('\\','/').encode())
 
     def savenavimage(self):
-        self.navw.save(os.path.join(self.runpath, ''.join((self.savename1, '_2DIntPlotPoints', unicode(self.imgLabel.text())))).replace('\\','/').encode())
+        self.navw.save(os.path.join(self.runpath, ''.join((self.savename1, '_2DIntPlotPoints', str(self.imgLabel.text())))).replace('\\','/').encode())
 
     def getcmap(self):
         try:
@@ -8017,7 +8017,7 @@ class plotinterpimageof1ddatawindow(QDialog):
 
     def substrateinfoplot(self):
         if not len(self.attrdict['acquisition_shape'])!=2:
-            print 'ABORTING PLOT: ONLY SUPPORT FOR MESH' # if support for linear scans is added, the 'USER-COMPILED' cases need special treatment as xgrid and zgrid are meaningless
+            print('ABORTING PLOT: ONLY SUPPORT FOR MESH') # if support for linear scans is added, the 'USER-COMPILED' cases need special treatment as xgrid and zgrid are meaningless
             return
 
         selectlist=numpy.uint16(self.getselectlist())
@@ -8061,7 +8061,7 @@ class plotinterpimageof1ddatawindow(QDialog):
             temp='_extractedpeaks'
         elif self.infostyle:
             temp='_'+str(self.YlabelLineEdit.text())+'vs'+str(self.XlabelLineEdit.text())
-        self.chipeakorinfoplotw.save(os.path.join(self.runpath, ''.join((self.savename1, unicode(self.imgLabel.text()), temp))).replace('\\','/').encode())
+        self.chipeakorinfoplotw.save(os.path.join(self.runpath, ''.join((self.savename1, str(self.imgLabel.text()), temp))).replace('\\','/').encode())
 
     def xyinfoplot(self):
         selectlist=numpy.uint16(self.getselectlist())
@@ -8104,7 +8104,7 @@ class plotinterpimageof1ddatawindow(QDialog):
         selectlist=numpy.uint16(self.getselectlist())
         if self.interpstyle:
             h5file=h5py.File(self.h5path, mode='r')
-            datatypestr=unicode(self.xrdtypeComboBox.currentText())
+            datatypestr=str(self.xrdtypeComboBox.currentText())
             if datatypestr=='ifcounts':
                 counts=readh5pyarray(h5file[self.h5datagrpstr]['ifcounts'])[selectlist]
             else:
@@ -8128,38 +8128,38 @@ class plotinterpimageof1ddatawindow(QDialog):
         pts=numpy.uint16(pts)
         mathstr=mathstr.replace('IND', 'numpy.float32(pts)')
         d=self.allinfodict
-        for vc in d.keys():
+        for vc in list(d.keys()):
             mathstr=mathstr.replace(vc,"d['%s'][pts]" %vc)
-        print 'Calculating: ', mathstr
+        print('Calculating: ', mathstr)
         try:
             arr=eval(mathstr)
             return arr
         except:
-            print 'ERROR IN INFO CALCULATION - using ones'
+            print('ERROR IN INFO CALCULATION - using ones')
             return numpy.ones(len(pts), dtype='float32')
 
 
     def getselectlist(self):
-        imlist=unicode(self.selectedimagesTextBrowser.toPlainText())
+        imlist=str(self.selectedimagesTextBrowser.toPlainText())
         selectlist=[]
         while len(imlist.partition(',')[0])>0:
             numstr, garb, imlist=imlist.partition(',')
             selectlist+=[eval(numstr)]
         if len(selectlist)==0:
-            print 'WARNING. no slected images'
+            print('WARNING. no slected images')
             return []
         return sorted(list(set(selectlist)))
 
     def AppendToSpreadSheet(self, mathstr, label=''):
         selectlist=self.getselectlist()
         if len(selectlist)==0:
-            print 'ABORTING: no indeces selected'
+            print('ABORTING: no indeces selected')
             return
         if len(self.spdshselectlist)>0 and selectlist!=self.spdshselectlist:
-            print 'ABORTING: cannot append to spreadsheet because the select index set is different'
+            print('ABORTING: cannot append to spreadsheet because the select index set is different')
             return
         if len(self.spdshselectlist)==0:
-            temp=['SpecInd']+[`int(round(i))` for i in selectlist]
+            temp=['SpecInd']+[repr(int(round(i))) for i in selectlist]
             self.spdshTextBrowser.setPlainText('\n'.join(temp))
             self.spdshselectlist=selectlist
         arr=self.CalculateInfoVals(mathstr, selectlist)
@@ -8307,7 +8307,7 @@ class neighborwindow(QDialog):
 
 
     def typechanged(self, garbage):
-        typestr=unicode(self.typeComboBox.currentText())
+        typestr=str(self.typeComboBox.currentText())
         if 'COMP' in typestr:
             if 'DepProf' in typestr:
                 self.compnavw.reinit(comp=self.DPcompsarr, elstrlist=self.DPelstrlist)
@@ -8319,7 +8319,7 @@ class neighborwindow(QDialog):
     def neighborcalc(self):
         self.usedlny=self.dlnyCheckBox.isChecked()
         self.critdist=self.radiusSpinBox.value()
-        self.typestr=unicode(self.typeComboBox.currentText())
+        self.typestr=str(self.typeComboBox.currentText())
         if 'COMP' in self.typestr:
             if 'DepProf' in self.typestr:
                 if self.usedlny:
@@ -8338,8 +8338,8 @@ class neighborwindow(QDialog):
                 dist=numpy.sqrt(numpy.add.outer(self.xcoords, -1.0*self.xcoords)**2+numpy.add.outer(self.zcoords, -1.0*self.zcoords)**2)
                 self.neighbors=findneighborswithinradius(dist, self.critdist, pointlist=self.pointlist)
 
-        print 'Neighbors'
-        print self.neighbors
+        print('Neighbors')
+        print(self.neighbors)
         if not self.neighbors is None:
             self.posnnavw.reinit()
             self.compnavw.reinit()
@@ -8431,7 +8431,7 @@ class plot2dchessrunwindow(QDialog):
         #print startnode.listobjects()
         for node in startnode.iterobjects():
             if isinstance(node, h5py.Dataset) and len(node.shape)==2:
-                item=QTreeWidgetItem([node.name.rpartition('/')[2]+`node.shape`],  0)
+                item=QTreeWidgetItem([node.name.rpartition('/')[2]+repr(node.shape)],  0)
                 parentitem.addChild(item)
             elif isinstance(node, h5py.Group):
                 item=QTreeWidgetItem([node.name.rpartition('/')[2]],  0)
@@ -8461,7 +8461,7 @@ class plot2dchessrunwindow(QDialog):
         plotarr=readh5pyarray(h5chessrun[h5grpstr])
         h5chessrun.close()
 
-        rangestr=unicode(self.rangeLineEdit.text())
+        rangestr=str(self.rangeLineEdit.text())
         try:
             range=eval(rangestr)
             if isinstance(range,(int,float)):
@@ -8550,7 +8550,7 @@ class buildnewscanDialog(QDialog,
             self.copynameComboBox.insertItem(count, ':'.join((self.validgrp_name[ind], self.validgrp_attr[ind]['command'])))
         self.copynameComboBox.setCurrentIndex(self.copyable_validgrpind.index(self.copygroupindex))
 
-        for count, (nam, d) in enumerate(zip(self.validgrp_name, self.validgrp_attr)):
+        for count, (nam, d) in enumerate(list(zip(self.validgrp_name, self.validgrp_attr))):
             self.appendnameComboBox.insertItem(count, ':'.join((nam, d['command'])))
         self.appendnameComboBox.setCurrentIndex(0)
         self.fillreplaceimageComboBox()
@@ -8573,7 +8573,7 @@ class buildnewscanDialog(QDialog,
         x0=self.validgrp_attr[self.copygroupindex]['x'][imind]
         z0=self.validgrp_attr[self.copygroupindex]['z'][imind]
         possbielreplacements=[]
-        for count, (nam, attr) in enumerate(zip(self.validgrp_name, self.validgrp_attr)):
+        for count, (nam, attr) in enumerate(list(zip(self.validgrp_name, self.validgrp_attr))):
             if count==self.copygroupindex:#do not allow replacements from within own scan - this could be achieved by user through a copy and then a copy+replace
                 continue
             distsq=(numpy.float32(attr['x'])-x0)**2+(numpy.float32(attr['z'])-z0)**2
@@ -8594,7 +8594,7 @@ class buildnewscanDialog(QDialog,
         self.appendcomboboxtolineedit(self.appendlistLineEdit, self.appendnameComboBox)
 
     def lineedittolist(self, le):
-        lestr=str(unicode(le.text()))
+        lestr=str(str(le.text()))
         strlist=[]
         lestr.strip()
         while len(lestr)>0:
@@ -8605,22 +8605,22 @@ class buildnewscanDialog(QDialog,
         return strlist
 
     def appendcomboboxtolineedit(self, le, cb):
-        temp=str(unicode(le.text()))
+        temp=str(str(le.text()))
         if temp!='':
             temp+=', '
         #temp+=str(unicode(cb.currentText())).partition(':')[0]
-        temp+=str(unicode(cb.currentText()))
+        temp+=str(str(cb.currentText()))
         le.setText(temp)
 
     def createnewscandict(self):
         newscandict={}
-        sourcegrpname=str(unicode(self.copynameComboBox.currentText())).partition(':')[0]
+        sourcegrpname=str(str(self.copynameComboBox.currentText())).partition(':')[0]
 
         newscandict['sourcename']=sourcegrpname
         try:
             xrdname=self.validgrp_attr[self.validgrp_name.index(sourcegrpname)]['xrdname']
         except:
-            print 'FAILED TO GET THE XRD DETECTOR NAME. EITHER THIS IS AN .h5 FROM BEFORE NOV 2010 OR THERE IS A PROBLEM FINDING IT. THE SOURCE GROUP NAME IS ',  sourcegrpname, ' WHICH WAS BEING LOCATED IN THE VALID GROUP LIST: ', self.validgrp_name
+            print('FAILED TO GET THE XRD DETECTOR NAME. EITHER THIS IS AN .h5 FROM BEFORE NOV 2010 OR THERE IS A PROBLEM FINDING IT. THE SOURCE GROUP NAME IS ',  sourcegrpname, ' WHICH WAS BEING LOCATED IN THE VALID GROUP LIST: ', self.validgrp_name)
             xrdname='mar345'
         newscandict['xrdname']=xrdname
         
@@ -8742,7 +8742,7 @@ class xrfanalysisDialog(QDialog,
 
     def fluxmethodchanged(self):
         a='Select image\nfor flux cal'
-        print'Enter flux\nvalue', self.FluxMethodComboBox.currentIndex()
+        print('Enter flux\nvalue', self.FluxMethodComboBox.currentIndex())
 
 
     def eltr_cfg(self, el, tr):
@@ -8760,7 +8760,7 @@ class xrfanalysisDialog(QDialog,
             h5file.close()
         except:
             QMessageBox.warning(self,"aborting",  "aborting calculation because could not find that scalar_data")
-            print '/'.join((self.h5groupstr, 'measurement/scalar_data', str(self.timeLineEdit.text())))
+            print('/'.join((self.h5groupstr, 'measurement/scalar_data', str(self.timeLineEdit.text()))))
             return
         self.el=[]
         for le in self.ElLines:
@@ -8772,7 +8772,7 @@ class xrfanalysisDialog(QDialog,
 
         self.cfgpath=os.path.join(self.cfgpathstart, str(self.cfgComboBox.currentText()))
         self.pymca_config = getcfgdict_txt(self.cfgpath)
-        dfltfitlist=flatten([self.eltr_cfg(el, tr) for el, tr in self.pymca_config['peaks'].iteritems()])
+        dfltfitlist=flatten([self.eltr_cfg(el, tr) for el, tr in self.pymca_config['peaks'].items()])
 
         allpeaksdictlist, quantlist, foundpeaks=FindXrays(self.el, energy=self.beamenergy)
         self.el=numpy.array(self.el)
@@ -8791,7 +8791,7 @@ class xrfanalysisDialog(QDialog,
         bcknd=numpy.zeros(len(self.el), dtype='float32')
         bckndind_rate=[[quantlist.index(eltr), rate] for eltr, rate in self.bckndeltr_rate if eltr in quantlist]
         if len(bckndind_rate)>0:
-            bckndind, rate=zip(*bckndind_rate)
+            bckndind, rate=list(zip(*bckndind_rate))
             bcknd[bckndind]=numpy.float32(rate)*numpy.max(self.time)
 
         dens=numpy.ones(len(self.el), dtype='float32')
@@ -8812,7 +8812,7 @@ class xrfanalysisDialog(QDialog,
         comp/=comp.sum()
 
         if not numpy.all(elmap): #not all of the quant elements were in funpropdict. even if they were, availability of dep prof is not guaranteed
-            elsym, elM, eld = zip(*get_elMd_el(self.el[numpy.logical_not(elmap)]))# assume that if xray were found for an element then the mass and density can be found. If this fails, the next line will fail
+            elsym, elM, eld = list(zip(*get_elMd_el(self.el[numpy.logical_not(elmap)])))# assume that if xray were found for an element then the mass and density can be found. If this fails, the next line will fail
             dens[numpy.logical_not(elmap)]=numpy.float32(eld)
             mass[numpy.logical_not(elmap)]=numpy.float32(elM)
             self.dpissufficient=False
@@ -8861,7 +8861,7 @@ class xrfanalysisDialog(QDialog,
         v=val
         f=frmt
         if f is None:
-            s+=`v`
+            s+=repr(v)
         elif isinstance(f, list):
             s+='['
             for count, subv in enumerate(v):
@@ -8880,7 +8880,7 @@ class xrfanalysisDialog(QDialog,
         fl=[None, None, ['%s'], ['%s'], ['%.2f'], ['%s'],  ['%s'], None, None, '%s', None, None, '%.3f',  None,  None,  None]
         al=["SecondaryAction='Notify'"]
         s=''
-        for count, (n, v, f) in enumerate(zip(nl, vl, fl)):
+        for count, (n, v, f) in enumerate(list(zip(nl, vl, fl))):
             if count>0:
                 s+=", "
             s+=n+"="
@@ -8919,7 +8919,7 @@ class xrfanalysisDialog(QDialog,
         unel=str(self.UnderLineEdit.text())
         uneldict=GunPropertyDict([unel])
         if uneldict is None:
-            print 'WARNING: UNDERLAYER ELEMENT NOT FOUND - effectively removing underlayer'
+            print('WARNING: UNDERLAYER ELEMENT NOT FOUND - effectively removing underlayer')
             self.Underlayer=('Ti', 0.1, 0)
         else:
             self.Underlayer=(unel, uneldict['d'][0], self.UnderSpinBox.value())
@@ -8988,7 +8988,7 @@ class pdfsearchDialog(QDialog,
             stopind=len(self.ax.lines)
         reduceind=lambda ind, redbool: (((ind is None) and (None, )) or (redbool and (ind-1, )) or (ind,))[0]
         for i in range(startind, stopind)[::-1]:# go through the delete indeces but if one peak is in the dleete indeces then delete the entire pdf entry and the label
-            ind=[cnt for cnt, lineinds in enumerate(map(operator.itemgetter(0),self.lineind_textind_plotlist)) if i in lineinds]
+            ind=[cnt for cnt, lineinds in enumerate(list(map(operator.itemgetter(0),self.lineind_textind_plotlist))) if i in lineinds]
             if len(ind)>0:
                 ind=ind[0]
                 lineinds, textind=self.lineind_textind_plotlist.pop(ind)
@@ -9032,7 +9032,7 @@ class pdfsearchDialog(QDialog,
             try:
                 height=eval(str(self.heightListWidget.item(pdfindex).text()))*1.0
             except:
-                print 'height interpretation error'
+                print('height interpretation error')
                 height=self.dfltheight
             pdfindex=self.pdfname.index(str(self.plotListWidget.item(pdfindex).text()))
         else:
@@ -9061,7 +9061,7 @@ class pdfsearchDialog(QDialog,
             sp=(fs*1.4/72.)/self.ax.figure.get_figheight()
             self.ax.text(xlim[1]-.03*(xlim[1]-xlim[0]), ylim[1]-(.03+self.numpdflabels*sp)*(ylim[1]-ylim[0]), label, color=colstr[0], fontsize=fs, horizontalalignment='right')
 
-        self.lineind_textind_plotlist+=[[range(lineindstart, lineindstop), textind]]
+        self.lineind_textind_plotlist+=[[list(range(lineindstart, lineindstop)), textind]]
         self.plotw.fig.canvas.draw()
 
 
@@ -9089,9 +9089,9 @@ class editrawxrdwindow(QDialog,
             else:
                 h5sd=None
         s=''
-        for k, v in h5marcounts.attrs.iteritems():
+        for k, v in h5marcounts.attrs.items():
             if k.startswith('mod_'):
-                s+=': '.join((k.partition('mod_')[2], `v`))+'\n'
+                s+=': '.join((k.partition('mod_')[2], repr(v)))+'\n'
         if len(s)>0:
             s="This raw data has already been modified with the following settings:\n"+s
             QMessageBox.warning(self, "REPEAT EDIT",  s)

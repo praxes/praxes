@@ -37,7 +37,7 @@ class SplineInterpolable(object):
 
         h = xa[khi] - xa[klo]
         if any(h <= 0):
-            raise ValueError, 'xa input must be strictly increasing'
+            raise ValueError('xa input must be strictly increasing')
         a = (xa[khi] - x) / h
         b = (x - xa[klo]) / h
 

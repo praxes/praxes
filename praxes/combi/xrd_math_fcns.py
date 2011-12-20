@@ -32,7 +32,7 @@ def polart_cart(x, y):
 
 def polar_cart(x,y):#this is the function to call and excepts floats or arrays
     if isinstance(x, numpy.ndarray):
-        return polarr_cart(x, y), numpy.float32(map(polart_cart, x, y))
+        return polarr_cart(x, y), numpy.float32(list(map(polart_cart, x, y)))
     return polarr_cart(x, y), polart_cart(x, y)
 
 def firstder(y, dx=1.0):#takes an array of values y and the dx corresponding to 1 index and returns same length array of the 5-point stencil of second derivative, copying the 2 values on each end
@@ -100,7 +100,7 @@ def chimap_gen(qimage, chiimage, chigrid): #chigrid in degrees, returns chimap i
     chiimageabsdeg=numpy.abs(chiimage*180.0/numpy.pi)
     chiends=slotends_qgrid(chigrid)
     chimap=numpy.zeros(shape=chiimage.shape, dtype='int16')
-    for count, (chimin, chimax) in enumerate(zip(chiends[:-1], chiends[1:])):
+    for count, (chimin, chimax) in enumerate(list(zip(chiends[:-1], chiends[1:]))):
         chimap[(chiimageabsdeg>=chimin)&(chiimageabsdeg<chimax)]=count+1
     chimap[chiimage<0]*=-1
     return chimap
@@ -108,7 +108,7 @@ def chimap_gen(qimage, chiimage, chigrid): #chigrid in degrees, returns chimap i
 def imap_gen(qimage, qgrid):
     qends=slotends_qgrid(qgrid)
     imap=numpy.zeros(shape=qimage.shape, dtype='uint16')
-    for count, (qmin, qmax) in enumerate(zip(qends[:-1], qends[1:])):
+    for count, (qmin, qmax) in enumerate(list(zip(qends[:-1], qends[1:]))):
         imap[(qimage>=qmin)&(qimage<=qmax)]=count+1
     return imap
 
@@ -140,14 +140,14 @@ def interp(func, y, xcrit):
             tryans=tryans+[highans]
 
     if tries==maxtries:
-        print 'interp problem'
+        print('interp problem')
         return None
     if tryans!=tryans.sort:
         trylist.sort
-    print 'in interp', xcrit, tryans, trylist
+    print('in interp', xcrit, tryans, trylist)
     ycrit=scipy.interpolate.UnivariateSpline(tryans, trylist)(xcrit)[0]
     if numpy.isnan(ycrit):
-        print 'interp problem'
+        print('interp problem')
         return None
     else:
         return ycrit
@@ -155,13 +155,13 @@ def interp(func, y, xcrit):
 def qq_gen(innn): #innn should be array of intensity values dtype='float32'
     slots=innn.size
     zer=numpy.ndarray.tolist(numpy.zeros(slots,  dtype='float32'))
-    return numpy.array([zer[:i]+numpy.ndarray.tolist(innn[i]*innn[i:]) for i in xrange(slots)], dtype='float32').T
+    return numpy.array([zer[:i]+numpy.ndarray.tolist(innn[i]*innn[i:]) for i in range(slots)], dtype='float32').T
 
 def intbyarray(data, imap, dqchiimage, slots=None):   #data must be a square array, optionally dtype='uint16', map is same size as data with each pixel value v, v=0->ignored, else included in integration bin v-1
     if slots is None:
         slots=imap.max()
     data=numpy.float32(numpy.abs(dqchiimage)*data)
-    ans=numpy.array([(data[imap==i]).sum() for i in xrange(1, slots+1, 1)])
+    ans=numpy.array([(data[imap==i]).sum() for i in range(1, slots+1, 1)])
     ans[numpy.where(numpy.isnan(ans))]=0.0
     return ans
 
@@ -169,7 +169,7 @@ def integrationnormalization(killmap, imap, dqchiimage, slots=None):#this pretty
     if slots is None:
         slots=imap.max()
     data=numpy.float32(numpy.abs(dqchiimage)*killmap)
-    ans=numpy.array([(data[imap==i]).sum() for i in xrange(1, slots+1, 1)])
+    ans=numpy.array([(data[imap==i]).sum() for i in range(1, slots+1, 1)])
     ans[numpy.where(numpy.isnan(ans))]=0.0
     ans[ans<0]=0.0#shouldn't be necessary
     ans[ans>0]=1/ans[ans>0]
@@ -180,8 +180,8 @@ def binimage(data, bin=3, zerokill=False, mapbin=None): #data is square array,av
     if zerokill:
         nonzeromap=binboolimage(data!=0, bin=bin)
     if 'float' in str(data.dtype): #this isn't compatiible with mapbin:
-        b = numpy.float32([data[:, i:i+bin].sum(axis=1) for i in xrange(0, size, bin)])
-        ans=numpy.float32(numpy.array([b[:, k:k+bin].sum(axis=1) for k in xrange(0, size, bin)])/bin**2)
+        b = numpy.float32([data[:, i:i+bin].sum(axis=1) for i in range(0, size, bin)])
+        ans=numpy.float32(numpy.array([b[:, k:k+bin].sum(axis=1) for k in range(0, size, bin)])/bin**2)
         if zerokill:
             ans*=nonzeromap
     else:
@@ -201,11 +201,11 @@ def binimage(data, bin=3, zerokill=False, mapbin=None): #data is square array,av
             dt=''.join((a, b, c))
         except:
             dt='int64'
-        b = numpy.array([data[:, i:i+bin].sum(axis=1, dtype='int32') for i in xrange(0, size, bin)])
+        b = numpy.array([data[:, i:i+bin].sum(axis=1, dtype='int32') for i in range(0, size, bin)])
         if data.dtype=='bool':
-            ans=numpy.bool_(numpy.array([b[:, k:k+bin].sum(axis=1, dtype='int32') for k in xrange(0, size, bin)])//bin**2)
+            ans=numpy.bool_(numpy.array([b[:, k:k+bin].sum(axis=1, dtype='int32') for k in range(0, size, bin)])//bin**2)
         else:
-            ans=numpy.array(numpy.array([b[:, k:k+bin].sum(axis=1, dtype='int32') for k in xrange(0, size, bin)])//bin**2, dtype=data.dtype)
+            ans=numpy.array(numpy.array([b[:, k:k+bin].sum(axis=1, dtype='int32') for k in range(0, size, bin)])//bin**2, dtype=data.dtype)
         if zerokill:
             ans*=nonzeromap
         if not (mapbin is None):
@@ -223,8 +223,8 @@ def unbinimage(data, bin=3):
 
 def binboolimage(data, bin=3): #data is square array, dtype='bool'. every pixel in bin must be True for binned pixel to be True
     size=data.shape[0]
-    b = numpy.array([data[:, i:i+bin].prod(axis=1, dtype='bool') for i in xrange(0, size, bin)], dtype='bool')
-    return numpy.array([b[:, k:k+bin].prod(axis=1, dtype='bool') for k in xrange(0, size, bin)], dtype='bool')
+    b = numpy.array([data[:, i:i+bin].prod(axis=1, dtype='bool') for i in range(0, size, bin)], dtype='bool')
+    return numpy.array([b[:, k:k+bin].prod(axis=1, dtype='bool') for k in range(0, size, bin)], dtype='bool')
 
 def unbinboolimage(data, bin=3):
     size=data.shape[0]*bin
@@ -289,13 +289,13 @@ def bckndsubtract(data, bckndarr, killmap=None, btype='minanom', banom_f_f=None,
             if (data.shape[0]%banom.shape[0])==0:
                 banom=unbinimage(banom, data.shape[0]/banom.shape[0])
             else:
-                print 'INCOMMENSURATE DATA ARRAY AND ANAMALOUS BACKGROUND ARRAY'
+                print('INCOMMENSURATE DATA ARRAY AND ANAMALOUS BACKGROUND ARRAY')
                 return (data, )
         if data.shape[0]<banom.shape[0]:
             if (banom.shape[0]%data.shape[0])==0:
                 banom=binimage(banom, banom.shape[0]/data.shape[0])
             else:
-                print 'INCOMMENSURATE DATA ARRAY AND ANAMALOUS BACKGROUND ARRAY'
+                print('INCOMMENSURATE DATA ARRAY AND ANAMALOUS BACKGROUND ARRAY')
                 return (data, )
         totbcknd=(fmin*bckndarr+fanom*banom)*killmap
         data*=killmap
@@ -308,7 +308,7 @@ def bckndsubtract(data, bckndarr, killmap=None, btype='minanom', banom_f_f=None,
         else:
             return (data,totbcknd)
     else:
-        print 'UNKNOWN BACKND TYPE IN BACKNDSUBTRACT'
+        print('UNKNOWN BACKND TYPE IN BACKNDSUBTRACT')
         return (data, bckndarr)
 
 class calc_bmin_banom_factors():
@@ -322,7 +322,7 @@ class calc_bmin_banom_factors():
         #this image is azimuthally symmetric and should be roughly the background from xrays that are fluoresced or diffracted by amorphous stuff like air. then there is trading between this type
         #of backnd and bmin to see how you weigh them to subtract the highest possible number of pixels from the image while keeping fraczeroed. other constraint is fbmin>=1
         if data.shape!=bmin.shape or data.shape!=killmap.shape or data.shape!=imap.shape :
-            print 'calc_bmin_banom_factors NOT CURRENTLY SUPPORTING DIFFERENT ARRAY SHAPES'
+            print('calc_bmin_banom_factors NOT CURRENTLY SUPPORTING DIFFERENT ARRAY SHAPES')
         self.fz=fraczeroed
         self.fp=factorprecision
         self.detsize=data.shape[0]
@@ -341,7 +341,7 @@ class calc_bmin_banom_factors():
             self.bqgrid=bqgrid
         if (bimap is None) or (self.detsize%bimap.shape[0]!=0):
             if qimage is None:
-                print 'aborted because need to calculate bimap but cannot without qimage'
+                print('aborted because need to calculate bimap but cannot without qimage')
                 return
             self.bimap=imap_gen(qimage, self.bqgrid)
 #            qslots=slotends_qgrid(self.bqgrid)
@@ -375,7 +375,7 @@ class calc_bmin_banom_factors():
         self.banom=self.banom_gen()
         nanlist=numpy.isnan(self.banom)
         if nanlist.sum()>0:
-            print "INTERPOLATION ERROR making banom"
+            print("INTERPOLATION ERROR making banom")
             self.banom[nanlist]=0
         banomcounts=self.banom.sum()
         if banomcounts==0:
@@ -400,10 +400,10 @@ class calc_bmin_banom_factors():
                 while (self.btot_gen(self.fmin+delfmin, self.fanom-delfanom)>self.data).sum() < (self.btot_gen(self.fmin, self.fanom)>self.data).sum():
                     self.fmin+=delfmin
                     self.fanom-=delfanom
-                    trylist=numpy.array(range(4))*self.fp+1
+                    trylist=numpy.array(list(range(4)))*self.fp+1
                     temp=interp(self.fracz_fanom, trylist*self.fanom, self.fz)
                     if temp is None:
-                        print "INTERPOLATION ERROR increasing fanom:", trylist
+                        print("INTERPOLATION ERROR increasing fanom:", trylist)
                         self.fanom=0
                         break
                     else:
@@ -571,23 +571,23 @@ def FindLinearSumBcknd(counts, killmap, b0, b1, f0vals, f1vals, fraczeroed=0.05,
     b1wt=AveArrUpToRank(b1[numpy.where(killmap)], rank=rankfornorm)
     b1/=b1wt
     nz=(killmap==1).sum(dtype='float32')*fraczeroed
-    print 'nz: ', nz,  '   trials: ', len(f0vals)*len(f1vals)
-    print 'The trial values are \nf0:', f0vals, '\nf1:', f1vals
+    print('nz: ', nz,  '   trials: ', len(f0vals)*len(f1vals))
+    print('The trial values are \nf0:', f0vals, '\nf1:', f1vals)
     f0final=[]
     f1final=[]
     for counter, c in enumerate(counts):
-        print 'Starting image ', counter
+        print('Starting image ', counter)
         c=numpy.float32(c)
         cwt=AveArrUpToRank(c[killmap], rank=rankfornorm)
         c/=cwt
         nzero_f0f1=numpy.float32([[((c-f0*b0-f1*b1)*killmap<0.).sum(dtype='float32') for f1 in f1vals] for f0 in f0vals])
-        print 'num trials w too many zeroed: ', len(numpy.where(nzero_f0f1>nz)[0])
+        print('num trials w too many zeroed: ', len(numpy.where(nzero_f0f1>nz)[0]))
         garb, f0poss, f1poss=find2darrayzeros(f0vals, f1vals, nzero_f0f1-nz)
-        print 'Zeros were found within the array of guesses?', garb
+        print('Zeros were found within the array of guesses?', garb)
         f0mod=[]
         f1mod=[]
-        print 'f0poss', f0poss
-        print 'f1poss', f1poss
+        print('f0poss', f0poss)
+        print('f1poss', f1poss)
         for f0, f1 in zip(f0poss, f1poss):
             lowbool=((c-f0*b0-f1*b1)*killmap<0.).sum(dtype='float32')<nz
             newlowbool=lowbool
@@ -601,11 +601,11 @@ def FindLinearSumBcknd(counts, killmap, b0, b1, f0vals, f1vals, fraczeroed=0.05,
                 f1/=fct
             f0mod+=[f0]
             f1mod+=[f1]
-        print 'f0mod', f0mod
-        print 'f1mod', f1mod
+        print('f0mod', f0mod)
+        print('f1mod', f1mod)
         f0mod=numpy.float32(f0mod)
         f1mod=numpy.float32(f1mod)
-        print 'tot vol', vol0*f0mod/b0wt+vol1*f1mod/b1wt
+        print('tot vol', vol0*f0mod/b0wt+vol1*f1mod/b1wt)
         i=numpy.argmax(vol0*f0mod/b0wt+vol1*f1mod/b1wt) #vol0 and vol1 were calcuated before the biwt scaling so the wieghts have to be used here
         f0final+=[f0mod[i]*cwt/b0wt]
         f1final+=[f1mod[i]*cwt/b1wt]
@@ -654,7 +654,7 @@ class fitfcns:
             self.performfit=False
 
             if fitout[4]!=1:
-                print 'Fitting Error at ', markstr,': ', fitout[3]
+                print('Fitting Error at ', markstr,': ', fitout[3])
                 self.error=True
             else:
                 self.finalparams=fitout[0]
@@ -677,7 +677,7 @@ class fitfcns:
         parnames=[]
         i=0
         for par in initparams:
-            parnames+=[''.join(('coef', `i`))]
+            parnames+=[''.join(('coef', repr(i)))]
             i+=1
 
         return self.genfit(self.poly, initparams, datatuple, markstr, parnames, interaction, maxfev, weights=weights)
@@ -711,16 +711,16 @@ def savgolsmooth(x, window, order = 4, dx=1.0, deriv=0): #based on scipy cookboo
     m = numpy.linalg.pinv(b).A[deriv] #this gives the dth ? of the base array (.A) of the pseudoinverse of b
 
     # precompute the offset values for better performance
-    offsets = range(-1*side, side+1)
-    offset_data = zip(offsets, m)
+    offsets = list(range(-1*side, side+1))
+    offset_data = list(zip(offsets, m))
 
-    smooth_data=[numpy.array([(weight * s[i + offset]) for offset, weight in offset_data]).sum() for i in xrange(side, len(s) - side)]
+    smooth_data=[numpy.array([(weight * s[i + offset]) for offset, weight in offset_data]).sum() for i in range(side, len(s) - side)]
     smooth_data=numpy.array(smooth_data)/(dx**deriv)
     return smooth_data
   
 def wellspacedgrid(numpts, yvals=False): #numpts must be a perfect square
     sn=numpy.sqrt(numpts)
-    temp=numpy.r_[numpy.array(range(numpts-1))*sn/(numpts-1.0)%1, 1]
+    temp=numpy.r_[numpy.array(list(range(numpts-1)))*sn/(numpts-1.0)%1, 1]
     temp=temp.reshape((sn, sn))
     temp2=copy.copy(temp)
     for k in range(numpy.uint16(sn//4)):
@@ -728,7 +728,7 @@ def wellspacedgrid(numpts, yvals=False): #numpts must be a perfect square
         temp[-2*k-2, :]=temp2[2*k+1, :]
     xvals=temp.flatten()
     if yvals:
-        temp3=numpy.array(numpy.array(range(sn)))/(sn-1)
+        temp3=numpy.array(numpy.array(list(range(sn))))/(sn-1)
         temp4=numpy.zeros(sn)
         return(xvals, numpy.add.outer(temp3, temp4).flatten())
     else:
@@ -751,14 +751,14 @@ def bckndmincurve(allqvals, allivals, delq=None,  maxcurv=16.2, derivatepoints=5
         numq=qvals.size
     dcurv=maxcurv/10.0 #this is how much curvature can be added to a given point in any one move
     dcurvfin=maxcurv/2.0
-    winside_iter=2**numpy.array(range(numpy.uint16(numpy.log2(numq/2)//1),-2,-1))
+    winside_iter=2**numpy.array(list(range(numpy.uint16(numpy.log2(numq/2)//1),-2,-1)))
     bvals=numpy.zeros(qvals.size)
     count=0
     for winside in winside_iter:
         if winside==0:
-            qindpts=numpy.array(range(numq)) #qindpts is the center values where pixels will ba added
+            qindpts=numpy.array(list(range(numq))) #qindpts is the center values where pixels will ba added
         else:
-            qindpts=numpy.uint16(range(0, numq, 2*winside))
+            qindpts=numpy.uint16(list(range(0, numq, 2*winside)))
         windowlen=winside*2+1
         if winside<2:
             if dindex>1:
@@ -805,8 +805,8 @@ def bckndmincurve(allqvals, allivals, delq=None,  maxcurv=16.2, derivatepoints=5
                 redfrac=1
                 if dindex>1: #this if is to make sure no ivals get zeroed in between bcknd points
                     newb=bvals[ind_1:ind1]+winsub
-                    interpbwinsub=numpy.multiply.outer(winsub,numpy.array(range(dindex,0,-1))/(1.0*dindex)).flatten()[:1-dindex]+numpy.append(numpy.multiply.outer(winsub[1:],numpy.array(range(dindex))/(1.0*dindex)).flatten(),0)
-                    interpnewb=numpy.multiply.outer(newb,numpy.array(range(dindex,0,-1))/(1.0*dindex)).flatten()[:1-dindex]+numpy.append(numpy.multiply.outer(newb[1:],numpy.array(range(dindex))/(1.0*dindex)).flatten(),0)
+                    interpbwinsub=numpy.multiply.outer(winsub,numpy.array(list(range(dindex,0,-1)))/(1.0*dindex)).flatten()[:1-dindex]+numpy.append(numpy.multiply.outer(winsub[1:],numpy.array(list(range(dindex)))/(1.0*dindex)).flatten(),0)
+                    interpnewb=numpy.multiply.outer(newb,numpy.array(list(range(dindex,0,-1)))/(1.0*dindex)).flatten()[:1-dindex]+numpy.append(numpy.multiply.outer(newb[1:],numpy.array(list(range(dindex)))/(1.0*dindex)).flatten(),0)
                     ivalscompare=allivals[ind_1*dindex:ind_1*dindex+interpnewb.size]
                     if (ivalscompare<interpnewb).sum()>0:
                         redfrac=(1.0-numpy.max((interpnewb-ivalscompare)/interpbwinsub))
@@ -902,7 +902,7 @@ def bcknd1dprogram(qgrid, ivals, attrdictORangles=None, smoothqwindow=0.5, cubic
         return (iv_3, iv_2, iv_1, iv_0,bvals, bfit, angles, notnaninds)
     else:
         ireturn=numpy.ones(qgrid[2], dtype='float32')*numpy.nan
-        print iv_3.shape, ireturn.shape, len(notnaninds[0])
+        print(iv_3.shape, ireturn.shape, len(notnaninds[0]))
         ireturn[notnaninds]=numpy.float32(iv_3)[:]
         return ireturn
 
@@ -929,14 +929,14 @@ def arrayzeroind2d(arr): #finds the indeces where the surface of array values is
     s=''
     nss=neighsumsq
     for i in range(len(nss)):
-        s=''.join((s, '(nss[', `i`, ']<25)&'))
+        s=''.join((s, '(nss[', repr(i), ']<25)&'))
     zeroind=numpy.where(eval(s[:-1]))
     return (zeroind[0]+1, zeroind[1]+1)#adding 1 to each part of the indeces tuple changes interior indecesd to full array indeces
 
 def clustercoords_radius(coordlist, critdistsq): #takes a list (or array) of coords , i.e. [(1,2),(3,4)]and those within critical radius of each other, replaces them with the centroid of that group
     #assumes distance less than 10^5
     if len(coordlist)==0:
-        print 'CANNOT CLUSTER EMPTY LIST OF POINTS'
+        print('CANNOT CLUSTER EMPTY LIST OF POINTS')
         return numpy.array([])
     coordlist=numpy.array(coordlist)
     #print 'initial coords ', len(coordlist)
@@ -983,7 +983,7 @@ def maxwithincluster(arr, clusters, centroids,  border=0):
         posns=numpy.where(arr[xlow:xhigh, ylow:yhigh]==maxval)
         mindistcent=myargmin(numpy.array([(cent[0]-xlow-posns[0][i])**2+(cent[1]-ylow-posns[1][i])**2 for i in range(len(posns[0]))]))
         maxcoords+=[[posns[0][mindistcent]+xlow, posns[1][mindistcent]+ylow]]
-    temp=zip(*maxcoords) #this now gets the intesection of the point indeces but it is a list of tuples instead of a tuple of ndarrays
+    temp=list(zip(*maxcoords)) #this now gets the intesection of the point indeces but it is a list of tuples instead of a tuple of ndarrays
     return ((numpy.uint16(numpy.array(temp[0])), numpy.uint16(numpy.array(temp[1]))), maxcoords)
     #the sceond elements of the return tuple is the list of [x,y] list where the maximum value within the rectangle defined by the extermes of the cluster points+border is located. in the even of multiple coords with same max value, the one closest to the centroid is given. the first element is the same info except a tuple of xvalarray,yvalarray
 
@@ -1004,13 +1004,13 @@ def arraypeaksearch(arr, ciss=0.1, belowdiagonal=False, dx=1, critcurvature=0, c
         valset=set(zip(valind[0], valind[1]))
         pklist=numpy.array(list(firstderindset&secderindset&valset))
     if len(pklist)==0:
-        print 'NO PEAKS FOUND'
+        print('NO PEAKS FOUND')
         return None
     else:
         if belowdiagonal:
             pklist=pklist[pklist.T[0]>=pklist.T[1]-numpy.sqrt(ciss)]
         clustcoords=clustercoords_radius(pklist, ciss)
-        temp=zip(*clustcoords[0]) #this now gets the intesection of the point indeces but it is a list of tuples instead of a tuple of ndarrays
+        temp=list(zip(*clustcoords[0])) #this now gets the intesection of the point indeces but it is a list of tuples instead of a tuple of ndarrays
         return ((numpy.uint16(numpy.round(numpy.array(temp[0]))), numpy.uint16(numpy.round(numpy.array(temp[1])))), numpy.round(clustcoords[0]), clustcoords[1])
         #returns cluster, 1st element is a cluster of 2 arrays, the x and y indeces of peaks, the ith x and ith y give the centroid of the ith list of indeces in the third element of the return cluster
         #the second element has the same information as the first but it is a array of an [x,y] array
@@ -1206,7 +1206,7 @@ def qqindeces_innn(knnn, qgrid, qgrid_qq, qqpktuplist, qqsigmasep=3.0, qqindsep=
     qqnorm=numpy.array([tup[1][2] for tup in qqpktuplist])
     qqpkvolume=numpy.array([tup[1][1] for tup in qqpktuplist])
     if not (qqindsep is None):
-        qqcritsep=numpy.ones(range(len(pkind)), dtype=numpy.float32)*qqindsep #rememebr this is already in innn indeces
+        qqcritsep=numpy.ones(list(range(len(pkind))), dtype=numpy.float32)*qqindsep #rememebr this is already in innn indeces
     else:
         alpha,beta=qqanisoalloyfrac
         qqx=numpy.array(q_qgrid_ind(qgrid_qq, numpy.array([cd[0] for cd in qqpkcen])))#DEAL WITH THE ACTUAL Q VALUES FOR THIS - may be more efficient way to do it
@@ -1292,11 +1292,11 @@ def ktupphases_qqind(ktuplist, critnumipks=0):    #list of tuples (kindhigh,kind
     def tuplistallexist(tuplist):
         return all([(tup1 in ktuplist) for tup1 in tuplist])
     phases=[]
-    print 'ktups', len(ktuplist)
+    print('ktups', len(ktuplist))
     for ktup in ktuplist:
         phases.sort(cmp=phasesizecmp) #puts the longest phases first
         if len(phases)%1==0:
-            print 'phases', len(phases)
+            print('phases', len(phases))
         for phs in phases: #phs is a pointer
 #            print phs, ' in ', phases
 
@@ -1346,8 +1346,8 @@ def phasevecs_ktup(qqpkind_ktupDICT, kindtuplephases, qqpkindveclength, kindvecl
         return list(tempset)
 
 
-    qqindlist_phase=map(qqindlist_ktupset, kindtuplephases)
-    kindlist_phase=map(kind_ktupset, kindtuplephases)
+    qqindlist_phase=list(map(qqindlist_ktupset, kindtuplephases))
+    kindlist_phase=list(map(kind_ktupset, kindtuplephases))
 
     while [-1] in qqindlist_phase:
         del kindlist_phase[qqindlist_phase.index([-1])]
@@ -1364,7 +1364,7 @@ def phasevecs_ktup(qqpkind_ktupDICT, kindtuplephases, qqpkindveclength, kindvecl
     return (qqpkindphasevecs, kindphasevecs)
 
 def indexarr_xzgrid(xgrid, zgrid, pointlist=None):
-    arr=numpy.reshape(numpy.int32(range(xgrid[2]*zgrid[2])), (xgrid[2], zgrid[2]))
+    arr=numpy.reshape(numpy.int32(list(range(xgrid[2]*zgrid[2]))), (xgrid[2], zgrid[2]))
     if pointlist is None:
         return arr
     else:
@@ -1417,20 +1417,20 @@ def blobarrgen(arr, radius=1, minptsinblob=1, mask=None, spacingratio=1.0):
     """
 
     if arr.ndim != 2 :
-        print "2D arrays are required"
+        print("2D arrays are required")
         return
 
     if mask is None:
         mask=numpy.ones[arr.shape]
     #If not a binary image, then convert to one:
     if arr.max() != 1 and arr.min() != 0:
-        print "Not a binary image, converting to one:"
+        print("Not a binary image, converting to one:")
         arrtmp = (arr > arr.min())*mask
     else :
         arrtmp = arr*mask
 
     if arrtmp.sum < 2 :
-        print "Empty image"
+        print("Empty image")
         return
 
     blobarr = numpy.zeros((arrtmp.shape),dtype=numpy.uint16)
@@ -1480,7 +1480,7 @@ def findsingleblob(arr, x, y, radius=1, mask=None, spacingratio=1.0):
     numneighlinks=0
     numneighnolink=0
 
-    rng=range(-numpy.int16(numpy.floor(radius)),numpy.int16(numpy.floor(radius))+1)
+    rng=list(range(-numpy.int16(numpy.floor(radius)),numpy.int16(numpy.floor(radius))+1))
     xdevs=numpy.int16(numpy.outer(rng,numpy.ones(len(rng))).flatten())
     ydevs=numpy.array(rng*len(rng))
     loc=numpy.where(xdevs**2+(spacingratio*ydevs)**2<=radius**2)
@@ -1491,7 +1491,7 @@ def findsingleblob(arr, x, y, radius=1, mask=None, spacingratio=1.0):
         newedge = []
         #Check all pixels:
         for (x,y) in edge:
-            neighlist=zip(list(x+xdevs),list(y+ydevs))
+            neighlist=list(zip(list(x+xdevs),list(y+ydevs)))
             neighlist.remove((x,y))#remove the position of interest because it should not count as its own neighbor
             arrcopy[x, y]=0
             for (i,j) in neighlist :
@@ -1667,8 +1667,8 @@ def perform_peaks_ridges1d(wt, ridges, ridgescalecritind=0, minridgelength=1, mi
     ridgeinds2=numpy.where(((ridges!=32767)*(ridges>=0)).sum(axis=1)>=minridgelength)[0]#this will catch the ridges that don't go to the end but are long enough on their own (not counting mother forks). mother forks ruled out later
     ridgeinds=numpy.array(list(set(ridgeinds)|set(ridgeinds2)))
     if verbose:
-        print 'ridge inds passed length tests: ', ridgeinds
-        print ridges
+        print('ridge inds passed length tests: ', ridgeinds)
+        print(ridges)
     peaks=[]#list of [peak scaleind, posnind]
     mother_peaks=[] # every element is a tuple, the 1st elemnt is like an entry of peaks, the 2nd is a list of the children
     ridgeind_peaks=[]
@@ -1682,8 +1682,8 @@ def perform_peaks_ridges1d(wt, ridges, ridgescalecritind=0, minridgelength=1, mi
                     tempstr='(MOTHER) '
                 else:
                     tempstr=''
-                print 'NEW RIDGE ', tempstr, count, ': ', ridge
-                print 'length test:', len(rind)>0
+                print('NEW RIDGE ', tempstr, count, ': ', ridge)
+                print('length test:', len(rind)>0)
             rind=numpy.where((ridge!=32767)&(ridge>=0))[0] #this will generally be a continuous sequence of indeces except for possibler holes of size numscalesskippedinaridge
             wtvals=(wt[(wt.shape[0]-1-rind, ridge[rind])]) #-rind inverts but resulting order is still that of rind. wtvals is now the select values from wt but ordered from big->small wavelet scale
             totridgewt=wtvals.sum()
@@ -1691,33 +1691,33 @@ def perform_peaks_ridges1d(wt, ridges, ridgescalecritind=0, minridgelength=1, mi
             motherind=motherridgeind_childridge(ridge)
             if not motherind is None:
                 if verbose:
-                    print 'tot wt of child test:', totridgewt, minchildwtsum, totridgewt>minchildwtsum
+                    print('tot wt of child test:', totridgewt, minchildwtsum, totridgewt>minchildwtsum)
                 if totridgewt<=minchildwtsum:
                     continue
                 if verbose:
-                    print 'length of child test:', ridgelen, minchildlength, ridgelen>=minchildlength
+                    print('length of child test:', ridgelen, minchildlength, ridgelen>=minchildlength)
                 if ridgelen<minchildlength:
                     continue
                 mridge=ridges[motherind]
                 mrind=numpy.where((mridge!=32767)&(mridge>=0))[0] #this will generally be a continuous sequence of indeces except for possibler holes of size numscalesskippedinaridge
                 mwtvals=(wt[(wt.shape[0]-1-mrind, mridge[mrind])])
                 if verbose:
-                    print 'mother ridge index: ', motherind, 'the ridge contributes ', mwtvals.sum(), " and is ", mridge
+                    print('mother ridge index: ', motherind, 'the ridge contributes ', mwtvals.sum(), " and is ", mridge)
                 totridgewt+=mwtvals.sum()
                 ridgelen+=len(mrind) #if a child ridge has a mother that is the child of another mother, the wt and len from this grandmother does not count towards the total of the grandchild
             if verbose:
-                print 'ridgelen test', ridgelen, minridgelength, ridgelen>=minridgelength
+                print('ridgelen test', ridgelen, minridgelength, ridgelen>=minridgelength)
             if ridgelen>=minridgelength:
                 indforlocalmaxtest=(rind>=ridgescalecritind) #if bigger ridge index, smaller wavelet scale (used to be called indforincreasingtest)
                 #if (wtvals[indforincreasingtest][1:]>wtvals[indforincreasingtest][:-1]).sum()>0: #if a ridge wt value is bigger than its predecessor(larger scale) then the wt isn't strictly increasing with increasing qscale
                 if verbose:
-                    print 'the ridge indeces with wave scale less than critical:', indforlocalmaxtest
-                    print 'any there test: ', len(wtvals[indforlocalmaxtest])>0
+                    print('the ridge indeces with wave scale less than critical:', indforlocalmaxtest)
+                    print('any there test: ', len(wtvals[indforlocalmaxtest])>0)
                     if len(wtvals[indforlocalmaxtest])>0:
-                        print 'local max test: ', numpy.max(wtvals[indforlocalmaxtest])>=numpy.max(wtvals)
+                        print('local max test: ', numpy.max(wtvals[indforlocalmaxtest])>=numpy.max(wtvals))
                 if len(wtvals[indforlocalmaxtest])>0 and numpy.max(wtvals[indforlocalmaxtest])>=numpy.max(wtvals): #local max is at a scale smaller than critical index - this does nto include mother ridge - the large-scale part of the ridge got to count towards the ridge length
                     if verbose:
-                        print 'tot wt test:',  totridgewt, minridgewtsum,  totridgewt>minridgewtsum
+                        print('tot wt test:',  totridgewt, minridgewtsum,  totridgewt>minridgewtsum)
                     if totridgewt>minridgewtsum:
                         scaleind=(wt.shape[0]-1-rind[myargmax(wtvals)]) #choose the wt scale and posn at the local maximum of wt - this does not include mother ridges. scaleind is now appropriate for wt (not ridges)
                         posnind=ridge[rind[-1]]#choose the position from the smallest scale in the ridge
@@ -1734,10 +1734,10 @@ def perform_peaks_ridges1d(wt, ridges, ridgescalecritind=0, minridgelength=1, mi
         if len(ind_potentialpeaks&set(descendants))==0:
             peaks+=[pk]
             if verbose:
-                print 'MOTHER RIDGE ',  ind, ' BECOMES PEAK:', pk, '. The non-peak children are indeces ', descendants
+                print('MOTHER RIDGE ',  ind, ' BECOMES PEAK:', pk, '. The non-peak children are indeces ', descendants)
         else:
             if verbose:
-                print 'MOTHER RIDGE ',  ind, ' NOT A PEAK BECAUSE OF EXISTENCE OF DESCENDANTS: ',  descendants
+                print('MOTHER RIDGE ',  ind, ' NOT A PEAK BECAUSE OF EXISTENCE OF DESCENDANTS: ',  descendants)
 
     return peaks
 
@@ -1829,7 +1829,7 @@ def fitpeakset(qvals, counts, initpars, peakfcn):#peak function must be a functi
         qvals=numpy.float64(qvals)
         fitout=scipy.optimize.leastsq(residfcn, initparsflat, args=(counts, qvals), full_output=1)
         if not (fitout[4] in [1, 2]):
-            print 'Fitting Error', fitout[4],': ', fitout[3]
+            print('Fitting Error', fitout[4],': ', fitout[3])
         finalparams=numpy.float32(fitout[0])
         finalparamsshaped=numpy.reshape(finalparams, (len(finalparams)//3, 3))
         negpeakinds=numpy.where(finalparamsshaped[:, 2]<0)[0]
@@ -1845,7 +1845,7 @@ def fitpeakset(qvals, counts, initpars, peakfcn):#peak function must be a functi
         covmat=fitout[1]
         sigmas=numpy.float32([covmat[i, i] for i in range(len(finalparams))])
     else:
-        print 'COVARIANCE NOT CALCULATED:', fitout[4],': ', fitout[3]
+        print('COVARIANCE NOT CALCULATED:', fitout[4],': ', fitout[3])
         sigmas=numpy.zeros(len(finalparams), dtype='float32')
     finalresid=numpy.sqrt((residfcn(finalparams, qvals, counts)**2).sum())
     #pylab.plot(qvals, counts, 'k.', qvals, fitfcn(finalparams, qvals), 'r-')
@@ -1917,8 +1917,8 @@ def fillgapswithinterp(allindslist, partindslist, partvals, indexinterval_fitind
     fullvals[partindslist]=partvals[:]
 
     for i, j in zip(startinds, stopinds):
-        indstofill=numpy.float32(range(i, j+1))
-        fitinds=sorted(list(partindsset.intersection(set(range(i-indexinterval_fitinds*(len(indstofill)-3), i, indexinterval_fitinds)+range(j+1, j+1+indexinterval_fitinds*(3+len(indstofill)), indexinterval_fitinds))))) #use range ainstead of allindslist becuase could eb out of range
+        indstofill=numpy.float32(list(range(i, j+1)))
+        fitinds=sorted(list(partindsset.intersection(set(list(range(i-indexinterval_fitinds*(len(indstofill)-3), i, indexinterval_fitinds))+list(range(j+1, j+1+indexinterval_fitinds*(3+len(indstofill)), indexinterval_fitinds)))))) #use range ainstead of allindslist becuase could eb out of range
         fitvals=numpy.float32([partvals[partindslist.index(f)] for f in fitinds])
         fitinds=numpy.float32(fitinds)
         splineorder=min(len(fitinds)-1, 3)
@@ -1952,13 +1952,13 @@ def compdistarr_comp(comp):#comp must be array of compositions, each element of 
 def findcompnieghbors(comp, pointlist=None, critcompdist=.15):#returns a list, the ith element is a list of the indeces of comp the are neighbors of comp[i]. if i is not in pointlist, it does not have neighbors and is noone's neighbor
     comp=numpy.float32(comp)
     if pointlist is None:
-        pointlist=range(comp.shape[0])
+        pointlist=list(range(comp.shape[0]))
     pointlist=list(pointlist)
-    allind=range(comp.shape[0])
+    allind=list(range(comp.shape[0]))
     comp=comp[numpy.uint16(pointlist)]
     finitecompaxes=numpy.where(comp.sum(axis=0)>0.)[0]
     if comp.shape[1]==2 or len(finitecompaxes)<=2:  #binary
-        print 'USED SIMPLY BINARY FORMULA FOR NEIGHBORS'
+        print('USED SIMPLY BINARY FORMULA FOR NEIGHBORS')
         a=comp[:, finitecompaxes[0]]
         sortind=a.argsort()
         disp=numpy.array([-1, 1], dtype='int16')
@@ -1985,9 +1985,9 @@ def findposnnieghbors(xcoords, zcoords, pointlist=None, critdist=999.):#returns 
     xcoords=numpy.float32(xcoords)
     zcoords=numpy.float32(zcoords)
     if pointlist is None:
-        pointlist=range(xcoords.shape[0])
+        pointlist=list(range(xcoords.shape[0]))
     pointlist=list(pointlist)
-    allind=range(xcoords.shape[0])
+    allind=list(range(xcoords.shape[0]))
     xcoords=xcoords[numpy.uint16(pointlist)]
     zcoords=zcoords[numpy.uint16(pointlist)]
 
@@ -2008,9 +2008,9 @@ def findposnnieghbors(xcoords, zcoords, pointlist=None, critdist=999.):#returns 
 
 def findneighborswithinradius(distarray, critdist, pointlist=None): #distarray should be squre array where i,j is the distance between i and j
     if pointlist is None:
-        pointlist=range(distarray.shape[0])
+        pointlist=list(range(distarray.shape[0]))
     pointlist=list(pointlist)
-    allind=range(distarray.shape[0])
+    allind=list(range(distarray.shape[0]))
 
     n=[]
 
@@ -2023,7 +2023,7 @@ def findneighborswithinradius(distarray, critdist, pointlist=None): #distarray s
 
 def myargmin(a): #this is to resolve the problem I reported in numpy Ticket #1429
     if len(a.shape)>1:
-        print 'WARNING: behavior of myargmin not tested for multidimmensional arrays'
+        print('WARNING: behavior of myargmin not tested for multidimmensional arrays')
     if not numpy.isnan(a[0]):
         return numpy.argmin(a)
     if numpy.min(numpy.isnan(a)):#everything is nan
@@ -2033,7 +2033,7 @@ def myargmin(a): #this is to resolve the problem I reported in numpy Ticket #142
 
 def myargmax(a): #this is to resolve the problem I reported in numpy Ticket #1429
     if len(a.shape)>1:
-        print 'WARNING: behavior of myargmin not tested for multidimmensional arrays'
+        print('WARNING: behavior of myargmin not tested for multidimmensional arrays')
     if not numpy.isnan(a[0]):
         return numpy.argmax(a)
     if numpy.min(numpy.isnan(a)):#everything is nan
@@ -2058,7 +2058,7 @@ def removesinglepixoutliers(arr,critratiotoneighbors=1.5):
     c=numpy.where((arr[1:-1,1:-1]>(critratiotoneighbors*arr[:-2,1:-1]))*(arr[1:-1,1:-1]>(critratiotoneighbors*arr[2:,1:-1]))*(arr[1:-1,1:-1]>(critratiotoneighbors*arr[1:-1,:-2]))*(arr[1:-1,1:-1]>(critratiotoneighbors*arr[1:-1,2:])))
     c0=c[0]+1
     c1=c[1]+1
-    print len(c0), ' pixels being replaced'
+    print(len(c0), ' pixels being replaced')
     arr[c0,c1]=(arr[c0-1,c1]+arr[c0+1,c1]+arr[c0,c1-1]+arr[c0,c1+1])/4
     return arr
 

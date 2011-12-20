@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from distutils.core import setup
 from distutils.cmd import Command
 from distutils.command.sdist import sdist as _sdist

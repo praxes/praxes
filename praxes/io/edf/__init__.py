@@ -48,7 +48,7 @@ def load(filename, *args):
         images = [edf.getData(arg) for arg in args]
     else:
         nb_images = edf.getNumImages()
-        images = [edf.getData(arg) for arg in xrange(nb_images)]
+        images = [edf.getData(arg) for arg in range(nb_images)]
     return images
 
 def save(filename, array, append=False, header={}):
@@ -137,7 +137,7 @@ def getDefaultNumpyType(edfType, itemSize=None):
     elif edfType == "UNSIGNEDLONG" and itemSize == 8: return np.uint64
     # Otherwise robust:
     try: return EDF_TYPE_TO_NUMPY_TYPE[edfType]
-    except KeyError: raise TypeError, "unknown EdfType %s" % EdfType
+    except KeyError: raise TypeError("unknown EdfType %s" % EdfType)
 
 def convertDataType(data, newDatatype):
     """ Internal method: array type convertion"""
@@ -426,7 +426,7 @@ class EdfFile:
                 data = np.fromstring(self._file.read(sizeToRead),
                                         numpyType)
             elif dims == 2:
-                for y in xrange(pos[1], pos[1] + size[1]):
+                for y in range(pos[1], pos[1] + size[1]):
                     self._file.seek(im.getFilePosition([pos[0], y]))
                     line = np.fromstring(self._file.read(sizeToRead),
                                             numpyType)
@@ -563,10 +563,10 @@ class EdfFile:
         self._file.seek(0,2)
         staticHeader = im.getStaticHeader()
         strHeader = "{\n"
-        for key in STATIC_HEADER_KEYS.itervalues():
+        for key in STATIC_HEADER_KEYS.values():
             if key in staticHeader:
                 strHeader = strHeader + ("%s = %s ;\n"%(key, staticHeader[key]))
-        for key, val in header.iteritems():
+        for key, val in header.items():
             if not key in STATIC_HEADER_ELEMENTS:
                 strHeader = strHeader + ("%s = %s ;\n" % (i, val))
                 im.setHeader(key, val)
@@ -594,8 +594,8 @@ if __name__ == "__main__":
     save('temp.edf', b, append=True)
     c, d = load('temp.edf')
     for i in range(5):
-        print a[i]
-        print b[i]
-        print c[i]
-        print d[i]
-        print '\n'
+        print(a[i])
+        print(b[i])
+        print(c[i])
+        print(d[i])
+        print('\n')

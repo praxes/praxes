@@ -1,8 +1,6 @@
 """
 """
 
-from __future__ import absolute_import
-
 from .version import __version__, __format_version__
 
 from .file import open

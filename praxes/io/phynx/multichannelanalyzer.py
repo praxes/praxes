@@ -1,8 +1,6 @@
 """
 """
 
-from __future__ import absolute_import, with_statement
-
 import copy
 import json
 import time
@@ -127,7 +125,7 @@ class CorrectedSpectrumProxy(DataProxy):
         try:
             return self._dset.parent.monitor.corrected_value
         except:
-            print "No monitor available"
+            print("No monitor available")
             return None
 
     @property

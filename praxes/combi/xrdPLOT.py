@@ -103,20 +103,20 @@ class plotwidget(FigureCanvas):
             if len(formstr)>0:
                 self.axes.plot(plotdata[0], plotdata[1], formstr)
                 if alsoprint:
-                    print 'print while plotting: ', time.ctime()
-                    print numpy.array([plotdata[0], plotdata[1]]).T
+                    print('print while plotting: ', time.ctime())
+                    print(numpy.array([plotdata[0], plotdata[1]]).T)
 
             else:
                 self.axes.plot(plotdata[0], plotdata[1])
                 if alsoprint:
-                    print 'print while plotting: ', time.ctime()
-                    print numpy.array([plotdata[0], plotdata[1]]).T
+                    print('print while plotting: ', time.ctime())
+                    print(numpy.array([plotdata[0], plotdata[1]]).T)
             if not peaklist is None:
                 self.axes.hold(True)
                 self.axes.plot(peaklist[0], peaklist[1], 'g.')
                 if alsoprint:
-                    print 'print peaklist while plotting: ', time.ctime()
-                    print numpy.array([peaklist[0], peaklist[1]]).T
+                    print('print peaklist while plotting: ', time.ctime())
+                    print(numpy.array([peaklist[0], peaklist[1]]).T)
                 self.axes.hold(overlay)
             if log:
                 self.axes.set_yscale('log')
@@ -216,7 +216,7 @@ class plotwidget(FigureCanvas):
     def myclick(self, event):
         if not (event.xdata is None or event.ydata is None):
             arrayxy=[event.ydata, event.xdata]
-            print 'clicked on image: array indeces ', arrayxy
+            print('clicked on image: array indeces ', arrayxy)
             self.emit(SIGNAL("genericclickonplot"), [event.xdata, event.ydata])
             if self.clickcount<0:
                 self.clickptlist+=[arrayxy]
@@ -629,14 +629,14 @@ class wavelet1dplotwidget(FigureCanvas):
         self.qlim=(-.5, self.qposngrid[2]-1+.5)
         minq=int(round(q_qgrid_ind(self.qposngrid, 0)))
         maxq=int(round(q_qgrid_ind(self.qposngrid, self.qposngrid[2]-1)))
-        qlabelvals=numpy.uint16(range(minq, maxq, max(1, (maxq-minq)//9))[:-1]+[maxq])
+        qlabelvals=numpy.uint16(list(range(minq, maxq, max(1, (maxq-minq)//9)))[:-1]+[maxq])
         self.qlabels=['%d' %q for q in qlabelvals]
         self.qlabelposnind=ind_qgrid_q(self.qposngrid, numpy.float32(qlabelvals), fractional=True)
         self.wtaxes.set_xticks(self.qlabelposnind)
         self.wtaxes.set_xticklabels(self.qlabels)
 
         self.scalelim=(-.5, self.qscalegrid[2]-1+.5)
-        qslabelind=numpy.float32(range(5))*(self.qscalegrid[2]-1.0)/4.0
+        qslabelind=numpy.float32(list(range(5)))*(self.qscalegrid[2]-1.0)/4.0
         qslabels=['%.1f' %qs for qs in scale_scalegrid_ind(self.qscalegrid, qslabelind)]
 
         self.wtaxes.set_yticks(qslabelind)
@@ -667,10 +667,10 @@ class wavelet1dplotwidget(FigureCanvas):
             if motherind is None:
                 mothertochildplotcoords=None
             else:
-                print 'MOTHERIND', motherind
-                print r
-                print len(ridgewtscatter), len(ridgewtscatter[motherind])
-                print len(ridgewtscatter[motherind][0]), len(ridgewtscatter[motherind][1])
+                print('MOTHERIND', motherind)
+                print(r)
+                print(len(ridgewtscatter), len(ridgewtscatter[motherind]))
+                print(len(ridgewtscatter[motherind][0]), len(ridgewtscatter[motherind][1]))
                 xmother=ridgewtscatter[motherind][0][-1]
                 ymother=ridgewtscatter[motherind][1][-1]
                 xchild=posninds[0]
@@ -681,7 +681,7 @@ class wavelet1dplotwidget(FigureCanvas):
             qpind_data=ind_qgrid_q(self.qposngrid, q_qgrid_ind(self.qgrid), fractional=True)
             colstr='b'
         else:
-            qpind_data=numpy.array(range(int(round(self.qposngrid[2]))))
+            qpind_data=numpy.array(list(range(int(round(self.qposngrid[2])))))
             colstr='g'
 
         aspect=.3*self.qposngrid[2]/self.qscalegrid[2]
@@ -747,7 +747,7 @@ class wavelet1dplotwidget(FigureCanvas):
             self.dataaxes.set_xlabel('wavelet q-position (1/nm)')
             self.dataaxes.set_ylabel('wavelet transform at q-scale %.2f /nm' %scale_scalegrid_ind(self.qscalegrid, datascaleind))
 
-        qslabelind=numpy.float32(range(5))*(self.qscalegrid[2]-1.0)/4.0
+        qslabelind=numpy.float32(list(range(5)))*(self.qscalegrid[2]-1.0)/4.0
         qslabels=['%.1f' %qs for qs in scale_scalegrid_ind(self.qscalegrid, qslabelind)]
 
         self.wtaxes.set_yticks(qslabelind)
@@ -766,7 +766,7 @@ class wavelet1dplotwidget(FigureCanvas):
             qpind_data=ind_qgrid_q(self.qposngrid, q_qgrid_ind(self.qgrid), fractional=True)
             colstr='b'
         else:
-            qpind_data=numpy.array(range(int(round(self.qposngrid[2]))))
+            qpind_data=numpy.array(list(range(int(round(self.qposngrid[2])))))
             colstr='g'
 
         self.dataaxes.plot(qpind_data, data, colstr)

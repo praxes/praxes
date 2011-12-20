@@ -1,8 +1,6 @@
 """
 """
 
-from __future__ import absolute_import
-
 import json
 import re
 
@@ -71,8 +69,9 @@ class AcquisitionID(object):
         # from the parsed tuple -- so I just store the string here for
         # use by __str__
         self._idstring = idstring
-        components = filter(lambda x: x and x != '.',
-                            self.component_re.split(idstring))
+        components = [
+            x for x in self.component_re.split(idstring) if x and x != '.'
+            ]
         for i in range(len(components)):
             try:
                 components[i] = int(components[i])

@@ -1,6 +1,6 @@
 """
 """
-from __future__ import absolute_import, with_statement
+
 
 import copy
 import gc
@@ -89,7 +89,7 @@ class TaskManager(QtCore.QThread):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         """
         This needs to be reimplemented to return either:
 
@@ -121,7 +121,7 @@ class TaskManager(QtCore.QThread):
                     continue
 
             try:
-                item = self.next()
+                item = next(self)
             except StopIteration:
                 self.job_server.close()
                 self.job_server.join()

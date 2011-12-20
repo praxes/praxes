@@ -1,6 +1,3 @@
-
-from __future__ import absolute_import, with_statement
-
 from .common import TestCase, ut
 
 
@@ -10,15 +7,15 @@ class TestSorting(TestCase):
         a = self.f.create_group('a')
         b = self.f.create_group('b')
         c = self.f.create_group('c')
-        self.assertItemsEqual(self.f.keys(), ['a', 'b', 'c'])
-        self.assertItemsEqual(self.f.values(), [a, b, c])
-        self.assertItemsEqual(self.f.items(), [('a', a), ('b', b), ('c', c)])
+        self.assertItemsEqual(list(self.f.keys()), ['a', 'b', 'c'])
+        self.assertItemsEqual(list(self.f.values()), [a, b, c])
+        self.assertItemsEqual(list(self.f.items()), [('a', a), ('b', b), ('c', c)])
 
     def test_sequential_name(self):
         a = self.f.create_group('a')
         b = self.f.create_group('b')
         c = self.f.create_group('c')
-        self.assertEqual(self.f.values(), [a, b, c])
+        self.assertEqual(list(self.f.values()), [a, b, c])
 
     def test_default_start_time(self):
         a = self.f.create_group('c', 'Entry')
@@ -29,7 +26,7 @@ class TestSorting(TestCase):
         c = self.f.create_group('a', 'Entry')
         c.attrs['start_time'] = 0
         self.assert_(c < a)
-        self.assertEqual(self.f.values(), [c, a, b])
+        self.assertEqual(list(self.f.values()), [c, a, b])
 
     def test_entry_id(self):
         a = self.f.create_group('1', 'Entry')
@@ -39,4 +36,4 @@ class TestSorting(TestCase):
         self.assert_(b < c)
         d = self.f.create_group('1.1', 'Entry')
         self.assertTrue(a < d and d < b and d < c)
-        self.assertEqual(self.f.values(), [a, d, b, c])
+        self.assertEqual(list(self.f.values()), [a, d, b, c])

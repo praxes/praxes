@@ -102,7 +102,7 @@ def dchidazim_q_chi(q, chi, alpharad, L, wl):#azim in rad
 def dchidazim_q_chi_azim(q, chi, azim, alpharad, L, wl):#azim in rad
     mu=2.0*numpy.pi/wl
     t=numpy.sqrt(1-(q/(2*mu))**2)*numpy.sin(alpharad)*numpy.sin(azim)/numpy.sin(chi)
-    print '^^^', numpy.where(numpy.isnan(t))
+    print('^^^', numpy.where(numpy.isnan(t)))
     return t
 
 def dchidazim_q_azim(q, azim, alpharad, L, wl):#azim in rad
@@ -155,7 +155,7 @@ def scherrerqwidth(q, grainsize, wl): #size in grain size in nm
 
 def q_qgrid_ind(qgrid, index='all'):
     if index=='all':
-        index=numpy.array(range(numpy.uint16(qgrid[2])), dtype=numpy.float32)
+        index=numpy.array(list(range(numpy.uint16(qgrid[2]))), dtype=numpy.float32)
     elif isinstance(index, list):
         index=numpy.array(index)
     return qgrid[0]+qgrid[1]*index
@@ -171,7 +171,7 @@ def minmaxint_qgrid(qgrid):
     return (qgrid[0], qgrid[0]+qgrid[1]*(qgrid[2]-1), qgrid[1])
 
 def slotends_qgrid(qgrid):
-    return numpy.array(range(numpy.uint16(qgrid[2])+1), dtype='float32')*qgrid[1]+qgrid[0]-qgrid[1]/2.0
+    return numpy.array(list(range(numpy.uint16(qgrid[2])+1)), dtype='float32')*qgrid[1]+qgrid[0]-qgrid[1]/2.0
 
 def ind_qgrid_q(qgrid, q, fractional=True):
     if fractional:
@@ -195,10 +195,10 @@ def specattr_xzgrid(xgrid, zgrid, mesh):
     specattr={}
     if mesh:
         specattr['acquisition_shape']=(xgrid[2], zgrid[2])
-        img=range(xgrid[2]*zgrid[2])
+        img=list(range(xgrid[2]*zgrid[2]))
     else:
         specattr['acquisition_shape']=(xgrid[2],)
-        img=range(xgrid[2])
+        img=list(range(xgrid[2]))
     x, z=xmmzmm_img_xzgrid(img, xgrid, zgrid, mesh=mesh)
     specattr['x']=x
     specattr['z']=z
@@ -206,7 +206,7 @@ def specattr_xzgrid(xgrid, zgrid, mesh):
 
 def scale_scalegrid_ind(scalegrid, index='all'):
     if index=='all':
-        index=numpy.array(range(numpy.uint16(scalegrid[2])), dtype=numpy.float32)
+        index=numpy.array(list(range(numpy.uint16(scalegrid[2]))), dtype=numpy.float32)
     elif isinstance(index, list):
         index=numpy.array(index)
     return scalegrid[0]*(scalegrid[1]**index)
@@ -247,7 +247,7 @@ def scaleposnlist_affinegrid(affinegrid):
     t=scaleposngrid_affinegrid(affinegrid)
     posnlist=[list(q_qgrid_ind(dup[1])) for dup in t]
     scalelist=[[dup[0]]*len(posns) for dup, posns in zip(t, posnlist)]
-    return numpy.array(zip(flatten(scalelist), flatten(posnlist)))
+    return numpy.array(list(zip(flatten(scalelist), flatten(posnlist))))
 
 def tiltdirectionoperation(center, imageshape, tiltdir='bottom'):
     transbool=(tiltdir=='right' or tiltdir=='left')

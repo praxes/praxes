@@ -7,7 +7,7 @@ from PyMca import ClassMcaTheory
 from PyMca.ConcentrationsTool import ConcentrationsTool
 import PyMca.Elements as PyMEl
 
-from XRDdefaults import *
+from .XRDdefaults import *
 
 
 def getcfgdict_txt(cfgpath):
@@ -18,7 +18,7 @@ def addElTrcfg(pymcacfg, eltr):
         elstr=[eltr]
     for et in eltr:
         el, garbage, tr=et.partition(' ')
-        if el in pymcacfg['peaks'].keys():
+        if el in list(pymcacfg['peaks'].keys()):
             if isinstance(pymcacfg['peaks'][el], list):
                 if not tr in pymcacfg['peaks'][el]:
                     pymcacfg['peaks'][el]+=[tr]
@@ -44,7 +44,7 @@ def FindXrays(elsym, energy=60.0, minenergy=1.0, maxenergy=35.0, minrate=0.00010
         totyieldlist=[]
         eltrlist=[]
         for xt in xraytypes:
-            totyield=numpy.float32([v for k, v in PyMEl.Element[ele].iteritems() if k.startswith('omega'+xt.lower())]).sum()
+            totyield=numpy.float32([v for k, v in PyMEl.Element[ele].items() if k.startswith('omega'+xt.lower())]).sum()
             totyieldlist+=[totyield]
             en_rate=[[xer[1], xer[2]] for xer in xray_en_rate if xer[0]==xt]
             en_rate=numpy.float32(en_rate)
@@ -62,7 +62,7 @@ def FindXrays(elsym, energy=60.0, minenergy=1.0, maxenergy=35.0, minrate=0.00010
 #            tempstr=' and '.join(list(xraytypes))
 #            print 'XRF ANALYSIS PROBLEM: ', tempstr, ' transitions can be fit but only one will be chosen for', ele
         if len(xraytypes)==0:
-            print 'XRF ANALYSIS PROBLEM: no valid transitions could be found for ', ele
+            print('XRF ANALYSIS PROBLEM: no valid transitions could be found for ', ele)
             foundpeaks+=[False]
         else:
             foundpeaks+=[True]
@@ -92,7 +92,7 @@ class XRFanalyzer():
 
         #gunpropdict must have 'symbols' and the rest will be filled in otherwise
         if pointlist is None:
-            pointlist=range(counts.shape[0])
+            pointlist=list(range(counts.shape[0]))
 
         self.peaks_quant=quantElTr
         if RepEn is None:
@@ -111,7 +111,7 @@ class XRFanalyzer():
             densfcn=[None]*len(pointlist)
         elif isinstance(densfcn, list):
             if len(densfcn)!=len(pointlist):
-                print 'WARNING: list of lambda functions for density not same length as pointlist'
+                print('WARNING: list of lambda functions for density not same length as pointlist')
         else:
             densfcn=[densfcn]*len(pointlist)
 
@@ -119,7 +119,7 @@ class XRFanalyzer():
             mffcn=[None]*len(pointlist)
         elif isinstance(mffcn, list):
             if len(mffcn)!=len(pointlist):
-                print 'WARNING: list of lambda functions for density not same length as pointlist'
+                print('WARNING: list of lambda functions for density not same length as pointlist')
         else:
             mffcn=[mffcn]*len(pointlist)
 
@@ -211,17 +211,17 @@ class XRFanalyzer():
 
                 b=calcthick
                 j=0
-                print '!@!@', est_film_thickness[i]
+                print('!@!@', est_film_thickness[i])
                 while numpy.abs(calcthick-est_film_thickness[i])/est_film_thickness[i]>.01 and j < max_iter:
-                    print 'iteration,flux ',  j,  self.pymca_config['concentrations']['flux']
+                    print('iteration,flux ',  j,  self.pymca_config['concentrations']['flux'])
                     j+=1
                     garb, calcthick, garb, garb=self.FitProcessIterator(copy.deepcopy(self.pymca_config), counts[pointind_fluxcal][:], mf_tol, max_iter, SecondaryAction=SecondaryAction, SecondaryTol=SecondaryTol, densfcn=densfcn[i], mffcn=mffcn[i])
-                    print 'est calc thickness',  est_film_thickness[i], calcthick
+                    print('est calc thickness',  est_film_thickness[i], calcthick)
                     self.pymca_config['concentrations']['flux']*=calcthick/est_film_thickness[i]
 
                 if j==max_iter:
-                    print 'SUFFICIENT FLUX CALIBRATION NOT ATTAINED'
-                print "Calibrated flux is ", self.pymca_config['concentrations']['flux'] ,"  flux*time=", daqtime[i]*self.pymca_config['concentrations']['flux']
+                    print('SUFFICIENT FLUX CALIBRATION NOT ATTAINED')
+                print("Calibrated flux is ", self.pymca_config['concentrations']['flux'] ,"  flux*time=", daqtime[i]*self.pymca_config['concentrations']['flux'])
 
         if not (flux is None):
             self.pymca_config['concentrations']['flux']=flux
@@ -233,7 +233,7 @@ class XRFanalyzer():
         self.resultdict=[{} for garbage in range(len(counts))]
 
         for ind, emf, ethick, edens, df, mff in zip(pointlist, est_mf, est_film_thickness, est_film_density, densfcn, mffcn):
-            print ind
+            print(ind)
 
             spectrum=counts[ind][:]
             if spectrum.sum() < 1000:
@@ -283,7 +283,7 @@ class XRFanalyzer():
             film_ave_mw = 1/(norm_calc_mf/self.mass).sum()
             calc_comp=film_ave_mw*norm_calc_mf/self.mass
 
-            print 'iteration %d:' %j, calc_comp, tot_calc_mf, pymca_config['materials']['FILM']['Thickness']*1e7
+            print('iteration %d:' %j, calc_comp, tot_calc_mf, pymca_config['materials']['FILM']['Thickness']*1e7)
 
             if missedhighbool is None:
                 missedhighbool=tot_calc_mf>mf_setpt
@@ -295,11 +295,11 @@ class XRFanalyzer():
 
 
             if FluxCalibration:
-                print 'itertion, totmassfrac,flux:', j, tot_calc_mf, pymca_config['concentrations']['flux']
+                print('itertion, totmassfrac,flux:', j, tot_calc_mf, pymca_config['concentrations']['flux'])
                 pymca_config['concentrations']['flux'] *= tot_calc_mf
             else:
                 if numpy.any(calc_comp<0.):
-                    print 'ABORTING THIS POINT - NEGATIVE COMPOSITIONS MADE ZERO'
+                    print('ABORTING THIS POINT - NEGATIVE COMPOSITIONS MADE ZERO')
                     NegCompFlag=True
                     calc_comp[calc_comp<0.]=0.
                     calc_comp/=calc_comp.sum()
@@ -333,12 +333,12 @@ class XRFanalyzer():
                     mf_tol*=mf_tol_multiplier_secondtry
                     mf_tol_multiplier_secondtry=None
                     j=0
-                    print  'XRF algorithm did not converge on first pass, increasing massfrac tolerance to ', mf_tol
+                    print('XRF algorithm did not converge on first pass, increasing massfrac tolerance to ', mf_tol)
         if j==max_iter:
-            print 'PROBLEM!: XRF algorithm did not converge - it quit with a final tot mass frac of ', tot_calc_mf
+            print('PROBLEM!: XRF algorithm did not converge - it quit with a final tot mass frac of ', tot_calc_mf)
 
         if not NegCompFlag:
-            print 'd, setpt:', density, mf_setpt
+            print('d, setpt:', density, mf_setpt)
 
         #for SecondaryAction=='Notify' it is important that this comes first but for 'Include' it should come after
         pymca_config.write(PYMCACFGpath(temp=True))
@@ -351,7 +351,7 @@ class XRFanalyzer():
             #print self.peaks_quant, self.peaks_representativenergy
             eltr=numpy.array(self.peaks_quant)[self.peaks_representativenergy>0]
             repen=self.peaks_representativenergy[self.peaks_representativenergy>0]
-            for i, (pk, en) in enumerate(zip(eltr, repen)):
+            for i, (pk, en) in enumerate(list(zip(eltr, repen))):
                 calc_counts = result[pk]['fitarea']
                 calc_yield = calc_counts * 4. * numpy.pi * self.det_dist**2 / self.det_area
                 pymca_config_2ndary['fit']['energy'][i+1]=en
@@ -363,7 +363,7 @@ class XRFanalyzer():
             sec_film_ave_mw = 1/(sec_norm_calc_mf/self.mass).sum()
             sec_calc_comp=sec_film_ave_mw*sec_norm_calc_mf/self.mass
             if numpy.max(numpy.abs(numpy.float32(calc_comp)-numpy.float32(sec_calc_comp)))>SecondaryTol:
-                print 'WARNING: Secondary Emissions changed compositions: ', self.symb, ' from ', calc_comp, ' to ', sec_calc_comp
+                print('WARNING: Secondary Emissions changed compositions: ', self.symb, ' from ', calc_comp, ' to ', sec_calc_comp)
 
         if FluxCalibration:
             return pymca_config['concentrations']['flux']

@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
-'''
-'''
-
-from __future__ import absolute_import
+"""
+"""
 
 import re
 import sqlite3
@@ -39,7 +36,7 @@ class SQLiteQuantitiesAdapter(object):
                 return _get_data(item)
 
             res = {}
-            for k, v in item.iteritems():
+            for k, v in item.items():
                 res[k] = _get_data(v)
             return res
 

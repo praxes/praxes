@@ -1,8 +1,5 @@
 """
 """
-
-from __future__ import absolute_import
-
 #import logging
 
 from PyQt4 import QtCore, QtGui
@@ -83,8 +80,8 @@ class MotorTab(Ui_MotorConfig, QtGui.QWidget):
         self.connectWidgets()
 
     def connectWidgets(self):
-        for Param in self.ParamDict.keys():
-            widget=self.ParamDict[Param]
+        for param in self.ParamDict.keys():
+            widget=self.ParamDict[param]
             widget.valueChanged.connect(self.addToChangeList)
 
     def getProperties(self):
@@ -112,7 +109,7 @@ class MotorTab(Ui_MotorConfig, QtGui.QWidget):
 
 
 if __name__ == "__main__":
-    print __file__
+    print(__file__)
     app = QtGui.QApplication(sys.argv)
     app.setOrganizationName('Praxes')
     myapp = ConfigDialog()

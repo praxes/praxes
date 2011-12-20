@@ -1,5 +1,3 @@
-from __future__ import absolute_import, with_statement
-
 from .common import TestCase, ut
 from ..file import File, open
 

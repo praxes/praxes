@@ -130,7 +130,7 @@ class XrayLevel(Mapping):
 
     def __getitem__(self, item):
         iupac = '-'.join([self.iupac_symbol, item])
-        if not item in self.keys():
+        if not item in self:
             raise KeyError('Transition "%s" not recognized' % item)
         from .transition import Transition
         return Transition(self._element_symbol, iupac, self.__db)
@@ -175,8 +175,8 @@ class XrayLevel(Mapping):
                 self.absorption_edge,
                 self.fluorescence_yield,
                 self.jump_ratio,
-                self.ck_probabilities.items(),
-                self.ck_total_probabilities.items(),
-                self.keys()
+                list(self.ck_probabilities.items()),
+                list(self.ck_total_probabilities.items()),
+                list(self.keys())
                 )
             )

@@ -1,8 +1,5 @@
 """
 """
-
-from __future__ import absolute_import
-
 import copy
 #import logging
 
@@ -68,13 +65,13 @@ class McaSpectrumFigure(QtMplCanvas):
                                    label='pileup')
         except KeyError:
             pass
-        if results.has_key('ymatrix'):
+        if 'ymatrix' in results:
             self.spectrumAxes.plot(xdata, results['ymatrix'], linewidth=1.5,
                                    label='matrix')
 
         for group in results['groups']:
             label = 'y'+group
-            if results.has_key(label):
+            if label in results:
                 self.spectrumAxes.plot(xdata, results[label], linewidth=1.5,
                                        label=group)
 

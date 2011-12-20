@@ -1,7 +1,5 @@
 """
 """
-from __future__ import absolute_import
-
 from PyQt4 import QtCore, QtGui
 
 from .ui.ui_scanmotorwidget import Ui_ScanMotorWidget

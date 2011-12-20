@@ -1,8 +1,6 @@
 """
 """
 
-from __future__ import absolute_import, with_statement
-
 import copy
 import json
 import posixpath
@@ -89,7 +87,7 @@ class Dataset(Node):
     def mean(self, indices=None):
         acquired = self.entry.acquired
         if indices is None:
-            indices = range(acquired)
+            indices = list(range(acquired))
         elif len(indices):
             indices = [i for i in indices if i < acquired]
 
@@ -263,7 +261,7 @@ class DataProxy(object):
     def mean(self, indices=None):
         acquired = self._dset.entry.acquired
         if indices is None:
-            indices = range(acquired)
+            indices = list(range(acquired))
         elif len(indices):
             indices = [i for i in indices if i < acquired]
 

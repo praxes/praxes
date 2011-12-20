@@ -1,8 +1,6 @@
 """
 """
 
-from __future__ import absolute_import
-
 import posixpath
 
 from .dataset import Dataset
@@ -21,7 +19,7 @@ class ProcessedData(Group):
         return dict(
             [(posixpath.split(s.name)[-1].rstrip('_fit'), s)
                 for s in self.values() if isinstance(s, Fit)]
-        )
+            )
 
     @property
     @sync
@@ -29,7 +27,7 @@ class ProcessedData(Group):
         return dict(
             [(posixpath.split(s.name)[-1].rstrip('_fit_error'), s)
                 for s in self.values() if isinstance(s, FitError)]
-        )
+            )
 
 
 class ElementMaps(ProcessedData):
@@ -43,7 +41,7 @@ class ElementMaps(ProcessedData):
         return dict(
             [(posixpath.split(s.name)[-1].rstrip('_mass_fraction'), s)
                 for s in self.values() if isinstance(s, MassFraction)]
-        )
+            )
 
 
 class FitResult(Dataset):
@@ -55,7 +53,7 @@ class FitResult(Dataset):
     def __cmp__(self, other):
         return cmp(
             posixpath.split(self.name)[-1], posixpath.split(other.name)[-1]
-        )
+            )
 
 
 class Fit(FitResult):

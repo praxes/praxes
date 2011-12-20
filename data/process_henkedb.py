@@ -21,7 +21,7 @@ def process_henkedb(data, root):
                 filedata = archive.extractfile(member)
                 filedata.readline() # skip the header
                 data = np.array(
-                    [map(np.float64, line.split()) for line in filedata]
+                    [[np.float64(x) for x in line.split()] for line in filedata]
                     )
                 el['energy'] = data[:,0]
                 el['energy'].attrs['units'] = 'eV'

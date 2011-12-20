@@ -5,8 +5,6 @@ compiled by the Center for X-Ray Optics (CXRO), at
 http://www.cxro.lbl.gov/optical_constants/asf.html
 '''
 
-from __future__ import absolute_import
-
 import h5py
 import numpy as np
 import quantities as pq
@@ -24,7 +22,7 @@ def _get_filename():
 @memoize
 def keys():
     with h5py.File(_get_filename(), 'r') as f:
-        return f.keys()
+        return list(f.keys())
 
 
 class AtomicData(base.AtomicData, base.H5pyQuantitiesAdapter):

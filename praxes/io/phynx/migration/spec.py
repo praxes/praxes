@@ -1,6 +1,5 @@
 """
 """
-from __future__ import absolute_import
 
 import gc
 from hashlib import md5
@@ -162,7 +161,7 @@ def process_mca(scan, measurement, masked=None, report=False):
     except IndexError:
         fast_dead_time = 0
 
-    if report: print 'Number of MCA:', num_mca
+    if report: print('Number of MCA:', num_mca)
     keys = [i for i in scan.keys() if i.startswith('@')]
     for key in keys:
         val = scan[key]
@@ -181,7 +180,7 @@ def process_mca(scan, measurement, masked=None, report=False):
             channels = np.arange(start,  stop+1, step)
             attrs['calibration'] = str(attrs['calibration'])
         except KeyError:
-            if report: print 'mca metadata in specfile is incomplete!'
+            if report: print('mca metadata in specfile is incomplete!')
             attrs['id'] = key
             channels = np.arange(len(val[0]))
 
@@ -198,7 +197,7 @@ def process_mca(scan, measurement, masked=None, report=False):
 
         buff = []
         thresh = 500
-        for i in xrange(len(val)):
+        for i in range(len(val)):
             buff.append(val[i])
             if len(buff) == thresh:
                 mca['counts'][i+1-len(buff):i+1] = buff
@@ -241,32 +240,32 @@ def convert_scan(scan, h5file, spec_filename, report=False):
     # if specfile raises an error because the scan is empty,
     # we will skip it and move on to the next
 
-    if report: print 'converting scan #%s'% scan.name
+    if report: print('converting scan #%s'% scan.name)
 
     scan_info = get_scan_metadata(scan.attrs['command'].split())
     labels = [label.lower() for label in scan.keys()]
     # We need to update time metadata if it was a tseries:
     if scan_info['scan_type'] == 'tseries':
-        scan_info['scan_shape'] = np.array([len(scan.values()[0])])
+        scan_info['scan_shape'] = np.array([len(list(scan.values())[0])])
         t = scan['Time'][:]
         scan_info['axis_info']['time']['range'] = str((t.min(), t.max()))
     # We need to update time metadata if it was a chess_escan:
     if scan_info['scan_type'] == 'chess_escan':
-        scan_info['scan_shape'] = np.array([len(scan.values()[0])])
+        scan_info['scan_shape'] = np.array([len(list(scan.values())[0])])
         e = scan['energy'][:]
         scan_info['axis_info']['energy']['range'] = str((e.min(), e.max()))
 
     attrs = {}
     attrs['acquisition_name'] = scan.name
     attrs['acquisition_id'] = scan.id
-    attrs['npoints'] = len(scan.values()[0])
+    attrs['npoints'] = len(list(scan.values())[0])
     attrs['acquisition_command'] = scan.attrs['command']
     attrs['source_file'] = scan.attrs['file_origin']
 
     if len(scan_info['scan_shape']) < 2:
         if scan_info['scan_shape'] < 1:
             # an open-ended scan
-            scan_info['scan_shape'] = np.array([len(scan.values()[0])])
+            scan_info['scan_shape'] = np.array([len(list(scan.values())[0])])
     attrs['acquisition_shape'] = str(tuple(scan_info['scan_shape']))
 
     entry = h5file.create_group(scan.id, type='Entry', **attrs)
@@ -278,7 +277,7 @@ def convert_scan(scan, h5file, spec_filename, report=False):
         try:
             positioners[motor] = pos
         except ValueError:
-            if report: print (
+            if report: print(
     """
     Invalid spec motor configuration:
     "%s" is used to describe more than one positioner.
@@ -311,7 +310,7 @@ def convert_scan(scan, h5file, spec_filename, report=False):
     else:
         masked = None
 
-    allmotors = scan.attrs['positions'].keys()
+    allmotors = list(scan.attrs['positions'].keys())
     for key, val in scan.items():
         if key.startswith('@') or key in scalar_data:
             continue
@@ -363,7 +362,7 @@ def convert_scan(scan, h5file, spec_filename, report=False):
             f.endswith('.mca')
             ):
             f = os.path.join(dir, f)
-            if report: print 'integrating %s'%f
+            if report: print('integrating %s'%f)
             process_mca(
                 spec.open(f)[scan.id], measurement, masked=masked
                 )
@@ -396,7 +395,7 @@ def convert_scan(scan, h5file, spec_filename, report=False):
                 pass
             if masked is not None and 'masked' not in ad:
                 ad['masked'] = masked
-            if report: print 'integrated %s' % f
+            if report: print('integrated %s' % f)
             gc.collect()
         elif (
             f.startswith(spec_filename+'.%s_'%scan.name) and
@@ -426,7 +425,7 @@ def convert_scan(scan, h5file, spec_filename, report=False):
                 del d
                 if masked is not None and 'masked' not in mar:
                     mar['masked'] = masked
-                if report: print 'integrated %s' % f
+                if report: print('integrated %s' % f)
                 gc.collect()
             except (OSError, ValueError):
                 if report: sys.stdout.write(
@@ -441,7 +440,7 @@ def convert_to_phynx(
     spec_filename, h5_filename=None, force=False, report=False
     ):
     """convert a spec data file to phynx and return the phynx file object"""
-    if report: print 'Converting spec file %s to phynx'% spec_filename
+    if report: print('Converting spec file %s to phynx'% spec_filename)
     if h5_filename is None:
         h5_filename = spec_filename + '.h5'
     if os.path.exists(h5_filename) and force==False:
@@ -449,12 +448,12 @@ def convert_to_phynx(
             '%s already exists! Use "force" flag to overwrite'%h5_filename
         )
 
-    if report: print 'making file %s'% h5_filename
+    if report: print('making file %s'% h5_filename)
     h5_file = open(h5_filename, 'w')
     spec_file = spec.open(spec_filename)
     for scan in spec_file.values():
-        if len(scan.values()[0]):
+        if len(list(scan.values())[0]):
             convert_scan(scan, h5_file, spec_filename, report=report)
 
-    if report: print 'phynx %s complete'% h5_file
+    if report: print('phynx %s complete'% h5_file)
     return h5_file

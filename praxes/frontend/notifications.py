@@ -1,7 +1,5 @@
 """
 """
-from __future__ import absolute_import
-
 import smtplib
 import os
 import sys
@@ -63,7 +61,7 @@ Subject: %s
 From: %s
 To: %s
 Subject: %s"""%(mailFrom,mailTo,subject)
-        print '\n',msg
+        print('\n',msg)
 
         try:
             mailer.sendmail(mailFrom,sendTo,msg)
@@ -77,14 +75,14 @@ Subject: %s"""%(mailFrom,mailTo,subject)
 
     def getRawInfo(self):
         try:
-            server, port = raw_input('server:port ').split(':',1)
+            server, port = input('server:port ').split(':',1)
         except ValueError:
-            print 'Wrong format'
+            print('Wrong format')
             return
-        user = raw_input('login: ')
+        user = input('login: ')
         pwd = getpass()
-        mailFrom = raw_input('From: ')
-        mailTo =  raw_input('To: ')
+        mailFrom = input('From: ')
+        mailTo =  input('To: ')
         sendTo= mailTo.split(';')
         tls = True
         secure = True

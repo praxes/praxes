@@ -1,13 +1,10 @@
 """
 """
-
-from __future__ import absolute_import, with_statement
-
 import copy
 #import gc
 #import logging
 import posixpath
-import Queue
+import queue
 import sys
 
 from PyQt4 import QtCore, QtGui
@@ -71,7 +68,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             self.xrfBandComboBox.addItems(self.availableElements)
             try:
                 self.deadTimeReport.setText(
-                    str(self.scan_data.mcas.values()[0]['dead_time'].format)
+                    str(list(self.scan_data.mcas.values())[0]['dead_time'].format)
                     )
             except KeyError:
                 self.deadTimeReport.setText('Not found')
@@ -95,7 +92,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                 self.configurePymca()
 
             try:
-                mca = self.scan_data.entry.measurement.mcas.values()[0]
+                mca = list(self.scan_data.entry.measurement.mcas.values())[0]
                 eff = mca.monitor.efficiency
                 self.monitorEfficiency.setText(str(eff))
                 self.monitorEfficiency.setEnabled(True)
@@ -108,7 +105,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             self.progressBar.addAction(self.actionAbort)
             self.progressBar.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
 
-            self.progress_queue = Queue.Queue()
             self.timer = QtCore.QTimer(self)
             self.timer.timeout.connect(self.elementMapUpdated)
 
@@ -208,10 +204,10 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             try:
                 value = float(self.monitorEfficiency.text())
                 assert (0 < value <= 1)
-                for mca in self.scan_data.entry.measurement.mcas.values():
+                for mca in list(self.scan_data.entry.measurement.mcas.values()):
                     mca.monitor.efficiency = value
             except (ValueError, AssertionError):
-                mca = self.scan_data.entry.measurement.mcas.values()[0]
+                mca = list(self.scan_data.entry.measurement.mcas.values())[0]
                 self.monitorEfficiency.setText(
                     str(mca.monitor.efficiency)
                     )
@@ -306,7 +302,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                     counts += dataset[i] / n_indices / (monitor[i]/mon0)
             except AttributeError:
                 # looking at multiple elements
-                mcas = self.scan_data.mcas.values()
+                mcas = list(self.scan_data.mcas.values())
                 monitor = mcas[0].monitor.corrected_value
                 mon0 = monitor[indices[0]]
                 channels = mcas[0].channels

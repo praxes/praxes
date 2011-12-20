@@ -1,6 +1,6 @@
 """
 """
-from __future__ import with_statement
+
 
 import copy
 #import logging
@@ -102,7 +102,7 @@ class XfsTaskManager(TaskManager):
             self._masked = self._measurement.masked
             try:
                 # are we processing a group of mca elements...
-                mcas = scan.mcas.values()
+                mcas = list(scan.mcas.values())
                 self._counts = [mca['counts'].corrected_value for mca in mcas]
                 self._monitor = getattr(
                     mcas[0].monitor, 'corrected_value', None
@@ -118,7 +118,7 @@ class XfsTaskManager(TaskManager):
             self.n_cpus, init, (self._config,)
             )
 
-    def next(self):
+    def __next__(self):
         i = self._next_index
         if i >= self.n_points:
             raise StopIteration()

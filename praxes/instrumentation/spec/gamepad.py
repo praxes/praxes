@@ -1,8 +1,5 @@
 """
 """
-
-from __future__ import absolute_import
-
 from PyQt4 import QtCore, QtGui
 
 from .ui.ui_gamepad import Ui_GamePad
@@ -210,7 +207,7 @@ class GamePad(Ui_GamePad, QtGui.QWidget):
 
 
 if __name__ == "__main__":
-    print __file__
+    print(__file__)
     app = QtGui.QApplication(sys.argv)
     app.setOrganizationName('test')
     myapp = GamePad()

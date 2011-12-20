@@ -1,8 +1,5 @@
 """
 """
-
-from __future__ import absolute_import
-
 #import logging
 
 from PyQt4 import QtCore, QtGui

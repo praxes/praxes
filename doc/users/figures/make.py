@@ -8,7 +8,7 @@ matplotlib.use('Agg')
 mplshell = IPython.Shell.MatplotlibShell('mpl')
 
 def figs():
-    print 'making figs'
+    print('making figs')
     import matplotlib.pyplot as plt
     for fname in glob.glob('*.py'):
         if fname==__file__: continue
@@ -16,14 +16,14 @@ def figs():
         outfile = '%s.png'%basename
 
         if os.path.exists(outfile):
-            print '    already have %s'%outfile
+            print('    already have %s'%outfile)
             continue
         else:
-            print '    building %s'%fname
+            print('    building %s'%fname)
         plt.close('all')    # we need to clear between runs
         mplshell.magic_run(basename)
         plt.savefig('%s.png'%basename)
-    print 'all figures made'
+    print('all figures made')
 
 
 def clean():
@@ -31,7 +31,7 @@ def clean():
     for pattern in patterns:
         for fname in glob.glob(pattern):
             os.remove(fname)
-    print 'all clean'
+    print('all clean')
 
 
 
@@ -48,7 +48,7 @@ if len(sys.argv)>1:
         func = funcd.get(arg)
         if func is None:
             raise SystemExit('Do not know how to handle %s; valid args are'%(
-                    arg, funcd.keys()))
+                    arg, list(funcd.keys())))
         func()
 else:
     all()

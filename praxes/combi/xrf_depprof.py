@@ -13,22 +13,22 @@ def GunPropertyDict(gunelements, getEtYstar=False):
     #elsymbols=[Elemental.table[i].symbol for i in range(len(Elemental.table))]
 
     szmd=[[l[0],l[1], l[5],l[6]/1000.] for l in PyMEl.ElementsInfo]
-    elsymbols=map(operator.itemgetter(0),szmd)
-    elnumber=map(operator.itemgetter(1),szmd)
-    elmass=map(operator.itemgetter(2),szmd)
-    eldens=map(operator.itemgetter(3),szmd)
+    elsymbols=list(map(operator.itemgetter(0),szmd))
+    elnumber=list(map(operator.itemgetter(1),szmd))
+    elmass=list(map(operator.itemgetter(2),szmd))
+    eldens=list(map(operator.itemgetter(3),szmd))
 
     temp=[[i, el, elsymbols.index(el)] for i, el in enumerate(gunelements) if el in elsymbols]
 
     if len(temp)==0:
         return None
-    guninds, elsym, elind = zip(*temp)
+    guninds, elsym, elind = list(zip(*temp))
     #now these lists are only as long as the number of elements in guns. the guninds list knows which guns the elmenets were in with index 0 to 3 refering to guns 1 to 4
 
     #temp=[[Elemental.table[i].number, Elemental.table[i].atomic_mass.value, Elemental.table[i].density_solid.value] for i in elind]
     temp=[[elnumber[i], elmass[i], eldens[i]] for i in elind]
 
-    elZ, elM, eld = zip(*temp)
+    elZ, elM, eld = list(zip(*temp))
     returndict={}
     returndict['guninds']=list(guninds)
     returndict['symbol']=list(elsym)
@@ -110,7 +110,7 @@ def GunPosnDict(x, z): #assumes topview, mm      returns dict with rgun0 to 3, e
     gunanglefromz=[numpy.pi*4.0/3.0, 0.0, numpy.pi*2.0/3.0, 0.0]
     gunheightsubplane=[41.9, 41.9, 41.9, 0.0] #I don't know gun4
     returndict={}
-    for i, (rgc, thg, hg) in enumerate(zip(rgun_guncenter, gunanglefromz, gunheightsubplane)):
+    for i, (rgc, thg, hg) in enumerate(list(zip(rgun_guncenter, gunanglefromz, gunheightsubplane))):
         polr, polt=polar_cart(z, x)
         if i<3:
             rgun=numpy.sqrt(rgc**2+polr**2-2.0*rgc*polr*numpy.cos(thg-polt))
@@ -139,8 +139,8 @@ def DepRates(gunpropdict, gunposndict, resputter=True):
         return rates
     ABCoef=[[a, b, c*f] for a, b, c, f in gunpropdict['RespAgunBgunCoef'] if c*f>0 and not numpy.isnan(c*f)]
     ABCoef=sorted(ABCoef,key=operator.itemgetter(2), reverse=True)
-    print ABCoef
-    print gunpropdict
+    print(ABCoef)
+    print(gunpropdict)
     for agunind, bgunind, c in ABCoef:
         i=gunpropdict['guninds'].index(agunind)
         j=gunpropdict['guninds'].index(bgunind)

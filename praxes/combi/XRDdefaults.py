@@ -69,7 +69,7 @@ def defaultdir(st):
     'pdfentries': 'C:/Users/JohnnyG/Documents/CHESS/CHESSANALYSISARRAYS' \
     }
 
-    if st in d.keys() and os.path.isdir(d[st]):
+    if st in list(d.keys()) and os.path.isdir(d[st]):
         return d[st]
     else:
         return os.getcwd()

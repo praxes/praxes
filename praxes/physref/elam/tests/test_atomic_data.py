@@ -11,7 +11,7 @@ atomic_data = AtomicData()
 class TestElements(TestCase):
 
     def test_keys(self):
-        self.assertEqual(atomic_data.keys()[0], 'H')
+        self.assertEqual(list(atomic_data.keys())[0], 'H')
 
     def test_contains(self):
         self.assertTrue('H' in atomic_data)
@@ -32,11 +32,11 @@ class TestElements(TestCase):
                 atomic_data[key]
 
     def test_values(self):
-        self.assertEqual(atomic_data.values()[0].symbol, 'H')
+        self.assertEqual(list(atomic_data.values())[0].symbol, 'H')
 
     def test_items(self):
-        self.assertEqual(atomic_data.items()[0][0], 'H')
-        self.assertEqual(atomic_data.items()[0][1].symbol, 'H')
+        self.assertEqual(list(atomic_data.items())[0][0], 'H')
+        self.assertEqual(list(atomic_data.items())[0][1].symbol, 'H')
 
     def test_atomic_mass(self):
         for key, val in (('Si', 28.0855 * pq.u), ('O', 15.9994 * pq.u)):
@@ -79,7 +79,7 @@ class TestElements(TestCase):
 class TestLevels(TestCase):
 
     def test_keys(self):
-        self.assertEqual(atomic_data['U'].keys()[0], 'K')
+        self.assertEqual(list(atomic_data['U'].keys())[0], 'K')
 
     def test_creation(self):
         self.assertEqual(atomic_data['U']['K'].iupac_symbol, 'K')
@@ -100,7 +100,7 @@ class TestLevels(TestCase):
 class TestTransitions(TestCase):
 
     def test_keys(self):
-        self.assertEqual(atomic_data['U']['K'].keys()[0], 'L1')
+        self.assertEqual(list(atomic_data['U']['K'].keys())[0], 'L1')
 
     def test_creation(self):
         self.assertEqual(atomic_data['U']['K']['L3'].iupac_symbol, 'K-L3')

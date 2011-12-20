@@ -1,5 +1,3 @@
-from __future__ import absolute_import, with_statement
-
 import numpy as np
 
 from .common import TestCase, ut

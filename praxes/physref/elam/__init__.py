@@ -6,5 +6,5 @@ Radiation Physics and Chemistry, 63 (2), 121 (2002). The database is published
 by NIST at http://www.nist.gov/mml/analytical/inorganic/xrf.cfm.
 '''
 
-from atomicdata import AtomicData
+from .atomicdata import AtomicData
 atomic_data = AtomicData()

@@ -10,8 +10,6 @@ Cryst. A, v 51, p 416-431 (1995)
  └ ┘ └              ┘
 """
 
-from __future__ import absolute_import
-
 import h5py
 import numpy as np
 
@@ -26,7 +24,7 @@ def _get_filename():
 @memoize
 def keys():
     with h5py.File(_get_filename(), 'r') as f:
-        return f.keys()
+        return list(f.keys())
 
 class AtomicData(base.AtomicData):
 

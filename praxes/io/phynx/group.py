@@ -1,8 +1,6 @@
 """
 """
 
-from __future__ import absolute_import, with_statement
-
 import json
 import posixpath
 import warnings

@@ -1,6 +1,5 @@
 """
 """
-from __future__ import absolute_import, with_statement
 
 import posixpath
 import sys
@@ -33,7 +32,7 @@ class AttrsProxy(object):
 
     def __setitem__(self, key, val):
         if sys.version_info[0] < 3:
-            if isinstance(val, unicode):
+            if isinstance(val, str):
                 val = str(val)
         self._attrs[key] = val
 
@@ -58,14 +57,12 @@ class _RegisterPhynxClass(type):
             registry.register(cls)
 
 
-class Node(object):
+class Node(object, metaclass=_RegisterPhynxClass):
 
     """A mix-in class to propagate attributes from the parent object to
     the new HDF5 group or dataset, and to expose those attributes via
     python properties.
     """
-
-    __metaclass__ = _RegisterPhynxClass
 
     @property
     @memoize
@@ -143,5 +140,5 @@ class Node(object):
     def __exit__(self, type, value, traceback):
         self._lock.__exit__(type, value, traceback)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self._h5node.id)

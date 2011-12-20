@@ -1,7 +1,5 @@
 """
 """
-from __future__ import with_statement, absolute_import
-
 import operator
 import os
 import posixpath
@@ -62,7 +60,7 @@ class H5NodeProxy(object):
                 self._children = [
                     H5NodeProxy(self.file, i, self)
                     for i in self.getNode(self.name).values()
-                ]
+                    ]
         return self._children
 
     @property

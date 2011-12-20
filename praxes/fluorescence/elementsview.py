@@ -1,6 +1,6 @@
 """
 """
-from __future__ import absolute_import
+
 
 #import logging
 import posixpath
@@ -30,7 +30,7 @@ class ElementBaseFigure(QtMplCanvas):
 
         self.scan_data = scan_data
         with self.scan_data:
-            axes = scan_data.entry.measurement.scalar_data.axes.values()
+            axes = list(scan_data.entry.measurement.scalar_data.axes.values())
             self._x_data = [a for a in axes if a.axis == 1][0]
             try:
                 self._y_data = [a for a in axes if a.axis == 2][0]
@@ -101,7 +101,7 @@ class ElementImageFigure(ElementBaseFigure):
     def _createInitialFigure(self):
         with self.scan_data:
             extent = []
-            axes = self.scan_data.entry.measurement.scalar_data.axes.values()
+            axes = list(self.scan_data.entry.measurement.scalar_data.axes.values())
             x_axis = [a for a in axes if a.axis == 1][0]
             y_axis = [a for a in axes if a.axis == 2][0]
             extent.extend(x_axis.range)

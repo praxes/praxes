@@ -77,7 +77,7 @@ class Element(Mapping):
         self._symbol = symbol
 
     def __getitem__(self, item):
-        if not item in self.keys():
+        if not item in self:
             raise KeyError('x-ray level "%s" not recognized' % item)
         from .xraylevel import XrayLevel
         return XrayLevel(self._symbol, item, self.__db)
@@ -114,7 +114,7 @@ class Element(Mapping):
                 self.symbol,
                 self.mass_density,
                 self.molar_mass,
-                self.keys()
+                list(self.keys())
                 )
             )
 

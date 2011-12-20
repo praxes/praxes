@@ -15,7 +15,7 @@ mapdict = {
 
 def convert_entry(old, new):
     try:
-        mca = new['measurement'].mcas.values()[0]
+        mca = list(new['measurement'].mcas.values())[0]
         mca.attrs['pymca_config'] = str(old._v_attrs.pymcaConfig)
     except:
         pass
@@ -59,7 +59,7 @@ def convert_to_phynx(
                 for entry in oldf.root]
         )
 
-        for k, oldentry in edict.iteritems():
+        for k, oldentry in edict.items():
             try:
                 newentry = f['entry_%d'%(int(k))]
                 convert_entry(oldentry, newentry)

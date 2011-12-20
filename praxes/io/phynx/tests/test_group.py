@@ -1,5 +1,3 @@
-from __future__ import absolute_import, with_statement
-
 from .common import TestCase, ut
 from ..registry import registry
 
@@ -21,9 +19,9 @@ class TestGroup(TestCase):
         a = self.f.create_group('c')
         b = self.f.create_group('b')
         c = self.f.create_group('a')
-        self.assertEqual(self.f.values(), [c, b, a])
-        self.assertEqual(self.f.keys(), ['a', 'b', 'c'])
-        self.assertEqual(self.f.items(), [('a', c), ('b', b), ('c', a)])
+        self.assertEqual(list(self.f.values()), [c, b, a])
+        self.assertEqual(list(self.f.keys()), ['a', 'b', 'c'])
+        self.assertEqual(list(self.f.items()), [('a', c), ('b', b), ('c', a)])
 
     def test_contains(self):
         a = self.f.create_group('a')

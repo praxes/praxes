@@ -19,8 +19,6 @@ the Center for X-Ray Optics (CXRO), at
 http://www.cxro.lbl.gov/optical_constants/asf.html
 """
 
-from __future__ import division
-
 import numpy as np
 import quantities as pq
 

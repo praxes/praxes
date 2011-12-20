@@ -15,7 +15,7 @@ mapdict = {
 
 def convert_entry(old, new):
     try:
-        mca = new['measurement'].mcas.values()[0]
+        mca = list(new['measurement'].mcas.values())[0]
 
         mca.attrs['pymca_config'] = old.attrs['pymcaConfig']
     except:
@@ -25,7 +25,7 @@ def convert_entry(old, new):
         oldMaps = old['elementMaps']
         newMaps = new['measurement'].create_group('element_maps', type='ElementMaps')
         for mapType in oldMaps:
-            for element, map in oldMaps[mapType].iteritems():
+            for element, map in oldMaps[mapType].items():
                 typename, cls = mapdict[mapType.lower()]
                 element = '_'.join(
                     [element[:-1], element[-1], typename]
@@ -55,15 +55,15 @@ def convert_to_phynx(
         try:
             edict = dict(
                 [(entry.attrs['scan number'], entry)
-                    for entry in oldf.itervalues()]
+                    for entry in oldf.values()]
             )
         except h5py.H5Error:
             edict = dict(
                 [(entry.attrs['scanNumber'], entry)
-                    for entry in oldf.itervalues()]
+                    for entry in oldf.values()]
             )
 
-        for k, oldentry in edict.iteritems():
+        for k, oldentry in edict.items():
             try:
                 newentry = f['entry_%d'%(int(k))]
                 convert_entry(oldentry, newentry)

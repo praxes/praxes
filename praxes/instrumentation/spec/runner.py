@@ -1,8 +1,5 @@
 """
 """
-
-from __future__ import absolute_import
-
 #import logging
 import os
 import sys
@@ -238,12 +235,12 @@ class TestSpecRunner(SpecRunnerBase):
             motorB = self.motordict[str(strings[-2])]
             motorA.move(float(strings[2]))
             motorB.move(float(strings[-1]))
-        print command
+        print(command)
 
     def abort(self):
         for motor in self.motordict.values():
             motor.end()
-        print "ABORT"
+        print("ABORT")
 
     def getCountersMne(self):
         pass

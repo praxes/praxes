@@ -4,7 +4,7 @@ from functools import wraps
 def memoize(f, cache={}):
     @wraps(f)
     def g(*args, **kwargs):
-        key = (f, tuple(args), frozenset(kwargs.items()))
+        key = (f, tuple(args), frozenset(list(kwargs.items())))
         if key not in cache:
             cache[key] = f(*args, **kwargs)
         return cache[key]
@@ -23,7 +23,7 @@ class Mapping(collections.Hashable, collections.Mapping):
         return iter(self.keys())
 
     def __len__(self):
-        return len(self.keys())
+        return len(list(self.keys()))
 
     def get(self, item, default=None):
         "Return the value for *key*, or return *default*"
@@ -38,4 +38,4 @@ class Mapping(collections.Hashable, collections.Mapping):
 
     def values(self):
         "return a new view of the values"
-        return [self[i] for i in self.keys()]
+        return (self[i] for i in self.keys())

@@ -1,8 +1,6 @@
 """
 """
 
-from __future__ import absolute_import
-
 from collections import OrderedDict
 import copy
 import posixpath
@@ -45,7 +43,7 @@ class Measurement(Group):
         return dict([
             (posixpath.split(a.name)[-1], a) for a in self.values()
             if isinstance(a, registry['MultiChannelAnalyzer'])
-        ])
+            ])
 
     @property
     @memoize
@@ -53,7 +51,7 @@ class Measurement(Group):
     def positioners(self):
         targets = [
             i for i in self.values() if isinstance(i, Positioners)
-        ]
+            ]
         nt = len(targets)
         if nt == 1:
             return targets[0]
@@ -62,7 +60,7 @@ class Measurement(Group):
         else:
             raise ValueError(
                 'There should be one Positioners group per entry, found %d' % nm
-            )
+                )
 
     @property
     @sync
@@ -88,7 +86,7 @@ class Measurement(Group):
     def scalar_data(self):
         targets = [
             i for i in self.values() if isinstance(i, ScalarData)
-        ]
+            ]
         nt = len(targets)
         if nt == 1:
             return targets[0]
@@ -97,7 +95,7 @@ class Measurement(Group):
         else:
             raise ValueError(
                 'There should be one ScalarData group per entry, found %d' % nm
-            )
+                )
 
     @sync
     def update(self, **kwargs):

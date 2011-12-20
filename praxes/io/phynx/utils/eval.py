@@ -1,7 +1,7 @@
 """
 """
 
-import cStringIO
+import io
 import tokenize
 
 import numpy as np
@@ -61,12 +61,12 @@ def _atom(next, token):
         raise ValueError('tokenize NAME: %s unrecognized' % token[1])
     elif not token[0]:
         return
-    for i, v in tokenize.__dict__.iteritems():
+    for i, v in tokenize.__dict__.items():
         if v == token[0]:
             raise ValueError("tokenize.%s unrecognized: %s" % (i, token[1]))
 
 def simple_eval(source):
     """a safe version of the builtin eval function, """
-    src = cStringIO.StringIO(source).readline
+    src = io.StringIO(source).readline
     src = tokenize.generate_tokens(src)
-    return _atom(src.next, src.next())
+    return _atom(src.__next__, next(src))
