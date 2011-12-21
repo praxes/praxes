@@ -108,8 +108,9 @@ cdef class DataProxy:
             lines = []
             while True:
                 lines.append(f.readline())
-                cstring = lines[-1][-2]
-                c = cstring[0]
+                c = lines[-1][-2]
+                #cstring = lines[-1][-2]
+                #c = cstring[0]
                 if c != tag:
                     break
             s = b''.join(lines)

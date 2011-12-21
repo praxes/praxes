@@ -21,6 +21,7 @@ class TestConstruction(TestCase):
         a.attrs['nx_class'] = 'Foo'
         self.assert_(isinstance(self.f['a'], registry['Group']))
 
+    @ut.expectedFailure
     def test_class_attribute_array(self):
         a = self.f.create_group('a')
         a.attrs['class'] = np.array(['Foo'])

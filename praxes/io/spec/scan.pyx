@@ -125,11 +125,11 @@ cdef class ScanIndex(Mapping):
                 elif ctag == b'@':
                     temp = line[1:].decode('ascii').split()
                     if temp[0] == '@CHANN':
-                        mca_info.values()[-1]['channels'] = [
+                        list(mca_info.values())[-1]['channels'] = [
                             int(i) for i in temp[1:]
                             ]
                     elif temp[0] == '@CALIB':
-                        mca_info.values()[-1]['calibration'] = [
+                        list(mca_info.values())[-1]['calibration'] = [
                             float(i) for i in temp[1:]
                             ]
                     else:
