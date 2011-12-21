@@ -7,9 +7,12 @@ class TestSorting(TestCase):
         a = self.f.create_group('a')
         b = self.f.create_group('b')
         c = self.f.create_group('c')
-        self.assertEqual(sorted(self.f.keys()), ['a', 'b', 'c'])
-        self.assertEqual(sorted(self.f.values()), [a, b, c])
-        self.assertEqual(sorted(self.f.items()), [('a', a), ('b', b), ('c', c)])
+        self.assertCountEqual(list(self.f.keys()), ['a', 'b', 'c'])
+        self.assertCountEqual(list(self.f.values()), [a, b, c])
+        self.assertCountEqual(
+            list(self.f.items()),
+            [('a', a), ('b', b), ('c', c)]
+            )
 
     def test_sequential_name(self):
         a = self.f.create_group('a')
