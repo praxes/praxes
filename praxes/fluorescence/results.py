@@ -7,13 +7,15 @@ import numpy as np
 
 class XRFMapResultProxy(object):
 
-    def __init__(self, storage, elements=None, shape=None):
+    def __init__(self, storage, elements=None):
         self._lock = FastRLock()
         self._storage = storage
         self._cache = {}
         self._is_zzmesh = storage.entry.acquisition_command.startswith('zzmesh')
 
-        if elements and shape:
+        shape = self._storage.entry.acquisition_shape
+
+        if elements:
             # we are overwriting an existing result:
             with self._storage:
                 if 'element_maps' in self._storage:
@@ -29,15 +31,15 @@ class XRFMapResultProxy(object):
                     ('mass_fraction', 'MassFraction')
                     ]:
                     for element in elements:
-                        data = np.zeros(shape, 'f')
+                        data = np.zeros(np.product(shape), 'f')
                         entry = '%s_%s'%(element, map_type)
                         element_maps.create_dataset(entry, type=cls, data=data)
 
         with self._storage:
             if 'element_maps' in self._storage:
-                shape = self._storage.entry.acquisition_shape
                 for k, v in self._storage['element_maps'].items():
-                    self._cache[k] = v[()].reshape(shape)
+                    self._cache[k] = np.zeros(shape, 'f')
+                    self._cache[k].flat[:len(v)] = v[:]
 
     def update_fit(self, element, index, value):
         with self._lock:

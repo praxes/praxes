@@ -114,9 +114,7 @@ class TaskManager(QtCore.QThread):
     def process_data(self):
         while not self.stopped:
             with self.lock:
-                if self._available_workers:
-                    self._available_workers -= 1
-                else:
+                if not self._available_workers:
                     time.sleep(0.01)
                     continue
 
@@ -137,6 +135,7 @@ class TaskManager(QtCore.QThread):
                 self.job_server.apply_async(
                     f, args, callback=self._data_processed
                     )
+                self._available_workers -= 1
                 #self.job_queue.append(job)
 
             self.n_processed += 1

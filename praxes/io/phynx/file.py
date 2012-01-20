@@ -67,7 +67,7 @@ class File(Group):
 
     @property
     def file(self):
-        return self
+        return File(self._h5node.file, self._lock)
 
     @property
     def file_name(self):

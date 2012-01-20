@@ -139,11 +139,10 @@ class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
                 self.statusBar.showMessage('Converting spec data...')
                 #QtGui.qApp.processEvents()
                 from praxes.io.phynx.migration.spec import convert_to_phynx
-                f = convert_to_phynx(
+                h5file = convert_to_phynx(
                     f, h5_filename=h5_filename, force=True, report=True
                     )
-                f.close()
-                del f
+                h5file.close()
                 self.statusBar.clearMessage()
                 self.openFile(h5_filename)
 

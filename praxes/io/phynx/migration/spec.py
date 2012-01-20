@@ -146,6 +146,7 @@ get_scan_metadata['chess_escan'] = _chess_escan
 def process_mca(scan, measurement, masked=None, report=False):
     mca_info = scan.attrs['mca_info']
     num_mca = len(mca_info)
+    npoints = measurement.entry.npoints
 
     monitor = scan.attrs.get('monitor', None)
     monitor_efficiency = scan.attrs.get('monitor_efficiency', 1)
@@ -193,7 +194,7 @@ def process_mca(scan, measurement, masked=None, report=False):
             'counts',
             type='Spectrum',
             dtype='float32',
-            shape=val.shape
+            shape=(npoints, len(channels))
             )
 
         buff = []
@@ -223,8 +224,9 @@ def process_mca(scan, measurement, masked=None, report=False):
             if key == monitor:
                 kwargs['efficiency'] = monitor_efficiency
             dset = mca.create_dataset(
-                key, data=val[:], dtype='float32', **kwargs
+                key, shape=(npoints,), dtype='float32', **kwargs
                 )
+            dset[:len(val)] = val
 
         if masked is not None:
             mca['masked'] = masked
