@@ -274,11 +274,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
                     )
 
     def initializeElementMaps(self, elements):
-        self._results = XRFMapResultProxy(
-            self.scan_data,
-            elements,
-            self.scan_data.entry.npoints
-            )
+        self._results = XRFMapResultProxy(self.scan_data, elements)
 
     def processAverageSpectrum(self, indices=None):
         with self.scan_data:

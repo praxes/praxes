@@ -15,6 +15,10 @@ import h5py
 from .group import Group
 from .utils import sync
 from .version import __format_version__
+from ...rlock import FastRLock
+
+
+global_lock = FastRLock()
 
 
 def getLocalTime():
@@ -25,21 +29,13 @@ def getLocalTime():
     return '%d-%02d-%02dT%02d:%02d:%02d%+02d:00'%tuple(res)
 
 
-class DummyLock(object):
-    def acquire(self):
-        pass
-    def release(self):
-        pass
-    def __enter__(self):
-        return self
-    def __exit__(self, *args):
-        pass
-
-
 def open(file_name, mode='a', **kwargs):
-    lock = kwargs.pop('lock', None)
-    if lock is None:
-        lock = DummyLock()
+    # h5py issue 230: file-specific locks lead to segfaults:
+    #lock = kwargs.pop('lock', None)
+    #if lock is None:
+    #    lock = DummyLock()
+    # need to synchronize all h5py interaction with a single lock:
+    lock = global_lock
     f = File(h5py.File(file_name, mode=mode, **kwargs), lock)
     if f.mode != 'r' and len(f) == 0:
         if 'file_name' not in f.attrs:
@@ -71,7 +67,7 @@ class File(Group):
 
     @property
     def file(self):
-        return self
+        return File(self._h5node.file, self._lock)
 
     @property
     def file_name(self):
