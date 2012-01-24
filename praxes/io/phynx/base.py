@@ -68,7 +68,6 @@ class Node(object):
     __metaclass__ = _RegisterPhynxClass
 
     @property
-    @memoize
     def attrs(self):
         return AttrsProxy(self._h5node.attrs)
 
@@ -78,7 +77,6 @@ class Node(object):
         return target if isinstance(target, registry['Entry']) else None
 
     @property
-    @memoize
     def file(self):
         from .file import File
         return File(self._h5node.file, self._lock)
@@ -92,7 +90,6 @@ class Node(object):
 #        return self.attrs.get('npoints', 0)
 
     @property
-    @memoize
     def id(self):
         return self._h5node.name
 
@@ -101,17 +98,14 @@ class Node(object):
 #        return getattr(self.entry, 'measurement', None)
 
     @property
-    @memoize
     def name(self):
         return posixpath.basename(self.id)
 
     @property
-    @memoize
     def path(self):
         return posixpath.dirname(self.id)
 
     @property
-    @memoize
     def parent(self):
         return self.file[self.path]
 

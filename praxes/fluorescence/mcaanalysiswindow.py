@@ -380,9 +380,6 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
         self.progressBar.setValue(progress)
 #        self.jobStats.updateTable(item)
 
-        if n_processed >= n_points:
-            self.processComplete()
-
     def _resetPeaks(self):
         peaks = []
 

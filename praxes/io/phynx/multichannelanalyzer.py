@@ -41,7 +41,6 @@ class MultiChannelAnalyzer(Detector):
         return np.polyval(self.calibration[::-1], self.channels)
 
     @property
-    @memoize
     @sync
     def monitor(self):
         id = self.attrs.get('monitor', None)
@@ -102,7 +101,6 @@ class Spectrum(Signal):
     """
 
     @property
-    @memoize
     @sync
     def corrected_value(self):
         return CorrectedSpectrumProxy(self)
@@ -122,7 +120,6 @@ class McaSpectrum(Spectrum):
 class CorrectedSpectrumProxy(DataProxy):
 
     @property
-    @memoize
     def _monitor(self):
         try:
             return self._dset.parent.monitor.corrected_value
@@ -131,7 +128,6 @@ class CorrectedSpectrumProxy(DataProxy):
             return None
 
     @property
-    @memoize
     def _deadtime_correction(self):
         try:
             return self._dset.parent['dead_time'].correction

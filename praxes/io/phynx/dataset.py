@@ -156,7 +156,6 @@ class Signal(Dataset):
         return self.attrs.get('signal', 0)
 
     @property
-    @memoize
     def corrected_value(self):
         return CorrectedDataProxy(self)
 
@@ -197,27 +196,22 @@ class DeadTime(Signal):
     """
 
     @property
-    @memoize
     def correction(self):
         return DeadTimeProxy(self, 'correction')
 
     @property
-    @memoize
     def percent(self):
         return DeadTimeProxy(self, 'percent')
 
     @property
-    @memoize
     def fraction(self):
         return DeadTimeProxy(self, 'fraction')
 
     @property
-    @memoize
     def normalization(self):
         return DeadTimeProxy(self, 'normalization')
 
     @property
-    @memoize
     def format(self):
         return self.attrs['dead_time_format']
 
@@ -296,7 +290,6 @@ class CorrectedDataProxy(DataProxy):
 class DeadTimeProxy(DataProxy):
 
     @property
-    @memoize
     def format(self):
         return self._format
 
