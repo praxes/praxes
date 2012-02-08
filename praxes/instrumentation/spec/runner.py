@@ -125,7 +125,7 @@ class SpecRunnerBase(Spec.Spec, QtCore.QObject):
         self.getMotorsMne()
         self.getCountersMne()
 
-        self(getSpecMacro('clientutils.mac', SpecClient), asynchronous=False)
+        #self(getSpecMacro('clientutils.mac', SpecClient), asynchronous=False)
         self("client_data 1", asynchronous=False)
 
         self.runMacro('skipmode.mac')

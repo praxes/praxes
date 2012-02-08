@@ -187,10 +187,6 @@ package_data = {
         ],
     }
 
-if sys.platform == 'linux2':
-    packages.append('SpecClient')
-    package_data['SpecClient'] = ['*.mac']
-
 scripts = [
     'scripts/combi',
     ]
