@@ -336,8 +336,7 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
     @QtCore.pyqtSignature("")
     def on_scanButton_clicked(self):
         args = self._scanParameters.getScanArgs()
-        if not isinstance(self._scanParameters, ZZMeshParameters):
-            args.append(self.integrationTimeSpinBox.value())
+        args.append(self.integrationTimeSpinBox.value())
         cmd = ' '.join(str(i) for i in args)
 
         self._scan(cmd)
