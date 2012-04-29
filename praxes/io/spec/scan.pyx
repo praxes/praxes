@@ -17,7 +17,7 @@ def create_scan(*args, **kwargs):
 
 cdef class ScanIndex(Mapping):
 
-    cdef readonly object attrs, data, file_name, id, name
+    cdef readonly object _file, attrs, data, file_name, id, name
     cdef unsigned long long _bytes_read, _file_offset
     cdef object _mca_data_indices, _scalar_data_index
     cdef char _index_finalized
@@ -26,8 +26,9 @@ cdef class ScanIndex(Mapping):
         def __get__(self):
             return self._file_offset, self._bytes_read
 
-    def __init__(self, name, id, file, offset, **kwargs):
+    def __init__(self, f, name, id, file, offset, **kwargs):
         super(ScanIndex, self).__init__({})
+        self._file = f
         self.name = name
         self.id = id
         self.file_name = file.name
@@ -41,7 +42,7 @@ cdef class ScanIndex(Mapping):
         self._index_finalized = False
 
         self.data = create_vector_proxy(
-            self.file_name, id, self._scalar_data_index
+            self._file, id, self._scalar_data_index
             )
 
         self.update()
@@ -55,7 +56,7 @@ cdef class ScanIndex(Mapping):
         if self._index_finalized:
             return
 
-        f = io.open(self.file_name, 'rb', buffering=1024*1024*2)
+        f = self._file#io.open(self.file_name, 'rb', buffering=1024*1024*2)
         attrs = self.attrs._index
         comments = attrs.setdefault('comments', [])
         user_comments = attrs.setdefault('user_comments', [])
@@ -142,7 +143,7 @@ cdef class ScanIndex(Mapping):
                     for column, label in enumerate(labels):
                         if label == 'Epoch':
                             self._index[label] = create_epoch_proxy(
-                                self.file_name,
+                                self._file,
                                 label,
                                 column,
                                 self._scalar_data_index,
@@ -150,7 +151,7 @@ cdef class ScanIndex(Mapping):
                                 )
                         else:
                             self._index[label] = create_scalar_proxy(
-                                self.file_name,
+                                self._file,
                                 label,
                                 column,
                                 self._scalar_data_index
@@ -161,7 +162,7 @@ cdef class ScanIndex(Mapping):
             c_line = line
 
         self._bytes_read = file_offset
-        f.close()
+        #f.close()
 
         if 'positioners' in attrs:
             positioners = attrs.pop('positioners')
@@ -188,5 +189,5 @@ cdef class ScanIndex(Mapping):
         for key, index in self._mca_data_indices.items():
             if key not in self._index:
                 self._index[key] = create_vector_proxy(
-                    self.file_name, key, index
+                    self._file, key, index
                     )

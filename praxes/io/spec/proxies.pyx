@@ -46,9 +46,9 @@ cdef class DataProxy:
     cdef int _n_cols
     cdef readonly object file_name, name
 
-    def __init__(self, file_name, name, index):
-        self.file_name = file_name
-        self.fh = io.open(self.file_name, 'rb', buffering=1024*1024*2)
+    def __init__(self, fh, name, index):
+        self.fh = fh
+#        self.fh = io.open(self.file_name, 'rb', buffering=1024*1024*2)
         self.name = name
         self._index = index
         self._n_cols = -1
