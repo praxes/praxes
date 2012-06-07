@@ -176,6 +176,11 @@ ext_modules = [
     Extension('praxes.io.spec.mapping', ['praxes/io/spec/mapping.pyx']),
     Extension('praxes.io.spec.scan', ['praxes/io/spec/scan.pyx']),
     Extension('praxes.rlock', ['praxes/rlock.pyx']),
+    Extension(
+        'praxes.io._tifffile',
+        ['praxes/io/tifffile.c'],
+        include_dirs=[numpy.get_include()]
+        )
     ]
 
 package_data = {

@@ -55,12 +55,11 @@ For command line usage run ``python tifffile.py --help``
   `Christoph Gohlke <http://www.lfd.uci.edu/~gohlke/>`__,
   Laboratory for Fluorescence Dynamics, University of California, Irvine
 
-:Version: 2012.04.21
+:Version: 2012.06.06
 
 Requirements
 ------------
-
-* `Python 2.7 or 3.2 <http://www.python.org>`__
+* `CPython 2.7 or 3.2 <http://www.python.org>`__
 * `Numpy 1.6 <http://numpy.scipy.org>`__
 * `Matplotlib 1.1 <http://matplotlib.sourceforge.net>`__
   (optional for plotting)
@@ -74,7 +73,6 @@ Acknowledgements
 
 References
 ----------
-
 (1) TIFF 6.0 Specification and Supplements. Adobe Systems Incorporated.
     http://partners.adobe.com/public/developer/tiff/
 (2) TIFF File Format FAQ. http://www.awaresystems.be/imaging/tiff/faq.html
@@ -88,7 +86,6 @@ References
 
 Examples
 --------
-
 >>> data = numpy.random.rand(301, 219)
 >>> imsave('temp.tif', data)
 >>> image = imread('temp.tif')
@@ -139,47 +136,37 @@ def imsave(filename, data, photometric=None, planarconfig=None,
     Dimensions larger than 2 or 3 (depending on photometric mode and
     planar configuration) are flattened and saved as separate pages.
 
-    Arguments
-    ---------
-
+    Parameters
+    ----------
     filename : str
         Name of file to write.
-
     data : array_like
         Input image. The last dimensions are assumed to be image height,
         width, and samples.
-
     photometric : {'minisblack', 'miniswhite', 'rgb'}
         The color space of the image data.
         By default this setting is inferred from the data shape.
-
     planarconfig : {'contig', 'planar'}
         Specifies if samples are stored contiguous or in separate planes.
         By default this setting is inferred from the data shape.
         'contig': last dimension contains samples.
         'planar': third last dimension contains samples.
-
     resolution : ((int, int), (int, int))
         X and Y resolution in dots per inch as rational numbers.
-
     description : str
         The subject of the image. Saved with the first page only.
-
     software : str
         Name of the software used to create the image.
         Saved with the first page only.
-
     byteorder : {'<', '>'}
         The endianness of the data in the file.
         By default this is the system's native byte order.
-
     bigtiff : bool
         If True the BigTIFF format is used.
         By default the standard TIFF format is used for data less than 2040 MB.
 
-    Example
-    -------
-
+    Examples
+    --------
     >>> data = numpy.random.rand(10, 3, 301, 219)
     >>> imsave('temp.tif', data)
 
@@ -399,18 +386,15 @@ def imread(filename, *args, **kwargs):
 
     The first image series is returned if no arguments are provided.
 
-    Arguments
-    ---------
-
+    Parameters
+    ----------
     key : int, slice, or sequence of page indices
         Defines which pages to return as array.
-
     series : int
         Defines which series of pages to return as array.
 
-    Example
-    -------
-
+    Examples
+    --------
     >>> image = imread('test.tif', 0)
 
     """
@@ -440,18 +424,15 @@ class TIFFfile(object):
 
     Attributes
     ----------
-
     pages : list
         All TIFFpages in file.
-
     series : list of Records(shape, dtype, axes, TIFFpages)
         TIFF pages with compatible shapes and types.
 
     All attributes are read-only.
 
-    Example
-    -------
-
+    Examples
+    --------
     >>> tif = TIFFfile('test.tif')
     ... try:
     ...     images = tif.asarray()
@@ -584,12 +565,10 @@ class TIFFfile(object):
 
         By default the first image series is returned.
 
-        Arguments
-        ---------
-
+        Parameters
+        ----------
         key : int, slice, or sequence of page indices
             Defines which pages to return as array.
-
         series : int
             Defines which series of pages to return as array.
 
@@ -805,34 +784,26 @@ class TIFFpage(object):
 
     Attributes
     ----------
-
     index : int
         Index of page in file.
-
     dtype : str {TIFF_SAMPLE_DTYPES}
         Data type of image, colormapped if applicable.
-
     shape : tuple
         Dimensions of the image array in TIFF page,
         colormapped and with one alpha channel if applicable.
-
     axes : str
         Axes label codes:
         'X' width, 'Y' height, 'S' sample, 'P' plane, 'I' image series,
         'Z' depth, 'C' color|em-wavelength|channel, 'E' ex-wavelength|lambda,
         'T' time, 'R' region|tile, 'A' angle, 'F' phase, 'H' lifetime,
         'L' exposure, 'V' event, 'O' unknown, '_' missing
-
     tags : TiffTags
         Dictionary of tags in page.
         Tag values are also directly accessible as attributes.
-
     color_map : numpy array
         Color look up table if exists.
-
     mm_uic_tags: Record(dict)
         Consolidated MetaMorph mm_uic# tags, if exists.
-
     cz_lsm_scan_info: Record(dict)
         LSM scan info attributes, if exists.
 
@@ -1034,16 +1005,13 @@ class TIFFpage(object):
         If any argument is False, the shape of the returned array might be
         different from the page shape.
 
-        Arguments
-        ---------
-
+        Parameters
+        ----------
         squeeze : bool
             If True all length-1 dimensions (except X and Y) are
             squeezed out from result.
-
         colormapped : bool
             If True color mapping is applied for palette-indexed images.
-
         rgbonly : bool
             If True return RGB(A) image without additional extra samples.
 
@@ -1261,22 +1229,16 @@ class TIFFtag(object):
 
     Attributes
     ----------
-
     name : string
         Attribute name of tag.
-
     code : int
         Decimal code of tag.
-
     dtype : str
         Datatype of tag data. One of TIFF_DATA_TYPES.
-
     count : int
         Number of values.
-
     value : various types
         Tag data. For codes in CUSTOM_TAGS the 4 bytes file content.
-
     value_offset : int
         Location of value in file
 
@@ -1679,14 +1641,14 @@ def decodelzw(encoded):
 def unpackints(data, dtype, itemsize, runlen=0):
     """Decompress byte string to array of integers of any bit size <= 32.
 
+    Parameters
+    ----------
     data : byte str
-
+        Data to decompress.
     dtype : numpy.dtype or str
         A numpy boolean or integer type.
-
     itemsize : int
         Number of bits per integer.
-
     runlen : int
         Number of consecutive integers, after which to start at next byte.
 
@@ -1739,30 +1701,52 @@ def unpackints(data, dtype, itemsize, runlen=0):
     return result
 
 
-def unpackrgb(data, dtype, bitspersample):
-    """Unpack RGB565 from byte string."""
-    if not (len(bitspersample) == 3
-            and all(i <= 8 for i in bitspersample)
-            and numpy.sum(bitspersample) == 16):
+def unpackrgb(data, dtype='<B', bitspersample=(5, 6, 5), rescale=True):
+    """Return array from byte string containing tightly packed samples.
+
+    Use to unpack RGB565 or RGB555 to RGB888 format.
+
+    Examples
+    --------
+    >>> data = struct.pack('BBBB', 0x21, 0x08, 0xff, 0xff)
+    >>> print(unpackrgb(data, '<B', (5, 6, 5), False))
+    [ 1  1  1 31 63 31]
+    >>> print(unpackrgb(data, '<B', (5, 6, 5)))
+    [  8   4   8 255 255 255]
+    >>> print(unpackrgb(data, '<B', (5, 5, 5)))
+    [ 16   8   8 255 255 255]
+
+    """
+    dtype = numpy.dtype(dtype)
+    bits = int(numpy.sum(bitspersample))
+    if not (bits <= 32 and all(i <= dtype.itemsize*8 for i in bitspersample)):
         raise ValueError("sample size not supported %s" % str(bitspersample))
-    data = numpy.fromstring(data, dtype[0]+'H')
-    r, g, b = bitspersample
-    result = numpy.zeros((data.size, 3), 'uint8')
-    result[:, 0] = ((data >> (r+g)) & (int('0b'+'1'*r, 2))) << (8 - r)
-    result[:, 1] = ((data >> r) & (int('0b'+'1'*g, 2))) << (8 - g)
-    result[:, 2] = (data & (int('0b'+'1'*b, 2))) << (8 - b)
+    dt = next(i for i in 'BHI' if numpy.dtype(i).itemsize*8 >= bits)
+    data = numpy.fromstring(data, dtype.byteorder+dt)
+    result = numpy.empty((data.size, len(bitspersample)), dtype.char)
+    for i, bps in enumerate(bitspersample):
+        t = data >> int(numpy.sum(bitspersample[i+1:]))
+        t &= int('0b'+'1'*bps, 2)
+        if rescale:
+            o = ((dtype.itemsize * 8) // bps + 1) * bps
+            if o > data.dtype.itemsize * 8:
+                t = t.astype('I')
+            t *= (2**o - 1) // (2**bps - 1)
+            t //= 2**(o - (dtype.itemsize * 8))
+        result[:, i] = t
     return result.reshape(-1)
 
 
 def reorient(image, orientation):
     """Return reoriented view of image array.
 
+    Parameters
+    ----------
     image : numpy array
         Non-squeezed output of asarray() functions.
         Axes -3 and -2 must be image length and width respectively.
-
     orientation : int or str
-        One of TIFF_ORIENTATIONS keys or values
+        One of TIFF_ORIENTATIONS keys or values.
 
     """
     o = TIFF_ORIENTATIONS.get(orientation, orientation)
@@ -1793,6 +1777,8 @@ def stripnull(string):
 def datetime_from_timestamp(n, epoch=datetime.datetime.fromordinal(693594)):
     """Return datetime object from timestamp in Excel serial format.
 
+    Examples
+    --------
     >>> datetime_from_timestamp(40237.029999999795)
     datetime.datetime(2010, 2, 28, 0, 43, 11, 999982)
 
@@ -1803,6 +1789,8 @@ def datetime_from_timestamp(n, epoch=datetime.datetime.fromordinal(693594)):
 def test_tifffile(directory='testimages', verbose=True):
     """Read all images in directory. Print error message on failure.
 
+    Examples
+    --------
     >>> test_tifffile(verbose=False)
 
     """
@@ -2469,27 +2457,22 @@ def imshow(data, title=None, vmin=0, vmax=None, cmap=None,
     Return figure, subplot and plot axis.
     Requires pyplot already imported ``from matplotlib import pyplot``.
 
-    Arguments
-    ---------
-
+    Parameters
+    ----------
     bitspersample : int or None
         Number of bits per channel in integer RGB images.
-
     photometric : {'miniswhite', 'minisblack', 'rgb', or 'palette'}
         The color space of the image data.
-
     title : str
         Window and subplot title.
-
-    figure : matplotlib.figure.Figure instance (optional).
-
+    figure : matplotlib.figure.Figure (optional).
+        Matplotlib to use for plotting.
     subplot : int
         A matplotlib.pyplot.subplot axis.
-
     maxdim : int
         maximum image size in any dimension.
-
-    kwargs : optional arguments for matplotlib.pyplot.imshow.
+    kwargs : optional
+        Arguments for matplotlib.pyplot.imshow.
 
     """
     #if photometric not in ('miniswhite', 'minisblack', 'rgb', 'palette'):
@@ -2566,9 +2549,9 @@ def imshow(data, title=None, vmin=0, vmax=None, cmap=None,
 
     if cmap is None:
         if photometric == 'miniswhite':
-            cmap = pyplot.cm.gray_r
+            cmap = 'gray_r' if vmin == 0 else 'coolwarm_r'
         else:
-            cmap = pyplot.cm.gray
+            cmap = 'gray' if vmin == 0 else 'coolwarm'
 
     image = pyplot.imshow(data[(0, ) * dims].squeeze(), vmin=vmin, vmax=vmax,
                           cmap=cmap, interpolation=interpolation, **kwargs)
@@ -2801,7 +2784,7 @@ def main(argv=None):
             pyplot.show()
 
 
-__version__ = '2012.04.21'
+__version__ = '2012.06.06'
 __docformat__ = 'restructuredtext en'
 
 if __name__ == "__main__":
