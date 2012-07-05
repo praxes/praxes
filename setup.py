@@ -17,8 +17,13 @@ import numpy
 
 def convert_data(args):
     if not os.path.exists(args[-1]):
-        subprocess.call(args)
-        print('converted', args[-1])
+        try:
+            subprocess.check_call(args)
+        except subprocess.CalledProcessError:
+            print("""\
+    Warning: Could not configure %s.
+    See README to configure repository.
+            """ % (os.path.split(args[-1]))[0])
 
 class data(Command):
 
@@ -84,7 +89,6 @@ class test(Command):
 
 def convert_ui(args, **kwargs):
     subprocess.call(args, **kwargs)
-    print('converted', args[-1])
 
 class ui_cvt(Command):
 
@@ -101,32 +105,38 @@ class ui_cvt(Command):
         pass
 
     def run(self):
-        to_process = []
-        for root, dirs, files in os.walk('praxes'):
-            for f in files:
-                if f.endswith('.ui'):
-                    source = os.path.join(root, f)
-                    dest = os.path.splitext(source)[0]+'.py'
-                    exe = 'pyuic4'
-                elif f.endswith('.qrc'):
-                    source = os.path.join(root, f)
-                    dest = os.path.splitext(source)[0]+'_rc.py'
-                    exe = 'pyrcc4'
-                else:
-                    continue
+        try:
+            to_process = []
+            for root, dirs, files in os.walk('praxes'):
+                for f in files:
+                    if f.endswith('.ui'):
+                        source = os.path.join(root, f)
+                        dest = os.path.splitext(source)[0]+'.py'
+                        exe = 'pyuic4'
+                    elif f.endswith('.qrc'):
+                        source = os.path.join(root, f)
+                        dest = os.path.splitext(source)[0]+'_rc.py'
+                        exe = 'pyrcc4'
+                    else:
+                        continue
 
-                if os.path.isfile(dest):
-                    if os.path.getmtime(source) < os.path.getmtime(dest):
-                            continue
+                    if os.path.isfile(dest):
+                        if os.path.getmtime(source) < os.path.getmtime(dest):
+                                continue
 
-                to_process.append([exe, '-o', dest, source])
+                    to_process.append([exe, '-o', dest, source])
 
-        if sys.platform.startswith('win'):
-            # doing this in parallel on windows will crash your computer
-            [convert_ui(args, shell=True) for args in to_process]
-        else:
-            pool = multiprocessing.Pool()
-            pool.map(convert_ui, to_process)
+            if sys.platform.startswith('win'):
+                # doing this in parallel on windows will crash your computer
+                [convert_ui(args, shell=True) for args in to_process]
+            else:
+                pool = multiprocessing.Pool()
+                pool.map(convert_ui, to_process)
+        except EnvironmentError:
+            print("""\
+    Warning: PyQt4 development utilities (pyuic4 and pyrcc4) not found
+    Unable to install praxes' graphical user interface
+            """)
 
 
 class sdist(_sdist):
