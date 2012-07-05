@@ -120,11 +120,8 @@ class ui_cvt(Command):
                     else:
                         continue
 
-                    if os.path.isfile(dest):
-                        if os.path.getmtime(source) < os.path.getmtime(dest):
-                                continue
-
-                    to_process.append([exe, '-o', dest, source])
+                    if not os.path.exists(dest):
+                        to_process.append([exe, '-o', dest, source])
 
             if sys.platform.startswith('win'):
                 # doing this in parallel on windows will crash your computer
