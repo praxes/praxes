@@ -2,6 +2,7 @@
 *.pyc
 *.db
 ui_*.py*
+praxes/*.c
 praxes/io/spec/*.c
 *.egg-info
 build
