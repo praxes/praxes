@@ -37,9 +37,9 @@ Image and meta-data can be read from TIFF, BigTIFF, OME-TIFF, STK, LSM, NIH,
 and FluoView files. Only a subset of the TIFF specification is supported,
 mainly uncompressed and losslessly compressed 2**(0 to 6) bit integer,
 16, 32 and 64-bit float, grayscale and RGB(A) images, which are commonly
-used in bio-scientific imaging. Specifically, reading JPEG or CCITT
-compressed image data is not implemented. Only primary info records are
-read for STK, FluoView, and NIH image formats.
+used in bio-scientific imaging. Specifically, reading JPEG/CCITT
+compressed image data or EXIF/IPTC/GPS/XMP meta-data is not implemented.
+Only primary info records are read for STK, FluoView, and NIH image formats.
 
 TIFF, the Tagged Image File Format, is under the control of Adobe Systems.
 BigTIFF allows for files greater than 4 GB. STK, LSM, FluoView, and OME-TIFF
@@ -55,7 +55,7 @@ For command line usage run ``python tifffile.py --help``
   `Christoph Gohlke <http://www.lfd.uci.edu/~gohlke/>`__,
   Laboratory for Fluorescence Dynamics, University of California, Irvine
 
-:Version: 2012.06.06
+:Version: 2012.07.05
 
 Requirements
 ------------
@@ -842,7 +842,7 @@ class TIFFpage(object):
 
         # read standard tags
         tags = self.tags
-        fd.seek(offset, 0)
+        fd.seek(offset)
         fmt, size = {4: ('H', 2), 8: ('Q', 8)}[offset_size]
         try:
             numtags = struct.unpack(byte_order + fmt, fd.read(size))[0]
@@ -853,16 +853,6 @@ class TIFFpage(object):
         for _ in range(numtags):
             tag = TIFFtag(self.parent)
             tags[tag.name] = tag
-
-        # read custom tags
-        for name, readtag in CUSTOM_TAGS.values():
-            if name in tags and readtag:
-                pos = fd.tell()
-                value = readtag(fd, byte_order, tags[name])
-                if isinstance(value, dict):  # numpy.core.records.record
-                    value = Record(value)
-                tags[name].value = value
-                fd.seek(pos)
 
         # read LSM info subrecords
         if self.is_lsm:
@@ -1070,7 +1060,7 @@ class TIFFpage(object):
             and all(offsets[i] == offsets[i+1] - byte_counts[i]
                     for i in range(len(offsets)-1))))):
             # contiguous data
-            fd.seek(offsets[0], 0)
+            fd.seek(offsets[0])
             result = numpy.fromfile(fd, typecode, numpy.prod(shape))
             result = result.astype('=' + dtype)
         else:
@@ -1090,7 +1080,7 @@ class TIFFpage(object):
                 result = numpy.empty(shape, dtype)
                 tw, tl, pl = 0, 0, 0
                 for offset, bytecount in zip(offsets, byte_counts):
-                    fd.seek(offset, 0)
+                    fd.seek(offset)
                     tile = unpack(decompress(fd.read(bytecount)))
                     tile.shape = tile_shape
                     result[0, pl, tl:tl+tile_length,
@@ -1106,7 +1096,7 @@ class TIFFpage(object):
                 result = numpy.empty(shape, dtype).reshape(-1)
                 index = 0
                 for offset, bytecount in zip(offsets, byte_counts):
-                    fd.seek(offset, 0)
+                    fd.seek(offset)
                     stripe = unpack(decompress(fd.read(bytecount)))
                     size = min(result.size, stripe.size)
                     result[index:index+size] = stripe[:size]
@@ -1265,7 +1255,7 @@ class TIFFtag(object):
         self.value = value
 
     def _fromfile(self, parent):
-        """Read tag structure from open file. Advances file cursor."""
+        """Read tag structure from open file. Advance file cursor."""
         fd = parent._fd
         byte_order = parent.byte_order
 
@@ -1289,22 +1279,34 @@ class TIFFtag(object):
         except KeyError:
             raise ValueError("unknown TIFF tag data type %i" % dtype)
 
-        if not code in CUSTOM_TAGS:
-            fmt = '%s%i%s' % (byte_order, count*int(dtype[0]), dtype[1])
-            size = struct.calcsize(fmt)
-            if size <= parent.offset_size:
-                value = struct.unpack(fmt, value[:size])
-            else:
-                pos = fd.tell()
-                tof = {4: 'I', 8: 'Q'}[parent.offset_size]
-                self.value_offset = struct.unpack(byte_order+tof, value)[0]
-                fd.seek(self.value_offset)
+        fmt = '%s%i%s' % (byte_order, count*int(dtype[0]), dtype[1])
+        size = struct.calcsize(fmt)
+        if size > parent.offset_size or code in CUSTOM_TAGS:
+            pos = fd.tell()
+            tof = {4: 'I', 8: 'Q'}[parent.offset_size]
+            self.value_offset = struct.unpack(byte_order+tof, value)[0]
+            fd.seek(self.value_offset)
+            if code in CUSTOM_TAGS:
+                readfunc = CUSTOM_TAGS[code][1]
+                value = readfunc(fd, byte_order, dtype, count)
+                fd.seek(0, 2)  # bug in numpy/Python 3.x ?
+                if isinstance(value, dict):  # numpy.core.records.record
+                    value = Record(value)
+            elif code in TIFF_TAGS or dtype[-1] == 's':
                 value = struct.unpack(fmt, fd.read(size))
-                fd.seek(pos)
+            else:
+                value = read_numpy(fd, byte_order, dtype, count)
+                fd.seek(0, 2)  # bug in numpy/Python 3.x ?
+            fd.seek(pos)
+        else:
+            value = struct.unpack(fmt, value[:size])
+
+        if not code in CUSTOM_TAGS:
             if len(value) == 1:
                 value = value[0]
-            if dtype == '1s':
-                value = stripnull(value)
+
+        if dtype.endswith('s'):
+            value = stripnull(value)
 
         self.code = code
         self.name = name
@@ -1383,38 +1385,44 @@ class TiffTags(Record):
         return '\n'.join(s)
 
 
-def read_nih_image_header(fd, byte_order, tag):
+def read_bytes(fd, byte_order, dtype, count):
+    """Read tag data from file and return as byte string."""
+    return numpy.fromfile(fd, byte_order+dtype[-1], count).tostring()
+
+
+def read_numpy(fd, byte_order, dtype, count):
+    """Read tag data from file and return as numpy array."""
+    return numpy.fromfile(fd, byte_order+dtype[-1], count)
+
+
+def read_nih_image_header(fd, byte_order, dtype, count):
     """Read NIH_IMAGE_HEADER tag from file and return as dictionary."""
-    fd.seek(12 + struct.unpack(byte_order+'I', tag.value)[0])
+    fd.seek(12, 1)
     return {'version': struct.unpack(byte_order+'H', fd.read(2))[0]}
 
 
-def read_mm_header(fd, byte_order, tag):
+def read_mm_header(fd, byte_order, dtype, count):
     """Read MM_HEADER tag from file and return as numpy.rec.array."""
-    fd.seek(struct.unpack(byte_order+'I', tag.value)[0])
     return numpy.rec.fromfile(fd, MM_HEADER, 1, byteorder=byte_order)[0]
 
 
-def read_mm_stamp(fd, byte_order, tag):
+def read_mm_stamp(fd, byte_order, dtype, count):
     """Read MM_STAMP tag from file and return as numpy.array."""
-    fd.seek(struct.unpack(byte_order+'I', tag.value)[0])
     return numpy.fromfile(fd, byte_order+'8f8', 1)[0]
 
 
-def read_mm_uic1(fd, byte_order, tag):
+def read_mm_uic1(fd, byte_order, dtype, count):
     """Read MM_UIC1 tag from file and return as dictionary."""
-    fd.seek(struct.unpack(byte_order+'I', tag.value)[0])
-    t = fd.read(8*tag.count)
-    t = struct.unpack('%s%iI' % (byte_order, 2*tag.count), t)
+    t = fd.read(8*count)
+    t = struct.unpack('%s%iI' % (byte_order, 2*count), t)
     return dict((MM_TAG_IDS[k], v) for k, v in zip(t[::2], t[1::2])
                 if k in MM_TAG_IDS)
 
 
-def read_mm_uic2(fd, byte_order, tag):
+def read_mm_uic2(fd, byte_order, dtype, count):
     """Read MM_UIC2 tag from file and return as dictionary."""
-    result = {'number_planes': tag.count}
-    fd.seek(struct.unpack(byte_order+'I', tag.value)[0])
-    values = numpy.fromfile(fd, byte_order+'I', 6*tag.count)
+    result = {'number_planes': count}
+    values = numpy.fromfile(fd, byte_order+'I', 6*count)
     result['z_distance'] = values[0::6] // values[1::6]
     #result['date_created'] = tuple(values[2::6])
     #result['time_created'] = tuple(values[3::6])
@@ -1423,24 +1431,21 @@ def read_mm_uic2(fd, byte_order, tag):
     return result
 
 
-def read_mm_uic3(fd, byte_order, tag):
+def read_mm_uic3(fd, byte_order, dtype, count):
     """Read MM_UIC3 tag from file and return as dictionary."""
-    fd.seek(struct.unpack(byte_order+'I', tag.value)[0])
-    t = numpy.fromfile(fd, '%sI' % byte_order, 2*tag.count)
+    t = numpy.fromfile(fd, byte_order+'I', 2*count)
     return {'wavelengths': t[0::2] // t[1::2]}
 
 
-def read_mm_uic4(fd, byte_order, tag):
+def read_mm_uic4(fd, byte_order, dtype, count):
     """Read MM_UIC4 tag from file and return as dictionary."""
-    fd.seek(struct.unpack(byte_order+'I', tag.value)[0])
-    t = struct.unpack(byte_order + 'hI'*tag.count, fd.read(6*tag.count))
+    t = struct.unpack(byte_order + 'hI'*count, fd.read(6*count))
     return dict((MM_TAG_IDS[k], v) for k, v in zip(t[::2], t[1::2])
                 if k in MM_TAG_IDS)
 
 
-def read_cz_lsm_info(fd, byte_order, tag):
+def read_cz_lsm_info(fd, byte_order, dtype, count):
     """Read CS_LSM_INFO tag from file and return as numpy.rec.array."""
-    fd.seek(struct.unpack(byte_order+'I', tag.value)[0])
     result = numpy.rec.fromfile(fd, CZ_LSM_INFO, 1,
                                 byteorder=byte_order)[0]
     {50350412: '1.3', 67127628: '2.0'}[result.magic_number]  # validation
@@ -1473,11 +1478,9 @@ def read_cz_lsm_scan_info(fd, byte_order):
     block = Record()
     blocks = [block]
     unpack = struct.unpack
-
     if 0x10000000 != struct.unpack(byte_order+"I", fd.read(4))[0]:
         raise ValueError("not a lsm_scan_info structure")
     fd.read(8)
-
     while True:
         entry, dtype, size = unpack(byte_order+"III", fd.read(12))
         if dtype == 2:
@@ -1488,7 +1491,6 @@ def read_cz_lsm_scan_info(fd, byte_order):
             value = unpack(byte_order+"d", fd.read(8))[0]
         else:
             value = 0
-
         if entry in CZ_LSM_SCAN_INFO_ARRAYS:
             blocks.append(block)
             name = CZ_LSM_SCAN_INFO_ARRAYS[entry]
@@ -1507,7 +1509,6 @@ def read_cz_lsm_scan_info(fd, byte_order):
             block = blocks.pop()
         else:
             setattr(block, "unknown_%x" % entry, value)
-
         if not blocks:
             break
     return block
@@ -1702,9 +1703,26 @@ def unpackints(data, dtype, itemsize, runlen=0):
 
 
 def unpackrgb(data, dtype='<B', bitspersample=(5, 6, 5), rescale=True):
-    """Return array from byte string containing tightly packed samples.
+    """Return array from byte string containing packed samples.
 
     Use to unpack RGB565 or RGB555 to RGB888 format.
+
+    Parameters
+    ----------
+    data : byte str
+        The data to be decoded. Samples in each pixel are stored consecutively.
+        Pixels are aligned to 8, 16, or 32 bit boundaries.
+    dtype : numpy.dtype
+        The sample data type. The byteorder applies also to the data stream.
+    bitspersample : tuple
+        Number of bits for each sample in a pixel.
+    rescale : bool
+        Upscale samples to the number of bits in dtype.
+
+    Returns
+    -------
+    result : ndarray
+        Flattened array of unpacked samples of native dtype.
 
     Examples
     --------
@@ -2427,21 +2445,27 @@ TIFF_TAGS = {
     339: ('sample_format', 1, 3, 1, TIFF_SAMPLE_FORMATS),
     530: ('ycbcr_subsampling', 1, 3, 2, None),
     531: ('ycbcr_positioning', 1, 3, 1, None),
-    #700: ('xmp', None, 1, None, None),
+    #37510: ('user_comment', None, None, None, None),
     33432: ('copyright', None, 1, None, None),
     32997: ('image_depth', None, 4, 1, None),
     32998: ('tile_depth', None, 4, 1, None),
-    34665: ('exif_ifd', None, 4, 1, None)}
+    34665: ('exif_ifd', None, None, 1, None),
+    34853: ('gps_ifd', None, None, 1, None),
+    42112: ('gdal_metadata', None, 2, None, None)}
 
 # Map custom TIFF tag codes to attribute names and import functions
 CUSTOM_TAGS = {
+    700: ('xmp', read_bytes),
+    34377: ('photoshop', read_numpy),
+    33723: ('iptc', read_bytes),
+    34675: ('icc_profile', read_numpy),
     33628: ('mm_uic1', read_mm_uic1),
     33629: ('mm_uic2', read_mm_uic2),
     33630: ('mm_uic3', read_mm_uic3),
     33631: ('mm_uic4', read_mm_uic4),
     34361: ('mm_header', read_mm_header),
     34362: ('mm_stamp', read_mm_stamp),
-    34386: ('mm_user_block', None),
+    34386: ('mm_user_block', read_bytes),
     34412: ('cz_lsm_info', read_cz_lsm_info),
     43314: ('nih_image_header', read_nih_image_header)}
 
@@ -2784,7 +2808,7 @@ def main(argv=None):
             pyplot.show()
 
 
-__version__ = '2012.06.06'
+__version__ = '2012.07.05'
 __docformat__ = 'restructuredtext en'
 
 if __name__ == "__main__":
