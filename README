@@ -1,5 +1,18 @@
-This git repository makes use of submodules. After making a clone of the
-repository, be sure to run these additional steps in praxes' root directory:
+To build praxes and test:
 
-  git submodule init
-  git submodule update
+  python setup.py build_ext --inplace
+  python setup.py test
+
+To install praxes:
+
+  python setup.py install
+
+
+A reminder to praxes' developers:
+This git repository makes use of subtrees. To pull upstream changes:
+
+  git pull -s subtree elam_physical_reference master
+
+For that to work, you may first need to do:
+
+  git remote add -f elam_physical_reference https://github.com/praxes/elam_physical_reference.git
