@@ -42,8 +42,8 @@ class data(Command):
     def process_elam(self):
         return (
             sys.executable,
-            'data/elam_physical_reference/create_db.py',
-            'data/elam_physical_reference/elam.dat',
+            'praxes/physref/elam/create_db',
+            'praxes/physref/elam/elam.dat',
             'praxes/physref/elam/elam.db'
             )
 
