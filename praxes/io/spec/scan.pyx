@@ -78,7 +78,12 @@ cdef class ScanIndex(Mapping):
                 try:
                     index = self._mca_data_indices[key]
                 except KeyError:
-                    index = self._mca_data_indices.setdefault(key, [])
+                    if len(self._mca_data_indices) == 1:
+                        # common case where one MCA is defined
+                        # but tagged @MCA in header, and @AMCA in data
+                        index = self._mca_data_indices.values()[0]
+                    else:
+                        index = self._mca_data_indices.setdefault(key, [])
                 index.append(file_offset + len(key) + 1)
             elif ctag == b'\n':
                 # blank line indicates data has ended

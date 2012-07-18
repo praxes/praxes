@@ -377,11 +377,19 @@ def convert_scan(scan, h5file, spec_filename, report=False):
             f = os.path.join(dir, f)
             d = TIFFfile(f).asarray()
             r, c = d.shape
-            ad = measurement.require_group('area_detector', type='AreaDetector')
-            dset = ad.require_dataset(
-                'counts', (scan.lines(), r, c), 'uint32', maxshape=(None, r, c)
+            if 'area_detector' not in measurement:
+                measurement.create_group('area_detector', type='AreaDetector')
+            ad = measurement['area_detector']
+            if 'counts' not in ad:
+                ad.create_dataset(
+                    'counts', shape=(len(scan.data), r, c), dtype='uint32',
+                    maxshape=(None, r, c)
+                    )
+            dset = ad['counts']
+            i = os.path.split(f)[-1].replace(
+                spec_filename+'_scan%03d_'%(int(scan.name)),
+                ''
                 )
-            i = f.replace(spec_filename+'_scan%03d_'%(int(scan_number)), '')
             i = int(i.replace('.tiff', ''))
             try:
                 dset[i] = d
@@ -418,10 +426,14 @@ def convert_scan(scan, h5file, spec_filename, report=False):
                 d /= 2
                 p = int(np.sqrt(len(d)))
                 d.shape = (p, p)
-                mar = measurement.require_group('mar345', type='Mar345')
-                dset = mar.require_dataset(
-                    'counts', shape=(scan.lines(), p, p), dtype='uint16'
-                    )
+                if 'mar345' not in measurement:
+                    measurement.create_group('mar345', type='Mar345')
+                mar = measurememt['mar345']
+                if counts not in mar:
+                    mar.create_dataset(
+                        'counts', shape=(scan.lines(), p, p), dtype='uint16'
+                        )
+                dset = mar['counts']
                 i = f.replace(spec_filename+'.%s_'%scan_number, '')
                 i = int(i.replace('.mar3450', ''))
                 dset[i] = d
