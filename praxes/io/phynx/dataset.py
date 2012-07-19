@@ -86,6 +86,10 @@ class Dataset(Node):
             return "<Closed %s dataset>" % self.__class__.__name__
 
     @sync
+    def resize(self, shape):
+        self._h5node.resize(shape)
+
+    @sync
     def mean(self, indices=None):
         acquired = self.entry.acquired
         if indices is None:

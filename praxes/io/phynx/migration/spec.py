@@ -394,7 +394,7 @@ def convert_scan(scan, h5file, spec_filename, report=False):
             try:
                 dset[i] = d
             except:
-                dset.resize((i, r, c))
+                dset.resize((i+1, r, c))
                 dset[i] = d
             del d
             try:
