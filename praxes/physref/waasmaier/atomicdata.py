@@ -49,20 +49,8 @@ class AtomicData(Mapping):
 
 class FormFactor(object):
     """
-    NondispersiveScatterer('Si')
-
-    NondispersiveScatterer instances are elements with methods to
-    calculate nondispersive scattering factors and properties based
-    on these values.
-
-    Parameters for calculating the nondispersive scattering factors
-    for free atoms and ions, as reported by D. Waasmaier and A.
-    Kirfel, Acta. Cryst. A, v 51, p 416-431 (1995)
-    ┌ ┐ ┌              ┐
-    │a│ │a₁ a₂ a₃ a₄ a₅│
-    │b│=│b₁ b₂ b₃ b₄ b₅│
-    │c│ │c₁ 0  0  0  0 │
-    └ ┘ └              ┘
+    FormFactor instances are callable to calculate the energy-independent form
+    factors. They should be called with a Quantity in units of 1/length.
     """
 
     def _get_data(self, id):
