@@ -88,6 +88,10 @@ class FormFactor(object):
     def _c(self):
         return self._get_data('offset')
 
+    @property
+    def symbol(self):
+        return self._symbol
+
     def __init__(self, symbol, db):
         """symbol is a string, like 'Ca' or 'Ca2+'"""
         self._symbol = symbol
