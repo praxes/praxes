@@ -2,7 +2,8 @@ import textwrap
 
 import quantities as pq
 
-from .base import Mapping, memoize
+from praxes.lib.decorators import memoize
+from praxes.physref.lib.mapping import Mapping
 
 
 class XrayLevel(Mapping):
@@ -53,6 +54,17 @@ class XrayLevel(Mapping):
             (self._element_symbol, self._iupac_symbol)
             ).fetchone()
         return result[0]
+
+    @Mapping._keys.getter
+    @memoize
+    def _keys(self):
+        cursor = self.__db.cursor()
+        res = cursor.execute(
+            '''select iupac_symbol from xray_transitions
+            where element=? and initial_level=? order by iupac_symbol''',
+            (self._element_symbol, self._iupac_symbol)
+            )
+        return tuple(i[0].split('-')[1] for i in res)
 
     @property
     def ck_probabilities(self):
@@ -138,20 +150,6 @@ class XrayLevel(Mapping):
     def get(self, item, default=None):
         "Return the value for *key*, or return *default*"
         return self[item] if item in self else None
-
-    def keys(self):
-        "return a new view of the keys for reported transitions"
-        try:
-            return list(self._keys)
-        except AttributeError:
-            cursor = self.__db.cursor()
-            results = cursor.execute(
-                '''select iupac_symbol from xray_transitions
-                where element=? and initial_level=? order by iupac_symbol''',
-                (self._element_symbol, self._iupac_symbol)
-                )
-            self._keys = tuple(i[0].split('-')[1] for i in results)
-            return list(self._keys)
 
     @memoize
     def __repr__(self):

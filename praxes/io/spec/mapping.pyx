@@ -1,3 +1,6 @@
+import abc
+
+
 cdef class Mapping:
 
     def __init__(self, index):
@@ -30,3 +33,6 @@ cdef class Mapping:
     def values(self):
         "Return a new view of the values."
         return self._index.values()
+
+
+abc.Mapping.register(Mapping)

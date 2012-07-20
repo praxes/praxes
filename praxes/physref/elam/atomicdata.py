@@ -1,7 +1,8 @@
 import os
 import sqlite3
 
-from .base import Mapping
+from praxes.lib.decorators import memoize
+from praxes.physref.lib.mapping import Mapping
 
 class AtomicData(Mapping):
 
@@ -81,7 +82,7 @@ class AtomicData(Mapping):
             )
 
     def __getitem__(self, item):
-        if item not in self.keys():
+        if item not in self:
             raise KeyError('Element "%s" not recognized' % item)
         from .element import Element
         return Element(item, self.__db)
@@ -89,14 +90,11 @@ class AtomicData(Mapping):
     def __hash__(self):
         return hash((type(self), self.__db))
 
-    def keys(self):
-        "return a new view of the keys"
-        try:
-            return list(self._keys)
-        except AttributeError:
-            cursor = self.__db.cursor()
-            results = cursor.execute(
-                '''select element from elements order by atomic_number'''
-                )
-            self._keys = tuple(i[0] for i in results)
-            return list(self._keys)
+    @Mapping._keys.getter
+    @memoize
+    def _keys(self):
+        cursor = self.__db.cursor()
+        res = cursor.execute(
+            '''select element from elements order by atomic_number'''
+            )
+        return tuple(i[0] for i in res)
