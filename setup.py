@@ -47,9 +47,18 @@ class data(Command):
             'praxes/physref/elam/elam.db'
             )
 
+    def process_waasmaier(self):
+        return (
+            sys.executable,
+            'praxes/physref/waasmaier/create_db',
+            'praxes/physref/waasmaier/waasmaier_kirfel.dat',
+            'praxes/physref/waasmaier/waasmaier_kirfel.db'
+            )
+
     def run(self):
         to_process = [
             self.process_elam(),
+            self.process_waasmaier(),
             ]
 
         if sys.platform.startswith('win'):

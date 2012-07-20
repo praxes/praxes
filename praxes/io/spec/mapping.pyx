@@ -1,4 +1,4 @@
-import abc
+import collections
 
 
 cdef class Mapping:
@@ -35,4 +35,4 @@ cdef class Mapping:
         return self._index.values()
 
 
-abc.Mapping.register(Mapping)
+collections.Mapping.register(Mapping)
