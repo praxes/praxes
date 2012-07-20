@@ -51,8 +51,10 @@ def create_database(source, dest, overwrite=False, silent=False):
                 data = [i for i in line.split()]
                 for i in data:
                     if len(i) > d_len:
+                        # badly formatted source file
                         print ion, i
                         raise RuntimeError
+                data = [float(i) for i in data]
                 offset = data[5]
                 scale = json.dumps(data[:5])
                 exponent = json.dumps(data[6:])
