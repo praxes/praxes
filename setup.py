@@ -6,6 +6,7 @@ from distutils.command.sdist import sdist as _sdist
 from distutils.command.build import build as _build
 from distutils.command.bdist_wininst import bdist_wininst as _bdist_wininst
 from distutils.extension import Extension
+from glob import glob
 import multiprocessing
 import os
 import subprocess
@@ -195,9 +196,11 @@ package_data = {
         'fluorescence/ui/icons/*.svg',
         'instrumentation/spec/macros/*.mac',
         'instrumentation/spec/ui/icons/*.svg',
-        'physref/*.db',
         ],
     }
+package_data['praxes'].extend(
+    [i.split('/',1)[-1] for i in glob('praxes/physref/*/*.db')]
+    )
 
 scripts = [
     'scripts/combi',
