@@ -2,7 +2,7 @@ import textwrap
 
 import quantities as pq
 
-from .base import memoize
+from praxes.lib.decorators import memoize
 
 
 class Transition(object):

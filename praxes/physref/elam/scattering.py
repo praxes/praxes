@@ -2,7 +2,7 @@ import json
 
 import numpy as np
 
-from .base import memoize
+from praxes.lib.decorators import memoize
 from .spline import SplineInterpolable
 
 

@@ -13,3 +13,4 @@ MANIFEST
 *_rc.py
 ui_*.py
 *.patch
+*~

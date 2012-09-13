@@ -2,7 +2,8 @@ import textwrap
 
 import quantities as pq
 
-from .base import Mapping, memoize
+from praxes.lib.decorators import memoize
+from praxes.physref.lib.mapping import Mapping
 
 
 class Element(Mapping):
@@ -44,6 +45,17 @@ class Element(Mapping):
         from .scattering import IncoherentScattering
         return IncoherentScattering(self._symbol, self.__db)
 
+    @Mapping._keys.getter
+    @memoize
+    def _keys(self):
+        cursor = self.__db.cursor()
+        res = cursor.execute(
+            '''select iupac_symbol from xray_levels where element=?
+            order by absorption_edge desc''',
+            (self._symbol,)
+            )
+        return tuple(i[0] for i in res)
+
     @property
     @memoize
     def mass_density(self):
@@ -77,27 +89,13 @@ class Element(Mapping):
         self._symbol = symbol
 
     def __getitem__(self, item):
-        if not item in self.keys():
+        if not item in self:
             raise KeyError('x-ray level "%s" not recognized' % item)
         from .xraylevel import XrayLevel
         return XrayLevel(self._symbol, item, self.__db)
 
     def __hash__(self):
         return hash((type(self), self._symbol))
-
-    def keys(self):
-        "return a new view of the keys for the reported x-ray levels"
-        try:
-            return list(self._keys)
-        except AttributeError:
-            cursor = self.__db.cursor()
-            results = cursor.execute(
-                '''select iupac_symbol from xray_levels where element=?
-                order by absorption_edge desc''',
-                (self._symbol,)
-                )
-            self._keys = tuple(i[0] for i in results)
-            return list(self._keys)
 
     @memoize
     def __repr__(self):
