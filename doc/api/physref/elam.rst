@@ -5,8 +5,8 @@ The :mod:`elam` module provides an interface to the Elam x-ray database.
 Elements are accessed using :attr:`atomic_data`, which provides a mapping to
 the element data::
 
-   >>> from praxes.physref.elam import atomic_data
-   >>> copper = atomic_data['Cu']
+   >>> from praxes.physref import elam
+   >>> copper = elam.atomic_data['Cu']
    >>> print(copper.atomic_number)
    29
 
@@ -25,6 +25,11 @@ state::
    ['L1', 'L2', 'L3', 'M2', 'M3', 'M4,5']
    >>> print(copper['K']['L3'].iupac_symbol)
    'K-L3'
+
+There is also a set of top-level functions in the :mod:`elam` module for
+calculating some simple properties of compositions, including conversions
+between stoichiometry and mass fractions, photoabsorption cross section,
+transmission and attenuation.
 
 Note, in multithreading environments, there are issues sharing sqlite data
 between threads. As a result, objects arising from a given instance of
@@ -53,3 +58,17 @@ Module Interface
 .. autoclass:: praxes.physref.elam.transition.Transition
    :members:
    :inherited-members:
+
+
+Composition Functions
++++++++++++++++++++++
+
+.. autofunction:: praxes.physref.elam.mass_fraction_to_stoichiometry
+
+.. autofunction:: praxes.physref.elam.stoichiometry_to_mass_fraction
+
+.. autofunction:: praxes.physref.elam.photoabsorption_cross_section
+
+.. autofunction:: praxes.physref.elam.transmission_coefficient
+
+.. autofunction:: praxes.physref.elam.absorption_coefficient

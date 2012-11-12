@@ -11,44 +11,37 @@ import copy
 import numpy as np
 import quantities as pq
 
-from ..stoichiometry import parse
+from .. import composition as _comp
 
 from .atomicdata import AtomicData
 atomic_data = AtomicData()
 
 
-def _dict_to_comp(d):
-    res = ''
-    for k, v in d.items():
-        res += k + str(v)
-    return res
-
 def mass_fraction_to_stoichiometry(mass_fraction):
-    temp = parse(mass_fraction)
+    "Given a string representing mass fractions, return the stoichiometry"
+    temp = _comp.load(mass_fraction)
     for k in temp:
         temp[k] /= atomic_data[k].molar_mass.magnitude
     denom = min(temp.values())
     for k in temp:
         temp[k] /= denom
-    return _dict_to_comp(temp)
+    return str(temp)
 
-#print mass_fraction_to_stoichiometry("C80.1H19.9")
 
 def stoichiometry_to_mass_fraction(stoichiometry):
-    temp = parse(stoichiometry)
+    "Given a string representing stoichiometry, return the mass fractions"
+    temp = _comp.load(stoichiometry)
     molar_mass = 0
     for k, v in temp.items():
         temp[k] = atomic_data[k].molar_mass.magnitude * v
         molar_mass += temp[k]
     for k in temp:
         temp[k] /= molar_mass
-    return _dict_to_comp(temp)
-
-#print stoichiometry_to_mass_fraction("CH2.96")
+    return str(temp)
 
 
 def estimate_mass_density(stoichiometry):
-    temp = parse(stoichiometry)
+    temp = _comp.load(stoichiometry)
     denom = sum(temp.values())
     density = 0 * pq.g/pq.cm**3
     for k, v in temp.items():
@@ -59,18 +52,46 @@ def estimate_mass_density(stoichiometry):
 def photoabsorption_cross_section(
         composition, energy, by_mass=True, mass_density=None
     ):
+    """Given a string representing a composition, calculate the
+    energy-dependent photoabsorption cross section
+    """
     if by_mass:
-        mass_fraction = parse(composition)
-        stoichiometry = parse(mass_fraction_to_stoichiometry(composition))
+        mass_fraction = _comp.load(composition)
+        stoichiometry = _comp.load(
+            mass_fraction_to_stoichiometry(composition)
+            )
     if not by_mass:
-        stoichiometry = parse(composition)
-        mass_fraction = parse(stoichiometry_to_mass_fraction(composition))
+        stoichiometry = _comp.load(composition)
+        mass_fraction = _comp.load(
+            stoichiometry_to_mass_fraction(composition)
+            )
 
     if mass_density is None:
-        mass_density = estimate_mass_density(_dict_to_comp(stoichiometry))
+        mass_density = estimate_mass_density(str(stoichiometry))
 
-    res = np.zeros(len(energy), 'd') * pq.cm**2/pq.g
+    try:
+        res = np.zeros(len(energy), 'd') * pq.cm**2/pq.g
+    except TypeError:
+        res = [0] * pq.cm**2/pq.g
     denom = sum(mass_fraction.values())
     for k,v in mass_fraction.items():
         res += v/denom * atomic_data[k].photoabsorption_cross_section(energy)
     return res * mass_density
+
+
+def transmission_coefficient(
+        composition, energy, thickness, by_mass=True, mass_density=None
+    ):
+    pac = photoabsorption_cross_section(
+        composition, energy, by_mass=by_mass, mass_density=mass_density
+        )
+    return np.exp(-pac*thickness.rescale('cm'))
+
+
+def absorption_coefficient(
+        composition, energy, thickness, by_mass=True, mass_density=None
+    ):
+    return 1 - transmission_coefficient(
+        composition, energy, thickness, by_mass=by_mass,
+        mass_density=mass_density
+        )
