@@ -58,7 +58,7 @@ setup(name='_tifffile', ext_modules=[Extension('_tifffile', ['tifffile.c'],
 
 ******************************************************************************/
 
-#define _VERSION_ "2012.02.08"
+#define _VERSION_ "2012.08.03"
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -570,7 +570,8 @@ py_decodelzw(PyObject *obj, PyObject *args)
     unsigned int result_len = 0;
     unsigned int table_len = 0;
     unsigned int len;
-    unsigned int code, c, oldcode, mask, bitw, shr, bitcount;
+    unsigned int code, c, oldcode, mask, shr;
+    uint64_t bitcount, bitw;
     char *encoded = NULL;
     char *result_ptr = NULL;
     char *table2 = NULL;
@@ -592,7 +593,12 @@ py_decodelzw(PyObject *obj, PyObject *args)
     Py_INCREF(byteobj);
     encoded = PyBytes_AS_STRING(byteobj);
     encoded_len = (unsigned int)PyBytes_GET_SIZE(byteobj);
-
+    /*
+    if (encoded_len >= 512 * 1024 * 1024) {
+        PyErr_Format(PyExc_ValueError, "encoded data > 512 MB not supported");
+        goto _fail;
+    }
+    */
     /* release GIL: byte/string objects are immutable */
     _save = PyEval_SaveThread();
 
@@ -640,12 +646,12 @@ py_decodelzw(PyObject *obj, PyObject *args)
     code = 0;
     oldcode = 0;
 
-    while ((unsigned int)((bitcount + bitw) >> 3) <= encoded_len) {
+    while ((unsigned int)((bitcount + bitw) / 8) <= encoded_len) {
         /* read next code */
         code = *((unsigned int *)((void *)(encoded + (bitcount / 8))));
         if (little_endian)
             code = SWAP4BYTES(code);
-        code <<= bitcount % 8;
+        code <<= (unsigned int)(bitcount % 8);
         code &= mask;
         code >>= shr;
         bitcount += bitw;
@@ -770,8 +776,8 @@ py_decodelzw(PyObject *obj, PyObject *args)
     PyEval_RestoreThread(_save);
 
     if (code != 257) {
-        PyErr_Format(PyExc_TypeError, "unexpected end of stream");
-        goto _fail;
+        PyErr_WarnEx(NULL, 
+            "py_decodelzw encountered unexpected end of stream", 1);
     }
 
     /* result = ''.join(decoded) */
@@ -952,4 +958,3 @@ init_tifffile(void)
     return module;
 #endif
 }
-
