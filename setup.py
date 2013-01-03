@@ -177,6 +177,7 @@ for dirpath, dirnames, filenames in os.walk('praxes'):
     else:
         del(dirnames[:])
 
+
 with open('praxes/version.py') as f:
     for line in f:
         if line[:11] == '__version__':
@@ -194,7 +195,7 @@ ext_modules = [
     Extension('praxes.io.spec.scan', ['praxes/io/spec/scan.pyx']),
     Extension('praxes.rlock', ['praxes/rlock.pyx']),
     Extension(
-        'praxes.io._tifffile',
+        '_tifffile',
         ['praxes/io/tifffile.c'],
         include_dirs=[numpy.get_include()]
         )
