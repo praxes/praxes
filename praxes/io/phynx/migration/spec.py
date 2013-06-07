@@ -60,6 +60,21 @@ def _mesh(scan_info, *args):
 get_scan_metadata['mesh'] = _mesh
 get_scan_metadata['zzmesh'] = _mesh
 
+def _gmesh(scan_info, *args):
+    i = 0
+    while len(args) > 5:
+        (axis, start, stop, distance, step), args = args[:5], args[5:]
+        start, stop, distance, step = float(start), float(stop), float(distance), int(step)+1
+        i += 1
+        scan_info['axes'].append((axis, ))
+        axis_info = {}
+        axis_info['range'] = str((start, stop))
+        axis_info['axis'] = i
+        scan_info['axis_info'][axis] = axis_info
+        scan_info['scan_shape'].append(step)
+    return scan_info
+get_scan_metadata['gmesh'] = _gmesh
+
 def _smesh(scan_info, *args):
     # Example: smesh  scany 32.3 32.7 -0.05 0.15 100  scanx -143.5 -123.5 40  1
     #                       ^^^^ ^^^^ <- These are upper and lower limits and
@@ -375,7 +390,10 @@ def convert_scan(scan, h5file, spec_filename, report=False):
             ):
             from praxes.io.tifffile import TIFFfile
             f = os.path.join(dir, f)
-            d = TIFFfile(f).asarray()
+            try:
+                d = TIFFfile(f).asarray()
+            except ValueError:
+                continue
             r, c = d.shape
             if 'area_detector' not in measurement:
                 measurement.create_group('area_detector', type='AreaDetector')
