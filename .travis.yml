@@ -1,0 +1,15 @@
+language: python
+python:
+  - 2.7
+before_install:
+  - sudo rmdir /dev/shm; sudo ln -Tsf /{run,dev}/shm
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libhdf5-serial-dev
+  - pip install cython h5py numpy quantities
+install:
+  - python setup.py build_ext --inplace
+  - python setup.py build
+script:
+  - python setup.py test
+notifications:
+  email: false
