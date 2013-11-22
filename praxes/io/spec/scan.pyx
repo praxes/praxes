@@ -1,7 +1,13 @@
 cdef extern from 'ctype.h':
     int isdigit(char)
 
-from collections import OrderedDict
+try:
+    # >=python-2.7
+    from collections import OrderedDict
+except:
+    # backport for <python-2/7
+    from ordereddict import OrderedDict
+
 import io
 
 import numpy as np
