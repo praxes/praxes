@@ -8,6 +8,9 @@
 
 from .version import __version__
 
+import matplotlib
+matplotlib.rcParams['backend.qt4'] = 'PyQt4'
+
 # One of DEBUG, INFO, WARNING, ERROR, CRITICAL:
 #logLevel = DEBUG
 #
