@@ -1,4 +1,10 @@
-from collections import OrderedDict
+try:
+    # >=python-2.7
+    from collections import OrderedDict
+except:
+    # backport for <python-2/7
+    from ordereddict import OrderedDict
+
 from copy import deepcopy
 import io
 import os
