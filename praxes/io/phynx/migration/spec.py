@@ -270,7 +270,7 @@ def convert_scan(scan, h5file, spec_filename, report=False):
     # We need to update time metadata if it was a chess_escan:
     if scan_info['scan_type'] == 'chess_escan':
         scan_info['scan_shape'] = np.array([len(scan.values()[0])])
-        e = scan['energy'][:]
+        e = scan['Energy'][:]
         scan_info['axis_info']['energy']['range'] = str((e.min(), e.max()))
 
     attrs = {}

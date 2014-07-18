@@ -381,7 +381,7 @@ class XRFanalyzer():
         tconf = mfTool.configure()
 
         advancedFit.config['fit']['use_limit'] = 1
-        advancedFit.setdata(y=spectrum)
+        advancedFit.setData(y=spectrum)
         advancedFit.estimate()
 
         fitresult, tmpresult = advancedFit.startfit(digest=1)
