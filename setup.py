@@ -203,9 +203,9 @@ ext_modules = [
 
 package_data = {
     'praxes': [
-        'fluorescence/ui/icons/*.svg',
+        'fluorescence/ui/icons/*.*',
         'instrumentation/spec/macros/*.mac',
-        'instrumentation/spec/ui/icons/*.svg',
+        'instrumentation/spec/ui/icons/*.*',
         ],
     }
 package_data['praxes'].extend(

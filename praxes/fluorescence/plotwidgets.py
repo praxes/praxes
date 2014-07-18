@@ -44,25 +44,25 @@ class Toolbar(MplToolbar):
     def _init_toolbar(self):
         self.basedir = os.path.join(mpl.rcParams[ 'datapath' ],'images')
 
-        a = self.addAction(self._icon('home.svg'), 'Home', self.home)
+        a = self.addAction(self._icon('home'), 'Home', self.home)
         a.setToolTip('Reset original view')
-        a = self.addAction(self._icon('back.svg'), 'Back', self.back)
+        a = self.addAction(self._icon('back'), 'Back', self.back)
         a.setToolTip('Back to previous view')
-        a = self.addAction(self._icon('forward.svg'), 'Forward', self.forward)
+        a = self.addAction(self._icon('forward'), 'Forward', self.forward)
         a.setToolTip('Forward to next view')
         self.addSeparator()
-        a = self.addAction(self._icon('move.svg'), 'Pan', self.pan)
+        a = self.addAction(self._icon('move'), 'Pan', self.pan)
         a.setToolTip('Pan axes with left mouse, zoom with right')
-        a = self.addAction(self._icon('zoom_to_rect.svg'), 'Zoom', self.zoom)
+        a = self.addAction(self._icon('zoom_to_rect'), 'Zoom', self.zoom)
         a.setToolTip('Zoom to rectangle')
-        a = self.addAction(QtGui.QIcon(':/crosshairs.svg'), 'Select',
+        a = self.addAction(QtGui.QIcon(':/crosshairs.png'), 'Select',
                            self.selectPointMode)
         a.setToolTip('Select the nearest data point')
         self.addSeparator()
-        a = self.addAction(self._icon('subplots.png'), 'Subplots',
+        a = self.addAction(self._icon('subplots'), 'Subplots',
                 self.configure_subplots)
         a.setToolTip('Configure subplots')
-        a = self.addAction(self._icon('filesave.svg'), 'Save',
+        a = self.addAction(self._icon('filesave'), 'Save',
                 self.save_figure)
         a.setToolTip('Save the figure')
 
