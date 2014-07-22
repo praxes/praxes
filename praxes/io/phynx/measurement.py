@@ -68,7 +68,7 @@ class Measurement(Group):
         try:
             return self._pymca_config
         except AttributeError:
-            from PyMca.ConfigDict import ConfigDict
+            from PyMca5.PyMcaIO.ConfigDict import ConfigDict
             # would like to use json.loads here:
             config = simple_eval(self.attrs.get('pymca_config', '{}'))
             self._pymca_config = ConfigDict(config)
@@ -177,10 +177,10 @@ class MaskedProxy(object):
         self._measurement = measurement
 
     def __getitem__(self, args):
-        try:
+        if 'masked' in self._measurement.scalar_data:
             return self._measurement.scalar_data['masked'].__getitem__(args)
-        except KeyError:
-            if isinstance(args, int):
-                return False
-            temp = np.zeros(self._measurement.entry.npoints, '?')
-            return temp.__getitem__(args)
+
+        if isinstance(args, int):
+            return False
+        temp = np.zeros(self._measurement.entry.npoints, '?')
+        return temp.__getitem__(args)

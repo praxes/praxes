@@ -11,7 +11,7 @@ import Queue
 import sys
 
 from PyQt4 import QtCore, QtGui
-from PyMca.FitParam import FitParamDialog
+from PyMca5.PyMcaGui.physics.xrf.FitParam import FitParamDialog
 import numpy as np
 
 from praxes.frontend.analysiswindow import AnalysisWindow
@@ -148,7 +148,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
 
     def _setupMcaDockWindows(self):
         from .mcaspectrum import McaSpectrum
-        from PyMca.ConcentrationsWidget import Concentrations
+        from PyMca5.PyMcaGui.physics.xrf.ConcentrationsWidget import Concentrations
 
         self.concentrationsAnalysisDock = \
             self._createDockWindow('ConcentrationAnalysisDock')

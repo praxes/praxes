@@ -5,7 +5,7 @@ import time
 import h5py
 import matplotlib
 import numpy
-import PyMca.Elements as PyMEl
+from PyMca5.PyMcaPhysics.xrf import Elements as PyMEl
 # TODO: whats this doing here?:
 import pylab
 

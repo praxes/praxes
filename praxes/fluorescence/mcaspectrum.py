@@ -9,7 +9,7 @@ import copy
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg\
     as MplToolbar
 import numpy as np
-from PyMca.ClassMcaTheory import McaTheory
+from PyMca5.PyMcaPhysics.xrf.ClassMcaTheory import McaTheory
 from PyQt4 import QtCore, QtGui
 
 from .plotwidgets import QtMplCanvas
@@ -211,7 +211,7 @@ class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
             self.fitData[label] = dict[label] * 1.0
 
     def setData(self, *args, **kwargs):
-        self.mcafit.setdata(*args, **kwargs)
+        self.mcafit.setData(*args, **kwargs)
 
     def updateFigure(self):
         self.figure.updateFigure(self.fitData)

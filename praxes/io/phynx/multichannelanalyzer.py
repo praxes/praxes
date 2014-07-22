@@ -55,7 +55,7 @@ class MultiChannelAnalyzer(Detector):
         except AttributeError:
             config = self.attrs.get('pymca_config', None)
             if config is not None:
-                from PyMca.ConfigDict import ConfigDict
+                from PyMca5.PyMcaIO.ConfigDict import ConfigDict
                 # would like to use json.loads here:
                 self._pymca_config = ConfigDict(simple_eval(config))
                 return self._pymca_config

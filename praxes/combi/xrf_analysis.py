@@ -2,10 +2,10 @@ import copy
 import operator
 
 import numpy
-from PyMca import ConfigDict
-from PyMca import ClassMcaTheory
-from PyMca.ConcentrationsTool import ConcentrationsTool
-import PyMca.Elements as PyMEl
+from PyMca5.PyMcaIO import ConfigDict
+from PyMca5.PyMcaPhysics.xrf import ClassMcaTheory
+from PyMca5.PyMcaPhysics.xrf.ConcentrationsTool import ConcentrationsTool
+from PyMca5.PyMcaPhysics.xrf import Elements as PyMEl
 
 from XRDdefaults import *
 

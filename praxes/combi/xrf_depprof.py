@@ -2,7 +2,7 @@ import operator
 
 #import Elemental
 import numpy
-import PyMca.Elements as PyMEl
+from PyMca5.PyMcaPhysics.xrf import Elements as PyMEl
 
 from .xrd_math_fcns import *
 from .XRDdefaults import *

@@ -9,8 +9,8 @@ import sys
 import time
 
 import numpy as np
-from PyMca import ClassMcaTheory
-from PyMca.ConcentrationsTool import ConcentrationsTool
+from PyMca5.PyMcaPhysics import ClassMcaTheory
+from PyMca5.PyMcaPhysics.xrf.ConcentrationsTool import ConcentrationsTool
 import numpy as np
 np.seterr(all='ignore')
 
@@ -23,7 +23,7 @@ DEBUG = False
 
 def init(config):
     global advanced_fit, mass_fraction_tool
-    from PyMca.ClassMcaTheory import McaTheory
+    from PyMca5.PyMcaPhysics.xrf.ClassMcaTheory import McaTheory
     config['fit']['use_limit'] = 1
     advanced_fit = McaTheory(config=config)
     advanced_fit.enableOptimizedLinearFit()
@@ -36,7 +36,7 @@ def init(config):
 
 def analyze_spectrum(index, spectrum, monitor):
     start = time.time()
-    advanced_fit.setdata(y=spectrum)
+    advanced_fit.setData(y=spectrum)
     advanced_fit.estimate()
     estimate = time.time()
     if (mass_fraction_tool is not None) and (advanced_fit._fluoRates is None):
