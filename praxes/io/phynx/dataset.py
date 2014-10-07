@@ -66,6 +66,9 @@ class Dataset(Node):
 #                val = str(val)
 #            self.attrs[key] = val
 
+    def __iter__(self):
+        return self._h5node.__iter__()
+
     def __getitem__(self, args):
         return self._h5node.__getitem__(args)
 
