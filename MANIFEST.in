@@ -1,1 +1,4 @@
-recursive-include praxes *.pyx *.px[di] *.h *.c
+#recursive-include praxes *.pyx *.px[di] *.h *.c
+include versioneer.py
+include README.md
+include praxes/_version.py

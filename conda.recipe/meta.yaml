@@ -1,13 +1,20 @@
 package:
   name: praxes
-  version: master
+  version: {{ environ.get('GIT_DESCRIBE_TAG', '')[1:] }}
 
 source:
-  git_url: https://github.com/praxes/praxes.git
-  git_tag: master
+  git_url: ../
 
 build:
-  number: 0
+  number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0) }}
+  detect_binary_files_with_prefix: true
+  osx_is_app: yes
+#  entry_points:
+#    - sxfm = praxes.cli.sxfm:main
+#
+#app:
+#  entry: sxfm
+#  summary: Scanning x-ray fluorescence microscopy analysis
 
 requirements:
   build:
@@ -32,4 +39,3 @@ about:
   license: BSD
   home: http://pythonhosted.org/praxes/
   summary: Resources for synchrotron data analysis
-

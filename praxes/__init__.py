@@ -6,8 +6,6 @@
 #
 #from .config import get_user_config_dir
 
-from .version import __version__
-
 import matplotlib
 matplotlib.rcParams['backend.qt4'] = 'PyQt4'
 
@@ -36,3 +34,7 @@ matplotlib.rcParams['backend.qt4'] = 'PyQt4'
 #logger.addHandler(handler)
 #
 #logger.info("Initial praxes import")
+
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions

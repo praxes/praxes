@@ -1,11 +1,5 @@
 from __future__ import print_function
 
-from distutils.core import setup
-from distutils.cmd import Command
-from distutils.command.sdist import sdist as _sdist
-from distutils.command.build import build as _build
-from distutils.command.bdist_wininst import bdist_wininst as _bdist_wininst
-from distutils.extension import Extension
 from glob import glob
 import multiprocessing
 import os
@@ -14,6 +8,20 @@ import sys
 
 from Cython.Distutils import build_ext
 import numpy
+from setuptools import Command, Extension, find_packages, setup
+from setuptools.command.bdist_wininst import bdist_wininst as _bdist_wininst
+
+import versioneer
+versioneer.VCS = 'git'
+versioneer.versionfile_source = 'praxes/_version.py'
+versioneer.versionfile_build = 'praxes/_version.py'
+versioneer.tag_prefix = 'v' # tags are like 1.2.0
+versioneer.parentdir_prefix = 'praxes-' # dirname like 'myproject-1.2.0'
+cmdclass = versioneer.get_cmdclass()
+
+cmdclass['build_ext'] = build_ext
+_build = cmdclass['build']
+_sdist = cmdclass['sdist']
 
 
 def convert_data(args):
@@ -69,6 +77,8 @@ class data(Command):
             pool = multiprocessing.Pool()
             pool.map(convert_data, to_process)
 
+cmdclass['data'] = data
+
 
 class test(Command):
 
@@ -95,6 +105,8 @@ class test(Command):
             import unittest
         suite = unittest.TestLoader().discover('.')
         unittest.TextTestRunner(verbosity=self.verbosity+1).run(suite)
+
+cmdclass['test'] = test
 
 
 def convert_ui(args, **kwargs):
@@ -145,6 +157,8 @@ class ui_cvt(Command):
     Unable to install praxes' graphical user interface
             """)
 
+cmdclass['ui_cvt'] = ui_cvt
+
 
 class sdist(_sdist):
 
@@ -152,6 +166,8 @@ class sdist(_sdist):
         self.run_command('data')
         self.run_command('ui_cvt')
         _sdist.run(self)
+
+cmdclass['sdist'] = sdist
 
 
 class build(_build):
@@ -161,6 +177,8 @@ class build(_build):
         self.run_command('ui_cvt')
         _build.run(self)
 
+cmdclass['build'] = build
+
 
 class bdist_wininst(_bdist_wininst):
 
@@ -168,6 +186,8 @@ class bdist_wininst(_bdist_wininst):
         self.run_command('data')
         self.run_command('ui_cvt')
         _bdist_wininst.run(self)
+
+cmdclass['bdist_wininst'] = bdist_wininst
 
 
 packages = []
@@ -228,20 +248,12 @@ if ('bdist_wininst' in sys.argv) or ('bdist_msi' in sys.argv):
 setup(
     author = 'Darren Dale',
     author_email = 'darren.dale@cornell.edu',
-    cmdclass = {
-        'bdist_wininst': bdist_wininst,
-        'build': build,
-        'build_ext': build_ext,
-        'data': data,
-        'sdist': sdist,
-        'test': test,
-        'ui_cvt': ui_cvt,
-        },
+    cmdclass = cmdclass,
     description = 'Praxes framework for scientific analysis',
     ext_modules = ext_modules,
     name = 'praxes',
     package_data = package_data,
-    packages = packages,
+    packages = find_packages(),
     requires = (
         'python (>=2.7)',
         'cython (>=0.13)',
