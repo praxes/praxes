@@ -21,7 +21,7 @@ class JobStats(QtGui.QWidget):
 
     def __init__(self, parent=None):
         super(JobStats, self).__init__(parent)
-        uic.loadUi(resources['jobstats.ui'], self
+        uic.loadUi(resources['jobstats.ui'], self)
 
         self.numCpusSpinBox.setMaximum(multiprocessing.cpu_count())
 
