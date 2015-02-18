@@ -2,7 +2,7 @@
 *.pyc
 *.pyd
 *.db
-#ui_*.py
+ui_*.py
 praxes/*.c
 praxes/io/spec/*.c
 *.egg-info
