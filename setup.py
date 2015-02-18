@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+from distutils.command.build import build as _build
 from glob import glob
 import multiprocessing
 import os
@@ -20,7 +21,6 @@ versioneer.parentdir_prefix = 'praxes-' # dirname like 'myproject-1.2.0'
 cmdclass = versioneer.get_cmdclass()
 
 cmdclass['build_ext'] = build_ext
-_build = cmdclass['build']
 _sdist = cmdclass['sdist']
 
 
@@ -109,62 +109,10 @@ class test(Command):
 cmdclass['test'] = test
 
 
-def convert_ui(args, **kwargs):
-    subprocess.call(args, **kwargs)
-
-class ui_cvt(Command):
-
-    description = "Convert Qt user interface files to PyQt .py files"
-
-    user_options = []
-
-    boolean_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        try:
-            to_process = []
-            for root, dirs, files in os.walk('praxes'):
-                for f in files:
-                    if f.endswith('.ui'):
-                        source = os.path.join(root, f)
-                        dest = os.path.splitext(source)[0]+'.py'
-                        exe = 'pyuic4'
-                    elif f.endswith('.qrc'):
-                        source = os.path.join(root, f)
-                        dest = os.path.splitext(source)[0]+'_rc.py'
-                        exe = 'pyrcc4'
-                    else:
-                        continue
-
-                    if not os.path.exists(dest):
-                        to_process.append([exe, '-o', dest, source])
-
-            if sys.platform.startswith('win'):
-                # doing this in parallel on windows will crash your computer
-                [convert_ui(args, shell=True) for args in to_process]
-            else:
-                pool = multiprocessing.Pool()
-                pool.map(convert_ui, to_process)
-        except EnvironmentError:
-            print("""\
-    Warning: PyQt4 development utilities (pyuic4 and pyrcc4) not found
-    Unable to install praxes' graphical user interface
-            """)
-
-cmdclass['ui_cvt'] = ui_cvt
-
-
 class sdist(_sdist):
 
     def run(self):
         self.run_command('data')
-        self.run_command('ui_cvt')
         _sdist.run(self)
 
 cmdclass['sdist'] = sdist
@@ -174,7 +122,6 @@ class build(_build):
 
     def run(self):
         self.run_command('data')
-        self.run_command('ui_cvt')
         _build.run(self)
 
 cmdclass['build'] = build
@@ -184,7 +131,6 @@ class bdist_wininst(_bdist_wininst):
 
     def run(self):
         self.run_command('data')
-        self.run_command('ui_cvt')
         _bdist_wininst.run(self)
 
 cmdclass['bdist_wininst'] = bdist_wininst
@@ -197,12 +143,6 @@ for dirpath, dirnames, filenames in os.walk('praxes'):
     else:
         del(dirnames[:])
 
-
-with open('praxes/version.py') as f:
-    for line in f:
-        if line[:11] == '__version__':
-            exec(line)
-            break
 
 ext_modules = [
     Extension('praxes.io.spec.file', ['praxes/io/spec/file.pyx']),
@@ -223,25 +163,25 @@ ext_modules = [
 
 package_data = {
     'praxes': [
-        'fluorescence/ui/icons/*.*',
+        'fluorescence/ui/*.ui',
+        'fluorescence/ui/*.png',
         'instrumentation/spec/macros/*.mac',
         'instrumentation/spec/ui/icons/*.*',
+        'instrumentation/spec/ui/*.ui',
         ],
     }
 package_data['praxes'].extend(
     [i.split('/',1)[-1] for i in glob('praxes/physref/*/*.db')]
     )
 
-scripts = [
-    'scripts/combi',
-    ]
-if sys.platform.startswith('win'):
-    # scripts calling multiprocessing must be importable
-    import shutil
-    shutil.copy('scripts/sxfm', 'scripts/sxfm.py')
-    scripts.append('scripts/sxfm.py')
-else:
-    scripts.append('scripts/sxfm')
+entry_points = {
+    'console_scripts': [
+        'praxes = praxes.cli.main:main',
+        'sxfm = praxes.fluorescence:_launch_gui'
+        ],
+    }
+
+scripts = []
 if ('bdist_wininst' in sys.argv) or ('bdist_msi' in sys.argv):
     scripts.append('scripts/praxes_win_post_install.py')
 
@@ -254,11 +194,12 @@ setup(
     name = 'praxes',
     package_data = package_data,
     packages = find_packages(),
+    entry_points = entry_points,
     requires = (
         'python (>=2.7)',
         'cython (>=0.13)',
         'numpy (>=1.5.1)',
         ),
     scripts = scripts,
-    version = __version__,
+    version=versioneer.get_version(),
 )

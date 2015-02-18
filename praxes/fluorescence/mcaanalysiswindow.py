@@ -15,7 +15,7 @@ from PyMca5.PyMcaGui.physics.xrf.FitParam import FitParamDialog
 import numpy as np
 
 from praxes.frontend.analysiswindow import AnalysisWindow
-from .ui.ui_mcaanalysiswindow import Ui_McaAnalysisWindow
+from .ui import resources
 from .elementsview import ElementsView
 from .results import XRFMapResultProxy
 from praxes.io import phynx
@@ -23,7 +23,7 @@ from praxes.io import phynx
 #logger = logging.getLogger(__file__)
 
 
-class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
+class McaAnalysisWindow(AnalysisWindow):
 
     """
     """
@@ -56,7 +56,7 @@ class McaAnalysisWindow(Ui_McaAnalysisWindow, AnalysisWindow):
             self._results = XRFMapResultProxy(self.scan_data)
 
             pymcaConfig = self.scan_data.pymca_config
-            self.setupUi(self)
+            self._setupUi(resources['mcaanalysiswindow.ui'])
 
             title = '%s: %s: %s'%(
                 posixpath.split(scan_data.file.file_name)[-1],

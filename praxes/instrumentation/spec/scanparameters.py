@@ -6,9 +6,9 @@ import exceptions
 import gc
 import os
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 
-from .ui.ui_scanparameterswidget import Ui_ScanParametersWidget
+from .ui import resources
 from .scan import QtSpecScanA
 from .scanmotorwidget import (
     AScanMotorWidget, DScanMotorWidget, MeshMotorWidget
@@ -244,7 +244,7 @@ class TSeriesParameters(ScanParameters):
     pass
 
 
-class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
+class ScanParametersWidget(QtGui.QWidget):
 
     """Dialog for setting spec scan options"""
 
@@ -270,7 +270,7 @@ class ScanParametersWidget(Ui_ScanParametersWidget, QtGui.QWidget):
 
     def __init__(self, specRunner, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.setupUi(self)
+        uic.loadUi(resources['scanparameterswidget.ui'], self)
 
         self._specRunner = specRunner
 

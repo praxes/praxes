@@ -5,23 +5,22 @@ from __future__ import absolute_import
 
 #import logging
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 
-from .ui.ui_motordialog import Ui_MotorDialog
-from .ui.ui_motorconfig import Ui_MotorConfig
+from .ui import resources
 
 
 #logger = logging.getLogger(__file__)
 
 
-class ConfigDialog(Ui_MotorDialog, QtGui.QDialog):
+class ConfigDialog(QtGui.QDialog):
 
     """
     """
 
     def __init__(self, specRunner, parent=None):
         QtGui.QDialog.__init__(self, parent)
-        self.setupUi(self)
+        uic.loadUi(resources['motordialog.ui'], self)
         self.specRunner = specRunner
         QtCore.QTimer.singleShot(0, self.specConnect)
         self.settings = QtCore.QSettings()
@@ -62,11 +61,11 @@ class ConfigDialog(Ui_MotorDialog, QtGui.QDialog):
         QtGui.QDialog.accept(self)
 
 
-class MotorTab(Ui_MotorConfig, QtGui.QWidget):
+class MotorTab(QtGui.QWidget):
     def __init__(self,motorname,parent):
         QtGui.QWidget.__init__(self, parent)
         self.settings=parent.settings
-        self.setupUi(self)
+        uic.loadUi(resources['motorconfig'], self)
         self.specRunner=parent.specRunner
         try:
             self.motor=self.specRunner.getMotor(motorname)

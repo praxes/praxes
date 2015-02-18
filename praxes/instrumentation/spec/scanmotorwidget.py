@@ -2,18 +2,18 @@
 """
 from __future__ import absolute_import
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 
-from .ui.ui_scanmotorwidget import Ui_ScanMotorWidget
+from .ui import resources
 
 
-class ScanMotorWidget(Ui_ScanMotorWidget, QtGui.QGroupBox):
+class ScanMotorWidget(QtGui.QGroupBox):
 
     motorReady = QtCore.pyqtSignal(bool)
 
     def __init__(self, specRunner, title="", motorName=None, parent=None):
         QtGui.QGroupBox.__init__(self, parent)
-        self.setupUi(self)
+        uic.loadUi(resources['scanmotorwidget.ui'], self)
 
         self._direction = title.replace(' ', '')
         self.setTitle(title)

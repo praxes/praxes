@@ -3,19 +3,19 @@
 
 from __future__ import absolute_import
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 
-from .ui.ui_motorwidget import Ui_MotorWidget
+from .ui import resources
 
 
-class MotorWidget(Ui_MotorWidget, QtGui.QWidget):
+class MotorWidget(QtGui.QWidget):
 
     nextPositionIsCurrent = QtCore.pyqtSignal(bool)
     stateChanged = QtCore.pyqtSignal(str)
 
     def __init__(self, direction, specRunner, parent):
         QtGui.QWidget.__init__(self, parent)
-        self.setupUi(self)
+        uic.loadUi(resources['motorwidget.ui'], self)
 
         self.directionLabel.setText(direction)
         self._direction = direction.replace('/', '').replace(' ', '')

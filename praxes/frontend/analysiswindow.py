@@ -7,10 +7,10 @@ from __future__ import absolute_import
 import sys
 import os
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 
 import praxes
-from .ui import ui_mainwindow
+from .ui import resources
 from .phynx import FileModel, FileView, ExportRawCSV, ExportCorrectedCSV
 from .notifications import NotificationsDialog
 
@@ -29,6 +29,9 @@ class AnalysisWindow(QtGui.QMainWindow):
 
     def _setupDockWindows(self):
         pass
+
+    def _setupUi(self, ui_file=resources['analysiswindow.ui']):
+        uic.loadUi(ui_file, self)
 
     def _restoreSettings(self):
         settings = QtCore.QSettings()

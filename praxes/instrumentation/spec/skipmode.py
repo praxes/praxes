@@ -2,18 +2,18 @@
 """
 from __future__ import absolute_import
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 
-from .ui import ui_skipmode
+from .ui import resources
 
 
-class SkipModeWidget(ui_skipmode.Ui_SkipModeWidget, QtGui.QWidget):
+class SkipModeWidget(QtGui.QWidget):
 
     """Dialog for setting spec scan options"""
 
     def __init__(self, specRunner, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.setupUi(self)
+        uic.loadUi(resources['skipmode.ui'], self)
 
         self.specRunner = specRunner
 

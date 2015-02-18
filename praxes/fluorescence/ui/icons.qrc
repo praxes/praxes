@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/" >
-        <file alias="crosshairs.png" >icons/crosshairs.png</file>
-    </qresource>
-    <qresource prefix="/gamepad" />
-    <qresource prefix="/new/prefix1" />
-</RCC>

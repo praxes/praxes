@@ -1,7 +1,8 @@
 *.so
 *.pyc
+*.pyd
 *.db
-ui_*.py*
+#ui_*.py
 praxes/*.c
 praxes/io/spec/*.c
 *.egg-info
@@ -10,7 +11,5 @@ doc/_build
 dist
 MANIFEST
 .DS_Store
-*_rc.py
-ui_*.py
 *.patch
 *~

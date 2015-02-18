@@ -4,18 +4,18 @@ from __future__ import absolute_import
 
 import sys
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 
-from .ui import ui_viewer
+from .ui import resources
 
 
-class Viewer(ui_viewer.Ui_viewer, QtGui.QWidget):
+class Viewer(QtGui.QWidget):
 
     """Establishes widget"""
 
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.setupUi(self)
+        uic.loadUi(resources['viewer.ui'], self)
         self.timer = QtCore.QTimer(self)
 
         self.urlBox.currentIndexChanged['QString'].connect(self.changeURL)

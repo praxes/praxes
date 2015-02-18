@@ -2,19 +2,19 @@
 """
 from __future__ import absolute_import
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 from matplotlib import rcParams, cm
 
-from .ui.ui_plotoptions import Ui_PlotOptions
+from .ui import resources
 
 
-class PlotOptions(Ui_PlotOptions, QtGui.QGroupBox):
+class PlotOptions(QtGui.QGroupBox):
 
     colorMapChanged = QtCore.pyqtSignal(object)
 
     def __init__(self, scan_data, figure, parent=None):
         super(PlotOptions, self).__init__(parent)
-        self.setupUi(self)
+        uic.loadUi(resources['plotoptions.ui'], self)
 
         self._figure = figure
 

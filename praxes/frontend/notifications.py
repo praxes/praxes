@@ -8,10 +8,10 @@ import sys
 import socket
 from getpass import getpass
 
-from PyQt4 import QtCore,  QtGui
+from PyQt4 import QtCore, QtGui, uic
 
 
-from .ui.ui_notificationsdialog import Ui_NotificationsDialog
+from .ui import resources
 
 
 class Mailer(QtGui.QWidget):
@@ -142,13 +142,13 @@ class Alarm(Mailer):
         return ';'.join([regualrAddresses, importantAddresses])
 
 
-class NotificationsDialog(Ui_NotificationsDialog, QtGui.QDialog):
+class NotificationsDialog(QtGui.QDialog):
 
     """Specify email settings"""
 
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self, parent)
-        self.setupUi(self)
+        uic.loadUi(resources['notificationsdialog.ui'], self)
         self.allEdit.setFocus()
         self.settings = QtCore.QSettings()
         self.getValues()

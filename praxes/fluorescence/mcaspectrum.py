@@ -10,10 +10,10 @@ from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg\
     as MplToolbar
 import numpy as np
 from PyMca5.PyMcaPhysics.xrf.ClassMcaTheory import McaTheory
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 
 from .plotwidgets import QtMplCanvas
-from .ui import ui_mcaspectrum
+from .ui import resources
 
 
 #logger = logging.getLogger(__file__)
@@ -104,14 +104,14 @@ class McaSpectrumFigure(QtMplCanvas):
         self.draw()
 
 
-class McaSpectrum(ui_mcaspectrum.Ui_McaSpectrum, QtGui.QWidget):
+class McaSpectrum(QtGui.QWidget):
 
     """
     """
 
     def __init__(self, concentrationsWidget=None, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.setupUi(self)
+        uic.loadUi(resources['mcaspectrum.ui'], self)
 
         self.concentrationsWidget = concentrationsWidget
 

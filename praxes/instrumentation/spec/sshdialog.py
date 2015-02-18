@@ -8,21 +8,21 @@ import os
 import sys
 import time
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 import pxssh
 
-from .ui import ui_sshdialog
+from .ui import resources
 
 
 #logger = logging.getLogger(__file__)
 
 
-class SshDialog(ui_sshdialog.Ui_Dialog, QtGui.QDialog):
+class SshDialog(QtGui.QDialog):
     """Establishes a SSH to start spec"""
 
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self, parent)
-        self.setupUi(self)
+        uic.loadUi(resources['sshdialog.ui'], self)
         self.userEdit.setFocus()
 #        self.log = parent.logRead
         self.SSH = None

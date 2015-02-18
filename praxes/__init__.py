@@ -38,3 +38,5 @@ matplotlib.rcParams['backend.qt4'] = 'PyQt4'
 from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
+
+doc_url = 'http://pythonhosted.org//praxes/'

@@ -9,12 +9,13 @@ build:
   number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0) }}
   detect_binary_files_with_prefix: true
   osx_is_app: yes
-#  entry_points:
-#    - sxfm = praxes.cli.sxfm:main
-#
-#app:
-#  entry: sxfm
-#  summary: Scanning x-ray fluorescence microscopy analysis
+  entry_points:
+    - praxes= praxes.cli:main
+    - sxfm = praxes.fluorescence:_launch_gui
+
+app:
+  entry: praxes sxfm
+  summary: Scanning x-ray fluorescence microscopy analysis
 
 requirements:
   build:
@@ -34,6 +35,13 @@ requirements:
 test:
   imports:
     - praxes
+  commands:
+    - praxes -V
+    - praxes -h
+    - praxes help
+    - praxes sxfm -h
+    - praxes help sxfm
+    - praxes test
 
 about:
   license: BSD

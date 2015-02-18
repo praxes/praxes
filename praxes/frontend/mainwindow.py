@@ -3,14 +3,14 @@
 
 from __future__ import absolute_import
 
-#import logging
+import logging
 import sys
 import os
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 
 import praxes
-from .ui import ui_mainwindow
+from .ui import resources
 from .phynx import FileModel, FileView, ExportRawCSV, ExportCorrectedCSV
 from praxes.io import phynx
 
@@ -18,15 +18,15 @@ from praxes.io import phynx
 #logger = logging.getLogger(__file__)
 
 
-class MainWindow(ui_mainwindow.Ui_MainWindow, QtGui.QMainWindow):
+class MainWindow(QtGui.QMainWindow):
 
     """
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, log_level=logging.CRITICAL, parent=None):
         super(MainWindow, self).__init__(parent)
 
-        self.setupUi(self)
+        uic.loadUi(resources['mainwindow.ui'], self)
 
         self.setCorner(QtCore.Qt.TopLeftCorner, QtCore.Qt.LeftDockWidgetArea)
         self.setCorner(QtCore.Qt.BottomLeftCorner, QtCore.Qt.LeftDockWidgetArea)

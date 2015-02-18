@@ -16,7 +16,7 @@ from matplotlib.figure import Figure
 from matplotlib.widgets import Cursor
 import numpy as np
 
-from .ui import icons_rc, cursors_rc
+from praxes.fluorescence.ui import resources
 
 
 #logger = logging.getLogger(__file__)
@@ -36,7 +36,7 @@ class Toolbar(MplToolbar):
 
     def __init__(self, *args, **kwargs):
         pixmap = QtGui.QPixmap()
-        pixmap.load(':/cross.png')
+        pixmap.load(resources['cross.png'])
         mplCursors.SELECT_POINT = pixmap
         super(Toolbar, self).__init__(*args, **kwargs)
 
@@ -55,7 +55,7 @@ class Toolbar(MplToolbar):
         a.setToolTip('Pan axes with left mouse, zoom with right')
         a = self.addAction(self._icon('zoom_to_rect'), 'Zoom', self.zoom)
         a.setToolTip('Zoom to rectangle')
-        a = self.addAction(QtGui.QIcon(':/crosshairs.png'), 'Select',
+        a = self.addAction(QtGui.QIcon(resources['crosshairs.png']), 'Select',
                            self.selectPointMode)
         a.setToolTip('Select the nearest data point')
         self.addSeparator()

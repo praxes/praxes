@@ -3,20 +3,20 @@
 
 from __future__ import absolute_import
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 
-from .ui.ui_gamepad import Ui_GamePad
+from .ui import resources
 from . import TEST_SPEC
 from .motorwidget import MotorWidget
 
 
-class GamePad(Ui_GamePad, QtGui.QWidget):
+class GamePad(QtGui.QWidget):
 
     """Establishes motor pad"""
 
     def __init__(self, specRunner=None, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.setupUi(self)
+        uic.loadUi(resources['gamepad.ui'], self)
 
         # TODO: isnt there a way to do a stacked layout in Designer?
         self.startStopStackedLayout = QtGui.QStackedLayout(

@@ -5,10 +5,10 @@ from __future__ import absolute_import
 import gc
 #import logging
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 from SpecClient import SpecClientError
 
-from .ui import ui_specconnect
+from .ui import resources
 from .runner import SpecRunner
 
 USESSH = False
@@ -29,7 +29,7 @@ class ConnectionAborted(Exception):
         return str
 
 
-class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
+class SpecConnect(QtGui.QDialog):
 
     """This dialog allows the user to identify the spec server and port
 
@@ -38,7 +38,7 @@ class SpecConnect(ui_specconnect.Ui_SpecConnect, QtGui.QDialog):
 
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self, parent)
-        self.setupUi(self)
+        uic.loadUi(resources['specconnect.ui'], self)
 
         self.specRunner = None
         self.ssh = None
@@ -210,4 +210,3 @@ if __name__ == "__main__":
     interface = dlg.exec_()
 #    print interface
     interface.close()
-

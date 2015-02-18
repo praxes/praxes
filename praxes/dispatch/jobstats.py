@@ -9,19 +9,19 @@ import multiprocessing
 import time
 
 import numpy as np
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 
-from .ui import ui_jobstats
 
+from .ui import resources
 
 #logger = logging.getLogger(__file__)
 
 
-class JobStats(ui_jobstats.Ui_JobStats, QtGui.QWidget):
+class JobStats(QtGui.QWidget):
 
     def __init__(self, parent=None):
         super(JobStats, self).__init__(parent)
-        self.setupUi(self)
+        uic.loadUi(resources['jobstats.ui'], self
 
         self.numCpusSpinBox.setMaximum(multiprocessing.cpu_count())
 

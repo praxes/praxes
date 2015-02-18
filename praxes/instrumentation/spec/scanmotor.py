@@ -5,15 +5,15 @@ from __future__ import absolute_import
 
 #import logging
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 
-from .ui.ui_scanmotor import Ui_ScanMotor
+from .ui import resources
 
 
 #logger = logging.getLogger(__file__)
 
 
-class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
+class ScanMotor(QtGui.QWidget):
 
     """Establishes a Experiment controls    """
 
@@ -22,7 +22,7 @@ class ScanMotor(Ui_ScanMotor, QtGui.QWidget):
 
     def __init__(self, parent, motor):
         QtGui.QWidget.__init__(self, parent)
-        self.setupUi(self)
+        uic.loadUi(resources['scanmotor.ui'], self)
 
         self.setParent(parent)
         self.specRunner = parent.specRunner
