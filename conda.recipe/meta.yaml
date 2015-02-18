@@ -10,7 +10,7 @@ build:
   detect_binary_files_with_prefix: true
   osx_is_app: yes
   entry_points:
-    - praxes= praxes.cli:main
+    - praxes = praxes.cli:main
     - sxfm = praxes.fluorescence:_launch_gui
 
 app:
@@ -41,7 +41,7 @@ test:
     - praxes help
     - praxes sxfm -h
     - praxes help sxfm
-    - praxes test
+    - praxes test -h
 
 about:
   license: BSD
