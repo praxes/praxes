@@ -163,11 +163,14 @@ ext_modules = [
 
 package_data = {
     'praxes': [
+        'dispatch/ui/*.ui',
         'fluorescence/ui/*.ui',
         'fluorescence/ui/*.png',
+        'frontend/ui/*.ui',
         'instrumentation/spec/macros/*.mac',
         'instrumentation/spec/ui/icons/*.*',
         'instrumentation/spec/ui/*.ui',
+        'instrumentation/spec/ui/*.qrc',
         ],
     }
 package_data['praxes'].extend(

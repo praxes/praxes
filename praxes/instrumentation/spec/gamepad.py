@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from PyQt4 import QtCore, QtGui, uic
 
-from .ui import resources
+from .ui import resources, icons_rc
 from . import TEST_SPEC
 from .motorwidget import MotorWidget
 
