@@ -25,6 +25,7 @@ requirements:
     - pyqt
   run:
     - python
+    - python.app # [osx]
     - numpy
     - pyqt
     - pymca
