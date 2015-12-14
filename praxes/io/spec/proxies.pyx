@@ -29,6 +29,9 @@ class DataProxyIterator(object):
         self.__index = index
         self.__next = 0
 
+    def __iter__(self):
+        return self
+
     def __next__(self):
         i = self.__next
         if i >= len(self.__index):
