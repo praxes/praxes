@@ -13,11 +13,8 @@ from setuptools import Command, Extension, find_packages, setup
 from setuptools.command.bdist_wininst import bdist_wininst as _bdist_wininst
 
 import versioneer
-versioneer.VCS = 'git'
-versioneer.versionfile_source = 'praxes/_version.py'
-versioneer.versionfile_build = 'praxes/_version.py'
-versioneer.tag_prefix = 'v' # tags are like 1.2.0
-versioneer.parentdir_prefix = 'praxes-' # dirname like 'myproject-1.2.0'
+
+
 cmdclass = versioneer.get_cmdclass()
 
 cmdclass['build_ext'] = build_ext
