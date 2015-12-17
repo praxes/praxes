@@ -2,6 +2,12 @@
 Praxes Documentation
 ####################
 
+.. only:: html
+
+    :Release: |version|
+    :Date: |today|
+
+
 .. toctree::
    :maxdepth: 1
 
